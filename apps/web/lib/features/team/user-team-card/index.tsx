@@ -167,7 +167,7 @@ export function UserTeamCard({
 
 					{/* Show user name, email and image */}
 					<div className="relative">
-						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+						<UserInfo memberInfo={memberInfo} className=" w-72" publicTeam={publicTeam} />
 						{!publicTeam && (
 							<div
 								onClick={() => {
@@ -234,7 +234,7 @@ export function UserTeamCard({
 						memberInfo={memberInfo}
 						edition={taskEdition}
 						activeAuthTask={true}
-						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+						className="2xl:w-52 3xl:w-64"
 					/>
 
 					<VerticalSeparator />

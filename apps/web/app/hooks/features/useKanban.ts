@@ -1,12 +1,13 @@
 import { kanbanBoardState } from '@app/stores/kanban';
 import { useTaskStatus } from './useTaskStatus';
 import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
 import { IKanban } from '@app/interfaces/IKanban';
 import { TStatusItem } from 'lib/features';
 import { useSearchParams } from 'next/navigation';
+
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchTasks, setSearchTasks] = useState('');
@@ -24,39 +25,72 @@ export function useKanban() {
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
 	const employee = useSearchParams().get('employee');
+
+	// Memoized filter functions for better performance
+	const filterBySearch = useCallback((task: ITeamTask) => {
+		return task.title.toLowerCase().includes(searchTasks.toLowerCase());
+	}, [searchTasks]);
+
+	const filterByPriority = useCallback((task: ITeamTask) => {
+		return priority.length ? priority.includes(task.priority) : true;
+	}, [priority]);
+
+	const filterByIssue = useCallback((task: ITeamTask) => {
+		return issues.value ? task.issueType === issues.value : true;
+	}, [issues.value]);
+
+	const filterBySize = useCallback((task: ITeamTask) => {
+		return sizes.length ? sizes.includes(task.size) : true;
+	}, [sizes]);
+
+	const filterByLabels = useCallback((task: ITeamTask) => {
+		return labels.length ? labels.some((label) => task.tags.some((tag) => tag.name === label)) : true;
+	}, [labels]);
+
+	const filterByEpics = useCallback((task: ITeamTask) => {
+		return epics.length ? epics.includes(task.id) : true;
+	}, [epics]);
+
+	const filterByEmployee = useCallback((task: ITeamTask) => {
+		if (employee) {
+			return task.members.map((el) => el.fullName).includes(employee as string);
+		}
+		return true;
+	}, [employee]);
+
+	// Memoized filtered tasks to prevent unnecessary recalculations
+	const filteredTasks = useMemo(() => {
+		if (taskStatusHook.getTaskStatusesLoading || tasksFetching) {
+			return [];
+		}
+
+		return newTask
+			.filter(filterBySearch)
+			.filter(filterByPriority)
+			.filter(filterByIssue)
+			.filter(filterBySize)
+			.filter(filterByLabels)
+			.filter(filterByEpics)
+			.filter(filterByEmployee);
+	}, [
+		newTask,
+		filterBySearch,
+		filterByPriority,
+		filterByIssue,
+		filterBySize,
+		filterByLabels,
+		filterByEpics,
+		filterByEmployee,
+		taskStatusHook.getTaskStatusesLoading,
+		tasksFetching
+	]);
+
 	useEffect(() => {
 		if (!taskStatusHook.getTaskStatusesLoading && !tasksFetching) {
-			let kanban = {};
 			setLoading(true);
-			const tasks = newTask
-				.filter((task: ITeamTask) => {
-					return task.title.toLowerCase().includes(searchTasks.toLowerCase());
-				})
-				.filter((task: ITeamTask) => {
-					return priority.length ? priority.includes(task.priority) : true;
-				})
-				.filter((task: ITeamTask) => {
-					return issues.value ? task.issueType === issues.value : true;
-				})
-				.filter((task: ITeamTask) => {
-					return sizes.length ? sizes.includes(task.size) : true;
-				})
-				.filter((task: ITeamTask) => {
-					return labels.length ? labels.some((label) => task.tags.some((tag) => tag.name === label)) : true;
-				})
-				.filter((task: ITeamTask) => {
-					return epics.length ? epics.includes(task.id) : true;
-				})
-				.filter((task: ITeamTask) => {
-					if (employee) {
-						return task.members.map((el) => el.fullName).includes(employee as string);
-					} else {
-						return task;
-					}
-				});
-
+			let kanban = {};
 			const getTasksByStatus = (status: string | undefined) => {
-				return tasks.filter((task: ITeamTask) => {
+				return filteredTasks.filter((task: ITeamTask) => {
 					return task.taskStatusId === status;
 				});
 			};
@@ -74,14 +108,8 @@ export function useKanban() {
 	}, [
 		taskStatusHook.getTaskStatusesLoading,
 		tasksFetching,
-		newTask,
-		searchTasks,
-		priority,
-		sizes,
-		labels,
-		epics,
-		issues,
-		employee
+		filteredTasks,
+		taskStatusHook.taskStatuses
 	]);
 
 	/**

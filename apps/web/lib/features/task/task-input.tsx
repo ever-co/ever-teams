@@ -569,7 +569,7 @@ function TaskCard({
 
 									<TaskLabels
 										className="lg:min-w-[170px] text-xs z-[9999]"
-										forDetails={false}
+										forDetails={true}
 										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
 											taskLabelsData.filter((tag) =>

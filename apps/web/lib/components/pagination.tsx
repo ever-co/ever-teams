@@ -81,7 +81,7 @@ export function Paginate({
 			<div className="flex items-center relative gap-x-5">
 				<PaginationDropdown setValue={setItemsPerPage} />
 				<span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-					{`Showing ${itemOffset + 1} to ${endOffset} of ${total} entries`}
+					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
 				</span>
 			</div>
 		</div>

@@ -32,12 +32,7 @@ interface DataTableProps<TData, TValue> {
 	isScrollable?: boolean;
 }
 
-function DataTable<TData, TValue>({
-	columns,
-	data,
-	footerRows,
-	isHeader,
-}: Readonly<DataTableProps<TData, TValue>>) {
+function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Readonly<DataTableProps<TData, TValue>>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -145,7 +140,7 @@ function DataTable<TData, TValue>({
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								ß No results.
+								No results.
 							</TableCell>
 						</TableRow>
 					)}

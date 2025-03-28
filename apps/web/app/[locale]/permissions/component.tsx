@@ -8,44 +8,63 @@ import NotFound from '@components/pages/404';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from 'lib/components';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
-
+import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Permissions = () => {
+	// Translations
 	const t = useTranslations();
-	const { activeTeamManagers } = useOrganizationTeams();
-	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 
-	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
+	// Global state
+	const user = useAtomValue(userState);
 	const fullWidth = useAtomValue(fullWidthState);
 
-	const [user] = useAtom(userState);
+	// Local state
+	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
+
+	// Hooks with data fetching
+	const { activeTeamManagers } = useOrganizationTeams();
+	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 	const { isTeamManager } = useIsMemberManager(user);
-
-	useEffect(() => {
-		selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
-	}, [selectedRole, getRolePermissions]);
-
 	const { roles } = useRoles();
 
-	const handleToggleRolePermission = useCallback(
-		(name: string) => {
-			const permission = rolePermissionsFormated[name];
+	// Memoized values
+	const canAccessPermissions = useMemo(() => {
+		return !(activeTeamManagers && activeTeamManagers.length && !isTeamManager);
+	}, [activeTeamManagers, isTeamManager]);
 
-			updateRolePermission({
-				...permission,
-				enabled: !permission.enabled
-			}).then(() => {
-				selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
-			});
+	const selectedRoleId = useMemo(() => selectedRole?.id, [selectedRole]);
+
+	// Effects
+	useEffect(() => {
+		if (selectedRoleId) {
+			getRolePermissions(selectedRoleId);
+		}
+	}, [selectedRoleId, getRolePermissions]);
+
+	// Callbacks
+	const handleToggleRolePermission = useCallback(
+		async (name: string) => {
+			try {
+				const permission = rolePermissionsFormated[name];
+				if (!permission || !selectedRoleId) return;
+
+				await updateRolePermission({
+					...permission,
+					enabled: !permission.enabled
+				});
+
+				await getRolePermissions(selectedRoleId);
+			} catch (error) {
+				console.error('Failed to toggle role permission:', error);
+			}
 		},
-		[rolePermissionsFormated, selectedRole, getRolePermissions, updateRolePermission]
+		[rolePermissionsFormated, selectedRoleId, getRolePermissions, updateRolePermission]
 	);
 
-	if (activeTeamManagers && activeTeamManagers.length && !isTeamManager) {
+	if (!canAccessPermissions) {
 		return (
 			<MainLayout className="items-start">
 				<NotFound />

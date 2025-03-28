@@ -39,7 +39,7 @@ export function TaskDetailsComponent(props: ITaskDetailsComponentProps) {
 						{task && <TaskActivity task={task} />}
 					</div>
 				</section>
-				<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">
+				<div className="flex flex-col my-4 lg:mt-0 3xl:min-w-[24rem] gap-3 w-full lg:w-[30%]">
 					<div className="flex flex-col bg-white dark:bg-dark--theme-light rounded-xl">
 						<TaskDetailsAside />
 					</div>

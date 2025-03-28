@@ -33,7 +33,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
-			className={clsxm('flex items-center lg:space-x-4 space-x-2 w-fit', className)}
+			className={clsxm('flex items-center lg:gap-4 gap-2 w-fit', className)}
 		>
 			<div
 				className={clsxm(
@@ -60,7 +60,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				/>
 			</div>
 
-			<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">
+			<div className=" flex grow overflow-x-hidden flex-col gap-1.5">
 				<Tooltip
 					label={fullname.trim()}
 					placement="auto"
@@ -97,9 +97,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						placement="auto"
 						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
-						<Text className="text-gray-400 flex items-center text-sm space-x-1">
+						<Text className="text-gray-400 flex items-center text-sm gap-1">
 							<MailIcon className="h-4 w-4" />
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap pr-1 grow">
 								{memberUser?.email}
 							</span>
 						</Text>

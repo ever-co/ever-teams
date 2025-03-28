@@ -534,8 +534,7 @@
 			"GO_TO_HOME": "Go to Home"
 		},
 		"kanban": {
-			"KANBAN_BOARD": "Kanban Board"
-		},
+			"KANBAN_BOARD": "Kanban Board"		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
 			"DESCRIPTION": "Descriptions",

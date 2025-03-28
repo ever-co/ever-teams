@@ -144,7 +144,7 @@ const TaskProgress = () => {
                     {groupTotalTime.hours}h : {groupTotalTime.minutes}m
                   </div>
 
-                  {!open ? (
+                  {open ? (
                     <ChevronUpIcon className="text-[#292D32] dark:text-white w-4 h-4" />
                   ) : (
                     <ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />

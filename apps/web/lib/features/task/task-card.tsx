@@ -171,7 +171,7 @@ export function TaskCard(props: Props) {
 					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
-				<div className="flex-1 min-w-[12rem] max-w-[40%] flex flex-row justify-between">
+				<div className="flex-1 min-w-[12rem] max-w-[22rem] flex flex-row justify-between">
 					{/* Task information */}
 					<TaskInfo
 						task={task}
@@ -491,13 +491,14 @@ export function TaskInfo({
 				<div className="w-full h-10 overflow-hidden">
 					<div className={clsxm('h-full flex flex-col items-start justify-start')}>
 						<div
-							className={clsxm('text-sm text-ellipsis overflow-hidden w-full cursor-pointer')}
+							className={clsxm('text-sm text-ellipsis h-full overflow-hidden w-full cursor-pointer')}
 							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
 							<TaskNameInfoDisplay
 								task={task}
-								className={clsxm(taskBadgeClassName)}
+								taskIssueStatusClassName={clsxm(taskBadgeClassName)}
 								taskTitleClassName={clsxm(taskTitleClassName)}
+								className='h-full'
 							/>
 						</div>
 					</div>

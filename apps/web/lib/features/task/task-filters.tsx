@@ -393,7 +393,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex justify-center items-center -mb-1 space-x-1 w-full md:justify-start md:space-x-4 md:mt-0">
+		<nav className="flex justify-center  items-center -mb-1 gap-1 w-full md:justify-start md:gap-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -402,7 +402,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								`md:text-lg text-xs text-gray-500 font-normal outline-none px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
+								`md:text-lg text-xs text-gray-500 font-normal outline-none px-[1rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
 								active && ['text-primary dark:text-white']
 							)}
 						>

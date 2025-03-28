@@ -2,7 +2,6 @@
 import { KanbanTabs } from '@app/constants';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
-import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
@@ -32,8 +31,11 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/lib/utils';
+import { ITeamTask } from '@app/interfaces';
+import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 
 const Kanban = () => {
+	// Get all required hooks and states
 	const {
 		data,
 		setSearchTasks,
@@ -54,6 +56,11 @@ const Kanban = () => {
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 	const employee = useSearchParams().get('employee');
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+	const timezone = userTimezone();
+
+	// Memoize breadcrumb path to prevent unnecessary recalculations
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -63,31 +70,92 @@ const Kanban = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
+	// Memoize team members data transformation
+	const teamMembers = useMemo(() => {
+		const members: ImageOverlapperProps[] = [];
+		const activeTeamMembers = activeTeam?.members || [];
 
-	const teamMembers: ImageOverlapperProps[] = [];
-
-	activeTeamMembers.map((member: any) => {
-		teamMembers.push({
-			id: member.employee.user.id,
-			url: member.employee.user.imageUrl,
-			alt: member.employee.user.firstName
+		activeTeamMembers.forEach((member: any) => {
+			members.push({
+				id: member.employee.user.id,
+				url: member.employee.user.imageUrl,
+				alt: member.employee.user.firstName
+			});
 		});
-	});
-	const tabs = [
-		{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
-		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
-		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
-	];
-	const { user } = useAuthenticateUser();
-	const { openModal, isOpen, closeModal } = useModal();
-	const timezone = userTimezone();
 
+		return members;
+	}, [activeTeam?.members]);
+
+	// Memoize tabs to prevent recreation on each render
+	const tabs = useMemo(
+		() => [
+			{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
+			{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
+			{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
+		],
+		[t]
+	);
+
+	// Memoize status items
 	const { items } = useStatusValue<'issueType'>({
 		status: taskIssues,
 		value: issues as any,
 		onValueChange: setIssues as any
 	});
+
+	// Memoize filtered tasks based on date
+	const filteredBoard = useMemo(() => {
+		if (!data) return {};
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
+
+		const tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate() + 1);
+
+		const filterByDate = (tasks: ITeamTask[], date: Date) => {
+			const filtered = tasks.filter((task) => {
+				if (!task.createdAt) {
+					return false;
+				}
+
+				const taskDate = new Date(task.createdAt);
+				const localTaskDate = new Date(taskDate.getTime() - taskDate.getTimezoneOffset() * 60000);
+				localTaskDate.setHours(0, 0, 0, 0);
+
+				const compareDate = new Date(date.getTime());
+				compareDate.setHours(0, 0, 0, 0);
+
+				return localTaskDate.toDateString() === compareDate.toDateString();
+			});
+
+			return filtered;
+		};
+
+		const board: Record<string, ITeamTask[]> = {};
+		Object.entries(data).forEach(([status, tasks]) => {
+			let filteredStatusTasks;
+			switch (activeTab) {
+				case KanbanTabs.TODAY:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], today);
+					break;
+				case KanbanTabs.YESTERDAY:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], yesterday);
+					break;
+				case KanbanTabs.TOMORROW:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], tomorrow);
+					break;
+				default:
+					filteredStatusTasks = tasks;
+			}
+			board[status] = filteredStatusTasks;
+		});
+
+		return board;
+	}, [data, activeTab]);
 
 	useEffect(() => {
 		const lastPath = breadcrumbPath.slice(-1)[0];
@@ -108,6 +176,7 @@ const Kanban = () => {
 			breadcrumbPath.pop();
 		}
 	}, [breadcrumbPath, currentLocale, employee]);
+
 	return (
 		<>
 			<MainLayout
@@ -261,17 +330,35 @@ const Kanban = () => {
 				{/** TODO:fetch teamtask based on days */}
 
 				<div className="pt-10">
-					{activeTab &&
-						(Object.keys(data).length > 0 ? (
-							<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
-								<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
-							</Container>
-						) : (
-							// add filter for today, yesterday and tomorrow
-							<div className="flex flex-col flex-1 w-full h-full">
-								<KanbanBoardSkeleton />
-							</div>
-						))}
+					{activeTab && (
+						<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
+							{isLoading || !data ? (
+								<div className="flex flex-col gap-4">
+									<div className="bg-white dark:bg-dark--theme-light rounded-xl p-6 shadow-md animate-pulse">
+										<div className="h-4 bg-gray-200 dark:bg-dark--theme rounded w-1/4 mb-4"></div>
+										<div className="space-y-3">
+											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-3/4"></div>
+											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-1/2"></div>
+											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-2/3"></div>
+										</div>
+									</div>
+									<div className="bg-white dark:bg-dark--theme-light rounded-xl p-6 shadow-md animate-pulse">
+										<div className="h-4 bg-gray-200 dark:bg-dark--theme rounded w-1/4 mb-4"></div>
+										<div className="space-y-3">
+											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-3/4"></div>
+											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-1/2"></div>
+										</div>
+									</div>
+								</div>
+							) : Object.keys(filteredBoard).length > 0 ? (
+								<KanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+							) : (
+								<div className="flex flex-col flex-1 w-full h-full">
+									<KanbanBoardSkeleton />
+								</div>
+							)}
+						</Container>
+					)}
 				</div>
 			</MainLayout>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
