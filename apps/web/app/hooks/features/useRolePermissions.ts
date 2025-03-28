@@ -28,7 +28,7 @@ export const useRolePermissions = () => {
 
   const getRolePermissions = useCallback(
     (id: string) => {
-      getRolePermissionsQueryCall(id).then((response) => {
+      return getRolePermissionsQueryCall(id).then((response) => {
         if (response.data.items.length) {
           const tempRolePermissions = response.data.items;
           const formatedItems: { [key: string]: IRolePermissions } = {};
@@ -51,7 +51,7 @@ export const useRolePermissions = () => {
 
   const updateRolePermission = useCallback(
     async (permission: IRolePermissions) => {
-      updateRoleQueryCall(permission).then(() => {
+      return updateRoleQueryCall(permission).then(() => {
         const index = rolePermissions.findIndex(
           (item) => item.id === permission.id
         );
