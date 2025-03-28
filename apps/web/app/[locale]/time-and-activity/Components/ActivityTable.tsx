@@ -187,16 +187,16 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							</div>
 							<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
 								<div className="flex items-center gap-1.5">
-									<span className="font-medium">Hours:</span>
-									<span>{formatDuration(dayLog.sum || 0)}</span>
+									<span>Hours:</span>
+									<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
 								</div>
 								<div className="flex items-center gap-1.5">
-									<span className="font-medium">Earnings:</span>
-									<span>{dayLog.earnings?.toFixed(2)} USD</span>
+									<span>Earnings:</span>
+									<span className="font-medium">{(dayLog.earnings || 0).toFixed(2)} USD</span>
 								</div>
 								<div className="flex items-center gap-1.5">
-									<span className="font-medium">Average Activity:</span>
-									<span>{dayLog.activity}%</span>
+									<span>Average Activity:</span>
+									<span className="font-medium">{dayLog.activity || 0}%</span>
 								</div>
 							</div>
 						</div>
@@ -204,19 +204,19 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 					<Table>
 						<TableHeader>
 							<TableRow className="border-b border-gray-200 dark:border-gray-600">
-								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 									Member ↑
 								</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 									Project ↑
 								</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 									Tracked Hours ↑
 								</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 									Earnings ↑
 								</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 									Activity Level ↑
 								</TableHead>
 							</TableRow>
@@ -230,7 +230,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 									>
 										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600">
+												<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600 shrink-0">
 													<img
 														src={employeeLog.employee.user.imageUrl}
 														alt={employeeLog.employee.fullName}
@@ -238,14 +238,14 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 														loading="lazy"
 													/>
 												</Avatar>
-												<span className="text-gray-900 dark:text-gray-100">
+												<span className="text-gray-900 dark:text-gray-100 font-medium">
 													{employeeLog.employee.fullName}
 												</span>
 											</div>
 										</TableCell>
 										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600">
+												<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600 shrink-0">
 													<img
 														src={projectLog.project.imageUrl}
 														alt={projectLog.project.name}
@@ -253,35 +253,48 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 														loading="lazy"
 													/>
 												</Avatar>
-												<span className="text-gray-900 dark:text-gray-100">
+												<span className="text-gray-900 dark:text-gray-100 font-medium">
 													{projectLog.project.name}
 												</span>
 											</div>
 										</TableCell>
 										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-2">
-												<div className="w-3 h-3 rounded-full bg-green-500"></div>
-												<span className="text-gray-900 dark:text-gray-100">
+												<div className="w-2.5 h-2.5 rounded-full bg-success-light"></div>
+												<span className="text-gray-900 dark:text-gray-100 font-medium">
 													{formatDuration(employeeLog.sum)}
 												</span>
 											</div>
 										</TableCell>
 										<TableCell className="px-6 py-4">
-											<div className="flex items-center">
-												<span className="text-gray-900 dark:text-gray-100">
-													{employeeLog.earnings?.toFixed(2)} USD
-												</span>
-											</div>
+											<span className="text-gray-900 dark:text-gray-100 font-medium">
+												{(employeeLog.earnings || 0).toFixed(2)} USD
+											</span>
 										</TableCell>
 										<TableCell className="px-6 py-4">
-											<div className="flex items-center gap-3">
-												<div className="flex-1 max-w-[120px]">
-													<ProgressBar progress={employeeLog.activity} />
+											{employeeLog.sum > 0 ? (
+												<div className="flex items-center gap-3">
+													<div className="flex-1 max-w-[120px]">
+														<ProgressBar progress={employeeLog.activity} />
+													</div>
+													<span className="text-gray-900 dark:text-gray-100 font-medium w-8">
+														{employeeLog.activity}%
+													</span>
 												</div>
-												<span className="text-gray-900 dark:text-gray-100 w-8">
-													{employeeLog.activity}%
-												</span>
-											</div>
+											) : (
+												<div className="flex items-center gap-2 text-gray-400">
+													<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+														<path
+															d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+															stroke="currentColor"
+															strokeWidth="2"
+															strokeLinecap="round"
+															strokeLinejoin="round"
+														/>
+													</svg>
+													<span>No time activity</span>
+												</div>
+											)}
 										</TableCell>
 									</TableRow>
 								))
@@ -289,13 +302,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
 								<TableRow>
 									<TableCell colSpan={5} className="px-6 py-4">
-										<div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-											<svg
-												className="w-4 h-4"
-												viewBox="0 0 24 24"
-												fill="none"
-												xmlns="http://www.w3.org/2000/svg"
-											>
+										<div className="flex items-center gap-2 text-gray-400">
+											<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
 												<path
 													d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 													stroke="currentColor"
