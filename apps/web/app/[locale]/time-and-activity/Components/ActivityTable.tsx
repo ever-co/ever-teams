@@ -111,15 +111,15 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							task: task.task,
 							duration: task.duration,
 							description: task.description,
-							earnings: 160.0 // Example fixed value as shown in the image
+							earnings: 160.0
 						})),
 						activity: empLog.activity,
-						earnings: 160.0 // Example fixed value as shown in the image
+						earnings: 160.0
 					}))
 				})),
 				sum: totalDuration,
 				activity: Math.round(totalActivity),
-				earnings: 2000.0 // Example fixed value as shown in the image for the day
+				earnings: 2000.0
 			};
 		});
 	}, [rapportDailyActivity]);
@@ -136,93 +136,112 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 	const formatDuration = (duration: number) => {
 		const hours = Math.floor(duration / 3600);
 		const minutes = Math.floor((duration % 3600) / 60);
-		const seconds = Math.floor(duration % 60);
-		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}h`;
+		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
 			{currentEntries.map((dayLog, index) => (
-				<div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200">
-					<div className="p-4 border-b border-gray-200">
-						<div className="flex flex-col gap-2">
-							<div className="text-base font-medium text-gray-900">
+				<div key={index} className="bg-white dark:bg-dark--theme rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
+						<div className="flex flex-col gap-1.5">
+							<div className="text-base font-medium text-gray-900 dark:text-gray-100">
 								{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
 							</div>
-							<div className="flex gap-6 text-sm text-gray-600">
-								<span className="font-medium">Hours: {formatDuration(dayLog.sum)}</span>
-								<span className="font-medium">Earnings: {dayLog.earnings?.toFixed(2)} USD</span>
-								<span className="font-medium">Average Activity: {dayLog.activity}%</span>
+							<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
+								<div className="flex items-center gap-1.5">
+									<span className="font-medium">Hours:</span>
+									<span>{formatDuration(dayLog.sum)}</span>
+								</div>
+								<div className="flex items-center gap-1.5">
+									<span className="font-medium">Earnings:</span>
+									<span>{dayLog.earnings?.toFixed(2)} USD</span>
+								</div>
+								<div className="flex items-center gap-1.5">
+									<span className="font-medium">Average Activity:</span>
+									<span>{dayLog.activity}%</span>
+								</div>
 							</div>
 						</div>
 					</div>
 					<Table>
 						<TableHeader>
-							<TableRow className="border-b border-gray-200">
-								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Member ↑</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Project ↑</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Tracked Hours ↑</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Earnings ↑</TableHead>
-								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Activity Level ↑</TableHead>
+							<TableRow className="border-b border-gray-200 dark:border-gray-600">
+								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									Member ↑
+								</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									Project ↑
+								</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									Tracked Hours ↑
+								</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									Earnings ↑
+								</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									Activity Level ↑
+								</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{dayLog.logs.flatMap((projectLog) =>
 								projectLog.employeeLogs.map((employeeLog, empIndex) => (
-									<TableRow key={`${projectLog.project.id}-${empIndex}`} className="hover:bg-gray-50">
-										<TableCell className="px-4">
+									<TableRow key={`${projectLog.project.id}-${empIndex}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded-full">
+												<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600">
 													<img
 														src={employeeLog.employee.user.imageUrl}
 														alt={employeeLog.employee.fullName}
 														className="w-full h-full object-cover rounded-full"
 													/>
 												</Avatar>
-												<span className="text-gray-900 font-medium">
+												<span className="text-gray-900 dark:text-gray-100">
 													{employeeLog.employee.fullName}
 												</span>
 											</div>
 										</TableCell>
-										<TableCell className="px-4">
+										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded">
+												<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600">
 													<img
 														src={projectLog.project.imageUrl}
 														alt={projectLog.project.name}
 														className="w-full h-full object-cover rounded"
 													/>
 												</Avatar>
-												<span className="text-gray-900">{projectLog.project.name}</span>
+												<span className="text-gray-900 dark:text-gray-100">{projectLog.project.name}</span>
 											</div>
 										</TableCell>
-										<TableCell className="px-4">
+										<TableCell className="px-6 py-4">
+											<div className="flex items-center gap-2">
+												<div className="w-3 h-3 rounded-full bg-green-500"></div>
+												<span className="text-gray-900 dark:text-gray-100">{formatDuration(employeeLog.sum)}</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-6 py-4">
 											<div className="flex items-center">
-												<span className="text-gray-900">{formatDuration(employeeLog.sum)}</span>
+												<span className="text-gray-900 dark:text-gray-100">
+													{employeeLog.earnings?.toFixed(2)} USD
+												</span>
 											</div>
 										</TableCell>
-										<TableCell className="px-4">
-											<div className="flex items-center">
-												<span className="text-gray-900">{employeeLog.earnings?.toFixed(2)} USD</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-4">
+										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
 												<div className="flex-1 max-w-[120px]">
 													<ProgressBar progress={employeeLog.activity} />
 												</div>
-												<span className="text-gray-900">{employeeLog.activity}%</span>
+												<span className="text-gray-900 dark:text-gray-100 w-8">{employeeLog.activity}%</span>
 											</div>
 										</TableCell>
 									</TableRow>
 								))
 							)}
-							{dayLog.logs.some((log) =>
-								log.employeeLogs.some((empLog) => empLog.sum === 0)
-							) && (
+							{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
 								<TableRow>
-									<TableCell colSpan={5} className="px-4">
-										<div className="flex items-center gap-3 text-gray-500">
+									<TableCell colSpan={5} className="px-6 py-4">
+										<div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
 											<svg
 												className="w-4 h-4"
 												viewBox="0 0 24 24"
@@ -237,7 +256,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 													strokeLinejoin="round"
 												/>
 											</svg>
-											<span className="font-medium">No time activity</span>
+											<span>No time activity</span>
 										</div>
 									</TableCell>
 								</TableRow>
@@ -253,7 +272,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 					<div className="relative">
 						<button
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
 							Show {entriesPerPage}
 							<svg
@@ -267,7 +286,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							</svg>
 						</button>
 						{showEntriesDropdown && (
-							<div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10">
+							<div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded shadow-lg z-10">
 								{entryOptions.map((option) => (
 									<button
 										key={option}
@@ -275,7 +294,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 											setEntriesPerPage(option);
 											setShowEntriesDropdown(false);
 										}}
-										className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+										className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
 										Show {option}
 									</button>
@@ -283,20 +302,20 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							</div>
 						)}
 					</div>
-					<span className="text-sm text-gray-500">
+					<span className="text-sm text-gray-500 dark:text-gray-400">
 						Showing {startIndex + 1} to {endIndex} of {transformedData.length} entries
 					</span>
 				</div>
 				<div className="flex gap-2">
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => setCurrentPage(1)}
 						disabled={currentPage === 1}
 					>
 						First
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
 						disabled={currentPage === 1}
 					>
@@ -304,21 +323,21 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 					</button>
 					<div className="relative">
 						<button
-							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 							onClick={() => setShowEntriesDropdown(false)}
 						>
 							Page {currentPage} of {totalPages}
 						</button>
 					</div>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 						disabled={currentPage === totalPages}
 					>
 						Next
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => setCurrentPage(totalPages)}
 						disabled={currentPage === totalPages}
 					>
