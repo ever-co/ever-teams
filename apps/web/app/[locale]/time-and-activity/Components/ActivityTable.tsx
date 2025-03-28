@@ -1,23 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 import { Avatar } from '@components/ui/avatar';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ProgressBar from './progress-bar';
-import { ITimerLogGrouped, ITimerTask } from '@/app/interfaces';
+import { ITimerLogGrouped, ITimerTask, ITimerProjectLog, ITimerEmployeeLog, ITimerTaskLog } from '@/app/interfaces';
 import { format } from 'date-fns';
 
-interface Project {
-	id: string;
-	name: string;
-	imageUrl: string;
+interface TimeSlot {
+	duration: number;
 }
 
-interface Employee {
-	id: string;
-	fullName: string;
-	user: {
-		imageUrl: string;
-	};
+interface ITimerEmployeeLogExtended extends ITimerEmployeeLog {
+	timeSlots?: TimeSlot[];
+	timeLogs?: ITimerTaskLog[];
 }
 
 interface TaskLog {
@@ -28,7 +23,13 @@ interface TaskLog {
 }
 
 interface EmployeeLog {
-	employee: Employee;
+	employee: {
+		id: string;
+		fullName: string;
+		user: {
+			imageUrl: string;
+		};
+	};
 	sum: number;
 	tasks: TaskLog[];
 	activity: number;
@@ -36,15 +37,19 @@ interface EmployeeLog {
 }
 
 interface ProjectLog {
-	project: Project;
+	project: {
+		id: string;
+		name: string;
+		imageUrl: string;
+	};
 	employeeLogs: EmployeeLog[];
 }
 
 interface DailyLog {
 	date: string;
 	logs: ProjectLog[];
-	sum: number;
-	activity: number;
+	sum?: number;
+	activity?: number;
 	earnings?: number;
 }
 
@@ -57,92 +62,124 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 	const [entriesPerPage, setEntriesPerPage] = useState(10);
 	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
 
-	// Check if the data is in the new format
-	const isNewFormat = (data: any[]): data is DailyLog[] => {
-		return data.length > 0 && 'logs' in data[0];
-	};
+	// Mémoiser la fonction de formatage des durées
+	const formatDuration = useCallback((duration: number) => {
+		const hours = Math.floor(duration / 3600);
+		const minutes = Math.floor((duration % 3600) / 60);
+		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
+	}, []);
 
-	// Transform old format to new format if necessary
-	const transformedData = React.useMemo(() => {
+	// Mémoiser la transformation des données
+	const transformedData = useMemo(() => {
 		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
-			return [];
+			return [] as DailyLog[];
 		}
 
-		if (isNewFormat(rapportDailyActivity)) {
-			return rapportDailyActivity;
+		if ('logs' in rapportDailyActivity[0]) {
+			return rapportDailyActivity as DailyLog[];
 		}
 
-		// Transform ITimerLogGrouped[] to DailyLog[]
-		return (rapportDailyActivity as ITimerLogGrouped[]).map((item): DailyLog => {
-			const totalDuration = item.logs.reduce(
-				(acc, projectLog) => acc + projectLog.employeeLogs.reduce((empAcc, empLog) => empAcc + empLog.sum, 0),
-				0
-			);
-
-			const totalActivity =
-				item.logs.reduce(
-					(acc, projectLog) =>
-						acc +
-						projectLog.employeeLogs.reduce(
-							(empAcc, empLog, _, empLogs) => empAcc + empLog.activity / empLogs.length,
-							0
-						),
-					0
-				) / Math.max(1, item.logs.length);
-
-			return {
-				date: item.date,
-				logs: item.logs.map((log) => ({
+		// Transformation du format ITimerLogGrouped vers DailyLog
+		return (rapportDailyActivity as ITimerLogGrouped[]).map((dayData): DailyLog => {
+			const logs = dayData.logs.map(
+				(log: ITimerProjectLog): ProjectLog => ({
 					project: {
 						id: log.project.id,
 						name: log.project.name,
-						imageUrl: log.project.imageUrl || '/ever-teams-logo.png'
+						imageUrl: log.project.imageUrl || ''
 					},
-					employeeLogs: log.employeeLogs.map((empLog) => ({
-						employee: {
-							id: empLog.employee.id,
-							fullName: empLog.employee.fullName,
-							user: {
-								imageUrl: empLog.employee.user.imageUrl
-							}
-						},
-						sum: empLog.sum,
-						tasks: empLog.tasks.map((task) => ({
-							task: task.task,
-							duration: task.duration,
-							description: task.description,
-							earnings: 160.0
-						})),
-						activity: empLog.activity,
-						earnings: 160.0
-					}))
-				})),
+					employeeLogs: (log.employeeLogs || []).map(
+						(empLog: ITimerEmployeeLogExtended): EmployeeLog => ({
+							employee: {
+								id: empLog.employee.id,
+								fullName: empLog.employee.fullName,
+								user: {
+									imageUrl: empLog.employee.user.imageUrl
+								}
+							},
+							sum:
+								empLog.timeSlots?.reduce(
+									(acc: number, slot: TimeSlot) => acc + (slot.duration || 0),
+									0
+								) || 0,
+							tasks: (empLog.timeLogs || []).map(
+								(timeLog: ITimerTaskLog): TaskLog => ({
+									task: timeLog.task,
+									duration: timeLog.duration || 0,
+									description: timeLog.description || ''
+								})
+							),
+							activity: empLog.activity || 0
+						})
+					)
+				})
+			);
+
+			const totalDuration = logs.reduce((acc: number, log) => {
+				return (
+					acc +
+					log.employeeLogs.reduce((logAcc: number, empLog) => {
+						return logAcc + empLog.sum;
+					}, 0)
+				);
+			}, 0);
+
+			const totalActivity = logs.reduce((acc: number, log) => {
+				return (
+					acc +
+					log.employeeLogs.reduce((logAcc: number, empLog) => {
+						return logAcc + empLog.activity;
+					}, 0)
+				);
+			}, 0);
+
+			const employeeCount = logs.reduce((acc: number, log) => {
+				return acc + log.employeeLogs.length;
+			}, 0);
+
+			return {
+				date: dayData.date,
+				logs,
 				sum: totalDuration,
-				activity: Math.round(totalActivity),
-				earnings: 2000.0
+				activity: Math.round(totalActivity / employeeCount)
 			};
 		});
 	}, [rapportDailyActivity]);
 
-	// Calculate pagination values
-	const totalPages = Math.ceil(transformedData.length / entriesPerPage);
-	const startIndex = (currentPage - 1) * entriesPerPage;
-	const endIndex = Math.min(startIndex + entriesPerPage, transformedData.length);
-	const currentEntries = transformedData.slice(startIndex, endIndex);
+	// Mémoiser les calculs de pagination
+	const { totalPages, startIndex, endIndex, currentEntries } = useMemo(() => {
+		const total = Math.ceil(transformedData.length / entriesPerPage);
+		const start = (currentPage - 1) * entriesPerPage;
+		const end = Math.min(start + entriesPerPage, transformedData.length);
+		return {
+			totalPages: total,
+			startIndex: start,
+			endIndex: end,
+			currentEntries: transformedData.slice(start, end)
+		};
+	}, [transformedData, currentPage, entriesPerPage]);
 
-	// Entry options for the dropdown
-	const entryOptions = [10, 25, 50];
+	// Mémoiser les options d'entrées
+	const entryOptions = useMemo(() => [10, 25, 50], []);
 
-	const formatDuration = (duration: number) => {
-		const hours = Math.floor(duration / 3600);
-		const minutes = Math.floor((duration % 3600) / 60);
-		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
-	};
+	// Callbacks pour les gestionnaires d'événements
+	const handleEntriesPerPageChange = useCallback((value: number) => {
+		setEntriesPerPage(value);
+		setShowEntriesDropdown(false);
+		setCurrentPage(1);
+	}, []);
+
+	const handlePageChange = useCallback((page: number) => {
+		setCurrentPage(page);
+	}, []);
 
 	return (
 		<div className="space-y-6">
-			{currentEntries.map((dayLog, index) => (
-				<div key={index} className="bg-white dark:bg-dark--theme rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+			{currentEntries.map((dayLog) => (
+				<div
+					key={dayLog.date}
+					className="bg-white dark:bg-dark--theme rounded-lg shadow-sm border border-gray-200 dark:border-gray-600"
+				>
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 						<div className="flex flex-col gap-1.5">
 							<div className="text-base font-medium text-gray-900 dark:text-gray-100">
@@ -151,7 +188,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 							<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
 								<div className="flex items-center gap-1.5">
 									<span className="font-medium">Hours:</span>
-									<span>{formatDuration(dayLog.sum)}</span>
+									<span>{formatDuration(dayLog.sum || 0)}</span>
 								</div>
 								<div className="flex items-center gap-1.5">
 									<span className="font-medium">Earnings:</span>
@@ -186,8 +223,11 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 						</TableHeader>
 						<TableBody>
 							{dayLog.logs.flatMap((projectLog) =>
-								projectLog.employeeLogs.map((employeeLog, empIndex) => (
-									<TableRow key={`${projectLog.project.id}-${empIndex}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+								projectLog.employeeLogs.map((employeeLog) => (
+									<TableRow
+										key={`${projectLog.project.id}-${employeeLog.employee.id}`}
+										className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+									>
 										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-3">
 												<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600">
@@ -195,6 +235,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 														src={employeeLog.employee.user.imageUrl}
 														alt={employeeLog.employee.fullName}
 														className="w-full h-full object-cover rounded-full"
+														loading="lazy"
 													/>
 												</Avatar>
 												<span className="text-gray-900 dark:text-gray-100">
@@ -209,15 +250,20 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 														src={projectLog.project.imageUrl}
 														alt={projectLog.project.name}
 														className="w-full h-full object-cover rounded"
+														loading="lazy"
 													/>
 												</Avatar>
-												<span className="text-gray-900 dark:text-gray-100">{projectLog.project.name}</span>
+												<span className="text-gray-900 dark:text-gray-100">
+													{projectLog.project.name}
+												</span>
 											</div>
 										</TableCell>
 										<TableCell className="px-6 py-4">
 											<div className="flex items-center gap-2">
 												<div className="w-3 h-3 rounded-full bg-green-500"></div>
-												<span className="text-gray-900 dark:text-gray-100">{formatDuration(employeeLog.sum)}</span>
+												<span className="text-gray-900 dark:text-gray-100">
+													{formatDuration(employeeLog.sum)}
+												</span>
 											</div>
 										</TableCell>
 										<TableCell className="px-6 py-4">
@@ -232,7 +278,9 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 												<div className="flex-1 max-w-[120px]">
 													<ProgressBar progress={employeeLog.activity} />
 												</div>
-												<span className="text-gray-900 dark:text-gray-100 w-8">{employeeLog.activity}%</span>
+												<span className="text-gray-900 dark:text-gray-100 w-8">
+													{employeeLog.activity}%
+												</span>
 											</div>
 										</TableCell>
 									</TableRow>
@@ -280,7 +328,6 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
 							>
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 							</svg>
@@ -290,10 +337,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 								{entryOptions.map((option) => (
 									<button
 										key={option}
-										onClick={() => {
-											setEntriesPerPage(option);
-											setShowEntriesDropdown(false);
-										}}
+										onClick={() => handleEntriesPerPageChange(option)}
 										className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
 										Show {option}
@@ -306,39 +350,32 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 						Showing {startIndex + 1} to {endIndex} of {transformedData.length} entries
 					</span>
 				</div>
-				<div className="flex gap-2">
+
+				<div className="flex items-center gap-2">
 					<button
 						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-						onClick={() => setCurrentPage(1)}
+						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
 						First
 					</button>
 					<button
 						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-						onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
 						Previous
 					</button>
-					<div className="relative">
-						<button
-							className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
-							onClick={() => setShowEntriesDropdown(false)}
-						>
-							Page {currentPage} of {totalPages}
-						</button>
-					</div>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-						onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
 						Next
 					</button>
 					<button
 						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-						onClick={() => setCurrentPage(totalPages)}
+						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>
 						Last
@@ -349,4 +386,4 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 	);
 };
 
-export default ActivityTable;
+export default React.memo(ActivityTable);
