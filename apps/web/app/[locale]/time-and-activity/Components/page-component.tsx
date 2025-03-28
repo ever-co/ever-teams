@@ -22,7 +22,7 @@ import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity,updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { rapportDailyActivity, updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
 	// Memoize column visibility checks
 	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
@@ -111,10 +111,7 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable
-						period={exampleData}
-						viewOptions={viewOptions}
-					/>
+					<ActivityTable period={exampleData} viewOptions={viewOptions} />
 				</Card>
 			</Container>
 		</MainLayout>
