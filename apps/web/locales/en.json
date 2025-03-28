@@ -534,7 +534,8 @@
 			"GO_TO_HOME": "Go to Home"
 		},
 		"kanban": {
-			"KANBAN_BOARD": "Kanban Board"
+			"KANBAN_BOARD": "Kanban Board",
+			"NO_TASKS_FOUND": "No tasks found for"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
