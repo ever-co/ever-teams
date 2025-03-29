@@ -53,23 +53,30 @@ interface DailyLog {
 	earnings?: number;
 }
 
-interface ActivityTableProps {
-	rapportDailyActivity: ITimerLogGrouped[] | DailyLog[];
+interface ViewOption {
+	id: string;
+	label: string;
+	checked: boolean;
 }
 
-const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) => {
+interface ActivityTableProps {
+	rapportDailyActivity: ITimerLogGrouped[] | DailyLog[];
+	viewOptions: ViewOption[];
+}
+
+const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [entriesPerPage, setEntriesPerPage] = useState(10);
 	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
 
-	// Mémoiser la fonction de formatage des durées
+	// Memoize the function to format durations
 	const formatDuration = useCallback((duration: number) => {
 		const hours = Math.floor(duration / 3600);
 		const minutes = Math.floor((duration % 3600) / 60);
 		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
 	}, []);
 
-	// Mémoiser la transformation des données
+	// Transform data from ITimerLogGrouped to DailyLog format
 	const transformedData = useMemo(() => {
 		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
 			return [] as DailyLog[];
@@ -79,7 +86,6 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 			return rapportDailyActivity as DailyLog[];
 		}
 
-		// Transformation du format ITimerLogGrouped vers DailyLog
 		return (rapportDailyActivity as ITimerLogGrouped[]).map((dayData): DailyLog => {
 			const logs = dayData.logs.map(
 				(log: ITimerProjectLog): ProjectLog => ({
@@ -146,7 +152,23 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 		});
 	}, [rapportDailyActivity]);
 
-	// Mémoiser les calculs de pagination
+	// Memoize entries options
+	const entryOptions = useMemo(() => [10, 25, 50], []);
+
+	// Memoize column visibility settings
+	const columnVisibility = useMemo(() => {
+		const visibilityMap = new Map(viewOptions.map((opt) => [opt.id, opt.checked]));
+		return {
+			member: visibilityMap.get('member') ?? true,
+			project: visibilityMap.get('project') ?? true,
+			task: visibilityMap.get('task') ?? true,
+			trackedHours: visibilityMap.get('trackedHours') ?? true,
+			earnings: visibilityMap.get('earnings') ?? true,
+			activityLevel: visibilityMap.get('activityLevel') ?? true
+		};
+	}, [viewOptions]);
+
+	// Memoize pagination calculations
 	const { totalPages, startIndex, endIndex, currentEntries } = useMemo(() => {
 		const total = Math.ceil(transformedData.length / entriesPerPage);
 		const start = (currentPage - 1) * entriesPerPage;
@@ -159,10 +181,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 		};
 	}, [transformedData, currentPage, entriesPerPage]);
 
-	// Mémoiser les options d'entrées
-	const entryOptions = useMemo(() => [10, 25, 50], []);
-
-	// Callbacks pour les gestionnaires d'événements
+	// Event handler callbacks
 	const handleEntriesPerPageChange = useCallback((value: number) => {
 		setEntriesPerPage(value);
 		setShowEntriesDropdown(false);
@@ -174,51 +193,54 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 	}, []);
 
 	return (
-		<div className="space-y-6">
-			{currentEntries.map((dayLog) => (
-				<div
-					key={dayLog.date}
-					className="bg-white dark:bg-dark--theme rounded-lg shadow-sm border border-gray-200 dark:border-gray-600"
-				>
+		<div className="space-y-6 ">
+			{currentEntries.map((dayLog: DailyLog) => (
+				<div key={dayLog.date} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
-						<div className="flex flex-col gap-1.5">
-							<div className="text-base font-medium text-gray-900 dark:text-gray-100">
-								{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
+						<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
+							<div className="text-base ">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
+							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+								<span>Hours:</span>
+								<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
 							</div>
-							<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
-								<div className="flex items-center gap-1.5">
-									<span>Hours:</span>
-									<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
-								</div>
-								<div className="flex items-center gap-1.5">
-									<span>Earnings:</span>
-									<span className="font-medium">{(dayLog.earnings || 0).toFixed(2)} USD</span>
-								</div>
-								<div className="flex items-center gap-1.5">
-									<span>Average Activity:</span>
-									<span className="font-medium">{dayLog.activity || 0}%</span>
-								</div>
+							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+								<span>Earnings:</span>
+								<span className="font-medium">{(dayLog.earnings || 0).toFixed(2)} USD</span>
+							</div>
+							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+								<span>Average Activity:</span>
+								<span className="font-medium">{dayLog.activity || 0}%</span>
 							</div>
 						</div>
 					</div>
 					<Table>
 						<TableHeader>
 							<TableRow className="border-b border-gray-200 dark:border-gray-600">
-								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-									Member ↑
-								</TableHead>
-								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-									Project ↑
-								</TableHead>
-								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-									Tracked Hours ↑
-								</TableHead>
-								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-									Earnings ↑
-								</TableHead>
-								<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-									Activity Level ↑
-								</TableHead>
+								{columnVisibility.member && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Member ↑
+									</TableHead>
+								)}
+								{columnVisibility.project && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Project ↑
+									</TableHead>
+								)}
+								{columnVisibility.trackedHours && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Tracked Hours ↑
+									</TableHead>
+								)}
+								{columnVisibility.earnings && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Earnings ↑
+									</TableHead>
+								)}
+								{columnVisibility.activityLevel && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Activity Level ↑
+									</TableHead>
+								)}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -228,74 +250,84 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 										key={`${projectLog.project.id}-${employeeLog.employee.id}`}
 										className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600 shrink-0">
-													<img
-														src={employeeLog.employee.user.imageUrl}
-														alt={employeeLog.employee.fullName}
-														className="w-full h-full object-cover rounded-full"
-														loading="lazy"
-													/>
-												</Avatar>
-												<span className="text-gray-900 dark:text-gray-100 font-medium">
-													{employeeLog.employee.fullName}
-												</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center gap-3">
-												<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600 shrink-0">
-													<img
-														src={projectLog.project.imageUrl}
-														alt={projectLog.project.name}
-														className="w-full h-full object-cover rounded"
-														loading="lazy"
-													/>
-												</Avatar>
-												<span className="text-gray-900 dark:text-gray-100 font-medium">
-													{projectLog.project.name}
-												</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center gap-2">
-												<div className="w-2.5 h-2.5 rounded-full bg-success-light"></div>
-												<span className="text-gray-900 dark:text-gray-100 font-medium">
-													{formatDuration(employeeLog.sum)}
-												</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<span className="text-gray-900 dark:text-gray-100 font-medium">
-												{(employeeLog.earnings || 0).toFixed(2)} USD
-											</span>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											{employeeLog.sum > 0 ? (
+										{columnVisibility.member && (
+											<TableCell className="px-6 py-4">
 												<div className="flex items-center gap-3">
-													<div className="flex-1 max-w-[120px]">
-														<ProgressBar progress={employeeLog.activity} />
-													</div>
-													<span className="text-gray-900 dark:text-gray-100 font-medium w-8">
-														{employeeLog.activity}%
+													<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600 shrink-0">
+														<img
+															src={employeeLog.employee.user.imageUrl}
+															alt={employeeLog.employee.fullName}
+															className="w-full h-full object-cover rounded-full"
+															loading="lazy"
+														/>
+													</Avatar>
+													<span className="text-gray-900 dark:text-gray-100 font-medium">
+														{employeeLog.employee.fullName}
 													</span>
 												</div>
-											) : (
-												<div className="flex items-center gap-2 text-gray-400">
-													<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-														<path
-															d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-															stroke="currentColor"
-															strokeWidth="2"
-															strokeLinecap="round"
-															strokeLinejoin="round"
+											</TableCell>
+										)}
+										{columnVisibility.project && (
+											<TableCell className="px-6 py-4">
+												<div className="flex items-center gap-3">
+													<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600 shrink-0">
+														<img
+															src={projectLog.project.imageUrl}
+															alt={projectLog.project.name}
+															className="w-full h-full object-cover rounded-lg"
+															loading="lazy"
 														/>
-													</svg>
-													<span>No time activity</span>
+													</Avatar>
+													<span className="text-gray-900 dark:text-gray-100 font-medium">
+														{projectLog.project.name}
+													</span>
 												</div>
-											)}
-										</TableCell>
+											</TableCell>
+										)}
+										{columnVisibility.trackedHours && (
+											<TableCell className="px-6 py-4">
+												<div className="flex items-center gap-2">
+													<div className="w-2.5 h-2.5 rounded-full bg-success-light"></div>
+													<span className="text-gray-900 dark:text-gray-100 font-medium">
+														{formatDuration(employeeLog.sum)}
+													</span>
+												</div>
+											</TableCell>
+										)}
+										{columnVisibility.earnings && (
+											<TableCell className="px-6 py-4">
+												<span className="text-gray-900 dark:text-gray-100 font-medium">
+													{(employeeLog.earnings || 0).toFixed(2)} USD
+												</span>
+											</TableCell>
+										)}
+										{columnVisibility.activityLevel && (
+											<TableCell className="px-6 py-4">
+												{employeeLog.sum > 0 ? (
+													<div className="flex items-center gap-3">
+														<div className="flex-1 max-w-[120px]">
+															<ProgressBar progress={employeeLog.activity} />
+														</div>
+														<span className="text-gray-900 dark:text-gray-100 font-medium w-8">
+															{employeeLog.activity}%
+														</span>
+													</div>
+												) : (
+													<div className="flex items-center gap-2 text-gray-400">
+														<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+															<path
+																d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+																stroke="currentColor"
+																strokeWidth="2"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+															/>
+														</svg>
+														<span>No time activity</span>
+													</div>
+												)}
+											</TableCell>
+										)}
 									</TableRow>
 								))
 							)}
@@ -323,7 +355,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) =
 			))}
 
 			{/* Pagination controls */}
-			<div className="flex justify-between items-center mt-4">
+			<div className="flex justify-between items-center mt-4 px-2">
 				<div className="flex items-center gap-4">
 					<div className="relative">
 						<button
