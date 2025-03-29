@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Popover } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
 
 interface IProps<TItem> {
 	placeholder: string;
@@ -13,7 +13,7 @@ interface IProps<TItem> {
 	searchEnabled?: boolean;
 }
 
-export function MultiSelectWithSearch<T extends { value: string | number; id: string }>(props: IProps<T>) {
+function MultiSelectWithSearchComponent<T extends { value: string | number; id: string }>(props: IProps<T>) {
 	const { placeholder, options, selectedOptions, defaultOptions, onChange, searchEnabled = false } = props;
 
 	const [searchTerm, setSearchTerm] = useState('');
@@ -24,16 +24,18 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 
 	const handleSelect = useCallback(
 		(selectedOption: T) => {
-			let newSelectedOptions = selectedOptions;
-
-			if (!selectedOptions.map((el) => el.value).includes(selectedOption.value)) {
-				newSelectedOptions.push(selectedOption);
-			} else {
-				newSelectedOptions = newSelectedOptions.filter((el) => el.id !== selectedOption.id);
-			}
+			const isSelected = selectedOptions.some((el) => el.id === selectedOption.id);
+			const newSelectedOptions = isSelected
+				? selectedOptions.filter((el) => el.id !== selectedOption.id)
+				: [...selectedOptions, selectedOption];
 			onChange(newSelectedOptions);
 		},
 		[onChange, selectedOptions]
+	);
+
+	const filteredOptions = useMemo(
+		() => options?.filter((option) => String(option.value).toLowerCase().includes(searchTerm.toLowerCase())),
+		[options, searchTerm]
 	);
 
 	useEffect(() => {
@@ -71,34 +73,31 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 			<Popover.Panel className={'absolute w-full mt-1 z-20 bg-white dark:bg-gray-800 rounded-md shadow-md'}>
 				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
 					<ScrollArea>
-						{options
-							?.filter((option) => String(option.value).toLowerCase().includes(searchTerm.toLowerCase()))
-							?.map((option) => {
-								const isSelected = selectedOptions.map((el) => el.value).includes(option.value);
+						{filteredOptions?.map((option) => {
+							const isSelected = selectedOptions.some((el) => el.id === option.id);
 
-								return (
-									<li
-										onClick={() => handleSelect(option)}
-										key={option.id}
+							return (
+								<li
+									onClick={() => handleSelect(option)}
+									key={option.id}
+									className={cn(
+										'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-sm text-sm',
+										isSelected ? 'bg-primary text-white' : 'hover:bg-primary/10'
+									)}
+								>
+									<Check
 										className={cn(
-											'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-sm text-sm',
-											isSelected ? 'bg-primary text-white' : 'hover:bg-primary/10'
+											selectedOptions.length > 0 ? 'block' : 'hidden',
+											isSelected ? ' opacity-100' : ' opacity-0'
 										)}
-									>
-										<Check
-											className={cn(
-												selectedOptions.length > 0 ? 'block' : 'hidden',
-												isSelected ? ' opacity-100' : ' opacity-0'
-											)}
-											size={15}
-										/>
-										<span className=" text-xs grow truncate overflow-hidden whitespace-nowrap ">
-											{String(option.value)}
-										</span>
-									</li>
-								);
-							})}
-
+										size={15}
+									/>
+									<span className=" text-xs grow truncate overflow-hidden whitespace-nowrap ">
+										{String(option.value)}
+									</span>
+								</li>
+							);
+						})}
 						<ScrollBar />
 					</ScrollArea>
 				</ul>
@@ -106,3 +105,5 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 		</Popover>
 	);
 }
+
+export const MultiSelectWithSearch = memo(MultiSelectWithSearchComponent) as typeof MultiSelectWithSearchComponent;

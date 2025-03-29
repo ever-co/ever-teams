@@ -14,8 +14,7 @@ interface IFiltersCardModalProps {
 	closeModal: () => void;
 }
 
-export default function FiltersCardModal(props: IFiltersCardModalProps) {
-	const { open, closeModal } = props;
+export default function FiltersCardModal({ open, closeModal }: IFiltersCardModalProps) {
 	const t = useTranslations();
 	const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
 	const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -89,6 +88,109 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 		return Array.from(uniqueManagers.values());
 	}, [teamMembers]);
 
+	// Memoize derived data for teams
+	const teamOptions = useMemo(
+		() =>
+			teams.map((team) => ({
+				value: team.name,
+				id: team.id
+			})),
+		[teams]
+	);
+
+	const selectedTeamOptions = useMemo(
+		() =>
+			selectedTeams.map((teamId) => ({
+				value: teams.find((team) => team.id === teamId)?.name ?? '-',
+				id: teamId
+			})),
+		[selectedTeams, teams]
+	);
+
+	const handleTeamChange = useCallback((data: Array<{ id: string; value: string }>) => {
+		setSelectedTeams(data.map((team) => team.id));
+	}, []);
+
+	// Memoize derived data for statuses
+	const statusOptions = useMemo(
+		() =>
+			taskStatuses
+				?.filter((el) => el.name)
+				?.map((status) => ({
+					id: status.id,
+					value: status.name!
+				})),
+		[taskStatuses]
+	);
+
+	const selectedStatusOptions = useMemo(
+		() =>
+			selectedStatus.map((statusId) => ({
+				value: taskStatuses.find((status) => status.name === statusId)?.name ?? '-',
+				id: statusId
+			})),
+		[selectedStatus, taskStatuses]
+	);
+
+	const handleStatusChange = useCallback((data: Array<{ id: string; value: string }>) => {
+		setSelectedStatus(data.map((status) => status.value));
+	}, []);
+
+	// Memoize derived data for managers
+	const managerOptions = useMemo(
+		() =>
+			managers.map((manager) => ({
+				value: manager.value,
+				id: manager.id
+			})),
+		[managers]
+	);
+
+	const selectedManagerOptions = useMemo(
+		() =>
+			selectedManagers.map((managerId) => ({
+				value: managers.find((manager) => manager.id === managerId)?.value ?? '-',
+				id: managerId
+			})),
+		[selectedManagers, managers]
+	);
+
+	const handleManagerChange = useCallback((data: Array<{ id: string; value: string }>) => {
+		setSelectedManagers(data.map((manager) => manager.id));
+	}, []);
+
+	// Memoize derived data for members
+	const memberOptions = useMemo(() => members, [members]);
+
+	const selectedMemberOptions = useMemo(
+		() =>
+			selectedMembers.map((memberId) => ({
+				value: members.find((member) => member.id === memberId)?.value ?? '-',
+				id: memberId
+			})),
+		[selectedMembers, members]
+	);
+
+	const handleMemberChange = useCallback((data: Array<{ id: string; value: string }>) => {
+		setSelectedMembers(data.map((member) => member.id));
+	}, []);
+
+	// Memoize derived data for budget types
+	const budgetTypeOptions = useMemo(() => budgetTypes, [budgetTypes]);
+
+	const selectedBudgetTypeOptions = useMemo(
+		() =>
+			selectedBudgetType.map((budgetTypeId) => ({
+				value: budgetTypes.find((budget) => budget.id === budgetTypeId)?.value ?? '-',
+				id: budgetTypeId
+			})),
+		[selectedBudgetType, budgetTypes]
+	);
+
+	const handleBudgetTypeChange = useCallback((data: Array<{ id: string; value: string }>) => {
+		setSelectedBudgetType(data.map((budgetType) => budgetType.id));
+	}, []);
+
 	const handleApplyFilters = useCallback(() => {
 		const searchParams = new URLSearchParams(window.location.search);
 
@@ -154,19 +256,9 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 							)}
 						</div>
 						<MultiSelectWithSearch
-							selectedOptions={selectedTeams.map((teamId) => {
-								const name = teams.find((team) => team.id === teamId)?.name ?? '-';
-
-								return {
-									value: name,
-									id: teamId
-								};
-							})}
-							onChange={(data) => setSelectedTeams(data.map((team) => team.id))}
-							options={teams.map((team) => ({
-								value: team.name,
-								id: team.id
-							}))}
+							selectedOptions={selectedTeamOptions}
+							onChange={handleTeamChange}
+							options={teamOptions}
 							placeholder="Select a team..."
 						/>
 						<div className="w-full flex-wrap flex gap-1">
@@ -199,18 +291,9 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 							)}
 						</div>
 						<MultiSelectWithSearch
-							selectedOptions={selectedStatus.map((statusId) => {
-								const name = taskStatuses.find((status) => status.name === statusId)?.name ?? '-';
-
-								return {
-									value: name,
-									id: statusId
-								};
-							})}
-							onChange={(data) => setSelectedStatus(data.map((status) => status.value))}
-							options={taskStatuses
-								?.filter((el) => el.name)
-								?.map((status) => ({ id: status.id, value: status.name! }))}
+							selectedOptions={selectedStatusOptions}
+							onChange={handleStatusChange}
+							options={statusOptions}
 							placeholder="Select a status..."
 						/>
 						<div className="w-full flex gap-1">
@@ -250,16 +333,9 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 							)}
 						</div>
 						<MultiSelectWithSearch
-							selectedOptions={selectedManagers.map((managerId) => {
-								const name = managers.find((manager) => manager.id === managerId)?.value ?? '-';
-
-								return {
-									value: name,
-									id: managerId
-								};
-							})}
-							onChange={(data) => setSelectedManagers(data.map((manager) => manager.id))}
-							options={managers}
+							selectedOptions={selectedManagerOptions}
+							onChange={handleManagerChange}
+							options={managerOptions}
 							placeholder="Select a manager..."
 						/>
 						<div className="w-full flex gap-1">
@@ -313,16 +389,9 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 							)}
 						</div>
 						<MultiSelectWithSearch
-							selectedOptions={selectedMembers.map((memberId) => {
-								const name = members.find((member) => member.id === memberId)?.value ?? '-';
-
-								return {
-									value: name,
-									id: memberId
-								};
-							})}
-							onChange={(data) => setSelectedMembers(data.map((member) => member.id))}
-							options={members}
+							selectedOptions={selectedMemberOptions}
+							onChange={handleMemberChange}
+							options={memberOptions}
 							searchEnabled
 							placeholder="Select a member..."
 						/>
@@ -376,16 +445,9 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 							)}
 						</div>
 						<MultiSelectWithSearch
-							selectedOptions={selectedBudgetType.map((budgetTypeId) => {
-								const name = budgetTypes.find((budget) => budget.id === budgetTypeId)?.value ?? '-';
-
-								return {
-									value: name,
-									id: budgetTypeId
-								};
-							})}
-							onChange={(data) => setSelectedBudgetType(data.map((budgetType) => budgetType.id))}
-							options={budgetTypes}
+							selectedOptions={selectedBudgetTypeOptions}
+							onChange={handleBudgetTypeChange}
+							options={budgetTypeOptions}
 							placeholder="Select a budget type..."
 						/>
 						<div className="w-full flex gap-1">
