@@ -13,7 +13,7 @@ export function FilterWithStatus({
 	data
 }: Readonly<{
 	activeStatus: FilterStatus;
-	data?: Record<TimesheetStatus, TimesheetLog[]>
+	data?: Record<TimesheetStatus, TimesheetLog[]>;
 
 	onToggle: (status: FilterStatus) => void;
 	className?: HTMLAttributes<HTMLDivElement>;
@@ -26,54 +26,66 @@ export function FilterWithStatus({
 		Approved: 'icon-approved',
 		'In review': 'icon-rejected',
 		Draft: 'icon-approved',
-		Rejected: 'icon-rejected',
+		Rejected: 'icon-rejected'
 	};
 
 	const buttonData = React.useMemo(() => {
 		const counts = {
-			[t('pages.timesheet.ALL_TASKS')]: Object.values(data ?? {}).reduce((total, tasks) => total + (tasks?.length ?? 0), 0),
+			[t('pages.timesheet.ALL_TASKS')]: Object.values(data ?? {}).reduce(
+				(total, tasks) => total + (tasks?.length ?? 0),
+				0
+			),
 			[t('pages.timesheet.PENDING')]: data?.PENDING?.length ?? 0,
 			[t('pages.timesheet.APPROVED')]: data?.APPROVED?.length ?? 0,
 			[t('pages.timesheet.IN_REVIEW')]: data?.['IN REVIEW']?.length ?? 0,
 			[t('pages.timesheet.DRAFT')]: data?.DRAFT?.length ?? 0,
-			[t('pages.timesheet.REJECTED')]: data?.DENIED?.length ?? 0,
+			[t('pages.timesheet.REJECTED')]: data?.DENIED?.length ?? 0
 		};
 		return Object.entries(counts).map(([label, count]) => ({
 			label: label as FilterStatus,
 			count,
-			icon: <i className={statusIcons[label as FilterStatus]} />,
+			icon: <i className={statusIcons[label as FilterStatus]} />
 		}));
 	}, [data]);
-
 
 	return (
 		<div
 			className={clsxm(
-				'flex flex-nowrap h-[36px] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-[8px] border-[1px] ',
+				'relative flex h-[36px] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-[8px] border-[1px] overflow-hidden',
+				'w-full max-w-full',
 				className
-			)}>
-			{buttonData.map(({ label, count, icon }, index) => (
-				<Button
-					key={index}
-					className={clsxm(
-						'group flex items-center justify-start h-[36px] rounded-[8px] w-[111px]',
-						'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A]',
-						activeStatus === label &&
-						'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
-					)}
-					onClick={() => onToggle(label)}
-				>
-					<span
+			)}
+		>
+			<div className="flex overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+				{buttonData.map(({ label, count, icon }, index) => (
+					<Button
+						key={index}
 						className={clsxm(
-							'font-medium ml-1 text-gray-500 dark:text-gray-200',
-							activeStatus === label && 'text-primary font-bold dark:text-primary-light'
+							'group flex items-center justify-start h-[36px] rounded-[8px] shrink-0',
+							'min-w-[90px] sm:min-w-[100px] md:min-w-[111px]',
+							'px-2 sm:px-3',
+							'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A]',
+							'transition-colors duration-200 ease-in-out',
+							'hover:bg-gray-50 dark:hover:bg-gray-700',
+							activeStatus === label &&
+								'text-primary bg-white shadow-2xl dark:text-primary-light font-bold border'
 						)}
+						onClick={() => onToggle(label)}
 					>
-						{label}
-					</span>
-					<span className="ml-1 font-medium text-gray-500 dark:text-gray-400">{count}</span>
-				</Button>
-			))}
+						<span
+							className={clsxm(
+								'font-medium text-xs sm:text-sm text-gray-500 dark:text-gray-200 whitespace-nowrap',
+								activeStatus === label && 'text-primary font-bold dark:text-primary-light'
+							)}
+						>
+							{label}
+						</span>
+						<span className="ml-1 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+							{count}
+						</span>
+					</Button>
+				))}
+			</div>
 		</div>
 	);
 }
