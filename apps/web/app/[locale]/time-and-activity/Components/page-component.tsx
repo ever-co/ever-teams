@@ -9,23 +9,31 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import React, { useMemo } from 'react';
-import TimeActivityHeader, { ViewOption, defaultViewOptions } from './time-activity-header';
+import React, { useMemo, useState, useCallback } from 'react';
+import TimeActivityHeader, { ViewOption } from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
 import ActivityTable from './ActivityTable';
-import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
+const defaultViewOptions: ViewOption[] = [
+	{ id: 'member', label: 'Member', checked: true },
+	{ id: 'project', label: 'Project', checked: true },
+	{ id: 'task', label: 'Task', checked: true },
+	{ id: 'trackedHours', label: 'Tracked Hours', checked: true },
+	{ id: 'earnings', label: 'Earnings', checked: true },
+	{ id: 'activityLevel', label: 'Activity Level', checked: true }
+];
+
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
 	// Memoize column visibility checks
 	console.log('rapportDailyActivity', rapportDailyActivity);
-	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
+	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
 		if (typeof window === 'undefined') return defaultViewOptions;
 
 		const savedOptions = localStorage.getItem(STORAGE_KEY);
@@ -40,10 +48,11 @@ const TimeActivityComponents = () => {
 		}
 	});
 
-	const handleViewOptionsChange = React.useCallback((newOptions: ViewOption[]) => {
+	const handleViewOptionsChange = useCallback((newOptions: ViewOption[]) => {
 		setViewOptions(newOptions);
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(newOptions));
 	}, []);
+
 	const t = useTranslations();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -111,7 +120,11 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable period={exampleData} viewOptions={viewOptions} />
+					<ActivityTable
+						rapportDailyActivity={rapportDailyActivity}
+						viewOptions={viewOptions}
+						isLoading={loading}
+					/>
 				</Card>
 			</Container>
 		</MainLayout>
