@@ -1,10 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
-import { Avatar } from '@components/ui/avatar';
-import React, { useState, useMemo, useCallback } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import ProgressBar from './progress-bar';
-import { ITimerLogGrouped, ITimerTask, ITimerProjectLog, ITimerEmployeeLog, ITimerTaskLog } from '@/app/interfaces';
 import { format } from 'date-fns';
+import { Avatar } from '@/lib/components';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useCallback, useMemo, useState } from 'react';
+import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';
+import { ProjectCell } from './ProjectCell';
+import { TrackedHoursCell } from './TrackedHoursCell';
+import { EarningsCell } from './EarningsCell';
+import { ActivityLevelCell } from './ActivityLevelCell';
+import { ActivityTableSkeleton } from './ActivityTableSkeleton';
+import React from 'react';
 
 interface TimeSlot {
 	duration: number;
@@ -62,9 +67,10 @@ interface ViewOption {
 interface ActivityTableProps {
 	rapportDailyActivity: ITimerLogGrouped[] | DailyLog[];
 	viewOptions: ViewOption[];
+	isLoading?: boolean;
 }
 
-const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions }) => {
+const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions, isLoading = false }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [entriesPerPage, setEntriesPerPage] = useState(10);
 	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
@@ -192,6 +198,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		setCurrentPage(page);
 	}, []);
 
+	if (isLoading) {
+		return <ActivityTableSkeleton columnVisibility={columnVisibility} />;
+	}
+
 	return (
 		<div className="space-y-6 ">
 			{currentEntries.map((dayLog: DailyLog) => (
@@ -253,11 +263,11 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										{columnVisibility.member && (
 											<TableCell className="px-6 py-4">
 												<div className="flex items-center gap-3">
-													<Avatar className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600 shrink-0">
+													<Avatar size={32} className="h-8 w-8 rounded-full">
 														<img
 															src={employeeLog.employee.user.imageUrl}
 															alt={employeeLog.employee.fullName}
-															className="w-full h-full object-cover rounded-full"
+															className="w-full h-full object-cover  rounded-full"
 															loading="lazy"
 														/>
 													</Avatar>
@@ -269,63 +279,33 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										)}
 										{columnVisibility.project && (
 											<TableCell className="px-6 py-4">
-												<div className="flex items-center gap-3">
-													<Avatar className="w-8 h-8 rounded border border-gray-200 dark:border-gray-600 shrink-0">
-														<img
-															src={projectLog.project.imageUrl}
-															alt={projectLog.project.name}
-															className="w-full h-full object-cover rounded-lg"
-															loading="lazy"
-														/>
-													</Avatar>
-													<span className="text-gray-900 dark:text-gray-100 font-medium">
-														{projectLog.project.name}
-													</span>
-												</div>
+												<ProjectCell
+													imageUrl={projectLog.project.imageUrl}
+													name={projectLog.project.name}
+												/>
 											</TableCell>
 										)}
 										{columnVisibility.trackedHours && (
 											<TableCell className="px-6 py-4">
-												<div className="flex items-center gap-2">
-													<div className="w-2.5 h-2.5 rounded-full bg-success-light"></div>
-													<span className="text-gray-900 dark:text-gray-100 font-medium">
-														{formatDuration(employeeLog.sum)}
-													</span>
-												</div>
+												<TrackedHoursCell
+													duration={employeeLog.sum}
+													formatDuration={formatDuration}
+												/>
 											</TableCell>
 										)}
 										{columnVisibility.earnings && (
 											<TableCell className="px-6 py-4">
-												<span className="text-gray-900 dark:text-gray-100 font-medium">
-													{(employeeLog.earnings || 0).toFixed(2)} USD
-												</span>
+												<EarningsCell
+													earnings={employeeLog.earnings || employeeLog.sum * 0.5}
+												/>
 											</TableCell>
 										)}
 										{columnVisibility.activityLevel && (
 											<TableCell className="px-6 py-4">
-												{employeeLog.sum > 0 ? (
-													<div className="flex items-center gap-3">
-														<div className="flex-1 max-w-[120px]">
-															<ProgressBar progress={employeeLog.activity} />
-														</div>
-														<span className="text-gray-900 dark:text-gray-100 font-medium w-8">
-															{employeeLog.activity}%
-														</span>
-													</div>
-												) : (
-													<div className="flex items-center gap-2 text-gray-400">
-														<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-															<path
-																d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-																stroke="currentColor"
-																strokeWidth="2"
-																strokeLinecap="round"
-																strokeLinejoin="round"
-															/>
-														</svg>
-														<span>No time activity</span>
-													</div>
-												)}
+												<ActivityLevelCell
+													activity={employeeLog.activity}
+													duration={employeeLog.sum}
+												/>
 											</TableCell>
 										)}
 									</TableRow>

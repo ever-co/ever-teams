@@ -30,7 +30,7 @@ const defaultViewOptions: ViewOption[] = [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
 	// Memoize column visibility checks
 	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
@@ -120,7 +120,11 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable rapportDailyActivity={rapportDailyActivity} viewOptions={viewOptions} />
+					<ActivityTable
+						rapportDailyActivity={rapportDailyActivity}
+						viewOptions={viewOptions}
+						isLoading={loading}
+					/>
 				</Card>
 			</Container>
 		</MainLayout>
