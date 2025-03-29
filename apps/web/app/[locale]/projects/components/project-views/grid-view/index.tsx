@@ -31,7 +31,7 @@ export function ProjectsGridView(props: IProps) {
 	);
 
 	return (
-		<div key="grid" className="flex-wrap flex gap-3">
+		<div key="grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
 			{loading ? (
 				<div className="w-full h-full flex items-center justify-center">
 					<SpinnerLoader />

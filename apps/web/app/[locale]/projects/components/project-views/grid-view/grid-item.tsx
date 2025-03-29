@@ -68,16 +68,21 @@ export default function GridItem(props: IGridItemProps) {
 	}, [data?.project?.id, onSelect]);
 
 	return (
-		<>
-			<div className="w-[24rem] shrink-0 border rounded-xl p-4 gap-4 flex">
-				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className=" shrink-0" />
-				<div className=" h-full flex flex-col gap-8 grow">
-					<div className="w-full gap-4 flex items-center justify-between">
+		<div
+			className={cn(
+				'w-full bg-white dark:bg-dark--theme-light rounded-lg overflow-hidden border border-gray-200 dark:border-dark--theme-light',
+				'hover:border-primary dark:hover:border-primary transition-colors duration-200'
+			)}
+		>
+			<div className="w-full shrink-0 p-3 flex">
+				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="shrink-0 mt-1" />
+				<div className="h-full flex flex-col gap-6 grow ml-3">
+					<div className="w-full flex items-center justify-between">
 						<div className="flex items-center font-medium gap-2">
 							<div
 								style={{ backgroundColor: data?.project?.color }}
 								className={cn(
-									'w-10 h-10  border overflow-hidden flex items-center justify-center rounded-xl'
+									'w-9 h-9 border overflow-hidden flex items-center justify-center rounded-lg'
 								)}
 							>
 								{!data?.project?.imageUrl ? (
@@ -85,65 +90,52 @@ export default function GridItem(props: IGridItemProps) {
 								) : (
 									<Image
 										alt={data?.project?.name ?? ''}
-										height={40}
-										width={40}
-										className="w-full h-full"
+										height={36}
+										width={36}
+										className="w-full h-full object-cover"
 										src={data?.project?.imageUrl}
 									/>
 								)}
 							</div>
-							<p>{data?.project?.name}</p>
+							<p className="text-sm font-semibold">{data?.project?.name}</p>
 						</div>
 						{data?.isArchived ? (
 							<button
 								onClick={openRestoreProjectModal}
-								className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+								className="bg-gray-100 hover:bg-gray-200 text-primary gap-1.5 group flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
 							>
-								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
+								<RotateCcw size={14} />
+								<span>{t('common.RESTORE')}</span>
 							</button>
 						) : (
 							<ProjectItemActions item={data} />
 						)}
 					</div>
 
-					{!data?.isArchived ? (
-						<div className="w-full items-center flex gap-6">
-							<p className=" font-medium">{t('common.STATUS')}</p>
+					{!data?.isArchived && (
+						<div className="w-full items-center flex gap-4">
+							<p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('common.STATUS')}</p>
 							{data?.status ? (
 								<div
 									style={{
 										backgroundColor:
-											resolvedTheme == 'light'
+											resolvedTheme === 'light'
 												? statusColorsMap.get(data?.status) ?? 'transparent'
 												: '#6A7280'
 									}}
-									className="rounded px-4 py-1"
+									className="rounded px-3 py-0.5 text-xs font-medium text-white"
 								>
 									{data?.status}
 								</div>
 							) : (
-								'-'
+								<span className="text-sm text-gray-500">-</span>
 							)}
-						</div>
-					) : (
-						<div className="flex flex-col gap-2">
-							<p className="font-medium">{t('common.ARCHIVE_AT')}</p>
-							<div className="flex items-center gap-1">
-								{data?.archivedAt ? (
-									<>
-										<CalendarDays size={15} className=" text-slate-400" />
-										<p>{moment(data?.archivedAt).format('D.MM.YYYY')}</p>
-									</>
-								) : (
-									'-'
-								)}
-							</div>
 						</div>
 					)}
 
 					<div className="w-full flex items-center gap-10">
 						<div className="flex flex-col gap-2">
-							<p className="font-medium">{t('common.START_DATE')}</p>
+							<p className="text-sm font-medium">{t('common.START_DATE')}</p>
 							<div className="flex items-center gap-1">
 								{data?.startDate ? (
 									<>
@@ -151,13 +143,13 @@ export default function GridItem(props: IGridItemProps) {
 										<p>{moment(data?.startDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
-									'-'
+									<span className="text-sm text-gray-500">-</span>
 								)}
 							</div>
 						</div>
 
 						<div className="flex flex-col gap-2">
-							<p className="font-medium">{t('common.END_DATE')}</p>
+							<p className="text-sm font-medium">{t('common.END_DATE')}</p>
 							<div className="flex items-center gap-1">
 								{data?.endDate ? (
 									<>
@@ -165,7 +157,7 @@ export default function GridItem(props: IGridItemProps) {
 										<p>{moment(data?.endDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
-									'-'
+									<span className="text-sm text-gray-500">-</span>
 								)}
 							</div>
 						</div>
@@ -173,18 +165,36 @@ export default function GridItem(props: IGridItemProps) {
 
 					<div className="w-full flex items-center justify-between">
 						<div className="w-full flex flex-col gap-2">
-							<p className="font-medium">{t('common.MEMBERS')}</p>
-							<div>{members?.length > 0 ? <AvatarStack maxVisible={3} avatars={members} /> : '-'}</div>
+							<p className="text-sm font-medium">{t('common.MEMBERS')}</p>
+							<div>
+								{members?.length > 0 ? (
+									<AvatarStack maxVisible={3} avatars={members} />
+								) : (
+									<span className="text-sm text-gray-500">-</span>
+								)}
+							</div>
 						</div>
 
 						<div className="w-full flex flex-col gap-2">
-							<p className="font-medium">{t('common.TEAMS')}</p>
-							<div>{teams?.length > 0 ? <AvatarStack maxVisible={2} avatars={teams} /> : '-'}</div>
+							<p className="text-sm font-medium">{t('common.TEAMS')}</p>
+							<div>
+								{teams?.length > 0 ? (
+									<AvatarStack maxVisible={2} avatars={teams} />
+								) : (
+									<span className="text-sm text-gray-500">-</span>
+								)}
+							</div>
 						</div>
 
 						<div className="w-full flex flex-col gap-2">
-							<p className="font-medium">{t('common.MANAGERS')}</p>
-							<div>{managers?.length > 0 ? <AvatarStack maxVisible={2} avatars={managers} /> : '-'}</div>
+							<p className="text-sm font-medium">{t('common.MANAGERS')}</p>
+							<div>
+								{managers?.length > 0 ? (
+									<AvatarStack maxVisible={2} avatars={managers} />
+								) : (
+									<span className="text-sm text-gray-500">-</span>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -194,6 +204,6 @@ export default function GridItem(props: IGridItemProps) {
 				open={isRestoreProjectModalOpen}
 				closeModal={closeRestoreProjectModal}
 			/>
-		</>
+		</div>
 	);
 }
