@@ -186,7 +186,7 @@ export function NavMain({
 												<SidebarMenuSubItem className="w-full max-w-[230px]" key={key}>
 													{subItem?.component || (
 														<SidebarMenuSubButton
-														key={`sub-${key}`}
+															key={`sub-${key}`}
 															className={cn(
 																'hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300 !text-sm',
 
@@ -198,7 +198,10 @@ export function NavMain({
 															onClick={() => handleSubMenuToggle(key)}
 															asChild
 														>
-															<div className="w-full h-full flex  items-center gap-2">
+															<Link
+																href={subItem.url}
+																className="w-full h-full flex items-center gap-2"
+															>
 																{subItem.icon && (
 																	<div
 																		className={cn(
@@ -208,19 +211,17 @@ export function NavMain({
 																		{subItem.icon}
 																	</div>
 																)}
-																<Link href={subItem.url}>
-																	<span
-																		className={cn(
-																			'transition-all font-light !text-sm',
-																			state === 'collapsed'
-																				? 'opacity-0 hidden'
-																				: 'opacity-100'
-																		)}
-																	>
-																		{subItem.title}
-																	</span>
-																</Link>
-															</div>
+																<span
+																	className={cn(
+																		'transition-all font-light !text-sm',
+																		state === 'collapsed'
+																			? 'opacity-0 hidden'
+																			: 'opacity-100'
+																	)}
+																>
+																	{subItem.title}
+																</span>
+															</Link>
 														</SidebarMenuSubButton>
 													)}
 												</SidebarMenuSubItem>
