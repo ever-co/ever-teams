@@ -33,7 +33,7 @@ interface Employee extends BaseEntity {
 	fullName: string;
 }
 
-interface TaskStatus extends BaseEntity {
+export interface TaskStatus extends BaseEntity {
 	name: string;
 	value: string;
 	description: string;
@@ -51,7 +51,7 @@ interface TaskStatus extends BaseEntity {
 	fullIconUrl: string;
 }
 
-interface Task extends ITeamTask {
+export interface Task extends ITeamTask {
 	taskStatus: TaskStatus | null;
 	number: number;
 	description: string;
@@ -282,4 +282,3 @@ export interface ITimesheetStatisticsData {
 	weekActivities: number;
 	weekDuration: number;
 }
-

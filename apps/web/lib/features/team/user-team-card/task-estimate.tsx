@@ -34,9 +34,9 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 
 	return (
 		<div className={className}>
-			<div className="flex items-center flex-col gap-y-[2rem] min-w-[3.3rem] justify-center">
+			<div className="flex items-center flex-col gap-y-[2rem] w-full px-2 justify-center">
 				{showTime && (
-					<div className="flex space-x-2 items-center font-normal lg:text-sm text-xs">
+					<div className="flex space-x-2 items-center w-full font-normal lg:text-sm text-xs">
 						<span className={clsxm('text-gray-500', hasEditMode && ['hidden'])}>
 							{t('common.ESTIMATED')}:
 						</span>
