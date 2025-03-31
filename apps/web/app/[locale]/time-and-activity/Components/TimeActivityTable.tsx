@@ -164,7 +164,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 				trackedHours: `${formatDuration(employeeLog.sum)}h`,
 				earnings: '160.00 USD',
 				activityLevel: employeeLog.activity || 50,
-				status: Math.random() > 0.5 ? 'active' : 'inactive' // Simulation - à remplacer par la vraie logique
+				status: Math.random() > 0.5 ? 'active' : 'inactive'
 			}))
 		);
 
