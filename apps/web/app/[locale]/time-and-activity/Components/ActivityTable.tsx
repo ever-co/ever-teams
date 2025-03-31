@@ -8,7 +8,7 @@ import { ProjectCell } from './ProjectCell';
 import { TrackedHoursCell } from './TrackedHoursCell';
 import { EarningsCell } from './EarningsCell';
 import { ActivityLevelCell } from './ActivityLevelCell';
-import { ActivityTableSkeleton } from './ActivityTableSkeleton';
+import ActivityTableSkeleton from './ActivityTableSkeleton';
 import React from 'react';
 
 interface TimeSlot {
@@ -170,7 +170,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			task: visibilityMap.get('task') ?? true,
 			trackedHours: visibilityMap.get('trackedHours') ?? true,
 			earnings: visibilityMap.get('earnings') ?? true,
-			activityLevel: visibilityMap.get('activityLevel') ?? true
+			activityLevel: visibilityMap.get('activityLevel') ?? true,
+			startedAt: visibilityMap.get('startedAt') ?? true,
+			stoppedAt: visibilityMap.get('stoppedAt') ?? true,
+			duration: visibilityMap.get('duration') ?? true
 		};
 	}, [viewOptions]);
 
@@ -199,13 +202,30 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 	}, []);
 
 	if (isLoading) {
-		return <ActivityTableSkeleton columnVisibility={columnVisibility} />;
+		return (
+			<ActivityTableSkeleton
+				columnVisibility={{
+					member: true,
+					project: true,
+					task: true,
+					trackedHours: true,
+					earnings: true,
+					activityLevel: true,
+					startedAt: true,
+					stoppedAt: true,
+					duration: true
+				}}
+			/>
+		);
 	}
 
 	return (
 		<div className="space-y-6 ">
 			{currentEntries.map((dayLog: DailyLog) => (
-				<div key={dayLog.date} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+				<div
+					key={dayLog.date}
+					className="bg-white dark:bg-dark--theme-light rounded-lg shadow-sm overflow-hidden"
+				>
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 						<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
 							<div className="text-base ">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
@@ -249,6 +269,21 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 								{columnVisibility.activityLevel && (
 									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
 										Activity Level ↑
+									</TableHead>
+								)}
+								{columnVisibility.startedAt && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Started At ↑
+									</TableHead>
+								)}
+								{columnVisibility.stoppedAt && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Stopped At ↑
+									</TableHead>
+								)}
+								{columnVisibility.duration && (
+									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+										Duration ↑
 									</TableHead>
 								)}
 							</TableRow>
@@ -306,6 +341,21 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													activity={employeeLog.activity}
 													duration={employeeLog.sum}
 												/>
+											</TableCell>
+										)}
+										{columnVisibility.startedAt && (
+											<TableCell className="px-6 py-4">
+												{/* Started At Cell */}
+											</TableCell>
+										)}
+										{columnVisibility.stoppedAt && (
+											<TableCell className="px-6 py-4">
+												{/* Stopped At Cell */}
+											</TableCell>
+										)}
+										{columnVisibility.duration && (
+											<TableCell className="px-6 py-4">
+												{/* Duration Cell */}
 											</TableCell>
 										)}
 									</TableRow>
