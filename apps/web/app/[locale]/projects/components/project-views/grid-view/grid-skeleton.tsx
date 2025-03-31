@@ -1,120 +1,99 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { FC } from 'react';
 import { cn } from '@/lib/utils';
+import { FC } from 'react';
 
 /**
  * Project header component with skeleton elements for project icon and name.
  */
 const ProjectHeader: FC = () => (
 	<div className="w-full flex items-center justify-between">
-		<div className="flex items-center font-medium gap-2">
-			<Skeleton className="w-9 h-9 rounded-lg border" />
-			<Skeleton className="h-4 w-32 rounded" />
+		<div className="flex items-center gap-2">
+			<Skeleton className="w-8 h-8 rounded" />
+			<Skeleton className="h-4 w-24 rounded" />
 		</div>
-		<Skeleton className="h-7 w-20 rounded" />
+		<Skeleton className="h-6 w-6 rounded" />
 	</div>
 );
 
 /**
- * Project status component with skeleton elements for status indicators.
+ * Project status component with skeleton elements.
  */
 const ProjectStatus: FC = () => (
-	<div className="w-full items-center flex gap-4">
-		<Skeleton className="h-4 w-14 rounded" />
-		<Skeleton className="h-4 w-16 rounded" />
+	<div className="w-full flex items-center gap-2">
+		<Skeleton className="h-5 w-16 rounded-full" />
 	</div>
 );
 
 /**
- * Project dates component with skeleton elements for start and end dates.
+ * Project dates component with skeleton elements.
  */
 const ProjectDates: FC = () => (
-	<div className="w-full flex items-center gap-8">
-		{/* Start Date */}
-		<div className="flex flex-col gap-1.5">
+	<div className="w-full flex items-center gap-4">
+		<div className="flex flex-col gap-1">
 			<Skeleton className="h-4 w-16 rounded" />
-			<div className="flex items-center gap-1">
-				<Skeleton className="h-4 w-20 rounded" />
-			</div>
+			<Skeleton className="h-4 w-20 rounded" />
 		</div>
-		{/* End Date */}
-		<div className="flex flex-col gap-1.5">
+		<div className="flex flex-col gap-1">
 			<Skeleton className="h-4 w-16 rounded" />
-			<div className="flex items-center gap-1">
-				<Skeleton className="h-4 w-20 rounded" />
-			</div>
+			<Skeleton className="h-4 w-20 rounded" />
 		</div>
 	</div>
 );
 
 /**
- * Avatar group component with skeleton elements for avatars.
+ * Project team members component with skeleton elements.
  */
-interface AvatarGroupProps {
-	/**
-	 * Number of avatars to display.
-	 */
-	count: number;
-	/**
-	 * Width of the label skeleton element.
-	 */
-	labelWidth?: number;
-}
-
-const AvatarGroup: FC<AvatarGroupProps> = ({ count, labelWidth = 14 }) => (
-	<div className="w-full flex flex-col gap-1.5">
-		<Skeleton className={`h-4 w-${labelWidth} rounded`} />
-		<div className="flex -space-x-2">
-			{Array.from({ length: count }).map((_, index) => (
-				<Skeleton key={index} className="h-7 w-7 rounded-full border" />
-			))}
-		</div>
-	</div>
-);
-
-/**
- * Project team info component with avatar groups for members, teams, and managers.
- */
-const ProjectTeamInfo: FC = () => (
+const ProjectTeam: FC = () => (
 	<div className="w-full flex items-center justify-between">
-		<AvatarGroup count={3} labelWidth={14} />
-		<AvatarGroup count={2} labelWidth={12} />
-		<AvatarGroup count={2} labelWidth={16} />
+		<div className="flex flex-col gap-1">
+			<Skeleton className="h-4 w-16 rounded" />
+			<div className="flex -space-x-2">
+				{[...Array(2)].map((_, i) => (
+					<Skeleton
+						key={i}
+						className="h-8 w-8 rounded-full border-2 border-white dark:border-dark--theme-light"
+					/>
+				))}
+			</div>
+		</div>
+		<div className="flex flex-col gap-1">
+			<Skeleton className="h-4 w-12 rounded" />
+			<div className="flex -space-x-2">
+				<Skeleton className="h-8 w-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+			</div>
+		</div>
+		<div className="flex flex-col gap-1">
+			<Skeleton className="h-4 w-16 rounded" />
+			<div className="flex -space-x-2">
+				<Skeleton className="h-8 w-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+			</div>
+		</div>
 	</div>
 );
 
 /**
- * Project grid item component with skeleton elements for project information.
+ * Project grid item skeleton component.
  */
 const ProjectGridItem: FC = () => (
 	<div
 		className={cn(
-			'w-full bg-white dark:bg-dark--theme-light rounded-lg overflow-hidden border border-gray-200 dark:border-dark--theme-light',
-			'hover:border-primary dark:hover:border-primary transition-colors duration-200'
+			'bg-white hover:border-primary dark:hover:border-primary dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-dark--theme-light p-4 flex flex-col gap-4'
 		)}
 	>
-		<div className="w-full shrink-0 p-3 flex">
-			<Skeleton className="h-4 w-4 mt-1 rounded border" />
-			<div className="h-full flex flex-col gap-6 grow ml-3">
-				<ProjectHeader />
-				<ProjectStatus />
-				<ProjectDates />
-				<ProjectTeamInfo />
-			</div>
-		</div>
+		<ProjectHeader />
+		<ProjectStatus />
+		<ProjectDates />
+		<ProjectTeam />
 	</div>
 );
 
 /**
- * Projects grid skeleton component with multiple project grid items.
+ * Projects grid skeleton component that displays multiple loading items.
  */
-export const ProjectsGridSkeleton: FC = () => {
-	return (
-		<>
-			{Array.from({ length: 12 }).map((_, index) => (
-				<ProjectGridItem key={index} />
-			))}
-			<span>Bonjour bukavu</span>
-		</>
-	);
-};
+export const ProjectsGridSkeleton: FC = () => (
+	<>
+		{[...Array(12)].map((_, i) => (
+			<ProjectGridItem key={i} />
+		))}
+	</>
+);
