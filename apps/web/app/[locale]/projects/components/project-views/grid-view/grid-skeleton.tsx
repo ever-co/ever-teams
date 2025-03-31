@@ -114,6 +114,7 @@ export const ProjectsGridSkeleton: FC = () => {
 			{Array.from({ length: 12 }).map((_, index) => (
 				<ProjectGridItem key={index} />
 			))}
+			<span>Bonjour bukavu</span>
 		</>
 	);
 };
