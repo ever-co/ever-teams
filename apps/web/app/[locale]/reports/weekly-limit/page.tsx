@@ -161,9 +161,10 @@ function WeeklyLimitReport() {
 									<TimeReportTable
 										header={
 											displayMode === 'week' ? (
-												<h4 className="text-xs font-medium">
-													<span>{report.date}</span> <span>-</span>
-													<span>
+												<h4 className="text-xs">
+													<span className="font-medium">{report.date}</span>{' '}
+													<span className="mx-2">-</span>
+													<span className="font-medium">
 														{moment(report.date).endOf('week').format('YYYY-MM-DD')}
 													</span>
 												</h4>

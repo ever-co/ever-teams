@@ -3,7 +3,7 @@ import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
 import moment from 'moment';
 
-interface ITimeReportTableProps {
+export interface ITimeReportTableProps {
 	report: ITimeLimitReport;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
