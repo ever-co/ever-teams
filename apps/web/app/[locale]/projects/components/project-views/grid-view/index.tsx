@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { ProjectViewDataType } from '..';
 import GridItem from './grid-item';
-import { SpinnerLoader } from '@/lib/components';
 import { useTranslations } from 'next-intl';
+import { ProjectsGridSkeleton } from './grid-skeleton';
 
 interface IProps {
 	selectedProjects: Record<string, boolean>;
@@ -34,7 +34,7 @@ export function ProjectsGridView(props: IProps) {
 		<div key="grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
 			{loading ? (
 				<div className="w-full h-full flex items-center justify-center">
-					<SpinnerLoader />
+					<ProjectsGridSkeleton />
 				</div>
 			) : projects.length > 0 ? (
 				projects.map((el) => (
