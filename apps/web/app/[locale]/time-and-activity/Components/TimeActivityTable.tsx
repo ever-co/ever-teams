@@ -4,6 +4,7 @@ import Image from 'next/image';
 import ProgressBar from './progress-bar';
 import { Column, TimeActivityTableAdapter } from './TimeActivityTableAdapter';
 import { formatDuration, getWeekRange } from '@/utils/formatDuration';
+import { EmptyTimeActivity } from './EmptyTimeActivity';
 
 interface TimeEntry {
 	member: {
@@ -52,6 +53,10 @@ interface TimeActivityTableProps {
 }
 
 export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = false }) => {
+	if (!loading && (!data || data.length === 0)) {
+		return <EmptyTimeActivity />;
+	}
+
 	const columns: Column<TimeEntry>[] = [
 		{
 			header: 'Member',
