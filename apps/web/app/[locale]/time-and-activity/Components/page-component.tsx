@@ -13,10 +13,10 @@ import React, { useMemo, useState, useCallback } from 'react';
 import TimeActivityHeader, { ViewOption } from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
-import ActivityTable from './ActivityTable';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
+import { TimeActivityTable } from './TimeActivityTable';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -120,11 +120,12 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable
+					{/* <ActivityTable
 						rapportDailyActivity={rapportDailyActivity}
 						viewOptions={viewOptions}
 						isLoading={loading}
-					/>
+					/> */}
+					<TimeActivityTable data={rapportDailyActivity as any} loading={loading} />
 				</Card>
 			</Container>
 		</MainLayout>
