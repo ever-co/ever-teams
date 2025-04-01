@@ -54,12 +54,12 @@ export const WeeklyLimitPDFDocument = ({
 
 				<View>
 					{data
-						.filter((report) =>
+						?.filter((report) =>
 							displayMode === 'week'
 								? moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'date')
 								: true
 						)
-						.map((el, idx) => {
+						?.map((el, idx) => {
 							return (
 								<View key={idx} style={{ marginBottom: '10px' }}>
 									<View
