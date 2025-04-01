@@ -90,8 +90,8 @@ export const TimeReportTableByMember = ({
 			<DataTableWeeklyLimits
 				data={report.reports?.map((item) => {
 					const limit = item.limit || organizationLimits[displayMode] || DEFAULT_WORK_HOURS_PER_DAY;
-					const percentageUsed = (item.duration / limit) * 100;
-					const remaining = limit - item.duration;
+					const percentageUsed = limit > 0 ? (item.duration / limit) * 100 : 0;
+					const remaining = Math.max(0, limit - item.duration);
 
 					return {
 						indexValue:
