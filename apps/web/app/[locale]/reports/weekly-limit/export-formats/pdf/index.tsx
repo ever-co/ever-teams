@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
 	table: { display: 'flex', flexDirection: 'column', width: '100%', fontWeight: '400', fontSize: '10px' },
 	row: { display: 'flex', flexDirection: 'row' },
 	rowHeader: {
-		backgroundColor: 'rgba(0, 0, 0, 0.1',
+		backgroundColor: 'rgba(0, 0, 0, 0.1)',
 		height: '10px',
 		display: 'flex',
 		alignItems: 'center',
