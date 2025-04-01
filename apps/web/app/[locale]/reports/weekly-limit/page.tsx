@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { DatePickerWithRange } from '../../../../components/shared/date-range-select';
 import { MembersSelect } from './components/members-select';
 import { GroupBySelect, TGroupByOption } from './components/group-by-select';
-import { ExportModeSelect } from '../../../../components/shared/export-mode-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import { useTimeLimits } from '@/app/hooks/features/useTimeLimits';
 import { DateRange } from 'react-day-picker';
@@ -20,6 +19,7 @@ import { getUserOrganizationsRequest } from '@/app/services/server/requests';
 import { IOrganization } from '@/app/interfaces';
 import { useTranslations } from 'next-intl';
 import { groupDataByEmployee, TimeReportTable, TimeReportTableByMember } from './components/time-report-table';
+import { WeeklyLimitExportMenu } from './components/weekly-limit-report-export-menu';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -123,7 +123,23 @@ function WeeklyLimitReport() {
 									defaultValue={dateRange}
 									onChange={(rangeDate) => setDateRange(rangeDate)}
 								/>
-								<ExportModeSelect onChange={(value) => console.log(value)} />
+								{organizationLimits && (
+									<WeeklyLimitExportMenu
+										data={
+											groupBy.includes('week')
+												? timeLimitsReports.filter((report) =>
+														moment(report.date).isSame(
+															moment(report.date).startOf('isoWeek'),
+															'day'
+														)
+													)
+												: timeLimitsReports
+										}
+										displayMode={displayMode}
+										organizationLimits={organizationLimits}
+										activeTeam={activeTeam}
+									/>
+								)}
 							</div>
 						</div>
 						<div className="flex gap-2 items-center">
