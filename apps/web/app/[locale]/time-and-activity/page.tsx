@@ -1,9 +1,9 @@
-'use client'
-import React from 'react'
-import TimeActivityComponents from './Components/page-component'
+'use client';
+import React from 'react';
+import TimeActivityComponents from './Components/page-component';
 
 function TimeAndActivity() {
-  return (<TimeActivityComponents/> )
+	return <TimeActivityComponents />;
 }
 
-export default TimeAndActivity
+export default TimeAndActivity;

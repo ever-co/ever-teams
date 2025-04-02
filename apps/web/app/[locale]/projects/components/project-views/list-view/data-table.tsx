@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AnimatedEmptyState } from '@components/ui/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useModal, useTaskStatus } from '@/app/hooks';
@@ -500,8 +501,20 @@ export const ProjectsTable = memo(
 									))
 								) : (
 									<TableRow>
-										<TableCell colSpan={columns.length} className="h-24 text-center">
-											{t('common.NO_RESULT')}
+										<TableCell colSpan={columns.length} className="h-[600px]">
+											<AnimatedEmptyState
+												title="No Projects Yet"
+												showBorder={false}
+												message={
+													<>
+														<p>Ready to start something amazing?</p>
+														<p className="text-sm text-gray-500 mt-1">
+															Create your first project and begin collaborating with your
+															team.
+														</p>
+													</>
+												}
+											/>
 										</TableCell>
 									</TableRow>
 								)}
@@ -509,8 +522,19 @@ export const ProjectsTable = memo(
 						</Table>
 					</div>
 				) : (
-					<div className="w-full h-12 flex items-center justify-center">
-						<span>{t('common.NO_RESULT')}</span>
+					<div className="w-full min-h-[600px] flex items-center justify-center">
+						<AnimatedEmptyState
+							title="No Projects Yet"
+							showBorder={false}
+							message={
+								<>
+									<p>Ready to start something amazing?</p>
+									<p className="text-sm text-gray-500 mt-1">
+										Create your first project and begin collaborating with your team.
+									</p>
+								</>
+							}
+						/>
 					</div>
 				)}
 			</div>

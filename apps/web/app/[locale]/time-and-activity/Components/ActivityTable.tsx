@@ -9,6 +9,7 @@ import { TrackedHoursCell } from './TrackedHoursCell';
 import { EarningsCell } from './EarningsCell';
 import { ActivityLevelCell } from './ActivityLevelCell';
 import ActivityTableSkeleton from './ActivityTableSkeleton';
+import { AnimatedEmptyState } from '@components/ui/empty-state';
 import React from 'react';
 
 interface TimeSlot {
@@ -219,6 +220,15 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		);
 	}
 
+	if (!transformedData.length) {
+		return (
+			<AnimatedEmptyState
+				title="No Activity Data"
+				message="There is no activity data to display for the selected time period."
+			/>
+		);
+	}
+
 	return (
 		<div className="space-y-6 ">
 			{currentEntries.map((dayLog: DailyLog) => (
@@ -344,19 +354,13 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 											</TableCell>
 										)}
 										{columnVisibility.startedAt && (
-											<TableCell className="px-6 py-4">
-												{/* Started At Cell */}
-											</TableCell>
+											<TableCell className="px-6 py-4">{/* Started At Cell */}</TableCell>
 										)}
 										{columnVisibility.stoppedAt && (
-											<TableCell className="px-6 py-4">
-												{/* Stopped At Cell */}
-											</TableCell>
+											<TableCell className="px-6 py-4">{/* Stopped At Cell */}</TableCell>
 										)}
 										{columnVisibility.duration && (
-											<TableCell className="px-6 py-4">
-												{/* Duration Cell */}
-											</TableCell>
+											<TableCell className="px-6 py-4">{/* Duration Cell */}</TableCell>
 										)}
 									</TableRow>
 								))

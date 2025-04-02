@@ -20,7 +20,18 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, CalendarViewIcon, ListViewIcon, MemberWorkIcon, MenHoursIcon, PendingTaskIcon, SelectedTimesheet, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
+import {
+	CalendarView,
+	CalendarViewIcon,
+	ListViewIcon,
+	MemberWorkIcon,
+	MenHoursIcon,
+	PendingTaskIcon,
+	SelectedTimesheet,
+	TimesheetCard,
+	TimesheetFilter,
+	TimesheetView
+} from './components';
 import { GoSearch } from 'react-icons/go';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
@@ -57,30 +68,39 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
-	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
+	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>(
+		'timesheet-detail-mode',
+		'Pending'
+	);
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
 	);
 
-    /**
-     * Default date range for the current month
-     */
-    const defaultDateRange = useMemo(() => ({
-        from: startOfMonth(new Date()),
-        to: endOfMonth(new Date())
-    }), []);
+	/**
+	 * Default date range for the current month
+	 */
+	const defaultDateRange = useMemo(
+		() => ({
+			from: startOfMonth(new Date()),
+			to: endOfMonth(new Date())
+		}),
+		[]
+	);
 
-    const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(defaultDateRange);
+	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(defaultDateRange);
 
-    /**
-     * Memoized date range for timesheet
-     * Returns default dates if current dates are null
-     */
-    const timesheetDateRange = useMemo(() => ({
-        startDate: dateRange.from || defaultDateRange.from,
-        endDate: dateRange.to || defaultDateRange.to
-    }), [dateRange.from, dateRange.to, defaultDateRange]);
+	/**
+	 * Memoized date range for timesheet
+	 * Returns default dates if current dates are null
+	 */
+	const timesheetDateRange = useMemo(
+		() => ({
+			startDate: dateRange.from || defaultDateRange.from,
+			endDate: dateRange.to || defaultDateRange.to
+		}),
+		[dateRange.from, dateRange.to, defaultDateRange]
+	);
 
 	const {
 		timesheet: filterDataTimesheet,
@@ -93,8 +113,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		updateTimesheetStatus,
 		deleteTaskTimesheet
 	} = useTimesheet({
-        startDate: timesheetDateRange.startDate,
-        endDate: timesheetDateRange.endDate,
+		startDate: timesheetDateRange.startDate,
+		endDate: timesheetDateRange.endDate,
 		timesheetViewMode: timesheetNavigator,
 		inputSearch: search
 	});
@@ -114,19 +134,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		pageSize
 	});
 	const viewData = useTimesheetViewData({
-        timesheetNavigator,
-        timesheetGroupByDays,
-        paginatedGroups,
-        filterDataTimesheet
-    });
+		timesheetNavigator,
+		timesheetGroupByDays,
+		paginatedGroups,
+		filterDataTimesheet
+	});
 
-    const {
-        activeStatus,
-        setActiveStatus,
-        filteredData,
-        statusData
-    } = useTimesheetFilters(viewData);
-
+	const { activeStatus, setActiveStatus, filteredData, statusData } = useTimesheetFilters(viewData);
 
 	React.useEffect(() => {
 		getOrganizationProjects();
@@ -302,18 +316,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
 						<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
-								<TimesheetView
-									user={user}
-									data={filteredData}
-									loading={loadingTimesheet}
-								/>
+								<TimesheetView user={user} data={filteredData} loading={loadingTimesheet} />
 							) : (
 								<>
-									<CalendarView
-										user={user}
-										data={filteredData}
-										loading={loadingTimesheet}
-									/>
+									<CalendarView data={filteredData} loading={loadingTimesheet} />
 									{selectTimesheetId.length > 0 && (
 										<SelectedTimesheet
 											deleteTaskTimesheet={deleteTaskTimesheet}
