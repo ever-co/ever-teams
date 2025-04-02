@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import MonthlyTimesheetCalendar from './MonthlyTimesheetCalendar';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import WeeklyTimesheetCalendar from './WeeklyTimesheetCalendar';
-import { IUser, TimesheetLog } from '@/app/interfaces';
+import { TimesheetLog } from '@/app/interfaces';
 import TimesheetSkeleton from '@components/shared/skeleton/TimesheetSkeleton';
 import { Checkbox } from '@components/ui/checkbox';
 // Import AnimatedDataSvg component
@@ -21,18 +21,9 @@ interface BaseCalendarDataViewProps {
 	data: GroupedTimesheet[];
 	daysLabels?: string[];
 	CalendarComponent: typeof MonthlyTimesheetCalendar | typeof WeeklyTimesheetCalendar;
-	user?: IUser | undefined;
 }
 
-export function CalendarView({
-	data,
-	loading,
-	user
-}: {
-	data?: GroupedTimesheet[];
-	loading: boolean;
-	user?: IUser | undefined;
-}) {
+export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loading: boolean }) {
 	const t = useTranslations();
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const defaultDaysLabels = [
