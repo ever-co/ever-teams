@@ -29,18 +29,21 @@ const styles = StyleSheet.create({
 	remaining: { width: '15%' }
 });
 
+export interface IWeeklyLimitReportPDFDocumentProps {
+	headers: Record<keyof WeeklyLimitTableDataType, DottedLanguageObjectStringPaths>;
+	displayMode: 'week' | 'date';
+	organizationLimits: { [key: string]: number };
+	title: string;
+}
+
 export const WeeklyLimitPDFDocument = ({
 	data,
 	headers,
 	displayMode,
 	organizationLimits,
 	title
-}: {
+}: IWeeklyLimitReportPDFDocumentProps & {
 	data: ITimeLimitReport[];
-	headers: Record<keyof WeeklyLimitTableDataType, DottedLanguageObjectStringPaths>;
-	displayMode: 'week' | 'date';
-	organizationLimits: { [key: string]: number };
-	title: string;
 }) => {
 	return (
 		<Document style={{ width: '100%', height: '40rem' }}>
@@ -113,7 +116,7 @@ export const WeeklyLimitPDFDocument = ({
 	);
 };
 
-function Table({
+export function Table({
 	data,
 	headers
 }: {

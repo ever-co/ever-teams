@@ -125,6 +125,8 @@ function WeeklyLimitReport() {
 								/>
 								{organizationLimits && (
 									<WeeklyLimitExportMenu
+										dataByEmployee={groupDataByEmployee(timeLimitsReports)}
+										isGroupedByEmployee={groupBy.includes('member')}
 										data={
 											groupBy.includes('week')
 												? timeLimitsReports.filter((report) =>

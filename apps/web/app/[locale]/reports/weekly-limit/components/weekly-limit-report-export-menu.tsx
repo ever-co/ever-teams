@@ -3,25 +3,54 @@ import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 import { IOrganizationTeamList } from '@/app/interfaces';
-import { ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
+import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/app/interfaces/ITimeLimits';
 import { WeeklyLimitPDFDocument } from '../export-formats/pdf';
+import { WeeklyLimitByEmployeePDFDocument } from '../export-formats/pdf/grouped-by-employee';
 
 interface IProps {
 	data: ITimeLimitReport[];
+	dataByEmployee: ITimeLimitReportByEmployee[];
 	activeTeam: IOrganizationTeamList | null;
 	displayMode: 'week' | 'date';
 	organizationLimits: {
 		date: number;
 		week: number;
 	};
+	isGroupedByEmployee: boolean;
 }
 
 export function WeeklyLimitExportMenu(props: IProps) {
-	const { data, activeTeam, displayMode, organizationLimits } = props;
+	const { data, activeTeam, displayMode, organizationLimits, dataByEmployee, isGroupedByEmployee } = props;
 
 	const t = useTranslations();
+
+	const PDFDocumentProps = useMemo(
+		() => ({
+			headers: {
+				indexValue: t('common.MEMBER'),
+				limit: t('pages.timeLimitReport.LIMIT'),
+				remaining: t('pages.timeLimitReport.REMAINING'),
+				timeSpent: t('pages.timeLimitReport.TIME_SPENT'),
+				percentageUsed: t('pages.timeLimitReport.PERCENTAGE_USED')
+			},
+			title: `Weekly Limit Report - ${activeTeam?.name}`,
+			organizationLimits,
+			displayMode
+		}),
+		[activeTeam?.name, displayMode, organizationLimits, t]
+	);
+
+	const pdfDocument = useMemo(
+		() =>
+			isGroupedByEmployee ? (
+				<WeeklyLimitByEmployeePDFDocument data={dataByEmployee} {...PDFDocumentProps} />
+			) : (
+				<WeeklyLimitPDFDocument data={data} {...PDFDocumentProps} />
+			),
+		[isGroupedByEmployee, dataByEmployee, PDFDocumentProps, data]
+	);
 
 	return (
 		<Menu as="div" className="relative inline-block text-left">
@@ -55,21 +84,7 @@ export function WeeklyLimitExportMenu(props: IProps) {
 								>
 									<PDFDownloadLink
 										className="w-full h-full text-left"
-										document={
-											<WeeklyLimitPDFDocument
-												title={`Weekly Limit Report - ${activeTeam?.name}`}
-												data={data}
-												organizationLimits={organizationLimits}
-												displayMode={displayMode}
-												headers={{
-													indexValue: t('common.MEMBER'),
-													limit: t('pages.timeLimitReport.LIMIT'),
-													remaining: t('pages.timeLimitReport.REMAINING'),
-													timeSpent: t('pages.timeLimitReport.TIME_SPENT'),
-													percentageUsed: t('pages.timeLimitReport.PERCENTAGE_USED')
-												}}
-											/>
-										}
+										document={pdfDocument}
 										fileName={`${activeTeam?.name}-weekly-limit-report.pdf`}
 									>
 										{({ loading }) =>
