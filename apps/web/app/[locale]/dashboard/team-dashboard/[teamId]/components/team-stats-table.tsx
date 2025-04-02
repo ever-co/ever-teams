@@ -1,8 +1,8 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
 import { PaginationDropdown } from '@/lib/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { Skeleton } from '@components/ui/skeleton';
 import { Card } from '@components/ui/card';
+import { AnimatedEmptyState } from '@components/ui/empty-state';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -132,8 +133,12 @@ export function TeamStatsTable({
 
 	if (!rapportDailyActivity?.length) {
 		return (
-			<div className="flex justify-center items-center min-h-[600px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
-				{t('common.teamStats.NO_DATA_AVAILABLE')}
+			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
+				<AnimatedEmptyState
+					title={t('common.NO_ACTIVITY_DATA')}
+					message={t('common.SELECT_DIFFERENT_DATE')}
+					showBorder={true}
+				/>
 			</div>
 		);
 	}
@@ -396,13 +401,27 @@ const LoadingTable = () => {
 									<Skeleton className="w-32 h-4" />
 								</div>
 							</TableCell>
-							<TableCell className="w-[100px]"><Skeleton className="w-16 h-4"/></TableCell>
-							<TableCell className="w-[80px]"><Skeleton className="w-12 h-4"/></TableCell>
-							<TableCell className="w-[120px]"><Skeleton className="w-20 h-4"/></TableCell>
-							<TableCell className="w-[100px]"><Skeleton className="w-16 h-4"/></TableCell>
-							<TableCell className="w-[80px]"><Skeleton className="w-12 h-4"/></TableCell>
-							<TableCell className="w-[120px]"><Skeleton className="w-20 h-4"/></TableCell>
-							<TableCell className="w-[200px]"><Skeleton className="w-32 h-4"/></TableCell>
+							<TableCell className="w-[100px]">
+								<Skeleton className="w-16 h-4" />
+							</TableCell>
+							<TableCell className="w-[80px]">
+								<Skeleton className="w-12 h-4" />
+							</TableCell>
+							<TableCell className="w-[120px]">
+								<Skeleton className="w-20 h-4" />
+							</TableCell>
+							<TableCell className="w-[100px]">
+								<Skeleton className="w-16 h-4" />
+							</TableCell>
+							<TableCell className="w-[80px]">
+								<Skeleton className="w-12 h-4" />
+							</TableCell>
+							<TableCell className="w-[120px]">
+								<Skeleton className="w-20 h-4" />
+							</TableCell>
+							<TableCell className="w-[200px]">
+								<Skeleton className="w-32 h-4" />
+							</TableCell>
 							<TableCell className="w-[10px]"></TableCell>
 						</TableRow>
 					))}

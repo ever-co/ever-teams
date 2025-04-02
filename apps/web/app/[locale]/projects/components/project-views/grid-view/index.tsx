@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { ProjectViewDataType } from '..';
 import GridItem from './grid-item';
-import { useTranslations } from 'next-intl';
 import { ProjectsGridSkeleton } from './grid-skeleton';
+import { AnimatedEmptyState } from '@components/ui/empty-state';
 
 interface IProps {
 	selectedProjects: Record<string, boolean>;
@@ -13,7 +13,6 @@ interface IProps {
 
 export function ProjectsGridView(props: IProps) {
 	const { projects = [], selectedProjects, loading, setSelectedProjects } = props;
-	const t = useTranslations();
 
 	const handleSelectProject = useCallback(
 		(projectId: string) => {
@@ -44,8 +43,18 @@ export function ProjectsGridView(props: IProps) {
 					/>
 				))
 			) : (
-				<div className="w-full h-full flex pb-6 items-center justify-center">
-					<span>{t('common.NO_RESULT')}</span>
+				<div className="col-span-full min-h-[600px]">
+					<AnimatedEmptyState
+						title="No Projects Yet"
+						message={
+							<>
+								<p>Ready to start something amazing?</p>
+								<p className="text-sm text-gray-500 mt-1">
+									Create your first project and begin collaborating with your team.
+								</p>
+							</>
+						}
+					/>
 				</div>
 			)}
 		</div>

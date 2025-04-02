@@ -1,10 +1,10 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@components/ui/card';
-import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import {
 	IActivityReport,
 	IActivityReportGroupByDate,
@@ -12,12 +12,13 @@ import {
 	IProjectWithActivity
 } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
-import { useTranslations } from 'next-intl';
 import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-config';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@components/ui/sort-popover';
 import { usePagination } from '@/app/hooks/features/usePagination';
 import { Paginate } from '@/lib/components';
+import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { format } from 'date-fns';
 
 export function ProductivityApplicationTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {
 	const reportData = data as IActivityReportGroupByDate[] | undefined;
@@ -26,17 +27,8 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 	const t = useTranslations();
 
-	const {
-		total,
-		onPageChange,
-		itemsPerPage,
-		itemOffset,
-		endOffset,
-		setItemsPerPage,
-		currentItems
-	} = usePagination<IActivityReportGroupByDate>(
-		sortedData
-	);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+		usePagination<IActivityReportGroupByDate>(sortedData);
 
 	if (isLoading) {
 		return (
@@ -79,11 +71,14 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 
 	if (!reportData || reportData.length === 0) {
 		return (
-			<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px] flex items-center justify-center">
-				<div className="text-center text-gray-500 dark:text-gray-400">
-					<p className="text-lg font-medium">{t('common.NO_ACTIVITY_DATA')}</p>
-					<p className="text-sm">{t('common.SELECT_DIFFERENT_DATE')}</p>
-				</div>
+			<Card className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
+				<AnimatedEmptyState
+					title={t('common.NO_ACTIVITY_DATA')}
+					message={t('common.SELECT_DIFFERENT_DATE')}
+					showBorder={false}
+					iconContainerSize="md"
+					iconSize="lg"
+				/>
 			</Card>
 		);
 	}
