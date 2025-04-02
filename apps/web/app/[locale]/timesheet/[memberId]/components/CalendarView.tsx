@@ -79,7 +79,7 @@ export function CalendarView({
 	);
 }
 
-const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[]; t: TranslationHooks }) => {
+const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationHooks }) => {
 	const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
 
 	return (
