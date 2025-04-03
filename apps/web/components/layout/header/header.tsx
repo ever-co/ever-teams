@@ -2,11 +2,19 @@ import MainLogo from './mainLogo';
 import { TeamsDropDown } from '../../shared/teams/teams-dropdown';
 import Profile from './profile';
 
+/**
+ * The header component.
+ *
+ * This component is fixed at the top of the page and contains the main logo,
+ * a dropdown to select a team, and a profile menu.
+ *
+ * @returns The header component.
+ */
 export const Header = () => {
 	return (
-		<header className="fixed w-full z-50">
+		<header className="fixed z-50 w-full">
 			<nav className="bg-white py-2 dark:bg-[#202023] shadow-sm">
-				<div className="flex flex-wrap justify-between items-center x-container-fluid">
+				<div className="flex flex-wrap items-center justify-between x-container-fluid">
 					<div className="flex items-center justify-center">
 						<MainLogo />
 					</div>

@@ -101,7 +101,7 @@ function TimeInfo({
 						daily.m
 					}m`}
 				>
-					<div className="flex items-center space-x-2 text-base font-normal">
+					<div className="flex items-center space-x-4 text-sm font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
 						<Text>
 							{daily.h}h : {daily.m}m
@@ -159,7 +159,7 @@ function TimeBlockInfo({
 						daily.m
 					}m`}
 				>
-					<div className=" text-base font-normal flex flex-col items-center ">
+					<div className="flex flex-col items-center text-base font-normal">
 						<span className="text-[#7B8089] text-center text-xs capitalize">
 							{t('common.WORKED_ON_TASK')} {t('common.TODAY')}
 						</span>
@@ -213,7 +213,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	);
 
 	return (
-		<div className={clsxm('text-center font-normal', className)}>
+		<div className={clsxm('font-normal text-center', className)}>
 			<Tooltip
 				label={`${currentMember?.employee.fullName} ${t(
 					'task.WORKED_TODAY_ON_ALL_TOOLTIP'
