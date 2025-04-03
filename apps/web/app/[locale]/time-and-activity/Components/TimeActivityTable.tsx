@@ -61,26 +61,46 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		{
 			header: 'Member',
 			accessorKey: 'member',
-			cell: (value) => (
-				<div className="flex items-center gap-3">
-					<Avatar className="w-8 h-8 rounded-full">
-						<Image src={value.imageUrl} alt={value.name} width={32} height={32} className="rounded-full" />
-					</Avatar>
-					<span className="font-medium">{value.name}</span>
-				</div>
-			)
+			cell: (value) => {
+				if (!value) return <div>No Member Data</div>;
+				return (
+					<div className="flex items-center gap-3">
+						<Avatar className="w-8 h-8 rounded-full">
+							<Image
+								src={value.imageUrl || '/assets/images/avatar.png'}
+								alt={value.name || 'Member'}
+								width={32}
+								height={32}
+								className="rounded-full"
+							/>
+						</Avatar>
+						<span className="font-medium">{value.name || 'Unnamed Member'}</span>
+					</div>
+				);
+			}
 		},
 		{
 			header: 'Project',
 			accessorKey: 'project',
-			cell: (value) => (
-				<div className="flex items-center gap-3">
-					<Avatar className="w-8 h-8 rounded-xl">
-						<Image src={value.imageUrl} alt={value.name} width={40} height={40} className="rounded-xl" />
-					</Avatar>
-					<span className="font-medium">{value.name}</span>
-				</div>
-			)
+			cell: (value) => {
+				if (!value) return <div>No Project Data</div>;
+				return (
+					<div className="flex items-center gap-3">
+						<Avatar className="rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+							{value.imageUrl && (
+								<Image
+									src={value.imageUrl}
+									alt={value.name || 'No project'}
+									width={40}
+									height={40}
+									className="rounded-full w-full h-full object-cover"
+								/>
+							)}
+						</Avatar>
+						<span className="font-medium">{value.name || 'No project'}</span>
+					</div>
+				);
+			}
 		},
 		{
 			header: 'Tracked Hours',
@@ -159,16 +179,16 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
 			projectLog.employeeLogs.map((employeeLog) => ({
 				member: {
-					name: employeeLog.employee.user.name,
-					imageUrl: employeeLog.employee.user.imageUrl
+					name: employeeLog.employee?.user?.name || 'No Member',
+					imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
 				},
 				project: {
-					name: projectLog.project.name,
-					imageUrl: projectLog.project.imageUrl
+					name: projectLog.project?.name || 'No Project',
+					imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
 				},
 				trackedHours: `${formatDuration(employeeLog.sum)}h`,
 				earnings: '160.00 USD',
-				activityLevel: employeeLog.activity || 50,
+				activityLevel: employeeLog.activity || 0,
 				status: Math.random() > 0.5 ? 'active' : 'inactive'
 			}))
 		);
