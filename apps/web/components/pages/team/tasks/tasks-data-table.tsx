@@ -1,18 +1,31 @@
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
+import {
+	ColumnDef,
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	useReactTable,
+	VisibilityState
+} from '@tanstack/react-table';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+import { ITeamTask } from '@/app/interfaces';
+interface DataTableProps {
+	columns: ColumnDef<ITeamTask>[];
+	data: ITeamTask[];
 	className?: string;
+	columnVisibility: VisibilityState;
 }
 
-export function TasksDataTable<TData, TValue>({ columns, data, className }: Readonly<DataTableProps<TData, TValue>>) {
+export function TasksDataTable({ columns, data, className, columnVisibility }: Readonly<DataTableProps>) {
 	const table = useReactTable({
 		columns,
 		data,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel()
+		getFilteredRowModel: getFilteredRowModel(),
+		state: {
+			columnVisibility
+		},
+		getRowId: (row) => row.id
 	});
 	return (
 		<div className={cn('rounded-md border', className)}>

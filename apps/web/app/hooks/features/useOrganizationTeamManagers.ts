@@ -21,8 +21,12 @@ export function useOrganizationAndTeamManagers() {
 	 * @returns An array of teams that the authenticated user manages, where the authenticated user has the 'MANAGER' role for at least one member of the team.
 	 */
 	const userManagedTeams = useMemo(() => {
-		return teams.filter((team) =>
-			team.members.some((member) => member.employee?.user?.id === user?.id && member.role?.name === 'MANAGER')
+		return (
+			teams?.filter((team) =>
+				team?.members?.some(
+					(member) => member?.employee?.user?.id === user?.id && member?.role?.name === 'MANAGER'
+				)
+			) || []
 		);
 	}, [teams, user]);
 
