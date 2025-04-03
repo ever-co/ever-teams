@@ -2,7 +2,7 @@
 import { Breadcrumb, Container, Paginate } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 
@@ -38,9 +38,11 @@ const TeamTask = () => {
 	);
 
 	const { tasks } = useTeamTasks();
+	const [searchTaskTerm, setSearchTaskTerm] = useState('');
+	const filteredTasks = useMemo(() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())), [searchTaskTerm, tasks] )
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ITeamTask>(tasks);
+		usePagination<ITeamTask>(filteredTasks);
 	const table = useReactTable<ITeamTask>({
 		data: currentItems,
 		columns,
@@ -82,10 +84,10 @@ const TeamTask = () => {
 
 									<Input
 										placeholder="Search tasks..."
-										value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-										onChange={(event) =>
-											table.getColumn('title')?.setFilterValue(event.target.value)
-										}
+										value={searchTaskTerm}
+										onChange={(event) => {
+											setSearchTaskTerm(event.target.value);
+										}}
 										className="max-w-sm pl-10 bg-transparent border-none dark:focus-visible:!border-[#c8c8c8] transition-all duration-200  placeholder:font-normal"
 									/>
 								</div>
