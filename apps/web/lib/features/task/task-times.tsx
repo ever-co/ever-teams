@@ -51,7 +51,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 	);
 
 	return (
-		<div className={clsxm(className)}>
+		<div className={clsxm('min-w-[100px]', className)}>
 			{isBlock ? (
 				<TimeBlockInfo
 					showDaily={showDaily}
