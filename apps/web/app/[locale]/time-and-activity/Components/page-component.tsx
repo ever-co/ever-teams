@@ -15,8 +15,9 @@ import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
-import { useReportActivity } from '@/app/hooks/features/useReportActivity';
+import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { TimeActivityTable } from './TimeActivityTable';
+import ActivityTable from './ActivityTable';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -31,6 +32,12 @@ const defaultViewOptions: ViewOption[] = [
 
 const TimeActivityComponents = () => {
 	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
+
+	const handleGroupByChange = useCallback((type: GroupByType) => {
+		setGroupByType(type);
+	}, []);
+
 	// Memoize column visibility checks
 	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
@@ -73,7 +80,7 @@ const TimeActivityComponents = () => {
 	);
 
 	const handleBack = () => router.back();
-
+	
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -100,6 +107,8 @@ const TimeActivityComponents = () => {
 								tasks={tasks}
 								activeTeam={activeTeam}
 								onUpdateDateRange={updateDateRange}
+								onGroupByChange={handleGroupByChange}
+								groupByType={groupByType}
 							/>
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
@@ -120,12 +129,28 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					{/* <ActivityTable
-						rapportDailyActivity={rapportDailyActivity}
-						viewOptions={viewOptions}
-						isLoading={loading}
-					/> */}
-					<TimeActivityTable data={rapportDailyActivity as any} loading={loading} />
+					{(() => {
+						switch (groupByType) {
+							case 'daily':
+								return (
+									<ActivityTable
+										rapportDailyActivity={rapportDailyActivity}
+										viewOptions={viewOptions}
+										isLoading={loading}
+									/>
+								);
+							case 'weekly':
+								return <TimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
+							default:
+								return (
+									<ActivityTable
+										rapportDailyActivity={rapportDailyActivity}
+										viewOptions={viewOptions}
+										isLoading={loading}
+									/>
+								);
+						}
+					})()}
 				</Card>
 			</Container>
 		</MainLayout>

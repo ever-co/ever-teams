@@ -5,6 +5,7 @@ export const EmptyTimeActivity: FC = () => {
 	return (
 		<div className="p-8 backdrop-blur-sm rounded-xl">
 			<AnimatedEmptyState
+				showBorder={false}
 				title="No Activity Data"
 				message={
 					<>
