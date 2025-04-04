@@ -31,6 +31,7 @@ export function Paginate({
 			aria-label="Table navigation"
 		>
 			<ReactPaginate
+			activeLinkClassName=' text-primary'
 				breakLabel=". . ."
 				nextLabel={
 					<div className="block relative w-10 h-10 justify-center items-center leading-tight text-gray-500 bg-white border border-[#23232329] rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px] p-2 disabled:opacity-25 outline-none">
