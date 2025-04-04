@@ -80,7 +80,7 @@ const TimeActivityComponents = () => {
 	);
 
 	const handleBack = () => router.back();
-	console.log('rapportDailyActivity', rapportDailyActivity);
+	
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
