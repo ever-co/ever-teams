@@ -4,9 +4,20 @@ import { MainLayout } from '@/lib/layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { Archive, Check, Grid, List, ListFilterPlus, Plus, RotateCcw, Search, Settings2 } from 'lucide-react';
+import {
+	Archive,
+	ArrowLeftIcon,
+	Check,
+	Grid,
+	List,
+	ListFilterPlus,
+	Plus,
+	RotateCcw,
+	Search,
+	Settings2
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button, InputField, VerticalSeparator } from '@/lib/components';
+import { Breadcrumb, Button, Container, InputField, VerticalSeparator } from '@/lib/components';
 import { DatePickerWithRange } from '@components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
@@ -25,6 +36,10 @@ import { Checkbox } from '@components/ui/checkbox';
 import { BulkArchiveProjectsModal } from '@/lib/features/project/bulk-actions/bulk-archive-projects-modal';
 import { BulkRestoreProjectsModal } from '@/lib/features/project/bulk-actions/bulk-restore-projects-modal';
 import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
+import { useRouter } from 'next/navigation';
+import { useAtomValue } from 'jotai';
+import { fullWidthState } from '@/app/stores/fullWidth';
+import { useParams } from 'next/navigation';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -39,6 +54,12 @@ function PageComponent() {
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
+
+	const router = useRouter();
+	const fullWidth = useAtomValue(fullWidthState);
+	const paramsUrl = useParams<{ locale: string }>();
+	const currentLocale = paramsUrl?.locale;
+
 	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
@@ -61,6 +82,18 @@ function PageComponent() {
 		],
 		[t]
 	);
+
+	const breadcrumbPath = useMemo(
+		() => [
+			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+			{ title: activeTeam?.name || '', href: '/' },
+			{ title: 'Projects', href: `/${currentLocale}/projects` }
+		],
+		[currentLocale, t, activeTeam?.name]
+	);
+
+	const handleBack = () => router.back();
+
 	const showArchivedProjects = Boolean(params.get('archived'));
 	const activeTeamProjects = useMemo(
 		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
@@ -184,7 +217,13 @@ function PageComponent() {
 			className="!p-0 pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full h-full"
 			mainHeaderSlot={
-				<div className="flex flex-col p-4 dark:bg-dark--theme">
+				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
+					<div className="flex items-center w-full">
+						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
+							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+						</button>
+						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
+					</div>
 					<div className="flex flex-col items-start justify-between gap-3">
 						<div className="flex items-center justify-center h-10 gap-8">
 							<h3 className=" text-3xl font-medium">{t('pages.projects.projectTitle.PLURAL')}</h3>
@@ -224,10 +263,13 @@ function PageComponent() {
 							</div>
 						</div>
 					</div>
-				</div>
+				</Container>
 			}
 		>
-			<div className="flex flex-col p-4 w-full h-full  gap-6 dark:bg-dark--theme mt-6">
+			<Container
+				fullWidth={fullWidth}
+				className="flex flex-col p-4 w-full h-full  gap-6 dark:bg-dark--theme mt-6"
+			>
 				<div className="border bg-light--theme-light dark:bg-transparent rounded-lg p-3 space-y-6">
 					<div className=" rounded flex items-center justify-between font-light">
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
@@ -413,7 +455,7 @@ function PageComponent() {
 						/>
 					</>
 				)}
-			</div>
+			</Container>
 		</MainLayout>
 	);
 }

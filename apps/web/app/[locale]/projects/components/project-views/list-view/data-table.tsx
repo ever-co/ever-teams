@@ -28,12 +28,13 @@ import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
-import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
+import { HorizontalSeparator } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
 import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
+import { ProjectListSkeleton } from './list-skeleton';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -464,11 +465,9 @@ export const ProjectsTable = memo(
 		return (
 			<div className="w-full">
 				{loading ? (
-					<div className="w-full flex justify-center items-center">
-						<SpinnerLoader />
-					</div>
+					<ProjectListSkeleton />
 				) : table?.getRowModel()?.rows.length ? (
-					<div className="rounded-md">
+					<div className="rounded-md border">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
