@@ -2,7 +2,7 @@
 import { Breadcrumb, Container, Paginate } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 
@@ -12,16 +12,16 @@ import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { ITeamTask } from '@/app/interfaces';
 
-import { getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
+import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import StatusBadge from '@components/pages/team/tasks/StatusBadge';
-import { getStatusColor } from '@/lib/utils';
-import FilterButton from '@components/pages/team/tasks/FilterButton';
+import { cn, getStatusColor } from '@/lib/utils';
 import { Input } from '@components/ui/input';
-import { Search } from 'lucide-react';
+import { Check, Search, Settings2 } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import { TaskTable } from '@components/pages/team/tasks/TaskTable';
-import { columns } from '@components/pages/team/tasks/columns';
+import { columns, hidableColumnNames } from '@components/pages/team/tasks/columns';
 import { usePagination } from '@/app/hooks/features/usePagination';
+import { Menu, Transition } from '@headlessui/react';
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -38,12 +38,29 @@ const TeamTask = () => {
 	);
 
 	const { tasks } = useTeamTasks();
+	const [searchTaskTerm, setSearchTaskTerm] = useState('');
+	const filteredTasks = useMemo(
+		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),
+		[searchTaskTerm, tasks]
+	);
+
+	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
+		type_and_number: true,
+		issueTitle: true,
+		assignee: true,
+		status: true,
+		action: true
+	});
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ITeamTask>(tasks);
-	const table = useReactTable<ITeamTask>({
+		usePagination<ITeamTask>(filteredTasks);
+	useReactTable<ITeamTask>({
 		data: currentItems,
 		columns,
+		state: {
+			columnVisibility: tableColumnsVisibility
+		},
+		getRowId: (row) => row.id,
 
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel()
@@ -75,17 +92,70 @@ const TeamTask = () => {
 										)}
 									</div>
 								</div>
-								<FilterButton table={table} />
+								{/* <FilterButton table={table} /> */}
+								<Menu as="div" className="relative inline-block text-left">
+									<div>
+										<Menu.Button>
+											<Button
+												type="button"
+												className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
+												variant="outline"
+											>
+												<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
+											</Button>
+										</Menu.Button>
+									</div>
+									<Transition
+										as={Fragment}
+										enter="transition ease-out duration-100"
+										enterFrom="transform opacity-0 scale-95"
+										enterTo="transform opacity-100 scale-100"
+										leave="transition ease-in duration-75"
+										leaveFrom="transform opacity-100 scale-100"
+										leaveTo="transform opacity-0 scale-95"
+									>
+										<Menu.Items className="absolute z-[999] right-0 mt-2 w-36 origin-top-right space-y-[1px] p-[1px]  rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
+											{Object.entries(tableColumnsVisibility).map(([column, isVisible]) => {
+												return hidableColumnNames.includes(column) ? (
+													<Menu.Item key={column}>
+														{({ active }) => (
+															<button
+																onClick={() =>
+																	setTableColumnsVisibility((prev) => ({
+																		...prev,
+																		[column]: !isVisible
+																	}))
+																}
+																className={cn(
+																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+																)}
+															>
+																<div className="w-5 h-full flex items-center justify-center ">
+																	{isVisible && <Check size={12} />}
+																</div>
+																<span className="capitalize">
+																	{column == 'type_and_number'
+																		? 'Type + Number'
+																		: column}
+																</span>
+															</button>
+														)}
+													</Menu.Item>
+												) : null;
+											})}
+										</Menu.Items>
+									</Transition>
+								</Menu>
 								<div className="w-px h-6 bg-gray-200 dark:bg-gray-400" />
 								<div className="flex gap-2.5 items-center relative min-w-[122px] text-muted-foreground border border-gray-200 dark:border-gray-400 rounded-md">
 									<Search className="absolute w-4 h-4 left-3" />
 
 									<Input
 										placeholder="Search tasks..."
-										value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-										onChange={(event) =>
-											table.getColumn('title')?.setFilterValue(event.target.value)
-										}
+										value={searchTaskTerm}
+										onChange={(event) => {
+											setSearchTaskTerm(event.target.value);
+										}}
 										className="max-w-sm pl-10 bg-transparent border-none dark:focus-visible:!border-[#c8c8c8] transition-all duration-200  placeholder:font-normal"
 									/>
 								</div>
@@ -128,7 +198,7 @@ const TeamTask = () => {
 			childrenClassName="bg-white dark:bg-dark--theme"
 		>
 			<div className="flex flex-col w-full min-h-full p-4 pt-6">
-				<TaskTable currentItems={currentItems} />
+				<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
 
 				<Paginate
 					total={total}

@@ -5,10 +5,14 @@ import AssigneeUser from './AssigneeUser';
 import { ActiveTaskStatusDropdown } from '@/lib/features';
 import DropdownMenuTask from './DropdownMenuTask';
 
+// Columns that can be hidden in the team tasks table
+export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];
+
 export const columns: ColumnDef<ITeamTask>[] = [
 	{
 		accessorKey: 'typeNumber',
 		header: 'Type + Number',
+		id: 'type_and_number',
 		cell: ({ row }) => (
 			<div className="flex items-center h-full gap-2.5">
 				{row.original.issueType ? (
@@ -101,21 +105,23 @@ export const columns: ColumnDef<ITeamTask>[] = [
 	},
 	{
 		accessorKey: 'title',
-		header: 'Issue Details',
+		header: 'Title',
+		id: 'title',
 		cell: ({ row }) => (
-			<div className="text-sm font-semibold text-indigo-950 dark:text-gray-200">{row.original.title}</div>
+			<div className="text-sm font-medium text-indigo-950 dark:text-gray-200">{row.original.title}</div>
 		),
 		enableColumnFilter: true
 	},
 	{
 		accessorKey: 'user',
 		header: 'Assignee',
+		id: 'assignee',
 		cell: ({ row }) => <AssigneeUser users={row.original.members} />
 	},
 	{
 		accessorKey: 'status',
 		header: 'Status',
-
+		id: 'status',
 		cell: ({ row }) => (
 			<ActiveTaskStatusDropdown
 				task={row.original}

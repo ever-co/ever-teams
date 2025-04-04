@@ -281,43 +281,37 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										Activity Level ↑
 									</TableHead>
 								)}
-								{columnVisibility.startedAt && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-										Started At ↑
-									</TableHead>
-								)}
-								{columnVisibility.stoppedAt && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-										Stopped At ↑
-									</TableHead>
-								)}
-								{columnVisibility.duration && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
-										Duration ↑
-									</TableHead>
-								)}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{dayLog.logs.flatMap((projectLog) =>
 								projectLog.employeeLogs.map((employeeLog) => (
 									<TableRow
-										key={`${projectLog.project.id}-${employeeLog.employee.id}`}
+										key={`${projectLog.project?.id || 'no-project'}-${employeeLog.employee?.id || 'no-employee'}`}
 										className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
-										{columnVisibility.member && (
+										{columnVisibility.member && employeeLog.employee && (
 											<TableCell className="px-6 py-4">
 												<div className="flex items-center gap-3">
 													<Avatar size={32} className="h-8 w-8 rounded-full">
-														<img
-															src={employeeLog.employee.user.imageUrl}
-															alt={employeeLog.employee.fullName}
-															className="w-full h-full object-cover  rounded-full"
-															loading="lazy"
-														/>
+														{employeeLog.employee.user?.imageUrl ? (
+															<img
+																src={employeeLog.employee.user.imageUrl}
+																alt={employeeLog.employee.fullName || 'Employee'}
+																className="w-full h-full object-cover rounded-full"
+																loading="lazy"
+															/>
+														) : (
+															<img
+																src="/assets/images/avatar.png"
+																alt={employeeLog.employee.fullName || 'Employee'}
+																className="w-full h-full object-cover rounded-full"
+																loading="lazy"
+															/>
+														)}
 													</Avatar>
 													<span className="text-gray-900 dark:text-gray-100 font-medium">
-														{employeeLog.employee.fullName}
+														{employeeLog.employee.fullName || 'Unnamed Employee'}
 													</span>
 												</div>
 											</TableCell>
@@ -325,8 +319,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										{columnVisibility.project && (
 											<TableCell className="px-6 py-4">
 												<ProjectCell
-													imageUrl={projectLog.project.imageUrl}
-													name={projectLog.project.name}
+													imageUrl={projectLog.project?.imageUrl || ''}
+													name={projectLog.project?.name || 'No Project'}
 												/>
 											</TableCell>
 										)}
@@ -352,15 +346,6 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													duration={employeeLog.sum}
 												/>
 											</TableCell>
-										)}
-										{columnVisibility.startedAt && (
-											<TableCell className="px-6 py-4">{/* Started At Cell */}</TableCell>
-										)}
-										{columnVisibility.stoppedAt && (
-											<TableCell className="px-6 py-4">{/* Stopped At Cell */}</TableCell>
-										)}
-										{columnVisibility.duration && (
-											<TableCell className="px-6 py-4">{/* Duration Cell */}</TableCell>
 										)}
 									</TableRow>
 								))

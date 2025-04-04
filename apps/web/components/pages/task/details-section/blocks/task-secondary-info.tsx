@@ -25,10 +25,10 @@ import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
-import ProjectIcon from '@components/ui/svgs/project-icon';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { QuickCreateProjectModal } from '@/lib/features/project/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import Image from 'next/image';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -362,7 +362,15 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								>
 									{selected && (
 										<div className="mx-1">
-											<ProjectIcon />
+											{selected.imageUrl && (
+												<Image
+													src={selected.imageUrl}
+													alt={selected.name || ''}
+													width={20}
+													height={20}
+													className="rounded-full"
+												/>
+											)}
 										</div>
 									)}
 									{updateLoading ? (
@@ -394,7 +402,16 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
-									className={clsxm('absolute  right-0 left-0 top-10  z-40 min-w-min outline-none')}
+									className={clsxm(
+										'absolute right-0 z-40 min-w-min outline-none',
+										open ? 'w-max min-w-full' : 'w-full',
+										'[&>ul]:w-full'
+									)}
+									style={{
+										top: 'calc(100% + 0.5rem)',
+										maxHeight: 'calc(100vh - 100%)',
+										overflow: 'auto'
+									}}
 								>
 									<Listbox.Options className="outline-none">
 										<Card
@@ -410,8 +427,18 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 														return (
 															<Listbox.Option key={item.id} value={item} as={Fragment}>
 																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
-																	<ProjectIcon width={14} height={14} />{' '}
-																	<span className=" truncate">{item.name}</span>
+																	{item.imageUrl && (
+																		<Image
+																			src={item.imageUrl}
+																			alt={item.name || ''}
+																			width={20}
+																			height={20}
+																			className="rounded-full"
+																		/>
+																	)}
+																	<span className=" truncate w-full">
+																		{item.name || 'Project'}
+																	</span>
 																</li>
 															</Listbox.Option>
 														);
