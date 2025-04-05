@@ -226,11 +226,11 @@ function PageComponent() {
 					</div>
 					<div className="flex flex-col items-start justify-between gap-3">
 						<div className="flex items-center justify-center h-10 gap-8">
-							<h3 className=" text-3xl font-medium">{t('pages.projects.projectTitle.PLURAL')}</h3>
+							<h3 className="text-3xl font-medium ">{t('pages.projects.projectTitle.PLURAL')}</h3>
 						</div>
-						<div className=" h-14 flex items-center justify-between w-full">
+						<div className="flex items-center justify-between w-full  h-14">
 							<div className="w-[20rem] h-full flex items-end justify-center">
-								<ul className="flex relative text-lg w-full justify-evenly">
+								<ul className="relative flex w-full text-lg justify-evenly">
 									{viewItems.map((item, index) => (
 										<li
 											onClick={() => {
@@ -243,7 +243,7 @@ function PageComponent() {
 												selectedView == item.name ? ' text-primary' : ' text-slate-500'
 											)}
 										>
-											<item.icon className="h-4 w-4" />
+											<item.icon className="w-4 h-4" />
 											<span>{item.title}</span>
 										</li>
 									))}
@@ -256,8 +256,8 @@ function PageComponent() {
 								</ul>
 							</div>
 
-							<div className="h-full flex items-end">
-								<Button onClick={openProjectModal} variant="grey" className=" text-primary font-medium">
+							<div className="flex items-end h-full">
+								<Button onClick={openProjectModal} variant="grey" className="font-medium  text-primary">
 									<Plus size={15} /> <span>{t('pages.projects.CREATE_NEW_PROJECT')}</span>
 								</Button>
 							</div>
@@ -278,7 +278,7 @@ function PageComponent() {
 								onChange={(e) => setSearchTerm(e.target.value)}
 								value={searchTerm}
 								placeholder="Search ..."
-								className=" h-full border-none bg-transparent dark:bg-transparent"
+								className="h-full bg-transparent border-none  dark:bg-transparent"
 								noWrapper
 							/>
 						</div>
@@ -339,7 +339,7 @@ function PageComponent() {
 																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																)}
 															>
-																<div className="w-5 h-full flex items-center justify-center ">
+																<div className="flex items-center justify-center w-5 h-full ">
 																	{isVisible && <Check size={12} />}
 																</div>
 																<span className="capitalize">{column}</span>
@@ -373,7 +373,7 @@ function PageComponent() {
 									: 'hidden'
 							)}
 						>
-							<div className="flex h-full  items-center gap-2">
+							<div className="flex items-center h-full gap-2">
 								{selectedView == 'GRID' && (
 									<Checkbox
 										checked={
