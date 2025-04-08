@@ -13,7 +13,7 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { Poppins } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
 import GlobalSkeleton from '@components/ui/global-skeleton';
@@ -24,7 +24,7 @@ import { PHProvider } from './integration/posthog/provider';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props {
-	params: { locale: string };
+	params: Promise<{ locale: string }>;
 
 	pageProps: {
 		jitsuConf?: JitsuOptions;
@@ -57,9 +57,15 @@ const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'),
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChildren<Props>) => {
+const LocaleLayout = (props: PropsWithChildren<Props>) => {
+	const params = use(props.params);
+
+	const { locale } = params;
+
+	const { children, pageProps } = props;
+
 	// Validate that the incoming `locale` parameter is valid
-	if (!locales.includes(locale as string)) notFound();
+	if (!locales.includes(locale)) notFound();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -102,7 +108,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChil
 
 	const name = searchParams?.get('name');
 
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 	const messages = require(`../../locales/${locale}.json`);
 
 	useEffect(() => {

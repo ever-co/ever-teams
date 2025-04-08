@@ -6,42 +6,44 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
+export async function DELETE(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
 
-	if (!params.id) {
+    if (!params.id) {
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	const response = await removeEmployeeOrganizationTeamRequest({
+    const response = await removeEmployeeOrganizationTeamRequest({
 		bearer_token: access_token,
 		tenantId,
 		employeeId: params.id
 	});
 
-	return $res(response.data);
+    return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
+export async function PUT(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
 
-	if (!params.id) {
+    if (!params.id) {
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	const body = await req.json();
+    const body = await req.json();
 
-	const order = body.order;
+    const order = body.order;
 
-	const response = await addEmployeeOrganizationTeamOrderRequest({
+    const response = await addEmployeeOrganizationTeamOrderRequest({
 		bearer_token: access_token,
 		employeeId: params.id,
 		tenantId,
@@ -50,5 +52,5 @@ export async function PUT(req: Request, { params }: INextParams) {
 		organizationId: body.organizationId
 	});
 
-	return $res(response.data);
+    return $res(response.data);
 }

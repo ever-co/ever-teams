@@ -3,21 +3,22 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { createImageAssetsRequest } from '@app/services/server/requests/image-assets';
 import { INextParams } from '@app/interfaces';
 
-export async function POST(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
-	const folderParam = params.folder;
+export async function POST(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
+    const folderParam = params.folder;
 
-	if (!folderParam) {
+    if (!folderParam) {
 		return;
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	const form = await req.formData();
+    const form = await req.formData();
 
-	const response = await createImageAssetsRequest(
+    const response = await createImageAssetsRequest(
 		{
 			tenantId: tenantId,
 			bearer_token: access_token,
@@ -27,5 +28,5 @@ export async function POST(req: Request, { params }: INextParams) {
 		form
 	);
 
-	return $res(response.data);
+    return $res(response.data);
 }
