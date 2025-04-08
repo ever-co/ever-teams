@@ -193,7 +193,6 @@
 		"@cucumber/gherkin": "^25.0.2",
 		"@cypress/browserify-preprocessor": "^3.0.2",
 		"@lerna/legacy-package-management": "^8.1.2",
-		"@next/bundle-analyzer": "^15.2.4",
 		"@next/eslint-plugin-next": "^13.0.5",
 		"@nx/cypress": "^16.7.4",
 		"@nx/detox": "^16.7.4",
