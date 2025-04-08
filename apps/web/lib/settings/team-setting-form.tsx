@@ -235,11 +235,11 @@ export const TeamSettingForm = () => {
               </div>
 
               {/* Team Color */}
-              <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
-                <Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
+              <div className="flex flex-col items-center justify-between w-full gap-1 lg:flex-row lg:gap-12 ">
+                <Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
                   {t('pages.settingsTeam.TEAM_COLOR')}
                 </Text>
-                <div className="z-50 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
+                <div className="z-10 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5" >
                   <ColorPicker
                     defaultColor={activeTeam?.color}
                     onChange={(color: any | null) => {
@@ -254,8 +254,8 @@ export const TeamSettingForm = () => {
               </div>
 
               {/* Emoji */}
-              <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
-                <Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
+              <div className="flex flex-col items-center justify-between w-full gap-1 lg:flex-row lg:gap-12 ">
+                <Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
                   {t('pages.settingsTeam.EMOJI')}
                 </Text>
                 <div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
@@ -273,8 +273,8 @@ export const TeamSettingForm = () => {
 
               {/* Team Size */}
               {
-                <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 mt-3 ">
-                  <Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
+                <div className="flex flex-col items-center justify-between w-full gap-1 mt-3 lg:flex-row lg:gap-12 ">
+                  <Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
                     {t('pages.settingsTeam.TEAM_SIZE')}
                   </Text>
                   <div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
@@ -293,7 +293,7 @@ export const TeamSettingForm = () => {
 
               {/* Team Type */}
               <div className="flex flex-col items-center w-full mt-8 sm:gap-12 sm:flex-row">
-                <Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 w-full sm:w-1/5">
+                <Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
                   {t('pages.settingsTeam.TEAM_TYPE')}
                 </Text>
                 <div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
@@ -344,7 +344,7 @@ export const TeamSettingForm = () => {
                   )}
                   {getTeamLink() && (
                     <div className="flex flex-col items-center gap-4 sm:flex-row">
-                      <div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-64 mb-0">
+                      <div className="flex flex-row items-center justify-between flex-grow-0 w-full mb-0 lg:w-64">
                         <Tooltip
                           label={getTeamLink()}
                           placement="auto"
