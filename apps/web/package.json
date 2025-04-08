@@ -129,7 +129,6 @@
 		"react-resizable-panels": "^2.0.19",
 		"react-turnstile": "^1.1.4",
 		"recharts": "^2.15.0",
-		"sharp": "^0.33.4",
 		"slate": "^0.90.0",
 		"slate-history": "^0.93.0",
 		"slate-hyperscript": "^0.77.0",
