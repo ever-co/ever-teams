@@ -10,6 +10,11 @@ const isSentryEnabled = isProduction && process.env.SENTRY_DSN;
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
+
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+	enabled: process.env.ANALYZE === 'true',
+  })
+
 const sentryConfig = isSentryEnabled && {
 	sentry: {
 		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/

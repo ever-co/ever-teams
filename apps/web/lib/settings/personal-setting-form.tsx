@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import {
   PHONE_REGEX,
   getActiveLanguageIdCookie,
@@ -35,9 +34,7 @@ export const PersonalSettingForm = () => {
   const { theme } = useTheme();
   const [editFullname, setEditFullname] = useState<boolean>(false);
   const [editContacts, setEditContacts] = useState<boolean>(false);
-  const [showEmailResetModal, setShowEmailResetModal] = useState<boolean>(
-    false
-  );
+  const [showEmailResetModal, setShowEmailResetModal] = useState<boolean>(false);
   const [newEmail, setNewEmail] = useState<string>('');
   const [isValid, setIsValid] = useState<IValidation>({
     email: true,
@@ -66,7 +63,6 @@ export const PersonalSettingForm = () => {
 
   const checkPhoneValidity = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phone = e.target.value;
-
     phone
       ? setIsValid({ ...isValid, phone: phone.match(PHONE_REGEX) !== null })
       : setIsValid({ ...isValid, phone: true });
@@ -105,10 +101,12 @@ export const PersonalSettingForm = () => {
     },
     [setCurrentTimezone, setValue, updateAvatar, user]
   );
+
   useEffect(() => {
     setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
     setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
   }, [setCurrentTimezone, setValue, user, user?.timeZone]);
+
   useEffect(() => {
     setValue('firstName', user?.firstName);
     setValue('lastName', user?.lastName);
@@ -132,6 +130,7 @@ export const PersonalSettingForm = () => {
       user?.preferredLanguage || getActiveLanguageIdCookie()
     );
   }, [user, user?.preferredLanguage, setValue]);
+
   const handleChangeLanguage = useCallback(
     (newLanguage: string) => {
       setActiveLanguageIdCookie(newLanguage);
@@ -150,6 +149,14 @@ export const PersonalSettingForm = () => {
     [user, setValue, updateAvatar, changeLanguage, router]
   );
 
+  const displayValueField = (value: string | undefined, placeholder: string) => {
+    return (
+      <div className="h-[54px] w-full rounded-lg flex  items-center px-4 text-base font-normal text-gray-400 bg-light--theme-light dark:bg-dark--theme-light">
+        {value || placeholder}
+      </div>
+    );
+  };
+
   return (
     <>
       <form
@@ -161,10 +168,7 @@ export const PersonalSettingForm = () => {
           handleContactChange();
         }}
       >
-        <div
-          id="general"
-          className="flex flex-col items-center justify-between"
-        >
+        <div id="general" className="flex flex-col items-center justify-between">
           <div className="w-full mt-5">
             <div className="">
               <div className="flex flex-col items-center justify-between w-full sm:gap-8 sm:flex-row">
@@ -172,30 +176,39 @@ export const PersonalSettingForm = () => {
                   <Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
                     {t('common.FULL_NAME')}
                   </Text>
-                  <div className="flex flex-col gap-2 lg:flex-row justify-start w-full">
-                    <InputField
-                      type="text"
-                      placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
-                      {...register('firstName', {
-                        required: true,
-                        maxLength: 80
-                      })}
-                      className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
-                        }`}
-                      disabled={!editFullname}
-                      wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
-                    />
-                    <InputField
-                      type="text"
-                      placeholder={t('form.LAST_NAME_PLACEHOLDER')}
-                      {...register('lastName', {
-                        maxLength: 80
-                      })}
-                      className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
-                        }`}
-                      disabled={!editFullname}
-                      wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
-                    />
+                  <div className="flex flex-col justify-start w-full gap-2 lg:flex-row">
+                    {editFullname ? (
+                      <>
+                        <InputField
+                          type="text"
+                          placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
+                          {...register('firstName', {
+                            required: true,
+                            maxLength: 80
+                          })}
+                          className="w-full m-0 h-[54px]"
+                          wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+                        />
+                        <InputField
+                          type="text"
+                          placeholder={t('form.LAST_NAME_PLACEHOLDER')}
+                          {...register('lastName', {
+                            maxLength: 80
+                          })}
+                          className="w-full m-0 h-[54px]"
+                          wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-full lg:w-[230px] mb-0 mr-5">
+                          {displayValueField(getValues('firstName'), t('form.FIRST_NAME_PLACEHOLDER'))}
+                        </div>
+                        <div className="w-full lg:w-[230px] mb-0 mr-5">
+                          {displayValueField(getValues('lastName'), t('form.LAST_NAME_PLACEHOLDER'))}
+                        </div>
+                      </>
+                    )}
 
                     {editFullname ? (
                       <Button
@@ -230,48 +243,57 @@ export const PersonalSettingForm = () => {
                   <Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
                     {t('common.CONTACT')}
                   </Text>
-                  <div className="flex flex-col lg:flex-row gap-2 justify-start w-full">
-                    <div className="relative">
-                      <InputField
-                        type="email"
-                        placeholder={t('form.EMAIL_PLACEHOLDER')}
-                        {...register('email', {
-                          required: true,
-                          pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                        })}
-                        className={`w-full m-0 h-[54px]  ${!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-                          }`}
-                        onChange={checkEmailValidity}
-                        disabled={!editContacts}
-                        notValidBorder={!isValid.email}
-                        wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5 `}
-                      />
-                      {!isValid.email && (
-                        <p className="absolute text-xs text-red-500 -bottom-5">
-                          {t('pages.settingsPersonal.emailNotValid')}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <InputField
-                        type="text"
-                        placeholder={t('form.PHONE_PLACEHOLDER')}
-                        {...register('phoneNumber', {
-                          valueAsNumber: true
-                        })}
-                        className={`w-full m-0 h-[54px] ${!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-                          }`}
-                        onChange={checkPhoneValidity}
-                        disabled={!editContacts}
-                        notValidBorder={!isValid.phone}
-                        wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
-                      />
-                      {!isValid.phone && (
-                        <p className="absolute text-xs text-red-500 -bottom-5">
-                          {t('pages.settingsPersonal.phoneNotValid')}
-                        </p>
-                      )}
-                    </div>
+                  <div className="flex flex-col justify-start w-full gap-2 lg:flex-row">
+                    {editContacts ? (
+                      <>
+                        <div className="relative">
+                          <InputField
+                            type="email"
+                            placeholder={t('form.EMAIL_PLACEHOLDER')}
+                            {...register('email', {
+                              required: true,
+                              pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                            })}
+                            className="w-full m-0 h-[54px]"
+                            onChange={checkEmailValidity}
+                            notValidBorder={!isValid.email}
+                            wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+                          />
+                          {!isValid.email && (
+                            <p className="absolute text-xs text-red-500 -bottom-5">
+                              {t('pages.settingsPersonal.emailNotValid')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <InputField
+                            type="text"
+                            placeholder={t('form.PHONE_PLACEHOLDER')}
+                            {...register('phoneNumber', {
+                              valueAsNumber: true
+                            })}
+                            className="w-full m-0 h-[54px]"
+                            onChange={checkPhoneValidity}
+                            notValidBorder={!isValid.phone}
+                            wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+                          />
+                          {!isValid.phone && (
+                            <p className="absolute text-xs text-red-500 -bottom-5">
+                              {t('pages.settingsPersonal.phoneNotValid')}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-full lg:w-[230px] mb-0 mr-5">
+                          {displayValueField(getValues('email'), t('form.EMAIL_PLACEHOLDER'))}
+                        </div>
+                        <div className="w-full lg:w-[230px] mb-0 mr-5">
+                          {displayValueField(getValues('phoneNumber'), t('form.PHONE_PLACEHOLDER'))}
+                        </div>
+                      </>
+                    )}
 
                     {editContacts ? (
                       <Button
@@ -309,7 +331,7 @@ export const PersonalSettingForm = () => {
                   <Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
                     {t('common.THEME')}
                   </Text>
-                  <div className="flex items-center lg:items-start w-full">
+                  <div className="flex items-center w-full lg:items-start">
                     <ThemeToggler />
                     <Text className="flex items-center ml-5 mt-2.5 text-sm font-normal text-gray-400">
                       {theme === 'light' ? 'Light' : 'Dark'} Mode
@@ -323,7 +345,7 @@ export const PersonalSettingForm = () => {
                   <Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
                     {t('common.LANGUAGE')}
                   </Text>
-                  <div className="flex flex-col relative lg:flex-row w-full">
+                  <div className="relative flex flex-col w-full lg:flex-row">
                     <LanguageDropDown
                       currentLanguage={currentLanguage}
                       onChangeLanguage={(t: string) => {
@@ -339,13 +361,13 @@ export const PersonalSettingForm = () => {
                   <Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
                     {t('common.TIME_ZONE')}
                   </Text>
-                  <div className="flex flex-col relative lg:flex-row gap-2 w-full">
+                  <div className="relative flex flex-col w-full gap-2 lg:flex-row">
                     <TimezoneDropDown
                       currentTimezone={currentTimezone}
                       onChange={(t: string) => {
                         handleChangeTimezone(t);
                       }}
-					  className='md:w-[469px]'
+                      className='md:w-[469px]'
                     />
                     <Button
                       variant="grey"
