@@ -13,7 +13,7 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { Poppins } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
 import GlobalSkeleton from '@components/ui/global-skeleton';
@@ -24,7 +24,7 @@ import { PHProvider } from './integration/posthog/provider';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props {
-	params: { locale: string };
+	params: Promise<{ locale: string }>;
 
 	pageProps: {
 		jitsuConf?: JitsuOptions;
@@ -57,7 +57,11 @@ const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'),
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChildren<Props>) => {
+const LocaleLayout = (props: PropsWithChildren<Props>) => {
+	const params = use(props.params);
+	const { locale } = params;
+	const { children, pageProps } = props;
+
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as string)) notFound();
 	const router = useRouter();

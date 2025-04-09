@@ -50,6 +50,7 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
@@ -94,11 +95,15 @@ function MainPage() {
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-					<div className="h-full">{isTeamMember ?
-						<Container fullWidth={fullWidth} className='mx-auto' >
-							<TeamMembers kanbanView={view} />
-						</Container>
-						: <NoTeam />}</div>
+					<div className="h-full">
+						{isTeamMember ? (
+							<Container fullWidth={fullWidth} className="mx-auto">
+								<TeamMembers kanbanView={view} />
+							</Container>
+						) : (
+							<NoTeam />
+						)}
+					</div>
 				</MainLayout>
 			</div>
 			<Analytics />

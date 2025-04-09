@@ -11,7 +11,7 @@ export const useCurrencies = () => {
 
 	const getCurrencies = useCallback(() => {
 		getCurrenciesQueryCall().then((response) => {
-			if (response.data.items.length) {
+			if (response?.data?.items?.length) {
 				setCurrencies(response.data.items);
 			}
 		});

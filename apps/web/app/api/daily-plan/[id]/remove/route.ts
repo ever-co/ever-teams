@@ -3,7 +3,8 @@ import { authenticatedGuard } from "@app/services/server/guards/authenticated-gu
 import { deleteDailyPlansManyRequest } from "@app/services/server/requests";
 import { NextResponse } from "next/server";
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, props: INextParams) {
+    const params = await props.params;
     const res = new NextResponse();
     const { id } = params;
     if (!id) {
