@@ -3,18 +3,19 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { deleteIntegrationTenantRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
-	const integrationId = params.id;
+export async function DELETE(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
+    const integrationId = params.id;
 
-	if (!integrationId) {
+    if (!integrationId) {
 		return;
 	}
 
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-	const response = await deleteIntegrationTenantRequest(integrationId, tenantId, organizationId, access_token);
+    const response = await deleteIntegrationTenantRequest(integrationId, tenantId, organizationId, access_token);
 
-	return $res(response.data);
+    return $res(response.data);
 }
