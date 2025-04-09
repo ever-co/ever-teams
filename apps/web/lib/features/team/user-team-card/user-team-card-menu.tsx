@@ -120,7 +120,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					leave="transition duration-75 ease-out"
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
-					className="absolute z-30 -right-5 min-w-[13.125rem]"
+					className="absolute z-30 -right-5 top-8 min-w-[13.125rem]"
 				>
 					<Popover.Panel>
 						{({ close }) => {
