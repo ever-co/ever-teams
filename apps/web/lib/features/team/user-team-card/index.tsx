@@ -160,7 +160,7 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex relative items-center m-0">
+				<div className="relative flex items-center m-0">
 					<div className="absolute left-0 cursor-pointer">
 						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
@@ -196,14 +196,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="overflow-y-hidden flex-1 px-2 lg:px-4"
+							className="flex-1 px-2 overflow-y-hidden lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -245,7 +245,7 @@ export function UserTeamCard({
 						{isManagerConnectedUser != -1 ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -266,7 +266,7 @@ export function UserTeamCard({
 							<Container fullWidth={fullWidth} className="py-8">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
+										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -285,7 +285,7 @@ export function UserTeamCard({
 						{activityScreens[activityFilter] ?? null}
 					</div>
 				) : userDetailAccordion == memberInfo.memberUser?.id ? (
-					<div className="flex justify-center items-center w-full h-20">
+					<div className="flex items-center justify-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -299,13 +299,13 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex justify-between items-center mb-4">
+				<div className="flex items-center justify-between mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{/*@ts-ignore*/}
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
