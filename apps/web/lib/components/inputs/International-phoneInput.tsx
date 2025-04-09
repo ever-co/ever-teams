@@ -35,14 +35,18 @@ const InternationalPhoneInput: React.FC<PhoneInputProps> = ({
   const { ref, ...registerProps } = register(name, {
     required: required ? 'Phone number is required' : false,
     validate: (value: string) => {
-      if (!value) return true;
-      const digitsOnly = value.replace(/\s+/g, '').replace('+', '');
-      if (required && (!value || value.length < 6)) {
-        return 'Please enter a valid phone number';
+      // Handle undefined or empty values
+      if (!value) {
+        return required ? 'Phone number is required' : true;
       }
-      if (value && (digitsOnly.length < 10 || digitsOnly.length > 15)) {
+
+      const digitsOnly = value.replace(/\s+/g, '').replace('+', '');
+
+      // Check length only when we have a value
+      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
         return 'Invalid phone number. Please enter a valid phone number';
       }
+
       return true;
     }
   });
@@ -77,10 +81,14 @@ const InternationalPhoneInput: React.FC<PhoneInputProps> = ({
               outline: 'none'
             }
           }}
-          value={value}
+          value={value || ''}
           onChange={(phone) => {
-            registerProps.onChange({ target: { value: phone } });
-            onChange?.(phone);
+            if (registerProps.onChange) {
+              registerProps.onChange({ target: { value: phone } });
+            }
+            if (onChange) {
+              onChange(phone);
+            }
           }}
           disabled={disabled}
         />
