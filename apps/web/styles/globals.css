@@ -327,7 +327,7 @@ html.dark {
 }
 
 .nivo-calendar .nivo-calendar-month-legend text {
-	@apply text-black font-bold text-sm;
+	@apply text-sm font-bold text-black;
 }
 
 @keyframes zoom-in-out {
@@ -374,7 +374,7 @@ html.dark {
 		}
 
 		.no-scrollbar::-webkit-scrollbar-thumb {
-			@apply dark:bg-dark--theme-light bg-gray-400;
+			@apply bg-gray-400 dark:bg-dark--theme-light;
 		}
 
 		.no-scrollbar {
@@ -387,3 +387,177 @@ html.dark {
 		}
 	}
 }
+
+
+/* Additional CSS to add to your global.css */
+
+/* Remove default border from the input to use container border instead */
+.phone-input-container .react-tel-input .form-control {
+	width: 100% !important;
+	height: 54px !important;
+	border: none !important; /* Remove default border */
+	border-radius: 10px !important;
+	font-size: 14px;
+	padding-left: 56px !important; /* Increase padding to move number to the right */
+	background-color: transparent !important; /* Make background transparent */
+	transition: all 0.3s ease;
+	font-weight: light;
+	font-family: 'Poppins', sans-serif;
+  }
+
+  /* Ensure the container has the proper border and styling */
+  .phone-input-wrapper {
+	display: block !important;
+	width: 100% !important;
+	height: 54px !important;
+	border-radius: 10px;
+	overflow: hidden;
+  }
+
+  /* Adjust flag dropdown position and appearance */
+  .phone-input-container .react-tel-input .flag-dropdown {
+	background-color: transparent !important;
+	border: none !important;
+	height: 100% !important;
+	left: 4px !important; /* Position flag slightly to the right */
+  }
+
+  /* Style the flag container */
+  .phone-input-container .react-tel-input .selected-flag {
+	border-radius: 10px 0 0 10px;
+	padding: 0 8px 0 12px !important;
+	background-color: transparent !important;
+	height: 100% !important;
+	width: 52px !important; /* Make flag area wider */
+	display: flex !important;
+	align-items: center !important;
+	border: none !important;
+  }
+
+  /* Ensure dropdown button arrow is positioned correctly */
+  .phone-input-container .react-tel-input .selected-flag .arrow {
+	left: 30px !important;
+  }
+
+  /* Make sure the flag is properly centered */
+  .phone-input-container .react-tel-input .flag {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	margin: 0;
+	left: 14px !important;
+  }
+
+  /* Disabled state styling */
+  .phone-input-container .react-tel-input .form-control:disabled {
+	opacity: 0.8;
+	cursor: not-allowed;
+  }
+
+  /* Fix dropdown z-index */
+  .phone-input-container .react-tel-input .country-list {
+	z-index: 30 !important;
+  }
+
+  /* Remove focus styles */
+  .phone-input-container .react-tel-input .form-control:focus {
+	box-shadow: none !important;
+	border: none !important;
+	outline: none !important;
+  }
+
+  /* Remove border on hover */
+  .phone-input-container .react-tel-input .selected-flag:hover,
+  .phone-input-container .react-tel-input .selected-flag:focus {
+	border: none !important;
+	background-color: transparent !important;
+  }
+
+  /* Remove black outline on focus */
+  .no-focus-border:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border: none !important;
+  }
+
+  /* Remove border from button */
+  .no-border {
+	border: none !important;
+	outline: none !important;
+  }
+
+  /* Fix for country list dropdown border */
+  .phone-input-container .react-tel-input .country-list {
+	border: 1px solid #E5E7EB !important;
+  }
+
+  .dark .phone-input-container .react-tel-input .country-list {
+	border-color: #3b3c44 !important;
+  }
+
+  .phone-input-container .react-tel-input .country-list {
+	position: absolute !important;
+	top: 56px !important; /* Position below the input */
+	left: 0 !important;
+	width: 300px !important;
+	max-height: 200px !important;
+	overflow-y: auto !important;
+	margin: 0 !important;
+	border-radius: 10px !important;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+	background-color: white !important;
+	border: 1px solid #E5E7EB !important;
+	z-index: 999 !important; /* Ensure it's above other elements */
+  }
+
+  /* Dark mode styling for the dropdown */
+  .dark .phone-input-container .react-tel-input .country-list {
+	background-color: #1B1D22 !important;
+	border-color: #3b3c44 !important;
+  }
+
+  /* Style the search box in the dropdown */
+  .phone-input-container .react-tel-input .country-list .search-box {
+	border: 1px solid #E5E7EB !important;
+	border-radius: 10px !important;
+	margin: 8px !important;
+	padding: 8px !important;
+	width: calc(100% - 16px) !important;
+	font-size: 14px !important;
+  }
+
+  .dark .phone-input-container .react-tel-input .country-list .search-box {
+	background-color: #2D2B3A !important;
+	border-color: #4B4B60 !important;
+	color: white !important;
+  }
+
+  /* Style the country items in the dropdown */
+  .phone-input-container .react-tel-input .country-list .country {
+	padding: 8px 10px !important;
+	border-radius: 4px !important;
+	margin: 0 4px !important;
+  }
+
+  /* Hover and highlight effects for country items */
+  .phone-input-container .react-tel-input .country-list .country.highlight,
+  .phone-input-container .react-tel-input .country-list .country:hover {
+	background-color: #f5f5f5 !important;
+	border-radius: 4px !important;
+  }
+
+  .dark .phone-input-container .react-tel-input .country-list .country.highlight,
+  .dark .phone-input-container .react-tel-input .country-list .country:hover {
+	background-color: #3D3B4A !important;
+  }
+
+  /* Fix spacing in the dropdown */
+  .phone-input-container .react-tel-input .country-list .divider {
+	margin: 5px 0 !important;
+	padding: 0 !important;
+  }
+
+  /* Ensure the dropdown doesn't clip */
+  .phone-input-wrapper {
+	overflow: visible !important;
+  }
