@@ -5,7 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
-const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
+const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();
 	const t = useTranslations();
 	const handleChange = useCallback(async () => {
@@ -26,11 +26,11 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 	}, []);
 
 	return (
-		<Transition appear show={isOpen} as={Fragment}>
+		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" onClick={(e: any) => e.stopPropagation()} className="relative z-10" onClose={onClose}>
 				<div className="fixed inset-0 blur-xl bg-black/30" aria-hidden="true" />
 				<Transition.Child
-					as={Fragment}
+					as="div"
 					enter="ease-out duration-300"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"
@@ -44,7 +44,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 				<div className="fixed inset-0 overflow-y-auto">
 					<div className="flex items-center justify-center min-h-full p-4 text-center">
 						<Transition.Child
-							as={Fragment}
+							as="div"
 							enter="ease-out duration-300"
 							enterFrom="opacity-0 scale-95"
 							enterTo="opacity-100 scale-100"

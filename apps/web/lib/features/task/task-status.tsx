@@ -12,11 +12,11 @@ import {
 	TaskStatusEnum
 } from '@app/interfaces';
 import { Queue, clsxm } from '@app/utils';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { Fragment, MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	useCallbackRef,
 	useSyncRef,
@@ -1027,7 +1027,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				>
 					{({ open, value: current_value }) => {
 						return (
-							<>
+							<div>
 								<Listbox.Button
 									as="div"
 									className={clsxm(
@@ -1082,74 +1082,79 @@ export function StatusDropdown<T extends TStatusItem>({
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
-									className={clsxm(
-										'absolute right-0 left-0 z-40 min-w-min outline-none',
-										issueType === 'issue' && ['left-auto right-auto'],
-										isEpic && '-left-100 right-10'
-									)}
 								>
-									<Listbox.Options className="outline-none">
-										<Card
-											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
-										>
-											{items.map((item, i) => {
-												const item_value = item?.value || item?.name;
+									<div
+										className={clsxm(
+											'absolute right-0 left-0 z-40 min-w-min outline-none',
+											issueType === 'issue' && 'left-auto right-auto',
+											isEpic && '-left-100 right-10'
+										)}
+									>
+										<Listbox.Options className="outline-none">
+											<Card
+												shadow="bigger"
+												className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
+											>
+												{items.map((item, i) => {
+													const item_value = item?.value || item?.name;
 
-												return (
-													<Listbox.Option
-														key={i}
-														value={item_value}
-														as={Fragment}
-														disabled={disabled}
-													>
-														<li className="relative cursor-pointer outline-none">
-															<TaskStatus
-																showIcon={showIcon}
-																{...item}
-																cheched={
-																	item?.value ? values.includes(item?.value) : false
-																}
-																className={clsxm(
-																	issueType === 'issue' && [
-																		'rounded-md px-2 text-white'
-																	],
-																	sidebarUI && 'rounded-[4px]',
-																	bordered && 'input-border',
-																	(isVersion || isEpic) && 'dark:text-white',
-																	item?.className
-																)}
-															/>
+													return (
+														<Listbox.Option
+															key={i}
+															value={item_value}
+															as="div"
+															disabled={disabled}
+														>
+															<li className="relative cursor-pointer outline-none">
+																<TaskStatus
+																	showIcon={showIcon}
+																	{...item}
+																	cheched={
+																		item?.value
+																			? values.includes(item?.value)
+																			: false
+																	}
+																	className={clsxm(
+																		issueType === 'issue' && [
+																			'rounded-md px-2 text-white'
+																		],
+																		sidebarUI && 'rounded-[4px]',
+																		bordered && 'input-border',
+																		(isVersion || isEpic) && 'dark:text-white',
+																		item?.className
+																	)}
+																/>
 
-															{open &&
-																current_value === item_value &&
-																issueType !== 'issue' && (
-																	<Listbox.Button
-																		as="button"
-																		onClick={(e: any) => {
-																			e.stopPropagation();
-																			onRemoveSelected && onRemoveSelected();
-																			onChange && onChange(null as any);
-																		}}
-																		className="absolute top-2.5 right-2 h-4 w-4 bg-light--theme-light dark:bg-dark--theme-light"
-																	>
-																		<XMarkIcon
-																			className="text-dark dark:text-white"
-																			height={16}
-																			width={16}
-																			aria-hidden="true"
-																		/>
-																	</Listbox.Button>
-																)}
-														</li>
-													</Listbox.Option>
-												);
-											})}
-											{children && <Listbox.Button as="div">{children}</Listbox.Button>}
-										</Card>
-									</Listbox.Options>
+																{open &&
+																	current_value === item_value &&
+																	issueType !== 'issue' && (
+																		<Listbox.Button
+																			as="button"
+																			onClick={(e: any) => {
+																				e.stopPropagation();
+																				onRemoveSelected && onRemoveSelected();
+																				onChange && onChange(null as any);
+																			}}
+																			className="absolute top-2.5 right-2 h-4 w-4 bg-light--theme-light dark:bg-dark--theme-light"
+																		>
+																			<XMarkIcon
+																				className="text-dark dark:text-white"
+																				height={16}
+																				width={16}
+																				aria-hidden="true"
+																			/>
+																		</Listbox.Button>
+																	)}
+															</li>
+														</Listbox.Option>
+													);
+												})}
+												{children && <Listbox.Button as="div">{children}</Listbox.Button>}
+											</Card>
+										</Listbox.Options>
+									</div>
 								</Transition>
-							</>
+							</div>
 						);
 					}}
 				</Listbox>
@@ -1221,7 +1226,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={clsxm('relative', className)}>
 				<Listbox value={values} onChange={onChange} disabled={disabled} multiple>
-					<Listbox.Button
+					<ListboxButton
 						as="div"
 						className={clsxm(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 						style={{
@@ -1252,7 +1257,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						>
 							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
 						</TaskStatus>
-					</Listbox.Button>
+					</ListboxButton>
 
 					<Transition
 						enter="transition duration-100 ease-out"
@@ -1261,65 +1266,63 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						leave="transition duration-75 ease-out"
 						leaveFrom="transform scale-100 opacity-100"
 						leaveTo="transform scale-95 opacity-0"
-						className={clsxm(
-							'absolute right-0 left-0 z-[999] min-w-min outline-none',
-							issueType === 'issue' && ['left-auto right-auto']
-						)}
 					>
-						<Listbox.Options className="outline-none">
-							<Card
-								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
-							>
-								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
-									{items.map((item, i) => {
-										const item_value = item.value || item.name;
-										return (
-											<Listbox.Option
-												key={i}
-												value={item_value}
-												as={Fragment}
-												disabled={disabled}
-											>
-												<li className="relative cursor-pointer outline-none">
-													<TaskStatus
-														showIcon={showIcon}
-														{...item}
-														cheched={item.value ? values.includes(item.value) : false}
-														className={clsxm(
-															issueType === 'issue' && ['rounded-md px-2 text-white'],
-															`${sidebarUI ? 'rounded-[4px]' : ''}`,
-															`${bordered ? 'input-border' : ''}`,
-															isVersion && 'dark:text-white'
-														)}
-													/>
+						<div
+							className={clsxm(
+								'absolute right-0 left-0 z-[999] min-w-min outline-none',
+								issueType === 'issue' && ['left-auto right-auto']
+							)}
+						>
+							<ListboxOptions className="outline-none">
+								<Card
+									shadow="bigger"
+									className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
+								>
+									<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
+										{items.map((item, i) => {
+											const item_value = item.value || item.name;
+											return (
+												<ListboxOption key={i} value={item_value} as="div" disabled={disabled}>
+													<li className="relative cursor-pointer outline-none">
+														<TaskStatus
+															showIcon={showIcon}
+															{...item}
+															cheched={item.value ? values.includes(item.value) : false}
+															className={clsxm(
+																issueType === 'issue' && ['rounded-md px-2 text-white'],
+																`${sidebarUI ? 'rounded-[4px]' : ''}`,
+																`${bordered ? 'input-border' : ''}`,
+																isVersion && 'dark:text-white'
+															)}
+														/>
 
-													{value === item_value && issueType !== 'issue' && (
-														<Listbox.Button
-															as="button"
-															onClick={(e: any) => {
-																e.stopPropagation();
-																onRemoveSelected && onRemoveSelected();
-																onChange && onChange(null as any);
-															}}
-															className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-														>
-															<XMarkIcon
-																className="text-dark"
-																height={16}
-																width={16}
-																aria-hidden="true"
-															/>
-														</Listbox.Button>
-													)}
-												</li>
-											</Listbox.Option>
-										);
-									})}
-								</div>
-								{children && <Listbox.Button as="div">{children}</Listbox.Button>}
-							</Card>
-						</Listbox.Options>
+														{value === item_value && issueType !== 'issue' && (
+															<ListboxButton
+																as="button"
+																onClick={(e: any) => {
+																	e.stopPropagation();
+																	onRemoveSelected && onRemoveSelected();
+																	onChange && onChange(null as any);
+																}}
+																className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+															>
+																<XMarkIcon
+																	className="text-dark"
+																	height={16}
+																	width={16}
+																	aria-hidden="true"
+																/>
+															</ListboxButton>
+														)}
+													</li>
+												</ListboxOption>
+											);
+										})}
+									</div>
+									{children && <ListboxButton as="div">{children}</ListboxButton>}
+								</Card>
+							</ListboxOptions>
+						</div>
 					</Transition>
 				</Listbox>
 			</div>
