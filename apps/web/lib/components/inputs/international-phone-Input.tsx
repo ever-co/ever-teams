@@ -3,6 +3,7 @@ import React from 'react';
 import { FieldError, UseFormRegister } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { PHONE_REGEX } from '@app/helpers'; // Import the PHONE_REGEX from your helpers
 
 interface PhoneInputProps<T extends Record<string, any>> {
 	name: string;
@@ -34,15 +35,8 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 	const t = useTranslations();
 
 	const { ref, ...registerProps } = register(name as any, {
-		required: required ? 'Phone number is required' : false,
 		validate: (value: string) => {
-			if (!value) {
-				return required ? 'Phone number is required' : true;
-			}
-
-			const digitsOnly = value.replace(/\s+/g, '').replace('+', '');
-
-			if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+			if (!value.match(PHONE_REGEX)) {
 				return t('pages.settingsPersonal.phoneNotValid');
 			}
 
