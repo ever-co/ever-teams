@@ -19,8 +19,17 @@ import { EditUserRoleDropdown } from './edit-role-dropdown';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
-	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<OT_Member>(members, 5);
+	const {
+		total,
+		totalAll,
+		onPageChange,
+		itemsPerPage,
+		itemOffset,
+		endOffset,
+		setItemsPerPage,
+		currentItems,
+		pageCount
+	} = usePagination<OT_Member>(members, 5);
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
@@ -83,7 +92,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	const handleRoleChange = useCallback(
 		(newRole: IRole) => {
-			if (!editMemberRef.current || !activeTeamRef.current) return;			
+			if (!editMemberRef.current || !activeTeamRef.current) return;
 
 			const { employeeId, role } = editMemberRef.current;
 
@@ -141,7 +150,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	return (
 		<div>
 			<div className="sm:rounded-lg h-[28rem] overflow-hidden">
-				<table className="w-full  text-sm text-left text-gray-500 dark:bg-dark--theme-light">
+				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
 							<th
@@ -293,8 +302,9 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 			<Paginate
 				total={total}
+				totalAll={totalAll}
 				onPageChange={onPageChange}
-				pageCount={1} // Set Static to 1 - It will be calculated dynamically in the Paginate component
+				pageCount={pageCount} // Use the dynamic pageCount from the hook
 				itemsPerPage={itemsPerPage}
 				itemOffset={itemOffset}
 				endOffset={endOffset}
