@@ -5,91 +5,92 @@ import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 import { cn } from '@/lib/utils';
 
 type Props = {
-  total: number;
-  totalAll?: number; // Added to show total unfiltered items
-  itemsPerPage?: number;
-  itemOffset: number;
-  endOffset: number;
-  setItemsPerPage: Dispatch<SetStateAction<number>>;
-  className?: string;
-  pageCount: number; // This now comes from the hook
+	total: number;
+	totalAll?: number; // Added to show total unfiltered items
+	itemsPerPage?: number;
+	itemOffset: number;
+	endOffset: number;
+	setItemsPerPage: Dispatch<SetStateAction<number>>;
+	className?: string;
+	pageCount: number; // This now comes from the hook
 } & ReactPaginateProps;
 
 export function Paginate({
-  total,
-  totalAll,
-//   itemsPerPage = 5,
-  onPageChange,
-  itemOffset,
-  endOffset,
-  setItemsPerPage,
-  className,
-  pageCount
+	total,
+	totalAll,
+	//   itemsPerPage = 5,
+	onPageChange,
+	itemOffset,
+	endOffset,
+	setItemsPerPage,
+	className,
+	pageCount
 }: Props) {
-  const t = useTranslations();
+	const t = useTranslations();
 
-  return (
-    <div
-      className={cn('flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative', className)}
-      aria-label="Table navigation"
-    >
-      <ReactPaginate
-        activeLinkClassName='text-primary'
-        breakLabel=". . ."
-        nextLabel={
-          <div className="block relative w-10 h-10 justify-center items-center leading-tight text-gray-500 bg-white border border-[#23232329] rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px] p-2 disabled:opacity-25 outline-none">
-            <span className="sr-only">{t('common.NEXT')}</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
-          </div>
-        }
-        onPageChange={onPageChange}
-        pageRangeDisplayed={1}
-        pageCount={pageCount}
-        previousLabel={
-          <div className="block relative w-10 h-10 justify-center items-center rounded-[8px] ml-0 leading-tight text-gray-500 bg-white border border-[#23232329] rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white mr-1 p-2 outline-none">
-            <span className="sr-only">{t('common.PREV')}</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
-          </div>
-        }
-        renderOnZeroPageCount={null}
-        className={'flex items-center justify-between'}
-        pageClassName={'pl-4 pr-4 pt-2 pb-2 text-gray-500 font-normal text-[#B1AEBC]'}
-        activeClassName={'text-[#1A1C1E] dark:text-white'}
-        breakClassName={'pl-5 pr-5 pt-1 pb-2'}
-      />
+	return (
+		<div
+			className={cn('flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative', className)}
+			aria-label="Table navigation"
+		>
+			<ReactPaginate
+				activeLinkClassName="text-primary"
+				breakLabel=". . ."
+				nextLabel={
+					<div className="block relative w-10 h-10 justify-center items-center leading-tight text-gray-500 bg-white border border-[#23232329] rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px] p-2 disabled:opacity-25 outline-none">
+						<span className="sr-only">{t('common.NEXT')}</span>
+						<svg
+							className="w-5 h-5"
+							aria-hidden="true"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fillRule="evenodd"
+								d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+								clipRule="evenodd"
+							></path>
+						</svg>
+					</div>
+				}
+				onPageChange={onPageChange}
+				pageRangeDisplayed={1}
+				pageCount={pageCount}
+				previousLabel={
+					<div className="block relative w-10 h-10 justify-center items-center rounded-[8px] ml-0 leading-tight text-gray-500 bg-white border border-[#23232329] rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white mr-1 p-2 outline-none">
+						<span className="sr-only">{t('common.PREV')}</span>
+						<svg
+							className="w-5 h-5"
+							aria-hidden="true"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fillRule="evenodd"
+								d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+								clipRule="evenodd"
+							></path>
+						</svg>
+					</div>
+				}
+				renderOnZeroPageCount={null}
+				className={'flex items-center justify-between'}
+				pageClassName={'pl-4 pr-4 pt-2 pb-2 text-gray-500 font-normal text-[#B1AEBC]'}
+				activeClassName={'text-[#1A1C1E] dark:text-white'}
+				breakClassName={'pl-5 pr-5 pt-1 pb-2'}
+			/>
 
-<div className="relative flex items-center gap-x-5">
-        <PaginationDropdown setValue={setItemsPerPage} />
-        <div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
-          {totalAll !== undefined && totalAll > total
-            ? `Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`
-            : `Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
-        </div>
-      </div>
-    </div>
-  );
+			<div className="relative flex items-center gap-x-5">
+				<PaginationDropdown setValue={setItemsPerPage} />
+				<div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
+					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
+					{totalAll !== undefined && totalAll > total && (
+						<span className="block text-xs text-gray-400">(filtered from {totalAll})</span>
+					)}
+				</div>
+			</div>
+		</div>
+	);
 }

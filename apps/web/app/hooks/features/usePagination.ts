@@ -32,7 +32,7 @@ export function usePagination<T>(items: T[], defaultItemsPerPage = 5) {
   const pageCount = Math.ceil(filteredTotal / ITEMS_PER_PAGE_VIEW);
 
   const onPageChange = (selectedItem: { selected: number }) => {
-    const newOffset = (selectedItem.selected * ITEMS_PER_PAGE_VIEW) % filteredTotal;
+    const newOffset =  filteredTotal === 0 ? 0 :(selectedItem.selected * ITEMS_PER_PAGE_VIEW) % filteredTotal;
     setItemOffset(newOffset);
   };
 
