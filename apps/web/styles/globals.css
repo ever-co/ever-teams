@@ -391,173 +391,106 @@ html.dark {
 
 /* Additional CSS to add to your global.css */
 
-/* Remove default border from the input to use container border instead */
-.phone-input-container .react-tel-input .form-control {
-	width: 100% !important;
-	height: 54px !important;
-	border: none !important; /* Remove default border */
-	border-radius: 10px !important;
-	font-size: 14px;
-	padding-left: 56px !important; /* Increase padding to move number to the right */
-	background-color: transparent !important; /* Make background transparent */
-	transition: all 0.3s ease;
-	font-weight: light;
-	font-family: 'Poppins', sans-serif;
+/* Light mode defaults */
+html body .react-tel-input .country-list {
+	background-color: #fff !important;
+	color: #333 !important;
+	border-color: #ccc !important;
   }
 
-  /* Ensure the container has the proper border and styling */
-  .phone-input-wrapper {
-	display: block !important;
-	width: 100% !important;
-	height: 54px !important;
-	border-radius: 10px;
-	overflow: hidden;
+  html body .react-tel-input .country-list .search-box {
+	background-color: #fff !important;
+	color: #333 !important;
   }
 
-  /* Adjust flag dropdown position and appearance */
-  .phone-input-container .react-tel-input .flag-dropdown {
-	background-color: transparent !important;
-	border: none !important;
-	height: 100% !important;
-	left: 4px !important; /* Position flag slightly to the right */
+  html body .react-tel-input .country-list .search-box:focus {
+	background-color: #fff !important;
   }
 
-  /* Style the flag container */
-  .phone-input-container .react-tel-input .selected-flag {
-	border-radius: 10px 0 0 10px;
-	padding: 0 8px 0 12px !important;
-	background-color: transparent !important;
-	height: 100% !important;
-	width: 52px !important; /* Make flag area wider */
-	display: flex !important;
-	align-items: center !important;
-	border: none !important;
+  html body .react-tel-input .country-list .country.highlight,
+  html body .react-tel-input .country-list .country:hover {
+	background-color: #f0f0f0 !important;
   }
 
-  /* Ensure dropdown button arrow is positioned correctly */
-  .phone-input-container .react-tel-input .selected-flag .arrow {
-	left: 30px !important;
+  html body .react-tel-input .country-list::-webkit-scrollbar {
+	width: 8px !important;
   }
 
-  /* Make sure the flag is properly centered */
-  .phone-input-container .react-tel-input .flag {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	margin: 0;
-	left: 14px !important;
+  html body .react-tel-input .country-list::-webkit-scrollbar-track {
+	background: #f1f1f1 !important;
   }
 
-  /* Disabled state styling */
-  .phone-input-container .react-tel-input .form-control:disabled {
-	opacity: 0.8;
-	cursor: not-allowed;
+  html body .react-tel-input .country-list::-webkit-scrollbar-thumb {
+	background: #888 !important;
+	border-radius: 4px !important;
   }
 
-  /* Fix dropdown z-index */
-  .phone-input-container .react-tel-input .country-list {
-	z-index: 30 !important;
+  html body .react-tel-input .search-class {
+	background-color: #fff !important;
+	color: #333 !important;
   }
 
-  /* Remove focus styles */
-  .phone-input-container .react-tel-input .form-control:focus {
-	box-shadow: none !important;
-	border: none !important;
-	outline: none !important;
-  }
-
-  /* Remove border on hover */
-  .phone-input-container .react-tel-input .selected-flag:hover,
-  .phone-input-container .react-tel-input .selected-flag:focus {
-	border: none !important;
-	background-color: transparent !important;
-  }
-
-  /* Remove black outline on focus */
-  .no-focus-border:focus {
-	outline: none !important;
-	box-shadow: none !important;
-	border: none !important;
-  }
-
-  /* Remove border from button */
-  .no-border {
-	border: none !important;
-	outline: none !important;
-  }
-
-  /* Fix for country list dropdown border */
-  .phone-input-container .react-tel-input .country-list {
-	border: 1px solid #E5E7EB !important;
-  }
-
-  .dark .phone-input-container .react-tel-input .country-list {
-	border-color: #3b3c44 !important;
-  }
-
-  .phone-input-container .react-tel-input .country-list {
-	position: absolute !important;
-	top: 56px !important; /* Position below the input */
-	left: 0 !important;
-	width: 300px !important;
-	max-height: 200px !important;
-	overflow-y: auto !important;
-	margin: 0 !important;
-	border-radius: 10px !important;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
-	background-color: white !important;
-	border: 1px solid #E5E7EB !important;
-	z-index: 999 !important; /* Ensure it's above other elements */
-  }
-
-  /* Dark mode styling for the dropdown */
-  .dark .phone-input-container .react-tel-input .country-list {
+  /* Dark mode specific styles with higher specificity */
+  html.dark body .react-tel-input .country-list {
 	background-color: #1B1D22 !important;
-	border-color: #3b3c44 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
   }
 
-  /* Style the search box in the dropdown */
-  .phone-input-container .react-tel-input .country-list .search-box {
-	border: 1px solid #E5E7EB !important;
-	border-radius: 10px !important;
-	margin: 8px !important;
-	padding: 8px !important;
-	width: calc(100% - 16px) !important;
-	font-size: 14px !important;
+  html.dark body .react-tel-input .country-list .search-box {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
   }
 
-  .dark .phone-input-container .react-tel-input .country-list .search-box {
-	background-color: #2D2B3A !important;
-	border-color: #4B4B60 !important;
-	color: white !important;
+  html.dark body .react-tel-input .country-list .country.highlight,
+  html.dark body .react-tel-input .country-list .country:hover {
+	background-color: #2a2d33 !important;
   }
 
-  /* Style the country items in the dropdown */
-  .phone-input-container .react-tel-input .country-list .country {
-	padding: 8px 10px !important;
-	border-radius: 4px !important;
-	margin: 0 4px !important;
+  html.dark body .react-tel-input .country-list::-webkit-scrollbar-track {
+	background: #2a2d33 !important;
   }
 
-  /* Hover and highlight effects for country items */
-  .phone-input-container .react-tel-input .country-list .country.highlight,
-  .phone-input-container .react-tel-input .country-list .country:hover {
-	background-color: #f5f5f5 !important;
-	border-radius: 4px !important;
+  html.dark body .react-tel-input .country-list::-webkit-scrollbar-thumb {
+	background: #4a4d52 !important;
   }
 
-  .dark .phone-input-container .react-tel-input .country-list .country.highlight,
-  .dark .phone-input-container .react-tel-input .country-list .country:hover {
-	background-color: #3D3B4A !important;
+  html.dark body .react-tel-input .search-box {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
   }
 
-  /* Fix spacing in the dropdown */
-  .phone-input-container .react-tel-input .country-list .divider {
-	margin: 5px 0 !important;
-	padding: 0 !important;
+  html.dark body .react-tel-input .search-class {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
   }
 
-  /* Ensure the dropdown doesn't clip */
-  .phone-input-wrapper {
-	overflow: visible !important;
+  /* Additional styling to ensure dark mode is respected */
+  html.dark body .react-tel-input .country-list .country {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  html.dark body .react-tel-input input[type=text],
+  html.dark body .react-tel-input input[type=tel] {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  /* Style for the dropdown button and flag container */
+  html.dark body .react-tel-input .flag-dropdown {
+	background-color: #1B1D22 !important;
+	border-color: #2d2f34 !important;
+  }
+
+  html.dark body .react-tel-input .selected-flag {
+	background-color: #1B1D22 !important;
+  }
+
+  /* Direct target for the search input inside dropdown */
+  html.dark body .react-tel-input .country-list .search-box input {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
   }
