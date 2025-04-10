@@ -6,24 +6,27 @@ import { cn } from '@/lib/utils';
 
 type Props = {
 	total: number;
+	totalAll?: number; // Added to show total unfiltered items
 	itemsPerPage?: number;
 	itemOffset: number;
 	endOffset: number;
 	setItemsPerPage: Dispatch<SetStateAction<number>>;
 	className?: string;
+	pageCount: number; // This now comes from the hook
 } & ReactPaginateProps;
 
 export function Paginate({
 	total,
-	itemsPerPage = 10,
+	totalAll,
+	//   itemsPerPage = 5,
 	onPageChange,
 	itemOffset,
 	endOffset,
 	setItemsPerPage,
-	className
+	className,
+	pageCount
 }: Props) {
 	const t = useTranslations();
-	const pageCount: number = Math.ceil(total / itemsPerPage);
 
 	return (
 		<div
@@ -31,7 +34,7 @@ export function Paginate({
 			aria-label="Table navigation"
 		>
 			<ReactPaginate
-			activeLinkClassName=' text-primary'
+				activeLinkClassName="text-primary"
 				breakLabel=". . ."
 				nextLabel={
 					<div className="block relative w-10 h-10 justify-center items-center leading-tight text-gray-500 bg-white border border-[#23232329] rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px] p-2 disabled:opacity-25 outline-none">
@@ -79,11 +82,14 @@ export function Paginate({
 				breakClassName={'pl-5 pr-5 pt-1 pb-2'}
 			/>
 
-			<div className="flex items-center relative gap-x-5">
+			<div className="relative flex items-center gap-x-5">
 				<PaginationDropdown setValue={setItemsPerPage} />
-				<span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+				<div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
 					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
-				</span>
+					{totalAll !== undefined && totalAll > total && (
+						<span className="block text-xs text-gray-400">(filtered from {totalAll})</span>
+					)}
+				</div>
 			</div>
 		</div>
 	);
