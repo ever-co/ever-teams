@@ -108,28 +108,29 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: P
 
 			{tabFiltered.tab !== 'dailyplan' && (
 				<ul className="flex flex-col gap-4">
-
-					{slicedItems.length>0 ?slicedItems.map((task) => {
-						return (
-							<li key={task.id}>
-								<TaskCard
-									key={task.id}
-									task={task}
-									isAuthUser={profile.isAuthUser}
-									activeAuthTask={false}
-									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
-									profile={profile}
-									taskBadgeClassName={cn(
-										task.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem]'
-											: '!px-[0.375rem] py-[0.375rem]',
-										'rounded-sm'
-									)}
-									taskTitleClassName="mt-[0.0625rem]"
-								/>
-							</li>
-						);
-					}) :tabFiltered.tab !== 'stats' && (<EmptyPlans planMode='Today Tasks' />)}
+					{slicedItems.length > 0
+						? slicedItems.map((task) => {
+								return (
+									<li key={task.id}>
+										<TaskCard
+											key={task.id}
+											task={task}
+											isAuthUser={profile.isAuthUser}
+											activeAuthTask={false}
+											viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
+											profile={profile}
+											taskBadgeClassName={cn(
+												task.issueType === 'Bug'
+													? '!px-[0.3312rem] py-[0.2875rem]'
+													: '!px-[0.375rem] py-[0.375rem]',
+												'rounded-sm'
+											)}
+											taskTitleClassName="mt-[0.0625rem]"
+										/>
+									</li>
+								);
+							})
+						: tabFiltered.tab !== 'stats' && <EmptyPlans planMode="Today Tasks" />}
 				</ul>
 			)}
 		</div>
