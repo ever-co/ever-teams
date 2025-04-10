@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { FieldError, UseFormRegister } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
-interface PhoneInputProps {
+interface PhoneInputProps<T extends Record<string, any>> {
   name: string;
   label?: string;
   error?: FieldError;
-  register: UseFormRegister<any>;
+  register: UseFormRegister<T>;
   required?: boolean;
-  defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
@@ -19,7 +17,7 @@ interface PhoneInputProps {
   notValidBorder?: boolean;
 }
 
-const InternationalPhoneInput: React.FC<PhoneInputProps> = ({
+const InternationalPhoneInput = <T extends Record<string, any>>({
   name,
   label,
   error,
@@ -31,18 +29,18 @@ const InternationalPhoneInput: React.FC<PhoneInputProps> = ({
   className = '',
   wrapperClassName = '',
   notValidBorder = false,
-}) => {
-  const { ref, ...registerProps } = register(name, {
+}: PhoneInputProps<T>) => {
+
+
+  const { ref, ...registerProps } = register(name as any, {
     required: required ? 'Phone number is required' : false,
     validate: (value: string) => {
-      // Handle undefined or empty values
       if (!value) {
         return required ? 'Phone number is required' : true;
       }
 
       const digitsOnly = value.replace(/\s+/g, '').replace('+', '');
 
-      // Check length only when we have a value
       if (digitsOnly.length < 10 || digitsOnly.length > 15) {
         return 'Invalid phone number. Please enter a valid phone number';
       }

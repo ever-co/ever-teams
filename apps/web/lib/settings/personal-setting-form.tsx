@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
@@ -19,7 +18,7 @@ import { EmailResetModal } from './email-reset-modal';
 import { LanguageDropDown } from './language-dropdown';
 import { TimezoneDropDown } from './timezone-dropdown';
 import { useRouter } from 'next/navigation';
-import InternationalPhoneInput from '../components/inputs/International-phoneInput';
+import InternationalPhoneInput from '../components/inputs/international-phone-Input';
 
 interface IValidation {
 	email: boolean;
