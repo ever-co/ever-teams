@@ -282,6 +282,11 @@ export default TaskSecondaryInfo;
  * @returns {JSX.Element} - The Dropdown element
  */
 export function ProjectDropDown(props: ITaskProjectDropdownProps) {
+	const ListboxComponent = Listbox as unknown as React.FunctionComponent<any>;
+	const TransitionComponent = Transition as unknown as React.FunctionComponent<any>;
+	const ListboxButton = Listbox.Button as unknown as React.FunctionComponent<any>;
+	const ListboxOptions = Listbox.Options as unknown as React.FunctionComponent<any>;
+	const ListboxOption = Listbox.Option as unknown as React.FunctionComponent<any>;
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
@@ -336,9 +341,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					styles?.container
 				)}
 			>
-				<Listbox
+				<ListboxComponent
 					value={selected}
-					onChange={(project) => {
+					onChange={(project: IProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {
@@ -351,7 +356,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					{({ open }) => {
 						return (
 							<>
-								<Listbox.Button
+								<ListboxButton
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
 									items-center justify-between px-2 h-full
@@ -392,9 +397,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										)}
 										aria-hidden="true"
 									/>
-								</Listbox.Button>
+								</ListboxButton>
 
-								<Transition
+								<TransitionComponent
 									show={open}
 									enter="transition duration-100 ease-out"
 									enterFrom="transform scale-95 opacity-0"
@@ -413,7 +418,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										overflow: 'auto'
 									}}
 								>
-									<Listbox.Options className="outline-none">
+									<ListboxOptions className="outline-none">
 										<Card
 											shadow="bigger"
 											className={clsxm(
@@ -425,7 +430,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<div className="flex flex-col gap-2.5 w-full p-4">
 													{organizationProjects.map((item) => {
 														return (
-															<Listbox.Option key={item.id} value={item} as={Fragment}>
+															<ListboxOption key={item.id} value={item} as={Fragment}>
 																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
 																	{item.imageUrl && (
 																		<Image
@@ -440,7 +445,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 																		{item.name || 'Project'}
 																	</span>
 																</li>
-															</Listbox.Option>
+															</ListboxOption>
 														);
 													})}
 													<div className="mt-2">
@@ -466,12 +471,12 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<ScrollBar className="-pr-60" />
 											</ScrollArea>
 										</Card>
-									</Listbox.Options>
-								</Transition>
+									</ListboxOptions>
+								</TransitionComponent>
 							</>
 						);
 					}}
-				</Listbox>
+				</ListboxComponent>
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {

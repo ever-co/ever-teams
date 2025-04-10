@@ -321,6 +321,9 @@ export function TaskInput(props: Props) {
 	}, [props.autoFocus, targetEl]);
 
 	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+	const PopoverComponent = Popover as unknown as React.FunctionComponent<any>;
+	const TransitionComponent = Transition as unknown as React.FunctionComponent<any>;
+	const PopoverPanel = Popover.Panel as unknown as React.FunctionComponent<any>;
 
 	const inputField = (
 		<InputField
@@ -423,7 +426,11 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover onClick={() => handlePopoverToggle('popover1')} className="relative z-20 w-full" ref={inputRef}>
+		<PopoverComponent
+			onClick={() => handlePopoverToggle('popover1')}
+			className="relative z-20 w-full"
+			ref={inputRef}
+		>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
@@ -433,7 +440,7 @@ export function TaskInput(props: Props) {
 			</Tooltip>
 			{props.children}
 
-			<Transition
+			<TransitionComponent
 				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -442,14 +449,14 @@ export function TaskInput(props: Props) {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel
+				<PopoverPanel
 					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
 					ref={ignoreElementRef}
 				>
 					{taskCard}
-				</Popover.Panel>
-			</Transition>
-		</Popover>
+				</PopoverPanel>
+			</TransitionComponent>
+		</PopoverComponent>
 	);
 }
 

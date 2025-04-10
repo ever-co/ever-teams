@@ -498,7 +498,7 @@ export function TaskInfo({
 								task={task}
 								taskIssueStatusClassName={clsxm(taskBadgeClassName)}
 								taskTitleClassName={clsxm(taskTitleClassName)}
-								className='h-full'
+								className="h-full"
 							/>
 						</div>
 					</div>
