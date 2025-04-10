@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 /**
  * Custom hook to manage state that is synchronized with localStorage.
@@ -23,36 +21,42 @@ import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'reac
  * // Reset to default value
  * resetTheme();
  */
-export const useLocalStorageState = <T,>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>, () => void] => {
-  // Initialize state with value from localStorage or default
-  const [state, setState] = useState<T>(() => {
-    if (typeof window === 'undefined') return defaultValue;
+export const useLocalStorageState = <T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>, () => void] => {
+	// Initialize state
+	const [state, setState] = useState<T>(() => {
+		if (typeof window === 'undefined') return defaultValue;
 
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? (JSON.parse(item) as T) : defaultValue;
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-      return defaultValue;
-    }
-  });
+		try {
+			const item = window.localStorage.getItem(key);
+			return item ? (JSON.parse(item) as T) : defaultValue;
+		} catch (error) {
+			console.error(`Error reading localStorage key "${key}":`, error);
+			return defaultValue;
+		}
+	});
 
-  // Update localStorage when state changes
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+	// Update localStorage on state change
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
 
-    try {
-      window.localStorage.setItem(key, JSON.stringify(state));
-    } catch (error) {
-      console.error(`Error writing to localStorage key "${key}":`, error);
-    }
-  }, [key, state]);
+		try {
+			window.localStorage.setItem(key, JSON.stringify(state));
+		} catch (error) {
+			console.error(`Error setting localStorage key "${key}":`, error);
+		}
+	}, [key, state]);
 
-  // Reset state to default value
-  const reset = useCallback(() => {
-    window.localStorage.removeItem(key);
-    setState(defaultValue);
-  }, [defaultValue, key]);
+	// Clear function
+	const clear = () => {
+		if (typeof window === 'undefined') return;
 
-  return [state, setState, reset];
+		try {
+			window.localStorage.removeItem(key);
+			setState(defaultValue);
+		} catch (error) {
+			console.error(`Error removing localStorage key "${key}":`, error);
+		}
+	};
+
+	return [state, setState, clear];
 };
