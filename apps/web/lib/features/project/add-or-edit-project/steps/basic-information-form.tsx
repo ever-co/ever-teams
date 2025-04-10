@@ -5,7 +5,7 @@ import { Listbox, Popover } from '@headlessui/react';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { FormEvent, Fragment, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
@@ -553,7 +553,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 
 					<ScrollArea style={{ height: listHeight }}>
 						{items?.map((item) => (
-							<Listbox.Option key={item?.id} value={item?.id} as={Fragment}>
+							<Listbox.Option key={item?.id} value={item?.id} as="div">
 								{({ active, selected: isSelected }) => (
 									<li className={cn('text-xs cursor-pointer rounded ')}>
 										{renderItem ? (

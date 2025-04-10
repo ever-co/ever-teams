@@ -587,115 +587,115 @@ export function TaskCardMenu({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
-					{() => {
-						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
-								<ul className="min-w-[124px]">
-									<li className="mb-2">
-										<Link
-											href={`/task/${task.id}`}
-											className={clsxm(
-												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all'
-											)}
-										>
-											{t('common.TASK_DETAILS')}
-										</Link>
-									</li>
-									<li className="mb-2">
-										<span
-											onClick={() => toggleFavorite(task)}
-											className={clsxm(
-												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all'
-											)}
-										>
-											{isFavorite(task)
-												? t('common.REMOVE_FAVORITE_TASK')
-												: t('common.ADD_FAVORITE_TASK')}
-										</span>
-									</li>
-									<li className="mb-3">
-										<span
-											className={clsxm(
-												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all cursor-pointer'
-											)}
-											onClick={handleAssignment}
-										>
-											{viewType === 'unassign'
-												? t('common.ASSIGN_TASK')
-												: t('common.UNASSIGN_TASK')}
-										</span>
-									</li>
-
-									{(viewType == 'default' ||
-										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
-										<>
-											<Divider type="HORIZONTAL" />
-											<div className="mt-3">
-												{!taskPlannedToday && (
-													<li className="mb-2">
-														<PlanTask
-															planMode="today"
-															taskId={task.id}
-															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedToday={taskPlannedToday}
-														/>
-													</li>
+				<div className="absolute z-10 right-0 min-w-[110px]">
+					<Popover.Panel>
+						{() => {
+							return (
+								<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
+									<ul className="min-w-[124px]">
+										<li className="mb-2">
+											<Link
+												href={`/task/${task.id}`}
+												className={clsxm(
+													'font-normal whitespace-nowrap transition-all',
+													'hover:font-semibold hover:transition-all'
 												)}
-												{!taskPlannedTomorrow && (
-													<li className="mb-2">
-														<PlanTask
-															planMode="tomorrow"
-															taskId={task.id}
-															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedForTomorrow={taskPlannedTomorrow}
-														/>
-													</li>
+											>
+												{t('common.TASK_DETAILS')}
+											</Link>
+										</li>
+										<li className="mb-2">
+											<span
+												onClick={() => toggleFavorite(task)}
+												className={clsxm(
+													'font-normal whitespace-nowrap transition-all',
+													'hover:font-semibold hover:transition-all'
 												)}
-												<li className="mb-2">
-													<PlanTask
-														planMode="custom"
-														taskId={task.id}
-														employeeId={profile?.member?.employeeId ?? ''}
-													/>
-												</li>
-											</div>
-										</>
-									)}
+											>
+												{isFavorite(task)
+													? t('common.REMOVE_FAVORITE_TASK')
+													: t('common.ADD_FAVORITE_TASK')}
+											</span>
+										</li>
+										<li className="mb-3">
+											<span
+												className={clsxm(
+													'font-normal whitespace-nowrap transition-all',
+													'hover:font-semibold hover:transition-all cursor-pointer'
+												)}
+												onClick={handleAssignment}
+											>
+												{viewType === 'unassign'
+													? t('common.ASSIGN_TASK')
+													: t('common.UNASSIGN_TASK')}
+											</span>
+										</li>
 
-									{viewType === 'dailyplan' &&
-										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+										{(viewType == 'default' ||
+											(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
 											<>
-												{canSeeActivity ? (
-													<div>
-														<Divider type="HORIZONTAL" />
-														<div className="mt-2">
-															<RemoveTaskFromPlan
-																member={profile?.member}
-																task={task}
-																plan={plan}
+												<Divider type="HORIZONTAL" />
+												<div className="mt-3">
+													{!taskPlannedToday && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="today"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedToday={taskPlannedToday}
 															/>
-														</div>
-														{isTaskPlannedMultipleTimes && (
-															<div className="mt-2">
-																<RemoveManyTaskFromPlan
-																	task={task}
-																	member={profile?.member}
-																/>
-															</div>
-														)}
-													</div>
-												) : (
-													<></>
-												)}
+														</li>
+													)}
+													{!taskPlannedTomorrow && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="tomorrow"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedForTomorrow={taskPlannedTomorrow}
+															/>
+														</li>
+													)}
+													<li className="mb-2">
+														<PlanTask
+															planMode="custom"
+															taskId={task.id}
+															employeeId={profile?.member?.employeeId ?? ''}
+														/>
+													</li>
+												</div>
 											</>
 										)}
-									{/* <li>
+
+										{viewType === 'dailyplan' &&
+											(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+												<>
+													{canSeeActivity ? (
+														<div>
+															<Divider type="HORIZONTAL" />
+															<div className="mt-2">
+																<RemoveTaskFromPlan
+																	member={profile?.member}
+																	task={task}
+																	plan={plan}
+																/>
+															</div>
+															{isTaskPlannedMultipleTimes && (
+																<div className="mt-2">
+																	<RemoveManyTaskFromPlan
+																		task={task}
+																		member={profile?.member}
+																	/>
+																</div>
+															)}
+														</div>
+													) : (
+														<></>
+													)}
+												</>
+											)}
+										{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
 											onConfirm={() => {
@@ -712,11 +712,12 @@ export function TaskCardMenu({
 											</Text>
 										</ConfirmDropdown>
 									</li> */}
-								</ul>
-							</Card>
-						);
-					}}
-				</Popover.Panel>
+									</ul>
+								</Card>
+							);
+						}}
+					</Popover.Panel>
+				</div>
 			</Transition>
 		</Popover>
 	);

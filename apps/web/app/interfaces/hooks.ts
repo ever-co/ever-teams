@@ -41,7 +41,7 @@ export interface IMembers {
 //Invite props interface
 export interface IInviteProps {
 	isOpen: boolean;
-	Fragment: any;
+	Fragment?: any;
 	closeModal: any;
 	task: ITeamTask | null;
 }
@@ -110,7 +110,7 @@ export interface IDrowDownData {
 export type IClassName<T = object> = {
 	className?: string;
 	fullWidth?: boolean;
-	showTimerButton?: boolean,
+	showTimerButton?: boolean;
 	type?: 'VERTICAL' | 'HORIZONTAL';
 } & T;
 

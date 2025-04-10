@@ -5,7 +5,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { CircleIcon } from 'assets/svg';
 import { Card, Tooltip } from 'lib/components';
-import { Fragment, PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -95,6 +95,7 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 								</Listbox.Button>
 
 								<Transition
+									as="div"
 									show={open}
 									enter="transition duration-100 ease-out"
 									enterFrom="transform scale-95 opacity-0"
@@ -102,29 +103,26 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
-									className={clsxm('absolute right-0 left-0 z-40 min-w-min outline-none')}
 								>
-									<Listbox.Options className="outline-none ">
-										<Card
-											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
-										>
-											{filteredPlans.map((item) => (
-												<Listbox.Option
-													key={item.id}
-													value={item.date.toString()}
-													as={Fragment}
-												>
-													<li className="cursor-pointer outline-none relative">
-														<DailyPlanDropDownItem
-															label={formatDayPlanDate(item.date.toString())}
-															checked={selectedPlans?.includes(item.date.toString())}
-														/>
-													</li>
-												</Listbox.Option>
-											))}
-										</Card>
-									</Listbox.Options>
+									<div className={clsxm('absolute right-0 left-0 z-40 min-w-min outline-none')}>
+										<Listbox.Options className="outline-none ">
+											<Card
+												shadow="bigger"
+												className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
+											>
+												{filteredPlans.map((item) => (
+													<Listbox.Option key={item.id} value={item.date.toString()} as="div">
+														<li className="cursor-pointer outline-none relative">
+															<DailyPlanDropDownItem
+																label={formatDayPlanDate(item.date.toString())}
+																checked={selectedPlans?.includes(item.date.toString())}
+															/>
+														</li>
+													</Listbox.Option>
+												))}
+											</Card>
+										</Listbox.Options>
+									</div>
 								</Transition>
 							</>
 						);

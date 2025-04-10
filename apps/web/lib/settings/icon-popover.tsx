@@ -5,7 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Divider, InputField, Tooltip } from 'lib/components';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import Image from 'next/image';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IconItem } from './icon-items';
 
 const IconPopover = ({
@@ -32,7 +32,7 @@ const IconPopover = ({
 		}
 	}, [active, iconList]);
 
-	const buttonRef = useRef<any>();
+	const buttonRef = useRef<HTMLButtonElement>(null);
 	return (
 		<Popover className="relative border-none no-underline w-[auto]" onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
@@ -57,7 +57,7 @@ const IconPopover = ({
 						</div>
 					</Popover.Button>
 					<Transition
-						as={Fragment}
+						as="div"
 						enter="transition ease-out duration-200"
 						enterFrom="opacity-0 translate-y-1"
 						enterTo="opacity-100 translate-y-0"
