@@ -3,7 +3,6 @@
 import { Menu, Transition } from '@headlessui/react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-import { Fragment } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import type { DocumentProps } from '@react-pdf/renderer';
 import { useTranslations } from 'next-intl';
@@ -70,7 +69,7 @@ export function ExportMenu({
 				</Button>
 			</Menu.Button>
 			<Transition
-				as={Fragment}
+				as="div"
 				enter="transition ease-out duration-100"
 				enterFrom="transform opacity-0 scale-95"
 				enterTo="transform opacity-100 scale-100"

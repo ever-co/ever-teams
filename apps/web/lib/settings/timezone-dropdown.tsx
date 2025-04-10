@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { InputField } from 'lib/components';
 import { useTimezoneSettings } from '@app/hooks';
 import moment from 'moment-timezone';
@@ -43,14 +43,15 @@ export const TimezoneDropDown = ({
 		return allTimezonesWithUTC;
 	}, []);
 
-	const filteredSearchResult = useMemo(() => searchTerm
-	? items.filter((t) => t.value.toLowerCase().includes(searchTerm.toLowerCase()))
-	: items, [items, searchTerm])
+	const filteredSearchResult = useMemo(
+		() => (searchTerm ? items.filter((t) => t.value.toLowerCase().includes(searchTerm.toLowerCase())) : items),
+		[items, searchTerm]
+	);
 
 	const handleChange = useCallback(
-		(timeZone : string) => {
-				onChange(timeZone);
-				setActiveTimezone(timeZone);
+		(timeZone: string) => {
+			onChange(timeZone);
+			setActiveTimezone(timeZone);
 		},
 		[onChange, setActiveTimezone]
 	);
@@ -63,7 +64,7 @@ export const TimezoneDropDown = ({
 	};
 
 	return (
-		<div className={cn("relative w-full", className)}>
+		<div className={cn('relative w-full', className)}>
 			<Listbox value={currentTimezone} onChange={handleChange}>
 				<Listbox.Button
 					className={cn(
@@ -97,7 +98,7 @@ export const TimezoneDropDown = ({
 
 					<ScrollArea className="h-72 flex flex-col gap-1">
 						{filteredSearchResult?.map((item) => (
-							<Listbox.Option key={item.id} value={item.value.toLowerCase()} as={Fragment}>
+							<Listbox.Option key={item.id} value={item.value.toLowerCase()} as="div">
 								{({ selected }) => (
 									<li className={cn('text-xs cursor-pointer rounded ')}>
 										<div

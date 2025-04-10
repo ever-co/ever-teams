@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
@@ -114,7 +113,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
-		<html lang={locale} className={poppins.variable}>
+		<html lang={locale} className={poppins.variable} suppressHydrationWarning>
 			<head>
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>

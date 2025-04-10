@@ -3,7 +3,7 @@
 import { MainLayout } from '@/lib/layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Archive,
 	ArrowLeftIcon,
@@ -313,7 +313,7 @@ function PageComponent() {
 										</Menu.Button>
 									</div>
 									<Transition
-										as={Fragment}
+										as="div"
 										enter="transition ease-out duration-100"
 										enterFrom="transform opacity-0 scale-95"
 										enterTo="transform opacity-100 scale-100"

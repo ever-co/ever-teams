@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
-import { Fragment, useCallback } from 'react';
+import { useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
@@ -217,17 +217,18 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 						</Combobox.Button>
 					</div>
 					<Transition
-						as={Fragment}
+						as="div"
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
 						<Combobox.Options className="absolute mt-1 max-h-60 h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-							{teamMembers.map((member) => (
+							{teamMembers.map((member, index) => (
 								<Combobox.Option
 									key={member.id}
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5' : 'text-gray-900'
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+											active ? 'bg-primary/5' : 'text-gray-900'
 										}`
 									}
 									value={member}
@@ -257,21 +258,12 @@ interface ITeamMemberOptionProps {
 	isAssignee: boolean;
 	member: OT_Member;
 	task: ITeamTask;
+	key?: string; // Ajoutez cette ligne
 }
-/**
- * The team member list option (allow to handle member specific actions)
- *
- * @param {object} props - The props object
- * @param {boolean} props.isAssignee - true if the task/issue is assigned to the member
- * @param {OT_Member} props.member - The team member
- * @param {ITeamTask} props.task - The task
- *
- * @returns {JSX.Element} - The list option
- */
+
 function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps): JSX.Element {
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 
-	// Assign or unassign the task
 	const handleAssignTask = useCallback(() => {
 		if (isAssignee) {
 			unassignTask(task);
@@ -282,15 +274,15 @@ function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps):
 
 	return (
 		<div className="cursor-pointer" onClick={handleAssignTask}>
-			<span className={`block truncate`}>{member.employee.fullName}</span>
+			<span className="block truncate">{member.employee.fullName}</span>
 			{!(assignTaskLoading || unAssignTaskLoading) && isAssignee ? (
-				<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
+				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
 					<CheckIcon className="h-5 w-5" aria-hidden="true" />
 				</span>
 			) : null}
 
 			{(assignTaskLoading || unAssignTaskLoading) && (
-				<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
+				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
 					<SpinnerLoader size={15} />
 				</span>
 			)}

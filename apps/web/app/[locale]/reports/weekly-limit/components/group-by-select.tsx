@@ -1,6 +1,5 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useMemo, useState, useCallback } from 'react';
-import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Badge } from '@components/ui/badge';
@@ -78,7 +77,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 					</span>
 				</Listbox.Button>
 				<Transition
-					as={Fragment}
+					as="div"
 					leave="transition ease-in duration-100"
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"

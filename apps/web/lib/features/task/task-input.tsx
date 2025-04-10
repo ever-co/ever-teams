@@ -29,16 +29,7 @@ import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import {
-	Fragment,
-	MutableRefObject,
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
+import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
@@ -788,7 +779,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						</Combobox.Button>
 					</div>
 					<Transition
-						as={Fragment}
+						as="div"
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"

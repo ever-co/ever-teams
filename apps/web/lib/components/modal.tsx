@@ -3,7 +3,7 @@
 import { clsxm } from '@app/utils';
 import { Dialog, Transition } from '@headlessui/react';
 import Image from 'next/image';
-import { Fragment, PropsWithChildren, useRef } from 'react';
+import { PropsWithChildren, useRef } from 'react';
 
 type Props = {
 	title?: string;
@@ -42,44 +42,56 @@ export function Modal({
 			leave="transition duration-75 ease-out"
 			leaveFrom="transform scale-100 opacity-100"
 			leaveTo="transform scale-95 opacity-0"
-			as={Fragment}
+			as="div"
 		>
 			<Dialog
-				initialFocus={refDiv}
-				onClose={closeOnOutsideClick ? closeModal : () => null}
 				as="div"
 				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999] w-full h-full"
+				onClose={closeOnOutsideClick ? closeModal : () => null}
+				initialFocus={refDiv}
 			>
-				<div ref={refDiv} className="absolute inset-0 flex items-center justify-center p-4 w-full">
-					<Dialog.Overlay
-						className={clsxm('flex justify-center items-center flex-col space-y-1 relative', className)}
+				<div ref={refDiv} className="fixed inset-0 flex items-center justify-center p-4">
+					<Dialog.Panel
+						className={clsxm(
+							'relative bg-white rounded-lg p-6 shadow-xl dark:bg-dark--theme-light dark:shadow-xl dark:shadow-dark--theme-light',
+							'flex flex-col space-y-4',
+							className
+						)}
 					>
-						<Dialog.Panel
-							className={clsxm('flex justify-center items-center flex-col space-y-1 relative', className)}
-						>
-							{title && <Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>}
-							{description && <Dialog.Description>{description}</Dialog.Description>}
-							{showCloseIcon && (
-								<div
-									onClick={() => {
-										closeModal();
-										customCloseModal?.();
-									}}
-									className={`absolute ${alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
-										}  md:right-2 md:top-3 cursor-pointer z-50`}
-								>
-									<Image
-										src={'/assets/svg/close.svg'}
-										alt="close"
-										width={28}
-										height={28}
-										className="w-6 md:w-7"
-									/>
-								</div>
-							)}
-							{children}
-						</Dialog.Panel>
-					</Dialog.Overlay>
+						{showCloseIcon && (
+							<button
+								type="button"
+								onClick={() => {
+									closeModal();
+									customCloseModal?.();
+								}}
+								className={clsxm(
+									'absolute cursor-pointer z-50',
+									alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+								)}
+							>
+								<Image
+									src={'/assets/svg/close.svg'}
+									alt="close"
+									width={28}
+									height={28}
+									className="w-6 md:w-7"
+								/>
+							</button>
+						)}
+
+						{title && (
+							<Dialog.Title className={clsxm('text-lg font-medium leading-6 text-gray-900', titleClass)}>
+								{title}
+							</Dialog.Title>
+						)}
+
+						{description && (
+							<Dialog.Description className="text-sm text-gray-500">{description}</Dialog.Description>
+						)}
+
+						{children}
+					</Dialog.Panel>
 				</div>
 			</Dialog>
 		</Transition>

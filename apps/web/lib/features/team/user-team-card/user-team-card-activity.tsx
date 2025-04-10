@@ -20,6 +20,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 
 	return (
 		<Transition
+			as="div"
 			show={!!showActivity}
 			enter="transition-opacity duration-75"
 			enterFrom="opacity-0"
@@ -29,7 +30,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 			leaveTo="opacity-0"
 			className="w-full px-4"
 		>
-			<div className="w-full transition-all">
+			<div className="w-full transition-all px-4">
 				<HorizontalSeparator className="my-4" />
 				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
 				<div className="flex flex-col justify-between w-full overflow-hidden gap-y-5">

@@ -17,12 +17,12 @@ import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/setting
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOptions, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
@@ -282,11 +282,6 @@ export default TaskSecondaryInfo;
  * @returns {JSX.Element} - The Dropdown element
  */
 export function ProjectDropDown(props: ITaskProjectDropdownProps) {
-	const ListboxComponent = Listbox as unknown as React.FunctionComponent<any>;
-	const TransitionComponent = Transition as unknown as React.FunctionComponent<any>;
-	const ListboxButton = Listbox.Button as unknown as React.FunctionComponent<any>;
-	const ListboxOptions = Listbox.Options as unknown as React.FunctionComponent<any>;
-	const ListboxOption = Listbox.Option as unknown as React.FunctionComponent<any>;
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
@@ -341,7 +336,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					styles?.container
 				)}
 			>
-				<ListboxComponent
+				<Listbox
 					value={selected}
 					onChange={(project: IProject) => {
 						if (controlled && onChange) {
@@ -399,7 +394,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									/>
 								</ListboxButton>
 
-								<TransitionComponent
+								<Transition
 									show={open}
 									enter="transition duration-100 ease-out"
 									enterFrom="transform scale-95 opacity-0"
@@ -407,76 +402,81 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
-									className={clsxm(
-										'absolute right-0 z-40 min-w-min outline-none',
-										open ? 'w-max min-w-full' : 'w-full',
-										'[&>ul]:w-full'
-									)}
-									style={{
-										top: 'calc(100% + 0.5rem)',
-										maxHeight: 'calc(100vh - 100%)',
-										overflow: 'auto'
-									}}
 								>
-									<ListboxOptions className="outline-none">
-										<Card
-											shadow="bigger"
-											className={clsxm(
-												'p-0 md:p-0 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
-												styles?.listCard
-											)}
-										>
-											<ScrollArea className="w-full h-full">
-												<div className="flex flex-col gap-2.5 w-full p-4">
-													{organizationProjects.map((item) => {
-														return (
-															<ListboxOption key={item.id} value={item} as={Fragment}>
-																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
-																	{item.imageUrl && (
-																		<Image
-																			src={item.imageUrl}
-																			alt={item.name || ''}
-																			width={20}
-																			height={20}
-																			className="rounded-full"
-																		/>
-																	)}
-																	<span className=" truncate w-full">
-																		{item.name || 'Project'}
-																	</span>
-																</li>
-															</ListboxOption>
-														);
-													})}
-													<div className="mt-2">
-														{!controlled && (
+									<div
+										className={clsxm(
+											'absolute right-0 z-40 min-w-min outline-none',
+											open ? 'w-max min-w-full' : 'w-full',
+											'[&>ul]:w-full'
+										)}
+										style={{
+											top: 'calc(100% + 0.5rem)',
+											maxHeight: 'calc(100vh - 100%)',
+											overflow: 'auto'
+										}}
+									>
+										<ListboxOptions className="outline-none">
+											<Card
+												shadow="bigger"
+												className={clsxm(
+													'p-0 md:p-0 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+													styles?.listCard
+												)}
+											>
+												<ScrollArea className="w-full h-full">
+													<div className="flex flex-col gap-2.5 w-full p-4">
+														{organizationProjects.map((item) => {
+															return (
+																<Listbox.Option key={item.id} value={item} as="div">
+																	<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
+																		{item.imageUrl && (
+																			<Image
+																				src={item.imageUrl}
+																				alt={item.name || ''}
+																				width={20}
+																				height={20}
+																				className="rounded-full"
+																			/>
+																		)}
+																		<span className=" truncate w-full">
+																			{item.name || 'Project'}
+																		</span>
+																	</li>
+																</Listbox.Option>
+															);
+														})}
+														<div className="mt-2">
+															{!controlled && (
+																<Button
+																	className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+																	variant="outline"
+																	onClick={handleRemoveProject}
+																>
+																	<TrashIcon className="w-5 " /> {t('common.REMOVE')}
+																</Button>
+															)}
 															<Button
-																className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+																className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
 																variant="outline"
-																onClick={handleRemoveProject}
+																onClick={openModal}
 															>
-																<TrashIcon className="w-5 " /> {t('common.REMOVE')}
+																<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
+																<span className=" truncate">
+																	{t('common.CREATE_NEW')}
+																</span>
 															</Button>
-														)}
-														<Button
-															className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
-															variant="outline"
-															onClick={openModal}
-														>
-															<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-															<span className=" truncate">{t('common.CREATE_NEW')}</span>
-														</Button>
+														</div>
 													</div>
-												</div>
-												<ScrollBar className="-pr-60" />
-											</ScrollArea>
-										</Card>
-									</ListboxOptions>
-								</TransitionComponent>
+													<ScrollBar className="-pr-60" />
+												</ScrollArea>
+											</Card>
+										</ListboxOptions>
+									</div>
+								</Transition>
 							</>
 						);
 					}}
-				</ListboxComponent>
+				</Listbox>
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {

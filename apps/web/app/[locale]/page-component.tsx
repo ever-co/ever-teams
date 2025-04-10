@@ -1,5 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';

@@ -3,8 +3,8 @@ import Picker from '@emoji-mart/react';
 import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
 import { Popover, Transition } from '@headlessui/react';
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg'
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { init } from 'emoji-mart';
 
 // init has to be called on page load to load the emojis, otherwise it won't show it in Picker
@@ -72,8 +72,9 @@ export const EmojiPicker = ({
 						as="div"
 					>
 						<div
-							className={` relative w-[100%] h-[48px] ${disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-								}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+							className={` relative w-[100%] h-[48px] ${
+								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+							}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
 								<div className="dark:text-white">
@@ -98,14 +99,14 @@ export const EmojiPicker = ({
 										}}
 										className={`outline-none `}
 									>
-										<TrashIcon className='w-5' />
+										<TrashIcon className="w-5" />
 									</button>
 								</div>
 							)}
 						</div>
 					</Popover.Button>
 					<Transition
-						as={Fragment}
+						as="div"
 						enter="transition ease-out duration-200"
 						enterFrom="opacity-0 translate-y-1"
 						enterTo="opacity-100 translate-y-0"

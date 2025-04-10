@@ -7,7 +7,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
@@ -269,7 +269,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			{task && memberList.length > 1 ? (
 				<Popover className="relative w-full no-underline border-none">
 					<Transition
-						as={Fragment}
+						as="div"
 						enter="transition ease-out duration-200"
 						enterFrom="opacity-0 translate-y-1"
 						enterTo="opacity-100 translate-y-0"
