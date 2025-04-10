@@ -179,8 +179,9 @@
 		"@lexical/react": "^0.8.0",
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
-		"yargs": "^17.5.0",
-		"sharp": "^0.33.4"
+		"react-phone-input-2": "^2.15.1",
+		"sharp": "^0.33.4",
+		"yargs": "^17.5.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.6.6",
