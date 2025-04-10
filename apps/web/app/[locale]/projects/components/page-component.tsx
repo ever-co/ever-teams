@@ -102,7 +102,7 @@ function PageComponent() {
 	const filteredProjects = useMemo(
 		() =>
 			searchTerm
-				? activeTeamProjects.filter((el) => el.project?.name?.includes(searchTerm))
+				? activeTeamProjects.filter((el) => el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()))
 				: activeTeamProjects || [],
 		[activeTeamProjects, searchTerm]
 	);
@@ -219,7 +219,7 @@ function PageComponent() {
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
-						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
+						<button onClick={handleBack} className="p-1 transition-colors rounded-full hover:bg-gray-100">
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
@@ -228,7 +228,7 @@ function PageComponent() {
 						<div className="flex items-center justify-center h-10 gap-8">
 							<h3 className="text-3xl font-medium ">{t('pages.projects.projectTitle.PLURAL')}</h3>
 						</div>
-						<div className="flex items-center justify-between w-full  h-14">
+						<div className="flex items-center justify-between w-full h-14">
 							<div className="w-[20rem] h-full flex items-end justify-center">
 								<ul className="relative flex w-full text-lg justify-evenly">
 									{viewItems.map((item, index) => (
@@ -257,7 +257,7 @@ function PageComponent() {
 							</div>
 
 							<div className="flex items-end h-full">
-								<Button onClick={openProjectModal} variant="grey" className="font-medium  text-primary">
+								<Button onClick={openProjectModal} variant="grey" className="font-medium text-primary">
 									<Plus size={15} /> <span>{t('pages.projects.CREATE_NEW_PROJECT')}</span>
 								</Button>
 							</div>
@@ -268,17 +268,17 @@ function PageComponent() {
 		>
 			<Container
 				fullWidth={fullWidth}
-				className="flex flex-col p-4 w-full h-full  gap-6 dark:bg-dark--theme mt-6"
+				className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme"
 			>
-				<div className="border bg-light--theme-light dark:bg-transparent rounded-lg p-3 space-y-6">
-					<div className=" rounded flex items-center justify-between font-light">
+				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
+					<div className="flex items-center justify-between font-light rounded ">
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
 							<Search size={15} className=" text-slate-300" />{' '}
 							<InputField
 								onChange={(e) => setSearchTerm(e.target.value)}
 								value={searchTerm}
 								placeholder="Search ..."
-								className="h-full bg-transparent border-none  dark:bg-transparent"
+								className="h-full bg-transparent border-none dark:bg-transparent"
 								noWrapper
 							/>
 						</div>
