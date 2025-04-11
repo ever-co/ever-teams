@@ -442,7 +442,7 @@ export function DatePicker(props: IDatePickerProps) {
 			return { before: minDate };
 		}
 		return undefined;
-	}, [isStartDate, minDate, today]);
+	}, [isStartDate, minDate]);
 
 	return (
 		<Popover className={cn('relative w-full border rounded-lg p-2')}>
