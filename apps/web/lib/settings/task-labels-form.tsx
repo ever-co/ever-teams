@@ -50,7 +50,6 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		editTaskLabelsLoading
 	} = useTaskLabels();
 
-	// Initialisation du formulaire
 	useEffect(() => {
 		if (initialRender.current) {
 			initialRender.current = false;
@@ -62,7 +61,6 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		}
 	}, [reset]);
 
-	// Mise à jour du formulaire en mode édition
 	useEffect(() => {
 		if (edit) {
 			reset({
