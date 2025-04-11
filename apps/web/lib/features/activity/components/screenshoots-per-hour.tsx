@@ -55,7 +55,6 @@ export const ScreenshotPerHour = ({
 						return (
 							<div key={i} className={clsxm('min-w-[15rem] xl:w-1/6 p-4')}>
 								<ScreenshotItem
-									key={i}
 									endTime={el.stoppedAt}
 									startTime={el.startedAt}
 									percent={el.percentage}
