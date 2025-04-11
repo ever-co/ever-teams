@@ -80,7 +80,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 						/>
 					</Popover.Button>
 					<Transition
-						as={Fragment}
+						as="div"
 						enter="transition ease-out duration-200"
 						enterFrom="opacity-0 translate-y-1"
 						enterTo="opacity-100 translate-y-0"
@@ -112,7 +112,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 														{option.name}{' '}
 													</Popover.Button>
 													<Transition
-														as={Fragment}
+														as="div"
 														enter="transition ease-out duration-200"
 														enterFrom="opacity-0 translate-y-1"
 														enterTo="opacity-100 translate-y-0"
@@ -197,7 +197,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 								</Combobox.Button>
 							</div>
 							<Transition
-								as={Fragment}
+								as="div"
 								leave="transition ease-in duration-100"
 								leaveFrom="opacity-100"
 								leaveTo="opacity-0"

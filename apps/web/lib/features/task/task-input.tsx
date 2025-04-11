@@ -29,16 +29,7 @@ import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import {
-	Fragment,
-	MutableRefObject,
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
+import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
@@ -321,6 +312,9 @@ export function TaskInput(props: Props) {
 	}, [props.autoFocus, targetEl]);
 
 	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+	const PopoverComponent = Popover as unknown as React.FunctionComponent<any>;
+	const TransitionComponent = Transition as unknown as React.FunctionComponent<any>;
+	const PopoverPanel = Popover.Panel as unknown as React.FunctionComponent<any>;
 
 	const inputField = (
 		<InputField
@@ -423,7 +417,11 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover onClick={() => handlePopoverToggle('popover1')} className="relative z-20 w-full" ref={inputRef}>
+		<PopoverComponent
+			onClick={() => handlePopoverToggle('popover1')}
+			className="relative z-20 w-full"
+			ref={inputRef}
+		>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
@@ -433,7 +431,7 @@ export function TaskInput(props: Props) {
 			</Tooltip>
 			{props.children}
 
-			<Transition
+			<TransitionComponent
 				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -442,14 +440,14 @@ export function TaskInput(props: Props) {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel
+				<PopoverPanel
 					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
 					ref={ignoreElementRef}
 				>
 					{taskCard}
-				</Popover.Panel>
-			</Transition>
-		</Popover>
+				</PopoverPanel>
+			</TransitionComponent>
+		</PopoverComponent>
 	);
 }
 
@@ -781,7 +779,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						</Combobox.Button>
 					</div>
 					<Transition
-						as={Fragment}
+						as="div"
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"

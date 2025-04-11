@@ -30,6 +30,7 @@ import { cn } from 'lib/utils';
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
+	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const profile = useUserProfilePage();
 	const [headerSize] = useState(10);
 	const { user } = useAuthenticateUser();
@@ -56,10 +57,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 			{ title: activeTeam?.name || '', href: '/' },
 			{
 				title: JSON.parse(t('pages.profile.BREADCRUMB')) || '',
-				href: `/profile/${params.memberId}`
+				href: `/profile/${unwrappedParams.memberId}`
 			}
 		],
-		[activeTeam?.name, params.memberId, t]
+		[activeTeam?.name, unwrappedParams.memberId, t]
 	);
 
 	const activityScreens = useMemo(

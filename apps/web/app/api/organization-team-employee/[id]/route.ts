@@ -6,45 +6,47 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
+export async function PUT(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
 
-	if (!params.id) {
+    if (!params.id) {
 		return;
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return $res('Unauthorized');
+    if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
+    const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
 
-	const response = await updateOrganizationTeamEmployeeRequest({
+    const response = await updateOrganizationTeamEmployeeRequest({
 		id: params.id,
 		bearer_token: access_token,
 		tenantId,
 		body: body
 	});
 
-	return $res(response.data);
+    return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
+export async function DELETE(req: Request, props: INextParams) {
+    const params = await props.params;
+    const res = new NextResponse();
 
-	if (!params.id) {
+    if (!params.id) {
 		return;
 	}
 
-	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
+    const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
 
-	if (!user) return $res('Unauthorized');
+    if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url);
 
-	const employeeId = searchParams.get('employeeId') as string;
+    const employeeId = searchParams.get('employeeId') as string;
 
-	const response = await deleteOrganizationTeamEmployeeRequest({
+    const response = await deleteOrganizationTeamEmployeeRequest({
 		id: params.id,
 		bearer_token: access_token,
 		tenantId,
@@ -53,5 +55,5 @@ export async function DELETE(req: Request, { params }: INextParams) {
 		organizationTeamId: teamId
 	});
 
-	return $res(response.data);
+    return $res(response.data);
 }

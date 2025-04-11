@@ -2,7 +2,7 @@
 
 import { useCallbackRef } from '@app/hooks';
 import { Transition, Popover } from '@headlessui/react';
-import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@components/ui/popover';
@@ -67,7 +67,10 @@ export const ColorPicker = ({
 	}, []);
 
 	return fullWidthInput ? (
-		<Popover className={'z-[9999] relative border-none no-underline w-full mt-3' + className} onProgressCapture={(e) => e.stopPropagation()}>
+		<Popover
+			className={'z-[9999] relative border-none no-underline w-full mt-3' + className}
+			onProgressCapture={(e) => e.stopPropagation()}
+		>
 			{() => (
 				<>
 					<Popover.Button
@@ -78,8 +81,9 @@ export const ColorPicker = ({
 						as="div"
 					>
 						<div
-							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-								}  dark:bg-dark--theme-light`}
+							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
+								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+							}  dark:bg-dark--theme-light`}
 						>
 							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
 								<div
@@ -116,7 +120,7 @@ export const ColorPicker = ({
 						</div>
 					</Popover.Button>
 					<Transition
-						as={Fragment}
+						as="div"
 						enter="transition ease-out duration-200"
 						enterFrom="opacity-0 translate-y-1"
 						enterTo="opacity-100 translate-y-0"
@@ -125,9 +129,17 @@ export const ColorPicker = ({
 						leaveTo="opacity-0 translate-y-1"
 						show={!disabled}
 					>
-						<Popover.Panel ref={panelRef} className="h-10">
-							<HexColorPicker color={color || undefined} onChange={setColor} />
-						</Popover.Panel>
+						<PopoverDropdown>
+							<PopoverTrigger asChild>
+								<div className="h-10">
+									<HexColorPicker
+										color={color || undefined}
+										onChange={setColor}
+										key={color ? `color-picker-${color}` : 'color-picker-default'}
+									/>
+								</div>
+							</PopoverTrigger>
+						</PopoverDropdown>
 					</Transition>
 				</>
 			)}

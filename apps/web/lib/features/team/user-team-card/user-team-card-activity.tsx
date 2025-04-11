@@ -27,9 +27,8 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 			leave="transition-opacity duration-150"
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
-			className="px-4 w-full" // Added px-4 to ensure content doesn't touch the edges
 		>
-			<div className="w-full transition-all">
+			<div className="w-full transition-all px-4">
 				<HorizontalSeparator className="my-4" />
 				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
 				<div className="flex overflow-hidden flex-col gap-y-5 justify-between w-full">

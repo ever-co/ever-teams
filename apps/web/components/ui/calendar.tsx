@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { DayPicker, DropdownProps } from 'react-day-picker';
@@ -8,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ScrollArea } from './scroll-bar';
 import { memo, useCallback, useMemo } from 'react';
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+	captionLayout?: 'dropdown' | 'buttons';
+};
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
 	return (

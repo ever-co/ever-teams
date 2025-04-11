@@ -32,6 +32,7 @@ import {
 	TimesheetFilter,
 	TimesheetView
 } from './components';
+import type { IconBaseProps } from 'react-icons';
 import { GoSearch } from 'react-icons/go';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
@@ -54,6 +55,7 @@ type ViewToggleButtonProps = {
 };
 
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
+	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const [pageSize, setPageSize] = useState(10);
@@ -179,13 +181,21 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
-			{ title: t('pages.timesheet.TIMESHEET_TITLE'), href: `/${currentLocale}/timesheet/${params.memberId}` }
+			{
+				title: t('pages.timesheet.TIMESHEET_TITLE'),
+				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+			}
 		],
-		[activeTeam?.name, currentLocale, params.memberId, t]
+		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
 	);
 	const shouldRenderPagination =
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
+
+	const SearchIcon: React.FC<IconBaseProps> = (props) => {
+		const Icon = GoSearch as React.FC<IconBaseProps>;
+		return <Icon {...props} />;
+	};
 
 	return (
 		<>
@@ -279,7 +289,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								</div>
 								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
-									<GoSearch className="text-[#7E7991]" />
+									<SearchIcon className="text-[#7E7991]" />
 									<input
 										onChange={(v) => setSearch(v.target.value)}
 										role="searchbox"
