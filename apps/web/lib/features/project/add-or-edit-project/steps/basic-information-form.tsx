@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, InputField } from '@/lib/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@components/ui/calendar';
@@ -5,7 +6,7 @@ import { Listbox, Popover } from '@headlessui/react';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { FormEvent, Fragment, useCallback, useEffect, useState } from 'react';
+import { FormEvent, Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
@@ -213,9 +214,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
-			<div className="flex w-full gap-2 flex-col">
-				<label htmlFor="project_title" className=" text-xs font-medium">
+		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
+			<div className="flex flex-col w-full gap-2">
+				<label htmlFor="project_title" className="text-xs font-medium ">
 					{t('pages.projects.basicInformationForm.formFields.title')}
 				</label>
 				<div className="w-full ">
@@ -235,9 +236,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			<div className="w-full">
 				<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
 			</div>
-			<div className="w-full flex flex-col">
-				<div className="w-full flex gap-2">
-					<div className="flex w-full gap-1 flex-col">
+			<div className="flex flex-col w-full">
+				<div className="flex w-full gap-2">
+					<div className="flex flex-col w-full gap-1">
 						<label htmlFor="project_start_date" className="text-xs font-medium">
 							{t('common.START_DATE')}
 						</label>
@@ -245,15 +246,19 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							onChange={(date) => {
 								if (date) {
 									setStartDate(date);
+									if (endDate < date) {
+										setEndDate(date);
+									}
 								}
 							}}
 							required
 							value={startDate}
 							id="project_start_date"
 							placeholder="Pick a date"
+							isStartDate={true}
 						/>
 					</div>
-					<div className="flex w-full gap-2 flex-col">
+					<div className="flex flex-col w-full gap-2">
 						<label htmlFor="project_end_date" className="text-xs font-medium">
 							{t('common.END_DATE')}
 						</label>
@@ -267,15 +272,17 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							value={endDate}
 							id="project_end_date"
 							placeholder="Pick a date"
+							isStartDate={false}
+							minDate={startDate}
 						/>
 					</div>
 				</div>
 				{errors?.get('dateRange') && (
-					<p className="text-red-600 text-xs font-light">{errors.get('dateRange')}</p>
+					<p className="text-xs font-light text-red-600">{errors.get('dateRange')}</p>
 				)}
 			</div>
-			<div className="flex w-full gap-2 flex-col">
-				<label htmlFor="website_url" className=" text-xs font-medium">
+			<div className="flex flex-col w-full gap-2">
+				<label htmlFor="website_url" className="text-xs font-medium ">
 					{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 				</label>
 				<div className="w-full ">
@@ -291,18 +298,18 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="flex w-full gap-2 flex-col">
-				<span className=" text-xs font-medium">
+			<div className="flex flex-col w-full gap-2">
+				<span className="text-xs font-medium ">
 					{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
 				</span>
-				<div className="w-full flex flex-col gap-1">
-					<div className="w-full flex items-center gap-5">
+				<div className="flex flex-col w-full gap-1">
+					<div className="flex items-center w-full gap-5">
 						{projectImageUrl && (
-							<div className="h-20 group rounded-lg overflow-hidden w-20 relative">
+							<div className="relative w-20 h-20 overflow-hidden rounded-lg group">
 								<Image
 									height={50}
 									width={50}
-									className=" w-full  h-full rounded-lg overflow-hidden   aspect-square object-cover"
+									className="object-cover w-full h-full overflow-hidden rounded-lg aspect-square"
 									src={projectImageUrl}
 									alt={projectTitle}
 								/>
@@ -330,7 +337,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								'flex grow flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
 							)}
 						>
-							<div className="flex grow items-center gap-3 justify-center">
+							<div className="flex items-center justify-center gap-3 grow">
 								<svg
 									className="w-6 h-6 text-gray-500 dark:text-gray-400"
 									aria-hidden="true"
@@ -347,7 +354,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 									/>
 								</svg>
 								<p className="text-sm text-gray-500 dark:text-gray-400">
-									<span className=" text-xs">
+									<span className="text-xs ">
 										{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
 									</span>
 								</p>
@@ -361,11 +368,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 						</label>
 					</div>
 					{errors?.get('projectImage') && (
-						<p className="text-red-600 text-xs font-light">{errors?.get('projectImage')}</p>
+						<p className="text-xs font-light text-red-600">{errors?.get('projectImage')}</p>
 					)}
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-end">
+			<div className="flex items-center justify-end w-full">
 				<Button loading={createImageAssetLoading} className=" h-[2.5rem]">
 					{createImageAssetLoading
 						? t('pages.projects.basicInformationForm.common.uploadingImage')
@@ -411,6 +418,10 @@ export function validateField<ErrorKeys>(
  * Date picker
  */
 
+/**
+ * Date picker
+ */
+
 interface IDatePickerProps {
 	className?: string;
 	onChange?: (date?: Date) => void;
@@ -419,9 +430,26 @@ interface IDatePickerProps {
 	disabled?: boolean;
 	required?: boolean;
 	id?: string;
+	isStartDate?: boolean;
+	minDate?: Date;
 }
+
 export function DatePicker(props: IDatePickerProps) {
-	const { className, onChange, value, placeholder, disabled, required, id } = props;
+	const { className, onChange, value, placeholder, disabled, required, id, isStartDate, minDate } = props;
+	const today = new Date();
+	today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+	// Determine which dates should be disabled
+	const disabledDays = useMemo(() => {
+		if (isStartDate) {
+			// For start date, disable dates before today
+			return { before: today };
+		} else if (minDate) {
+			// For end date, disable dates before the selected start date
+			return { before: minDate };
+		}
+		return undefined;
+	}, [isStartDate, minDate, today]);
 
 	return (
 		<Popover className={cn('relative w-full border rounded-lg p-2')}>
@@ -431,25 +459,26 @@ export function DatePicker(props: IDatePickerProps) {
 					!value && 'text-muted-foreground',
 					className
 				)}
+				disabled={disabled}
 			>
-				{value ? format(value, 'PPP') : <span className=" text-xs">{placeholder}</span>}
+				{value ? format(value, 'PPP') : <span className="text-xs">{placeholder}</span>}
 				<CalendarIcon size={15} />
 			</Popover.Button>
-			<Popover.Panel className="w-auto border  rounded-lg bg-white dark:bg-dark--theme shadow-md absolute right-0 top-11 p-0">
+			<Popover.Panel className="absolute right-0 z-50 w-auto p-0 bg-white border rounded-lg shadow-md dark:bg-dark--theme top-11">
 				<Calendar
 					id={id}
 					required={required}
-					disabled={disabled}
+					disabled={disabled || disabledDays}
 					mode="single"
 					selected={value}
 					onSelect={onChange}
 					initialFocus
+					fromDate={isStartDate ? today : minDate}
 				/>
 			</Popover.Panel>
 		</Popover>
 	);
 }
-
 /**
  * Select (mono / multi)
  * With:
@@ -529,7 +558,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 						</span>
 					)}
 
-					<ChevronDown size={15} className=" text-gray-400" />
+					<ChevronDown size={15} className="text-gray-400 " />
 				</Listbox.Button>
 				<Listbox.Options
 					className={cn(
@@ -545,7 +574,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 									setSearchTerm(e.target.value);
 								}}
 								placeholder={items?.length == 0 ? 'Type new ...' : 'Search ...'}
-								className=" text-xs h-full border-none bg-transparent dark:bg-transparent"
+								className="h-full text-xs bg-transparent border-none dark:bg-transparent"
 								noWrapper
 							/>
 						</div>
@@ -560,7 +589,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 											renderItem(item, isSelected, active)
 										) : isMulti ? (
 											// Default multi-select render
-											<div className="w-full h-full p-1 px-2 flex items-center gap-2">
+											<div className="flex items-center w-full h-full gap-2 p-1 px-2">
 												<span
 													className={cn(
 														'h-4 w-4 rounded border border-primary flex items-center justify-center',
@@ -570,7 +599,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 												>
 													{isSelected && <CheckIcon className=" dark:text-white" size={10} />}
 												</span>
-												<span className="dark:text-white capitalize">{item?.value ?? '-'}</span>
+												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
 											</div>
 										) : (
 											// Default single-select render
@@ -599,7 +628,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 								loading={createLoading}
 								onClick={() => onCreate?.(searchTerm)}
 								variant="outline"
-								className="text-xs w-full h-full"
+								className="w-full h-full text-xs"
 							>
 								Add new
 							</Button>
@@ -638,7 +667,7 @@ export function Thumbnail(props: IThumbnailProps) {
 		>
 			{imgUrl ? (
 				<Image
-					className="h-full w-full object-cover rounded-md"
+					className="object-cover w-full h-full rounded-md"
 					src={imgUrl}
 					alt={identifier}
 					width={40}
