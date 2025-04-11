@@ -418,10 +418,6 @@ export function validateField<ErrorKeys>(
  * Date picker
  */
 
-/**
- * Date picker
- */
-
 interface IDatePickerProps {
 	className?: string;
 	onChange?: (date?: Date) => void;
@@ -437,15 +433,12 @@ interface IDatePickerProps {
 export function DatePicker(props: IDatePickerProps) {
 	const { className, onChange, value, placeholder, disabled, required, id, isStartDate, minDate } = props;
 	const today = new Date();
-	today.setHours(0, 0, 0, 0); // Reset time to start of day
+	today.setHours(0, 0, 0, 0);
 
-	// Determine which dates should be disabled
 	const disabledDays = useMemo(() => {
 		if (isStartDate) {
-			// For start date, disable dates before today
 			return { before: today };
 		} else if (minDate) {
-			// For end date, disable dates before the selected start date
 			return { before: minDate };
 		}
 		return undefined;
