@@ -258,7 +258,7 @@ interface ITeamMemberOptionProps {
 	isAssignee: boolean;
 	member: OT_Member;
 	task: ITeamTask;
-	key?: string; // Ajoutez cette ligne
+	key?: string;
 }
 
 function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps): JSX.Element {
