@@ -1,5 +1,5 @@
 import { ProgressBar, SegmentedProgressBar } from 'lib/components';
-import { ScreenshootPerHour, ScreenshootPerHourTeam } from './components/screenshoots-per-hour';
+import { ScreenshotPerHour, ScreenshotPerHourTeam } from './components/screenshoots-per-hour';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
@@ -40,7 +40,7 @@ export function ScreenshootTab() {
 			</div>
 
 			{groupDataByHour(timeSlots).map((hourData, i) => (
-				<ScreenshootPerHour
+				<ScreenshotPerHour
 					key={i}
 					timeSlots={hourData.items}
 					startedAt={hourData.startedAt}
@@ -64,7 +64,7 @@ export function ScreenshootTeamTab() {
 	return (
 		<div>
 			{groupDataByHour(timeSlots).map((hourData, i) => (
-				<ScreenshootPerHourTeam
+				<ScreenshotPerHourTeam
 					key={i}
 					timeSlots={hourData.items}
 					startedAt={hourData.startedAt}

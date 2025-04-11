@@ -36,29 +36,33 @@ const ScreenshotItem = ({
 				)}
 			>
 				<Image
-					src={imageUrl}
+					src={imageUrl || '/assets/jpeg/placeholder-image.jpeg'}
 					alt={`${new Date(startTime).toLocaleTimeString()} - ${new Date(endTime).toLocaleTimeString()}`}
 					width={400}
 					height={400}
-					className="w-full h-full object-cover"
+					className="object-cover w-full h-full"
+					onError={(e) => {
+						console.error('Image failed to load:', imageUrl);
+						e.currentTarget.src = '/assets/jpeg/placeholder-image.jpeg';
+					}}
 				/>
 				<div className=" group-hover:absolute w-full group-hover:top-[0%] transition-all left-0 h-full bg-[rgba(1,2,4,.4)] top-full ">
-					<div className="w-full h-full flex items-end relative">
+					<div className="relative flex items-end w-full h-full">
 						<div
-							className="rounded-full bg-red-700 z-10 top-3 right-3 absolute w-8 h-8 flex justify-center items-center text-center "
+							className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
 							onClick={() => openModal()}
 						>
-							<TrashIcon className="text-white text-center w-3" />
+							<TrashIcon className="w-3 text-center text-white" />
 						</div>
 
 						{viewMode === 'screenShot-only' ? null : (
-							<div className="w-full flex py-4 items-center h-auto justify-center gap-4 flex-col">
+							<div className="flex flex-col items-center justify-center w-full h-auto gap-4 py-4">
 								<button className="w-32 h-8 text-xs  rounded-full text-center bg-[#6E49E8]  text-white">
 									{t('common.VIEW')}
 								</button>
 								<button
 									onClick={onShow}
-									className="w-32 h-8 text-xs  rounded-full text-black text-center bg-white"
+									className="w-32 h-8 text-xs text-center text-black bg-white rounded-full"
 								>
 									{t('common.VIEW_INFO')}
 								</button>
@@ -69,7 +73,7 @@ const ScreenshotItem = ({
 			</div>
 			<div className={clsxm('w-full h-[40%] p-4 dark:bg-[#191a20]')} onClick={onShow}>
 				<>
-					<h4 className="font-semibold text-xs">
+					<h4 className="text-xs font-semibold">
 						{new Date(startTime).toLocaleTimeString('en-US', {
 							hour: '2-digit',
 							minute: '2-digit',
@@ -91,7 +95,7 @@ const ScreenshotItem = ({
 								year: 'numeric'
 							})}
 						</p>
-						<ProgressBar width={'100%'} progress={`${percent}%`} className=" w-full" />
+						<ProgressBar width={'100%'} progress={`${percent}%`} className="w-full " />
 						<p className="text-[.6rem] font-medium">
 							{Number(percent).toPrecision(3)} {t('timer.PERCENT_OF_MINUTES')}
 						</p>
@@ -103,8 +107,8 @@ const ScreenshotItem = ({
 				closeModal={closeModal}
 				className="bg-white dark:bg-[#343434f4] rounded-lg lg:w-[30vw] xl:w-[30vw]"
 			>
-				<div className="w-full h-full p-6 flex justify-center flex-col items-center gap-6">
-					<p className=" text-center">{t('timeSlot.DELETE_MESSAGE')}</p>
+				<div className="flex flex-col items-center justify-center w-full h-full gap-6 p-6">
+					<p className="text-center ">{t('timeSlot.DELETE_MESSAGE')}</p>
 					<div className="flex gap-2">
 						<Button onClick={closeModal}>{t('common.CANCEL')}</Button>
 						<Button onClick={() => deleteTimeSlots([idSlot])} className="bg-red-500 dark:bg-red-600">
