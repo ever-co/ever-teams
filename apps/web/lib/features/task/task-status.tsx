@@ -1028,7 +1028,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					{({ open, value: current_value }) => {
 						return (
 							<div>
-								<Listbox.Button
+								<ListboxButton
 									as="div"
 									className={clsxm(
 										!forDetails && 'w-full max-w-[190px]',
@@ -1072,7 +1072,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											/>
 										</TaskStatus>
 									)}
-								</Listbox.Button>
+								</ListboxButton>
 
 								<Transition
 									show={open && enabled}
@@ -1082,6 +1082,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
+									as="div"
 								>
 									<div
 										className={clsxm(
@@ -1090,7 +1091,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											isEpic && '-left-100 right-10'
 										)}
 									>
-										<Listbox.Options className="outline-none">
+										<ListboxOptions className="outline-none">
 											<Card
 												shadow="bigger"
 												className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
@@ -1099,17 +1100,12 @@ export function StatusDropdown<T extends TStatusItem>({
 													const item_value = item?.value || item?.name;
 
 													return (
-														<Listbox.Option
-															key={i}
-															value={item_value}
-															as="div"
-															disabled={disabled}
-														>
-															<li className="relative cursor-pointer outline-none">
+														<ListboxOption key={i} value={item_value} disabled={disabled}>
+															<div className="relative cursor-pointer outline-none">
 																<TaskStatus
 																	showIcon={showIcon}
 																	{...item}
-																	cheched={
+																	checked={
 																		item?.value
 																			? values.includes(item?.value)
 																			: false
@@ -1128,8 +1124,8 @@ export function StatusDropdown<T extends TStatusItem>({
 																{open &&
 																	current_value === item_value &&
 																	issueType !== 'issue' && (
-																		<Listbox.Button
-																			as="button"
+																		<button
+																			type="button"
 																			onClick={(e: any) => {
 																				e.stopPropagation();
 																				onRemoveSelected && onRemoveSelected();
@@ -1143,15 +1139,15 @@ export function StatusDropdown<T extends TStatusItem>({
 																				width={16}
 																				aria-hidden="true"
 																			/>
-																		</Listbox.Button>
+																		</button>
 																	)}
-															</li>
-														</Listbox.Option>
+															</div>
+														</ListboxOption>
 													);
 												})}
-												{children && <Listbox.Button as="div">{children}</Listbox.Button>}
+												{children && <ListboxButton as="div">{children}</ListboxButton>}
 											</Card>
-										</Listbox.Options>
+										</ListboxOptions>
 									</div>
 								</Transition>
 							</div>
