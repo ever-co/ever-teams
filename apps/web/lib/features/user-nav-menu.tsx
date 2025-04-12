@@ -95,6 +95,7 @@ export function UserNavAvatar() {
 			</Popover.Button>
 
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -350,6 +351,7 @@ function ThemeDropdown() {
 				<ChevronDown className="h-4 w-4 ml-2 opacity-50" />
 			</Popover.Button>
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

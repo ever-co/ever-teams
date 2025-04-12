@@ -312,9 +312,6 @@ export function TaskInput(props: Props) {
 	}, [props.autoFocus, targetEl]);
 
 	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
-	const PopoverComponent = Popover as unknown as React.FunctionComponent<any>;
-	const TransitionComponent = Transition as unknown as React.FunctionComponent<any>;
-	const PopoverPanel = Popover.Panel as unknown as React.FunctionComponent<any>;
 
 	const inputField = (
 		<InputField
@@ -417,11 +414,7 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<PopoverComponent
-			onClick={() => handlePopoverToggle('popover1')}
-			className="relative z-20 w-full"
-			ref={inputRef}
-		>
+		<Popover onClick={() => handlePopoverToggle('popover1')} className="relative z-20 w-full" ref={inputRef}>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
@@ -431,7 +424,8 @@ export function TaskInput(props: Props) {
 			</Tooltip>
 			{props.children}
 
-			<TransitionComponent
+			<Transition
+				as="div"
 				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -440,14 +434,14 @@ export function TaskInput(props: Props) {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<PopoverPanel
+				<Popover.Panel
 					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
 					ref={ignoreElementRef}
 				>
 					{taskCard}
-				</PopoverPanel>
-			</TransitionComponent>
-		</PopoverComponent>
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
 
@@ -508,12 +502,11 @@ function TaskCard({
 					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
-				{inputField}
-				<div>
-					{/* Create team button */}
-					<div className="flex flex-col gap-y-2">
+				<div className="flex flex-col gap-4">
+					<>
+						{inputField}
 						{datas.hasCreateForm && (
-							<div>
+							<div className="flex flex-col gap-2">
 								<InputField
 									placeholder="Description"
 									emojis={true}
@@ -585,6 +578,7 @@ function TaskCard({
 
 									{taskAssignees !== undefined && (
 										<AssigneesSelect
+											key={`assignees-${datas.inputTask?.id || 'new'}`}
 											className="lg:min-w-[170px] bg-white"
 											assignees={taskAssignees}
 											teamMembers={activeTeam?.members ?? []}
@@ -624,8 +618,7 @@ function TaskCard({
 								{t('common.CREATE_TASK')}
 							</Button>
 						</Tooltip>
-					</div>
-
+					</>
 					{/* Task filter buttons  */}
 					<div className="flex mt-4 space-x-3">
 						<OutlineBadge
@@ -726,7 +719,7 @@ function TaskCard({
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	assignees: MutableRefObject<
+	assignees?: MutableRefObject<
 		{
 			id: string;
 		}[]
@@ -742,7 +735,7 @@ interface ITeamMemberSelectProps {
  *
  * @return {JSX.Element} The multi select component
  */
-function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
+function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): React.ReactElement {
 	const { teamMembers, assignees } = props;
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
@@ -765,10 +758,10 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white',
-									!assignees.current.length && ['!text-dark/40  dark:!text-white']
+									!assignees?.current?.length && ['!text-dark/40  dark:!text-white']
 								)}
 							>
-								{!assignees.current.length ? (
+								{!assignees?.current?.length ? (
 									<CircleIcon className="w-4 h-4" />
 								) : (
 									<UserGroupIcon className="w-4 h-4" />
@@ -816,21 +809,25 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 											}`
 										}
 										onClick={() => {
+											if (!assignees) return;
 											const isAssigned = assignees.current
-												.map((el) => el.id)
+												?.map((el) => el.id)
 												.includes(member.employee.id);
 
 											if (isAssigned) {
-												assignees.current = assignees.current.filter(
-													(el) => el.id != member.employee.id
+												assignees.current = (assignees.current || []).filter(
+													(el) => el.id !== member.employee.id
 												);
 											} else {
-												assignees.current = [...assignees.current, { id: member.employee.id }];
+												assignees.current = [
+													...(assignees.current || []),
+													{ id: member.employee.id }
+												];
 											}
 										}}
 										value={member}
 									>
-										{assignees.current.map((el) => el.id).includes(member.employee.id) && (
+										{assignees?.current?.map((el) => el.id).includes(member.employee.id) && (
 											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>

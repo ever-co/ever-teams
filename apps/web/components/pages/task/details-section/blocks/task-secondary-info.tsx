@@ -288,18 +288,20 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<IProject>();
-
-	// Set the task project if any
-	useEffect(() => {
-		if (task) {
-			setSelected(
-				organizationProjects.find((project) => {
-					return project.id == task.projectId;
-				})
-			);
+	const [selected, setSelected] = useState<IProject | null>(() => {
+		if (task && task.projectId) {
+			return organizationProjects.find((project) => project.id === task.projectId) || null;
 		}
-	}, [organizationProjects, task, task?.projectId]);
+		return null;
+	});
+
+	// Keep selected in sync with task project in controlled mode
+	useEffect(() => {
+		if (controlled && task) {
+			const projectMatch = organizationProjects.find((project) => project.id === task.projectId);
+			setSelected(projectMatch || null);
+		}
+	}, [controlled, organizationProjects, task, task?.projectId]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
@@ -320,8 +322,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		try {
 			if (task) {
 				await updateTask({ ...task, projectId: null });
-
-				setSelected(undefined);
+				setSelected(null);
 			}
 		} catch (error) {
 			console.error(error);
@@ -337,20 +338,19 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				)}
 			>
 				<Listbox
-					value={selected}
+					value={selected || undefined}
 					onChange={(project: IProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {
 							handleUpdateProject(project);
+							setSelected(project);
 						}
-
-						setSelected(project);
 					}}
 				>
 					{({ open }) => {
 						return (
-							<>
+							<div>
 								<ListboxButton
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
@@ -395,6 +395,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								</ListboxButton>
 
 								<Transition
+									as="div"
 									show={open}
 									enter="transition duration-100 ease-out"
 									enterFrom="transform scale-95 opacity-0"
@@ -473,7 +474,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										</ListboxOptions>
 									</div>
 								</Transition>
-							</>
+							</div>
 						);
 					}}
 				</Listbox>

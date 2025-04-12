@@ -9,7 +9,7 @@ import { TaskItem } from '@components/shared/tasks/task-item';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
-import React, { Dispatch, Fragment, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
+import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
 
 interface IOption {
@@ -252,7 +252,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 					</div>
 				))}
 			</OptionPopover>
-			<DeleteTask isOpen={isModalOpen} closeModal={closeModal} task={closeableTask} Fragment={Fragment} />
+			<DeleteTask isOpen={isModalOpen} closeModal={closeModal} task={closeableTask} />
 		</>
 	);
 };

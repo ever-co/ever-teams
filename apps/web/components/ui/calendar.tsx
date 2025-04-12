@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { DayPicker, DropdownProps } from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
+import type { DateRange, DayPickerSingleProps } from 'react-day-picker';
 
 import { cn } from 'lib/utils';
 import { buttonVariants } from 'components/ui/button';
@@ -9,13 +10,83 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ScrollArea } from './scroll-bar';
 import { memo, useCallback, useMemo } from 'react';
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+type BaseCalendarProps = {
 	captionLayout?: 'dropdown' | 'buttons';
+	className?: string;
+	classNames?: Record<string, string>;
+	showOutsideDays?: boolean;
+	initialFocus?: boolean;
 };
 
-function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
+type SingleCalendarProps = BaseCalendarProps & {
+	mode: 'single';
+	selected?: Date;
+	onSelect?: (date: Date | undefined) => void;
+};
+
+type RangeCalendarProps = BaseCalendarProps & {
+	mode: 'range';
+	selected?: DateRange;
+	onSelect?: (range: DateRange | undefined) => void;
+};
+
+type MultipleCalendarProps = BaseCalendarProps & {
+	mode: 'multiple';
+	selected?: Date[];
+	onSelect?: (dates: Date[] | undefined) => void;
+};
+
+export type CalendarProps = SingleCalendarProps | RangeCalendarProps | MultipleCalendarProps;
+
+function Calendar(
+	props: CalendarProps,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
+	const { 
+		className, 
+		classNames, 
+		showOutsideDays = true, 
+		mode = 'single',
+		selected,
+		onSelect,
+		...rest 
+	} = props;
+
+	const dayPickerProps = React.useMemo(() => {
+		switch (mode) {
+			case 'single':
+				return {
+					...rest,
+					mode,
+					selected: selected as Date,
+					onSelect: onSelect as DayPickerSingleProps['onSelect']
+				};
+			case 'range':
+				return {
+					...rest,
+					mode,
+					selected: selected as DateRange,
+					onSelect: onSelect
+				};
+			case 'multiple':
+				return {
+					...rest,
+					mode,
+					selected: selected as Date[],
+					onSelect: onSelect
+				};
+			default:
+				return {
+					...rest,
+					mode: 'single' as const,
+					selected: selected as Date,
+					onSelect: onSelect as DayPickerSingleProps['onSelect']
+				};
+		}
+	}, [rest, mode, selected, onSelect]);
 	return (
 		<DayPicker
+			{...modifiedProps}
 			showOutsideDays={showOutsideDays}
 			className={cn('p-3', className)}
 			classNames={{
@@ -48,30 +119,26 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				...classNames
 			}}
 			components={{
-				Dropdown: memo(function Dropdown({ value, onChange, children, ...props }: DropdownProps) {
+				Dropdown: memo(function Dropdown({ value, onChange, children, ...props }: any) {
 					const options = useMemo(
 						() =>
 							React.Children.toArray(children) as React.ReactElement<
-								React.HTMLProps<HTMLOptionElement>
+								any,
+								any
 							>[],
-						[]
+						[children]
 					);
-					const selected = useMemo(() => options.find((child) => child.props.value === value), []);
 					const handleChange = useCallback((value: string) => {
-						const changeEvent = {
-							target: { value }
-						} as React.ChangeEvent<HTMLSelectElement>;
-						onChange?.(changeEvent);
-					}, []);
+						const event = { target: { value } } as React.ChangeEvent<HTMLSelectElement>;
+						if (onChange) onChange(event);
+					}, [onChange]);
 					return (
 						<Select
-							value={value?.toString()}
-							onValueChange={(value) => {
-								handleChange(value);
-							}}
+							value={value?.toString() || ''}
+							onValueChange={handleChange}
 						>
 							<SelectTrigger className="pr-1.5 focus:ring-0 dark:bg-dark--theme-light border-none">
-								<SelectValue>{selected?.props?.children}</SelectValue>
+								<SelectValue>{value?.toString()}</SelectValue>
 							</SelectTrigger>
 							<SelectContent position="popper" className="dark:bg-dark--theme-light z-[9999] border-none">
 								<ScrollArea className="h-60 max-h-min">
@@ -106,4 +173,4 @@ function IconLeft({ ...props }) {
 
 Calendar.displayName = 'Calendar';
 
-export { Calendar };
+export default memo(Calendar);

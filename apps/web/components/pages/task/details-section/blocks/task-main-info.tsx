@@ -135,7 +135,9 @@ function DueDates() {
 							}
 						}
 					}}
-					mode={'single'}
+					{...{
+						mode: 'single'
+					}}
 				/>
 				{task?.startDate ? (
 					<span

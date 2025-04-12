@@ -322,32 +322,36 @@ function PageComponent() {
 										leaveTo="transform opacity-0 scale-95"
 									>
 										<Menu.Items className="absolute z-[999] right-0 mt-2 w-36 origin-top-right space-y-[1px] p-[1px]  rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-											{Object.entries(tableColumnsVisibility).map(([column, isVisible]) => {
-												return hidableColumnNames
-													.filter((el) => (!showArchivedProjects ? el !== 'archivedAt' : el))
-													.includes(column) ? (
-													<Menu.Item key={column}>
-														{({ active }) => (
-															<button
-																onClick={() =>
-																	setTableColumnsVisibility((prev) => ({
-																		...prev,
-																		[column]: !isVisible
-																	}))
-																}
-																className={cn(
-																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
-																)}
-															>
-																<div className="flex items-center justify-center w-5 h-full ">
-																	{isVisible && <Check size={12} />}
-																</div>
-																<span className="capitalize">{column}</span>
-															</button>
-														)}
-													</Menu.Item>
-												) : null;
-											})}
+											{Object.entries(tableColumnsVisibility).map(
+												([column, isVisible]: [string, boolean]) => {
+													return hidableColumnNames
+														.filter((el) =>
+															!showArchivedProjects ? el !== 'archivedAt' : el
+														)
+														.includes(column) ? (
+														<Menu.Item key={column}>
+															{({ active }) => (
+																<button
+																	onClick={() =>
+																		setTableColumnsVisibility((prev) => ({
+																			...prev,
+																			[column]: !isVisible
+																		}))
+																	}
+																	className={cn(
+																		`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+																	)}
+																>
+																	<div className="flex items-center justify-center w-5 h-full ">
+																		{isVisible && <Check size={12} />}
+																	</div>
+																	<span className="capitalize">{column}</span>
+																</button>
+															)}
+														</Menu.Item>
+													) : null;
+												}
+											)}
 										</Menu.Items>
 									</Transition>
 								</Menu>
