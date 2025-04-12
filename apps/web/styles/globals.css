@@ -327,7 +327,7 @@ html.dark {
 }
 
 .nivo-calendar .nivo-calendar-month-legend text {
-	@apply text-black font-bold text-sm;
+	@apply text-sm font-bold text-black;
 }
 
 @keyframes zoom-in-out {
@@ -374,7 +374,7 @@ html.dark {
 		}
 
 		.no-scrollbar::-webkit-scrollbar-thumb {
-			@apply dark:bg-dark--theme-light bg-gray-400;
+			@apply bg-gray-400 dark:bg-dark--theme-light;
 		}
 
 		.no-scrollbar {
@@ -387,3 +387,110 @@ html.dark {
 		}
 	}
 }
+
+
+/* Additional CSS to add to your global.css */
+
+/* Light mode defaults */
+html body .react-tel-input .country-list {
+	background-color: #fff !important;
+	color: #333 !important;
+	border-color: #ccc !important;
+  }
+
+  html body .react-tel-input .country-list .search-box {
+	background-color: #fff !important;
+	color: #333 !important;
+  }
+
+  html body .react-tel-input .country-list .search-box:focus {
+	background-color: #fff !important;
+  }
+
+  html body .react-tel-input .country-list .country.highlight,
+  html body .react-tel-input .country-list .country:hover {
+	background-color: #f0f0f0 !important;
+  }
+
+  html body .react-tel-input .country-list::-webkit-scrollbar {
+	width: 8px !important;
+  }
+
+  html body .react-tel-input .country-list::-webkit-scrollbar-track {
+	background: #f1f1f1 !important;
+  }
+
+  html body .react-tel-input .country-list::-webkit-scrollbar-thumb {
+	background: #888 !important;
+	border-radius: 4px !important;
+  }
+
+  html body .react-tel-input .search-class {
+	background-color: #fff !important;
+	color: #333 !important;
+  }
+
+  /* Dark mode specific styles with higher specificity */
+  html.dark body .react-tel-input .country-list {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
+  }
+
+  html.dark body .react-tel-input .country-list .search-box {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  html.dark body .react-tel-input .country-list .country.highlight,
+  html.dark body .react-tel-input .country-list .country:hover {
+	background-color: #2a2d33 !important;
+  }
+
+  html.dark body .react-tel-input .country-list::-webkit-scrollbar-track {
+	background: #2a2d33 !important;
+  }
+
+  html.dark body .react-tel-input .country-list::-webkit-scrollbar-thumb {
+	background: #4a4d52 !important;
+  }
+
+  html.dark body .react-tel-input .search-box {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  html.dark body .react-tel-input .search-class {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
+  }
+
+  /* Additional styling to ensure dark mode is respected */
+  html.dark body .react-tel-input .country-list .country {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  html.dark body .react-tel-input input[type=text],
+  html.dark body .react-tel-input input[type=tel] {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+  }
+
+  /* Style for the dropdown button and flag container */
+  html.dark body .react-tel-input .flag-dropdown {
+	background-color: #1B1D22 !important;
+	border-color: #2d2f34 !important;
+  }
+
+  html.dark body .react-tel-input .selected-flag {
+	background-color: #1B1D22 !important;
+  }
+
+  /* Direct target for the search input inside dropdown */
+  html.dark body .react-tel-input .country-list .search-box input {
+	background-color: #1B1D22 !important;
+	color: #e0e0e0 !important;
+	border-color: #2d2f34 !important;
+  }
