@@ -21,7 +21,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
 	const {
 		total,
-		totalAll,
 		onPageChange,
 		itemsPerPage,
 		itemOffset,
@@ -149,7 +148,13 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	return (
 		<div>
-			<div className="sm:rounded-lg h-[28rem] overflow-hidden">
+			<div className={clsxm(
+				"sm:rounded-lg overflow-auto",
+				itemsPerPage <= 5 ? "h-[28rem]" : "",
+				itemsPerPage > 5 && itemsPerPage <= 10 ? "h-[35rem]" : "",
+				itemsPerPage > 10 && itemsPerPage <= 20 ? "h-[45rem]" : "",
+				itemsPerPage > 20 ? "h-[55rem]" : ""
+			)}>
 				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
@@ -185,7 +190,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize  text-[#B1AEBC] dark:text-white w-6"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
 							></th>
 						</tr>
 					</thead>
@@ -302,9 +307,8 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 			<Paginate
 				total={total}
-				totalAll={totalAll}
 				onPageChange={onPageChange}
-				pageCount={pageCount} // Use the dynamic pageCount from the hook
+				pageCount={pageCount}
 				itemsPerPage={itemsPerPage}
 				itemOffset={itemOffset}
 				endOffset={endOffset}

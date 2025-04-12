@@ -3,58 +3,42 @@ import { useEffect, useRef, useState } from 'react';
 export function usePagination<T>(items: T[], defaultItemsPerPage = 5) {
   const [itemOffset, setItemOffset] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
-  const [filteredItems, setFilteredItems] = useState<T[]>([]);
-  const [hasUserSelectedFilter, setHasUserSelectedFilter] = useState(false);
-  const ITEMS_PER_PAGE_VIEW = 5;
 
-  const totalItems = items?.length || 0;
+  // Total number of items
+  const total = items?.length || 0;
 
-  useEffect(() => {
-    if (!hasUserSelectedFilter) {
-      setFilteredItems(items || []);
-    }
-  }, [items, hasUserSelectedFilter]);
+  // Calculate end offset based on items per page from dropdown
+  const endOffset = Math.min(itemOffset + itemsPerPage, total);
 
-  useEffect(() => {
-    if (hasUserSelectedFilter) {
-      const itemsToShow = Math.min(itemsPerPage, totalItems);
-      setFilteredItems(items?.slice(0, itemsToShow) || []);
-      setItemOffset(0);
-    }
-  }, [items, itemsPerPage, totalItems, hasUserSelectedFilter]);
+  // Get current items to display based on itemsPerPage selection
+  const currentItems = items?.slice(itemOffset, endOffset) || [];
 
-  const filteredTotal = filteredItems.length;
+  // Calculate page count based on itemsPerPage selection
+  const pageCount = Math.ceil(total / itemsPerPage);
 
-  const endOffset = Math.min(itemOffset + ITEMS_PER_PAGE_VIEW, filteredTotal);
-
-  const currentItems = filteredItems.slice(itemOffset, endOffset);
-
-  const pageCount = Math.ceil(filteredTotal / ITEMS_PER_PAGE_VIEW);
-
+  // Handle page change
   const onPageChange = (selectedItem: { selected: number }) => {
-    const newOffset =  filteredTotal === 0 ? 0 :(selectedItem.selected * ITEMS_PER_PAGE_VIEW) % filteredTotal;
+    const newOffset = total === 0 ? 0 : (selectedItem.selected * itemsPerPage) % total;
     setItemOffset(newOffset);
   };
 
-  const setItemsPerPageWithFlag = (value: React.SetStateAction<number>) => {
-    setHasUserSelectedFilter(true);
-    setItemsPerPage(value);
-  };
+  // Reset to first page when changing items per page
+  useEffect(() => {
+    setItemOffset(0);
+  }, [itemsPerPage]);
 
   return {
-    total: filteredTotal,
-    totalAll: totalItems,
+    total,
     onPageChange,
     itemsPerPage,
     itemOffset,
     endOffset,
-    setItemsPerPage: setItemsPerPageWithFlag,
+    setItemsPerPage,
     currentItems,
     setItemOffset,
     pageCount
   };
 }
-
 export function useScrollPagination<T>({
   enabled,
   defaultItemsPerPage = 10,
