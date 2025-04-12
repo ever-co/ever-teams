@@ -576,7 +576,7 @@ export function TaskCardMenu({
 	return (
 		<Popover>
 			<Popover.Button className="flex items-center border-none outline-none">
-				{!loading && <ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px]  dark:text-[#B1AEBC]" />}
+				{!loading && <ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />}
 				{loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
 
@@ -587,7 +587,7 @@ export function TaskCardMenu({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0 min-w-[110px]"
+				className="absolute z-30 -top-24 right-0 min-w-[110px]"
 			>
 				<Popover.Panel>
 					{() => {
@@ -695,23 +695,6 @@ export function TaskCardMenu({
 												)}
 											</>
 										)}
-									{/* <li>
-										<ConfirmDropdown
-											className="right-[110%] top-0"
-											onConfirm={() => {
-												console.log('remove task...', task);
-											}}
-										>
-											<Text
-												className={clsxm(
-													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
-													'text-red-500'
-												)}
-											>
-												{t('common.REMOVE')}
-											</Text>
-										</ConfirmDropdown>
-									</li> */}
 								</ul>
 							</Card>
 						);
