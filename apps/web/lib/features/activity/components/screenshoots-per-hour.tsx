@@ -29,8 +29,7 @@ export const ScreenshotPerHour = ({
 		[openModal]
 	);
 
-	useEffect(() => {
-		console.log('Time slots received:', timeSlots);
+	useEffect(() => {		
 		if (timeSlots && timeSlots.length > 0) {
 			console.log('First slot screenshots:', timeSlots[0]?.screenshots);
 		}
