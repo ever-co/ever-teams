@@ -223,7 +223,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveTo="opacity-0"
 					>
 						<Combobox.Options className="absolute mt-1 max-h-60 h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-							{teamMembers.map((member, index) => (
+							{teamMembers.map((member) => (
 								<Combobox.Option
 									key={member.id}
 									className={({ active }) =>

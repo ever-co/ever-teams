@@ -278,6 +278,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
 		component. */}
 			<Transition
+				as="div"
 				show={hook.filterType !== undefined}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -285,7 +286,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
-				// className="w-full"
+				className="w-full"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
 				{hook.filterType !== undefined && <Divider className="mt-1" />}

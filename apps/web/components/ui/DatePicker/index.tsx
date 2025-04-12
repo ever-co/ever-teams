@@ -8,14 +8,16 @@ import { Calendar } from '@components/ui/calendar';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 
-export type CustomCalendarProps = {
+export type DatePickerProps = {
 	customInput: React.ReactNode;
 	buttonClassName?: string;
 	buttonVariant?: 'link' | 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
-};
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & CustomCalendarProps;
+	selected?: Date;
+	onSelect?: (date: Date | undefined) => void;
+	mode?: 'single' | 'multiple' | 'range';
+} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect'>;
 
-export function DatePicker({ customInput, selected, buttonVariant, buttonClassName, ...props }: CalendarProps) {
+export function DatePicker({ customInput, selected, buttonVariant, buttonClassName, onSelect, mode = 'single', ...props }: DatePickerProps) {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
@@ -33,7 +35,13 @@ export function DatePicker({ customInput, selected, buttonVariant, buttonClassNa
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0 border-none" align="start">
-				<Calendar selected={selected as any} initialFocus {...props} />
+				<Calendar 
+					mode={mode}
+					selected={selected}
+					onSelect={onSelect}
+					initialFocus 
+					{...props} 
+				/>
 			</PopoverContent>
 		</Popover>
 	);

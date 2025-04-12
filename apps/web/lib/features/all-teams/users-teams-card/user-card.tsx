@@ -18,6 +18,7 @@ export default function UserTeamCard({
 }: Readonly<{ member: OT_Member; className?: string }>) {
 	return (
 		<Transition
+			as="div"
 			show={true}
 			enter="transition-opacity duration-75 w-full"
 			enterFrom="opacity-0"

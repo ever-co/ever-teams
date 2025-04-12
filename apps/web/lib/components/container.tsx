@@ -6,6 +6,7 @@ import { PropsWithChildren } from 'react';
 export function Container({ children, className, fullWidth }: PropsWithChildren<IClassName>) {
 	return (
 		<Transition
+			as="div"
 			show={true}
 			enter="transition-opacity duration-75"
 			enterFrom="opacity-0"

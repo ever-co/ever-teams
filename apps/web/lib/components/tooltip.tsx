@@ -36,6 +36,7 @@ export function Tooltip({
 					</div>
 
 					<Transition
+						as="div"
 						show={visible}
 						enter="transition duration-100 ease-out"
 						enterFrom="transform scale-95 opacity-0"

@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@components/ui/scroll-bar';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
-	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
+	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
 	selectedLabel?: React.ReactNode;
 	itemTitle?: string;
 	disabled?: boolean;
@@ -97,6 +97,7 @@ export function Dropdown<T extends DropdownItem>({
 				</Listbox.Button>
 
 				<Transition
+					as="div"
 					enter="transition duration-100 ease-out"
 					enterFrom="transform scale-95 opacity-0"
 					enterTo="transform scale-100 opacity-100"
@@ -171,6 +172,7 @@ export function ConfirmDropdown({
 		<Popover className="relative">
 			<Popover.Button>{children}</Popover.Button>
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
