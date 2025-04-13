@@ -15,7 +15,7 @@ export type DatePickerProps = {
 	selected?: Date;
 	onSelect?: (date: Date | undefined) => void;
 	mode?: 'single' | 'multiple' | 'range';
-} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect'>;
+} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect' | 'displayMonth'>;
 
 export function DatePicker({ customInput, selected, buttonVariant, buttonClassName, onSelect, mode = 'single', ...props }: DatePickerProps) {
 	return (
@@ -40,7 +40,7 @@ export function DatePicker({ customInput, selected, buttonVariant, buttonClassNa
 					selected={selected}
 					onSelect={onSelect}
 					initialFocus 
-					{...props} 
+					{...Object.fromEntries(Object.entries(props).filter(([key]) => key !== 'displayMonth'))} 
 				/>
 			</PopoverContent>
 		</Popover>
