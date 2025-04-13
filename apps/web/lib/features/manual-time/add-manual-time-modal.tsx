@@ -6,7 +6,7 @@ import { Button, Modal } from 'lib/components';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { IoTime } from 'react-icons/io5';
 
 import { manualTimeReasons } from '@app/constants';
@@ -158,36 +158,39 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		Members: null,
 		Task: null
 	};
-	const fields = [
-		{
-			label: 'Project',
-			placeholder: 'Select a project',
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'name',
-			element: 'Project'
-		},
-		...(timeSheetStatus === 'ManagerTimesheet'
-			? [
-					{
-						label: t('manualTime.EMPLOYEE'),
-						placeholder: 'Select an employee',
-						isRequired: true,
-						valueKey: 'id',
-						displayKey: 'employee.fullName',
-						element: 'Employee'
-					}
-				]
-			: []),
-		{
-			label: t('manualTime.TASK'),
-			placeholder: 'Select a Task',
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'title',
-			element: 'Task'
-		}
-	];
+	const fields = useMemo(
+		() => [
+			{
+				label: 'Project',
+				placeholder: 'Select a project',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'name',
+				element: 'Project'
+			},
+			...(timeSheetStatus === 'ManagerTimesheet'
+				? [
+						{
+							label: t('manualTime.EMPLOYEE'),
+							placeholder: 'Select an employee',
+							isRequired: true,
+							valueKey: 'id',
+							displayKey: 'employee.fullName',
+							element: 'Employee'
+						}
+					]
+				: []),
+			{
+				label: t('manualTime.TASK'),
+				placeholder: 'Select a Task',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'title',
+				element: 'Task'
+			}
+		],
+		[timeSheetStatus, t]
+	);
 
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
 		console.log(values);
@@ -338,7 +341,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 									setTeam(value.id);
 								}}
 							/>
-
 						</div>
 						<div className="">
 							<label className="block mb-1 text-gray-500">
