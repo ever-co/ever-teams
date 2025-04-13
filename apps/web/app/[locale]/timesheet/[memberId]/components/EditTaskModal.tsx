@@ -170,6 +170,16 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		]
 	);
 
+	const itemToValue = useCallback(
+		(item: Item | null, valueKey: string) => getNestedValue(item, valueKey) || '',
+		[]
+	);
+
+	const itemToString = useCallback(
+		(item: Item | null, displayKey: string) => getNestedValue(item, displayKey) || '',
+		[]
+	);
+
 	const classNameTitle = useMemo(
 		() => 'text-[#282048] dark:text-gray-500',
 		[]
@@ -306,8 +316,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							selectedValues={selectedValues}
 							onSelectedValuesChange={handleSelectedValuesChange}
 							handleChange={handleChange}
-							itemToString={useCallback((item, displayKey) => getNestedValue(item, displayKey) || '', [])}
-							itemToValue={useCallback((item, valueKey) => getNestedValue(item, valueKey) || '', [])}
+							itemToString={itemToString}
+							itemToValue={itemToValue}
 						/>
 					</div>
 					<div className=" flex flex-col items-center">
