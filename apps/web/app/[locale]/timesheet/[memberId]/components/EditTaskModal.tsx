@@ -57,9 +57,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		notes: dataTimesheet.description || '',
 		employeeId: dataTimesheet.employeeId || ''
 	});
-	const memberItemsLists = {
+	const memberItemsLists = useMemo(() => ({
 		Project: organizationProjects
-	};
+	}), [organizationProjects]);
 	/**
 	 * Updates the project id in the form state when a project is selected or deselected in the dropdown.
 	 * @param {Object} values - An object with the selected values from the dropdown.
