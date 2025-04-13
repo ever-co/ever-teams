@@ -68,32 +68,26 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	 * @param {Object} values - An object with the selected values from the dropdown.
 	 * @param {Item | null} values['Project'] - The selected project.
 	 */
-	const handleSelectedValuesChange = useCallback(
-		(values: { [key: string]: Item | null }) => {
-			if (!values['Project']) return;
-			setTimesheetData((prev) => ({
-				...prev,
-				projectId: values['Project']?.id || ''
-			}));
-		},
-		[]
-	);
+	const handleSelectedValuesChange = useCallback((values: { [key: string]: Item | null }) => {
+		if (!values['Project']) return;
+		setTimesheetData((prev) => ({
+			...prev,
+			projectId: values['Project']?.id || ''
+		}));
+	}, []);
 	const selectedValues = useMemo(
 		() => ({
 			Project: dataTimesheet.project
 		}),
 		[dataTimesheet.project]
 	);
-	const handleChange = useCallback(
-		(field: string, selectedItem: Item | null) => {
-			if (!selectedItem) return;
-			setTimesheetData((prev) => ({
-				...prev,
-				[field]: selectedItem.id
-			}));
-		},
-		[]
-	);
+	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
+		if (!selectedItem) return;
+		setTimesheetData((prev) => ({
+			...prev,
+			[field]: selectedItem.id
+		}));
+	}, []);
 
 	const handleUpdateSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
@@ -183,20 +177,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		]
 	);
 
-	const itemToValue = useCallback(
-		(item: Item | null, valueKey: string) => getNestedValue(item, valueKey) || '',
-		[]
-	);
+	const itemToValue = useCallback((item: Item | null, valueKey: string) => getNestedValue(item, valueKey) || '', []);
 
 	const itemToString = useCallback(
 		(item: Item | null, displayKey: string) => getNestedValue(item, displayKey) || '',
 		[]
 	);
 
-	const classNameTitle = useMemo(
-		() => 'text-[#282048] dark:text-gray-500',
-		[]
-	);
+	const classNameTitle = useMemo(() => 'text-[#282048] dark:text-gray-500', []);
 
 	const fields = useMemo(
 		() => [

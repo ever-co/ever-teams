@@ -7,7 +7,6 @@ import { EditProjectModal } from '@/lib/features/project/edit-project-modal';
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment } from 'react';
 
 export type ProjectViewDataType = {
 	project: {
