@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Modal, statusColor } from '@/lib/components';
 import { DatePickerFilter } from './TimesheetFilterDate';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/app/utils';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
@@ -167,7 +167,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		]
 	);
 
-	const fields = [
+	const fields = useMemo(() => [
 		{
 			label: t('sidebar.PROJECTS'),
 			placeholder: 'Select a project',
@@ -177,7 +177,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			element: 'Project',
 			defaultValue: 'name'
 		}
-	];
+	], [t]);
 
 	const handleFromChange = (fromDate: Date | null) => {
 		setDateRange((prev) => ({ ...prev, date: fromDate }));
