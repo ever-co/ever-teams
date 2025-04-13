@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
 import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
@@ -63,9 +63,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		}));
 	};
 
-	const projectItemsLists = {
-		Project: organizationProjects || []
-	};
+	const projectItemsLists = useMemo(
+		() => ({
+			Project: organizationProjects || []
+		}),
+		[organizationProjects]
+	);
 
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
 		if (!values.Project) return;
