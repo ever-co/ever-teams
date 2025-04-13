@@ -68,19 +68,32 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	 * @param {Object} values - An object with the selected values from the dropdown.
 	 * @param {Item | null} values['Project'] - The selected project.
 	 */
-	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
-		setTimesheetData((prev) => ({
-			...prev,
-			projectId: values['Project']?.id
-		}));
-	};
-	const selectedValues = {
-		Project: dataTimesheet.project
-	};
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleChange = (field: string, selectedItem: Item | null) => {
-		// Handle field changes
-	};
+	const handleSelectedValuesChange = useCallback(
+		(values: { [key: string]: Item | null }) => {
+			if (!values['Project']) return;
+			setTimesheetData((prev) => ({
+				...prev,
+				projectId: values['Project']?.id || ''
+			}));
+		},
+		[]
+	);
+	const selectedValues = useMemo(
+		() => ({
+			Project: dataTimesheet.project
+		}),
+		[dataTimesheet.project]
+	);
+	const handleChange = useCallback(
+		(field: string, selectedItem: Item | null) => {
+			if (!selectedItem) return;
+			setTimesheetData((prev) => ({
+				...prev,
+				[field]: selectedItem.id
+			}));
+		},
+		[]
+	);
 
 	const handleUpdateSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
