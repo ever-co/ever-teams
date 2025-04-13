@@ -1,102 +1,122 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
 import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
-import { TranslationHooks, useTranslations } from 'next-intl';
-import { ToggleButton } from './EditTaskModal';
-import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { DatePickerFilter } from './TimesheetFilterDate';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { toUTC } from '@/app/helpers';
+import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { ToggleButton } from './EditTaskModal';
+
 export interface IAddTaskModalProps {
-	isOpen: boolean;
-	closeModal: () => void;
+  isOpen: boolean;
+  closeModal: () => void;
 }
+
 interface Shift {
-	startTime: string;
-	endTime: string;
-	totalHours: string;
-	dateFrom: Date | string;
+  startTime: string;
+  endTime: string;
+  totalHours: string;
+  dateFrom: Date | string;
 }
+
 interface FormState {
-	isBillable: boolean;
-	notes: string;
-	projectId: string;
-	taskId: string;
-	employeeId: string;
-	shifts: {
-		dateFrom: Date;
-		startTime: string;
-		endTime: string;
-	}[];
+  isBillable: boolean;
+  notes: string;
+  projectId: string;
+  taskId: string;
+  employeeId: string;
+  shifts: {
+    dateFrom: Date;
+    startTime: string;
+    endTime: string;
+  }[];
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
-	const { tasks } = useTeamTasks();
-	const { generateTimeOptions } = useTimelogFilterOptions();
-	const { organizationProjects } = useOrganizationProjects();
-	const { activeTeam } = useOrganizationTeams();
-	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
+  const { tasks } = useTeamTasks();
+  const { generateTimeOptions } = useTimelogFilterOptions();
+  const { organizationProjects } = useOrganizationProjects();
+  const { activeTeam } = useOrganizationTeams();
+  const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
 
-	const timeOptions = generateTimeOptions(5);
-	const t = useTranslations();
+  const timeOptions = generateTimeOptions(5);
+  const t = useTranslations();
 
-	const [formState, setFormState] = React.useState({
-		notes: '',
-		isBillable: true,
-		taskId: '',
-		employeeId: '',
-		projectId: '',
-		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
-	});
+  const [formState, setFormState] = React.useState({
+    notes: '',
+    isBillable: true,
+    taskId: '',
+    employeeId: '',
+    projectId: '',
+    shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
+  });
 
-	const updateFormState = (field: keyof typeof formState, value: any) => {
-		setFormState((prevState) => ({
-			...prevState,
-			[field]: value
-		}));
-	};
+  const updateFormState = useCallback(
+    (field: keyof typeof formState, value: any) => {
+      setFormState((prevState) => ({
+        ...prevState,
+        [field]: value
+      }));
+    },
+    []
+  );
 
-	const projectItemsLists = useMemo(
-		() => ({
-			Project: organizationProjects || []
-		}),
-		[organizationProjects]
-	);
+  const projectItemsLists = useMemo(
+    () => ({
+      Project: organizationProjects || []
+    }),
+    [organizationProjects]
+  );
 
-	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
-		if (!values.Project) return;
-		updateFormState('projectId', values.Project.id);
-	};
+  const handleSelectedValuesChange = useCallback((values: { [key: string]: Item | null }) => {
+    if (!values.Project) return;
+    updateFormState('projectId', values.Project.id);
+  }, [updateFormState]);
 
-	const selectedValues = {
-		Project: null
-	};
-	const handleChange = () => {
-		// Handle field changes
-	};
+  const handleChange = useCallback((field: string, selectedItem: Item | null) => {
+    if (!selectedItem) return;
+    updateFormState(field as keyof typeof formState, selectedItem.id);
+  }, [updateFormState]);
 
-	const fields = [
-		{
-			label: t('common.LINK_TO_PROJECT'),
-			placeholder: t('common.SELECT_A_PROJECT'),
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'name',
-			element: 'Project'
-		}
-	];
+  const itemToString = useCallback((item: Item | null, displayKey: string) => 
+    getNestedValue(item, displayKey) || '', []);
 
-	const createUtcDate = (baseDate: Date, time: string): Date => {
-		const [hours, minutes] = time.split(':').map(Number);
-		return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
-	};
+  const itemToValue = useCallback((item: Item | null, valueKey: string) => 
+    getNestedValue(item, valueKey) || '', []);
+
+  const selectedValues = useMemo(
+    () => ({
+      Project: null
+    }),
+    []
+  );
+
+  const fields = useMemo(
+    () => [
+      {
+        label: t('common.LINK_TO_PROJECT'),
+        placeholder: t('common.SELECT_A_PROJECT'),
+        isRequired: true,
+        valueKey: 'id',
+        displayKey: 'name',
+        element: 'Project'
+      }
+    ],
+    [t]
+  );
+
+  const createUtcDate = (baseDate: Date, time: string): Date => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
+  };
 
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
@@ -222,8 +242,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						selectedValues={selectedValues}
 						onSelectedValuesChange={handleSelectedValuesChange}
 						handleChange={handleChange}
-						itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
-						itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+						itemToString={itemToString}
+						itemToValue={itemToValue}
 					/>
 				</div>
 				<div className=" flex flex-col items-start w-full">
