@@ -57,9 +57,12 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		notes: dataTimesheet.description || '',
 		employeeId: dataTimesheet.employeeId || ''
 	});
-	const memberItemsLists = useMemo(() => ({
-		Project: organizationProjects
-	}), [organizationProjects]);
+	const memberItemsLists = useMemo(
+		() => ({
+			Project: organizationProjects
+		}),
+		[organizationProjects]
+	);
 	/**
 	 * Updates the project id in the form state when a project is selected or deselected in the dropdown.
 	 * @param {Object} values - An object with the selected values from the dropdown.
@@ -167,17 +170,25 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		]
 	);
 
-	const fields = useMemo(() => [
-		{
-			label: t('sidebar.PROJECTS'),
-			placeholder: 'Select a project',
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'name',
-			element: 'Project',
-			defaultValue: 'name'
-		}
-	], [t]);
+	const classNameTitle = useMemo(
+		() => 'text-[#282048] dark:text-gray-500',
+		[]
+	);
+
+	const fields = useMemo(
+		() => [
+			{
+				label: t('sidebar.PROJECTS'),
+				placeholder: 'Select a project',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'name',
+				element: 'Project',
+				defaultValue: 'name'
+			}
+		],
+		[t]
+	);
 
 	const handleFromChange = (fromDate: Date | null) => {
 		setDateRange((prev) => ({ ...prev, date: fromDate }));
@@ -289,7 +300,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="w-full flex flex-col">
 						<ManageOrMemberComponent
-							classNameTitle={'text-[#282048] dark:text-gray-500  '}
+							classNameTitle={classNameTitle}
 							fields={fields}
 							itemsLists={memberItemsLists}
 							selectedValues={selectedValues}
