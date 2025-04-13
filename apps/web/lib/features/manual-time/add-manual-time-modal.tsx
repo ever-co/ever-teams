@@ -4,10 +4,9 @@ import '../../../styles/style.css';
 import { format } from 'date-fns';
 import { Button, Modal } from 'lib/components';
 import { cn } from 'lib/utils';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Clock7 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { IoTime } from 'react-icons/io5';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { manualTimeReasons } from '@app/constants';
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
@@ -153,11 +152,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		Task: tasks
 	};
 
-	const selectedValues = {
-		Teams: null,
-		Members: null,
-		Task: null
-	};
+	const selectedValues = useMemo(
+		() => ({
+			Teams: null,
+			Members: null,
+			Task: null
+		}),
+		[]
+	);
 	const fields = useMemo(
 		() => [
 			{
@@ -200,11 +202,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		console.log(`Field: ${field}, Selected Item:`, selectedItem);
 	}, []);
 
-	const itemToString = useCallback((item: Item | null, displayKey: string) => 
-		getNestedValue(item, displayKey) || '', []);
+	const itemToString = useCallback(
+		(item: Item | null, displayKey: string) => getNestedValue(item, displayKey) || '',
+		[]
+	);
 
-	const itemToValue = useCallback((item: Item | null, valueKey: string) => 
-		getNestedValue(item, valueKey) || '', []);
+	const itemToValue = useCallback((item: Item | null, valueKey: string) => getNestedValue(item, valueKey) || '', []);
 
 	return (
 		<Modal
@@ -301,7 +304,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</label>
 					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
 						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-							<IoTime size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+							<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
 						</div>
 						{timeDifference}
 					</div>
