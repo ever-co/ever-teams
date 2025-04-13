@@ -1,26 +1,26 @@
-import { INextParams, IRequestToJoinActionEnum } from '@app/interfaces';
+import { IRequestToJoinActionEnum } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { acceptRejectRequestToJoinRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, props: INextParams) {
-    const params = await props.params;
-    const res = new NextResponse();
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string; action: string }> }) {
+	const { id, action } = await params;
+	const res = new NextResponse();
 
-    if (!params.id || !params.action) {
+	if (!id || !action) {
 		return;
 	}
 
-    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-    if (!user) return $res('unauthorized');
+	if (!user) return $res('unauthorized');
 
-    const response = await acceptRejectRequestToJoinRequest({
-		id: params.id,
+	const response = await acceptRejectRequestToJoinRequest({
+		id: id,
 		bearer_token: access_token,
 		tenantId,
-		action: params.action as IRequestToJoinActionEnum
+		action: action as IRequestToJoinActionEnum
 	});
 
-    return $res(response.data);
+	return $res(response.data);
 }
