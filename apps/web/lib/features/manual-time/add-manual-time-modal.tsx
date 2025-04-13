@@ -192,13 +192,19 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		[timeSheetStatus, t]
 	);
 
-	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
+	const handleSelectedValuesChange = useCallback((values: { [key: string]: Item | null }) => {
 		console.log(values);
-	};
+	}, []);
 
-	const handleChange = (field: string, selectedItem: Item | null) => {
+	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
 		console.log(`Field: ${field}, Selected Item:`, selectedItem);
-	};
+	}, []);
+
+	const itemToString = useCallback((item: Item | null, displayKey: string) => 
+		getNestedValue(item, displayKey) || '', []);
+
+	const itemToValue = useCallback((item: Item | null, valueKey: string) => 
+		getNestedValue(item, valueKey) || '', []);
 
 	return (
 		<Modal
@@ -308,8 +314,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							selectedValues={selectedValues}
 							onSelectedValuesChange={handleSelectedValuesChange}
 							handleChange={handleChange}
-							itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
-							itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+							itemToString={itemToString}
+							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
 							<label className="block text-gray-500 shrink-0">
