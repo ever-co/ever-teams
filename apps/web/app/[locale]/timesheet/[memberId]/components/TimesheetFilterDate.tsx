@@ -7,13 +7,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { format, isAfter, isToday, startOfToday } from 'date-fns';
 import { TranslationHooks } from 'next-intl';
-import { MdKeyboardArrowRight } from 'react-icons/md';
-import { PiCalendarDotsThin } from 'react-icons/pi';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
-import { ChevronDown } from 'lucide-react';
+import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import { TimesheetLog } from '@/app/interfaces';
-
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -26,7 +23,7 @@ export interface TimesheetFilterDateProps {
 	minDate?: Date;
 	maxDate?: Date;
 	t: TranslationHooks;
-	data?: TimesheetLog[]
+	data?: TimesheetLog[];
 }
 
 export function TimesheetFilterDate({
@@ -37,20 +34,20 @@ export function TimesheetFilterDate({
 	data,
 	t
 }: Readonly<TimesheetFilterDateProps>) {
-	const today = startOfToday()
+	const today = startOfToday();
 
 	const adjustedInitialRange = React.useMemo(() => {
 		if (!initialRange) {
 			return {
 				from: today,
-				to: today,
-			}
+				to: today
+			};
 		}
 		return {
 			from: initialRange.from,
-			to: initialRange.to && isAfter(initialRange.to, today) ? today : initialRange.to,
-		}
-	}, [initialRange, today])
+			to: initialRange.to && isAfter(initialRange.to, today) ? today : initialRange.to
+		};
+	}, [initialRange, today]);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(adjustedInitialRange);
 
@@ -63,7 +60,6 @@ export function TimesheetFilterDate({
 		setDateRange((prev) => ({ ...prev, from: fromDate }));
 		onChange?.({ ...dateRange, from: fromDate });
 	};
-
 
 	const handleToChange = (toDate: Date | null) => {
 		if (dateRange.from && toDate && toDate < dateRange.from) {
@@ -145,7 +141,12 @@ export function TimesheetFilterDate({
 					{isVisible && (
 						<div className="flex flex-col justify-between gap-2 p-2 translate-x-0">
 							<div className="flex flex-col gap-2">
-								<DatePickerFilter label="From" date={dateRange.from} setDate={handleFromChange} timesheet={data} />
+								<DatePickerFilter
+									label="From"
+									date={dateRange.from}
+									setDate={handleFromChange}
+									timesheet={data}
+								/>
 								<DatePickerFilter
 									label="To"
 									date={dateRange.to}
@@ -198,11 +199,11 @@ export function TimesheetFilterDate({
 									handlePresetClick(label);
 								}}
 							>
-								<div className='flex items-center gap-x-2'>
+								<div className="flex items-center gap-x-2">
 									<ChevronDown />
 									<span> {label}</span>
 								</div>
-								{label === t('common.FILTER_CUSTOM_RANGE') && <MdKeyboardArrowRight />}
+								{label === t('common.FILTER_CUSTOM_RANGE') && <ChevronRight />}
 							</Button>
 						))}
 					</div>
@@ -223,7 +224,7 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
 		>
 			{date ? format(date, 'LLL dd, y') : <span>{label}</span>}
 		</Button>
-		<PiCalendarDotsThin className="w-5 h-5 dark:text-gray-500" />
+		<CalendarDays className="w-5 h-5 dark:text-gray-500" />
 	</>
 );
 
@@ -233,16 +234,15 @@ export function DatePickerFilter({
 	setDate,
 	minDate,
 	maxDate,
-	timesheet,
+	timesheet
 }: {
 	label: string;
 	date: Date | null;
 	setDate: (date: Date | null) => void;
 	minDate?: Date | null;
 	maxDate?: Date | null;
-	timesheet?: TimesheetLog[],
+	timesheet?: TimesheetLog[];
 }) {
-
 	const isDateDisabled = React.useCallback(
 		(date: Date) => {
 			if (minDate && date < minDate) return true;
@@ -253,23 +253,27 @@ export function DatePickerFilter({
 	);
 
 	const datesWithEntries = React.useMemo(() => {
-		return new Set(timesheet?.map((entry) => {
-			if (!entry.timesheet?.createdAt) {
-				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
-				return null;
-			}
-			return format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd");
-		}).filter(Boolean));
-	}, [timesheet])
+		return new Set(
+			timesheet
+				?.map((entry) => {
+					if (!entry.timesheet?.createdAt) {
+						console.warn('Skipping entry with missing timesheet or createdAt:', entry);
+						return null;
+					}
+					return format(new Date(entry.timesheet.createdAt), 'yyyy-MM-dd');
+				})
+				.filter(Boolean)
+		);
+	}, [timesheet]);
 
 	const entriesByDate = React.useMemo(() => {
 		const map = new Map<string, TimesheetLog[]>();
-		timesheet?.forEach(entry => {
+		timesheet?.forEach((entry) => {
 			if (!entry.timesheet?.createdAt) {
 				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
 				return;
 			}
-			const dateKey = format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd");
+			const dateKey = format(new Date(entry.timesheet.createdAt), 'yyyy-MM-dd');
 			if (!map.has(dateKey)) {
 				map.set(dateKey, []);
 			}
@@ -279,13 +283,12 @@ export function DatePickerFilter({
 	}, [timesheet]);
 
 	const getEntriesForDate = (date: Date) => {
-		const dateKey = format(date, "yyyy-MM-dd");
+		const dateKey = format(date, 'yyyy-MM-dd');
 		return entriesByDate.get(dateKey) || [];
 	};
 	const hasTimeEntry = (date: Date) => {
-		return datesWithEntries.has(format(date, "yyyy-MM-dd"))
-	}
-
+		return datesWithEntries.has(format(date, 'yyyy-MM-dd'));
+	};
 
 	const handleSelect = (day: Date) => {
 		if (day && !isDateDisabled(day)) {
@@ -296,20 +299,19 @@ export function DatePickerFilter({
 	return (
 		<div>
 			<DatePicker
-				captionLayout="dropdown"
 				buttonVariant="link"
 				classNames={{
-					day: "h-9 w-9 text-center rounded-md relative",
+					day: 'h-9 w-9 text-center rounded-md relative',
 					day_selected:
-						"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-					day_today: "bg-accent text-accent-foreground",
-					day_outside: "text-muted-foreground opacity-50",
-					day_disabled: "text-muted-foreground opacity-50",
-					day_range_middle: "rounded-none",
-					day_hidden: "invisible",
+						'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+					day_today: 'bg-accent text-accent-foreground',
+					day_outside: 'text-muted-foreground opacity-50',
+					day_disabled: 'text-muted-foreground opacity-50',
+					day_range_middle: 'rounded-none',
+					day_hidden: 'invisible'
 				}}
 				buttonClassName={
-					"decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md hover:border-primary"
+					'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md hover:border-primary'
 				}
 				customInput={<DatePickerInput date={date} label={label} />}
 				mode="single"
@@ -319,22 +321,22 @@ export function DatePickerFilter({
 				selected={date ?? new Date()}
 				onSelect={(date) => date && handleSelect(date)}
 				modifiers={{
-					hasEntry: (date) => hasTimeEntry(date),
-					today: (day) => isToday(day),
+					hasEntry: (date: Date) => hasTimeEntry(date),
+					today: (day: Date) => isToday(day)
 				}}
 				modifiersClassNames={{
-					selected: clsxm("bg-primary after:hidden text-white !rounded-full"),
-					today: clsxm("border-2 !border-yellow-700 rounded"),
+					selected: clsxm('bg-primary after:hidden text-white !rounded-full'),
+					today: clsxm('border-2 !border-yellow-700 rounded')
 				}}
 				disabled={[
 					...(minDate ? [{ before: minDate }] : []),
 					...(maxDate ? [{ after: maxDate }] : []),
 					{
-						before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-					},
+						before: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+					}
 				]}
 				components={{
-					Day: ({ date: dayDate, ...props }) => {
+					Day: ({ date: dayDate, ...props }: { date: Date } & Record<string, any>) => {
 						const isSelected = date?.getTime() === dayDate.getTime();
 
 						const isDayDisabled = isDateDisabled(dayDate);
@@ -342,10 +344,11 @@ export function DatePickerFilter({
 							<button
 								disabled={isDayDisabled}
 								{...props}
-								className={cn(`h-9 w-9 rounded ${isSelected ? "bg-primary dark:bg-primary-light text-primary-foreground dark:text-white" : ""}`,
-
+								className={cn(
+									`h-9 w-9 rounded ${isSelected ? 'bg-primary dark:bg-primary-light text-primary-foreground dark:text-white' : ''}`
 								)}
-								onClick={() => handleSelect(dayDate)}>
+								onClick={() => handleSelect(dayDate)}
+							>
 								<div className="relative w-full h-full flex items-center justify-center">
 									{dayDate.getDate()}
 									{getEntriesForDate(dayDate).length > 0 && (
@@ -356,7 +359,7 @@ export function DatePickerFilter({
 								</div>
 							</button>
 						);
-					},
+					}
 				}}
 			/>
 		</div>
@@ -364,11 +367,13 @@ export function DatePickerFilter({
 }
 const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
 	if (entries.length === 1) {
-		return <span
-			className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light"
-			role="status"
-			aria-label="1 time entry for this day"
-		/>;
+		return (
+			<span
+				className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light"
+				role="status"
+				aria-label="1 time entry for this day"
+			/>
+		);
 	}
 	return (
 		<div
@@ -382,7 +387,6 @@ const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
 		</div>
 	);
 };
-
 
 interface ICalendarProps<T extends { date: string | Date }> {
 	setSelectedPlan: Dispatch<SetStateAction<Date>>;
@@ -431,7 +435,6 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 	return (
 		<DatePicker
 			mode="single"
-			captionLayout="dropdown"
 			buttonVariant={'link'}
 			className={'dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200'}
 			buttonClassName={
@@ -442,7 +445,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 			customInput={<DatePickerInput date={new Date()} label={''} />}
 			selected={selectedPlan || undefined}
 			onSelect={(date) => date && setSelectedPlan(moment(date).toDate())}
-			disabled={(date) => checkPastDate(date) || !isDateAvailableForPlanning(date)}
+			disabled={(date: Date) => checkPastDate(date) || !isDateAvailableForPlanning(date)}
 			modifiers={{
 				booked: sortedPlansByDateDesc.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate()),
 				pastDay: pastPlans.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate())
@@ -457,7 +460,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 			toYear={
 				endYear ||
 				new Date(sortedPlansByDateDesc?.[sortedPlansByDateDesc?.length - 1]?.date ?? Date.now()).getFullYear() +
-				10
+					10
 			}
 		/>
 	);
