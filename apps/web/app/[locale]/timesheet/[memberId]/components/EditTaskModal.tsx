@@ -184,7 +184,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		[]
 	);
 
-	const classNameTitle = useMemo(() => 'text-[#282048] dark:text-gray-500', []);
+	const classNameTitle = 'text-[#282048] dark:text-gray-500';
 
 	const fields = useMemo(
 		() => [
