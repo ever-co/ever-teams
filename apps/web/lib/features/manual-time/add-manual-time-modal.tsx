@@ -146,11 +146,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
-	const memberItemsLists = {
-		Project: activeTeam?.projects as [],
-		Employee: activeTeam?.members as [],
-		Task: tasks
-	};
+	const memberItemsLists = useMemo(
+		() => ({
+			Project: activeTeam?.projects as [],
+			Employee: activeTeam?.members as [],
+			Task: tasks
+		}),
+		[activeTeam?.projects, activeTeam?.members, tasks]
+	);
 
 	const selectedValues = useMemo(
 		() => ({
