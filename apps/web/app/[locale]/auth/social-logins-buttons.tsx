@@ -1,15 +1,14 @@
-import { FaGoogle, FaFacebook, FaTwitter, FaGithub } from 'react-icons/fa';
 import { signInFunction } from './social-logins';
 import { Divider } from 'lib/components';
 import { mappedProviders, providerNames } from '@app/utils/check-provider-env-vars';
+import { FaFacebook, FaGoogle, FaGithub, FaTwitter } from 'react-icons/fa';
 
 export default function SocialLogins() {
-	// For many providers, make sure to add icons in alphabetic order
 	const providerIcons: { name: string; icon: React.ReactNode }[] = [
-		{ name: 'facebook', icon: <FaFacebook key="facebook-icon" /> },
-		{ name: 'google', icon: <FaGoogle key="google-icon" /> },
-		{ name: 'github', icon: <FaGithub key="github-icon" /> },
-		{ name: 'twitter', icon: <FaTwitter key="twitter-icon" /> }
+		{ name: 'facebook', icon: <FaFacebook size={20} /> },
+		{ name: 'google', icon: <FaGoogle size={20} /> },
+		{ name: 'github', icon: <FaGithub size={20} /> },
+		{ name: 'twitter', icon: <FaTwitter size={20} /> }
 	].filter((provider) => providerNames[provider.name] !== undefined);
 
 	return mappedProviders.length > 0 ? (
@@ -32,7 +31,7 @@ export default function SocialLogins() {
 							type="submit"
 							className="rounded-full w-10 h-10 border p-2 flex justify-center items-center"
 						>
-							<span>{providerIcons[i].icon}</span>
+							{providerIcons[i].icon}
 						</button>
 					</form>
 				))}

@@ -35,4 +35,8 @@ export interface ISuccessResponse {
 	message: string;
 }
 
-export type INextParams = { params: Record<string, string | null> };
+export type INextParams = { params: Promise<{ [key: string]: string }> };
+
+export type INextQuery = { query: Promise<{ [key: string]: string | undefined }> };
+
+export type INextParamsQuery = INextParams & INextQuery;

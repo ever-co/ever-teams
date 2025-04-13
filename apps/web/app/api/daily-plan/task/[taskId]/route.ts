@@ -1,17 +1,15 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getPlansByTask } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, props: INextParams) {
-    const params = await props.params;
-    const res = new NextResponse();
-    const { taskId } = params;
-    if (!taskId) {
+export async function GET(req: Request, { params }: { params: Promise<{ taskId: string }> }) {
+	const taskId = (await params).taskId;
+	const res = new NextResponse();
+	if (!taskId) {
 		return;
 	}
 
-    const {
+	const {
 		$res,
 		user,
 		tenantId,
@@ -20,9 +18,9 @@ export async function GET(req: Request, props: INextParams) {
 		access_token
 	} = await authenticatedGuard(req, res);
 
-    if (!user) return $res('Unauthorized');
+	if (!user) return $res('Unauthorized');
 
-    const response = await getPlansByTask({
+	const response = await getPlansByTask({
 		taskId,
 		bearer_token: access_token,
 		organizationId,
@@ -30,5 +28,5 @@ export async function GET(req: Request, props: INextParams) {
 		organizationTeamId
 	});
 
-    return $res(response.data);
+	return $res(response.data);
 }

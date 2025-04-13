@@ -148,9 +148,9 @@ function FillUserDataForm({
 				return (
 					<>
 						<HCaptcha
-								sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
-								onVerify={(token) => handleCaptchaVerify(token)}
-								onError={() => handleCaptchaError()}
+							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+							onVerify={(token) => handleCaptchaVerify(token)}
+							onError={() => handleCaptchaError()}
 						/>
 					</>
 				);
@@ -169,7 +169,6 @@ function FillUserDataForm({
 				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
 		}
 	};
-
 
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
@@ -218,7 +217,6 @@ function FillUserDataForm({
 function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
 	const t = useTranslations();
 	const [feedback, setFeedback] = useState<string>('');
-
 
 	const content = RECAPTCHA_SITE_KEY.value && (
 		<div className="w-full flex">

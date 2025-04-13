@@ -2,7 +2,6 @@ import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
 import { useEffect, useState } from 'react';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import {
 	Select,
 	SelectContent,
@@ -10,9 +9,10 @@ import {
 	SelectItem,
 	SelectLabel,
 	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
+	SelectValue
+} from '@/components/ui/select';
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface SelectItemsProps<T> {
 	items: T[];
@@ -21,7 +21,7 @@ interface SelectItemsProps<T> {
 	itemId: (item: T) => string;
 	triggerClassName?: string;
 	popoverClassName?: string;
-	renderItem?: (item: T, onClick: () => void) => JSX.Element;
+	renderItem?: (item: T, onClick: () => void) => React.ReactElement;
 	defaultValue?: T;
 }
 
@@ -42,7 +42,7 @@ export function SelectItems<T>({
 		setSelectedItem(item);
 		setPopoverOpen(false);
 		if (onValueChange) {
-			onValueChange(item);
+			onValueChange(item as T);
 		}
 	};
 
@@ -73,9 +73,7 @@ export function SelectItems<T>({
 					) : (
 						<span>Select an item</span>
 					)}
-					<MdOutlineKeyboardArrowDown
-						className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')}
-					/>
+					<ChevronDown className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')} />
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
@@ -85,38 +83,40 @@ export function SelectItems<T>({
 				)}
 			>
 				<div className="w-full max-h-[80vh] overflow-auto flex flex-col">
-					{items.map((item) =>
-						renderItem ? (
-							renderItem(item, () => onClick(item))
-						) : (
+					{items.map((item: T) => {
+						const key = itemId(item);
+						if (renderItem) {
+							const renderedItem = renderItem(item, () => onClick(item));
+							return React.cloneElement(renderedItem, { key });
+						}
+						return (
 							<span
 								onClick={() => onClick(item)}
-								key={itemId(item)}
+								key={key}
 								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary"
 								style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
 							>
 								{itemToString(item)}
 							</span>
-						)
-					)}
+						);
+					})}
 				</div>
 			</PopoverContent>
 		</Popover>
 	);
 }
 
-
 type DynamicSelectProps<T> = {
-	items: T[]
-	label: string
-	placeholder: string
-	getItemLabel: (item: T) => string
-	getItemValue: (item: T) => string
-	onChange?: (value: string) => void
-	disabled?: boolean
-	error?: string
-	defaultValue?: string
-}
+	items: T[];
+	label: string;
+	placeholder: string;
+	getItemLabel: (item: T) => string;
+	getItemValue: (item: T) => string;
+	onChange?: (value: string) => void;
+	disabled?: boolean;
+	error?: string;
+	defaultValue?: string;
+};
 
 export const DynamicSelect = React.memo(function DynamicSelect<T>({
 	items,
@@ -130,22 +130,14 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 	defaultValue
 }: DynamicSelectProps<T>) {
 	return (
-		<Select
-			onValueChange={onChange}
-			disabled={disabled}
-			defaultValue={defaultValue}>
-			<SelectTrigger
-				className={cn(
-					"w-full",
-					error && "border-red-500 focus:ring-red-500"
-				)}
-			>
+		<Select onValueChange={onChange} disabled={disabled} defaultValue={defaultValue}>
+			<SelectTrigger className={cn('w-full', error && 'border-red-500 focus:ring-red-500')}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
-			<SelectContent className='z-[10000]'>
+			<SelectContent className="z-[10000]">
 				<SelectGroup>
 					<SelectLabel>{label}</SelectLabel>
-					{items.map((item, index) => (
+					{items.map((item) => (
 						<SelectItem key={getItemValue(item)} value={getItemValue(item)}>
 							{getItemLabel(item)}
 						</SelectItem>
@@ -153,13 +145,10 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 				</SelectGroup>
 			</SelectContent>
 			{error && (
-				<p
-					className="mt-1 text-sm text-red-500"
-					role="alert"
-					aria-live="polite">
+				<p className="mt-1 text-sm text-red-500" role="alert" aria-live="polite">
 					{error}
 				</p>
 			)}
 		</Select>
-	)
-})
+	);
+});
