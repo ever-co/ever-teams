@@ -179,7 +179,7 @@
 		"@lexical/react": "^0.8.0",
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
-		"react-phone-input-2": "^2.15.1",
+		"react-phone-number-input": "^3.4.12",
 		"sharp": "^0.33.4",
 		"yargs": "^17.5.0"
 	},
