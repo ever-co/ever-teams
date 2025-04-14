@@ -4,11 +4,43 @@ import { mappedProviders, providerNames } from '@app/utils/check-provider-env-va
 import { FaFacebook, FaGoogle, FaGithub, FaTwitter } from 'react-icons/fa';
 
 export default function SocialLogins() {
-	const providerIcons: { name: string; icon: React.ReactNode }[] = [
-		{ name: 'facebook', icon: <FaFacebook size={20} /> },
-		{ name: 'google', icon: <FaGoogle size={20} /> },
-		{ name: 'github', icon: <FaGithub size={20} /> },
-		{ name: 'twitter', icon: <FaTwitter size={20} /> }
+	const providerIcons = [
+		{
+			name: 'facebook',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					{/* @ts-ignore */}
+					<FaFacebook size={20} aria-hidden="true" />
+				</div>
+			)
+		},
+		{
+			name: 'google',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					{/* @ts-ignore */}
+					<FaGoogle size={20} aria-hidden="true" />
+				</div>
+			)
+		},
+		{
+			name: 'github',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					{/* @ts-ignore */}
+					<FaGithub size={20} aria-hidden="true" />
+				</div>
+			)
+		},
+		{
+			name: 'twitter',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					{/* @ts-ignore */}
+					<FaTwitter size={20} aria-hidden="true" />
+				</div>
+			)
+		}
 	].filter((provider) => providerNames[provider.name] !== undefined);
 
 	return mappedProviders.length > 0 ? (

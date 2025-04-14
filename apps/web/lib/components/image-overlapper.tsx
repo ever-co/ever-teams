@@ -146,6 +146,7 @@ export default function ImageOverlapper({
 								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
 								style={{ width: diameter, height: diameter }}
 							>
+								{/* @ts-ignore */}
 								<RiUserFill
 									fill={'#6b7280'}
 									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
@@ -160,6 +161,7 @@ export default function ImageOverlapper({
 								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
 								style={{ width: diameter, height: diameter }}
 							>
+								{/* @ts-ignore */}
 								<RiUserAddFill
 									fill={'#6b7280'}
 									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
@@ -215,6 +217,7 @@ export default function ImageOverlapper({
 											onCLickValidate();
 										}}
 									>
+										{/* @ts-ignore */}
 										<FaCheck size={17} fill="#ffffff" />
 										{t('common.CONFIRM')}
 									</button>

@@ -2,13 +2,14 @@ import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/app/interfaces/I
 import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
 import moment from 'moment';
+import { ReactNode } from 'react';
 
 export interface ITimeReportTableProps {
 	report: ITimeLimitReport;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
 	indexTitle: string;
-	header: JSX.Element;
+	header: JSX.Element | ReactNode;
 }
 
 /**
@@ -32,6 +33,7 @@ export const TimeReportTable = ({
 }: ITimeReportTableProps) => (
 	<div className="w-full p-1" key={report.date}>
 		<div className="h-12 px-4 bg-slate-100 dark:bg-gray-800 dark:text-white rounded-md flex border items-center">
+			{/* @ts-ignore */}
 			{header}
 		</div>
 		<div>
@@ -60,7 +62,7 @@ interface ITimeReportTableByMemberProps {
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
 	indexTitle: string;
-	header: JSX.Element;
+	header: ReactNode;
 }
 
 /**

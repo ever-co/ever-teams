@@ -22,9 +22,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { PHProvider } from './integration/posthog/provider';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
-interface Props {
+interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;
-
 	pageProps: {
 		jitsuConf?: JitsuOptions;
 		jitsuHost?: string;
@@ -60,7 +59,6 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	const params = use(props.params);
 	const { locale } = params;
 	const { children, pageProps } = props;
-
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as string)) notFound();
 	const router = useRouter();

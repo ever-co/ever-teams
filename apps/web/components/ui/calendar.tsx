@@ -8,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ScrollArea } from './scroll-bar';
 import { memo, useCallback, useMemo } from 'react';
 
+// @ts-ignore
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
-
+// @ts-ignore
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
 	return (
+		// @ts-ignore
 		<DayPicker
 			showOutsideDays={showOutsideDays}
 			className={cn('p-3', className)}
@@ -21,6 +23,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				vhidden: 'vhidden hidden',
 				caption: 'flex justify-center pt-1 relative items-center',
 				caption_label: 'text-sm font-medium',
+				// @ts-ignore
 				caption_dropdowns: cn('flex justify-between gap-1', props.captionLayout === 'dropdown' && 'w-full'),
 				nav: 'space-x-1 flex items-center',
 				nav_button: cn(

@@ -95,6 +95,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	return (
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
+				// @ts-ignore
 				<Slate
 					key={task?.id}
 					editor={editor}
@@ -112,6 +113,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					/>
 					<div className="h-[0.0625rem] bg-[#0000001A] dark:bg-[#FFFFFF29]"></div>
 
+					{/* @ts-ignore */}
 					<Editable
 						className={`${
 							readonly

@@ -13,8 +13,9 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { usePathname } from 'next/navigation';
 import { useOrganizationTeams } from '@app/hooks';
 import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
 
-const SettingsLayout = ({ children }: { children: JSX.Element }) => {
+const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const { isTrackingEnabled } = useOrganizationTeams();
 	const t = useTranslations();
 	const [user] = useAtom(userState);
