@@ -3,7 +3,7 @@ import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
 import { ChevronDown } from 'lucide-react';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 
 import { statusColor } from '..';
@@ -95,10 +95,9 @@ export function MultiSelect<T>({
 		setSelectedItems(newSelectedItems);
 	};
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const removeAllItems = () => {
+	const removeAllItems = useCallback(() => {
 		setSelectedItems([]);
-	};
+	}, []);
 
 	useEffect(() => {
 		if (removeItems) {
