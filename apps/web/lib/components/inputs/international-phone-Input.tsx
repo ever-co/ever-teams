@@ -21,12 +21,13 @@ const CustomCountrySelect = ({
   onChange,
   options = [],
   iconComponent = () => null,
-//   ...rest
+  disabled = false, // Add disabled prop
 }: {
   value: Country;
   onChange: CountrySelectOnChange;
   options: Option[];
   iconComponent: React.ComponentType<{ country: Country; label: string }>;
+  disabled?: boolean; // Make it optional with default false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -70,8 +71,10 @@ const CustomCountrySelect = ({
     setFilteredOptions(filtered);
   }, [options, searchValue]);
 
-  // Toggle dropdown
+  // Toggle dropdown - prevent opening if disabled
   const toggleDropdown = () => {
+    if (disabled) return; // Don't toggle if disabled
+
     setIsOpen(!isOpen);
     if (!isOpen) {
       setSearchValue('');
@@ -80,13 +83,14 @@ const CustomCountrySelect = ({
   };
 
   return (
-    <div className="phoneinput-country-select" ref={selectRef}>
+    <div className={`phoneinput-country-select ${disabled ? 'phoneinput-country-disabled' : ''}`} ref={selectRef}>
       <button
         type="button"
         className="phoneinput-country-button"
         onClick={toggleDropdown}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
+        disabled={disabled}
       >
         {value && Icon && (
           <>
@@ -96,10 +100,10 @@ const CustomCountrySelect = ({
             <span className="phoneinput-country-name">{value}</span>
           </>
         )}
-        <span className="phoneinput-dropdown-arrow"></span>
+        <span className={`phoneinput-dropdown-arrow ${disabled ? 'phoneinput-dropdown-arrow-disabled' : ''}`}></span>
       </button>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="phoneinput-dropdown">
           <div className="phoneinput-search-container">
             <input
@@ -257,7 +261,9 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 					onChange={handlePhoneChange}
 					disabled={disabled}
 					inputRef={inputRef}
-                    countrySelectComponent={CustomCountrySelect}
+                    countrySelectComponent={(props) =>
+                      CustomCountrySelect({...props, disabled})
+                    }
 					numberInputProps={{
 						id: inputId,
 						name,
