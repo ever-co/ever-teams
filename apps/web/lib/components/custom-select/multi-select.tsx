@@ -3,8 +3,9 @@ import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MdClose } from 'react-icons/md';
+
 import { statusColor } from '..';
 
 interface MultiSelectProps<T> {
@@ -100,17 +101,10 @@ export function MultiSelect<T>({
 	};
 
 	useEffect(() => {
-		let mounted = true;
 		if (removeItems) {
-			if (mounted) {
-				// deepscan-disable-line
-				removeAllItems();
-			}
+			removeAllItems();
 		}
-		return () => {
-			mounted = false;
-		};
-	}, [removeItems, removeAllItems]); // deepscan-disable-line
+	}, [removeItems, removeAllItems]);
 
 	useEffect(() => {
 		if (triggerRef.current) {
@@ -151,26 +145,32 @@ export function MultiSelect<T>({
 					style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 				>
 					<div className="w-full max-h-[80vh] overflow-auto flex flex-col">
-						{items.map((item) => {
-							const isSelected = selectedItems.some(
-								(selectedItem) => itemId(selectedItem) === itemId(item)
-							);
-							return renderItem ? (
-								renderItem(item, () => onClick(item), isSelected)
-							) : (
-								<span
-									onClick={() => onClick(item)}
-									key={itemId(item)}
-									className={cn(
-										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary',
-										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
-									)}
-									style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
-								>
-									{itemToString(item)}
-								</span>
-							);
-						})}
+						<React.Fragment>
+							{items.map((item) => {
+								const isSelected = selectedItems.some(
+									(selectedItem) => itemId(selectedItem) === itemId(item)
+								);
+								const element = renderItem ? (
+									<div key={itemId(item)}>
+										{/* @ts-ignore */}
+										{renderItem(item, () => onClick(item), isSelected)}
+									</div>
+								) : (
+									<span
+										key={itemId(item)}
+										onClick={() => onClick(item)}
+										className={cn(
+											'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary',
+											isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
+										)}
+										style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+									>
+										{itemToString(item)}
+									</span>
+								);
+								return element;
+							})}
+						</React.Fragment>
 					</div>
 				</PopoverContent>
 			</Popover>
@@ -191,7 +191,10 @@ export function MultiSelect<T>({
 								className="ml-2 text-gray-600 dark:text-white hover:text-red-500 dark:hover:text-red-500"
 								aria-label="Remove item"
 							>
-								<MdClose className="h-4 w-4" />
+								<span className="h-4 w-4 flex items-center justify-center">
+									{/* @ts-ignore */}
+									<MdClose size={16} aria-hidden="true" />
+								</span>
 							</button>
 						</div>
 					))}

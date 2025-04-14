@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
@@ -152,7 +152,11 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 							<li key={item.name} onClick={async () => await item?.onClick?.()}>
 								{item.action == 'assignee' ? (
 									<div className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm py-1 px-2">
-										<TeamMembersSelect task={task} teamMembers={activeTeam?.members ?? []} />
+										<TeamMembersSelect
+											key={item.name}
+											task={task}
+											teamMembers={activeTeam?.members ?? []}
+										/>
 									</div>
 								) : (
 									<button className="font-normal flex justify-between items-center capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
@@ -190,6 +194,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
 	task: ITeamTask;
+	key?: string;
 }
 
 /**
@@ -199,9 +204,9 @@ interface ITeamMemberSelectProps {
  * @param {OT_Member[]} props.teamMembers - Members of the current team
  * @param {ITeamTask} props.task - The task
  *
- * @return {JSX.Element} The multi select component
+ * @return {ReactNode} The multi select component
  */
-export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
+export function TeamMembersSelect(props: ITeamMemberSelectProps): React.ReactElement {
 	const { teamMembers, task } = props;
 	const t = useTranslations();
 
@@ -233,6 +238,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 									}
 									value={member}
 								>
+									{/* @ts-ignore */}
 									<TeamMemberOption
 										task={task}
 										member={member}

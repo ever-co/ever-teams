@@ -33,7 +33,7 @@ export type StatusAction = "Deleted" | "Approved" | "Denied";
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, disabled: boolean, onClick: (action: StatusAction) => void) => {
 
-    const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string; action: StatusAction }[]> = {
+    const buttonsConfig: Record<StatusType, { icon: ReactNode; title: string; action: StatusAction }[]> = {
         PENDING: [
             { icon: <ApproveSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
             { icon: <RejectSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },

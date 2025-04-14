@@ -31,7 +31,7 @@ import { BsEmojiSmile } from 'react-icons/bs';
 import { clsxm } from '@app/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { MdOutlineClose } from "react-icons/md";
+import { MdOutlineClose } from 'react-icons/md';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -170,9 +170,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 		};
 	}, [setShowEmoji]);
 
-
 	const addEmoji = (emoji: { native: string }) => {
-
 		if (showEmojiIcon) {
 			selectEmoji?.(emoji);
 		}
@@ -271,10 +269,12 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 
+			{/* @ts-ignore */}
 			<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-			{
-				showEmoji && <div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
+			{showEmoji && (
+				<div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
 					<div className="relative h-[20px] w-full">
+						{/* @ts-ignore */}
 						<MdOutlineClose
 							size={17}
 							onClick={() => setShowEmoji(false)}
@@ -289,7 +289,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						maxFrequentRows={0}
 					/>
 				</div>
-			}
+			)}
 
 			<div className="relative md:hidden" ref={dropdownRef}>
 				<Button

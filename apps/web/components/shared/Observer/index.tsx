@@ -10,7 +10,7 @@ export const ObserverComponent = ({
 	getNextData: () => any;
 }) => {
 	const getNextDataRef = useCallbackRef(getNextData);
-	const cardRef = React.useRef<HTMLDivElement>();
+	const cardRef = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
 		if (!cardRef?.current) return;
@@ -36,12 +36,11 @@ export const ObserverComponent = ({
 			cardRef.current && observer.unobserve(cardRef.current);
 		};
 	}, [isLast, getNextDataRef]);
-	// @ts-expect-error
 	return <div ref={cardRef} className="-z-10 h-2 bg-transparent  " />;
 };
 
 export const useElementOnScreen = (options: IntersectionObserverInit | undefined) => {
-	const containerRef = React.useRef<HTMLDivElement>();
+	const containerRef = React.useRef<HTMLDivElement>(null);
 	const [isVisible, setIsVisible] = React.useState();
 
 	const cbFunction = (entries: any[]) => {

@@ -15,6 +15,7 @@ export type DatePickerProps = {
 	selected?: Date;
 	onSelect?: (date: Date | undefined) => void;
 	mode?: 'single' | 'multiple' | 'range';
+	// @ts-ignore
 } & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect' | 'displayMonth'>;
 
 export function DatePicker({
@@ -44,6 +45,7 @@ export function DatePicker({
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0 border-none" align="start">
 				<Calendar
+					// @ts-ignore
 					mode={mode}
 					selected={selected}
 					onSelect={onSelect}

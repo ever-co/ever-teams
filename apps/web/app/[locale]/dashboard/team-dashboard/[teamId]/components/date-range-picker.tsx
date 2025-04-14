@@ -113,6 +113,7 @@ export function DateRangePicker({ className, onDateRangeChange, data }: DateRang
 				<div className="flex">
 					<div className="p-0.5">
 						<Calendar
+							// @ts-ignore
 							className="min-w-[220px]"
 							mode="range"
 							selected={dateRange}
@@ -123,7 +124,7 @@ export function DateRangePicker({ className, onDateRangeChange, data }: DateRang
 							showOutsideDays={false}
 							fixedWeeks
 							initialFocus
-							disabled={(date) => {
+							disabled={(date: Date) => {
 								// Disable future dates
 								if (date >= startOfDay(new Date())) return true;
 

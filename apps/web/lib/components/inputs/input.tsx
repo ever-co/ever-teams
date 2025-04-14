@@ -164,6 +164,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 						<div>
 							{clickInput && (
 								<>
+									{/* @ts-ignore */}
 									<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 									{showEmoji && (
 										<div

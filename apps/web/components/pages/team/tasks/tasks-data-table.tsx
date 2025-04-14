@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
 import { ITeamTask } from '@/app/interfaces';
+import { ReactNode } from 'react';
 interface DataTableProps {
 	columns: ColumnDef<ITeamTask>[];
 	data: ITeamTask[];
@@ -38,7 +39,10 @@ export function TasksDataTable({ columns, data, className, columnVisibility }: R
 									<TableHead key={header.id}>
 										{header.isPlaceholder
 											? null
-											: flexRender(header.column.columnDef.header, header.getContext())}
+											: (flexRender(
+													header.column.columnDef.header,
+													header.getContext()
+												) as ReactNode)}
 									</TableHead>
 								);
 							})}
@@ -55,7 +59,7 @@ export function TasksDataTable({ columns, data, className, columnVisibility }: R
 							>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell className="relative" key={cell.id}>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+										{flexRender(cell.column.columnDef.cell, cell.getContext()) as ReactNode}
 									</TableCell>
 								))}
 							</TableRow>

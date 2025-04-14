@@ -23,13 +23,13 @@ export function StatusIcon({ status }: { status: ITaskStatus }) {
 }
 
 export function BadgedTaskStatus({ status }: { status: ITaskStatus }) {
-	const node = statusIcons[status];
+	const node = statusIcons[status] as React.ReactElement<{ background?: string; color?: string }>;
 
 	return (
 		<div
 			style={{
-				background: node.props.background,
-				color: node.props.color
+				background: node.props.background || '#F2F4F6',
+				color: node.props.color || '#8F97A1'
 			}}
 			className={`px-2 py-1 rounded-2xl text-xs flex items-center justify-center`}
 		>

@@ -32,7 +32,7 @@ export function NavMain({
 		items?: {
 			title: string;
 			url: string;
-			component?: JSX.Element;
+			component?: ReactNode;
 			icon?: ReactNode;
 		}[];
 	}[];
@@ -76,7 +76,7 @@ export function NavMain({
 		items?: {
 			title: string;
 			url: string;
-			component?: JSX.Element;
+			component?: ReactNode;
 			icon?: ReactNode;
 		}[];
 	}) => {

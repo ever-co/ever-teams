@@ -157,6 +157,7 @@ function FillUserDataForm({
 			case 'cloudflare':
 				return (
 					<>
+						{/* @ts-ignore */}
 						<Turnstile
 							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
 							onSuccess={(token) => handleCaptchaVerify(token)}
@@ -169,7 +170,6 @@ function FillUserDataForm({
 				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
 		}
 	};
-
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
 			<div className="flex flex-col items-center justify-between h-full">

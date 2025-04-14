@@ -300,6 +300,7 @@ export function DatePickerFilter({
 		<div>
 			<DatePicker
 				buttonVariant="link"
+				// @ts-ignore
 				classNames={{
 					day: 'h-9 w-9 text-center rounded-md relative',
 					day_selected:
@@ -436,6 +437,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 		<DatePicker
 			mode="single"
 			buttonVariant={'link'}
+			// @ts-ignore
 			className={'dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200'}
 			buttonClassName={
 				'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'

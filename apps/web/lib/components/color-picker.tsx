@@ -132,11 +132,13 @@ export const ColorPicker = ({
 						<PopoverDropdown>
 							<PopoverTrigger asChild>
 								<div className="h-10">
+									{/* @ts-ignore */}
 									<HexColorPicker
 										color={color || undefined}
 										onChange={setColor}
 										key={color ? `color-picker-${color}` : 'color-picker-default'}
-									/>
+									/>{' '}
+									as unknown as JSX.Element
 								</div>
 							</PopoverTrigger>
 						</PopoverDropdown>
@@ -153,6 +155,7 @@ export const ColorPicker = ({
 				</div>
 			</PopoverTrigger>
 			<PopoverContent align="end" side="bottom" className="w-fit dark:bg-dark--theme-light input-border">
+				{/* @ts-ignore */}
 				<HexColorPicker className="relative h-10" color={color || undefined} onChange={setColor} />
 			</PopoverContent>
 		</PopoverDropdown>
