@@ -34,10 +34,8 @@ const CustomCountrySelect = ({
   const [filteredOptions, setFilteredOptions] = useState<Option[]>(options);
   const selectRef = React.useRef<HTMLDivElement>(null);
 
-  // Create a component reference using the iconComponent
   const Icon = iconComponent;
 
-  // Handle clicking outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
@@ -51,7 +49,6 @@ const CustomCountrySelect = ({
     };
   }, []);
 
-  // Filter options when search value changes
   useEffect(() => {
     if (!searchValue.trim()) {
       setFilteredOptions(options);
@@ -59,10 +56,8 @@ const CustomCountrySelect = ({
     }
 
     const filtered = options.filter((option: Option) => {
-      // Get the country name from the locale data
       const countryName = en[option.value as keyof typeof en];
 
-      // If we can't find a name, use the country code as a fallback
       const searchableName = countryName || option.value;
 
       return String(searchableName).toLowerCase().includes(searchValue.toLowerCase());
@@ -71,7 +66,6 @@ const CustomCountrySelect = ({
     setFilteredOptions(filtered);
   }, [options, searchValue]);
 
-  // Toggle dropdown - prevent opening if disabled
   const toggleDropdown = () => {
     if (disabled) return; // Don't toggle if disabled
 
