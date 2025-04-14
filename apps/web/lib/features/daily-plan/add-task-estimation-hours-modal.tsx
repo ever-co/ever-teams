@@ -462,7 +462,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								<div className="flex gap-2 items-center text-sm h-6 text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
-											<PiWarningCircleFill />
+											{/* @ts-ignore */}
+											<PiWarningCircleFill className="text-[14px]" />
 											<span className=" text-xs">{warning}</span>
 										</>
 									)}

@@ -228,6 +228,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
+						//@ts-ignore
 						className="dark:bg-dark--theme-light"
 						buttonClassName={
 							'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'

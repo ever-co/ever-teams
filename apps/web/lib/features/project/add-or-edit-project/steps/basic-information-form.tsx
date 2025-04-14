@@ -459,6 +459,7 @@ export function DatePicker(props: IDatePickerProps) {
 			</Popover.Button>
 			<Popover.Panel className="absolute right-0 z-50 w-auto p-0 bg-white border rounded-lg shadow-md dark:bg-dark--theme top-11">
 				<Calendar
+					// @ts-ignore
 					id={id}
 					required={required}
 					disabled={disabled || disabledDays}

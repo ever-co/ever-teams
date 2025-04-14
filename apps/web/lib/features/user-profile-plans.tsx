@@ -273,6 +273,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												{Object.keys(screenOutstanding).map((item, index) => (
 													<SelectItem key={index} value={item}>
 														<div className="flex items-center space-x-1">
+															{/* @ts-ignore */}
 															{item == 'DATE' ? <IoCalendarOutline /> : <StarIcon />}
 															<span className="capitalize">{item}</span>
 														</div>
@@ -347,6 +348,7 @@ function AllPlans({
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
+				// @ts-ignore
 				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
@@ -381,6 +383,7 @@ function AllPlans({
 											data={plan.tasks ?? []}
 										/>
 									) : (
+										// @ts-ignore
 										<Droppable
 											droppableId={plan.id as string}
 											key={plan.id}
@@ -401,6 +404,7 @@ function AllPlans({
 												>
 													{plan.tasks?.map((task, index) =>
 														view === 'CARDS' ? (
+															// @ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}
@@ -437,6 +441,7 @@ function AllPlans({
 																)}
 															</Draggable>
 														) : (
+															///@ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}

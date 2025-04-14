@@ -34,7 +34,10 @@ export default function TeamMember(
 			className="w-100 cursor-pointer flex items-center"
 		>
 			<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-100 pointer-events-none" />
-			{checkAssign ? (<FaCheck size={17} fill="#3826a6" />) : (<></>)}
+			{checkAssign ? (
+					// @ts-ignore
+					<FaCheck size={17} fill="#3826a6" />
+				) : (<></>)}
 		</div>
 	);
 }

@@ -76,6 +76,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 				{Array.isArray(items) &&
 					items.length > 0 &&
 					items.map((item: ITeamTask, index: number) => (
+						// @ts-ignore
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 								<Item
@@ -194,6 +195,7 @@ export const KanbanDroppable = ({
 }) => {
 	return (
 		<>
+			{/* @ts-ignore */}
 			<Droppable droppableId={droppableId} type={type}>
 				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
 					<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
@@ -232,7 +234,7 @@ export const EmptyKanbanDroppable = ({
 	items: ITeamTask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
-	const t = useTranslations()
+	const t = useTranslations();
 	const { toggleColumn } = useKanban();
 
 	useEffect(() => {
@@ -252,6 +254,7 @@ export const EmptyKanbanDroppable = ({
 	return (
 		<>
 			{title.length > 0 && (
+				// @ts-ignore
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
 						<div
@@ -377,7 +380,7 @@ const KanbanDraggableHeader = ({
 }) => {
 	const { toggleColumn } = useKanban();
 	const { isOpen, closeModal, openModal } = useModal();
-	const t = useTranslations()
+	const t = useTranslations();
 	return (
 		<>
 			{title && (
@@ -480,6 +483,7 @@ const KanbanDraggable = ({
 	return (
 		<>
 			{title && (
+				// @ts-ignore
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
 						<ScrollArea
