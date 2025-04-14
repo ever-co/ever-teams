@@ -1,4 +1,5 @@
 import { Excalidraw, THEME } from '@excalidraw/excalidraw';
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import debounce from 'lodash/debounce';
@@ -32,8 +33,11 @@ export default function ExcalidrawComponent() {
 		<>
 			<div style={{ height: '100vh' }}>
 				<Excalidraw
-					ref={(api) => setExcalidrawAPI(api)}
+					ref={(api: ExcalidrawImperativeAPI | null) =>
+						setExcalidrawAPI(api as ExcalidrawImperativeAPI | null)
+					}
 					onChange={debounce(saveChanges, 500)}
+					// @ts-ignore
 					theme={$theme || THEME.LIGHT}
 					renderTopRightUI={() => (
 						<button onClick={onClickLiveCollaboration}>
@@ -49,7 +53,7 @@ export default function ExcalidrawComponent() {
 				</Excalidraw>
 			</div>
 
-			{excalidrawAPI?.ready && (
+			{excalidrawAPI && (
 				<div className="absolute z-50 top-5 left-14 scale-75">
 					<EverTeamsLogo color={$theme ? 'auto' : 'dark'} dash />
 				</div>

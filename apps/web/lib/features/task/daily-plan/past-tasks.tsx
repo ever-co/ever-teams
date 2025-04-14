@@ -53,6 +53,7 @@ export function PastTasks({
 	return (
 		<div className="flex flex-col gap-6">
 			{pastPlans?.length > 0 ? (
+				// @ts-ignore
 				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastPlans)}>
 					<Accordion
 						type="multiple"
@@ -83,6 +84,7 @@ export function PastTasks({
 											data={plan.tasks ?? []}
 										/>
 									) : (
+										//@ts-ignore
 										<Droppable
 											droppableId={plan.id as string}
 											key={plan.id}
@@ -103,6 +105,7 @@ export function PastTasks({
 												>
 													{plan.tasks?.map((task, index) =>
 														view === 'CARDS' ? (
+															// @ts-ignore
 															<Draggable key={index} draggableId={task.id} index={index}>
 																{(provided) => (
 																	<div
@@ -136,6 +139,7 @@ export function PastTasks({
 																)}
 															</Draggable>
 														) : (
+															// @ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}

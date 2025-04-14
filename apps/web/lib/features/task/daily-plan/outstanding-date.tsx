@@ -41,6 +41,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 	return (
 		<div className="flex flex-col gap-6">
 			{plans?.length > 0 ? (
+				// @ts-ignore
 				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
@@ -64,6 +65,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 								<AccordionContent className="pb-12 bg-transparent border-none dark:bg-dark--theme">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
+									{/* @ts-ignore */}
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
 										{(provided) => (
 											<ul
@@ -79,6 +81,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 											>
 												{plan.tasks?.map((task, index) =>
 													view === 'CARDS' ? (
+														// @ts-ignore
 														<Draggable key={task.id} draggableId={task.id} index={index}>
 															{(provided) => (
 																<div
@@ -106,6 +109,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 															)}
 														</Draggable>
 													) : (
+														// @ts-ignore
 														<Draggable key={task.id} draggableId={task.id} index={index}>
 															{(provided) => (
 																<div

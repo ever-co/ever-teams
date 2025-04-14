@@ -1,12 +1,16 @@
 import { serializeAsJSON } from '@excalidraw/excalidraw';
 import { compressData } from './encode';
 import { generateEncryptionKey } from './encryption';
-import { ExcalidrawElement, FileId } from '@excalidraw/excalidraw/types/element/types';
-import { AppState, BinaryFileData, BinaryFiles } from '@excalidraw/excalidraw/types/types';
 import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@app/constants';
 import { FILE_UPLOAD_MAX_BYTES } from './constants';
 import { saveFilesToFirebase } from './firebase';
 import { encodeFilesForUpload, isInitializedImageElement } from './files';
+import {
+	ExcalidrawElement,
+	FileId,
+	InitializedExcalidrawImageElement
+} from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
+import { AppState, BinaryFileData, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 
 type ExportToBackendResult = { url: null; errorMessage: string } | { url: string; errorMessage: null };
 
@@ -29,8 +33,11 @@ export const exportToBackend = async (
 	try {
 		const filesMap = new Map<FileId, BinaryFileData>();
 		for (const element of elements) {
-			if (isInitializedImageElement(element) && files[element.fileId]) {
-				filesMap.set(element.fileId, files[element.fileId]);
+			if (isInitializedImageElement(element)) {
+				const imageElement = element as InitializedExcalidrawImageElement;
+				if (files[imageElement.fileId]) {
+					filesMap.set(imageElement.fileId, files[imageElement.fileId]);
+				}
 			}
 		}
 

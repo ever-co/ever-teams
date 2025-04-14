@@ -35,10 +35,12 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 
 			{tasks.length > 0 ? (
 				<>
+					{/* @ts-ignore */}
 					<DragDropContext
 						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
 					>
 						{/* <PlanHeader plan={plan} planMode="Outstanding" /> */}
+						{/* @ts-ignore */}
 						<Droppable
 							droppableId="droppableId"
 							type="COLUMN"
@@ -63,6 +65,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 										// Add the task to the Set to avoid displaying it again
 										displayedTaskId.add(task.id);
 										return view === 'CARDS' ? (
+											// @ts-ignore
 											<Draggable key={task.id} draggableId={task.id} index={index}>
 												{(provided) => (
 													<div
@@ -91,6 +94,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 												)}
 											</Draggable>
 										) : (
+											// @ts-ignore
 											<Draggable key={task.id} draggableId={task.id} index={index}>
 												{(provided) => (
 													<div

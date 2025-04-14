@@ -244,6 +244,7 @@ const CustomCalendar = memo(function CustomCalendar({
 }) {
 	return (
 		<Calendar
+			// @ts-ignore
 			mode="single"
 			captionLayout="dropdown"
 			selected={date}
