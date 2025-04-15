@@ -19,7 +19,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
-	const { timesheet, statusTimesheet, isManage } = useTimesheet({})
+	const { timesheet, statusTimesheet, isManage } = useTimesheet({});
 
 	React.useEffect(() => {
 		if (shouldRemoveItems) {
@@ -43,8 +43,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
-
-
 	interface TaskData {
 		tasks: Array<{
 			employee: { id: string };
@@ -55,25 +53,13 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	}
 
 	// Memoize filter criteria maps for O(1) lookup
-	const employeeMap = React.useMemo(
-		() => new Set(employee?.map(emp => emp.employeeId)),
-		[employee]
-	);
+	const employeeMap = React.useMemo(() => new Set(employee?.map((emp) => emp.employeeId)), [employee]);
 
-	const projectMap = React.useMemo(
-		() => new Set(project?.map(proj => proj.id)),
-		[project]
-	);
+	const projectMap = React.useMemo(() => new Set(project?.map((proj) => proj.id)), [project]);
 
-	const taskMap = React.useMemo(
-		() => new Set(task?.map(t => t.id)),
-		[task]
-	);
+	const taskMap = React.useMemo(() => new Set(task?.map((t) => t.id)), [task]);
 
-	const statusMap = React.useMemo(
-		() => new Set(statusState?.map(status => status.label)),
-		[statusState]
-	);
+	const statusMap = React.useMemo(() => new Set(statusState?.map((status) => status.label)), [statusState]);
 
 	const getFilteredResults = React.useCallback(
 		(data: TaskData[] | null | undefined): TaskData[] => {
@@ -82,7 +68,12 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			return data.filter((item) => {
 				try {
 					const taskData = item.tasks[0];
-					if (!taskData?.employee?.id || !taskData.projectId || !taskData.taskId || !taskData.timesheet?.status) {
+					if (
+						!taskData?.employee?.id ||
+						!taskData.projectId ||
+						!taskData.taskId ||
+						!taskData.timesheet?.status
+					) {
 						return false;
 					}
 
@@ -111,7 +102,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	return (
 		<>
 			<Popover>
-				<PopoverTrigger asChild>
+				<PopoverTrigger>
 					<Button
 						variant="outline"
 						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"

@@ -18,7 +18,7 @@ interface ComboboxProps<T> {
 	className?: string;
 	popoverClassName?: string;
 	selectedItem?: T | null;
-	defaultValue?: string
+	defaultValue?: string;
 }
 
 export function CustomCombobox<T>({
@@ -61,7 +61,7 @@ export function CustomCombobox<T>({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+			<PopoverTrigger>
 				<Button
 					ref={triggerRef}
 					variant="outline"
