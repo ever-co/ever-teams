@@ -47,7 +47,7 @@ export function FilterWithStatus({
 			count,
 			icon: <i className={statusIcons[label as FilterStatus]} />
 		}));
-	}, [data, statusIcons, t]);
+	}, [data]);
 
 	return (
 		<div
