@@ -31,7 +31,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 	return (
 		<div>
 			<Popover modal>
-				<PopoverTrigger asChild>
+				<PopoverTrigger>
 					<Button
 						variant="outline"
 						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"

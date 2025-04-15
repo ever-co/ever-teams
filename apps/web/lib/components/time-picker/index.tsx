@@ -31,7 +31,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
 	};
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
+			<PopoverTrigger>
 				<Button
 					variant={'outline'}
 					className={cn(

@@ -407,7 +407,7 @@ const KanbanDraggableHeader = ({
 					</div>
 					<div className="flex flex-row items-center gap-2">
 						<Popover>
-							<PopoverTrigger asChild>
+							<PopoverTrigger>
 								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
 									<ThreeDotIcon color="black" />
 								</Button>

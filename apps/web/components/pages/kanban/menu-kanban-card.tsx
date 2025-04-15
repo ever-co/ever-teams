@@ -137,7 +137,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
+			<PopoverTrigger>
 				<button>
 					<ThreeCircleOutlineVerticalIcon className="w-4 h-4 z-50" />
 				</button>

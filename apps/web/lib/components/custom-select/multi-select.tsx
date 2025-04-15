@@ -114,7 +114,7 @@ export function MultiSelect<T>({
 	return (
 		<div className="relative w-full overflow-hidden">
 			<Popover open={isPopoverOpen} onOpenChange={setPopoverOpen}>
-				<PopoverTrigger asChild>
+				<PopoverTrigger>
 					<Button
 						ref={triggerRef}
 						onClick={() => setPopoverOpen(!isPopoverOpen)}

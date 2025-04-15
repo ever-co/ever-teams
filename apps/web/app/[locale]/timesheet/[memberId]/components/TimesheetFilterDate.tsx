@@ -112,7 +112,7 @@ export function TimesheetFilterDate({
 	return (
 		<>
 			<Popover>
-				<PopoverTrigger asChild>
+				<PopoverTrigger>
 					<Button
 						variant={'outline'}
 						role="combobox"

@@ -130,7 +130,7 @@ export const ColorPicker = ({
 						show={!disabled}
 					>
 						<PopoverDropdown>
-							<PopoverTrigger asChild>
+							<PopoverTrigger>
 								<div className="h-10">
 									{/* @ts-ignore */}
 									<HexColorPicker
@@ -148,7 +148,7 @@ export const ColorPicker = ({
 		</Popover>
 	) : (
 		<PopoverDropdown>
-			<PopoverTrigger asChild>
+			<PopoverTrigger>
 				<div className="flex items-center space-x-2 dark:bg-dark--theme-light input-border rounded-xl cursor-pointer h-14 px-2">
 					<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
 					<span className="font-normal">{color || 'Color'}</span>
