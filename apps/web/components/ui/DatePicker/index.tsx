@@ -29,19 +29,22 @@ export function DatePicker({
 }: DatePickerProps) {
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
-				<Button
-					variant={buttonVariant || undefined}
-					className={cn(
-						'w-[240px] justify-start text-left font-normal',
-						!selected && 'text-muted-foreground',
-						buttonClassName
-					)}
-				>
-					{/* <CalendarIcon className="mr-2 h-4 w-4" /> */}
-					{/* {date ? format(date, 'PPP') : <span>Select a date</span>} */}
-					{customInput}
-				</Button>
+			<PopoverTrigger>
+				<div>
+					<Button
+						type="button"
+						variant={buttonVariant || undefined}
+						className={cn(
+							'w-[240px] justify-start text-left font-normal',
+							!selected && 'text-muted-foreground',
+							buttonClassName
+						)}
+					>
+						{/* <CalendarIcon className="mr-2 h-4 w-4" /> */}
+						{/* {date ? format(date, 'PPP') : <span>Select a date</span>} */}
+						{customInput}
+					</Button>
+				</div>
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0 border-none" align="start">
 				<Calendar

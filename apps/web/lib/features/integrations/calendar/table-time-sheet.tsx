@@ -55,6 +55,7 @@ import { toast } from '@components/ui/use-toast';
 import { ToastAction } from '@components/ui/toast';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
+	const accordionRef = React.useRef(null);
 	const modal = useModal();
 	const alertConfirmationModal = useModal();
 	const { isOpen, openModal, closeModal } = modal;
@@ -166,7 +167,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 								</div>
 								<TotalDurationByDate timesheetLog={plan.tasks} createdAt={formatDate(plan.date)} />
 							</div>
-							<Accordion type="single" collapsible>
+							<Accordion type="single" collapsible ref={accordionRef}>
 								{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
 									const groupedByTimesheetId = groupedByTimesheetIds({ rows });
 

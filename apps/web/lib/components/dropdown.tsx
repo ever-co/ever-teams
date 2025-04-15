@@ -1,6 +1,7 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import { Listbox, Transition } from '@headlessui/react';
+import { Popover } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Card } from './card';
@@ -92,7 +93,7 @@ export function Dropdown<T extends DropdownItem>({
 							aria-hidden="true"
 						/>
 					) : (
-						<></>
+						<div></div>
 					)}
 				</Listbox.Button>
 
@@ -143,7 +144,7 @@ export function Dropdown<T extends DropdownItem>({
 												return Item.Label ? (
 													<Item.Label active={active} selected={selected} />
 												) : (
-													<></>
+													<div></div>
 												);
 											}}
 										</Listbox.Option>
