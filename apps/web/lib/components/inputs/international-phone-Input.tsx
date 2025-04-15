@@ -190,7 +190,7 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 	error,
 	register,
 	required,
-	value,
+	value: externalValue, // rename to avoid semantic conflict
 	onChange,
 	disabled = false,
 	className = '',
@@ -199,26 +199,26 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 	defaultCountry = 'US'
 }: PhoneInputProps<T>) => {
 	const t = useTranslations();
-	const [phoneValue, setPhoneValue] = useState(value || '');
+	const [phoneValue, setPhoneValue] = useState<string>(externalValue || '');
 	const inputRef = React.useRef<HTMLInputElement>(null);
-	useEffect(() => {
-		if (value !== undefined && value !== phoneValue) {
-			setPhoneValue(value);
-		}
-	}, [phoneValue, value]);
-	// Register with react-hook-form
-	const { ref, ...registerProps } = register(name as any, {
-		validate: (value: string) => {
-			if (!value || value.trim() === '') {
+
+	// Register with custom validation
+	const {
+		ref: registerRef,
+		onChange: formOnChange,
+		...registerProps
+	} = register(name as any, {
+		validate: (val: string) => {
+			if (!val || val.trim() === '') {
 				return required ? t('pages.settingsPersonal.phoneNotValid') : true;
 			}
 
-			const digitsOnly = value.replace(/\D/g, '');
+			const digitsOnly = val.replace(/\D/g, '');
 			if (digitsOnly.length < 10) {
 				return t('pages.settingsPersonal.phoneNotValid');
 			}
 
-			if (!value.match(PHONE_REGEX)) {
+			if (!val.match(PHONE_REGEX)) {
 				return t('pages.settingsPersonal.phoneNotValid');
 			}
 
@@ -226,35 +226,36 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 		}
 	});
 
-	// Connect our ref to react-hook-form
+	// :warning: Avoid conflict between external value and user input
+	useEffect(() => {
+		if (externalValue !== undefined && externalValue !== phoneValue) {
+			setPhoneValue(externalValue);
+		}
+	}, [externalValue]);
+
+	// Connect ref of react-hook-form
 	useEffect(() => {
 		if (inputRef.current) {
-			ref(inputRef.current);
+			registerRef(inputRef.current);
 		}
-	}, [ref]);
+	}, [registerRef]);
 
-	// Handle phone number changes
+	// :repeat: Centralized value management
 	const handlePhoneChange = (newValue: string | undefined) => {
-		setPhoneValue(newValue || '');
+		const finalValue = newValue || '';
+		setPhoneValue(finalValue);
 
-		// Update react-hook-form
-		if (registerProps.onChange) {
-			registerProps.onChange({ target: { value: newValue || '' } });
-		}
+		// react-hook-form
+		formOnChange?.({ target: { value: finalValue } });
 
-		// Call external onChange if provided
-		if (onChange) {
-			onChange(newValue || '');
-		}
+		// external callback
+		onChange?.(finalValue);
 	};
 
 	const inputId = `phone-input-${name}`;
-
-	// Build CSS class names
 	const inputClassName = `phoneinput-field ${className} ${
 		disabled ? 'phoneinput-disabled' : ''
 	} ${notValidBorder ? 'phoneinput-error' : ''}`;
-
 	const wrapperClasses = `phoneinput-wrapper ${notValidBorder ? 'phoneinput-wrapper-error' : ''} ${wrapperClassName}`;
 
 	return (
@@ -264,6 +265,7 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 					{label} {required && <span className="phoneinput-required">*</span>}
 				</label>
 			)}
+
 			<div className={wrapperClasses} aria-invalid={notValidBorder || !!error}>
 				<PhoneInput
 					international
@@ -273,22 +275,25 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 					onChange={handlePhoneChange}
 					disabled={disabled}
 					inputRef={inputRef}
-					countrySelectComponent={(props) => CustomCountrySelect({ ...props, disabled })}
+					countrySelectComponent={(props) => <CustomCountrySelect {...props} disabled={disabled} />}
 					numberInputProps={{
 						id: inputId,
-						name,
 						className: inputClassName,
 						'aria-required': required,
 						'aria-invalid': notValidBorder || !!error,
-						'aria-describedby': error || notValidBorder ? `${name}-error` : undefined
+						'aria-describedby': error || notValidBorder ? `${name}-error` : undefined,
+						...registerProps,
+						name
 					}}
 				/>
 			</div>
+
 			{error && (
 				<p id={`${name}-error`} className="phoneinput-error-message" role="alert">
 					{error.message}
 				</p>
 			)}
+
 			{notValidBorder && !error && (
 				<p id={`${name}-error`} className="phoneinput-error-message" role="alert">
 					{t('pages.settingsPersonal.phoneNotValid')}
