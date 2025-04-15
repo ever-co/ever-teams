@@ -80,22 +80,24 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		<>
 			<Popover>
 				<PopoverTrigger>
-					<Button
-						variant="outline"
-						className="flex items-center justify-center h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
-					>
-						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
-						{totalFilteredItems > 0 && (
-							<span
-								role="status"
-								aria-label={`${totalFilteredItems} items filtered`}
-								className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-sm transition-all"
-							>
-								{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
-							</span>
-						)}
-					</Button>
+					<div>
+						<Button
+							variant="outline"
+							className="flex items-center justify-center h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
+						>
+							<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
+							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+							{totalFilteredItems > 0 && (
+								<span
+									role="status"
+									aria-label={`${totalFilteredItems} items filtered`}
+									className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-sm transition-all"
+								>
+									{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
+								</span>
+							)}
+						</Button>
+					</div>
 				</PopoverTrigger>
 				<PopoverContent className="w-96 dark:bg-dark-high">
 					<div className="flex flex-col w-full">
