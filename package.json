@@ -177,7 +177,6 @@
 	"resolutions": {},
 	"dependencies": {
 		"@lexical/react": "^0.8.0",
-		"dompurify": "3.2.4",
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
 		"react-phone-number-input": "^3.4.12",
@@ -294,5 +293,5 @@
 		]
 	},
 	"snyk": true,
-	"packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
+	"packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

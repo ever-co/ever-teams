@@ -112,7 +112,7 @@ export function TimesheetFilterDate({
 	return (
 		<>
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<Button
 						variant={'outline'}
 						role="combobox"
@@ -337,7 +337,12 @@ export function DatePickerFilter({
 					}
 				]}
 				components={{
-					Day: ({ date: dayDate, displayMonth, ...props }: { date: Date; displayMonth?: boolean } & Record<string, any>) => {
+					// @ts-ignore
+					Day: ({
+						date: dayDate,
+						displayMonth,
+						...props
+					}: { date: Date; displayMonth?: boolean } & Record<string, any>) => {
 						const isSelected = date?.getTime() === dayDate.getTime();
 
 						const isDayDisabled = isDateDisabled(dayDate);

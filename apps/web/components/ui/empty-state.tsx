@@ -249,7 +249,7 @@ export const AnimatedEmptyState: FC<AnimatedEmptyStateProps> = ({
 					<h3 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
 						{title}
 					</h3>
-					<p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{message}</p>
+					<div className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{message}</div>
 					{actionLabel && onAction && (
 						<Button onClick={onAction} variant={actionVariant} className="mt-4">
 							{actionLabel}

@@ -6,13 +6,20 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@app/helpers/cookies';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
 	baseURL: API_BASE_URL,
 	withCredentials: true,
-	timeout: 60 * 1000
+	timeout: 120 * 1000 // 2 minutes default timeout
 });
+
+// Custom timeouts for specific endpoints
+const ENDPOINT_TIMEOUTS: Record<string, number> = {
+	'/timer/timesheet': 180 * 1000, // 3 minutes for timesheet operations
+	'/timer/timesheet/daily': 180 * 1000,
+	'/timer/timesheet/statistics': 180 * 1000
+};
 api.interceptors.request.use(
 	async (config: any) => {
 		const cookie = getActiveTeamIdCookie();
@@ -21,17 +28,53 @@ api.interceptors.request.use(
 			config.headers['Authorization'] = `Bearer ${cookie}`;
 		}
 
+		// Set custom timeout for specific endpoints
+		if (config.url) {
+			const matchingEndpoint = Object.keys(ENDPOINT_TIMEOUTS).find(endpoint => config.url?.includes(endpoint));
+			if (matchingEndpoint) {
+				config.timeout = ENDPOINT_TIMEOUTS[matchingEndpoint];
+			}
+		}
+
 		return config;
 	},
 	(error: any) => {
-		Promise.reject(error);
+		return Promise.reject(error);
 	}
 );
+// Retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
+
 api.interceptors.response.use(
 	(response: AxiosResponse) => response,
-	async (error: { response: AxiosResponse }) => {
+	async (error: AxiosError) => {
 		const statusCode = error.response?.status;
+		const config = error.config as AxiosRequestConfig & { retryCount?: number };
 
+		// Initialize retry count
+		config.retryCount = config.retryCount || 0;
+
+		// Check if we should retry the request
+		const shouldRetry =
+			config.retryCount < MAX_RETRIES &&
+			(error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT' || // Timeout
+				!statusCode || // Network error
+				RETRYABLE_STATUS_CODES.includes(statusCode));
+
+		if (shouldRetry) {
+			config.retryCount += 1;
+
+			// Exponential backoff delay
+			const delay = RETRY_DELAY * Math.pow(2, config.retryCount - 1);
+			await new Promise(resolve => setTimeout(resolve, delay));
+
+			// Retry the request
+			return api(config);
+		}
+
+		// Handle 401 unauthorized
 		if (statusCode === 401) {
 			window.location.assign(DEFAULT_APP_PATH);
 		}
@@ -41,7 +84,7 @@ api.interceptors.response.use(
 );
 
 const apiDirect = axios.create({
-	timeout: 60 * 1000
+	timeout: 120 * 1000 // 2 minutes timeout
 });
 
 apiDirect.interceptors.request.use(
