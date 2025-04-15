@@ -118,7 +118,7 @@ export const PersonalSettingForm = () => {
 		setValue('lastName', user?.lastName || '');
 		setValue('email', user?.email || '');
 		setValue('timeZone', user?.timeZone || '');
-		setValue('preferredLanguage', user?.preferredLanguage || '' );
+		setValue('preferredLanguage', user?.preferredLanguage || '');
 		setValue('phoneNumber', user?.phoneNumber || '');
 
 		/**
@@ -264,11 +264,11 @@ export const PersonalSettingForm = () => {
 												name="phoneNumber"
 												register={register}
 												error={errors.phoneNumber}
-												value={getValues('phoneNumber')}
+												value={user?.phoneNumber || ''}
 												onChange={handlePhoneChange}
 												disabled={!editContacts}
 												className={`h-[54px] ${!editContacts ? 'bg-[#FCFCFC] dark:bg-[#1B1D22]' : ''}`}
-												wrapperClassName="mb-0 h-[54px]" // Ensure the wrapper has proper height
+												wrapperClassName="mb-0 h-[54px]"
 											/>
 										</div>
 										{editContacts ? (
