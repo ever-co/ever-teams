@@ -79,7 +79,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	return (
 		<>
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<div>
 						<Button
 							variant="outline"

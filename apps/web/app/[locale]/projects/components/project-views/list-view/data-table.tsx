@@ -532,7 +532,7 @@ export const ProjectsTable = memo(
 							showBorder={false}
 							message={
 								<div className="space-y-2">
-									<h4 className="text-base font-medium">Ready to start something amazing?</h4>
+									<div className="text-base font-medium">Ready to start something amazing?</div>
 									<p className="text-sm text-gray-500">
 										Create your first project and begin collaborating with your team.
 									</p>
