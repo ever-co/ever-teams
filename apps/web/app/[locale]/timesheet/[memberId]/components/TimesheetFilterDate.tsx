@@ -337,7 +337,7 @@ export function DatePickerFilter({
 					}
 				]}
 				components={{
-					Day: ({ date: dayDate, ...props }: { date: Date } & Record<string, any>) => {
+					Day: ({ date: dayDate, displayMonth, ...props }: { date: Date; displayMonth?: boolean } & Record<string, any>) => {
 						const isSelected = date?.getTime() === dayDate.getTime();
 
 						const isDayDisabled = isDateDisabled(dayDate);
