@@ -1,5 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { API_BASE_URL, APPLICATION_LANGUAGES_CODE, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL, IS_DESKTOP_APP } from '@app/constants';
+import {
+	API_BASE_URL,
+	APPLICATION_LANGUAGES_CODE,
+	DEFAULT_APP_PATH,
+	GAUZY_API_BASE_SERVER_URL,
+	IS_DESKTOP_APP
+} from '@app/constants';
 import {
 	getAccessTokenCookie,
 	getActiveTeamIdCookie,
@@ -16,7 +22,7 @@ const api = axios.create({
 
 // Custom timeouts for specific endpoints
 const ENDPOINT_TIMEOUTS: Record<string, number> = {
-	'/timer/timesheet': 180 * 1000, // 3 minutes for timesheet operations
+	'/timer/timesheet': 180 * 1000,
 	'/timer/timesheet/daily': 180 * 1000,
 	'/timer/timesheet/statistics': 180 * 1000
 };
@@ -30,7 +36,7 @@ api.interceptors.request.use(
 
 		// Set custom timeout for specific endpoints
 		if (config.url) {
-			const matchingEndpoint = Object.keys(ENDPOINT_TIMEOUTS).find(endpoint => config.url?.includes(endpoint));
+			const matchingEndpoint = Object.keys(ENDPOINT_TIMEOUTS).find((endpoint) => config.url?.includes(endpoint));
 			if (matchingEndpoint) {
 				config.timeout = ENDPOINT_TIMEOUTS[matchingEndpoint];
 			}
@@ -59,7 +65,8 @@ api.interceptors.response.use(
 		// Check if we should retry the request
 		const shouldRetry =
 			config.retryCount < MAX_RETRIES &&
-			(error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT' || // Timeout
+			(error.code === 'ECONNABORTED' ||
+				error.code === 'ETIMEDOUT' || // Timeout
 				!statusCode || // Network error
 				RETRYABLE_STATUS_CODES.includes(statusCode));
 
@@ -68,7 +75,7 @@ api.interceptors.response.use(
 
 			// Exponential backoff delay
 			const delay = RETRY_DELAY * Math.pow(2, config.retryCount - 1);
-			await new Promise(resolve => setTimeout(resolve, delay));
+			await new Promise((resolve) => setTimeout(resolve, delay));
 
 			// Retry the request
 			return api(config);
@@ -132,14 +139,14 @@ type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: bool
 
 async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {
-	  try {
+		try {
 			const serverConfig = await api.get('/desktop-server');
-      return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+			return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 		} catch (error) {
-			return GAUZY_API_BASE_SERVER_URL
+			return GAUZY_API_BASE_SERVER_URL;
 		}
-  }
-  return GAUZY_API_BASE_SERVER_URL;
+	}
+	return GAUZY_API_BASE_SERVER_URL;
 }
 
 async function apiConfig(config?: APIConfig) {
@@ -148,10 +155,11 @@ async function apiConfig(config?: APIConfig) {
 
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 
-  if (IS_DESKTOP_APP) { // dynamic api host while on desktop mode
-    const runtimeConfig =  await desktopServerOverride();
-    baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
-  }
+	if (IS_DESKTOP_APP) {
+		// dynamic api host while on desktop mode
+		const runtimeConfig = await desktopServerOverride();
+		baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
+	}
 
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
