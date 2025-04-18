@@ -77,7 +77,7 @@ export function setReactotronRootStore(rootStore: RootStore, initialData: any) {
 		}
 
 		// tracks the current MobX-State-Tree tree in Reactotron's "State" tab
-		console.tron = fakeReactotron as unknown as typeof Reactotron;
+		(Reactotron as any).trackMstNode(rootStore);
 	}
 }
 
