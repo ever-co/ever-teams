@@ -1,8 +1,21 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, ViewStyle, LogBox, StatusBar, Keyboard, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  ViewStyle,
+  LogBox,
+  StatusBar,
+  Keyboard,
+  Text,
+  StyleSheet,
+  Platform,
+  KeyboardAvoidingView
+} from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetScrollView
+} from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // COMPONENTS
@@ -49,11 +62,13 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1);
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
 
 		// Include multiple snap points for different sheet heights
-		const snapPoints = useMemo(() => ['1%', '50%', '70%'], []);
+		const snapPoints = useMemo(() => ['1%', '50%', '70%', '85%'], []);
 
-		// Fixed open function - updated to match TeamSettings signature while fixing the underlying issue
+		// Open function with keyboard awareness
 		const openBottomSheet = useCallback((name: IPopup, snapPoint: number = 1) => {
 			console.log('Opening bottom sheet:', name);
 
@@ -64,9 +79,15 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			// Wait for state to update before animation
 			setTimeout(() => {
 				if (bottomSheetRef.current) {
-					// For snapPoint compatibility with existing code
-					// 1 = 50%, 3 = 70%, others default to 50%
-					const snapIndex = snapPoint === 3 ? 2 : 1;
+					// Map snapPoint to index with better scaling
+					let snapIndex = 1; // Default 50%
+
+          if (snapPoint === 3 || snapPoint >= 5) {
+            snapIndex = 2; // 70%
+          } else if (snapPoint === 4) {
+            snapIndex = 3; // 85% for keyboard-heavy forms
+          }
+
 					bottomSheetRef.current.snapToIndex(snapIndex);
 				}
 			}, 200);
@@ -98,19 +119,57 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			};
 		}, []);
 
+    // Keyboard listeners to adjust the sheet height when keyboard appears
+    useEffect(() => {
+      const keyboardWillShowListener = Keyboard.addListener(
+        Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+        (e) => {
+          setKeyboardVisible(true);
+          setKeyboardHeight(e.endCoordinates.height);
+
+          // If form sheet is open, adjust its height to accommodate keyboard
+          if (bottomSheetVisible && bottomSheetRef.current) {
+            // Snap to a higher position when keyboard is visible
+            bottomSheetRef.current.snapToIndex(3); // Use the highest snap point (85%)
+          }
+        }
+      );
+
+      const keyboardWillHideListener = Keyboard.addListener(
+        Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+        () => {
+          setKeyboardVisible(false);
+          setKeyboardHeight(0);
+
+          // If form sheet is still open, return to normal height
+          if (bottomSheetVisible && bottomSheetRef.current && showPopup) {
+            // Return to the original snap point if still open
+            // Map from old snapPoint system
+            const snapIndex = showPopup === 'TimeZone' ||
+                           showPopup === 'Language' ?
+                           2 : 1;
+            bottomSheetRef.current.snapToIndex(snapIndex);
+          }
+        }
+      );
+
+      return () => {
+        keyboardWillShowListener.remove();
+        keyboardWillHideListener.remove();
+      };
+    }, [bottomSheetVisible, showPopup]);
+
 		// Better backdrop with proper opacity
-		const renderBackdrop = useCallback(props => {
-			return (
-				<BottomSheetBackdrop
-					{...props}
-					disappearsOnIndex={-1}
-					appearsOnIndex={0}
-					enableTouchThrough={false}
-					pressBehavior="close"
-					opacity={0.7}
-				/>
-			);
-		}, []);
+		const renderBackdrop = useCallback(props => (
+			<BottomSheetBackdrop
+				{...props}
+				disappearsOnIndex={-1}
+				appearsOnIndex={0}
+				enableTouchThrough={false}
+				pressBehavior="close"
+				opacity={0.7}
+			/>
+		), []);
 
 		return (
 			<GestureHandlerRootView style={styles.gestureRoot}>
@@ -128,9 +187,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 							</View>
 							<View style={{ flex: 4, paddingHorizontal: 20 }}>
 								{isLoading ? (
-									<View
-										style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}
-									>
+									<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 										<ActivityIndicator size={'small'} />
 									</View>
 								) : activeTab === 1 ? (
@@ -143,62 +200,73 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					</Screen>
 				</View>
 
-				{/* Bottom Sheet - Positioned absolutely to appear on top */}
-				<View
-					style={[
-						styles.sheetContainer,
-						{
-							pointerEvents: bottomSheetVisible ? 'auto' : 'none',
-							zIndex: bottomSheetVisible ? 1000 : -1
-						}
-					]}
-				>
-					<BottomSheet
-						ref={bottomSheetRef}
-						index={-1} // Start closed
-						snapPoints={snapPoints}
-						enablePanDownToClose={true}
-						onClose={handleClose}
-						backdropComponent={renderBackdrop}
-						enableContentPanningGesture={true}
-						handleHeight={30}
-						backgroundStyle={{
-							backgroundColor: colors.background,
-							shadowColor: '#000',
-							shadowOffset: { width: 0, height: -3 },
-							shadowOpacity: 0.27,
-							shadowRadius: 4.65,
-							elevation: 10,
-							borderTopLeftRadius: 20,
-							borderTopRightRadius: 20,
-						}}
-						handleIndicatorStyle={{
-							backgroundColor: dark ? '#FFFFFF' : '#000000',
-							width: 50,
-							height: 5,
-							marginTop: 10
-						}}
-					>
-						<BottomSheetView
-							style={{
-								flex: 1,
-								minHeight: 400, // Ensure minimum height
-								backgroundColor: colors.background
-							}}
-						>
-							{showPopup ? (
-								<BottomSheetContent
-									openedSheet={showPopup}
-									onDismiss={handleClose}
-									openBottomSheet={openBottomSheet}
-								/>
-							) : (
-								<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-									<Text>Loading...</Text>
-								</View>
-							)}
-						</BottomSheetView>
-					</BottomSheet>
+				{/* Bottom Sheet Container */}
+				<View style={[
+					styles.sheetContainer,
+					{
+						pointerEvents: bottomSheetVisible ? 'auto' : 'none',
+						zIndex: bottomSheetVisible ? 1000 : -1
+					}
+				]}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+          >
+            <BottomSheet
+              ref={bottomSheetRef}
+              index={-1}
+              snapPoints={snapPoints}
+              enablePanDownToClose={true}
+              onClose={handleClose}
+              backdropComponent={renderBackdrop}
+              enableContentPanningGesture={true}
+              keyboardBehavior="extend"
+              keyboardBlurBehavior="restore"
+              android_keyboardInputMode="adjustResize"
+              backgroundStyle={{
+                backgroundColor: colors.background,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -3 },
+                shadowOpacity: 0.27,
+                shadowRadius: 4.65,
+                elevation: 10,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+              }}
+              handleIndicatorStyle={{
+                backgroundColor: dark ? '#FFFFFF' : '#000000',
+                width: 50,
+                height: 5,
+                marginTop: 10
+              }}
+            >
+              <BottomSheetScrollView
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  minHeight: 400, // Ensure minimum height
+                  paddingBottom: keyboardVisible ? keyboardHeight + 20 : 20, // Add bottom padding when keyboard is visible
+                }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={true}
+                style={{
+                  backgroundColor: colors.background
+                }}
+              >
+                {showPopup ? (
+                  <BottomSheetContent
+                    openedSheet={showPopup}
+                    onDismiss={handleClose}
+                    openBottomSheet={openBottomSheet}
+                  />
+                ) : (
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text>Loading...</Text>
+                  </View>
+                )}
+              </BottomSheetScrollView>
+            </BottomSheet>
+          </KeyboardAvoidingView>
 				</View>
 			</GestureHandlerRootView>
 		);
@@ -213,16 +281,16 @@ const $headerContainer: ViewStyle = {
 	paddingBottom: 32
 };
 
-// New styles to fix z-index and positioning issues
+// Styles to fix z-index and positioning issues
 const styles = StyleSheet.create({
 	gestureRoot: {
 		flex: 1,
-		position: 'relative'  // Important for absolute positioning context
+		position: 'relative'
 	},
 	mainContainer: {
 		flex: 1,
 		position: 'relative',
-		zIndex: 1  // Lower z-index than the sheet
+		zIndex: 1
 	},
 	sheetContainer: {
 		position: 'absolute',
@@ -230,6 +298,6 @@ const styles = StyleSheet.create({
 		right: 0,
 		top: 0,
 		bottom: 0,
-		zIndex: 1000, // Higher z-index to appear above content
+		zIndex: 1000,
 	}
 });
