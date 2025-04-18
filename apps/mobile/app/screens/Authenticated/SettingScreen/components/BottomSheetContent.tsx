@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { IPopup } from '..';
 import { useSettings } from '../../../../services/hooks/features/useSettings';
