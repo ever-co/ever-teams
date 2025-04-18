@@ -489,5 +489,5 @@
 		"apps/server-web/src/resources/*",
 		"apps/server-web/assets/*",
 		"apps/mobile/package.json",
-	],
+	]
 }
