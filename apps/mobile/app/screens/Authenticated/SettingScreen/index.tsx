@@ -1,18 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from 'react';
-import {
-	View,
-	ViewStyle,
-	Dimensions,
-	TouchableWithoutFeedback,
-	LogBox,
-	StatusBar,
-	Keyboard,
-	Animated
-} from 'react-native';
-import BottomSheet from 'reanimated-bottom-sheet';
-import { BlurView } from 'expo-blur';
+import React, { FC, useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { View, ViewStyle, LogBox, StatusBar, Keyboard, Text, StyleSheet } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // COMPONENTS
 import { Screen } from '../../../components';
@@ -52,81 +43,166 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
 
 		// ref
-		const sheetRef = React.useRef(null);
+		const bottomSheetRef = useRef<BottomSheet>(null);
 
 		// STATES
 		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1);
-		const [isOpen, setIsOpen] = useState(false);
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
+		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
-		const fall = new Animated.Value(1);
+		// Include multiple snap points for different sheet heights
+		const snapPoints = useMemo(() => ['1%', '50%', '70%'], []);
 
-		const openBottomSheet = (name: IPopup, snapPoint: number) => {
+		// Fixed open function - updated to match TeamSettings signature while fixing the underlying issue
+		const openBottomSheet = useCallback((name: IPopup, snapPoint: number = 1) => {
+			console.log('Opening bottom sheet:', name);
+
+			// Set the popup type first
 			setShowPopup(name);
-			setIsOpen(true);
-			sheetRef.current.snapTo(snapPoint);
-		};
+			setBottomSheetVisible(true);
+
+			// Wait for state to update before animation
+			setTimeout(() => {
+				if (bottomSheetRef.current) {
+					// For snapPoint compatibility with existing code
+					// 1 = 50%, 3 = 70%, others default to 50%
+					const snapIndex = snapPoint === 3 ? 2 : 1;
+					bottomSheetRef.current.snapToIndex(snapIndex);
+				}
+			}, 200);
+		}, []);
+
+		// Handle closing the sheet
+		const handleClose = useCallback(() => {
+			console.log('Closing bottom sheet');
+
+			// Animation first
+			if (bottomSheetRef.current) {
+				bottomSheetRef.current.close();
+			}
+
+			// Then state cleanup after animation finishes
+			setTimeout(() => {
+				setShowPopup(null);
+				setBottomSheetVisible(false);
+				Keyboard.dismiss();
+			}, 250);
+		}, []);
+
+		// Make sure sheet is properly closed on component unmount
+		useEffect(() => {
+			return () => {
+				if (bottomSheetRef.current) {
+					bottomSheetRef.current.close();
+				}
+			};
+		}, []);
+
+		// Better backdrop with proper opacity
+		const renderBackdrop = useCallback(props => {
+			return (
+				<BottomSheetBackdrop
+					{...props}
+					disappearsOnIndex={-1}
+					appearsOnIndex={0}
+					enableTouchThrough={false}
+					pressBehavior="close"
+					opacity={0.7}
+				/>
+			);
+		}, []);
 
 		return (
-			<Screen
-				contentContainerStyle={[$container, { backgroundColor: colors.background }]}
-				safeAreaEdges={['top']}
-			>
-				<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-				<View style={{ flex: 1 }}>
-					{isOpen && (
-						<TouchableWithoutFeedback
-							onPress={() => {
-								setIsOpen(false);
-								Keyboard.dismiss();
-								sheetRef.current.snapTo(2);
+			<GestureHandlerRootView style={styles.gestureRoot}>
+				{/* Main Screen Content */}
+				<View style={styles.mainContainer}>
+					<Screen
+						contentContainerStyle={[$container, { backgroundColor: colors.background }]}
+						safeAreaEdges={['top']}
+					>
+						<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
+						<View style={{ flex: 1 }}>
+							<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
+								<SettingHeader {..._props} />
+								<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
+							</View>
+							<View style={{ flex: 4, paddingHorizontal: 20 }}>
+								{isLoading ? (
+									<View
+										style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}
+									>
+										<ActivityIndicator size={'small'} />
+									</View>
+								) : activeTab === 1 ? (
+									<PersonalSettings onOpenBottomSheet={openBottomSheet} />
+								) : activeTeam ? (
+									<TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
+								) : null}
+							</View>
+						</View>
+					</Screen>
+				</View>
+
+				{/* Bottom Sheet - Positioned absolutely to appear on top */}
+				<View
+					style={[
+						styles.sheetContainer,
+						{
+							pointerEvents: bottomSheetVisible ? 'auto' : 'none',
+							zIndex: bottomSheetVisible ? 1000 : -1
+						}
+					]}
+				>
+					<BottomSheet
+						ref={bottomSheetRef}
+						index={-1} // Start closed
+						snapPoints={snapPoints}
+						enablePanDownToClose={true}
+						onClose={handleClose}
+						backdropComponent={renderBackdrop}
+						enableContentPanningGesture={true}
+						handleHeight={30}
+						backgroundStyle={{
+							backgroundColor: colors.background,
+							shadowColor: '#000',
+							shadowOffset: { width: 0, height: -3 },
+							shadowOpacity: 0.27,
+							shadowRadius: 4.65,
+							elevation: 10,
+							borderTopLeftRadius: 20,
+							borderTopRightRadius: 20,
+						}}
+						handleIndicatorStyle={{
+							backgroundColor: dark ? '#FFFFFF' : '#000000',
+							width: 50,
+							height: 5,
+							marginTop: 10
+						}}
+					>
+						<BottomSheetView
+							style={{
+								flex: 1,
+								minHeight: 400, // Ensure minimum height
+								backgroundColor: colors.background
 							}}
 						>
-							<BlurView tint="dark" intensity={25} style={$blurContainer} />
-						</TouchableWithoutFeedback>
-					)}
-					<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
-						<SettingHeader {..._props} />
-						<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
-					</View>
-					<View style={{ flex: 4, paddingHorizontal: 20, zIndex: 10 }}>
-						{isLoading ? (
-							<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-								<ActivityIndicator size={'small'} />
-							</View>
-						) : activeTab === 1 ? (
-							<PersonalSettings onOpenBottomSheet={(sheet, snap) => openBottomSheet(sheet, snap)} />
-						) : activeTeam ? (
-							<TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
-						) : null}
-					</View>
+							{showPopup ? (
+								<BottomSheetContent
+									openedSheet={showPopup}
+									onDismiss={handleClose}
+									openBottomSheet={openBottomSheet}
+								/>
+							) : (
+								<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+									<Text>Loading...</Text>
+								</View>
+							)}
+						</BottomSheetView>
+					</BottomSheet>
 				</View>
-				<BottomSheet
-					ref={sheetRef}
-					snapPoints={[340, 174, 0, 611, 276, 335]}
-					borderRadius={24}
-					initialSnap={2}
-					callbackNode={fall}
-					enabledGestureInteraction={true}
-					renderContent={() => (
-						<View>
-							<BottomSheetContent
-								openedSheet={showPopup}
-								onDismiss={() => {
-									setIsOpen(false);
-									sheetRef.current.snapTo(2);
-									Keyboard.dismiss();
-								}}
-								openBottomSheet={openBottomSheet}
-							/>
-						</View>
-					)}
-				/>
-			</Screen>
+			</GestureHandlerRootView>
 		);
 	};
-
-const { height } = Dimensions.get('window');
 
 const $container: ViewStyle = {
 	...GS.flex1
@@ -134,16 +210,26 @@ const $container: ViewStyle = {
 
 const $headerContainer: ViewStyle = {
 	padding: 20,
-	// flex: 1,
-	paddingBottom: 32,
-	zIndex: 10
+	paddingBottom: 32
 };
 
-const $blurContainer: ViewStyle = {
-	// flex: 1,
-	height,
-	width: '100%',
-	position: 'absolute',
-	top: 0,
-	zIndex: 99
-};
+// New styles to fix z-index and positioning issues
+const styles = StyleSheet.create({
+	gestureRoot: {
+		flex: 1,
+		position: 'relative'  // Important for absolute positioning context
+	},
+	mainContainer: {
+		flex: 1,
+		position: 'relative',
+		zIndex: 1  // Lower z-index than the sheet
+	},
+	sheetContainer: {
+		position: 'absolute',
+		left: 0,
+		right: 0,
+		top: 0,
+		bottom: 0,
+		zIndex: 1000, // Higher z-index to appear above content
+	}
+});
