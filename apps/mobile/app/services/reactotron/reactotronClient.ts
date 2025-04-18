@@ -5,5 +5,6 @@
  * Web is loaded from reactotronClient.web.ts.
  */
 
-const Reactotron = require('reactotron-react-native');
+// const Reactotron = require('reactotron-react-native');
+import Reactotron from 'reactotron-react-native';
 export { Reactotron };

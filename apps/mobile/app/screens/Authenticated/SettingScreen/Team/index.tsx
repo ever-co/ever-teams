@@ -21,8 +21,9 @@ import SwitchTeamPublicity from '../components/SwitchTeamPublicity';
 
 interface ITeamSettingProps {
 	props: any;
-	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown;
+	onOpenBottomSheet: (sheet: IPopup, snapPoint?: number) => unknown;
 }
+
 const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet }) => {
 	const { colors } = useAppTheme();
 	const {
@@ -130,7 +131,7 @@ export default TeamSettings;
 const $contentContainer: ViewStyle = {
 	width: '100%',
 	alignItems: 'center',
-	zIndex: 10
+	zIndex: 1 // Lower z-index than the bottom sheet
 };
 
 const $dangerZoneContainer: ViewStyle = {

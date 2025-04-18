@@ -13,7 +13,7 @@ import UserAvatar from './UserAvatar';
 import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
 
 interface IPersonalProps {
-	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown;
+	onOpenBottomSheet: (sheet: IPopup) => unknown;
 }
 
 const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
@@ -23,8 +23,10 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 	} = useStores();
 	const { preferredLanguage, onDetectTimezone } = useSettings();
 	const { user } = useAuthenticateUser();
-	const openBottomSheet = (name: IPopup, snapPoint: number) => {
-		onOpenBottomSheet(name, snapPoint);
+
+	// Updated function to match the new signature - removed snapPoint parameter
+	const openSheet = (name: IPopup) => {
+		onOpenBottomSheet(name);
 	};
 
 	return (
@@ -32,17 +34,17 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 			<ScrollView bounces={false} style={{ width: '100%', height: '100%' }} showsVerticalScrollIndicator={false}>
 				<UserAvatar
 					buttonLabel={translate('settingScreen.personalSection.changeAvatar')}
-					onChange={() => openBottomSheet('Avatar', 1)}
+					onChange={() => openSheet('Avatar')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.personalSection.fullName')}
 					value={user?.name}
-					onPress={() => openBottomSheet('Names', 0)}
+					onPress={() => openSheet('Names')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.personalSection.yourContact')}
 					value={translate('settingScreen.personalSection.yourContactHint')}
-					onPress={() => openBottomSheet('Contact', 0)}
+					onPress={() => openSheet('Contact')}
 				/>
 				<SingleInfo
 					onPress={() => toggleTheme()}
@@ -50,7 +52,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 					value={translate('settingScreen.personalSection.lightModeToDark')}
 				/>
 				<SingleInfo
-					onPress={() => openBottomSheet('Language', 4)}
+					onPress={() => openSheet('Language')}
 					title={translate('settingScreen.personalSection.language')}
 					value={preferredLanguage?.name}
 				/>
@@ -58,7 +60,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 					title={translate('settingScreen.personalSection.timeZone')}
 					value={user?.timeZone}
 					onDetectTimezone={() => onDetectTimezone()}
-					onPress={() => openBottomSheet('TimeZone', 4)}
+					onPress={() => openSheet('TimeZone')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.personalSection.workSchedule')}
@@ -70,12 +72,12 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 					<SingleInfo
 						title={translate('settingScreen.personalSection.removeAccount')}
 						value={translate('settingScreen.personalSection.removeAccountHint')}
-						onPress={() => openBottomSheet('Remove Account', 5)}
+						onPress={() => openSheet('Remove Account')}
 					/>
 					<SingleInfo
 						title={translate('settingScreen.personalSection.deleteAccount')}
 						value={translate('settingScreen.personalSection.deleteAccountHint')}
-						onPress={() => openBottomSheet('Delete Account', 5)}
+						onPress={() => openSheet('Delete Account')}
 					/>
 				</View>
 			</ScrollView>
