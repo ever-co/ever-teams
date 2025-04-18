@@ -69,8 +69,6 @@
 				"backgroundColor": "#ffffff"
 			},
 			"permissions": [
-				"android.permission.READ_EXTERNAL_STORAGE",
-				"android.permission.WRITE_EXTERNAL_STORAGE",
 				"android.permission.ACCESS_MEDIA_LOCATION",
 				"android.permission.READ_MEDIA_IMAGES",
 				"android.permission.READ_MEDIA_VIDEO"
@@ -87,7 +85,7 @@
 				"backgroundColor": "#ffffff"
 			},
 			"infoPlist": {
-				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+				"NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera to take photos for sharing with your team members.",
 				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
 				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
 			},

@@ -64,45 +64,40 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const [desiredSnapIndex, setDesiredSnapIndex] = useState(1); // New state for tracking desired snap index
 
 		// Include multiple snap points for different sheet heights
 		const snapPoints = useMemo(() => ['1%', '50%', '70%', '85%'], []);
 
-		// Open function with keyboard awareness
+		// Fixed open function without setTimeout
 		const openBottomSheet = useCallback((name: IPopup, snapPoint: number = 1) => {
 			console.log('Opening bottom sheet:', name);
 
-			// Set the popup type first
+			// Calculate desired snap index based on the snapPoint parameter
+			let snapIndex = 1; // Default 50%
+
+      if (snapPoint === 3 || snapPoint >= 5) {
+        snapIndex = 2; // 70%
+      } else if (snapPoint === 4) {
+        snapIndex = 3; // 85% for keyboard-heavy forms
+      }
+
+      // Update state values
 			setShowPopup(name);
 			setBottomSheetVisible(true);
-
-			// Wait for state to update before animation
-			setTimeout(() => {
-				if (bottomSheetRef.current) {
-					// Map snapPoint to index with better scaling
-					let snapIndex = 1; // Default 50%
-
-          if (snapPoint === 3 || snapPoint >= 5) {
-            snapIndex = 2; // 70%
-          } else if (snapPoint === 4) {
-            snapIndex = 3; // 85% for keyboard-heavy forms
-          }
-
-					bottomSheetRef.current.snapToIndex(snapIndex);
-				}
-			}, 200);
+			setDesiredSnapIndex(snapIndex);
 		}, []);
 
 		// Handle closing the sheet
 		const handleClose = useCallback(() => {
 			console.log('Closing bottom sheet');
 
-			// Animation first
+			// Close the sheet first
 			if (bottomSheetRef.current) {
 				bottomSheetRef.current.close();
 			}
 
-			// Then state cleanup after animation finishes
+			// Clear state after animation completes
 			setTimeout(() => {
 				setShowPopup(null);
 				setBottomSheetVisible(false);
@@ -119,6 +114,13 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			};
 		}, []);
 
+    // Effect to handle bottom sheet snap index when state changes
+    useEffect(() => {
+      if (bottomSheetVisible && bottomSheetRef.current && showPopup) {
+        bottomSheetRef.current.snapToIndex(desiredSnapIndex);
+      }
+    }, [bottomSheetVisible, showPopup, desiredSnapIndex]);
+
     // Keyboard listeners to adjust the sheet height when keyboard appears
     useEffect(() => {
       const keyboardWillShowListener = Keyboard.addListener(
@@ -130,7 +132,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
           // If form sheet is open, adjust its height to accommodate keyboard
           if (bottomSheetVisible && bottomSheetRef.current) {
             // Snap to a higher position when keyboard is visible
-            bottomSheetRef.current.snapToIndex(3); // Use the highest snap point (85%)
+            setDesiredSnapIndex(3); // Use the highest snap point (85%)
           }
         }
       );
@@ -148,7 +150,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
             const snapIndex = showPopup === 'TimeZone' ||
                            showPopup === 'Language' ?
                            2 : 1;
-            bottomSheetRef.current.snapToIndex(snapIndex);
+            setDesiredSnapIndex(snapIndex);
           }
         }
       );
@@ -215,7 +217,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
           >
             <BottomSheet
               ref={bottomSheetRef}
-              index={-1}
+              index={0}
               snapPoints={snapPoints}
               enablePanDownToClose={true}
               onClose={handleClose}
@@ -281,7 +283,6 @@ const $headerContainer: ViewStyle = {
 	paddingBottom: 32
 };
 
-// Styles to fix z-index and positioning issues
 const styles = StyleSheet.create({
 	gestureRoot: {
 		flex: 1,

@@ -20,7 +20,7 @@ import { typography } from '../../../../theme/typography';
 
 interface IBottomProps {
 	onDismiss: () => unknown;
-	openBottomSheet?: (sheet: IPopup) => unknown; // Updated to match new signature
+	openBottomSheet?: (sheet: IPopup) => unknown;
 	openedSheet: IPopup;
 }
 
@@ -53,7 +53,6 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 			<Text style={[styles.headerText, { color: colors.text }]}>
 				{getSheetTitle(openedSheet)}
 			</Text>
-
 			<View style={styles.contentContainer}>
 				{openedSheet === 'Names' ? (
 					<UpdateFullNameForm onUpdateFullName={updateUserInfo} onDismiss={dismissSheet} />
@@ -82,7 +81,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 				{openedSheet === 'Language' ? (
 					<LanguageForm
 						user={user as IUser}
-						onUpdateTimezone={updateUserInfo}
+						onUpdateLanguage={updateUserInfo}
 						onDismiss={dismissSheet}
 					/>
 				) : null}
