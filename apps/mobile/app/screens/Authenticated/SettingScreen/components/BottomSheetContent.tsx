@@ -29,11 +29,6 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 	const { updateUserInfo } = useSettings();
 	const { user } = useAuthenticateUser();
 
-	// Add debug logging
-	useEffect(() => {
-		console.log('BottomSheetContent rendered with sheet:', openedSheet);
-	}, [openedSheet]);
-
 	// Helper for components that need to open another sheet
 	const openSheet = (sheet: IPopup) => {
 		if (openBottomSheet) {
