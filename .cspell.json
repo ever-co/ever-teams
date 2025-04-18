@@ -433,7 +433,10 @@
 		"titleBar",
 		"flexbox",
 		"rounded",
-		"customStyle"
+		"customStyle",
+		"gorhom",
+		"pluralrules",
+		"mmkv"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
@@ -484,6 +487,7 @@
 		".scripts/icon-utils/icons/**",
 		"apps/server-web/src/locales/**/*.json",
 		"apps/server-web/src/resources/*",
-		"apps/server-web/assets/*"
-	]
+		"apps/server-web/assets/*",
+		"apps/mobile/package.json",
+	],
 }
