@@ -11,7 +11,7 @@ import {
 	Droppable,
 	DroppableProvided,
 	DroppableStateSnapshot
-} from 'react-beautiful-dnd';
+} from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-area';
 import { cn } from '../utils';
 

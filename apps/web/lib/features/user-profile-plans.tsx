@@ -5,7 +5,7 @@ import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, Vertic
 import { checkPastDate } from 'lib/utils';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { IoCalendarOutline } from 'react-icons/io5';
 
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
