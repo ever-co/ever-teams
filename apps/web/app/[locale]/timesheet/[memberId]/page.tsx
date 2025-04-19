@@ -33,7 +33,6 @@ import {
 	TimesheetView
 } from './components';
 import type { IconBaseProps } from 'react-icons';
-import { GoSearch } from 'react-icons/go';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
@@ -43,6 +42,7 @@ import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPaginat
 import TimesheetPagination from './components/TimesheetPagination';
 import { useTimesheetFilters } from '@/app/hooks/features/useTimesheetFilters';
 import { useTimesheetViewData } from '@/app/hooks/features/useTimesheetViewData';
+import { IconsSearch } from '@/icons';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -193,8 +193,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
 
 	const SearchIcon: React.FC<IconBaseProps> = (props) => {
-		const Icon = GoSearch as React.FC<IconBaseProps>;
-		return <Icon {...props} />;
+		return <IconsSearch {...props} />;
 	};
 
 	return (

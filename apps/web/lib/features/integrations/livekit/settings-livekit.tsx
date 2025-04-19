@@ -3,10 +3,9 @@ import * as React from 'react';
 import { LocalAudioTrack, Track } from 'livekit-client';
 import { useMaybeLayoutContext, useLocalParticipant, MediaDeviceMenu, TrackToggle } from '@livekit/components-react';
 import { Button } from '@components/ui/button';
-import { GoCopy } from 'react-icons/go';
 import styles from '../../../../styles/settings.module.css';
 import { shortenLink } from 'lib/utils';
-import { BiLoaderCircle } from 'react-icons/bi';
+import { IconsContentCopy, IconsLoader } from '@/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -160,13 +159,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
 							}, 1000 * 10 /** 10 Seconds */);
 						}}
 					>
-						{copied ? (
-							// @ts-ignore
-							<BiLoaderCircle className="animate-spine" />
-						) : (
-							// @ts-ignore
-							<GoCopy />
-						)}
+						{copied ? <IconsLoader className="animate-spine" /> : <IconsContentCopy />}
 						{shortenLink(getTeamLink())}
 					</button>
 				</div>

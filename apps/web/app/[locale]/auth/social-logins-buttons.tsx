@@ -1,7 +1,7 @@
 import { signInFunction } from './social-logins';
 import { Divider } from 'lib/components';
 import { mappedProviders, providerNames } from '@app/utils/check-provider-env-vars';
-import { FaFacebook, FaGoogle, FaGithub, FaTwitter } from 'react-icons/fa';
+import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/icons';
 
 export default function SocialLogins() {
 	const providerIcons = [
@@ -9,8 +9,7 @@ export default function SocialLogins() {
 			name: 'facebook',
 			icon: (
 				<div className="h-5 w-5 flex items-center justify-center">
-					{/* @ts-ignore */}
-					<FaFacebook size={20} aria-hidden="true" />
+					<IconsFacebook aria-hidden="true" className="size-12" />
 				</div>
 			)
 		},
@@ -18,8 +17,7 @@ export default function SocialLogins() {
 			name: 'google',
 			icon: (
 				<div className="h-5 w-5 flex items-center justify-center">
-					{/* @ts-ignore */}
-					<FaGoogle size={20} aria-hidden="true" />
+					<IconsBrandGoogleSolid aria-hidden="true" className="size-12" />
 				</div>
 			)
 		},
@@ -27,8 +25,7 @@ export default function SocialLogins() {
 			name: 'github',
 			icon: (
 				<div className="h-5 w-5 flex items-center justify-center">
-					{/* @ts-ignore */}
-					<FaGithub size={20} aria-hidden="true" />
+					<IconsGithubFilled aria-hidden="true" className="size-12" />
 				</div>
 			)
 		},
@@ -36,8 +33,7 @@ export default function SocialLogins() {
 			name: 'twitter',
 			icon: (
 				<div className="h-5 w-5 flex items-center justify-center">
-					{/* @ts-ignore */}
-					<FaTwitter size={20} aria-hidden="true" />
+					<IconsTwitterFilled aria-hidden="true" className="size-12" />
 				</div>
 			)
 		}

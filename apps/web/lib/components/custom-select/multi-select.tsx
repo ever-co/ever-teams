@@ -4,9 +4,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { cn } from 'lib/utils';
 import { ChevronDown } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MdClose } from 'react-icons/md';
 
 import { statusColor } from '..';
+import { IconsCloseRounded } from '@/icons';
 
 interface MultiSelectProps<T> {
 	items: T[];
@@ -191,8 +191,7 @@ export function MultiSelect<T>({
 								aria-label="Remove item"
 							>
 								<span className="h-4 w-4 flex items-center justify-center">
-									{/* @ts-ignore */}
-									<MdClose size={16} aria-hidden="true" />
+									<IconsCloseRounded className="w-4 h-4" aria-hidden="true" />
 								</span>
 							</button>
 						</div>

@@ -14,9 +14,9 @@ import { Button } from 'lib/components/button';
 import { DatePicker } from '@components/ui/DatePicker';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { PiCalendarDotsThin } from 'react-icons/pi';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { TimesheetFilterByDays } from '@/app/interfaces';
+import { IconsCalendarMonthOutline } from '@/icons';
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -136,8 +136,7 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
 		>
 			{date ? format(date, 'LLL dd, y') : <span>{label}</span>}
 		</Button>
-		{/* @ts-ignore */}
-		<PiCalendarDotsThin className="h-5 w-5 dark:text-gray-500" />
+		<IconsCalendarMonthOutline className="h-5 w-5 dark:text-gray-500" />
 	</>
 );
 

@@ -27,11 +27,10 @@ import {
 	AlignFullIcon,
 	ChevronDownIcon
 } from 'assets/svg';
-import { BsEmojiSmile } from 'react-icons/bs';
 import { clsxm } from '@app/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { MdOutlineClose } from 'react-icons/md';
+import { IconsCloseRounded, IconsEmojiEmotions } from '@/icons';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -269,16 +268,13 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 
-			{/* @ts-ignore */}
-			<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+			<IconsEmojiEmotions onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 			{showEmoji && (
 				<div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
 					<div className="relative h-[20px] w-full">
-						{/* @ts-ignore */}
-						<MdOutlineClose
-							size={17}
+						<IconsCloseRounded
 							onClick={() => setShowEmoji(false)}
-							className="absolute right-5 cursor-pointer"
+							className="absolute right-5 cursor-pointer size-14"
 						/>
 					</div>
 					<Picker

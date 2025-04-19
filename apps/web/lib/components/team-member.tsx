@@ -1,18 +1,26 @@
 import { UserInfo } from 'lib/features/team/user-team-card/user-info';
 import { useTeamMemberCard } from '@app/hooks';
-import { FaCheck } from "react-icons/fa6";
 import { useEffect } from 'react';
 import { IEmployee } from '@app/interfaces';
+import { IconsCheck } from '@/icons';
 
-export default function TeamMember(
-	{ member, item, onCheckMember, membersList, validate }
-		:
-		{ member: any; item: any; onCheckMember: any; membersList: any; validate: any }
-) {
+export default function TeamMember({
+	member,
+	item,
+	onCheckMember,
+	membersList,
+	validate
+}: {
+	member: any;
+	item: any;
+	onCheckMember: any;
+	membersList: any;
+	validate: any;
+}) {
 	const memberInfo = useTeamMemberCard(member);
 	const { assignTask } = useTeamMemberCard(member);
-	const checkAssign = membersList.assignedMembers.some((el:IEmployee) => el.id === member.employeeId);
-	const checkUnassign = membersList.unassignedMembers.some((el:IEmployee) => el.id === member.employeeId);
+	const checkAssign = membersList.assignedMembers.some((el: IEmployee) => el.id === member.employeeId);
+	const checkUnassign = membersList.unassignedMembers.some((el: IEmployee) => el.id === member.employeeId);
 
 	useEffect(() => {
 		if (validate) {
@@ -26,18 +34,17 @@ export default function TeamMember(
 
 	const assignMember = () => {
 		onCheckMember(member.employee);
-	}
+	};
 
 	return (
 		<div
-			onClick={() => { assignMember() }}
+			onClick={() => {
+				assignMember();
+			}}
 			className="w-100 cursor-pointer flex items-center"
 		>
 			<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-100 pointer-events-none" />
-			{checkAssign ? (
-					// @ts-ignore
-					<FaCheck size={17} fill="#3826a6" />
-				) : (<></>)}
+			{checkAssign ? <IconsCheck fill="#3826a6" /> : <></>}
 		</div>
 	);
 }
