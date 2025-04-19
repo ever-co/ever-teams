@@ -61,7 +61,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	}, [activeTeam, items]);
 
 	return (
-		<>
+		<div>
 			<Dropdown
 				className="md:w-[223px] outline-none"
 				optionsClassName="md:w-[223px] outline-none"
@@ -70,9 +70,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					items.length === 0 && ['py-2']
 				)}
 				value={teamItem}
-				onChange={() => {
-					console.log('item');
-				}}
+				onChange={onChangeActiveTeam}
 				items={items}
 				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
@@ -101,6 +99,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			</Dropdown>
 
 			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
-		</>
+		</div>
 	);
 };

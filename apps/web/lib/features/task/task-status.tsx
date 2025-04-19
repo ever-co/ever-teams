@@ -1263,7 +1263,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 							issueType === 'issue' && ['left-auto right-auto']
 						)}
 					>
-						<ListboxOptions className="outline-none">
+						<ListboxOptions static className="outline-none">
 							<Card
 								shadow="bigger"
 								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
@@ -1273,7 +1273,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 										const item_value = item.value || item.name;
 										return (
 											<ListboxOption key={i} value={item_value} as="div" disabled={disabled}>
-												<li className="relative cursor-pointer outline-none">
+												<li className="relative cursor-pointer outline-none list-none">
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}

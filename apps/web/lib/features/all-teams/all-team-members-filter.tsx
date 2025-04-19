@@ -1,7 +1,7 @@
 import { ITeamsMembersFilter } from '@app/interfaces';
 import { filterValue } from '@app/stores/all-teams';
 import { clsxm } from '@app/utils';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon, CircleIcon } from 'assets/svg';
 import { Card, Tooltip } from 'lib/components';
 import { Fragment, PropsWithChildren } from 'react';
@@ -67,8 +67,8 @@ export function MemberFilter() {
 				<Listbox value={value} onChange={(v) => setValue(v)}>
 					{({ open }) => {
 						return (
-							<>
-								<Listbox.Button
+							<div>
+								<ListboxButton
 									as="div"
 									className="cursor-pointer border rounded-lg dark:border-dark-lighter"
 								>
@@ -83,7 +83,7 @@ export function MemberFilter() {
 									>
 										<ChevronDownIcon className={clsxm('h-5 w-5 text-default dark:text-white')} />
 									</MemberFilterOption>
-								</Listbox.Button>
+								</ListboxButton>
 								<Transition
 									as="div"
 									show={open}
@@ -95,13 +95,13 @@ export function MemberFilter() {
 									leaveTo="transform scale-95 opacity-0"
 									className={clsxm('absolute right-0 -left-12 z-40 min-w-min outline-none mt-1')}
 								>
-									<Listbox.Options className="outline-none ">
+									<ListboxOptions className="outline-none ">
 										<Card
 											shadow="bigger"
 											className="p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
 										>
 											{options.map((item) => (
-												<Listbox.Option key={item.value} value={item} as={Fragment}>
+												<ListboxOption key={item.value} value={item} as={Fragment}>
 													<li className="cursor-pointer outline-none relative list-none">
 														<MemberFilterOption
 															label={item.label}
@@ -113,12 +113,12 @@ export function MemberFilter() {
 															}
 														/>
 													</li>
-												</Listbox.Option>
+												</ListboxOption>
 											))}
 										</Card>
-									</Listbox.Options>
+									</ListboxOptions>
 								</Transition>
-							</>
+							</div>
 						);
 					}}
 				</Listbox>
