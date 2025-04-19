@@ -48,6 +48,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				...classNames
 			}}
 			components={{
+				// @ts-ignore
 				Dropdown: memo(function Dropdown({ value, onChange, children, ...props }: DropdownProps) {
 					const options = useMemo(
 						() =>
