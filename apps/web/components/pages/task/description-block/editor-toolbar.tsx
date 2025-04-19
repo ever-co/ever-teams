@@ -346,7 +346,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 				<LinkIcon />
 			</button> */}
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<LinkRoundIcon className="h-5 w-5" />
 				</PopoverTrigger>
 				<PopoverContent className="flex flex-row items-center">

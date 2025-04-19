@@ -16,7 +16,7 @@ interface IConfirmPopup {
 export function AlertPopup({ children, buttonOpen, open }: React.PropsWithChildren<IConfirmPopup>) {
 	return (
 		<Popover open={open}>
-			<PopoverTrigger>{buttonOpen}</PopoverTrigger>
+			<PopoverTrigger asChild>{buttonOpen}</PopoverTrigger>
 			<PopoverContent className="min-w-max bg-light--theme-light dark:bg-dark--theme-light outline-none dark:border-gray-600">
 				<div className="p-4 space-y-4">
 					<div>

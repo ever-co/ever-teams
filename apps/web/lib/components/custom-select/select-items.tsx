@@ -58,7 +58,7 @@ export function SelectItems<T>({
 
 	return (
 		<Popover open={isPopoverOpen} onOpenChange={setPopoverOpen}>
-			<PopoverTrigger>
+			<PopoverTrigger asChild>
 				<Button
 					onClick={() => setPopoverOpen(!isPopoverOpen)}
 					variant="outline"
