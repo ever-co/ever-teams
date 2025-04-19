@@ -18,7 +18,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 		<div className="flex gap-2 items-center">
 			{label}
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<Button
 						variant="ghost"
 						size="icon"

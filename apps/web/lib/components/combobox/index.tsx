@@ -61,7 +61,7 @@ export function CustomCombobox<T>({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger>
+			<PopoverTrigger asChild>
 				<Button
 					ref={triggerRef}
 					variant="outline"

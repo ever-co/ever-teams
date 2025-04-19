@@ -96,7 +96,7 @@ export function AddTaskToPlan({
 								required
 							/>
 							<Popover>
-								<PopoverTrigger>
+								<PopoverTrigger asChild>
 									<Button
 										variant={'outline'}
 										className={cn(

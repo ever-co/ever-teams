@@ -262,7 +262,7 @@ export default function ImageOverlapper({
 			))}
 			{secondArray.length > 0 && (
 				<Popover>
-					<PopoverTrigger>
+					<PopoverTrigger asChild>
 						<div
 							style={{
 								top: isMoreThanDisplay ? -8 : -16,

@@ -70,7 +70,7 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange }: Da
 
 	return (
 		<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-			<PopoverTrigger>
+			<PopoverTrigger asChild>
 				<div className="flex items-center border border-[#E4E4E7] dark:border-[#2D2D2D] rounded-md w-[225px]">
 					<Button
 						variant="outline"
