@@ -9,38 +9,40 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-	const res = new NextResponse();
-	if (!params.id) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
+    const res = new NextResponse();
+    if (!params.id) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	const { data } = await getMyInvitationsRequest(tenantId, access_token);
+    const { data } = await getMyInvitationsRequest(tenantId, access_token);
 
-	return $res(data);
+    return $res(data);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-	const res = new NextResponse();
-	const invitationId = params.id;
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
+    const res = new NextResponse();
+    const invitationId = params.id;
 
-	if (!invitationId) {
+    if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+    const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	await removeTeamInvitationsRequest({
+    await removeTeamInvitationsRequest({
 		bearer_token: access_token,
 		tenantId: tenantId,
 		invitationId
 	});
 
-	const { data } = await getTeamInvitationsRequest(
+    const { data } = await getTeamInvitationsRequest(
 		{
 			tenantId,
 			teamId,
@@ -50,33 +52,34 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 		access_token
 	);
 
-	return $res(data);
+    return $res(data);
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
+    const res = new NextResponse();
+    const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+    if (!user) return NextResponse.json({}, { status: 401 });
 
-	const invitationId = params.id;
+    const invitationId = params.id;
 
-	const { searchParams } = new URL(req.url);
-	const { action } = searchParams as unknown as { action: string };
+    const { searchParams } = new URL(req.url);
+    const { action } = searchParams as unknown as { action: string };
 
-	if (!invitationId) {
+    if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	if (!action) {
+    if (!action) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const response = await acceptRejectMyInvitationsRequest(
+    const response = await acceptRejectMyInvitationsRequest(
 		tenantId,
 		access_token,
 		invitationId,
 		action as MyInvitationActionEnum
 	);
 
-	return $res(response.data);
+    return $res(response.data);
 }

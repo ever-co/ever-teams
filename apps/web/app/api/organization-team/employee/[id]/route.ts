@@ -1,4 +1,3 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	addEmployeeOrganizationTeamOrderRequest,
@@ -6,10 +5,11 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const id = (await params).id;
 	const res = new NextResponse();
 
-	if (!params.id) {
+	if (!id) {
 		return NextResponse.json({}, { status: 405 });
 	}
 
@@ -20,16 +20,17 @@ export async function DELETE(req: Request, { params }: INextParams) {
 	const response = await removeEmployeeOrganizationTeamRequest({
 		bearer_token: access_token,
 		tenantId,
-		employeeId: params.id
+		employeeId: id
 	});
 
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const id = (await params).id;
 	const res = new NextResponse();
 
-	if (!params.id) {
+	if (!id) {
 		return NextResponse.json({}, { status: 405 });
 	}
 
@@ -43,7 +44,7 @@ export async function PUT(req: Request, { params }: INextParams) {
 
 	const response = await addEmployeeOrganizationTeamOrderRequest({
 		bearer_token: access_token,
-		employeeId: params.id,
+		employeeId: id,
 		tenantId,
 		order,
 		organizationTeamId: body.organizationTeamId,

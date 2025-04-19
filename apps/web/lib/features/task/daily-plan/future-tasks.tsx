@@ -13,7 +13,7 @@ import { HorizontalSeparator, AlertPopup } from 'lib/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { IDailyPlan, IUser } from '@app/interfaces';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 

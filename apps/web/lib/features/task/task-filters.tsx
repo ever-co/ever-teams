@@ -278,6 +278,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
 		component. */}
 			<Transition
+				as="div"
 				show={hook.filterType !== undefined}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"

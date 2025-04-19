@@ -16,7 +16,7 @@ export const useTags = () => {
 
 	const getTags = useCallback(() => {
 		getTagsQueryCall().then((response) => {
-			if (response.data.items.length) {
+			if (response?.data?.items?.length) {
 				setTags(response.data.items);
 			}
 		});

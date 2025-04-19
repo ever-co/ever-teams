@@ -148,15 +148,16 @@ function FillUserDataForm({
 				return (
 					<>
 						<HCaptcha
-								sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
-								onVerify={(token) => handleCaptchaVerify(token)}
-								onError={() => handleCaptchaError()}
+							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+							onVerify={(token) => handleCaptchaVerify(token)}
+							onError={() => handleCaptchaError()}
 						/>
 					</>
 				);
 			case 'cloudflare':
 				return (
 					<>
+						{/* @ts-ignore */}
 						<Turnstile
 							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
 							onSuccess={(token) => handleCaptchaVerify(token)}
@@ -169,8 +170,6 @@ function FillUserDataForm({
 				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
 		}
 	};
-
-
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
 			<div className="flex flex-col items-center justify-between h-full">
@@ -218,7 +217,6 @@ function FillUserDataForm({
 function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
 	const t = useTranslations();
 	const [feedback, setFeedback] = useState<string>('');
-
 
 	const content = RECAPTCHA_SITE_KEY.value && (
 		<div className="w-full flex">

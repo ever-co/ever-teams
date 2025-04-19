@@ -1,12 +1,12 @@
-import { IDailyPlanTasksUpdate, INextParams } from '@app/interfaces';
+import { IDailyPlanTasksUpdate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { addTaskToDailyPlanRequest, removeTaskFromPlanRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request, { params }: INextParams) {
+export async function POST(req: Request, { params }: { params: Promise<{ planId: string }> }) {
+	const planId = (await params).planId;
 	const res = new NextResponse();
 
-	const { planId } = params;
 	if (!planId) {
 		return;
 	}
@@ -26,10 +26,10 @@ export async function POST(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, { params }: { params: Promise<{ planId: string }> }) {
+	const planId = (await params).planId;
 	const res = new NextResponse();
 
-	const { planId } = params;
 	if (!planId) {
 		return;
 	}

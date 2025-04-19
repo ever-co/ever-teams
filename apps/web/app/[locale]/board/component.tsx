@@ -3,6 +3,7 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
+import '@excalidraw/excalidraw/index.css';
 
 const Board = dynamic(() => import('lib/features/integrations/boards'), {
 	ssr: false,

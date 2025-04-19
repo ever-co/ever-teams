@@ -17,12 +17,12 @@ import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/setting
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
@@ -288,18 +288,20 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<IProject>();
-
-	// Set the task project if any
-	useEffect(() => {
-		if (task) {
-			setSelected(
-				organizationProjects.find((project) => {
-					return project.id == task.projectId;
-				})
-			);
+	const [selected, setSelected] = useState<IProject | null>(() => {
+		if (task && task.projectId) {
+			return organizationProjects.find((project) => project.id === task.projectId) || null;
 		}
-	}, [organizationProjects, task, task?.projectId]);
+		return null;
+	});
+
+	// Keep selected in sync with task project in controlled mode
+	useEffect(() => {
+		if (controlled && task) {
+			const projectMatch = organizationProjects.find((project) => project.id === task.projectId);
+			setSelected(projectMatch || null);
+		}
+	}, [controlled, organizationProjects, task, task?.projectId]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
@@ -320,8 +322,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		try {
 			if (task) {
 				await updateTask({ ...task, projectId: null });
-
-				setSelected(undefined);
+				setSelected(null);
 			}
 		} catch (error) {
 			console.error(error);
@@ -337,26 +338,25 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				)}
 			>
 				<Listbox
-					value={selected}
-					onChange={(project) => {
+					value={selected || undefined}
+					onChange={(project: IProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {
 							handleUpdateProject(project);
+							setSelected(project);
 						}
-
-						setSelected(project);
 					}}
 				>
 					{({ open }) => {
 						return (
-							<>
-								<Listbox.Button
+							<div>
+								<ListboxButton
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
-									items-center justify-between px-2 h-full
+									items-center justify-between h-[2.37rem] px-2
 									border-solid border-color-[#F2F2F2]
-									dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] rounded-lg`,
+									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-lg`,
 										styles?.value
 									)}
 								>
@@ -366,8 +366,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<Image
 													src={selected.imageUrl}
 													alt={selected.name || ''}
-													width={20}
-													height={20}
+													width={25}
+													height={25}
 													className="rounded-full"
 												/>
 											)}
@@ -392,9 +392,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										)}
 										aria-hidden="true"
 									/>
-								</Listbox.Button>
+								</ListboxButton>
 
 								<Transition
+									as="div"
 									show={open}
 									enter="transition duration-100 ease-out"
 									enterFrom="transform scale-95 opacity-0"
@@ -413,7 +414,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										overflow: 'auto'
 									}}
 								>
-									<Listbox.Options className="outline-none">
+									<ListboxOptions className="outline-none">
 										<Card
 											shadow="bigger"
 											className={clsxm(
@@ -425,8 +426,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<div className="flex flex-col gap-2.5 w-full p-4">
 													{organizationProjects.map((item) => {
 														return (
-															<Listbox.Option key={item.id} value={item} as={Fragment}>
-																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
+															<ListboxOption key={item.id} value={item} as="div">
+																<li className="relative border  flex items-center gap-2 p-1.5  rounded-lg outline-none cursor-pointer dark:text-white">
 																	{item.imageUrl && (
 																		<Image
 																			src={item.imageUrl}
@@ -440,7 +441,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 																		{item.name || 'Project'}
 																	</span>
 																</li>
-															</Listbox.Option>
+															</ListboxOption>
 														);
 													})}
 													<div className="mt-2">
@@ -466,9 +467,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<ScrollBar className="-pr-60" />
 											</ScrollArea>
 										</Card>
-									</Listbox.Options>
+									</ListboxOptions>
 								</Transition>
-							</>
+							</div>
 						);
 					}}
 				</Listbox>

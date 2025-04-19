@@ -43,6 +43,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					<ToolbarButton onClick={() => toggleMark('code')} icon={<Code size={14} />} />
 				</div>
 			)}
+			{/* @ts-ignore */}
 			<Slate
 				editor={editor}
 				value={editorValue}
@@ -53,6 +54,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					onChange?.(text);
 				}}
 			>
+				{/* @ts-ignore */}
 				<Editable
 					defaultValue={defaultValue}
 					className=" p-2 h-20 outline-none"

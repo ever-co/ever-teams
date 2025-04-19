@@ -349,8 +349,8 @@ function TaskCard({
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
 	return (
-		<>
-			<Card shadow="custom">
+		<Card shadow="custom">
+			<>
 				{inputField}
 				<div>
 					{/* Create team button */}
@@ -437,10 +437,8 @@ function TaskCard({
 						</Tooltip>
 					</div>
 				</div>
-			</Card>
-
-			{/* Just some spaces at the end */}
+			</>
 			<div className="w-2 h-5 opacity-0">{'|'}</div>
-		</>
+		</Card>
 	);
 }

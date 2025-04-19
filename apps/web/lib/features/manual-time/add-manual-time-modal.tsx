@@ -4,10 +4,9 @@ import '../../../styles/style.css';
 import { format } from 'date-fns';
 import { Button, Modal } from 'lib/components';
 import { cn } from 'lib/utils';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Clock7 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { IoTime } from 'react-icons/io5';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { manualTimeReasons } from '@app/constants';
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
@@ -147,55 +146,71 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
-	const memberItemsLists = {
-		Project: activeTeam?.projects as [],
-		Employee: activeTeam?.members as [],
-		Task: tasks
-	};
+	const memberItemsLists = useMemo(
+		() => ({
+			Project: activeTeam?.projects as [],
+			Employee: activeTeam?.members as [],
+			Task: tasks
+		}),
+		[activeTeam?.projects, activeTeam?.members, tasks]
+	);
 
-	const selectedValues = {
-		Teams: null,
-		Members: null,
-		Task: null
-	};
-	const fields = [
-		{
-			label: 'Project',
-			placeholder: 'Select a project',
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'name',
-			element: 'Project'
-		},
-		...(timeSheetStatus === 'ManagerTimesheet'
-			? [
-					{
-						label: t('manualTime.EMPLOYEE'),
-						placeholder: 'Select an employee',
-						isRequired: true,
-						valueKey: 'id',
-						displayKey: 'employee.fullName',
-						element: 'Employee'
-					}
-				]
-			: []),
-		{
-			label: t('manualTime.TASK'),
-			placeholder: 'Select a Task',
-			isRequired: true,
-			valueKey: 'id',
-			displayKey: 'title',
-			element: 'Task'
-		}
-	];
+	const selectedValues = useMemo(
+		() => ({
+			Teams: null,
+			Members: null,
+			Task: null
+		}),
+		[]
+	);
+	const fields = useMemo(
+		() => [
+			{
+				label: 'Project',
+				placeholder: 'Select a project',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'name',
+				element: 'Project'
+			},
+			...(timeSheetStatus === 'ManagerTimesheet'
+				? [
+						{
+							label: t('manualTime.EMPLOYEE'),
+							placeholder: 'Select an employee',
+							isRequired: true,
+							valueKey: 'id',
+							displayKey: 'employee.fullName',
+							element: 'Employee'
+						}
+					]
+				: []),
+			{
+				label: t('manualTime.TASK'),
+				placeholder: 'Select a Task',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'title',
+				element: 'Task'
+			}
+		],
+		[timeSheetStatus, t]
+	);
 
-	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
+	const handleSelectedValuesChange = useCallback((values: { [key: string]: Item | null }) => {
 		console.log(values);
-	};
+	}, []);
 
-	const handleChange = (field: string, selectedItem: Item | null) => {
+	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
 		console.log(`Field: ${field}, Selected Item:`, selectedItem);
-	};
+	}, []);
+
+	const itemToString = useCallback(
+		(item: Item | null, displayKey: string) => getNestedValue(item, displayKey) || '',
+		[]
+	);
+
+	const itemToValue = useCallback((item: Item | null, valueKey: string) => getNestedValue(item, valueKey) || '', []);
 
 	return (
 		<Modal
@@ -213,6 +228,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
+						//@ts-ignore
 						className="dark:bg-dark--theme-light"
 						buttonClassName={
 							'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'
@@ -292,7 +308,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</label>
 					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
 						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-							<IoTime size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+							<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
 						</div>
 						{timeDifference}
 					</div>
@@ -305,8 +321,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							selectedValues={selectedValues}
 							onSelectedValuesChange={handleSelectedValuesChange}
 							handleChange={handleChange}
-							itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
-							itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+							itemToString={itemToString}
+							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
 							<label className="block text-gray-500 shrink-0">
@@ -338,7 +354,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 									setTeam(value.id);
 								}}
 							/>
-
 						</div>
 						<div className="">
 							<label className="block mb-1 text-gray-500">

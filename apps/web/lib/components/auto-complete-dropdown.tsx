@@ -8,7 +8,7 @@ import { IInviteEmail } from '@/app/interfaces';
 
 type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
-	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
+	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
 	selectedLabel?: React.ReactNode;
 	itemTitle?: string;
 	disabled?: boolean;
@@ -94,6 +94,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 				/>
 
 				<Transition
+					as="div"
 					enter="transition duration-100 ease-out"
 					enterFrom="transform scale-95 opacity-0"
 					enterTo="transform scale-100 opacity-100"
@@ -129,7 +130,11 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									disabled={Item.disabled}
 								>
 									{({ active, selected }) => {
-										return Item.Label ? <Item.Label active={active} selected={selected} /> : <></>;
+										return Item.Label ? (
+											<Item.Label active={active} selected={selected} />
+										) : (
+											<div></div>
+										);
 									}}
 								</Combobox.Option>
 							))}

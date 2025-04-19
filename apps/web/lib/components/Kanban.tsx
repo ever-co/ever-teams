@@ -1,6 +1,7 @@
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React, { RefObject } from 'react';
 import { useEffect, useState } from 'react';
+
 import {
 	Draggable,
 	DraggableProvided,
@@ -8,7 +9,7 @@ import {
 	Droppable,
 	DroppableProvided,
 	DroppableStateSnapshot
-} from 'react-beautiful-dnd';
+} from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
@@ -232,7 +233,7 @@ export const EmptyKanbanDroppable = ({
 	items: ITeamTask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
-	const t = useTranslations()
+	const t = useTranslations();
 	const { toggleColumn } = useKanban();
 
 	useEffect(() => {
@@ -252,6 +253,7 @@ export const EmptyKanbanDroppable = ({
 	return (
 		<>
 			{title.length > 0 && (
+				// @ts-ignore
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
 						<div
@@ -377,7 +379,7 @@ const KanbanDraggableHeader = ({
 }) => {
 	const { toggleColumn } = useKanban();
 	const { isOpen, closeModal, openModal } = useModal();
-	const t = useTranslations()
+	const t = useTranslations();
 	return (
 		<>
 			{title && (
@@ -480,6 +482,7 @@ const KanbanDraggable = ({
 	return (
 		<>
 			{title && (
+				// @ts-ignore
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
 						<ScrollArea

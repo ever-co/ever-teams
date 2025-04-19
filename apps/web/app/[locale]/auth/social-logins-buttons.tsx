@@ -1,15 +1,42 @@
-import { FaGoogle, FaFacebook, FaTwitter, FaGithub } from 'react-icons/fa';
 import { signInFunction } from './social-logins';
 import { Divider } from 'lib/components';
 import { mappedProviders, providerNames } from '@app/utils/check-provider-env-vars';
+import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/icons';
 
 export default function SocialLogins() {
-	// For many providers, make sure to add icons in alphabetic order
-	const providerIcons: { name: string; icon: React.ReactNode }[] = [
-		{ name: 'facebook', icon: <FaFacebook key="facebook-icon" /> },
-		{ name: 'google', icon: <FaGoogle key="google-icon" /> },
-		{ name: 'github', icon: <FaGithub key="github-icon" /> },
-		{ name: 'twitter', icon: <FaTwitter key="twitter-icon" /> }
+	const providerIcons = [
+		{
+			name: 'facebook',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					<IconsFacebook aria-hidden="true" className="size-12" />
+				</div>
+			)
+		},
+		{
+			name: 'google',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					<IconsBrandGoogleSolid aria-hidden="true" className="size-12" />
+				</div>
+			)
+		},
+		{
+			name: 'github',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					<IconsGithubFilled aria-hidden="true" className="size-12" />
+				</div>
+			)
+		},
+		{
+			name: 'twitter',
+			icon: (
+				<div className="h-5 w-5 flex items-center justify-center">
+					<IconsTwitterFilled aria-hidden="true" className="size-12" />
+				</div>
+			)
+		}
 	].filter((provider) => providerNames[provider.name] !== undefined);
 
 	return mappedProviders.length > 0 ? (
@@ -32,7 +59,7 @@ export default function SocialLogins() {
 							type="submit"
 							className="rounded-full w-10 h-10 border p-2 flex justify-center items-center"
 						>
-							<span>{providerIcons[i].icon}</span>
+							{providerIcons[i].icon}
 						</button>
 					</form>
 				))}

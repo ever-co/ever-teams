@@ -20,6 +20,7 @@ export function FilterWithStatus({
 }>) {
 	const t = useTranslations();
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const statusIcons: Record<FilterStatus, string> = {
 		'All Tasks': 'icon-all',
 		Pending: 'icon-pending',

@@ -5,8 +5,7 @@ import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, Vertic
 import { checkPastDate } from 'lib/utils';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { IoCalendarOutline } from 'react-icons/io5';
+import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
@@ -51,6 +50,7 @@ import { TaskCard } from './task/task-card';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import DailyPlanTasksTableView from './task/daily-plan/table-view';
+import { IconsCalendarMonthOutline } from '@/icons';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -273,7 +273,11 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												{Object.keys(screenOutstanding).map((item, index) => (
 													<SelectItem key={index} value={item}>
 														<div className="flex items-center space-x-1">
-															{item == 'DATE' ? <IoCalendarOutline /> : <StarIcon />}
+															{item == 'DATE' ? (
+																<IconsCalendarMonthOutline className="w-4 h-4" />
+															) : (
+																<StarIcon className="w-4 h-4" />
+															)}
 															<span className="capitalize">{item}</span>
 														</div>
 													</SelectItem>
@@ -347,6 +351,7 @@ function AllPlans({
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
+				// @ts-ignore
 				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
@@ -381,6 +386,7 @@ function AllPlans({
 											data={plan.tasks ?? []}
 										/>
 									) : (
+										// @ts-ignore
 										<Droppable
 											droppableId={plan.id as string}
 											key={plan.id}
@@ -401,6 +407,7 @@ function AllPlans({
 												>
 													{plan.tasks?.map((task, index) =>
 														view === 'CARDS' ? (
+															// @ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}
@@ -437,6 +444,7 @@ function AllPlans({
 																)}
 															</Draggable>
 														) : (
+															///@ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}

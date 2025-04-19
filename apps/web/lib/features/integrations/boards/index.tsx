@@ -1,4 +1,5 @@
 import { Excalidraw, THEME } from '@excalidraw/excalidraw';
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import debounce from 'lodash/debounce';
@@ -13,7 +14,7 @@ import { LiveShareIcon } from 'assets/svg';
 export default function ExcalidrawComponent() {
 	const { theme, resolvedTheme } = useTheme();
 	const [liveLoading, setLiveLoading] = useState(false);
-	const { saveChanges, setExcalidrawAPI, excalidrawAPI, onLiveCollaboration } = useBoard();
+	const { saveChanges, setExcalidrawAPI, onLiveCollaboration } = useBoard();
 
 	const $theme = !theme || theme === 'system' ? resolvedTheme : theme;
 
@@ -32,9 +33,12 @@ export default function ExcalidrawComponent() {
 		<>
 			<div style={{ height: '100vh' }}>
 				<Excalidraw
-					ref={(api) => setExcalidrawAPI(api)}
+					// @ts-ignore
+					excalidrawRef={(api: ExcalidrawImperativeAPI | null) =>
+						setExcalidrawAPI(api as ExcalidrawImperativeAPI | null)
+					}
 					onChange={debounce(saveChanges, 500)}
-					theme={$theme || THEME.LIGHT}
+					theme={$theme === 'dark' ? THEME.DARK : THEME.LIGHT}
 					renderTopRightUI={() => (
 						<button onClick={onClickLiveCollaboration}>
 							{liveLoading ? (
@@ -48,12 +52,9 @@ export default function ExcalidrawComponent() {
 					<AppMainMenu />
 				</Excalidraw>
 			</div>
-
-			{excalidrawAPI?.ready && (
-				<div className="absolute z-50 top-5 left-14 scale-75">
-					<EverTeamsLogo color={$theme ? 'auto' : 'dark'} dash />
-				</div>
-			)}
+			<div className="absolute z-50 top-5 left-14 scale-75">
+				<EverTeamsLogo color={$theme ? 'auto' : 'dark'} dash />
+			</div>
 		</>
 	);
 }

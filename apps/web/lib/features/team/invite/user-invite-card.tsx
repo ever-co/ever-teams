@@ -157,6 +157,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 			{loading && <SpinnerLoader size={20} />}
 
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

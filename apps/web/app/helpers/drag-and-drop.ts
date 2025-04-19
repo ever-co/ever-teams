@@ -1,5 +1,5 @@
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
-import { DropResult } from 'react-beautiful-dnd';
+import { DropResult } from '@hello-pangea/dnd';
 
 export const handleDragAndDrop = (
 	results: DropResult,
@@ -62,7 +62,7 @@ export const handleDragAndDropDailyOutstandingAll = (
 		}
 
 		// Create a new array with unique tasks only
-		const uniqueTasks = Array.from(new Map(tasks.map(task => [task.id, task])).values());
+		const uniqueTasks = Array.from(new Map(tasks.map((task) => [task.id, task])).values());
 
 		// Perform the move operation
 		const newTasks = [...uniqueTasks];

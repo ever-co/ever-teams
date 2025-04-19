@@ -6,7 +6,7 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { DragDropContext, Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState } from 'react';
 import { ITeamTask, IUser } from '@app/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
@@ -38,7 +38,6 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 					<DragDropContext
 						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
 					>
-						{/* <PlanHeader plan={plan} planMode="Outstanding" /> */}
 						<Droppable
 							droppableId="droppableId"
 							type="COLUMN"

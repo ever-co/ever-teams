@@ -121,20 +121,28 @@ export function useTeamTasks() {
 		useQuery(deleteEmployeeFromTasksAPI);
 
 	const getAllDayPlans = useCallback(async () => {
-		const response = await getAllQueryCall();
+		try {
+			const response = await getAllQueryCall();
 
-		if (response.data.items.length) {
-			const { items, total } = response.data;
-			setDailyPlan({ items, total });
+			if (response?.data?.items?.length) {
+				const { items, total } = response.data;
+				setDailyPlan({ items, total });
+			}
+		} catch (error) {
+			console.error('Error fetching all day plans:', error);
 		}
 	}, [getAllQueryCall, setDailyPlan]);
 
 	const getMyDailyPlans = useCallback(async () => {
-		const response = await getMyDailyPlansQueryCall();
+		try {
+			const response = await getMyDailyPlansQueryCall();
 
-		if (response.data.items.length) {
-			const { items, total } = response.data;
-			setMyDailyPlans({ items, total });
+			if (response?.data?.items?.length) {
+				const { items, total } = response.data;
+				setMyDailyPlans({ items, total });
+			}
+		} catch (error) {
+			console.error('Error fetching my daily plans:', error);
 		}
 	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
 

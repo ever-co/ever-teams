@@ -6,7 +6,6 @@ import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { RiUserFill, RiUserAddFill } from 'react-icons/ri';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';
@@ -14,10 +13,10 @@ import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
 import { TaskAvatars } from 'lib/features';
-import { FaCheck } from 'react-icons/fa6';
 import TeamMember from 'lib/components/team-member';
 import { IEmployee } from '@app/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
+import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/icons';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -146,7 +145,7 @@ export default function ImageOverlapper({
 								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
 								style={{ width: diameter, height: diameter }}
 							>
-								<RiUserFill
+								<IconsPersonRounded
 									fill={'#6b7280'}
 									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
 									onClick={openModal}
@@ -160,7 +159,7 @@ export default function ImageOverlapper({
 								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
 								style={{ width: diameter, height: diameter }}
 							>
-								<RiUserAddFill
+								<IconsPersonAddRounded
 									fill={'#6b7280'}
 									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
 									onClick={openModal}
@@ -215,7 +214,7 @@ export default function ImageOverlapper({
 											onCLickValidate();
 										}}
 									>
-										<FaCheck size={17} fill="#ffffff" />
+										<IconsCheck fill="#ffffff" />
 										{t('common.CONFIRM')}
 									</button>
 								</div>
@@ -259,7 +258,7 @@ export default function ImageOverlapper({
 			))}
 			{secondArray.length > 0 && (
 				<Popover>
-					<PopoverTrigger>
+					<PopoverTrigger asChild>
 						<div
 							style={{
 								top: isMoreThanDisplay ? -8 : -16,

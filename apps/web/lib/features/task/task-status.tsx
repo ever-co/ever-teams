@@ -12,11 +12,11 @@ import {
 	TaskStatusEnum
 } from '@app/interfaces';
 import { Queue, clsxm } from '@app/utils';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { Fragment, MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	useCallbackRef,
 	useSyncRef,
@@ -1027,8 +1027,8 @@ export function StatusDropdown<T extends TStatusItem>({
 				>
 					{({ open, value: current_value }) => {
 						return (
-							<>
-								<Listbox.Button
+							<div>
+								<ListboxButton
 									as="div"
 									className={clsxm(
 										!forDetails && 'w-full max-w-[190px]',
@@ -1072,7 +1072,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											/>
 										</TaskStatus>
 									)}
-								</Listbox.Button>
+								</ListboxButton>
 
 								<Transition
 									show={open && enabled}
@@ -1082,13 +1082,14 @@ export function StatusDropdown<T extends TStatusItem>({
 									leave="transition duration-75 ease-out"
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
+									as="div"
 									className={clsxm(
 										'absolute right-0 left-0 z-40 min-w-min outline-none',
-										issueType === 'issue' && ['left-auto right-auto'],
+										issueType === 'issue' && 'left-auto right-auto',
 										isEpic && '-left-100 right-10'
 									)}
 								>
-									<Listbox.Options className="outline-none">
+									<ListboxOptions className="outline-none">
 										<Card
 											shadow="bigger"
 											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
@@ -1097,17 +1098,12 @@ export function StatusDropdown<T extends TStatusItem>({
 												const item_value = item?.value || item?.name;
 
 												return (
-													<Listbox.Option
-														key={i}
-														value={item_value}
-														as={Fragment}
-														disabled={disabled}
-													>
-														<li className="relative cursor-pointer outline-none">
+													<ListboxOption key={i} value={item_value} disabled={disabled}>
+														<div className="relative cursor-pointer outline-none">
 															<TaskStatus
 																showIcon={showIcon}
 																{...item}
-																cheched={
+																checked={
 																	item?.value ? values.includes(item?.value) : false
 																}
 																className={clsxm(
@@ -1124,8 +1120,8 @@ export function StatusDropdown<T extends TStatusItem>({
 															{open &&
 																current_value === item_value &&
 																issueType !== 'issue' && (
-																	<Listbox.Button
-																		as="button"
+																	<button
+																		type="button"
 																		onClick={(e: any) => {
 																			e.stopPropagation();
 																			onRemoveSelected && onRemoveSelected();
@@ -1139,17 +1135,17 @@ export function StatusDropdown<T extends TStatusItem>({
 																			width={16}
 																			aria-hidden="true"
 																		/>
-																	</Listbox.Button>
+																	</button>
 																)}
-														</li>
-													</Listbox.Option>
+														</div>
+													</ListboxOption>
 												);
 											})}
-											{children && <Listbox.Button as="div">{children}</Listbox.Button>}
+											{children && <ListboxButton as="div">{children}</ListboxButton>}
 										</Card>
-									</Listbox.Options>
+									</ListboxOptions>
 								</Transition>
-							</>
+							</div>
 						);
 					}}
 				</Listbox>
@@ -1221,7 +1217,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={clsxm('relative', className)}>
 				<Listbox value={values} onChange={onChange} disabled={disabled} multiple>
-					<Listbox.Button
+					<ListboxButton
 						as="div"
 						className={clsxm(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 						style={{
@@ -1252,7 +1248,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						>
 							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
 						</TaskStatus>
-					</Listbox.Button>
+					</ListboxButton>
 
 					<Transition
 						enter="transition duration-100 ease-out"
@@ -1261,12 +1257,13 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						leave="transition duration-75 ease-out"
 						leaveFrom="transform scale-100 opacity-100"
 						leaveTo="transform scale-95 opacity-0"
+						as="div"
 						className={clsxm(
 							'absolute right-0 left-0 z-[999] min-w-min outline-none',
 							issueType === 'issue' && ['left-auto right-auto']
 						)}
 					>
-						<Listbox.Options className="outline-none">
+						<ListboxOptions static className="outline-none">
 							<Card
 								shadow="bigger"
 								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
@@ -1275,13 +1272,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 									{items.map((item, i) => {
 										const item_value = item.value || item.name;
 										return (
-											<Listbox.Option
-												key={i}
-												value={item_value}
-												as={Fragment}
-												disabled={disabled}
-											>
-												<li className="relative cursor-pointer outline-none">
+											<ListboxOption key={i} value={item_value} as="div" disabled={disabled}>
+												<li className="relative cursor-pointer outline-none list-none">
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}
@@ -1295,7 +1287,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 													/>
 
 													{value === item_value && issueType !== 'issue' && (
-														<Listbox.Button
+														<ListboxButton
 															as="button"
 															onClick={(e: any) => {
 																e.stopPropagation();
@@ -1310,16 +1302,16 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 																width={16}
 																aria-hidden="true"
 															/>
-														</Listbox.Button>
+														</ListboxButton>
 													)}
 												</li>
-											</Listbox.Option>
+											</ListboxOption>
 										);
 									})}
 								</div>
-								{children && <Listbox.Button as="div">{children}</Listbox.Button>}
+								{children && <ListboxButton as="div">{children}</ListboxButton>}
 							</Card>
-						</Listbox.Options>
+						</ListboxOptions>
 					</Transition>
 				</Listbox>
 			</div>

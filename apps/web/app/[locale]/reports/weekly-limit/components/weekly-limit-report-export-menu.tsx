@@ -3,7 +3,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment, useMemo } from 'react';
+import { useMemo } from 'react';
 import { IOrganizationTeamList } from '@/app/interfaces';
 import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/app/interfaces/ITimeLimits';
 import { WeeklyLimitPDFDocument } from '../export-formats/pdf';
@@ -64,7 +64,7 @@ export function WeeklyLimitExportMenu(props: IProps) {
 				</Button>
 			</Menu.Button>
 			<Transition
-				as={Fragment}
+				as="div"
 				enter="transition ease-out duration-100"
 				enterFrom="transform opacity-0 scale-95"
 				enterTo="transform opacity-100 scale-100"

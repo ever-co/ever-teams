@@ -1,6 +1,6 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Card } from './card';
@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@components/ui/scroll-bar';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
-	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
+	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
 	selectedLabel?: React.ReactNode;
 	itemTitle?: string;
 	disabled?: boolean;
@@ -54,18 +54,18 @@ export function Dropdown<T extends DropdownItem>({
 			{open && (
 				<div
 					onClick={() => setOpen(false)}
-					className="h-screen w-screen absolute bg-transparent top-0 left-0"
+					className="h-screen w-screen absolute bg-transparent top-0 left-0 z-30"
 				></div>
 			)}
 			<Listbox
 				value={Value}
 				onChange={(e: T) => {
-					onChange && onChange(e);
+					if (onChange) onChange(e);
 					setOpen(false);
 				}}
 				disabled={publicTeam}
 			>
-				<Listbox.Button
+				<ListboxButton
 					className={clsxm(
 						'input-border',
 						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
@@ -94,9 +94,10 @@ export function Dropdown<T extends DropdownItem>({
 					) : (
 						<></>
 					)}
-				</Listbox.Button>
+				</ListboxButton>
 
 				<Transition
+					as="div"
 					enter="transition duration-100 ease-out"
 					enterFrom="transform scale-95 opacity-0"
 					enterTo="transform scale-100 opacity-100"
@@ -106,7 +107,8 @@ export function Dropdown<T extends DropdownItem>({
 					className={clsxm('absolute z-40')}
 					show={open}
 				>
-					<Listbox.Options
+					<ListboxOptions
+						static
 						className={clsxm(
 							'shadow-2xl outline-none min-w-full mt-3 h-fit',
 							'overflow-hidden rounded-xl outline-none',
@@ -133,7 +135,7 @@ export function Dropdown<T extends DropdownItem>({
 							<ScrollArea>
 								<section className={'max-h-96 min-w-[100px]'}>
 									{items.map((Item, index) => (
-										<Listbox.Option
+										<ListboxOption
 											key={Item.key ? Item.key : index}
 											value={Item}
 											disabled={!!Item.disabled}
@@ -142,19 +144,19 @@ export function Dropdown<T extends DropdownItem>({
 												return Item.Label ? (
 													<Item.Label active={active} selected={selected} />
 												) : (
-													<></>
+													<div></div>
 												);
 											}}
-										</Listbox.Option>
+										</ListboxOption>
 									))}
 								</section>
 								{/* <ScrollBar className="mr-20" /> */}
 							</ScrollArea>
 							{/* Additional content */}
-							{closeOnChildrenClick && <Listbox.Button as="div">{children}</Listbox.Button>}
+							{closeOnChildrenClick && <ListboxButton as="div">{children}</ListboxButton>}
 							{!closeOnChildrenClick && children}
 						</Card>
-					</Listbox.Options>
+					</ListboxOptions>
 				</Transition>
 			</Listbox>
 		</div>
@@ -171,6 +173,7 @@ export function ConfirmDropdown({
 		<Popover className="relative">
 			<Popover.Button>{children}</Popover.Button>
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

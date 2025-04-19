@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
-import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
@@ -23,6 +22,7 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
+import { IconsErrorWarningFill } from '@/icons';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -462,7 +462,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								<div className="flex gap-2 items-center text-sm h-6 text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
-											<PiWarningCircleFill />
+											<IconsErrorWarningFill className="text-[14px]" />
 											<span className=" text-xs">{warning}</span>
 										</>
 									)}
@@ -930,6 +930,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			</Popover.Button>
 
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -1090,6 +1091,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 			</Popover.Button>
 
 			<Transition
+				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

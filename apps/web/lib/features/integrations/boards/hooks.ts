@@ -1,15 +1,16 @@
-import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { ExcalidrawAPIRefValue, AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
+import { ExcalidrawElement } from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
+import { AppState, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { exportToBackend } from './export-to-backend';
 
 export const useBoard = () => {
 	const loaded = useRef(false);
 	// const { user } = useAuthenticateUser();
-	const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue | null>(null);
+	const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
 
 	useEffect(() => {
-		if (!excalidrawAPI || !excalidrawAPI.ready || loaded.current) {
+		if (!excalidrawAPI || loaded.current) {
 			return;
 		}
 
@@ -17,12 +18,12 @@ export const useBoard = () => {
 
 		const files = JSON.parse(window.localStorage.getItem('board-files') || '[]');
 
-		excalidrawAPI.readyPromise.then((api) => {
-			api.addFiles(Object.values(files));
-			api.updateScene({
+		Promise.resolve().then(() => {
+			excalidrawAPI.addFiles(Object.values(files));
+			excalidrawAPI.updateScene({
 				elements: elements
 			});
-			api.scrollToContent();
+			excalidrawAPI.scrollToContent();
 
 			loaded.current = true;
 		});
@@ -37,7 +38,7 @@ export const useBoard = () => {
 	}, []);
 
 	const onLiveCollaboration = useCallback(async () => {
-		if (excalidrawAPI?.ready) {
+		if (excalidrawAPI) {
 			await exportToBackend(
 				excalidrawAPI.getSceneElements(),
 				excalidrawAPI.getAppState(),

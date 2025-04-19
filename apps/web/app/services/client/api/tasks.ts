@@ -145,47 +145,55 @@ export async function tasksTimesheetStatisticsAPI(
 	organizationId: string,
 	employeeId?: string
 ) {
-	if (GAUZY_API_BASE_SERVER_URL.value) {
-		const employeesParams = employeeId
-			? [employeeId].reduce((acc: any, v, i) => {
-					acc[`employeeIds[${i}]`] = v;
-					return acc;
-				})
-			: {};
-		const commonParams = {
-			tenantId,
-			organizationId,
-			// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
-			...employeesParams
-		};
-		const globalQueries = qs.stringify({
-			...commonParams,
-			defaultRange: 'false'
-		});
+	try {
+		if (!tenantId || !organizationId) {
+			throw new Error('TenantId and OrganizationId are required');
+		}
 
-		const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-			tenantId
-		});
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const employeesParams = employeeId
+				? [employeeId].reduce((acc: any, v, i) => {
+						acc[`employeeIds[${i}]`] = v;
+						return acc;
+					})
+				: {};
+			const commonParams = {
+				tenantId,
+				organizationId,
+				// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
+				...employeesParams
+			};
+			const globalQueries = qs.stringify({
+				...commonParams,
+				defaultRange: 'false'
+			});
 
-		const todayQueries = qs.stringify({
-			...commonParams,
-			defaultRange: 'true',
-			unitOfTime: 'day'
-		});
-		const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-			tenantId
-		});
+			const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+				tenantId
+			});
 
-		return {
-			data: {
-				global: globalData.data,
-				today: todayData.data
-			}
-		};
-	} else {
-		return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
-			`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
-		);
+			const todayQueries = qs.stringify({
+				...commonParams,
+				defaultRange: 'true',
+				unitOfTime: 'day'
+			});
+			const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+				tenantId
+			});
+
+			return {
+				data: {
+					global: globalData.data,
+					today: todayData.data
+				}
+			};
+		} else {
+			return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+				`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
+			);
+		}
+	} catch (error) {
+		return Promise.reject(error);
 	}
 }
 
@@ -195,42 +203,52 @@ export async function activeTaskTimesheetStatisticsAPI(
 	organizationId: string,
 	employeeId?: string
 ) {
-	if (GAUZY_API_BASE_SERVER_URL.value) {
-		const employeesParams = employeeId
-			? [employeeId].reduce((acc: any, v, i) => {
-					acc[`employeeIds[${i}]`] = v;
-					return acc;
-				})
-			: {};
-		const commonParams = {
-			tenantId,
-			organizationId,
-			...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
-			...employeesParams
-		};
-		const globalQueries = qs.stringify({
-			...commonParams,
-			defaultRange: 'false'
-		});
-		const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-			tenantId
-		});
+	try {
+		if (!tenantId || !organizationId || !activeTaskId) {
+			throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');
+		}
 
-		const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-			tenantId
-		});
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const employeesParams = employeeId
+				? [employeeId].reduce((acc: any, v, i) => {
+						acc[`employeeIds[${i}]`] = v;
+						return acc;
+					}, {})
+				: {};
 
-		return {
-			data: {
-				global: globalData.data,
-				today: todayData.data
-			}
-		};
-	} else {
-		return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
-			`/timer/timesheet/statistics-tasks?activeTask=true`
-		);
+			const commonParams = {
+				tenantId,
+				organizationId,
+				'taskIds[0]': activeTaskId,
+				...employeesParams
+			};
+
+			const globalQueries = qs.stringify({
+				...commonParams,
+				defaultRange: 'false'
+			});
+			const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+				tenantId
+			});
+
+			const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
+			const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+				tenantId
+			});
+
+			return {
+				data: {
+					global: globalData.data,
+					today: todayData.data
+				}
+			};
+		} else {
+			return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+				`/timer/timesheet/statistics-tasks?activeTask=true`
+			);
+		}
+	} catch (error) {
+		return Promise.reject(error);
 	}
 }
 

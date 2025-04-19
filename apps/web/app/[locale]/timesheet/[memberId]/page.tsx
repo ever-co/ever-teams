@@ -32,7 +32,7 @@ import {
 	TimesheetFilter,
 	TimesheetView
 } from './components';
-import { GoSearch } from 'react-icons/go';
+import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
@@ -42,6 +42,7 @@ import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPaginat
 import TimesheetPagination from './components/TimesheetPagination';
 import { useTimesheetFilters } from '@/app/hooks/features/useTimesheetFilters';
 import { useTimesheetViewData } from '@/app/hooks/features/useTimesheetViewData';
+import { IconsSearch } from '@/icons';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -54,6 +55,7 @@ type ViewToggleButtonProps = {
 };
 
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
+	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const [pageSize, setPageSize] = useState(10);
@@ -179,13 +181,20 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
-			{ title: t('pages.timesheet.TIMESHEET_TITLE'), href: `/${currentLocale}/timesheet/${params.memberId}` }
+			{
+				title: t('pages.timesheet.TIMESHEET_TITLE'),
+				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+			}
 		],
-		[activeTeam?.name, currentLocale, params.memberId, t]
+		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
 	);
 	const shouldRenderPagination =
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
+
+	const SearchIcon: React.FC<IconBaseProps> = (props) => {
+		return <IconsSearch {...props} />;
+	};
 
 	return (
 		<>
@@ -279,7 +288,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								</div>
 								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
-									<GoSearch className="text-[#7E7991]" />
+									<SearchIcon className="text-[#7E7991]" />
 									<input
 										onChange={(v) => setSearch(v.target.value)}
 										role="searchbox"

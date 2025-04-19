@@ -477,10 +477,10 @@ export const ProjectsTable = memo(
 												<TableHead className=" capitalize" key={header.id}>
 													{header.isPlaceholder
 														? null
-														: flexRender(
+														: (flexRender(
 																header.column.columnDef.header,
 																header.getContext()
-															)}
+															) as React.ReactNode)}
 												</TableHead>
 											);
 										})}
@@ -493,7 +493,12 @@ export const ProjectsTable = memo(
 										<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 											{row.getVisibleCells().map((cell) => (
 												<TableCell key={cell.id}>
-													{flexRender(cell.column.columnDef.cell, cell.getContext())}
+													{
+														flexRender(
+															cell.column.columnDef.cell,
+															cell.getContext()
+														) as React.ReactNode
+													}
 												</TableCell>
 											))}
 										</TableRow>
@@ -526,12 +531,12 @@ export const ProjectsTable = memo(
 							title="No Projects Yet"
 							showBorder={false}
 							message={
-								<>
-									<p>Ready to start something amazing?</p>
-									<p className="text-sm text-gray-500 mt-1">
+								<div className="space-y-2">
+									<div className="text-base font-medium">Ready to start something amazing?</div>
+									<p className="text-sm text-gray-500">
 										Create your first project and begin collaborating with your team.
 									</p>
-								</>
+								</div>
 							}
 						/>
 					</div>
@@ -573,7 +578,7 @@ function ColumnHandlerDropdown(args: {
 				</Menu.Button>
 			</div>
 			<Transition
-				as={React.Fragment}
+				as="div"
 				enter="transition ease-out duration-100"
 				enterFrom="transform opacity-0 scale-95"
 				enterTo="transform opacity-100 scale-100"

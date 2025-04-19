@@ -2,6 +2,7 @@ import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/app/interfaces/I
 import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
 import moment from 'moment';
+import { JSX } from 'react';
 
 export interface ITimeReportTableProps {
 	report: ITimeLimitReport;

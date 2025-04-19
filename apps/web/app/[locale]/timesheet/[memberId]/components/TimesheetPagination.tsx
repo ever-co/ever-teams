@@ -7,7 +7,7 @@ import {
 	PaginationLink
 } from '@components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight } from 'react-icons/md';
+import { IconsDoubleAltArrowLeftOutline, IconsDoubleArrowRounded } from '@/icons';
 interface TimesheetPaginationProps {
 	totalPages?: number;
 	onPageChange?: (page: number) => void;
@@ -61,11 +61,12 @@ function TimesheetPagination({
 						</span>
 					</div>
 					<PaginationContent className="flex justify-end w-full">
-					<div className="flex gap-x-3 justify-start items-center pr-2">
+						<div className="flex gap-x-3 justify-start items-center pr-2">
 							<span className="text-sm whitespace-nowrap">Rows per page</span>
 							<Select
 								value={pageSize?.toString()}
-								onValueChange={(value) => onPageSizeChange?.(Number(value))}>
+								onValueChange={(value) => onPageSizeChange?.(Number(value))}
+							>
 								<SelectTrigger className="w-[80px] border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px] dark:bg-dark--theme-light bg-white">
 									<SelectValue placeholder="Page size" />
 								</SelectTrigger>
@@ -77,7 +78,9 @@ function TimesheetPagination({
 									))}
 								</SelectContent>
 							</Select>
-							<span className="text-sm whitespace-nowrap">Page {currentPage} of {totalPages}</span>
+							<span className="text-sm whitespace-nowrap">
+								Page {currentPage} of {totalPages}
+							</span>
 						</div>
 						<PaginationItem>
 							<button
@@ -85,7 +88,7 @@ function TimesheetPagination({
 								onClick={previousPage}
 								disabled={currentPage === 1}
 							>
-								<MdKeyboardDoubleArrowLeft />
+								<IconsDoubleAltArrowLeftOutline className="h-5 w-5 dark:text-gray-500" />
 							</button>
 						</PaginationItem>
 						{getPageNumbers().map((pageNumber, index) => (
@@ -109,7 +112,7 @@ function TimesheetPagination({
 								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
 								onClick={nextPage}
 							>
-								<MdKeyboardDoubleArrowRight />
+								<IconsDoubleArrowRounded className="h-5 w-5 dark:text-gray-500" />
 							</button>
 						</PaginationItem>
 					</PaginationContent>
