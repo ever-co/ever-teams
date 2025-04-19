@@ -7,6 +7,6 @@ type Props = {
 };
 
 export default function NextAuthSessionProvider({ children }: Props) {
-	//@ts-ignore
+	// @ts-ignore
 	return <SessionProvider>{children}</SessionProvider>;
 }

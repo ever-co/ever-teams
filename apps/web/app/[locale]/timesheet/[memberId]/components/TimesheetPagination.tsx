@@ -7,7 +7,7 @@ import {
 	PaginationLink
 } from '@components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { MdKeyboardDoubleArrowLeft, MdKeyboardDoubleArrowRight } from 'react-icons/md';
+import { IconsDoubleAltArrowLeftOutline, IconsDoubleArrowRounded } from '@/icons';
 interface TimesheetPaginationProps {
 	totalPages?: number;
 	onPageChange?: (page: number) => void;
@@ -88,8 +88,7 @@ function TimesheetPagination({
 								onClick={previousPage}
 								disabled={currentPage === 1}
 							>
-								{/* @ts-ignore */}
-								<MdKeyboardDoubleArrowLeft />
+								<IconsDoubleAltArrowLeftOutline className="h-5 w-5 dark:text-gray-500" />
 							</button>
 						</PaginationItem>
 						{getPageNumbers().map((pageNumber, index) => (
@@ -113,8 +112,7 @@ function TimesheetPagination({
 								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
 								onClick={nextPage}
 							>
-								{/* @ts-ignore */}
-								<MdKeyboardDoubleArrowRight />
+								<IconsDoubleArrowRounded className="h-5 w-5 dark:text-gray-500" />
 							</button>
 						</PaginationItem>
 					</PaginationContent>

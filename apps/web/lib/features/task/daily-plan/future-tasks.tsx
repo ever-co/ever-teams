@@ -49,7 +49,6 @@ export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (
-				// @ts-ignore
 				<DragDropContext
 					onDragEnd={(result) => handleDragAndDrop(result, futureDailyPlanTasks, setFutureDailyPlanTasks)}
 				>
@@ -95,7 +94,6 @@ export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 												>
 													{plan.tasks?.map((task, index) =>
 														view === 'CARDS' ? (
-															// @ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}
@@ -129,7 +127,6 @@ export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 																)}
 															</Draggable>
 														) : (
-															// @ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}

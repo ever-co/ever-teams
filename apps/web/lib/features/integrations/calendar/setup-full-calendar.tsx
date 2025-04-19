@@ -1,6 +1,5 @@
 'use client';
 import { useState, useRef } from 'react';
-import { LuCalendarPlus } from 'react-icons/lu';
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io';
 import { IoTimeSharp } from 'react-icons/io5';
 import FullCalendar from '@fullcalendar/react';
@@ -13,6 +12,7 @@ import CalendarComponent from './calendar-component';
 import { PiTimerBold } from 'react-icons/pi';
 import { formatWithSuffix } from 'lib/utils';
 import { useLocalStorageState } from '@app/hooks';
+import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/icons';
 
 // import { IOrganizationTeamList } from '@app/interfaces';
 
@@ -55,8 +55,7 @@ export function SetupFullCalendar() {
 			color: '#ffedd5',
 			textColor: '#f97316',
 			extendedProps: {
-				// @ts-ignore
-				icon: <LuCalendarPlus className="inline-block mr-1 text-[#f97316]" />
+				icon: <IconsCalendarMonthOutline className="inline-block mr-1 text-[#f97316]" />
 			}
 		},
 		{
@@ -66,8 +65,7 @@ export function SetupFullCalendar() {
 			color: '#dcfce7',
 			textColor: '#16a34a',
 			extendedProps: {
-				// @ts-ignore
-				icon: <PiTimerBold className="inline-block mr-1 text-[#16a34a]" />
+				icon: <IconsAlarmOutline className="inline-block mr-1 text-[#16a34a]" />
 			}
 		},
 		{
@@ -77,8 +75,7 @@ export function SetupFullCalendar() {
 			color: '#ffedd5',
 			textColor: '#f97316',
 			extendedProps: {
-				// @ts-ignore
-				icon: <LuCalendarPlus className="inline-block mr-1 text-[#f97316]" />
+				icon: <IconsCalendarMonthOutline className="inline-block mr-1 text-[#f97316]" />
 			}
 		}
 	]);

@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from 'lib/components';
-import { PiWarningCircleFill } from 'react-icons/pi';
 import { useState } from 'react';
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -13,6 +12,7 @@ import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { ScrollArea } from '@components/ui/scroll-bar';
+import { IconsErrorWarningFill } from '@/icons';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -90,8 +90,7 @@ export function DailyPlanCompareEstimatedModal({
 						<div className="flex items-center pb-2 text-red-500 text-[12px]">
 							{!difference && !estimated?.every(Boolean) && (
 								<>
-									{/* @ts-ignore */}
-									<PiWarningCircleFill className="text-[14px]" />
+									<IconsErrorWarningFill className="text-[14px]" />
 									<span>Please correct planned work hours or re-estimate task(s)</span>
 								</>
 							)}

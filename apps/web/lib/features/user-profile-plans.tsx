@@ -6,7 +6,6 @@ import { checkPastDate } from 'lib/utils';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
-import { IoCalendarOutline } from 'react-icons/io5';
 
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
@@ -51,6 +50,7 @@ import { TaskCard } from './task/task-card';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import DailyPlanTasksTableView from './task/daily-plan/table-view';
+import { IconsCalendarMonthOutline } from '@/icons';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -273,8 +273,11 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												{Object.keys(screenOutstanding).map((item, index) => (
 													<SelectItem key={index} value={item}>
 														<div className="flex items-center space-x-1">
-															{/* @ts-ignore */}
-															{item == 'DATE' ? <IoCalendarOutline /> : <StarIcon />}
+															{item == 'DATE' ? (
+																<IconsCalendarMonthOutline className="w-4 h-4" />
+															) : (
+																<StarIcon className="w-4 h-4" />
+															)}
 															<span className="capitalize">{item}</span>
 														</div>
 													</SelectItem>

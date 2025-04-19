@@ -9,9 +9,9 @@ import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
-import { LuCalendarDays } from 'react-icons/lu';
 import { Input } from '@components/ui/input';
 import { SettingFilterIcon } from 'assets/svg';
+import { IconsCalendarMonthOutline } from '@/icons';
 
 export function HeadCalendar({
 	openModal,
@@ -42,8 +42,7 @@ export function HeadCalendar({
 						`${timesheet === 'Calendar' ? 'bg-gray-200 dark:bg-gray-700' : ''}`
 					)}
 				>
-					{/* @ts-ignore */}
-					<LuCalendarDays />
+					<IconsCalendarMonthOutline className={clsxm('w-5 h-5')} strokeWidth="1.8" />
 				</button>
 				<Button onClick={openModal} variant="primary" className="bg-primary dark:bg-primary-light">
 					Add Time
@@ -125,8 +124,7 @@ export function HeadTimeSheet({
 									defaultMonth={date?.from}
 									// @ts-ignore
 									selected={date as DateRange | undefined}
-									onSelect={(value) => {
-										// @ts-ignore
+									onSelect={(value: any) => {
 										value && setDate(value);
 									}}
 								/>
