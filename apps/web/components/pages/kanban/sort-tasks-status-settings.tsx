@@ -7,7 +7,7 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusItemList[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);
@@ -66,15 +66,12 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusItemList[];
 		<div className="w-[600px] h-[700px] py-12 pr-2  bg-[#f2f2f2] dark:bg-[#191a20] rounded-lg flex flex-col justify-center items-center">
 			<h2 className="text-2xl font-bold text-center mb-4">{t('pages.settingsTeam.SORT_TASK_STATUSES')}</h2>
 			<ScrollArea className="h-[450px] pr-3">
-				{/* @ts-ignore */}
 				<DragDropContext onDragEnd={onDragEnd}>
-					{/* @ts-ignore */}
 					<Droppable droppableId="droppable">
 						{(provided) => (
 							<div {...provided.droppableProps} ref={provided.innerRef}>
 								<>
 									{items.map((item, index) => (
-										/* @ts-ignore */
 										<Draggable key={item.id} draggableId={item.id} index={index}>
 											{(provided) => (
 												<div

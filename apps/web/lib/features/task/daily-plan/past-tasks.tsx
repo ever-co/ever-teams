@@ -11,7 +11,7 @@ import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useEffect, useState } from 'react';
 import { IDailyPlan, IUser } from '@app/interfaces';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 

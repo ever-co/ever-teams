@@ -27,6 +27,7 @@
 	"dependencies": {
 		"@auth/core": "^0.31.0",
 		"@google-recaptcha/react": "^2.1.1",
+		"@hello-pangea/dnd": "^18.0.1",
 		"@emoji-mart/data": "^1.1.2",
 		"@emoji-mart/react": "^1.1.1",
 		"@excalidraw/excalidraw": "^0.18.0",
@@ -114,7 +115,6 @@
 		"posthog-js": "^1.154.5",
 		"qs": "^6.11.2",
 		"react": "19.1.0",
-		"react-beautiful-dnd": "^13.1.1",
 		"react-colorful": "^5.6.1",
 		"react-country-flag": "^3.1.0",
 		"react-day-picker": "^8.8.0",
@@ -150,7 +150,6 @@
 		"@types/node": "^20.12.2",
 		"@types/pako": "^2.0.0",
 		"@types/react": "19.1.0",
-		"@types/react-beautiful-dnd": "^13.1.6",
 		"@types/react-dom": "19.1.1",
 		"@types/react-google-recaptcha": "^2.1.5",
 		"dotenv": "^16.4.1",

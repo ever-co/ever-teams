@@ -1,6 +1,7 @@
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React, { RefObject } from 'react';
 import { useEffect, useState } from 'react';
+
 import {
 	Draggable,
 	DraggableProvided,
@@ -8,7 +9,7 @@ import {
 	Droppable,
 	DroppableProvided,
 	DroppableStateSnapshot
-} from 'react-beautiful-dnd';
+} from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
@@ -76,7 +77,6 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 				{Array.isArray(items) &&
 					items.length > 0 &&
 					items.map((item: ITeamTask, index: number) => (
-						// @ts-ignore
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 								<Item
@@ -195,7 +195,6 @@ export const KanbanDroppable = ({
 }) => {
 	return (
 		<>
-			{/* @ts-ignore */}
 			<Droppable droppableId={droppableId} type={type}>
 				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
 					<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
