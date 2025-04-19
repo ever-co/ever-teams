@@ -94,19 +94,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		useQuery(getTimesheetStatisticsCounts);
 	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
 
-
 	// Memoized employee and team IDs
-	const employeeIds = useMemo(() =>
-		isManage
-			? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
-			: user?.employee?.id ? [user.employee.id] : [],
+	const employeeIds = useMemo(
+		() =>
+			isManage
+				? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+				: user?.employee?.id
+					? [user.employee.id]
+					: [],
 		[isManage, alluserState, user?.employee?.id]
 	);
 
-	const teamIds = useMemo(() =>
-		allteamsState?.map(({ id }) => id).filter(Boolean) || [],
-		[allteamsState]
-	);
+	const teamIds = useMemo(() => allteamsState?.map(({ id }) => id).filter(Boolean) || [], [allteamsState]);
 
 	// Props merging logic
 	const getMergedProps = useMemo(() => {
@@ -130,9 +129,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				projectIds: (customProps?.projectIds ||
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
-				employeeIds: isManage
-					? employeeIds
-					: [user.employee.id],
+				employeeIds: isManage ? employeeIds : [user.employee.id],
 				teamIds: teamIds,
 				activityLevel: {
 					start:
@@ -149,7 +146,15 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 			};
 			return merged as Required<UseReportActivityProps>;
 		};
-	}, [user?.employee?.organizationId, user?.employee?.id, user?.tenantId, currentFilters, isManage, employeeIds, teamIds]);
+	}, [
+		user?.employee?.organizationId,
+		user?.employee?.id,
+		user?.tenantId,
+		currentFilters,
+		isManage,
+		employeeIds,
+		teamIds
+	]);
 
 	const loading = useMemo(
 		() =>

@@ -204,6 +204,7 @@ export async function activeTaskTimesheetStatisticsAPI(
 	employeeId?: string
 ) {
 	try {
+		console.log('activeTaskTimesheetStatisticsAPI', tenantId, activeTaskId, organizationId, employeeId);
 		if (!tenantId || !organizationId || !activeTaskId) {
 			throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');
 		}
