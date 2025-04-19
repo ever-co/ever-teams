@@ -21,7 +21,7 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './integration/posthog/provider';
 
-const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
+const locales = ['en', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;
 	pageProps: {

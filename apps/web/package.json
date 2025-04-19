@@ -26,6 +26,7 @@
 	},
 	"dependencies": {
 		"@auth/core": "^0.31.0",
+		"@google-recaptcha/react": "^2.1.1",
 		"@emoji-mart/data": "^1.1.2",
 		"@emoji-mart/react": "^1.1.1",
 		"@excalidraw/excalidraw": "^0.18.0",

@@ -102,7 +102,7 @@ export function MemberFilter() {
 										>
 											{options.map((item) => (
 												<Listbox.Option key={item.value} value={item} as={Fragment}>
-													<li className="cursor-pointer outline-none relative">
+													<li className="cursor-pointer outline-none relative list-none">
 														<MemberFilterOption
 															label={item.label}
 															bg={item.bg}

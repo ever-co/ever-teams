@@ -427,7 +427,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 													{organizationProjects.map((item) => {
 														return (
 															<ListboxOption key={item.id} value={item} as="div">
-																<li className="relative border  flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
+																<li className="relative border  flex items-center gap-2 p-1.5  rounded-lg outline-none cursor-pointer dark:text-white">
 																	{item.imageUrl && (
 																		<Image
 																			src={item.imageUrl}
