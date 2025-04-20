@@ -4,7 +4,6 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
-		"Złoty",
 		"zipkin",
 		" X",
 		" X ",
@@ -463,6 +462,13 @@
 		"xlcard",
 		"xlight",
 		"yellowbox",
+		"titleBar",
+		"flexbox",
+		"rounded",
+		"customStyle",
+		"gorhom",
+		"pluralrules",
+		"mmkv",
 		"Złoty"
 	],
 	"useGitignore": true,
@@ -514,6 +520,7 @@
 		".scripts/icon-utils/icons/**",
 		"apps/server-web/src/locales/**/*.json",
 		"apps/server-web/src/resources/*",
-		"apps/server-web/assets/*"
+		"apps/server-web/assets/*",
+		"apps/mobile/package.json",
 	]
 }
