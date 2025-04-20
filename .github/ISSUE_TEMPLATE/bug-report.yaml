@@ -1,0 +1,88 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve Ever Teams
+title: "[BUG]: "
+labels: ["bug"]
+assignees: ["Ndekocode", "Innocent-Akim"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report.
+  - type: checkboxes
+    attributes:
+      label: Is there already an issue for this bug?
+      description: Please check if an issue already exists for the bug you found
+      options:
+        - label: I have checked existing issues
+          required: true
+  - type: textarea
+    attributes:
+      label: Current behavior
+      description: A simple description of what you are experiencing
+      placeholder: |
+        When I do <X>, <Y> happens and I see this error message:
+        ```...```
+        What I expected was <Z>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Add steps to reproduce this behavior, include console or network logs and screenshots
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Production
+        - Development
+        - Test
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Google Chrome
+        - Mozilla Firefox
+        - Safari
+        - Microsoft Edge
+        - Other
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS
+        - Other
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version of Ever Teams are you using?
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Please copy and paste any relevant logs. They will be automatically formatted.
+      render: shell
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Add any other information about the problem here
