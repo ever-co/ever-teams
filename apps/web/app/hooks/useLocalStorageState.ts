@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 /**

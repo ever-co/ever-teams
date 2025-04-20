@@ -65,7 +65,7 @@ export async function DELETE(req: Request, props: INextParams) {
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing team ID' }, { status: 400 });
 	}
 
 	const { $res, user, organizationId, access_token, tenantId } = await authenticatedGuard(req, res);
