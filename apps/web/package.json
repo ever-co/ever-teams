@@ -78,7 +78,7 @@
 		"@uidotdev/usehooks": "^2.4.1",
 		"@vercel/analytics": "^0.1.6",
 		"autoprefixer": "^10.4.12",
-		"axios": "^1.6.2",
+		"axios": "^1.1.2",
 		"class-validator": "^0.14.0",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.0.0",

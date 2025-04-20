@@ -46,7 +46,7 @@ const nextConfig = {
 	reactStrictMode: false,
 	transpilePackages: ['geist'],
 	...eslintBuildConfig,
-	// swcMinify: true,
+	swcMinify: true,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');
 		config.resolve.alias['@components'] = path.join(__dirname, 'components');
