@@ -9,6 +9,7 @@ body:
       value: |
         Thank you for taking the time to fill out this bug report.
   - type: checkboxes
+    id: existing-issue
     attributes:
       label: Is there already an issue for this bug?
       description: Please check if an issue already exists for the bug you found
@@ -16,6 +17,7 @@ body:
         - label: I have checked existing issues
           required: true
   - type: textarea
+    id: current-behavior
     attributes:
       label: Current behavior
       description: A simple description of what you are experiencing
@@ -26,6 +28,7 @@ body:
     validations:
       required: true
   - type: textarea
+    id: steps-to-reproduce
     attributes:
       label: Steps to reproduce
       description: Add steps to reproduce this behavior, include console or network logs and screenshots
@@ -56,6 +59,8 @@ body:
         - Safari
         - Microsoft Edge
         - Other
+    validations:
+      required: true
   - type: dropdown
     id: os
     attributes:
@@ -67,6 +72,8 @@ body:
         - Android
         - iOS
         - Other
+    validations:
+      required: true
   - type: input
     id: version
     attributes:

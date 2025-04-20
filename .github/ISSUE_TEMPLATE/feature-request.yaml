@@ -9,6 +9,7 @@ body:
       value: |
         Thank you for taking the time to suggest a new feature for Ever Teams
   - type: checkboxes
+    id: existing-issue
     attributes:
       label: Is there already an issue for this feature?
       description: Please check if an issue related to this feature request already exists
@@ -16,30 +17,35 @@ body:
         - label: I have checked existing issues
           required: true
   - type: textarea
+    id: summary
     attributes:
       label: Summary
       description: A short description of the feature in one paragraph
     validations:
       required: true
   - type: textarea
+    id: why-needed
     attributes:
       label: Why is this feature needed?
       description: Explain the use cases or problems this feature would solve
     validations:
       required: true
   - type: textarea
+    id: proposed-solution
     attributes:
       label: Proposed solution
       description: Describe how you think this feature could be implemented
     validations:
       required: false
   - type: textarea
+    id: alternatives
     attributes:
       label: Alternatives considered
       description: Have you thought about other approaches or workarounds?
     validations:
       required: false
   - type: textarea
+    id: additional-info
     attributes:
       label: Additional information
       description: Any extra context, screenshots, mockups, or references that might help
