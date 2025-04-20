@@ -1,0 +1,10 @@
+contact_links:
+  - name: 💬 Help and Support
+    url: https://github.com/ever-co/ever-teams/discussions
+    about: Ask questions and discuss with the community on GitHub Discussions
+  - name: 📚 Documentation
+    url: https://docs.ever.team
+    about: Check the project documentation to find information
+  - name: 🤝 Dedicated Support
+    url: https://github.com/ever-co/ever-teams#-contact-us
+    about: Contact us for dedicated support for Ever Teams
