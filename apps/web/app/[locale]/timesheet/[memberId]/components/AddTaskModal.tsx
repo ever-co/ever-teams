@@ -173,7 +173,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full"
 		>
-			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4">
+			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[30rem] p-4">
 				<div className=" w-full mr-[4%]">
 					<label className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
 						{t('sidebar.TASKS')}
