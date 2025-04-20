@@ -387,110 +387,382 @@ html.dark {
 		}
 	}
 }
-
-
-/* Additional CSS to add to your global.css */
-
-/* Light mode defaults */
-html body .react-tel-input .country-list {
-	background-color: #fff !important;
-	color: #333 !important;
-	border-color: #ccc !important;
+/* PhoneInput component styles */
+.phoneinput-container {
+	width: 100%;
+	height: 100%;
   }
 
-  html body .react-tel-input .country-list .search-box {
-	background-color: #fff !important;
-	color: #333 !important;
+  .phoneinput-label {
+	display: block;
+	margin-bottom: 0.25rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
   }
 
-  html body .react-tel-input .country-list .search-box:focus {
-	background-color: #fff !important;
+  .dark .phoneinput-label {
+	color: #e5e7eb;
   }
 
-  html body .react-tel-input .country-list .country.highlight,
-  html body .react-tel-input .country-list .country:hover {
-	background-color: #f0f0f0 !important;
+  .phoneinput-required {
+	color: #ef4444;
   }
 
-  html body .react-tel-input .country-list::-webkit-scrollbar {
-	width: 8px !important;
+  .phoneinput-wrapper {
+	position: relative;
+	width: 100%;
+	height: 54px;
+	border-radius: 10px;
+	border: 1px solid #00000021;
   }
 
-  html body .react-tel-input .country-list::-webkit-scrollbar-track {
-	background: #f1f1f1 !important;
+  .dark .phoneinput-wrapper {
+	border-color: #3b3c44;
+	background-color: #1B1D22;
   }
 
-  html body .react-tel-input .country-list::-webkit-scrollbar-thumb {
-	background: #888 !important;
-	border-radius: 4px !important;
+  .phoneinput-wrapper-error {
+	border: 1px solid #ef4444;
+	border-radius: 0.5rem;
   }
 
-  html body .react-tel-input .search-class {
-	background-color: #fff !important;
-	color: #333 !important;
+  .phoneinput-error-message {
+	margin-top: 0.25rem;
+	font-size: 0.75rem;
+	color: #ef4444;
   }
 
-  /* Dark mode specific styles with higher specificity */
-  html.dark body .react-tel-input .country-list {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
-	border-color: #2d2f34 !important;
+  /* PhoneInput library overrides */
+  .PhoneInput {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
   }
 
-  html.dark body .react-tel-input .country-list .search-box {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
+  .PhoneInputInput {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	border-radius: 10px;
+	border: none;
+	padding-left: 8px;
+	outline: none;
+	background-color: transparent;
+	color: inherit;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
   }
 
-  html.dark body .react-tel-input .country-list .country.highlight,
-  html.dark body .react-tel-input .country-list .country:hover {
-	background-color: #2a2d33 !important;
+  .PhoneInputCountry {
+	margin-right: 8px;
+	margin-left: 12px;
   }
 
-  html.dark body .react-tel-input .country-list::-webkit-scrollbar-track {
-	background: #2a2d33 !important;
+  .PhoneInputCountryIcon {
+	width: 1.5em;
+	height: 1em;
   }
 
-  html.dark body .react-tel-input .country-list::-webkit-scrollbar-thumb {
-	background: #4a4d52 !important;
+  .PhoneInputCountrySelectArrow {
+	margin-left: 0.25em;
+	width: 0.3em;
   }
 
-  html.dark body .react-tel-input .search-box {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
+  .phoneinput-disabled {
+	background-color: #FCFCFC;
+	cursor: not-allowed;
   }
 
-  html.dark body .react-tel-input .search-class {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
-	border-color: #2d2f34 !important;
+  .dark .phoneinput-disabled {
+	background-color: #1B1D22;
   }
 
-  /* Additional styling to ensure dark mode is respected */
-  html.dark body .react-tel-input .country-list .country {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
+  /* Country dropdown styling */
+  .PhoneInputCountrySelect {
+	position: relative;
   }
 
-  html.dark body .react-tel-input input[type=text],
-  html.dark body .react-tel-input input[type=tel] {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
+  html.dark .PhoneInputCountrySelect > option {
+	background-color: #1B1D22;
+	color: #e0e0e0;
   }
 
-  /* Style for the dropdown button and flag container */
-  html.dark body .react-tel-input .flag-dropdown {
-	background-color: #1B1D22 !important;
-	border-color: #2d2f34 !important;
+  html.dark .PhoneInputInput:disabled {
+	color: #9ca3af;
   }
 
-  html.dark body .react-tel-input .selected-flag {
-	background-color: #1B1D22 !important;
+  html.dark .PhoneInput .PhoneInputCountrySelect__dropdown {
+	background-color: #1B1D22;
+	color: #e0e0e0;
+	border-color: #3b3c44;
   }
 
-  /* Direct target for the search input inside dropdown */
-  html.dark body .react-tel-input .country-list .search-box input {
-	background-color: #1B1D22 !important;
-	color: #e0e0e0 !important;
-	border-color: #2d2f34 !important;
+  html.dark .PhoneInput .PhoneInputCountrySelect__option--highlight {
+	background-color: #2a2d33;
+  }
+
+  html.dark .PhoneInput .PhoneInputCountrySelect__option:hover {
+	background-color: #2a2d33;
+  }
+
+  .PhoneInputCountrySelect__dropdown-search {
+	padding: 8px;
+  }
+
+  html.dark .PhoneInputCountrySelect__dropdown-search-input {
+	background-color: #1B1D22;
+	color: #e0e0e0;
+	border-color: #3b3c44;
+  }
+
+  .PhoneInput--focus .PhoneInputInput {
+	box-shadow: none;
+	outline: none;
+  }
+
+  .PhoneInputCountrySelect__dropdown-search::before {
+	content: none !important;
+  }
+
+  .PhoneInputCountrySelect__dropdown-search-emoji {
+	display: none !important;
+  }
+
+  body .PhoneInputCountrySelectDropdown {
+	background-color: #ffffff;
+	border: 1px solid #e2e8f0;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  body.dark .PhoneInputCountrySelectDropdown {
+	background-color: #1B1D22;
+	border-color: #3b3c44;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  body .PhoneInputCountrySelectOption {
+	padding: 8px 12px;
+  }
+
+  body .PhoneInputCountrySelectOption:hover,
+  body .PhoneInputCountrySelectOption:focus {
+	background-color: #f3f4f6;
+  }
+
+  body.dark .PhoneInputCountrySelectOption:hover,
+  body.dark .PhoneInputCountrySelectOption:focus {
+	background-color: #2a2d33;
+  }
+
+  /* Custom country selector with search */
+  .phoneinput-country-select {
+	position: relative;
+  }
+
+  .phoneinput-country-button {
+	display: flex;
+	align-items: center;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0 8px;
+	height: 100%;
+  }
+
+  .phoneinput-country-name {
+	margin-left: 2px;
+	margin-right: 4px;
+	font-size: 14px;
+  }
+
+  .phoneinput-dropdown-arrow {
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid currentColor;
+	margin-left: 4px;
+  }
+
+  .phoneinput-dropdown {
+	position: absolute;
+	z-index: 999;
+	top: calc(100% + 4px);
+	left: 0;
+	width: 300px;
+	max-height: 300px;
+	display: flex;
+	flex-direction: column;
+	background-color: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .phoneinput-dropdown {
+	background-color: #1B1D22;
+	border-color: #3b3c44;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Search container */
+  .phoneinput-search-container {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	padding: 8px;
+	background-color: #fff;
+	border-bottom: 1px solid #e2e8f0;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+  }
+
+  .dark .phoneinput-search-container {
+	background-color: #1B1D22;
+	border-bottom-color: #3b3c44;
+  }
+
+  .phoneinput-search-input {
+	width: 100%;
+	padding: 8px 12px 8px 32px;
+	border: 1px solid #e2e8f0;
+	border-radius: 4px;
+	font-size: 14px;
+  }
+
+  .dark .phoneinput-search-input {
+	background-color: #1B1D22;
+	border-color: #3b3c44;
+	color: #e0e0e0;
+  }
+
+  .phoneinput-search-input:focus {
+	outline: none;
+	border-color: #6366f1;
+  }
+
+  .dark .phoneinput-search-input:focus {
+	border-color: #818cf8;
+  }
+
+  .phoneinput-search-icon {
+	position: absolute;
+	left: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #9ca3af;
+	pointer-events: none;
+  }
+
+  /* Countries container */
+  .phoneinput-countries-container {
+	flex: 1;
+	overflow-y: auto;
+	max-height: 250px;
+  }
+
+  .phoneinput-country-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+  }
+
+  .phoneinput-country-option {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	cursor: pointer;
+  }
+
+  .phoneinput-country-option:hover {
+	background-color: #f3f4f6;
+  }
+
+  .dark .phoneinput-country-option:hover {
+	background-color: #2a2d33;
+  }
+
+  .phoneinput-selected {
+	background-color: #f3f4f6;
+  }
+
+  .dark .phoneinput-selected {
+	background-color: #2a2d33;
+  }
+
+  .phoneinput-no-results {
+	padding: 12px;
+	text-align: center;
+	color: #6b7280;
+  }
+
+  .dark .phoneinput-no-results {
+	color: #9ca3af;
+  }
+
+  /* Flag spacing in country selector */
+  .phoneinput-flag-container {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 12px;
+	min-width: 24px;
+  }
+
+  .phoneinput-country-label {
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+  }
+
+  /* Ensure flag icons have consistent size */
+  .phoneinput-country-option img,
+  .phoneinput-country-button img,
+  .phoneinput-flag-container img {
+	width: 20px;
+	height: auto;
+	object-fit: contain;
+  }
+
+  /* Styles for disabled country select */
+  .phoneinput-country-disabled {
+	pointer-events: none;
+	opacity: 0.8;
+  }
+
+  .phoneinput-country-disabled .phoneinput-country-button {
+	cursor: not-allowed;
+  }
+
+  .phoneinput-dropdown-arrow-disabled {
+	opacity: 0.5;
+  }
+
+  .phoneinput-country-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.8;
+  }
+
+  .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
+	cursor: not-allowed;
+  }
+
+  .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-name,
+  .phoneinput-container:has(.phoneinput-disabled) .phoneinput-dropdown-arrow {
+	opacity: 0.7;
+  }
+
+  .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button:hover {
+	background-color: transparent;
+  }
+
+  .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
+	background-color: #FCFCFC;
+  }
+
+  .dark .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
+	background-color: #1B1D22;
   }
