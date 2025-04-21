@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
@@ -16,7 +17,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } fro
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { PropsWithChildren, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	useCallbackRef,
 	useSyncRef,
@@ -65,7 +66,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
 		taskStatusClassName?: string;
-		latestLabels?: MutableRefObject<string[]>;
+		latestLabels?: RefObject<string[]>;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -1183,6 +1184,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onChange?(value: string[]): void;
 	items: T[];
 	className?: string;
