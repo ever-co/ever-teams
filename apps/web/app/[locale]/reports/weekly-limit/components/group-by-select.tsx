@@ -100,7 +100,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 								value={option}
 							>
 								{({ selected }) => (
-									<>
+									<div>
 										<span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
 											{option}
 										</span>
@@ -109,7 +109,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 												<CheckIcon className="h-5 w-5" aria-hidden="true" />
 											</span>
 										) : null}
-									</>
+									</div>
 								)}
 							</Listbox.Option>
 						))}
