@@ -8,6 +8,7 @@
 		" X",
 		" X ",
 		"pangea",
+		"Prefs",
 		"hookform",
 		"HCAPTCHA",
 		"hcaptcha",
@@ -522,6 +523,6 @@
 		"apps/server-web/src/locales/**/*.json",
 		"apps/server-web/src/resources/*",
 		"apps/server-web/assets/*",
-		"apps/mobile/package.json",
+		"apps/mobile/package.json"
 	]
 }
