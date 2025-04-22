@@ -45,8 +45,12 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 
 	return (
 		<JitsuProvider options={options as any}>
-			<JitsuAnalytics user={pageProps?.user} />
-			{children}
+			{React.Children.map(
+				[<JitsuAnalytics user={pageProps?.user} key="analytics" />, children],
+				(child, index) => (
+					<React.Fragment key={`jitsu-child-${index}`}>{child}</React.Fragment>
+				)
+			)}
 		</JitsuProvider>
 	);
 }
