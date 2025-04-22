@@ -506,12 +506,11 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 
 	return (
 		<Calendar
-			// @ts-ignore
 			mode="single"
 			onDayClick={handleDayClick}
 			captionLayout="dropdown"
 			selected={selectedPlan ? selectedPlan : undefined}
-			onSelect={(date: Date) => {
+			onSelect={(date: Date | undefined) => {
 				if (date) {
 					setSelectedPlan(moment(date).toDate());
 				}

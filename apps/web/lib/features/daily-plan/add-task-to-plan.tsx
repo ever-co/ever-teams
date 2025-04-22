@@ -110,10 +110,11 @@ export function AddTaskToPlan({
 								</PopoverTrigger>
 								<PopoverContent className="w-full p-0 z-[9999]">
 									<Calendar
-										//@ts-ignore
 										mode="single"
 										selected={date}
-										onSelect={(day: Date) => setDate(day ? day : new Date(tomorrowDate))}
+										onSelect={(day: Date | undefined) =>
+											setDate(day ? day : new Date(tomorrowDate))
+										}
 										initialFocus
 										disabled={{
 											from: new Date(1970, 1, 1),

@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
-import React, { useCallback } from 'react';
+import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
@@ -206,7 +206,7 @@ interface ITeamMemberSelectProps {
  *
  * @return {ReactNode} The multi select component
  */
-export function TeamMembersSelect(props: ITeamMemberSelectProps): React.ReactElement {
+export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 	const { teamMembers, task } = props;
 	const t = useTranslations();
 
@@ -267,7 +267,7 @@ interface ITeamMemberOptionProps {
 	key?: string;
 }
 
-function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps): JSX.Element {
+function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps): React.ReactElement {
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 
 	const handleAssignTask = useCallback(() => {

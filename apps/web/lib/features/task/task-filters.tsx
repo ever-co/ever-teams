@@ -26,6 +26,7 @@ import { Divider } from 'lib/components';
 
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
+import { DateRange } from 'react-day-picker';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
@@ -480,7 +481,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					<TaskDatePickerWithRange
 						data={data.data}
 						date={date}
-						onSelect={(range) => setDate(range)}
+						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"
 					/>
 				)}

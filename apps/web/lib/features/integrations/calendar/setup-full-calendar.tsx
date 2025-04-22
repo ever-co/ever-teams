@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, JSX } from 'react';
 import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io';
 import { IoTimeSharp } from 'react-icons/io5';
 import FullCalendar from '@fullcalendar/react';

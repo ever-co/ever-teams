@@ -1,61 +1,74 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import { filteredProviders } from '@app/utils/check-provider-env-vars';
 import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
 import { NextRequest } from 'next/server';
 import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@app/constants';
 
+declare module 'next-auth' {
+  interface Session extends DefaultSession {
+    authCookie?: string;
+  }
+}
+
 const secretKey = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
 
 if (!secretKey) {
-	console.warn('Missing secret: Please define AUTH_SECRET in the environment variables.');
+  console.warn('Missing secret: Please define AUTH_SECRET in the environment variables.');
 }
 
-export const { handlers, signIn, signOut, auth } = NextAuth((request) => ({
-	providers: filteredProviders,
-	trustHost: IS_DESKTOP_APP || process.env.NODE_ENV === 'production',
-	secret: secretKey,
-	debug: process.env.NODE_ENV === 'development',
-	adapter: GauzyAdapter(request as NextRequest),
-	session: { strategy: 'jwt' },
-	callbacks: {
-		async signIn({ account }) {
-			try {
-				if (account) {
-					const { provider, access_token } = account;
-					if (access_token) {
-						await signInCallback(provider as ProviderEnum, access_token);
-						return true;
-					}
-					return true;
-				}
-				return false;
-			} catch (error) {
-				console.error('Error in signIn callback:', error);
-				return false;
-			}
-		},
+const config: NextAuthConfig = {
+  providers: filteredProviders,
+  trustHost: IS_DESKTOP_APP || process.env.NODE_ENV === 'production',
+  secret: secretKey,
+  debug: process.env.NODE_ENV === 'development',
+  session: { strategy: 'jwt' },
+  callbacks: {
+    async signIn({ account }) {
+      try {
+        if (account) {
+          const { provider, access_token } = account;
+          if (access_token) {
+            await signInCallback(provider as ProviderEnum, access_token);
+            return true;
+          }
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error in signIn callback:', error);
+        return false;
+      }
+    },
+    async jwt({ token, user, account, trigger, session }) {
+      if (user && account) {
+        const { access_token, provider } = account;
+        if (access_token) {
+          token.authCookie = await jwtCallback(provider as ProviderEnum, access_token);
+        }
+      }
 
-		async jwt({ token, user, trigger, session, account }) {
-			if (user && account) {
-				const { access_token, provider } = account;
-				if (access_token) {
-					token.authCookie = await jwtCallback(provider as ProviderEnum, access_token);
-				}
-			}
+      if (trigger === 'update' && session) {
+        token = { ...token, authCookie: session };
+      }
 
-			if (trigger === 'update' && session) {
-				token = { ...token, authCookie: session };
-			}
+      return token;
+    },
+    async session({ session, token }) {
+      return {
+        ...session,
+        authCookie: token.authCookie
+      };
+    }
+  },
+  pages: {
+    error: '/auth/error',
+    newUser: '/auth/social-welcome'
+  }
+} satisfies NextAuthConfig;
 
-			return token;
-		},
-		session({ session, token }) {
-			session.user = token.authCookie as any;
-			return session;
-		}
-	},
-	pages: {
-		error: '/auth/error',
-		newUser: '/auth/social-welcome'
-	}
-}));
+export const { handlers, signIn, signOut, auth } = NextAuth(async (request) => {
+  return {
+    ...config,
+    adapter: GauzyAdapter(request as NextRequest)
+  };
+});

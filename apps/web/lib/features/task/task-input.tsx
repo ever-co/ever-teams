@@ -29,7 +29,7 @@ import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
@@ -51,7 +51,7 @@ type Props = {
 	inputLoader?: boolean;
 	onEnterKey?: (taskName: string, task: ITeamTask) => void;
 	keepOpen?: boolean;
-	loadingRef?: MutableRefObject<boolean>;
+	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
@@ -320,7 +320,7 @@ export function TaskInput(props: Props) {
 			ref={targetEl}
 			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
 			setTaskName={setTaskName}
-			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as RefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
@@ -719,7 +719,7 @@ function TaskCard({
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	assignees?: MutableRefObject<
+	assignees?: RefObject<
 		{
 			id: string;
 		}[]

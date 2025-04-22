@@ -126,7 +126,7 @@ function DueDates() {
 						</div>
 					}
 					selected={$startDate.current ? (new Date($startDate.current) as Date) : undefined}
-					onSelect={(date) => {
+					onSelect={(date: Date | undefined) => {
 						if (date && (!$dueDate.current || date <= $dueDate.current)) {
 							setStartDate(date);
 

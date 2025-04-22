@@ -23,7 +23,11 @@ const CalendarPage = () => {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const [calendarTimeSheet, setCalendarTimeSheet] = useLocalStorageState<timesheetCalendar>(
 		'calendar-timesheet',
-		'Calendar'
+		'Calendar',
+		{
+			validate: (val) => val !== null,
+			onError: (err) => console.error(err)
+		}
 	);
 	const {
 		isOpen: isManualTimeModalOpen,

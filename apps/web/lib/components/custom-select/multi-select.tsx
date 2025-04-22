@@ -3,7 +3,7 @@ import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
 import { ChevronDown } from 'lucide-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
 
 import { statusColor } from '..';
 import { IconsCloseRounded } from '@/icons';

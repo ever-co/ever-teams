@@ -6,16 +6,14 @@ import { Button } from '@components/ui/button';
 import { Calendar } from '@components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { DateRange } from 'react-day-picker';
-import { SetStateAction } from 'jotai';
 import moment from 'moment';
-import { SetAtom } from 'types';
 import { IDailyPlan } from '@/app/interfaces';
 
 interface ITaskDatePickerWithRange {
 	className?: string;
 	date?: DateRange;
 
-	onSelect?: SetAtom<[SetStateAction<DateRange | undefined>], void>;
+	onSelect?: (range: DateRange | undefined) => void;
 	label?: string;
 	data?: IDailyPlan[];
 }
@@ -31,7 +29,7 @@ export function TaskDatePickerWithRange({ className, date, onSelect, label, data
 	};
 	const handleDateSelect = (newDate: DateRange | undefined) => {
 		if (onSelect) {
-			onSelect(() => newDate);
+			onSelect(newDate);
 		}
 	};
 	return (

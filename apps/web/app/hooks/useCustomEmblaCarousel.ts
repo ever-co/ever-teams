@@ -1,6 +1,7 @@
 'use client';
 
-import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+import type { EmblaOptionsType } from 'embla-carousel';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useCustomEmblaCarousel = (startIndex = 0, options?: Partial<EmblaOptionsType>) => {

@@ -1,5 +1,5 @@
 import { useCallbackRef } from '@app/hooks';
-import React from 'react';
+import React, { JSX } from 'react';
 
 export const ObserverComponent = ({
 	isLast,
