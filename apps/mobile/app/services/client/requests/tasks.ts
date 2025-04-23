@@ -7,11 +7,24 @@ export function getTeamTasksRequest({
 	tenantId,
 	organizationId,
 	bearer_token,
-	relations = ["tags", "teams", "members", "members.user", "creator"],
+	activeTeamId, // Added parameter
+	relations = [
+		"tags",
+		"teams",
+		"members",
+		"members.user",
+		"creator",
+		"linkedIssues",
+		"linkedIssues.taskTo",
+		"linkedIssues.taskFrom",
+		"parent",
+		"children"
+	],
 }: {
 	tenantId: string
 	organizationId: string
 	bearer_token: string
+	activeTeamId?: string // Made optional but included in type
 	relations?: string[]
 }) {
 	const params = {
@@ -20,6 +33,7 @@ export function getTeamTasksRequest({
 		"join[alias]": "task",
 		"join[leftJoinAndSelect][members]": "task.members",
 		"join[leftJoinAndSelect][user]": "members.user",
+		...(activeTeamId ? { "where[teams][0]": activeTeamId } : {}) // Added team filter
 	} as { [x: string]: string }
 
 	relations.forEach((rl, i) => {
@@ -27,6 +41,7 @@ export function getTeamTasksRequest({
 	})
 
 	const query = new URLSearchParams(params)
+	console.log("Tasks API request:", `/tasks/team?${query.toString()}`);
 
 	return serverFetch<PaginationResponse<ITeamTask>>({
 		path: `/tasks/team?${query.toString()}`,
@@ -141,6 +156,25 @@ export function deleteEmployeeFromTasksRequest({
 	return serverFetch<DeleteResponse>({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: "DELETE",
+		bearer_token,
+		tenantId,
+	})
+}
+
+export function getEmployeeTasksRequest({
+	tenantId,
+	employeeId,
+	organizationTeamId,
+	bearer_token,
+}: {
+	tenantId: string
+	employeeId: string
+	organizationTeamId: string
+	bearer_token: string
+}) {
+	return serverFetch<ITeamTask[]>({
+		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
+		method: "GET",
 		bearer_token,
 		tenantId,
 	})
