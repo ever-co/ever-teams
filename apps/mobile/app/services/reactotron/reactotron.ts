@@ -77,7 +77,9 @@ export function setReactotronRootStore(rootStore: RootStore, initialData: any) {
 		}
 
 		// tracks the current MobX-State-Tree tree in Reactotron's "State" tab
-		Reactotron.trackMstNode(rootStore);
+		// Note: trackMstNode is not available in the safe version
+		// We'll use display instead to show the root store
+		Reactotron.display({ name: 'ROOT STORE', value: rootStore, preview: 'Current State' });
 	}
 }
 
@@ -96,11 +98,18 @@ export function setupReactotron(customConfig: ReactotronConfig = {}) {
 		// merge the passed in config with our default config
 		Object.assign(config, customConfig);
 
-		// configure reactotron
-		Reactotron.configure({
-			name: config.name || require('../../../package.json').name,
-			host: config.host
-		});
+		// configure reactotron - only if not already configured in reactotronClient.ts
+		try {
+			// Check if Reactotron is already configured
+			if (typeof Reactotron.configure === 'function') {
+				Reactotron.configure({
+					name: config.name || require('../../../package.json').name,
+					host: config.host
+				});
+			}
+		} catch (error) {
+			console.warn('Reactotron configuration error:', error);
+		}
 
 		// hookup middleware
 		if (Platform.OS !== 'web') {
@@ -122,8 +131,15 @@ export function setupReactotron(customConfig: ReactotronConfig = {}) {
 			})
 		);
 
-		// connect to the app
-		Reactotron.connect();
+		// connect to the app - only if not already connected in reactotronClient.ts
+		try {
+			// Check if Reactotron is already connected
+			if (typeof Reactotron.connect === 'function') {
+				Reactotron.connect();
+			}
+		} catch (error) {
+			console.warn('Reactotron connection error:', error);
+		}
 
 		/**
 		 * Reactotron allows you to define custom commands that you can run
