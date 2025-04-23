@@ -12,41 +12,49 @@ interface IGetUserOrganizationParams {
 }
 
 const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
-	const { data: organizations } = await getUserOrganizationsRequest(
-		{ tenantId: params.tenantId, userId: params.userId },
-		params.authToken
-	);
-	const organizationsItems = organizations?.items;
-
-	const filteredOrganization = organizationsItems?.reduce((acc, org) => {
-		if (!acc.find((o) => o.organizationId === org.organizationId)) {
-			acc.push(org);
-		}
-		return acc;
-	}, [] as IUserOrganization[]);
-
-	const callTeams = filteredOrganization?.map((item) => {
-		return getAllOrganizationTeamRequest(
-			{ tenantId: params.tenantId, organizationId: item.organizationId },
+	try {
+		const { data: organizations } = await getUserOrganizationsRequest(
+			{ tenantId: params.tenantId, userId: params.userId },
 			params.authToken
 		);
-	});
 
-	if (callTeams) {
-		const data: ITeamsOut = await Promise.all(callTeams).then((tms) => {
-			return tms.reduce(
-				(acc, { data }) => {
-					acc.items.push(...data.items);
-					acc.total += data.total;
-					return acc;
-				},
-				{ items: [] as IOrganizationTeamList[], total: 0 }
+		const organizationsItems = organizations?.items;
+
+		const filteredOrganization = organizationsItems?.reduce((acc, org) => {
+			if (!acc.find((o) => o.organizationId === org.organizationId)) {
+				acc.push(org);
+			}
+			return acc;
+		}, [] as IUserOrganization[]);
+
+		if (!filteredOrganization || filteredOrganization.length === 0) {
+			return { items: [], total: 0 };
+		}
+
+		const callTeams = filteredOrganization.map((item) => {
+			return getAllOrganizationTeamRequest(
+				{ tenantId: params.tenantId, organizationId: item.organizationId },
+				params.authToken
 			);
 		});
 
+		const teamResponses = await Promise.all(callTeams);
+
+		const data: ITeamsOut = teamResponses.reduce(
+			(acc, { data }) => {
+				if (data && data.items) {
+					acc.items.push(...data.items);
+					acc.total += data.total || 0;
+				}
+				return acc;
+			},
+			{ items: [] as IOrganizationTeamList[], total: 0 }
+		);
+
 		return data;
-	} else {
-		return null;
+	} catch (error) {
+		console.error('Error fetching user organizations and teams:', error);
+		return { items: [], total: 0 };
 	}
 };
 
