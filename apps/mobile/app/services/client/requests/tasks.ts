@@ -13,7 +13,7 @@ export function getTeamTasksRequest({
 		"teams",
 		"members",
 		"members.user",
-		"creator",
+		"createdByUser",
 		"linkedIssues",
 		"linkedIssues.taskTo",
 		"linkedIssues.taskFrom",
@@ -41,7 +41,7 @@ export function getTeamTasksRequest({
 	})
 
 	const query = new URLSearchParams(params)
-	console.log("Tasks API request:", `/tasks/team?${query.toString()}`);
+	// console.log("Tasks API request:", `/tasks/team?${query.toString()}`);
 
 	return serverFetch<PaginationResponse<ITeamTask>>({
 		path: `/tasks/team?${query.toString()}`,
