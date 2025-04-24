@@ -1,7 +1,7 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogDescription, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { PropsWithChildren, useRef } from 'react';
 
@@ -51,7 +51,7 @@ export function Modal({
 				initialFocus={refDiv}
 			>
 				<div ref={refDiv} className="fixed inset-0 flex items-center justify-center p-4">
-					<Dialog.Panel
+					<DialogPanel
 						className={clsxm(
 							'relative bg-white rounded-lg p-6 shadow-xl dark:bg-dark--theme-light dark:shadow-xl dark:shadow-dark--theme-light',
 							'flex flex-col space-y-4',
@@ -81,17 +81,22 @@ export function Modal({
 						)}
 
 						{title && (
-							<Dialog.Title className={clsxm('text-lg font-medium leading-6 text-gray-900', titleClass)}>
+							<DialogTitle
+								className={clsxm(
+									'text-lg font-medium leading-6 text-gray-900 dark:text-white',
+									titleClass
+								)}
+							>
 								{title}
-							</Dialog.Title>
+							</DialogTitle>
 						)}
 
 						{description && (
-							<Dialog.Description className="text-sm text-gray-500">{description}</Dialog.Description>
+							<DialogDescription className="text-sm text-gray-500">{description}</DialogDescription>
 						)}
 
 						{children}
-					</Dialog.Panel>
+					</DialogPanel>
 				</div>
 			</Dialog>
 		</Transition>

@@ -1,7 +1,6 @@
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { Modal, statusColor } from '@/lib/components';
 import { AnimatedEmptyState } from '@components/ui/empty-state';
-import React from 'react';
 import { TimesheetCardDetail } from './TimesheetCard';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { TimesheetDetailMode } from '../page';
@@ -37,7 +36,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 			title={title}
 			showCloseIcon
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded w-full md:w-40 md:min-w-[35rem]"
-			titleClass="font-bold flex justify-start w-full text-xl"
+			titleClass="font-bold flex justify-start w-full text-xl dark:text-white"
 		>
 			<div className="py-4 w-full">
 				<div className="flex flex-col  w-full  gap-4  h-[60vh] max-h-[60vh]  overflow-y-auto ">
