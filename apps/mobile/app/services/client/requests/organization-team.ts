@@ -92,7 +92,7 @@ export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
 		tenantId,
-		relations = ['members', 'members.role', 'members.employee', 'members.employee.user']
+		relations = ['members', 'members.role', 'members.employee', 'members.employee.user', 'projects']
 	}: TeamRequestParams,
 	bearer_token: string
 ) {

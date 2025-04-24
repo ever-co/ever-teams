@@ -5,24 +5,30 @@ interface IGetAllTasksParams {
 	authToken: string;
 	tenantId: string;
 	organizationId: string;
-	activeTeamId: string;
+	teamId: string;
 }
 const fetchAllTasks = async (params: IGetAllTasksParams) => {
 	try {
-        // Pass the teamId directly to the API call
+        console.log('Fetching tasks with params:', params);
         const { data } = await getTeamTasksRequest({
-            bearer_token: params.authToken,
             tenantId: params.tenantId,
             organizationId: params.organizationId,
-            activeTeamId: params.activeTeamId
+            bearer_token: params.authToken,
+            teamId: params.teamId
         });
+        console.log('Raw API response:', data);
 
+        if (!data || !data.items || !Array.isArray(data.items)) {
+            console.log('No items found in response');
+            return [];
+          }
         // Server filtering should already be done, but we keep client filtering as a backup
         const tasks = data?.items?.filter((task) => {
-            return !params.activeTeamId || task.teams.some((tm) => tm.id === params.activeTeamId);
+            return !params.teamId || task.teams.some((tm) => tm.id === params.teamId);
         }) || [];
 
-        return tasks;
+        // console.log(`Found ${data.items.length} tasks`);
+        return data.items;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
@@ -31,11 +37,11 @@ const fetchAllTasks = async (params: IGetAllTasksParams) => {
 
 const useFetchAllTasks = (params: IGetAllTasksParams) =>
     useQuery({
-        queryKey: ['tasks', params.activeTeamId], // Include team ID in the query key
+        queryKey: ['tasks', params.teamId], // Include team ID in the query key
         queryFn: () => fetchAllTasks(params),
         refetchInterval: 5000,
         notifyOnChangeProps: ['data'],
-        enabled: !!params.activeTeamId // Only fetch when we have a team ID
+        enabled: !!params.teamId // Only fetch when we have a team ID
     });
 
 export default useFetchAllTasks;

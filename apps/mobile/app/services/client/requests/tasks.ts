@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import qs from "qs";
 import { DeleteResponse, PaginationResponse, CreateResponse } from "../../interfaces/IDataResponse"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 import { serverFetch } from "../fetch"
@@ -6,8 +7,9 @@ import { serverFetch } from "../fetch"
 export function getTeamTasksRequest({
 	tenantId,
 	organizationId,
+	projectId,
+	teamId,
 	bearer_token,
-	activeTeamId, // Added parameter
 	relations = [
 		"tags",
 		"teams",
@@ -21,30 +23,36 @@ export function getTeamTasksRequest({
 		"children"
 	],
 }: {
-	tenantId: string
-	organizationId: string
-	bearer_token: string
-	activeTeamId?: string // Made optional but included in type
-	relations?: string[]
+	tenantId: string;
+	organizationId: string;
+	bearer_token: string;
+	relations?: string[];
+	projectId?: string;
+	teamId: string;
 }) {
-	const params = {
+	const obj = {
 		"where[organizationId]": organizationId,
 		"where[tenantId]": tenantId,
+		'where[projectId]': projectId,
 		"join[alias]": "task",
 		"join[leftJoinAndSelect][members]": "task.members",
 		"join[leftJoinAndSelect][user]": "members.user",
-		...(activeTeamId ? { "where[teams][0]": activeTeamId } : {}) // Added team filter
-	} as { [x: string]: string }
+		'where[teams][0]': teamId
+	}as Record<string, string>;
 
 	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl
+		obj[`relations[${i}]`] = rl
 	})
 
-	const query = new URLSearchParams(params)
-	console.log("Tasks API request:", `/tasks/team?${query.toString()}`);
+	console.log("API params:", obj);
+
+	const query = qs.stringify(obj);
+	// console.log('API query string:', query);
+	// const query = new URLSearchParams(params)
+	// console.log("Tasks API request:", `/tasks/team?${query.toString()}`);
 
 	return serverFetch<PaginationResponse<ITeamTask>>({
-		path: `/tasks/team?${query.toString()}`,
+		path: `/tasks/team?${query}`,
 		method: "GET",
 		bearer_token,
 		tenantId,

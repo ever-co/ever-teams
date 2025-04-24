@@ -18,7 +18,7 @@ import { useOrganizationTeam } from "../useOrganization"
 export function useTeamTasks() {
 	const {
 		authenticationStore: { tenantId, organizationId, authToken, user },
-		teamStore: { activeTeam, activeTeamId },
+		teamStore: { activeTeam, activeTeamId: teamId },
 		TaskStore: {
 			teamTasks,
 			setTeamTasks,
@@ -48,7 +48,7 @@ export function useTeamTasks() {
 		isFetching,
 		isRefetching,
 		refetch,
-	} = useFetchAllTasks({ tenantId, organizationId, authToken, activeTeamId })
+	} = useFetchAllTasks({ tenantId, organizationId, authToken, teamId })
 
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
@@ -104,7 +104,7 @@ export function useTeamTasks() {
 		refetch().then((res) => {
 			deepCheckAndUpdateTasks(res?.data || [], true)
 		})
-	}, [activeTeamId, firstLoad])
+	}, [teamId, firstLoad])
 
 	const getTaskById = useCallback(
 		async (taskId: string) => {
@@ -157,7 +157,7 @@ export function useTeamTasks() {
 					tags: [],
 					teams: [
 						{
-							id: activeTeamId,
+							id: teamId,
 						},
 					],
 					estimate: 0,
@@ -186,7 +186,7 @@ export function useTeamTasks() {
 				setCreateLoading(false)
 			}
 		},
-		[activeTeamId],
+		[teamId],
 	)
 
 	// Global loading state
@@ -273,7 +273,7 @@ export function useTeamTasks() {
 				const { response } = await updateOrganizationTeamEmployeeActiveTask(
 					currentUser,
 					task?.id,
-					activeTeamId,
+					teamId,
 				)
 
 				if (response.ok) {
@@ -289,7 +289,7 @@ export function useTeamTasks() {
 				setIsUpdatingActiveTask(false)
 			}
 		},
-		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId],
+		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, teamId],
 	)
 
 	useEffect(() => {
