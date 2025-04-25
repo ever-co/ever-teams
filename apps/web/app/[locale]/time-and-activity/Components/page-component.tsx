@@ -9,13 +9,13 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import React, { useMemo, useState, useCallback } from 'react';
-import TimeActivityHeader, { ViewOption } from './time-activity-header';
-import CardTimeAndActivity from './card-time-and-activity';
+import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@components/ui/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
+import TimeActivityHeader, { ViewOption } from './time-activity-header';
+import CardTimeAndActivity from './card-time-and-activity';
 import { TimeActivityTable } from './TimeActivityTable';
 import ActivityTable from './ActivityTable';
 
@@ -80,7 +80,7 @@ const TimeActivityComponents = () => {
 	);
 
 	const handleBack = () => router.back();
-	
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
