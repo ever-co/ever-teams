@@ -29,16 +29,7 @@ import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import {
-	Fragment,
-	MutableRefObject,
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
+import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
@@ -60,7 +51,7 @@ type Props = {
 	inputLoader?: boolean;
 	onEnterKey?: (taskName: string, task: ITeamTask) => void;
 	keepOpen?: boolean;
-	loadingRef?: MutableRefObject<boolean>;
+	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
@@ -329,7 +320,7 @@ export function TaskInput(props: Props) {
 			ref={targetEl}
 			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
 			setTaskName={setTaskName}
-			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as RefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
@@ -434,6 +425,7 @@ export function TaskInput(props: Props) {
 			{props.children}
 
 			<Transition
+				as="div"
 				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -510,12 +502,11 @@ function TaskCard({
 					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
-				{inputField}
-				<div>
-					{/* Create team button */}
-					<div className="flex flex-col gap-y-2">
+				<div className="flex flex-col gap-4">
+					<>
+						{inputField}
 						{datas.hasCreateForm && (
-							<div>
+							<div className="flex flex-col gap-2">
 								<InputField
 									placeholder="Description"
 									emojis={true}
@@ -587,6 +578,7 @@ function TaskCard({
 
 									{taskAssignees !== undefined && (
 										<AssigneesSelect
+											key={`assignees-${datas.inputTask?.id || 'new'}`}
 											className="lg:min-w-[170px] bg-white"
 											assignees={taskAssignees}
 											teamMembers={activeTeam?.members ?? []}
@@ -626,8 +618,7 @@ function TaskCard({
 								{t('common.CREATE_TASK')}
 							</Button>
 						</Tooltip>
-					</div>
-
+					</>
 					{/* Task filter buttons  */}
 					<div className="flex mt-4 space-x-3">
 						<OutlineBadge
@@ -728,7 +719,7 @@ function TaskCard({
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	assignees: MutableRefObject<
+	assignees?: RefObject<
 		{
 			id: string;
 		}[]
@@ -744,7 +735,7 @@ interface ITeamMemberSelectProps {
  *
  * @return {JSX.Element} The multi select component
  */
-function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
+function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): React.ReactElement {
 	const { teamMembers, assignees } = props;
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
@@ -767,10 +758,10 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white',
-									!assignees.current.length && ['!text-dark/40  dark:!text-white']
+									!assignees?.current?.length && ['!text-dark/40  dark:!text-white']
 								)}
 							>
-								{!assignees.current.length ? (
+								{!assignees?.current?.length ? (
 									<CircleIcon className="w-4 h-4" />
 								) : (
 									<UserGroupIcon className="w-4 h-4" />
@@ -781,7 +772,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						</Combobox.Button>
 					</div>
 					<Transition
-						as={Fragment}
+						as="div"
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
@@ -818,21 +809,25 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 											}`
 										}
 										onClick={() => {
+											if (!assignees) return;
 											const isAssigned = assignees.current
-												.map((el) => el.id)
+												?.map((el) => el.id)
 												.includes(member.employee.id);
 
 											if (isAssigned) {
-												assignees.current = assignees.current.filter(
-													(el) => el.id != member.employee.id
+												assignees.current = (assignees.current || []).filter(
+													(el) => el.id !== member.employee.id
 												);
 											} else {
-												assignees.current = [...assignees.current, { id: member.employee.id }];
+												assignees.current = [
+													...(assignees.current || []),
+													{ id: member.employee.id }
+												];
 											}
 										}}
 										value={member}
 									>
-										{assignees.current.map((el) => el.id).includes(member.employee.id) && (
+										{assignees?.current?.map((el) => el.id).includes(member.employee.id) && (
 											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>

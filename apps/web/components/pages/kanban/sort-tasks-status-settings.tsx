@@ -7,7 +7,7 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusItemList[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);

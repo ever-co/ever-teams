@@ -26,6 +26,7 @@ import { Divider } from 'lib/components';
 
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
+import { DateRange } from 'react-day-picker';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
@@ -278,6 +279,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
 		component. */}
 			<Transition
+				as="div"
 				show={hook.filterType !== undefined}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
@@ -479,7 +481,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					<TaskDatePickerWithRange
 						data={data.data}
 						date={date}
-						onSelect={(range) => setDate(range)}
+						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"
 					/>
 				)}

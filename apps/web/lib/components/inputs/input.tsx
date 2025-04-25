@@ -17,9 +17,9 @@ import {
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
-import { BsEmojiSmile } from 'react-icons/bs';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { IconsEmojiEmotions } from '@/icons';
 
 type Props = {
 	readonly errors?: Record<string, string>;
@@ -163,8 +163,11 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					{emojis && (
 						<div>
 							{clickInput && (
-								<>
-									<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+								<div>
+									<IconsEmojiEmotions
+										onMouseOver={() => setShowEmoji(true)}
+										className={clsxm('mr-3')}
+									/>
 									{showEmoji && (
 										<div
 											ref={mergeRefs(
@@ -184,7 +187,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 											/>
 										</div>
 									)}
-								</>
+								</div>
 							)}
 						</div>
 					)}

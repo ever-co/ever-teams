@@ -24,7 +24,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const { user } = useAuthenticateUser();
 	const activeFilter = useAtomValue(taskBlockFilterState);
 	const fullWidth = useAtomValue(fullWidthState);
-	const { activeTeam, getOrganizationTeamsLoading : teamsFetching } = useOrganizationTeams();
+	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
 	// Memoize the filter function to prevent recreation on every render
 	const filterValidMembers = useCallback((members: OT_Member[]) => {
@@ -158,6 +158,7 @@ export function TeamMembersView({
 			teamMembersView = (
 				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<Transition
+						as="div"
 						show={!!currentUser}
 						enter="transition-opacity duration-75"
 						enterFrom="opacity-0"

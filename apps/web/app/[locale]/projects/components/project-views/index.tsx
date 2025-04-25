@@ -7,7 +7,6 @@ import { EditProjectModal } from '@/lib/features/project/edit-project-modal';
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment } from 'react';
 
 export type ProjectViewDataType = {
 	project: {
@@ -50,7 +49,7 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 					</Menu.Button>
 				</div>
 				<Transition
-					as={Fragment}
+					as="div"
 					enter="transition ease-out duration-100"
 					enterFrom="transform opacity-0 scale-95"
 					enterTo="transform opacity-100 scale-100"

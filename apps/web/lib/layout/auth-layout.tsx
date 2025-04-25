@@ -99,9 +99,12 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 										{title}
 									</Text.Heading>
 								)}
-								{description && (
-									<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
-								)}
+								{description &&
+									(typeof description === 'string' ? (
+										<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
+									) : (
+										description
+									))}
 							</div>
 						)}
 

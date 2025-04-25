@@ -12,12 +12,15 @@ export async function POST(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+	if (!user) {
+		return NextResponse.json({}, { status: 401 });
+	}
 
-	if (req.method === 'POST') {
-		const body = req.body as { name?: string };
+	try {
+		const body = (await req.json()) as { name?: string };
 		const $name = body.name?.trim() || '';
-		if ($name.trim().length < 2) {
+
+		if ($name.length < 2) {
 			return NextResponse.json({ errors: { name: 'Invalid team name !' } }, { status: 400 });
 		}
 
@@ -31,79 +34,53 @@ export async function POST(req: Request) {
 			},
 			access_token
 		);
-	}
 
-	if (<boolean>true) {
-		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId: organizationId }, access_token);
+		// Return updated teams list after creation
+		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token);
 		return $res(teams.data);
+	} catch (error) {
+		return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
 	}
-
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
-
-	const organizationsItems = organizations.items;
-
-	const filteredOrganization = organizationsItems.reduce((acc, org) => {
-		if (!acc.find((o) => o.organizationId === org.organizationId)) {
-			acc.push(org);
-		}
-		return acc;
-	}, [] as IUserOrganization[]);
-
-	const call_teams = filteredOrganization.map((item) => {
-		return getAllOrganizationTeamRequest({ tenantId, organizationId: item.organizationId }, access_token);
-	});
-
-	const teams = await Promise.all(call_teams).then((tms) => {
-		return tms.reduce(
-			(acc, { data }) => {
-				if (data && data.items) {
-					acc.items.push(...data.items);
-					acc.total += data.total;
-				}
-
-				return acc;
-			},
-			{ items: [] as IOrganizationTeamList[], total: 0 }
-		);
-	});
-
-	return $res(teams);
 }
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+	if (!user) {
+		return NextResponse.json({}, { status: 401 });
+	}
 
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
+	try {
+		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
+		const organizationsItems = organizations.items;
 
-	const organizationsItems = organizations.items;
+		const filteredOrganization = organizationsItems.reduce((acc, org) => {
+			if (!acc.find((o) => o.organizationId === org.organizationId)) {
+				acc.push(org);
+			}
+			return acc;
+		}, [] as IUserOrganization[]);
 
-	const filteredOrganization = organizationsItems.reduce((acc, org) => {
-		if (!acc.find((o) => o.organizationId === org.organizationId)) {
-			acc.push(org);
-		}
-		return acc;
-	}, [] as IUserOrganization[]);
-
-	const call_teams = filteredOrganization.map((item) => {
-		return getAllOrganizationTeamRequest({ tenantId, organizationId: item.organizationId }, access_token);
-	});
-
-	const teams = await Promise.all(call_teams).then((tms) => {
-		return tms.reduce(
-			(acc, { data }) => {
-				if (data && data.items) {
-					acc.items.push(...data.items);
-					acc.total += data.total;
-				}
-
-				return acc;
-			},
-			{ items: [] as IOrganizationTeamList[], total: 0 }
+		const call_teams = filteredOrganization.map((item) =>
+			getAllOrganizationTeamRequest({ tenantId, organizationId: item.organizationId }, access_token)
 		);
-	});
 
-	return $res(teams);
+		const teams = await Promise.all(call_teams).then((tms) =>
+			tms.reduce(
+				(acc, { data }) => {
+					if (data?.items) {
+						acc.items.push(...data.items);
+						acc.total += data.total;
+					}
+					return acc;
+				},
+				{ items: [] as IOrganizationTeamList[], total: 0 }
+			)
+		);
+
+		return $res(teams);
+	} catch (error) {
+		return NextResponse.json({ error: 'Failed to fetch teams' }, { status: 500 });
+	}
 }

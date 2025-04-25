@@ -17,7 +17,7 @@ import createMiddleware from 'next-intl/middleware';
 export const config = {
 	matcher: [
 		'/',
-		'/(en|de|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
+		'/(en|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
 		'/((?!api|_next|_vercel|.*\\..*).*)',
 		'/auth/(.*)',
 		'/profile/:path*',

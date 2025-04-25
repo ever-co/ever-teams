@@ -81,7 +81,7 @@ export function TeamStatsGrid({
 				showProgress: false
 			}
 		],
-		[timeValue, progress, statisticsCounts?.employeesCount,t]
+		[timeValue, progress, statisticsCounts?.employeesCount, t]
 	);
 
 	return (
@@ -94,7 +94,9 @@ export function TeamStatsGrid({
 							{loadingTimesheetStatisticsCounts ? (
 								<Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
 							) : (
-								<span className={`text-2xl font-semibold ${stat.color || 'text-gray-900 dark:text-white'}`}>
+								<span
+									className={`text-2xl font-semibold ${stat.color || 'text-gray-900 dark:text-white'}`}
+								>
 									{stat.value}
 								</span>
 							)}

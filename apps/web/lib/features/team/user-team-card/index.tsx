@@ -301,7 +301,6 @@ export function UserTeamCard({
 			>
 				<div className="flex items-center justify-between mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
-					{/*@ts-ignore*/}
 					{totalWork}
 				</div>
 

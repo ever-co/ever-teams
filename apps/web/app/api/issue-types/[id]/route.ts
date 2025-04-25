@@ -1,11 +1,11 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { deleteIssueTypesRequest, editIssueTypesRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const res = new NextResponse();
-	if (!params.id) {
+	const id = (await params).id;
+	if (!id) {
 		return;
 	}
 
@@ -16,7 +16,7 @@ export async function PUT(req: Request, { params }: INextParams) {
 	const body = await req.json();
 
 	const response = await editIssueTypesRequest({
-		id: params.id,
+		id: id,
 		datas: body,
 		bearer_token: access_token,
 		tenantId
@@ -25,9 +25,10 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const res = new NextResponse();
-	if (!params.id) {
+	const id = (await params).id;
+	if (!id) {
 		return;
 	}
 
@@ -36,7 +37,7 @@ export async function DELETE(req: Request, { params }: INextParams) {
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const response = await deleteIssueTypesRequest({
-		id: params.id,
+		id: id,
 		bearer_token: access_token,
 		tenantId
 	});

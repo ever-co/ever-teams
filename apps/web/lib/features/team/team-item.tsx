@@ -33,10 +33,11 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 						</div>
 
 						<Link
-							onClick={() => {
+							onClick={(e) => {
 								onChangeActiveTeam({
 									data: team
 								} as TeamItem);
+								e.stopPropagation();
 							}}
 							href="/settings/team"
 						>

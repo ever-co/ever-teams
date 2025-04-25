@@ -3,7 +3,6 @@ import { statusColor } from '@/lib/components';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import React from 'react';
 import { EmployeeAvatar, ProjectLogo } from './CompactTimesheetComponent';
 import { formatDate } from '@/app/helpers';
 import { ClockIcon, CodeSquareIcon } from 'lucide-react';

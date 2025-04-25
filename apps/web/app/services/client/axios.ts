@@ -1,5 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { API_BASE_URL, APPLICATION_LANGUAGES_CODE, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL, IS_DESKTOP_APP } from '@app/constants';
+import {
+	API_BASE_URL,
+	APPLICATION_LANGUAGES_CODE,
+	DEFAULT_APP_PATH,
+	GAUZY_API_BASE_SERVER_URL,
+	IS_DESKTOP_APP
+} from '@app/constants';
 import {
 	getAccessTokenCookie,
 	getActiveTeamIdCookie,
@@ -89,14 +95,14 @@ type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: bool
 
 async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {
-	  try {
+		try {
 			const serverConfig = await api.get('/desktop-server');
-      return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+			return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 		} catch (error) {
-			return GAUZY_API_BASE_SERVER_URL
+			return GAUZY_API_BASE_SERVER_URL;
 		}
-  }
-  return GAUZY_API_BASE_SERVER_URL;
+	}
+	return GAUZY_API_BASE_SERVER_URL;
 }
 
 async function apiConfig(config?: APIConfig) {
@@ -105,10 +111,11 @@ async function apiConfig(config?: APIConfig) {
 
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 
-  if (IS_DESKTOP_APP) { // dynamic api host while on desktop mode
-    const runtimeConfig =  await desktopServerOverride();
-    baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
-  }
+	if (IS_DESKTOP_APP) {
+		// dynamic api host while on desktop mode
+		const runtimeConfig = await desktopServerOverride();
+		baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
+	}
 
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 

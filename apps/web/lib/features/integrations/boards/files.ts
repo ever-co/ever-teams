@@ -2,8 +2,8 @@ import {
 	ExcalidrawElement,
 	FileId,
 	InitializedExcalidrawImageElement
-} from '@excalidraw/excalidraw/types/element/types';
-import { BinaryFileData, BinaryFileMetadata } from '@excalidraw/excalidraw/types/types';
+} from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
+import { BinaryFileData, BinaryFileMetadata } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { compressData } from './encode';
 
 export const isInitializedImageElement = (

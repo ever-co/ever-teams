@@ -15,7 +15,7 @@ import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, InputField, SpinnerLoader, Tooltip } from 'lib/components';
-import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
@@ -32,7 +32,7 @@ type Props = {
 	inputLoader?: boolean;
 	onEnterKey?: (taskName: string, task: ITeamTask) => void;
 	keepOpen?: boolean;
-	loadingRef?: MutableRefObject<boolean>;
+	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
@@ -349,8 +349,8 @@ function TaskCard({
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
 	return (
-		<>
-			<Card shadow="custom">
+		<Card shadow="custom">
+			<>
 				{inputField}
 				<div>
 					{/* Create team button */}
@@ -437,10 +437,8 @@ function TaskCard({
 						</Tooltip>
 					</div>
 				</div>
-			</Card>
-
-			{/* Just some spaces at the end */}
+			</>
 			<div className="w-2 h-5 opacity-0">{'|'}</div>
-		</>
+		</Card>
 	);
 }

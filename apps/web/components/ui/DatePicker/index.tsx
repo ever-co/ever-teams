@@ -8,32 +8,64 @@ import { Calendar } from '@components/ui/calendar';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 
-export type CustomCalendarProps = {
+type BaseDatePickerProps = {
 	customInput: React.ReactNode;
 	buttonClassName?: string;
 	buttonVariant?: 'link' | 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
 };
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & CustomCalendarProps;
 
-export function DatePicker({ customInput, selected, buttonVariant, buttonClassName, ...props }: CalendarProps) {
+type SingleDatePickerProps = BaseDatePickerProps & {
+	mode?: 'single';
+	selected?: Date;
+	onSelect?: (date: Date | undefined) => void;
+} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect' | 'displayMonth'>;
+
+type RangeDatePickerProps = BaseDatePickerProps & {
+	mode: 'range';
+	selected?: { from: Date; to?: Date };
+	onSelect?: (range: { from: Date; to?: Date } | undefined) => void;
+} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect' | 'displayMonth'>;
+
+type MultipleDatePickerProps = BaseDatePickerProps & {
+	mode: 'multiple';
+	selected?: Date[];
+	onSelect?: (dates: Date[] | undefined) => void;
+} & Omit<React.ComponentProps<typeof DayPicker>, 'mode' | 'selected' | 'onSelect' | 'displayMonth'>;
+
+export type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps | MultipleDatePickerProps;
+
+export function DatePicker(props: DatePickerProps) {
+	const { customInput, selected, buttonVariant, buttonClassName, onSelect, mode = 'single', ...rest } = props;
+
+	const calendarProps = {
+		...rest,
+		mode,
+		selected,
+		onSelect: onSelect as any,
+		initialFocus: true
+	};
+
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
-				<Button
-					variant={buttonVariant || undefined}
-					className={cn(
-						'w-[240px] justify-start text-left font-normal',
-						!selected && 'text-muted-foreground',
-						buttonClassName
-					)}
-				>
-					{/* <CalendarIcon className="mr-2 h-4 w-4" /> */}
-					{/* {date ? format(date, 'PPP') : <span>Select a date</span>} */}
-					{customInput}
-				</Button>
+			<PopoverTrigger>
+				<div>
+					<Button
+						type="button"
+						variant={buttonVariant || undefined}
+						className={cn(
+							'w-[240px] justify-start text-left font-normal',
+							!selected && 'text-muted-foreground',
+							buttonClassName
+						)}
+					>
+						{customInput}
+					</Button>
+				</div>
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0 border-none" align="start">
-				<Calendar selected={selected as any} initialFocus {...props} />
+				<Calendar
+					{...Object.fromEntries(Object.entries(calendarProps).filter(([key]) => key !== 'displayMonth'))}
+				/>
 			</PopoverContent>
 		</Popover>
 	);

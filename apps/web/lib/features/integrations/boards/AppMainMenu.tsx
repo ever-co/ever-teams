@@ -8,10 +8,8 @@ export const AppMainMenu = React.memo(() => {
 			<MainMenu.DefaultItems.SaveToActiveFile />
 			<MainMenu.DefaultItems.Export />
 			<MainMenu.DefaultItems.SaveAsImage />
-
 			<MainMenu.DefaultItems.Help />
 			<MainMenu.DefaultItems.ClearCanvas />
-
 			<MainMenu.DefaultItems.ToggleTheme />
 			<MainMenu.DefaultItems.ChangeCanvasBackground />
 		</MainMenu>

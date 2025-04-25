@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const withNextIntl = require('next-intl/plugin')();
+const withNextIntl = require('next-intl/plugin')('./app/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -46,7 +46,6 @@ const nextConfig = {
 	reactStrictMode: false,
 	transpilePackages: ['geist'],
 	...eslintBuildConfig,
-	swcMinify: true,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');
 		config.resolve.alias['@components'] = path.join(__dirname, 'components');

@@ -1,8 +1,7 @@
 'use client';
 
 import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from 'lib/components';
-import { PiWarningCircleFill } from 'react-icons/pi';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -13,6 +12,7 @@ import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { ScrollArea } from '@components/ui/scroll-bar';
+import { IconsErrorWarningFill } from '@/icons';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -54,12 +54,12 @@ export function DailyPlanCompareEstimatedModal({
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<div className='w-[98%] md:w-[550px] relative'>
-				<Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow='custom'>
-					<div className='flex flex-col items-center justify-between'>
+			<div className="w-[98%] md:w-[550px] relative">
+				<Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow="custom">
+					<div className="flex flex-col items-center justify-between">
 						<DailyPlanCompareHeader />
 					</div>
-					<div className='flex items-start flex-col justify-start w-full px-2'>
+					<div className="flex items-start flex-col justify-start w-full px-2">
 						<TimePicker
 							defaultValue={{
 								hours: hour,
@@ -71,30 +71,29 @@ export function DailyPlanCompareEstimatedModal({
 						<DailyPlanWorkTimeInput />
 					</div>
 
-					<ScrollArea className='flex h-full w-full p-2 flex-col'>
+					<ScrollArea className="flex h-full w-full p-2 flex-col">
 						{todayPlan.map((plan, i) => {
-							return <div key={i}>
-								{plan.tasks?.map((data, index) => {
-									return <div key={index} className='p-1'>
-										<DailyPlanTask
-											key={index}
-											task={data}
-											profile={profile}
-										/>
-									</div>
-								})}
-							</div>
+							return (
+								<div key={i}>
+									{plan.tasks?.map((data, index) => {
+										return (
+											<div key={index} className="p-1">
+												<DailyPlanTask key={index} task={data} profile={profile} />
+											</div>
+										);
+									})}
+								</div>
+							);
 						})}
 					</ScrollArea>
-					<div className='flex flex-col'>
-						<div className='flex items-center pb-2 text-red-500 text-[12px]'>
+					<div className="flex flex-col">
+						<div className="flex items-center pb-2 text-red-500 text-[12px]">
 							{!difference && !estimated?.every(Boolean) && (
 								<>
-									<PiWarningCircleFill className='text-[14px]' />
+									<IconsErrorWarningFill className="text-[14px]" />
 									<span>Please correct planned work hours or re-estimate task(s)</span>
 								</>
-							)
-							}
+							)}
 						</div>
 						<DailyPlanCompareActionButton
 							loading={updateDailyPlanLoading}

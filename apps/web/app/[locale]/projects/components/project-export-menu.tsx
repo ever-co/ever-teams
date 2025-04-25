@@ -3,7 +3,6 @@ import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment } from 'react';
 import { PDFDocument } from '../export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
@@ -11,7 +10,7 @@ import { IOrganizationTeamList } from '@/app/interfaces';
 
 interface IProps {
 	projects: ProjectViewDataType[];
-	activeTeam : IOrganizationTeamList | null
+	activeTeam: IOrganizationTeamList | null;
 }
 
 export function ProjectExportMenu(props: IProps) {
@@ -31,7 +30,7 @@ export function ProjectExportMenu(props: IProps) {
 				</Button>
 			</Menu.Button>
 			<Transition
-				as={Fragment}
+				as="div"
 				enter="transition ease-out duration-100"
 				enterFrom="transform opacity-0 scale-95"
 				enterTo="transform opacity-100 scale-100"

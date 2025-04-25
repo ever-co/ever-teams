@@ -1,9 +1,9 @@
 import { ICreateDailyPlan } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { createPlanRequest, getAllDayPlans } from '@app/services/server/requests';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 	const res = new NextResponse();
 	const { $res, user, access_token: bearer_token, tenantId } = await authenticatedGuard(req, res);
 
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 	return $res(response.data);
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
 	const res = new NextResponse();
 
 	const {

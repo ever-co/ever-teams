@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { PropsWithChildren, useRef, ReactNode } from 'react';
+import { PropsWithChildren, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
@@ -38,7 +38,7 @@ type Props = PropsWithChildren<{
 	footerClassName?: string;
 
 	/** Custom content to be rendered in the header slot */
-	mainHeaderSlot?: JSX.Element | ReactNode;
+	mainHeaderSlot?: React.ReactNode;
 
 	/** Additional CSS classes for the header slot */
 	mainHeaderSlotClassName?: string;
@@ -80,12 +80,12 @@ type Props = PropsWithChildren<{
  *    Avoid setting fixed heights on direct children.
  *
  *    @example
- *    // ✅ Correct usage
+ *    // Correct usage
  *    <MainLayout>
  *      <div className="h-full">Content</div>
  *    </MainLayout>
  *
- *    // ❌ Avoid
+ *    // Avoid
  *    <MainLayout>
  *      <div style={{ height: '100vh' }}>Content</div>
  *    </MainLayout>
@@ -143,7 +143,12 @@ export function MainLayout({
 						<ResizablePanel
 							defaultSize={75}
 							className="!overflow-y-auto custom-scrollbar w-full min-h-svh h-full"
-							style={{ flex: 'none', minHeight: '90svh' }}
+							style={{
+								flexGrow: 0,
+								flexShrink: 0,
+								flexBasis: 'auto',
+								minHeight: '90svh'
+							}}
 						>
 							<div className={cn('flex-1 p-4 w-full h-full', className)}>
 								<MainSidebarTrigger />

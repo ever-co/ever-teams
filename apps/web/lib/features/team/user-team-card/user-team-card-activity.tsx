@@ -20,6 +20,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 
 	return (
 		<Transition
+			as="div"
 			show={!!showActivity}
 			enter="transition-opacity duration-75"
 			enterFrom="opacity-0"
@@ -29,7 +30,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 			leaveTo="opacity-0"
 			className="w-full px-4"
 		>
-			<div className="w-full transition-all">
+			<div className="w-full transition-all px-4">
 				<HorizontalSeparator className="my-4" />
 				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
 				<div className="flex flex-col justify-between w-full overflow-hidden gap-y-5">
@@ -78,6 +79,42 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							</Tab.Panels>
 						</Tab.Group>
 					</div>
+				</div>
+				<div className="overflow-hidden flex-1 w-full">
+					<Tab.Group>
+						<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
+							{Object.values(ActivityFilters).map((filter: string) => (
+								<Tab
+									key={filter}
+									className={({ selected }) =>
+										clsxm(
+											'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+											'focus:outline-none focus:ring-2',
+											selected
+												? 'bg-white dark:bg-dark text-blue-700 shadow'
+												: 'hover:bg-white/[0.50]'
+										)
+									}
+								>
+									{filter}
+								</Tab>
+							))}
+						</Tab.List>
+						<Tab.Panels className="mt-2 w-full">
+							<Tab.Panel className="overflow-hidden w-full">
+								<UserWorkedTaskTab member={member} />
+							</Tab.Panel>
+							<Tab.Panel className="w-full">
+								<ScreenshootTeamTab />
+							</Tab.Panel>
+							<Tab.Panel className="w-full">
+								<AppsTab />
+							</Tab.Panel>
+							<Tab.Panel className="w-full">
+								<VisitedSitesTab />
+							</Tab.Panel>
+						</Tab.Panels>
+					</Tab.Group>
 				</div>
 			</div>
 		</Transition>
