@@ -161,7 +161,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 								setEditMode(false);
 								setIsSheetOpen(false);
 								Keyboard.dismiss();
-								sheetRef.current?.close();
+								sheetRef.current?.snapToIndex(1);
 							}}
 							onUpdateLabel={updateLabel}
 							onCreateLabel={createLabel}

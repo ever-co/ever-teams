@@ -137,13 +137,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             width: 50,
             height: 5
           }}
-          onChange={(index) => {
-            if (index === 1) {
-              setIsSheetOpen(false);
-            } else if (index === 0) {
-              setIsSheetOpen(true);
-            }
-          }}
+          onChange={(index) => setIsSheetOpen(index === 0)}
         >
           <View style={{ padding: 16, flex: 1 }}>
             <TaskPriorityForm
@@ -151,7 +145,8 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
               onDismiss={() => {
                 setEditMode(false);
                 setIsSheetOpen(false);
-                sheetRef.current?.close();
+                // sheetRef.current?.close();
+                sheetRef.current?.snapToIndex(1);
               }}
               onUpdatePriority={updatePriority}
               onCreatePriority={createPriority}

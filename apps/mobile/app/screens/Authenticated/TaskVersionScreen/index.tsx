@@ -145,7 +145,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           height: 5
         }}
         onChange={(index) => {
-          setIsSheetOpen(index === 0);
+          setIsSheetOpen(false);
         }}
       >
         <View style={{ padding: 16, flex: 1 }}>
