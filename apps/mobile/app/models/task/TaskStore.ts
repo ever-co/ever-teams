@@ -12,7 +12,10 @@ export const TaskStoreModel = types
 		assignedTasks: types.array(types.frozen<ITeamTask>()),
 		unassignedTasks: types.array(types.frozen<ITeamTask>()),
 		fetchingTasks: types.optional(types.boolean, false),
-		tasksStatisticsState: types.optional(types.frozen(), null),
+		tasksStatisticsState: types.optional(types.frozen(), {
+			all: [],
+			today: []
+		  }),
 		statActiveTask: types.optional(types.frozen(), { total: 0, today: 0 }),
 		filter: types.optional(types.frozen(), {
 			statuses: [],

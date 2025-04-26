@@ -48,14 +48,7 @@ export function getOrganizationTeamRequest(
 		organizationId,
 		tenantId,
 		teamId,
-		relations = [
-			'members',
-			'members.role',
-			'members.employee',
-			'members.employee.user',
-			'createdBy',
-			'projects'
-		]
+		relations = ['members', 'members.role', 'members.employee', 'members.employee.user', 'projects']
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
@@ -99,13 +92,7 @@ export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
 		tenantId,
-		relations = [
-			'members',
-			'members.role',
-			'members.employee',
-			'members.employee.user',
-			'createdBy'
-		]
+		relations = ['members', 'members.role', 'members.employee', 'members.employee.user']
 	}: TeamRequestParams,
 	bearer_token: string
 ) {
