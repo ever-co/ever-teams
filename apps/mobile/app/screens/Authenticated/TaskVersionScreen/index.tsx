@@ -88,10 +88,11 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
 		// Clear state after animation completes
 		const timer = setTimeout(() => {
-			sheetRef.current.snapToIndex(desiredSnapIndex);
+			setBottomSheetVisible(false);
+      setItemToEdit(null);
 		}, 100);
 		return () => clearTimeout(timer);
-	}, []);
+	}, [desiredSnapIndex]);
 
 	// Effect to handle bottom sheet snap index when state changes
 	useEffect(() => {
