@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ITeamsOut } from '../../../../models/team/Team';
-import { IUserOrganization } from '../../../interfaces/IOrganization';
+// import { IUserOrganization } from '../../../interfaces/IOrganization';
 import { IOrganizationTeamList } from '../../../interfaces/IOrganizationTeam';
 import { getUserOrganizationsRequest } from '../../requests/organization';
 import { getAllOrganizationTeamRequest } from '../../requests/organization-team';
