@@ -1,6 +1,5 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
-import React, { FC, useRef, useState, useMemo } from 'react';
+// Changes to TaskVersionScreen.tsx
+import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,14 +10,15 @@ import {
   FlatList,
   StatusBar,
   Keyboard,
-  Animated
+  Animated,
+  Platform
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
 import { translate } from '../../../i18n';
 import { typography, useAppTheme } from '../../../theme';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTaskVersion } from '../../../services/hooks/features/useTaskVersion';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
 import { BlurView } from 'expo-blur';
@@ -35,19 +35,132 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
   const [editMode, setEditMode] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ITaskVersionItemList>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
+  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [desiredSnapIndex, setDesiredSnapIndex] = useState(0); // Track desired snap index
 
   const sheetRef = useRef<BottomSheet>(null);
 
-  // Define snap points as strings with percentages
-  const snapPoints = useMemo(() => ['30%', '1%'], []);
+  // Define snap points - similar to the working implementation
+  // Use multiple snap points like in the working example
+  const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
 
-  const openForEdit = (item: ITaskVersionItemList) => {
+  const openForEdit = useCallback((item: ITaskVersionItemList) => {
+    console.log('Opening sheet for edit');
     setEditMode(true);
-    setIsSheetOpen(true);
     setItemToEdit(item);
-    sheetRef.current?.snapToIndex(0);
-  };
+    setBottomSheetVisible(true);
+
+    // Important: We need to set the snap index and then force a sheet update
+    setDesiredSnapIndex(1); // Use 50% height for edit
+
+    // Force immediate update of the sheet position
+    setTimeout(() => {
+      if (sheetRef.current) {
+        sheetRef.current.snapToIndex(1);
+      }
+    }, 150);
+  }, []);
+
+  const handleCreateNew = useCallback(() => {
+    console.log('Opening sheet for new version');
+    setEditMode(false);
+    setItemToEdit(null);
+    setBottomSheetVisible(true);
+
+    // Important: We need to set the snap index and then force a sheet update
+    setDesiredSnapIndex(1); // Use 50% height for new version
+
+    // Force immediate update of the sheet position
+    setTimeout(() => {
+      if (sheetRef.current) {
+        sheetRef.current.snapToIndex(1);
+      }
+    }, 150);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    console.log('Closing sheet');
+    if (sheetRef.current) {
+      sheetRef.current.close();
+    }
+
+    // Clear state after animation completes
+    setTimeout(() => {
+      setBottomSheetVisible(false);
+      Keyboard.dismiss();
+    }, 250);
+  }, []);
+
+  // Effect to handle bottom sheet snap index when state changes
+  useEffect(() => {
+    if (bottomSheetVisible && sheetRef.current) {
+      console.log('Snapping to index:', desiredSnapIndex);
+      // Add small delay to ensure sheet is ready
+      setTimeout(() => {
+        sheetRef.current.snapToIndex(desiredSnapIndex);
+      }, 100);
+    }
+  }, [bottomSheetVisible, desiredSnapIndex]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (sheetRef.current) {
+        sheetRef.current.close();
+      }
+    };
+  }, []);
+
+  // Keyboard listeners
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        setKeyboardVisible(true);
+        setKeyboardHeight(e.endCoordinates.height);
+
+        // If sheet is open, adjust height for keyboard
+        if (bottomSheetVisible && sheetRef.current) {
+          setDesiredSnapIndex(2); // Use higher snap point for keyboard
+        }
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+        setKeyboardHeight(0);
+
+        // If sheet is still open, return to normal height
+        if (bottomSheetVisible && sheetRef.current) {
+          setDesiredSnapIndex(1); // Return to default height
+        }
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, [bottomSheetVisible]);
+
+  // Backdrop component
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        enableTouchThrough={false}
+        pressBehavior="close"
+        opacity={0.7}
+      />
+    ),
+    []
+  );
 
   return (
     <Screen contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={['top']}>
@@ -104,11 +217,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
             ...styles.createButton,
             borderColor: dark ? '#6755C9' : '#3826A6'
           }}
-          onPress={() => {
-            setEditMode(false);
-            setIsSheetOpen(true);
-            sheetRef.current?.snapToIndex(0);
-          }}
+          onPress={handleCreateNew}
         >
           <Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
           <Text style={{ ...styles.btnText, color: dark ? '#6755C9' : '#3826A6' }}>
@@ -117,52 +226,85 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
         </TouchableOpacity>
       </Animated.View>
 
-      {isSheetOpen && (
+      {/* Bottom Sheet Container */}
+      <View
+        style={[
+          {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            pointerEvents: bottomSheetVisible ? 'auto' : 'none',
+            zIndex: bottomSheetVisible ? 1000 : -1
+          }
+        ]}
+      >
+        <BottomSheet
+          ref={sheetRef}
+          index={-1}  // Start closed (-1)
+          snapPoints={snapPoints}
+          enablePanDownToClose={true}
+          onClose={handleClose}  // Add onClose handler
+          backdropComponent={renderBackdrop}
+          enableContentPanningGesture={true}
+          keyboardBehavior="extend"
+          keyboardBlurBehavior="restore"
+          android_keyboardInputMode="adjustResize"
+          backgroundStyle={{
+            backgroundColor: colors.background,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.27,
+            shadowRadius: 4.65,
+            elevation: 10,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20
+          }}
+          handleIndicatorStyle={{
+            backgroundColor: dark ? '#FFFFFF' : '#000000',
+            width: 50,
+            height: 5,
+            marginTop: 10
+          }}
+        >
+          <BottomSheetScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: keyboardVisible ? keyboardHeight + 20 : 20
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={true}
+            style={{
+              backgroundColor: colors.background
+            }}
+          >
+            {bottomSheetVisible && (
+              <TaskVersionForm
+                item={itemToEdit}
+                onDismiss={handleClose}
+                onUpdateVersion={updateTaskVersion}
+                onCreateVersion={createTaskVersion}
+                isEdit={editMode}
+              />
+            )}
+          </BottomSheetScrollView>
+        </BottomSheet>
+      </View>
+
+      {/* BlurView shown when the bottom sheet is open */}
+      {bottomSheetVisible && (
         <BlurView
           intensity={15}
           tint="dark"
           style={{
             position: 'absolute',
             width: '100%',
-            height: '100%'
+            height: '100%',
+            zIndex: 999  // Just below the sheet container
           }}
         />
       )}
-
-      <BottomSheet
-        ref={sheetRef}
-        snapPoints={snapPoints}
-        index={1}
-        enablePanDownToClose={true}
-        backgroundStyle={{
-          backgroundColor: colors.background,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24
-        }}
-        handleIndicatorStyle={{
-          backgroundColor: dark ? '#FFFFFF' : '#000000',
-          width: 50,
-          height: 5
-        }}
-        onChange={(index) => {
-          setIsSheetOpen(false);
-        }}
-      >
-        <View style={{ padding: 16, flex: 1 }}>
-          <TaskVersionForm
-            item={itemToEdit}
-            onDismiss={() => {
-              setEditMode(false);
-              setIsSheetOpen(false);
-              Keyboard.dismiss();
-              sheetRef.current?.close();
-            }}
-            onUpdateVersion={updateTaskVersion}
-            onCreateVersion={createTaskVersion}
-            isEdit={editMode}
-          />
-        </View>
-      </BottomSheet>
     </Screen>
   );
 };
