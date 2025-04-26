@@ -47,7 +47,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
 
   const openForEdit = useCallback((item: ITaskVersionItemList) => {
-    console.log('Opening sheet for edit');
     setEditMode(true);
     setItemToEdit(item);
     setBottomSheetVisible(true);
@@ -64,7 +63,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   }, []);
 
   const handleCreateNew = useCallback(() => {
-    console.log('Opening sheet for new version');
     setEditMode(false);
     setItemToEdit(null);
     setBottomSheetVisible(true);
@@ -81,7 +79,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   }, []);
 
   const handleClose = useCallback(() => {
-    console.log('Closing sheet');
     if (sheetRef.current) {
       sheetRef.current.close();
     }
@@ -96,7 +93,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   // Effect to handle bottom sheet snap index when state changes
   useEffect(() => {
     if (bottomSheetVisible && sheetRef.current) {
-      console.log('Snapping to index:', desiredSnapIndex);
       // Add small delay to ensure sheet is ready
       setTimeout(() => {
         sheetRef.current.snapToIndex(desiredSnapIndex);
