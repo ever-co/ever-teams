@@ -5,11 +5,12 @@ import { clsxm } from '@app/utils';
 import { useToast } from '@components/ui/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown, Tooltip } from 'lib/components';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';
+import React from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
@@ -55,17 +56,17 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	const { isOpen, closeModal, openModal } = useModal();
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
 	}, [activeTeam, items]);
 
 	return (
-		<>
+		<div>
 			<Dropdown
 				className="md:w-[223px] outline-none"
 				optionsClassName="md:w-[223px] outline-none"
 				buttonClassName={clsxm(
-					'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+					'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
 					items.length === 0 && ['py-2']
 				)}
 				value={teamItem}
@@ -98,6 +99,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			</Dropdown>
 
 			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
-		</>
+		</div>
 	);
 };

@@ -123,9 +123,9 @@ export function DateRangePicker({ className, onDateRangeChange, data }: DateRang
 							showOutsideDays={false}
 							fixedWeeks
 							initialFocus
-							disabled={(date) => {
+							disabled={(date: Date | undefined) => {
 								// Disable future dates
-								if (date >= startOfDay(new Date())) return true;
+								if (date && date >= startOfDay(new Date())) return true;
 
 								// If no data provided, only disable future dates
 								if (!data) return false;
@@ -134,9 +134,9 @@ export function DateRangePicker({ className, onDateRangeChange, data }: DateRang
 								const hasDataForDate = data.some((log) => {
 									const logDate = new Date(log.date);
 									return (
-										logDate.getDate() === date.getDate() &&
-										logDate.getMonth() === date.getMonth() &&
-										logDate.getFullYear() === date.getFullYear()
+										logDate.getDate() === (date?.getDate() || 0) &&
+										logDate.getMonth() === (date?.getMonth() || 0) &&
+										logDate.getFullYear() === (date?.getFullYear() || 0)
 									);
 								});
 

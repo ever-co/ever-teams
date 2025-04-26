@@ -22,7 +22,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 					{({ open }) => {
 						setOpen(open);
 						return (
-							<>
+							<div>
 								<Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium  hover:bg-white items-center pt-[0.15rem] pb-0 h-[3.81rem] bg-light--theme-light dark:bg-dark--theme-light">
 									<Text
 										className={`text-2xl font-medium dark:text-white  text-center sm:text-left ${
@@ -43,7 +43,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 									<Divider />
 									{children}
 								</Disclosure.Panel>
-							</>
+							</div>
 						);
 					}}
 				</Disclosure>

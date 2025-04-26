@@ -119,6 +119,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 								</div>
 							</Popover.Button>
 							<Popover.Panel className="w-fit absolute top-11 border rounded-md shadow-md dark:bg-dark--theme-light input-border">
+								{/* @ts-ignore */}
 								<HexColorPicker defaultValue={colorCode} onChange={(color) => setColorCode(color)} />
 							</Popover.Panel>
 						</Popover>

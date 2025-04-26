@@ -126,7 +126,7 @@ export enum ProjectRelationEnum {
 
 export interface IProjectRelation {
 	projectId: string;
-	relationType: ProjectRelationEnum;
+	relationType: ProjectRelationEnum | null;
 }
 
 export interface ICreateProjectInput {

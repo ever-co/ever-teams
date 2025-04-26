@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
-import React, { ReactNode } from 'react';
+import React, { JSX, ReactNode } from 'react';
 import { ITaskStatus } from '@/app/interfaces';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

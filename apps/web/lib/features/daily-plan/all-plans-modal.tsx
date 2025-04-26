@@ -510,13 +510,13 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 			onDayClick={handleDayClick}
 			captionLayout="dropdown"
 			selected={selectedPlan ? selectedPlan : undefined}
-			onSelect={(date) => {
+			onSelect={(date: Date | undefined) => {
 				if (date) {
 					setSelectedPlan(moment(date).toDate());
 				}
 			}}
 			initialFocus
-			disabled={(date) => {
+			disabled={(date: Date) => {
 				return checkPastDate(date) && isDateUnplanned(date);
 			}}
 			modifiers={{

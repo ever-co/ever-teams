@@ -27,8 +27,8 @@ import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { cn } from 'lib/utils';
+import { ChevronDown } from 'lucide-react';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -66,7 +66,9 @@ function AuthPasscode() {
 						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					<div>{t('pages.authLogin.HEADING_DESCRIPTION')}</div>
+					<div>
+						<span>{t('pages.authLogin.HEADING_DESCRIPTION')}</span>
+					</div>
 				)
 			}
 		>
@@ -456,7 +458,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														expandedWorkspace === index && 'rotate-180'
 													)}
 												>
-													<MdOutlineKeyboardArrowDown />
+													<ChevronDown />
 												</span>
 											</div>
 											<span

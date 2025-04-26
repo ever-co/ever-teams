@@ -1,6 +1,5 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useMemo, useState, useCallback } from 'react';
-import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Badge } from '@components/ui/badge';
@@ -78,7 +77,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 					</span>
 				</Listbox.Button>
 				<Transition
-					as={Fragment}
+					as="div"
 					leave="transition ease-in duration-100"
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
@@ -101,7 +100,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 								value={option}
 							>
 								{({ selected }) => (
-									<>
+									<div>
 										<span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
 											{option}
 										</span>
@@ -110,7 +109,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 												<CheckIcon className="h-5 w-5" aria-hidden="true" />
 											</span>
 										) : null}
-									</>
+									</div>
 								)}
 							</Listbox.Option>
 						))}

@@ -32,7 +32,6 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	};
 
 	const handleAddNewRelation = () => {
-		// @ts-ignore
 		setRelations((prev) => [...prev, { id: crypto.randomUUID(), projectId: '', relationType: null }]);
 	};
 
@@ -145,7 +144,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										id: el,
 										value: el
 									}))}
-									selected={[el.projectId, el.relationType]}
+									selected={[el.projectId, el.relationType ?? '']}
 									onRemove={handleRemoveRelation}
 									key={el.id}
 									id={el.id}

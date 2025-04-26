@@ -87,10 +87,10 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 												<div className="">
 													{header.isPlaceholder
 														? null
-														: flexRender(
+														: (flexRender(
 																header.column.columnDef.header,
 																header.getContext()
-															)}
+															) as React.ReactNode)}
 												</div>
 											</Tooltip>
 										</TableHead>
@@ -130,7 +130,12 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 													'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C]'
 												)}
 											>
-												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												{
+													flexRender(
+														cell.column.columnDef.cell,
+														cell.getContext()
+													) as React.ReactNode
+												}
 											</TableCell>
 										);
 									})}

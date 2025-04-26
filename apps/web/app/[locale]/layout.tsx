@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
@@ -13,7 +12,7 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { Poppins } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
 import GlobalSkeleton from '@components/ui/global-skeleton';
@@ -22,10 +21,9 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './integration/posthog/provider';
 
-const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
-interface Props {
-	params: { locale: string };
-
+const locales = ['en', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
+interface Props extends PropsWithChildren {
+	params: Promise<{ locale: string }>;
 	pageProps: {
 		jitsuConf?: JitsuOptions;
 		jitsuHost?: string;
@@ -57,7 +55,10 @@ const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'),
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChildren<Props>) => {
+const LocaleLayout = (props: PropsWithChildren<Props>) => {
+	const params = use(props.params);
+	const { locale } = params;
+	const { children, pageProps } = props;
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as string)) notFound();
 	const router = useRouter();
@@ -110,7 +111,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChil
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
-		<html lang={locale} className={poppins.variable}>
+		<html lang={locale} className={poppins.variable} suppressHydrationWarning>
 			<head>
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>

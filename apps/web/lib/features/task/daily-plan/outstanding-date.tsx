@@ -8,7 +8,7 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import { IDailyPlan, IUser } from '@app/interfaces';
 
@@ -62,7 +62,6 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 									</div>
 								</AccordionTrigger>
 								<AccordionContent className="pb-12 bg-transparent border-none dark:bg-dark--theme">
-									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
 										{(provided) => (

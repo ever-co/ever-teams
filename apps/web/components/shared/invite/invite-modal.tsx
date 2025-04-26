@@ -79,11 +79,11 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			});
 	};
 	return (
-		<Transition appear show={isOpen} as={Fragment}>
+		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
 				<div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-sm" aria-hidden="true" />
 				<Transition.Child
-					as={Fragment}
+					as="div"
 					enter="ease-out duration-300"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"
@@ -97,7 +97,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 				<div className="fixed inset-0 overflow-y-auto">
 					<div className="flex items-center justify-center min-h-full p-4 text-center">
 						<Transition.Child
-							as={Fragment}
+							as="div"
 							enter="ease-out duration-300"
 							enterFrom="opacity-0 scale-95"
 							enterTo="opacity-100 scale-100"

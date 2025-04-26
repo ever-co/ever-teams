@@ -112,7 +112,9 @@ export function AddTaskToPlan({
 									<Calendar
 										mode="single"
 										selected={date}
-										onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
+										onSelect={(day: Date | undefined) =>
+											setDate(day ? day : new Date(tomorrowDate))
+										}
 										initialFocus
 										disabled={{
 											from: new Date(1970, 1, 1),

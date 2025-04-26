@@ -5,14 +5,14 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { TimeInputField } from 'lib/components';
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 
 type Props = {
 	_task?: Nullable<ITeamTask>;
 	onCloseEdition?: () => void;
 	onOpenEdition?: () => void;
 	className?: string;
-	loadingRef?: MutableRefObject<boolean>;
+	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
 	showEditAndSaveButton?: boolean;

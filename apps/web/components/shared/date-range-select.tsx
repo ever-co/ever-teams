@@ -66,12 +66,14 @@ export function DatePickerWithRange({
 				</PopoverTrigger>
 				<PopoverContent className="w-auto p-0 flex" align="start">
 					<Calendar
+						// @ts-ignore
 						initialFocus
 						mode="range"
 						defaultMonth={date?.from}
 						selected={selectedDate}
 						onSelect={setSelectedDate}
 						numberOfMonths={2}
+						showOutsideDays={true}
 					/>
 					<div className="flex flex-col gap-1 w-44 border-l">
 						<PresetDates date={selectedDate} setDate={setSelectedDate} />

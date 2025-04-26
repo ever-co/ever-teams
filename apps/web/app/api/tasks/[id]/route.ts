@@ -4,10 +4,11 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: INextParams) {
+export async function GET(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing task ID' }, { status: 400 });
 	}
 
 	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
@@ -24,10 +25,11 @@ export async function GET(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing task ID' }, { status: 400 });
 	}
 
 	const { $res, user, tenantId, access_token, organizationId, projectId, teamId } = await authenticatedGuard(

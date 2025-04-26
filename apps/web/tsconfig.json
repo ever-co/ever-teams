@@ -1,6 +1,9 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"types": [
+			"node"
+		],
 		"target": "ES2015",
 		"lib": [
 			"dom",

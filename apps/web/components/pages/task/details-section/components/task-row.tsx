@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { PropsWithChildren } from 'react';
+import { JSX, PropsWithChildren } from 'react';
 import TaskLabel from './task-label';
 
 type TaskRowProps = {

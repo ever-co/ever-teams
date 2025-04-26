@@ -3,7 +3,6 @@ import { useToast } from 'components/ui/use-toast';
 import { Toaster as ToasterMessage } from '@components/ui/sonner';
 import { toast } from 'sonner';
 import { useOrganizationTeams } from '@app/hooks';
-// import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 

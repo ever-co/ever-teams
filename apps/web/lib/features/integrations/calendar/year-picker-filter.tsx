@@ -51,9 +51,11 @@ export function YearDateFilter({ calendarRef }: IYearDateFilter) {
 			</div>
 			<div className="flex items-center space-x-2">
 				<button onClick={goPrev}>
+					{/* @ts-ignore */}
 					<MdKeyboardArrowLeft />
 				</button>
 				<button onClick={goNext}>
+					{/* @ts-ignore */}
 					<MdKeyboardArrowRight />
 				</button>
 			</div>

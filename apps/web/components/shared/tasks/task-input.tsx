@@ -1,7 +1,7 @@
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useTaskInput } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces/ITask';
@@ -99,7 +99,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 						</Combobox.Button>
 					</div>
 					<Transition
-						as={Fragment}
+						as="div"
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
@@ -140,9 +140,10 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 											<Combobox.Option
 												key={task.id}
 												className={({ active }) =>
-													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${active
-														? 'bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer'
-														: ' dark:text-white text-opacity-100'
+													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
+														active
+															? 'bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer'
+															: ' dark:text-white text-opacity-100'
 													}`
 												}
 												value={task}
@@ -169,12 +170,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 								</>
 							)}
 
-							<DeleteTask
-								isOpen={isModalOpen}
-								closeModal={closeModal}
-								Fragment={Fragment}
-								task={closeableTask}
-							/>
+							<DeleteTask isOpen={isModalOpen} closeModal={closeModal} task={closeableTask} />
 						</Combobox.Options>
 					</Transition>
 				</div>

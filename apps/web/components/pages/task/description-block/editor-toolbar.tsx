@@ -27,11 +27,10 @@ import {
 	AlignFullIcon,
 	ChevronDownIcon
 } from 'assets/svg';
-import { BsEmojiSmile } from 'react-icons/bs';
 import { clsxm } from '@app/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { MdOutlineClose } from "react-icons/md";
+import { IconsCloseRounded, IconsEmojiEmotions } from '@/icons';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -170,9 +169,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 		};
 	}, [setShowEmoji]);
 
-
 	const addEmoji = (emoji: { native: string }) => {
-
 		if (showEmojiIcon) {
 			selectEmoji?.(emoji);
 		}
@@ -271,14 +268,13 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 
-			<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-			{
-				showEmoji && <div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
+			<IconsEmojiEmotions onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+			{showEmoji && (
+				<div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
 					<div className="relative h-[20px] w-full">
-						<MdOutlineClose
-							size={17}
+						<IconsCloseRounded
 							onClick={() => setShowEmoji(false)}
-							className="absolute right-5 cursor-pointer"
+							className="absolute right-5 cursor-pointer size-14"
 						/>
 					</div>
 					<Picker
@@ -289,7 +285,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						maxFrequentRows={0}
 					/>
 				</div>
-			}
+			)}
 
 			<div className="relative md:hidden" ref={dropdownRef}>
 				<Button
@@ -346,7 +342,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 				<LinkIcon />
 			</button> */}
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<LinkRoundIcon className="h-5 w-5" />
 				</PopoverTrigger>
 				<PopoverContent className="flex flex-row items-center">

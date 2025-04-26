@@ -18,7 +18,7 @@ interface ComboboxProps<T> {
 	className?: string;
 	popoverClassName?: string;
 	selectedItem?: T | null;
-	defaultValue?: string
+	defaultValue?: string;
 }
 
 export function CustomCombobox<T>({

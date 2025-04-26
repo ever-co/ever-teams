@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {  ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
 	format,
@@ -19,9 +19,9 @@ import {
 	isSameYear,
 	isEqual,
 	startOfDay,
-    subYears,
-    startOfYear,
-    endOfYear
+	subYears,
+	startOfYear,
+	endOfYear
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
@@ -54,7 +54,6 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange }: Da
 			console.error('Error handling date range change:', error);
 		}
 	};
-
 
 	const formatDateRange = (range: DateRange) => {
 		if (!range.from) return 'Select date range';
@@ -115,6 +114,7 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange }: Da
 				<div className="flex">
 					<div className="p-0.5">
 						<Calendar
+							// @ts-ignore
 							className="min-w-[220px]"
 							mode="range"
 							selected={dateRange}
@@ -126,11 +126,11 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange }: Da
 							fixedWeeks
 							ISOWeek
 							initialFocus
-							disabled={(date) => date >= startOfDay(new Date())}
+							disabled={(date: Date) => date >= startOfDay(new Date())}
 						/>
 					</div>
 					<div className="p-1 space-y-1 border-l max-w-36">
-						<PredefinedRanges  handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
+						<PredefinedRanges handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
 					</div>
 				</div>
 				<div className="flex gap-1 justify-end p-0.5 border-t">
@@ -178,12 +178,9 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 			},
 			isSelected: (currentRange: DateRange | undefined) => {
 				if (!currentRange?.from || !currentRange?.to) return false;
-				return isEqual(
-					startOfDay(currentRange.from),
-					startOfDay(range.from)
-				) && isEqual(
-					startOfDay(currentRange.to),
-					startOfDay(range.to)
+				return (
+					isEqual(startOfDay(currentRange.from), startOfDay(range.from)) &&
+					isEqual(startOfDay(currentRange.to), startOfDay(range.to))
 				);
 			}
 		};
@@ -191,15 +188,9 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 };
 
 const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
-	const weekOptions = React.useMemo(
-		() => ({ weekStartsOn: 1 as const }),
-		[]
-	);
+	const weekOptions = React.useMemo(() => ({ weekStartsOn: 1 as const }), []);
 
-	const createRange = React.useMemo(
-		() => createRangeHelper(handleDateRangeChange),
-		[handleDateRangeChange]
-	);
+	const createRange = React.useMemo(() => createRangeHelper(handleDateRangeChange), [handleDateRangeChange]);
 
 	const predefinedRanges = React.useMemo(
 		() => [
@@ -258,7 +249,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 				})
 			},
 			{
-				label: "All Times",
+				label: 'All Times',
 				...createRange(() => {
 					const lastYear = subYears(new Date(), 1);
 					return {
@@ -272,7 +263,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 	);
 
 	return (
-		<div className='flex flex-col gap-2 p-2'>
+		<div className="flex flex-col gap-2 p-2">
 			{predefinedRanges.map((range) => (
 				<Button
 					key={range.label}

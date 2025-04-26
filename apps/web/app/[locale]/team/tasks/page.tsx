@@ -2,7 +2,7 @@
 import { Breadcrumb, Container, Paginate } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useParams } from 'next/navigation';
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 
@@ -106,7 +106,7 @@ const TeamTask = () => {
 										</Menu.Button>
 									</div>
 									<Transition
-										as={Fragment}
+										as="div"
 										enter="transition ease-out duration-100"
 										enterFrom="transform opacity-0 scale-95"
 										enterTo="transform opacity-100 scale-100"

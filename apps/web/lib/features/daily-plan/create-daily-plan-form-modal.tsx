@@ -12,9 +12,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { cn } from 'lib/utils';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@app/constants';
 import { useTranslations } from 'next-intl';
 
@@ -185,7 +184,7 @@ export function CreateDailyPlanFormModal({
 												onClick={() => setIsOpen(!isOpen)}
 												className=" flex items-center text-white justify-center w-8 h-full border-l"
 											>
-												<MdOutlineKeyboardArrowDown
+												<ChevronDown
 													size={10}
 													className={cn(
 														'w-6 h-6 flex items-center justify-center transition-transform font-light',
@@ -246,9 +245,9 @@ const CustomCalendar = memo(function CustomCalendar({
 	return (
 		<Calendar
 			mode="single"
-			captionLayout="dropdown"
+			captionLayout="buttons"
 			selected={date}
-			onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
+			onSelect={(day: Date | undefined) => setDate(day ? day : new Date(tomorrowDate))}
 			initialFocus
 			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }, ...existingTaskPlanDates]}
 			modifiers={{
@@ -302,12 +301,12 @@ function MembersList({
 									{(member?.employee?.user?.image?.thumbUrl ||
 										member?.employee?.user?.image?.fullUrl ||
 										member?.employee?.user?.imageUrl) &&
-										isValidUrl(
-											member?.employee?.user?.image?.thumbUrl ||
+									isValidUrl(
+										member?.employee?.user?.image?.thumbUrl ||
 											member?.employee?.user?.image?.fullUrl ||
 											member?.employee?.user?.imageUrl ||
 											''
-										) ? (
+									) ? (
 										<Avatar
 											size={36}
 											className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"

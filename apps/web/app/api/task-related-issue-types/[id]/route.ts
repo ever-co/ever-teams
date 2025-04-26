@@ -6,11 +6,12 @@ import {
 } from '@app/services/server/requests/task-related-issue-type';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing team ID' }, { status: 400 });
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
@@ -31,11 +32,12 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing team ID' }, { status: 400 });
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
