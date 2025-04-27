@@ -1,0 +1,27 @@
+{
+  "extends": "@ever-teams/ts-config/react-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "jsx": "react",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": []
+  },
+  "include": [
+    "./src",
+    "helpers.ts"
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "components",
+    "node_modules"
+  ]
+}

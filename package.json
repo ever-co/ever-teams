@@ -28,14 +28,14 @@
 		"start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web\"",
 		"start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web:prod\"",
 		"start:web": "cd apps/web && yarn run start",
-		"start:web:dev": "cd apps/web && yarn run dev",
+		"start:web:dev": "turbo dev --filter=@ever-teams/web",
 		"start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
 		"start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/web/src/pm2bootstrap.ts",
 		"start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
 		"bootstrap": "yarn install && yarn lerna bootstrap",
 		"prebuild": "rimraf dist coverage",
-		"build": "yarn build:web && yarn build:mobile && yarn build:extensions",
-		"build:web": "cd apps/web && yarn run build",
+		"build": "turbo build",
+		"build:web": "turbo build --filter=@ever-teams/web",
 		"build:mobile": "cd apps/mobile && yarn install && yarn run build",
 		"build:extensions": "cd apps/extensions && yarn install && yarn run build",
 		"commit": "git-cz",
@@ -184,6 +184,7 @@
 		"yargs": "^17.5.0"
 	},
 	"devDependencies": {
+		"@ever-teams/types": "*",
 		"@commitlint/cli": "^17.6.6",
 		"@commitlint/config-conventional": "^17.6.6",
 		"@commitlint/config-lerna-scopes": "^17.6.6",
@@ -246,9 +247,12 @@
 		"prettier-eslint-cli": "^8.0.1",
 		"pretty-quick": "^4.0.0",
 		"rimraf": "^5.0.5",
+		"@types/hapi__shot": "^6.0.0",
+		"@hapi/shot": "^6.0.1",
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
-		"ts-node": "^10.9.2"
+		"ts-node": "^10.9.2",
+		"turbo": "^2.5.2"
 	},
 	"overrides": {
 		"prebuild": {

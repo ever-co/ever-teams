@@ -1,0 +1,16 @@
+{
+	"name": "@ever-teams/services",
+	"version": "0.1.0",
+	"license": "AGPL-3.0",
+	"description": "Ever Teams React services for internal use",
+	"private": true,
+	"main": "./src/index.ts",
+	"scripts": {
+		"lint": "eslint src --ext .ts,.tsx",
+		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
+	},
+	"dependencies": {
+		"@ever-teams/constants": "*",
+		"axios": "^1.8.3"
+	}
+}

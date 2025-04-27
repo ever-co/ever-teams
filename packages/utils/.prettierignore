@@ -1,0 +1,11 @@
+.turbo
+.next
+dist/
+out/
+build/
+.gitignore
+.git
+.env
+.env.local
+.env.development.local
+.env.test.local

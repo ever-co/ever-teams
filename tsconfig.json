@@ -12,10 +12,21 @@
 		"importHelpers": true,
 		"target": "es2016",
 		"module": "commonjs",
-		"typeRoots": ["node_modules/@types"],
-		"lib": ["dom", "es2018", "esnext.array"],
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"lib": [
+			"dom",
+			"es2018",
+			"esnext.array"
+		],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
+		"paths": {
+			"@ever-teams/types": [
+				"packages/types/src/index.d.ts"
+			]
+		},
 		"baseUrl": ".",
 		"preserveConstEnums": true,
 		"allowSyntheticDefaultImports": true,
@@ -23,5 +34,10 @@
 		"noImplicitAny": false,
 		"esModuleInterop": false
 	},
-	"exclude": ["coverage/**/*", "dist/**/*", "node_modules", "tmp"]
+	"exclude": [
+		"coverage/**/*",
+		"dist/**/*",
+		"node_modules",
+		"tmp"
+	]
 }
