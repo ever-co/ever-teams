@@ -1,4 +1,4 @@
-import { TFileMetaDataLite, TFileSignedURLResponse } from "@plane/types";
+import { TFileMetaDataLite, TFileSignedURLResponse } from '@ever-teams/types';
 
 /**
  * @description from the provided signed URL response, generate a payload to be used to upload the file
@@ -7,10 +7,10 @@ import { TFileMetaDataLite, TFileSignedURLResponse } from "@plane/types";
  * @returns {FormData} file upload request payload
  */
 export const generateFileUploadPayload = (signedURLResponse: TFileSignedURLResponse, file: File): FormData => {
-  const formData = new FormData();
-  Object.entries(signedURLResponse.upload_data.fields).forEach(([key, value]) => formData.append(key, value));
-  formData.append("file", file);
-  return formData;
+	const formData = new FormData();
+	Object.entries(signedURLResponse.upload_data.fields).forEach(([key, value]) => formData.append(key, value));
+	formData.append('file', file);
+	return formData;
 };
 
 /**
@@ -19,9 +19,9 @@ export const generateFileUploadPayload = (signedURLResponse: TFileSignedURLRespo
  * @returns {TFileMetaDataLite} payload with file info
  */
 export const getFileMetaDataForUpload = (file: File): TFileMetaDataLite => ({
-  name: file.name,
-  size: file.size,
-  type: file.type,
+	name: file.name,
+	size: file.size,
+	type: file.type,
 });
 
 /**
@@ -30,7 +30,7 @@ export const getFileMetaDataForUpload = (file: File): TFileMetaDataLite => ({
  * @returns {string} assetId
  */
 export const getAssetIdFromUrl = (src: string): string => {
-  const sourcePaths = src.split("/");
-  const assetUrl = sourcePaths[sourcePaths.length - 1];
-  return assetUrl;
+	const sourcePaths = src.split('/');
+	const assetUrl = sourcePaths[sourcePaths.length - 1];
+	return assetUrl;
 };

@@ -1,7 +1,7 @@
 {
-	"name": "@ever-teams/lib",
+	"name": "@ever-teams/utils",
 	"version": "0.1.0",
-	"description": "Ever Teams React library for internal use",
+	"description": "Ever Teams Utility Library for internal use",
 	"license": "AGPL-3.0",
 	"private": true,
 	"main": "./dist/index.js",
