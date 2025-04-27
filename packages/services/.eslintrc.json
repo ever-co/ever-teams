@@ -1,7 +1,7 @@
 {
   "root": true,
   "extends": [
-    "@ever-teams/eslint-config/library"
+    "@ever-teams/eslint-config/base"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
