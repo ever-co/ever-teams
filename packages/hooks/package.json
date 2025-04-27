@@ -1,8 +1,8 @@
 {
-	"name": "@ever-teams/lib",
+	"name": "@ever-teams/hooks",
 	"version": "0.1.0",
-	"description": "Ever Teams React library for internal use",
 	"license": "AGPL-3.0",
+	"description": "Ever Teams React hooks for internal use",
 	"private": true,
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -16,19 +16,12 @@
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
 	},
 	"dependencies": {
-		"clsx": "^2.1.1",
-		"date-fns": "^4.1.0",
-		"isomorphic-dompurify": "^2.16.0",
-		"lodash": "^4.17.21",
-		"react": "^ 19.1.0",
-		"tailwind-merge": "^2.5.5",
-		"zxcvbn": "^4.4.2"
+		"react": "^18.3.1"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
 		"@types/node": "^20.12.2",
-		"@types/react": "^ 19.1.0",
-		"@types/zxcvbn": "^4.4.5",
+		"@types/react": "^19.1.2",
 		"tsup": "^8.4.0",
 		"typescript": "^5.3.3"
 	}

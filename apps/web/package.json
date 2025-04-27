@@ -22,7 +22,8 @@
 		"build": "yarn next build",
 		"start": "yarn node env.js && yarn next start -p 3030",
 		"lint": "yarn next lint",
-		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write"
+		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write",
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@auth/core": "^0.31.0",
