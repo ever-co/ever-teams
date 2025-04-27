@@ -1,0 +1,35 @@
+{
+	"name": "@ever-teams/lib",
+	"version": "0.26.0",
+	"description": "Helper functions shared across multiple apps internally",
+	"license": "AGPL-3.0",
+	"private": true,
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist/**"
+	],
+	"scripts": {
+		"build": "tsup ./src/index.ts --format esm,cjs --dts --external react --minify",
+		"lint": "eslint src --ext .ts,.tsx",
+		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
+	},
+	"dependencies": {
+		"clsx": "^2.1.1",
+		"date-fns": "^4.1.0",
+		"isomorphic-dompurify": "^2.16.0",
+		"lodash": "^4.17.21",
+		"react": "^ 19.1.0",
+		"tailwind-merge": "^2.5.5",
+		"zxcvbn": "^4.4.2"
+	},
+	"devDependencies": {
+		"@ever-teams/eslint-config": "*",
+		"@types/node": "^22.5.4",
+		"@types/react": "^ 19.1.0",
+		"@types/zxcvbn": "^4.4.5",
+		"tsup": "^8.4.0",
+		"typescript": "^5.3.3"
+	}
+}

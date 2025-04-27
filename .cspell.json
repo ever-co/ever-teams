@@ -9,6 +9,7 @@
 		"adipiscing",
 		"airbyte",
 		"Akim",
+		"alertable",
 		"aliqua",
 		"alldays",
 		"allteams",
@@ -459,7 +460,8 @@
 		"xpack",
 		"yellowbox",
 		"zipkin",
-		"Złoty"
+		"Złoty",
+		"zxcvbn"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

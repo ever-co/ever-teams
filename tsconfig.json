@@ -22,6 +22,11 @@
 		],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
+		"paths": {
+			"@ever-teams/types": [
+				"packages/types/src/index.d.ts"
+			]
+		},
 		"baseUrl": ".",
 		"preserveConstEnums": true,
 		"allowSyntheticDefaultImports": true,
