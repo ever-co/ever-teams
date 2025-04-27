@@ -248,7 +248,8 @@
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
-		"ts-node": "^10.9.2"
+		"ts-node": "^10.9.2",
+		"turbo": "^2.5.2"
 	},
 	"overrides": {
 		"prebuild": {

@@ -8,6 +8,12 @@
 # lerna files
 /lerna-debug.log
 
+# turbo files
+.turbo
+.turbo-build-summary.json
+.turbo-build-summary.md
+.turbo-debug.log
+
 # sqlite3 database
 *.sqlite3
 *.sqlite3-journal
