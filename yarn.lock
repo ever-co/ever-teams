@@ -3006,7 +3006,7 @@
     "@hapi/teamwork" "5.x.x"
     "@hapi/validate" "1.x.x"
 
-"@hapi/shot@*":
+"@hapi/shot@*", "@hapi/shot@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@hapi/shot/-/shot-6.0.1.tgz#ea84d1810b7c8599d5517c23b4ec55a529d7dc16"
   integrity sha512-s5ynMKZXYoDd3dqPw5YTvOR/vjHvMTxc388+0qL0jZZP1+uwXuUD32o9DuuuLsmTlyXCWi02BJl1pBpwRuUrNA==
@@ -8887,7 +8887,7 @@
   dependencies:
     "@types/mime-db" "*"
 
-"@types/hapi__shot@*":
+"@types/hapi__shot@*", "@types/hapi__shot@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@types/hapi__shot/-/hapi__shot-6.0.0.tgz#3496fa7739e0f3cb9e74b44d5750003645c8742a"
   integrity sha512-CUxk0AEQRpIT2cx7EYXkqaXm60LP46ZyEhr/7uov7D/ZLysA5DKkfBtPIYnoWvn8qfcFV/7YHLd3U9gThuhb0A==
@@ -9150,13 +9150,6 @@
   dependencies:
     undici-types "~6.19.2"
 
-"@types/node@^22.5.4":
-  version "22.15.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.2.tgz#1db55aa64618ee93a58c8912f74beefe44aca905"
-  integrity sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==
-  dependencies:
-    undici-types "~6.21.0"
-
 "@types/normalize-package-data@^2.4.0", "@types/normalize-package-data@^2.4.3":
   version "2.4.4"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.4.tgz#56e2cc26c397c038fab0e3a917a12d5c5909e901"
@@ -9244,7 +9237,7 @@
   dependencies:
     "@types/react" "^18"
 
-"@types/react@*", "@types/react@^ 19.1.0":
+"@types/react@*", "@types/react@^ 19.1.0", "@types/react@^19.1.2":
   version "19.1.2"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-19.1.2.tgz#11df86f66f188f212c90ecb537327ec68bfd593f"
   integrity sha512-oxLPMytKchWGbnQM9O7D67uPa9paTNxO7jVoNMXgkkErULBPhPARCfkKL9ytcIJJRGjbsVwW4ugJzyFFvm/Tiw==
@@ -24439,7 +24432,7 @@ react@19.1.0, "react@^ 19.1.0":
   resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
   integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
 
-react@^18.2.0:
+react@^18.2.0, react@^18.3.1:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
