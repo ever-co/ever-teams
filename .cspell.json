@@ -188,6 +188,7 @@
 		"tsup",
 		"tseslint",
 		"dompurify",
+		"datetime",
 		"GlobalSkeleton",
 		"gorhom",
 		"gradlew",
