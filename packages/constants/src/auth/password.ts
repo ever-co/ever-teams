@@ -26,10 +26,6 @@ export const PASSWORD_CRITERIA: PasswordValidationCriterion[] = [
  * Standardized mapping of authentication errors to messages.
  */
 export const AUTHENTICATION_ERROR_MESSAGES: AuthErrorMessageMap = {
-	[AuthErrorCode.INSTANCE_NOT_CONFIGURED]: {
-		title: 'Instance not configured',
-		message: () => 'Instance not configured. Please contact your administrator.',
-	},
 	[AuthErrorCode.SIGNUP_DISABLED]: {
 		title: 'Sign up disabled',
 		message: () => 'Sign up is currently disabled. Please contact support.',
@@ -37,10 +33,6 @@ export const AUTHENTICATION_ERROR_MESSAGES: AuthErrorMessageMap = {
 	[AuthErrorCode.INVALID_PASSWORD]: {
 		title: 'Invalid password',
 		message: () => 'Your password is incorrect. Please try again.',
-	},
-	[AuthErrorCode.SMTP_NOT_CONFIGURED]: {
-		title: 'SMTP not configured',
-		message: () => 'Email service is not configured. Contact your administrator.',
 	},
 	[AuthErrorCode.INVALID_EMAIL]: {
 		title: 'Invalid email address',
