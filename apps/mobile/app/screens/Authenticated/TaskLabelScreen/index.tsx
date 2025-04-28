@@ -237,9 +237,6 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 						snapPoints={snapPoints}
 						enablePanDownToClose={true}
 						onClose={handleClose}
-						onChange={(index) => {
-							setBottomSheetVisible(index === 0);
-						}}
 						backdropComponent={renderBackdrop}
 						enableContentPanningGesture={true}
 						keyboardBehavior="interactive"
@@ -292,7 +289,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 							position: 'absolute',
 							width: '100%',
 							height: '100%',
-							zIndex: 999 // Just below the sheet container
+							zIndex: 999
 						}}
 					/>
 				)}
