@@ -1,5 +1,4 @@
 'use client';
-import { withAuthentication } from '@/lib/app/authenticator';
 import { MainLayout } from '@/lib/layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -17,7 +16,8 @@ import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportAc
 import CardTimeAndActivity from './card-time-and-activity';
 import { TimeActivityTable } from './time-activity-table';
 import ActivityTable from './activity-table';
-import { TimeActivityHeader, ViewOption } from './index';
+import { ViewOption } from './view-select';
+import { TimeActivityHeader } from './time-activity-header';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -155,5 +155,4 @@ const TimeActivityComponents = () => {
 		</MainLayout>
 	);
 };
-
-export default withAuthentication(TimeActivityComponents, { displayName: 'Time and Activity' });
+export { TimeActivityComponents };
