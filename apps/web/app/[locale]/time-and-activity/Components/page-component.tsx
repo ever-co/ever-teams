@@ -17,7 +17,7 @@ import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportAc
 import CardTimeAndActivity from './card-time-and-activity';
 import { TimeActivityTable } from './time-activity-table';
 import ActivityTable from './activity-table';
-import { TimeActivityHeader, ViewOption } from '.';
+import { TimeActivityHeader, ViewOption } from './index';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
