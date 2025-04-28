@@ -21,7 +21,7 @@ const formatDate = (date: Date | undefined): string => {
 };
 
 interface DashboardHeaderProps {
-	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
+	onUpdateDateRangeAction: (startDate: Date, endDate: Date) => void;
 	title?: string;
 	isManage?: boolean;
 	showGroupBy?: boolean;
@@ -38,7 +38,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-	onUpdateDateRange,
+	onUpdateDateRangeAction,
 	title,
 	isManage,
 	showGroupBy,
@@ -54,7 +54,7 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
-			onUpdateDateRange(range.from, range.to);
+			onUpdateDateRangeAction(range.from, range.to);
 		}
 	};
 

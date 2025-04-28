@@ -86,5 +86,4 @@ function TimeActivityHeader({
 }
 
 export type { ViewOption };
-export { defaultViewOptions };
-export default TimeActivityHeader;
+export { defaultViewOptions, TimeActivityHeader };

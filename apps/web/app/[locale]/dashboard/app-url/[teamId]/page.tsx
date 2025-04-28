@@ -14,12 +14,16 @@ import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { Card } from '@components/ui/card';
-import { ProductivityHeader } from '../components/productivity-header';
-import { ProductivityChart } from '../components/productivity-chart';
-import { ProductivityStats } from '../components/productivity-stats';
-import { ProductivityTable } from '../components/productivity-table';
 import { useLocalStorageState, useModal } from '@/app/hooks';
-import { ProductivityApplicationTable, ProductivityEmployeeTable, ProductivityProjectTable } from '../components';
+import {
+	ProductivityApplicationTable,
+	ProductivityEmployeeTable,
+	ProductivityProjectTable,
+	ProductivityHeader,
+	ProductivityChart,
+	ProductivityStats,
+	ProductivityTable
+} from '../components';
 
 interface ProductivityData {
 	date: string;
@@ -103,7 +107,7 @@ function AppUrls() {
 						</div>
 						<div className="flex flex-col gap-6 w-full">
 							<DashboardHeader
-								onUpdateDateRange={updateDateRange}
+								onUpdateDateRangeAction={updateDateRange}
 								onUpdateFilters={updateFilters}
 								onGroupByChange={handleGroupTypeChange}
 								showGroupBy={true}

@@ -14,10 +14,10 @@ import { Card } from '@components/ui/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
-import TimeActivityHeader, { ViewOption } from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
 import { TimeActivityTable } from './time-activity-table';
 import ActivityTable from './activity-table';
+import { TimeActivityHeader, ViewOption } from '.';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -39,7 +39,6 @@ const TimeActivityComponents = () => {
 	}, []);
 
 	// Memoize column visibility checks
-	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
 		if (typeof window === 'undefined') return defaultViewOptions;
 
