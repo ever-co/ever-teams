@@ -12,8 +12,14 @@
 		"importHelpers": true,
 		"target": "es2016",
 		"module": "esnext",
-		"typeRoots": ["node_modules/@types"],
-		"lib": ["dom", "es2018", "esnext.array"],
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"lib": [
+			"dom",
+			"es2018",
+			"esnext.array"
+		],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
@@ -24,5 +30,10 @@
 		"noImplicitAny": true,
 		"esModuleInterop": false
 	},
-	"exclude": ["coverage/**/*", "dist/**/*", "node_modules", "tmp"]
+	"exclude": [
+		"coverage/**/*",
+		"dist/**/*",
+		"node_modules",
+		"tmp"
+	]
 }
