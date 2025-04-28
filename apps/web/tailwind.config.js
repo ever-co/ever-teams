@@ -9,8 +9,9 @@ module.exports = {
 		'./libs/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
-		'./icons/**/*.{ts,tsx}',
-		'./lib/**/*.{ts,tsx}'
+		'./utils/**/*.{ts,tsx}',
+		'./lib/**/*.{ts,tsx}',
+		'./icons/**/*.{ts,tsx}'
 	],
 	theme: {
 		screens: {

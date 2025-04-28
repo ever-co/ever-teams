@@ -1,14 +1,15 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"target": "ES2017",
+		"types": [
+			"node"
+		],
+		"target": "es2015",
 		"lib": [
 			"dom",
 			"dom.iterable",
 			"esnext",
-		],
-		"types": [
-			"node"
+			"es2015"
 		],
 		"allowJs": true,
 		"skipLibCheck": true,
