@@ -6,10 +6,11 @@ module.exports = {
 	content: [
 		'./pages/**/*.{ts,tsx}',
 		'./components/**/*.{ts,tsx}',
+		'./libs/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
-		join(__dirname, '{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
-		...createGlobPatternsForDependencies(__dirname)
+		'./icons/**/*.{ts,tsx}',
+		'./lib/**/*.{ts,tsx}'
 	],
 	theme: {
 		screens: {
