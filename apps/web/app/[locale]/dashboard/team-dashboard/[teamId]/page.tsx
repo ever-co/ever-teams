@@ -69,7 +69,7 @@ function TeamDashboard() {
 						</div>
 						<div className="flex flex-col gap-3">
 							<DashboardHeader
-								onUpdateDateRange={updateDateRange}
+								onUpdateDateRangeAction={updateDateRange}
 								title="Team Dashboard"
 								isManage={isManage}
 								teamName="TEAM-DASHBOARD"

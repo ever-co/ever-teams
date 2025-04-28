@@ -1,9 +1,9 @@
 'use client';
-import React from 'react';
-import TimeActivityComponents from './Components/page-component';
+
+import { withAuthentication } from '@/lib/app/authenticator';
+import { TimeActivityComponents } from './components/page-component';
 
 function TimeAndActivity() {
 	return <TimeActivityComponents />;
 }
-
-export default TimeAndActivity;
+export default withAuthentication(TimeAndActivity, { displayName: 'Time and Activity' });

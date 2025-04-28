@@ -7,19 +7,23 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { Card } from '@components/ui/card';
-import { ProductivityHeader } from '../components/ProductivityHeader';
-import { ProductivityChart } from '../components/ProductivityChart';
-import { ProductivityStats } from '../components/ProductivityStats';
-import { ProductivityTable } from '../components/ProductivityTable';
 import { useLocalStorageState, useModal } from '@/app/hooks';
-import { ProductivityApplicationTable, ProductivityEmployeeTable, ProductivityProjectTable } from '../components';
+import {
+	ProductivityApplicationTable,
+	ProductivityEmployeeTable,
+	ProductivityProjectTable,
+	ProductivityHeader,
+	ProductivityChart,
+	ProductivityStats,
+	ProductivityTable
+} from '../components';
 
 interface ProductivityData {
 	date: string;
@@ -103,7 +107,7 @@ function AppUrls() {
 						</div>
 						<div className="flex flex-col gap-6 w-full">
 							<DashboardHeader
-								onUpdateDateRange={updateDateRange}
+								onUpdateDateRangeAction={updateDateRange}
 								onUpdateFilters={updateFilters}
 								onGroupByChange={handleGroupTypeChange}
 								showGroupBy={true}

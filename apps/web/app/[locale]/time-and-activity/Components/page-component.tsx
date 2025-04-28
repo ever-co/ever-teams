@@ -1,5 +1,4 @@
 'use client';
-import { withAuthentication } from '@/lib/app/authenticator';
 import { MainLayout } from '@/lib/layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -9,15 +8,16 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import React, { useMemo, useState, useCallback } from 'react';
-import TimeActivityHeader, { ViewOption } from './time-activity-header';
-import CardTimeAndActivity from './card-time-and-activity';
+import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@components/ui/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
-import { TimeActivityTable } from './TimeActivityTable';
-import ActivityTable from './ActivityTable';
+import CardTimeAndActivity from './card-time-and-activity';
+import { TimeActivityTable } from './time-activity-table';
+import ActivityTable from './activity-table';
+import { ViewOption } from './view-select';
+import { TimeActivityHeader } from './time-activity-header';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -39,7 +39,6 @@ const TimeActivityComponents = () => {
 	}, []);
 
 	// Memoize column visibility checks
-	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
 		if (typeof window === 'undefined') return defaultViewOptions;
 
@@ -80,7 +79,7 @@ const TimeActivityComponents = () => {
 	);
 
 	const handleBack = () => router.back();
-	
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -156,5 +155,4 @@ const TimeActivityComponents = () => {
 		</MainLayout>
 	);
 };
-
-export default withAuthentication(TimeActivityComponents, { displayName: 'Time and Activity' });
+export { TimeActivityComponents };

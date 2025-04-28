@@ -1,11 +1,11 @@
-import { FilterStatus, FilterWithStatus } from './FilterWithStatus';
+import { FilterStatus, FilterWithStatus } from './filter-with-status';
 import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate, TimesheetFilterDateProps } from '.';
 import { Button } from 'lib/components';
 import { TranslationHooks } from 'next-intl';
-import { AddTaskModal } from './AddTaskModal';
+import { AddTaskModal } from './add-mask-modal';
 import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useTimelogFilterOptions } from '@/app/hooks';
-import { PlusIcon } from './TimesheetIcons';
+import { PlusIcon } from './timesheet-icons';
 
 interface ITimesheetFilter {
 	isOpen: boolean;

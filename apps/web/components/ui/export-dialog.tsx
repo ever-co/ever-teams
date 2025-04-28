@@ -1,13 +1,13 @@
 'use client';
 
-import * as React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ProductivityPDF } from '@/app/[locale]/dashboard/app-url/components/ProductivityPDF';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
-import { ProductivityApplicationPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-application/Productivity-applicationPDF';
+
 import { Modal } from '@/lib/components';
+import { ProductivityApplicationPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-application/productivity-application-pdf';
+import { ProductivityPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-pdf';
 
 interface ExportDialogProps {
 	isOpen: boolean;

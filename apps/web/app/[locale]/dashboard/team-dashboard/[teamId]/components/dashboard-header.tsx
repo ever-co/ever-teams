@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 
-import React from 'react';
 import { DateRangePicker } from './date-range-picker';
 import { DateRange } from 'react-day-picker';
 
 import { TeamDashboardFilter } from './team-dashboard-filter';
-import { GroupBySelect } from '../../../app-url/components/GroupBySelect';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
 import { ExportMenu } from '@/components/export-menu';
 import { TeamStatsPDF } from './pdf';
 import { ExportDialog } from '@components/ui/export-dialog';
+import { GroupBySelectTimeActivity } from '@components/group-by-select-time-activity';
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';
@@ -22,7 +21,7 @@ const formatDate = (date: Date | undefined): string => {
 };
 
 interface DashboardHeaderProps {
-	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
+	onUpdateDateRangeAction: (startDate: Date, endDate: Date) => void;
 	title?: string;
 	isManage?: boolean;
 	showGroupBy?: boolean;
@@ -39,7 +38,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-	onUpdateDateRange,
+	onUpdateDateRangeAction,
 	title,
 	isManage,
 	showGroupBy,
@@ -55,7 +54,7 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
-			onUpdateDateRange(range.from, range.to);
+			onUpdateDateRangeAction(range.from, range.to);
 		}
 	};
 
@@ -81,7 +80,9 @@ export function DashboardHeader({
 			<div className="flex justify-between items-center w-full">
 				<h1 className="text-2xl font-semibold">{title}</h1>
 				<div className="flex gap-4 items-center">
-					{showGroupBy && <GroupBySelect groupByType={groupByType} onGroupByChange={onGroupByChange} />}
+					{showGroupBy && (
+						<GroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
+					)}
 					<DateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
 					<TeamDashboardFilter isManage={isManage} />
 					<ExportMenu

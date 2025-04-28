@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { cn } from '@/lib/utils';
-import { statusTable } from './TimesheetAction';
+import { statusTable } from './timesheet-action';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);

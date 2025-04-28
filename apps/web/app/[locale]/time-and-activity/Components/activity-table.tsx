@@ -4,11 +4,11 @@ import { Avatar } from '@/lib/components';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCallback, useMemo, useState } from 'react';
 import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';
-import { ProjectCell } from './ProjectCell';
-import { TrackedHoursCell } from './TrackedHoursCell';
-import { EarningsCell } from './EarningsCell';
-import { ActivityLevelCell } from './ActivityLevelCell';
-import ActivityTableSkeleton from './ActivityTableSkeleton';
+import { ProjectCell } from './project-cell';
+import { TrackedHoursCell } from './tracked-hours-cell';
+import { EarningsCell } from './earnings-cell';
+import { ActivityLevelCell } from './activity-level-cell';
+import ActivityTableSkeleton from './activity-table-skeleton';
 import { AnimatedEmptyState } from '@components/ui/empty-state';
 import React from 'react';
 

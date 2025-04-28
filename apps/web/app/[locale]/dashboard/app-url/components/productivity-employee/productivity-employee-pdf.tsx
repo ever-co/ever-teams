@@ -1,7 +1,6 @@
-import React from 'react';
 import { format } from 'date-fns';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { IActivityItem, IEmployee } from './ProductivityEmployeeTable';
+import { IActivityItem, IEmployee } from './productivity-employee-table';
 
 interface IEmployeeGroup {
 	employee: IEmployee;
@@ -111,7 +110,6 @@ interface ProductivityPDFProps {
 	title?: string;
 }
 
-
 export function ProductivityEmployeePDF({ data = [], title = 'Productivity Report' }: ProductivityPDFProps) {
 	const today = format(new Date(), 'EEEE dd MMM yyyy');
 
@@ -145,8 +143,8 @@ export function ProductivityEmployeePDF({ data = [], title = 'Productivity Repor
 								<Text style={[styles.tableHeaderCell, styles.col4]}>Duration</Text>
 							</View>
 
-							{employeeGroup.dates.map((dateGroup, dateIndex) => (
-								dateGroup.projects.map((project, projectIndex) => (
+							{employeeGroup.dates.map((dateGroup, dateIndex) =>
+								dateGroup.projects.map((project, projectIndex) =>
 									project.activity.map((activity, activityIndex) => (
 										<View
 											key={`${dateIndex}-${projectIndex}-${activityIndex}`}
@@ -158,23 +156,22 @@ export function ProductivityEmployeePDF({ data = [], title = 'Productivity Repor
 											<Text style={[styles.tableCell, styles.col2]}>
 												{activity.projectName || 'N/A'}
 											</Text>
-											<Text style={[styles.tableCell, styles.col3]}>
-												{activity.title}
-											</Text>
+											<Text style={[styles.tableCell, styles.col3]}>{activity.title}</Text>
 											<View style={[styles.projectCell, styles.col4]}>
 												<View style={styles.percentageBar}>
 													<View
-														style={[styles.percentageFill, { width: `${activity.duration}%` }]}
+														style={[
+															styles.percentageFill,
+															{ width: `${activity.duration}%` }
+														]}
 													/>
 												</View>
-												<Text style={styles.percentageText}>
-													{activity.duration}%
-												</Text>
+												<Text style={styles.percentageText}>{activity.duration}%</Text>
 											</View>
 										</View>
 									))
-								))
-							))}
+								)
+							)}
 						</View>
 					</View>
 				))}
