@@ -9,7 +9,7 @@
     "types": [],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-  },
+  }
   "include": [
     "./src"
   ],
