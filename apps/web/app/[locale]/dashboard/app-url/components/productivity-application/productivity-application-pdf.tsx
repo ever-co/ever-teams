@@ -8,7 +8,7 @@ import {
 	IActivityItem,
 	IProjectWithActivity
 } from '@app/interfaces/activity/IActivityReport';
-import { formatDuration } from './ProductivityApplicationTable';
+import { formatDuration } from './productivity-application-table';
 
 Font.register({
 	family: 'Helvetica',

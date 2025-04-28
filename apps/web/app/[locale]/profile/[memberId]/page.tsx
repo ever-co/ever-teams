@@ -23,7 +23,7 @@ import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
-import { UserProfileDetail } from './components/UserProfileDetail';
+import { UserProfileDetail } from './components/user-profile-detail';
 import { cn } from 'lib/utils';
 // import { ActivityCalendar } from 'lib/features/activity/calendar';
 
@@ -182,7 +182,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
 					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				) : (
-					activityScreens[activityFilter] ?? null
+					(activityScreens[activityFilter] ?? null)
 				)}
 			</Container>
 		</MainLayout>

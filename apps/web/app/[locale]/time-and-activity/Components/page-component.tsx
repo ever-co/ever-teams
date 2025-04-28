@@ -16,8 +16,8 @@ import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganiza
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import TimeActivityHeader, { ViewOption } from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
-import { TimeActivityTable } from './TimeActivityTable';
-import ActivityTable from './ActivityTable';
+import { TimeActivityTable } from './time-activity-table';
+import ActivityTable from './activity-table';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 

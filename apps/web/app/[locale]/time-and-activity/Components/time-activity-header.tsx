@@ -1,11 +1,11 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import React from 'react';
-import ViewSelect, { ViewOption } from './ViewSelect';
+import ViewSelect, { ViewOption } from './view-select';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
-import { GroupBySelectTimeActivity } from './GroupBySelectTimeActivity';
-import { TimeActivityFilterPopover } from './time-activityFilterPopover';
+import { GroupBySelectTimeActivity } from './group-by-select-time-activity';
+import { TimeActivityFilterPopover } from './time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 
 export interface TimeActivityHeaderProps {

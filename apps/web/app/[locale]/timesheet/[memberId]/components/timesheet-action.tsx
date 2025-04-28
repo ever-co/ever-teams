@@ -2,7 +2,7 @@ import { TimesheetFilterByDays, TimesheetStatus } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
-import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './TimesheetIcons';
+import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
 type ITimesheetButton = {
 	title?: string;
 	onClick?: () => void;

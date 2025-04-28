@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { TimeActivityTableSkeleton } from './TimeActivityTableSkeleton';
+import { TimeActivityTableSkeleton } from './time-activity-table-skeleton';
 
 export interface Column<T> {
 	header: string;

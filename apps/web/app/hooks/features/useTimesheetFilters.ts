@@ -1,64 +1,68 @@
 import { useMemo } from 'react';
-import { FilterStatus } from '@/app/[locale]/timesheet/[memberId]/components/FilterWithStatus';
+import { FilterStatus } from '@/app/[locale]/timesheet/[memberId]/components/filter-with-status';
 import { GroupedTimesheet } from './useTimesheet';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useLocalStorageState } from '../useLocalStorageState';
 
 export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
-    const [activeStatus, setActiveStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
+	const [activeStatus, setActiveStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
 
+	const filteredData = useMemo(() => {
+		if (!data) return [];
 
-    const filteredData = useMemo(() => {
-        if (!data) return [];
+		return data
+			.map((group) => {
+				type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
 
-        return data.map(group => {
-            type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
+				const statusMap: Record<FilterStatusWithoutAll, TimesheetStatus> = {
+					Pending: 'PENDING',
+					Approved: 'APPROVED',
+					'In review': 'IN REVIEW',
+					Draft: 'DRAFT',
+					Rejected: 'DENIED'
+				};
 
-            const statusMap: Record<FilterStatusWithoutAll, TimesheetStatus> = {
-                'Pending': 'PENDING',
-                'Approved': 'APPROVED',
-                'In review': 'IN REVIEW',
-                'Draft': 'DRAFT',
-                'Rejected': 'DENIED'
-            };
+				const filteredTasks = group.tasks.filter((task) => {
+					if (activeStatus === 'All Tasks') {
+						return true;
+					}
+					return task.timesheet.status === statusMap[activeStatus as FilterStatusWithoutAll];
+				});
 
-            const filteredTasks = group.tasks.filter(task => {
-                if (activeStatus === 'All Tasks') {
-                    return true;
-                }
-                return task.timesheet.status === statusMap[activeStatus as FilterStatusWithoutAll];
-            });
+				return {
+					...group,
+					tasks: filteredTasks
+				};
+			})
+			.filter((group) => group.tasks.length > 0);
+	}, [data, activeStatus]);
 
-            return {
-                ...group,
-                tasks: filteredTasks
-            };
-        }).filter(group => group.tasks.length > 0);
-    }, [data, activeStatus]);
+	const statusData = useMemo(() => {
+		const emptyStatusData: Record<TimesheetStatus, TimesheetLog[]> = {
+			DRAFT: [],
+			PENDING: [],
+			'IN REVIEW': [],
+			DENIED: [],
+			APPROVED: []
+		};
 
-    const statusData = useMemo(() => {
-        const emptyStatusData: Record<TimesheetStatus, TimesheetLog[]> = {
-            'DRAFT': [],
-            'PENDING': [],
-            'IN REVIEW': [],
-            'DENIED': [],
-            'APPROVED': []
-        };
+		if (!data) return emptyStatusData;
 
-        if (!data) return emptyStatusData;
+		const allTasks = data.flatMap((group) => group.tasks);
+		return allTasks.reduce(
+			(acc, task) => {
+				const status = task.timesheet.status as TimesheetStatus;
+				acc[status].push(task);
+				return acc;
+			},
+			{ ...emptyStatusData }
+		);
+	}, [data]);
 
-        const allTasks = data.flatMap(group => group.tasks);
-        return allTasks.reduce((acc, task) => {
-            const status = task.timesheet.status as TimesheetStatus;
-            acc[status].push(task);
-            return acc;
-        }, { ...emptyStatusData });
-    }, [data]);
-
-    return {
-        activeStatus,
-        setActiveStatus,
-        filteredData,
-        statusData
-    };
+	return {
+		activeStatus,
+		setActiveStatus,
+		filteredData,
+		statusData
+	};
 };

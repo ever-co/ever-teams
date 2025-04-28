@@ -8,12 +8,12 @@ import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { DatePickerFilter } from './TimesheetFilterDate';
+import { DatePickerFilter } from './timesheet-filter-date';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { toUTC } from '@/app/helpers';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { ToggleButton } from './EditTaskModal';
+import { ToggleButton } from './edit-task-modal';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;

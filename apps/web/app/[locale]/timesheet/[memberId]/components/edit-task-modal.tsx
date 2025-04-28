@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { Modal, statusColor } from '@/lib/components';
-import { DatePickerFilter } from './TimesheetFilterDate';
+import { DatePickerFilter } from './timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/app/utils';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
-import { statusTable } from './TimesheetAction';
+import { statusTable } from './timesheet-action';
 import { TimesheetLog } from '@/app/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';

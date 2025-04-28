@@ -2,9 +2,9 @@ import { FC } from 'react';
 import { Avatar } from '@/components/ui/avatar';
 import Image from 'next/image';
 import ProgressBar from './progress-bar';
-import { Column, TimeActivityTableAdapter } from './TimeActivityTableAdapter';
+import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';
 import { formatDuration, getWeekRange } from '@/utils/formatDuration';
-import { EmptyTimeActivity } from './EmptyTimeActivity';
+import { EmptyTimeActivity } from './empty-time-activity';
 
 interface TimeEntry {
 	member: {
