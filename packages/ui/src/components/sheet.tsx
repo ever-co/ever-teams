@@ -17,7 +17,7 @@ const SheetPortal: typeof SheetPrimitive.Portal = SheetPrimitive.Portal;
 
 const SheetOverlay: React.ForwardRefExoticComponent<
 	React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay> & {
-		ref?: React.Ref<HTMLDivElement>; // Le ref doit être un Ref<HTMLDivElement>
+		ref?: React.Ref<HTMLDivElement>;
 	}
 > = React.forwardRef(({ className, ...props }, ref) => (
 	<SheetPrimitive.Overlay
