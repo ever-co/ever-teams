@@ -146,12 +146,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 						height: 5
 					}}
 					onChange={(index) => {
-						if (index <= 0) {
-							// 0 = open, -1 = closed programmatically
-							setIsSheetOpen(index === 0);
-						} else {
-							setIsSheetOpen(false);
-						}
+						setIsSheetOpen(index === 0);
 					}}
 				>
 					<View style={{ padding: 16, flex: 1 }}>

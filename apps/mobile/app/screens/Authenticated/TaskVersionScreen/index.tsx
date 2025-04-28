@@ -92,12 +92,18 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
   // Effect to handle bottom sheet snap index when state changes
   useEffect(() => {
+    let updateTimer = null;
+
     if (bottomSheetVisible && sheetRef.current) {
-      // Add small delay to ensure sheet is ready
-      setTimeout(() => {
-        sheetRef.current.snapToIndex(desiredSnapIndex);
-      }, 100);
+      if (updateTimer) clearTimeout(updateTimer);
+      updateTimer = setTimeout(() => {
+        sheetRef.current?.snapToIndex(desiredSnapIndex);
+      }, 150);
     }
+
+    return () => {
+      if (updateTimer) clearTimeout(updateTimer);
+    };
   }, [bottomSheetVisible, desiredSnapIndex]);
 
   // Clean up on unmount

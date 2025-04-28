@@ -20,7 +20,7 @@ const fetchAllTasks = async (params: IGetAllTasksParams) => {
 		// Server filtering should already be done, but we keep client filtering as a backup
 		const tasks =
 			data?.items?.filter((task) => {
-				return !params.activeTeamId || task.teams.some((tm) => tm.id === params.activeTeamId);
+				return !params.activeTeamId || task?.teams?.some((tm) => tm.id === params.activeTeamId);
 			}) || [];
 
 		return tasks;

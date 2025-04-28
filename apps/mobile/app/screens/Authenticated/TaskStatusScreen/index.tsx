@@ -144,7 +144,16 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
 					height: 5
 				}}
 				onChange={(index) => {
-					setIsSheetOpen(index === 0);
+					if (index === 0) {
+						setIsSheetOpen(true);
+					} else if (index === -1 || index === 1) {
+						setIsSheetOpen(false);
+						Keyboard.dismiss();
+					}
+				}}
+				onClose={() => {
+					setIsSheetOpen(false);
+					setEditMode(false);
 				}}
 			>
 				<View style={{ padding: 16, flex: 1 }}>
