@@ -87,8 +87,6 @@
 		"lodash": "^4.17.21",
 		"lucide-react": "^0.503.0",
 		"next-themes": "^0.4.6",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
 		"react-color": "^2.19.3",
 		"react-day-picker": "8.10.1",
 		"react-hook-form": "^7.56.1",
@@ -108,7 +106,6 @@
 		"@eslint/js": "^9.22.0",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ts-config": "*",
-		"@popperjs/core": "^2.11.8",
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-node-resolve": "^15.3.0",
 		"@rollup/plugin-terser": "^0.4.4",
@@ -120,7 +117,6 @@
 		"add": "^2.0.6",
 		"autoprefixer": "^10.4.19",
 		"classnames": "^2.3.2",
-		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
 		"embla-carousel-react": "^8.6.0",
 		"eslint": "^9.21.0",
@@ -142,9 +138,10 @@
 		"tsup": "^8.4.0",
 		"typescript": "^5.6.3",
 		"typescript-eslint": "^8.24.1",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0",
 		"@types/react": "^19.1.2",
-		"@types/react-dom": "^19.1.2",
-		"vite": "^6.2.0"
+		"@types/react-dom": "^19.1.2"
 	},
 	"resolutions": {
 		"react": "^19.1.0",

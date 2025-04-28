@@ -17662,7 +17662,7 @@ fs.realpath@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
 
-fsevents@^2.3.2, fsevents@~2.3.2, fsevents@~2.3.3:
+fsevents@^2.3.2, fsevents@~2.3.2:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
@@ -25246,7 +25246,7 @@ postcss@8.4.31:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
-postcss@^8.4.14, postcss@^8.4.19, postcss@^8.4.24, postcss@^8.4.33, postcss@^8.4.38, postcss@^8.4.41, postcss@^8.4.47, postcss@^8.5.3:
+postcss@^8.4.14, postcss@^8.4.19, postcss@^8.4.24, postcss@^8.4.33, postcss@^8.4.38, postcss@^8.4.41, postcss@^8.4.47:
   version "8.5.3"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.3.tgz#1463b6f1c7fb16fe258736cba29a2de35237eafb"
   integrity sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==
@@ -26753,7 +26753,7 @@ rollup@2.79.2:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rollup@^4.24.4, rollup@^4.34.8, rollup@^4.34.9:
+rollup@^4.24.4, rollup@^4.34.8:
   version "4.40.1"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-4.40.1.tgz#03d6c53ebb6a9c2c060ae686a61e72a2472b366f"
   integrity sha512-C5VvvgCCyfyotVITIAv+4efVytl5F7wt+/I2i9q9GZcEXW9BP52YYOXC58igUi+LFZVHukErIIqQSWwv/M3WRw==
@@ -30021,20 +30021,6 @@ vite-compatible-readable-stream@^3.6.1:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
-
-vite@^6.2.0:
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-6.3.3.tgz#497392c3f2243194e4dbf09ea83e9a3dddf49b88"
-  integrity sha512-5nXH+QsELbFKhsEfWLkHrvgRpTdGJzqOZ+utSdmPTvwHmvU6ITTm3xx+mRusihkcI8GeC7lCDyn3kDtiki9scw==
-  dependencies:
-    esbuild "^0.25.0"
-    fdir "^6.4.4"
-    picomatch "^4.0.2"
-    postcss "^8.5.3"
-    rollup "^4.34.9"
-    tinyglobby "^0.2.13"
-  optionalDependencies:
-    fsevents "~2.3.3"
 
 vm-browserify@^1.0.0:
   version "1.1.2"
