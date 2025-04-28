@@ -42,22 +42,18 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
   const sheetRef = useRef<BottomSheet>(null);
 
-  // Define snap points - similar to the working implementation
-  // Use multiple snap points like in the working example
-  const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
+  // Define snap points - using a single snap point like in the updated TaskStatusScreen
+  const snapPoints = useMemo(() => ['60%'], []);
 
   const openForEdit = useCallback((item: ITaskVersionItemList) => {
     setEditMode(true);
     setItemToEdit(item);
     setBottomSheetVisible(true);
 
-    // Important: We need to set the snap index and then force a sheet update
-    setDesiredSnapIndex(1); // Use 50% height for edit
-
     // Force immediate update of the sheet position
     setTimeout(() => {
       if (sheetRef.current) {
-        sheetRef.current.snapToIndex(1);
+        sheetRef.current.snapToIndex(0);
       }
     }, 150);
   }, []);
@@ -67,13 +63,10 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
     setItemToEdit(null);
     setBottomSheetVisible(true);
 
-    // Important: We need to set the snap index and then force a sheet update
-    setDesiredSnapIndex(1); // Use 50% height for new version
-
     // Force immediate update of the sheet position
     setTimeout(() => {
       if (sheetRef.current) {
-        sheetRef.current.snapToIndex(1);
+        sheetRef.current.snapToIndex(0);
       }
     }, 150);
   }, []);
@@ -89,22 +82,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       Keyboard.dismiss();
     }, 250);
   }, []);
-
-  // Effect to handle bottom sheet snap index when state changes
-  useEffect(() => {
-    let timerRef = {current: null};
-
-    if (bottomSheetVisible && sheetRef.current) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        sheetRef.current?.snapToIndex(desiredSnapIndex);
-      }, 150);
-    }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [bottomSheetVisible, desiredSnapIndex]);
 
   // Clean up on unmount
   useEffect(() => {
@@ -122,11 +99,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       (e) => {
         setKeyboardVisible(true);
         setKeyboardHeight(e.endCoordinates.height);
-
-        // If sheet is open, adjust height for keyboard
-        if (bottomSheetVisible && sheetRef.current) {
-          setDesiredSnapIndex(2); // Use higher snap point for keyboard
-        }
       }
     );
 
@@ -135,11 +107,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       () => {
         setKeyboardVisible(false);
         setKeyboardHeight(0);
-
-        // If sheet is still open, return to normal height
-        if (bottomSheetVisible && sheetRef.current) {
-          setDesiredSnapIndex(1); // Return to default height
-        }
       }
     );
 
@@ -147,7 +114,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
     };
-  }, [bottomSheetVisible]);
+  }, []);
 
   // Backdrop component
   const renderBackdrop = useCallback(
@@ -170,7 +137,11 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       <Animated.View style={{ flex: 1 }}>
         <View style={[$headerContainer, { backgroundColor: colors.background }]}>
           <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+            <TouchableOpacity
+              // accessibilityLabel={translate('settingScreen.backButton')}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate('Setting')}
+            >
               <AntDesign name="arrowleft" size={24} color={colors.primary} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: colors.primary }]}>
@@ -179,15 +150,30 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           </View>
         </View>
 
-        <View style={{ width: '100%', padding: 20, height: '80%' }}>
-          <View>
+        <View style={{ width: '100%', padding: 20, flex: 1 }}>
+          <View style={styles.listHeaderContainer}>
             <Text style={styles.title2}>{translate('settingScreen.versionScreen.listOfVersions')}</Text>
+            <TouchableOpacity
+              accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
+              accessibilityRole="button"
+              style={{
+                ...styles.createButtonSmall,
+                borderColor: dark ? '#6755C9' : '#3826A6',
+                backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)'
+              }}
+              onPress={handleCreateNew}
+            >
+              <Ionicons name="add" size={18} color={dark ? '#6755C9' : '#3826A6'} />
+              <Text style={{ ...styles.btnTextSmall, color: dark ? '#6755C9' : '#3826A6' }}>
+                {translate('settingScreen.versionScreen.createNewVersionButton')}
+              </Text>
+            </TouchableOpacity>
           </View>
+
           <View
             style={{
-              minHeight: 200,
-              justifyContent: 'center',
-              alignItems: 'center'
+              flex: 1,
+              width: '100%'
             }}
           >
             {isLoading ? <ActivityIndicator size={'small'} color={'#3826A6'} /> : null}
@@ -214,10 +200,14 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
             />
           </View>
         </View>
+
         <TouchableOpacity
+          accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
+          accessibilityRole="button"
           style={{
             ...styles.createButton,
-            borderColor: dark ? '#6755C9' : '#3826A6'
+            borderColor: dark ? '#6755C9' : '#3826A6',
+            backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)'
           }}
           onPress={handleCreateNew}
         >
@@ -247,12 +237,13 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           index={-1}  // Start closed (-1)
           snapPoints={snapPoints}
           enablePanDownToClose={true}
-          onClose={handleClose}  // Add onClose handler
+          onClose={handleClose}
           backdropComponent={renderBackdrop}
           enableContentPanningGesture={true}
-          keyboardBehavior="extend"
+          keyboardBehavior="interactive"
           keyboardBlurBehavior="restore"
           android_keyboardInputMode="adjustResize"
+          // handleHeight={30}
           backgroundStyle={{
             backgroundColor: colors.background,
             shadowColor: '#000',
@@ -260,8 +251,8 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
             shadowOpacity: 0.27,
             shadowRadius: 4.65,
             elevation: 10,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24
           }}
           handleIndicatorStyle={{
             backgroundColor: dark ? '#FFFFFF' : '#000000',
@@ -271,15 +262,12 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           }}
         >
           <BottomSheetScrollView
+            style={{ backgroundColor: colors.background }}
             contentContainerStyle={{
-              flexGrow: 1,
-              paddingBottom: keyboardVisible ? keyboardHeight + 20 : 20
+              flexGrow: 1
             }}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={true}
-            style={{
-              backgroundColor: colors.background
-            }}
+            showsVerticalScrollIndicator={false}
           >
             {bottomSheetVisible && (
               <TaskVersionForm
@@ -334,7 +322,15 @@ const styles = StyleSheet.create({
     color: '#3826A6',
     fontFamily: typography.primary.semiBold,
     fontSize: 18,
-    fontStyle: 'normal'
+    fontStyle: 'normal',
+    marginLeft: 8
+  },
+  btnTextSmall: {
+    color: '#3826A6',
+    fontFamily: typography.primary.semiBold,
+    fontSize: 14,
+    fontStyle: 'normal',
+    marginLeft: 4
   },
   container: {
     alignItems: 'center',
@@ -349,9 +345,27 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
-    padding: 16,
+    marginBottom: 16,
+    marginTop: 8,
+    padding: 14,
     width: '90%'
+  },
+  createButtonSmall: {
+    alignItems: 'center',
+    borderColor: '#3826A6',
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 6,
+    paddingHorizontal: 10
+  },
+  listHeaderContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    width: '100%'
   },
   noVersionTxt: {
     color: '#7E7991',
@@ -368,7 +382,6 @@ const styles = StyleSheet.create({
   title2: {
     color: '#7E7991',
     fontFamily: typography.primary.semiBold,
-    fontSize: 16,
-    marginBottom: 8
+    fontSize: 16
   }
 });
