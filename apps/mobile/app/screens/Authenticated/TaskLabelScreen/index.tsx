@@ -37,6 +37,8 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 		const [keyboardVisible, setKeyboardVisible] = useState(false);
 		const [keyboardHeight, setKeyboardHeight] = useState(0);
 
+		const [error, setError] = useState<string | null>(null);
+
 		// ref
 		const sheetRef = useRef<BottomSheet>(null);
 
@@ -77,14 +79,18 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 
 			// Clear state after animation completes
 			setTimeout(() => {
-				setBottomSheetVisible(false);
-				Keyboard.dismiss();
+				if (isMountedRef.current) {
+					setBottomSheetVisible(false);
+					Keyboard.dismiss();
+				}
 			}, 250);
 		}, []);
 
 		// Clean up on unmount
+		const isMountedRef = useRef(true);
 		useEffect(() => {
 			return () => {
+				isMountedRef.current = false;
 				if (sheetRef.current) {
 					sheetRef.current.close();
 				}
@@ -129,6 +135,45 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 			),
 			[]
 		);
+
+		const handleUpdateLabel = useCallback(
+			async (labelData) => {
+			  try {
+				// No need to extract id - the updated hook will handle this correctly
+				await updateLabel(labelData);
+				handleClose();
+			  } catch (err) {
+				setError('Failed to update label. Please try again.');
+				console.error('Error updating label:', err);
+			  }
+			},
+			[updateLabel, handleClose]
+		  );
+
+		  const handleCreateLabel = useCallback(
+			async (labelData) => {
+			  try {
+				await createLabel(labelData);
+				handleClose();
+			  } catch (err) {
+				setError('Failed to create label. Please try again.');
+				console.error('Error creating label:', err);
+			  }
+			},
+			[createLabel, handleClose]
+		  );
+
+		  const handleDeleteLabel = useCallback(
+			async (id) => {
+			  try {
+				await deleteLabel(id);
+			  } catch (err) {
+				setError('Failed to delete label. Please try again.');
+				console.error('Error deleting label:', err);
+			  }
+			},
+			[deleteLabel]
+		  );
 
 		return (
 			<Screen
@@ -190,7 +235,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 								renderItem={({ item }) => (
 									<LabelItem
 										openForEdit={() => openForEdit(item)}
-										onDeleteLabel={() => deleteLabel(item.id)}
+										onDeleteLabel={() => handleDeleteLabel(item.id)}
 										label={item}
 									/>
 								)}
@@ -271,9 +316,11 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 								<TaskLabelForm
 									item={itemToEdit}
 									onDismiss={handleClose}
-									onUpdateLabel={updateLabel}
-									onCreateLabel={createLabel}
+									onUpdateLabel={handleUpdateLabel}
+									onCreateLabel={handleCreateLabel}
 									isEdit={editMode}
+									error={error}
+									onErrorDismiss={() => setError(null)}
 								/>
 							)}
 						</BottomSheetScrollView>
