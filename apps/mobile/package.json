@@ -131,7 +131,6 @@
 		"react-native-vector-icons": "^9.2.0",
 		"react-native-web": "~0.19.6",
 		"react-native-webview": "13.12.5",
-		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
 		"reanimated-color-picker": "^2.3.4",
 		"sentry-expo": "~7.0.0",
 		"validator": "^13.11.0"

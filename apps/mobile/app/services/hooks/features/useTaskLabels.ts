@@ -29,18 +29,20 @@ export function useTaskLabels() {
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['labels'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
 	// Update the label
-	const updateLabel = useCallback(async (id: string, data: ITaskStatusCreate) => {
+	// Changed to extract id and data properties from a single parameter object
+	const updateLabel = useCallback(async (labelData: ITaskLabelItem) => {
+		const { id, ...data } = labelData;
 		await updateTaskLabelsRequest({
 			id,
 			tenantId,
-			datas: data,
+			datas: data as ITaskStatusCreate,
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['labels'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
 	// Create the label
 	const createLabel = useCallback(async (data: ITaskStatusCreate) => {
@@ -50,7 +52,7 @@ export function useTaskLabels() {
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['labels'] });
-	}, []);
+	}, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
 
 	useEffect(() => {
 		if (isSuccess) {
@@ -58,7 +60,7 @@ export function useTaskLabels() {
 				setAllTaskLabels(labels.items || []);
 			}
 		}
-	}, [isLoading, isRefetching]);
+	}, [isLoading, isRefetching, isSuccess, labels]);
 
 	return {
 		labels,

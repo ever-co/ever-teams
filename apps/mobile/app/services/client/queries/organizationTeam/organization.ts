@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ITeamsOut } from '../../../../models/team/Team';
-import { IUserOrganization } from '../../../interfaces/IOrganization';
+// import { IUserOrganization } from '../../../interfaces/IOrganization';
 import { IOrganizationTeamList } from '../../../interfaces/IOrganizationTeam';
 import { getUserOrganizationsRequest } from '../../requests/organization';
 import { getAllOrganizationTeamRequest } from '../../requests/organization-team';
@@ -20,12 +20,12 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
 
 		const organizationsItems = organizations?.items;
 
-		const filteredOrganization = organizationsItems?.reduce((acc, org) => {
-			if (!acc.find((o) => o.organizationId === org.organizationId)) {
-				acc.push(org);
-			}
-			return acc;
-		}, [] as IUserOrganization[]);
+		const seen = new Set<string>();
+		const filteredOrganization = organizationsItems?.filter((org) => {
+		  if (seen.has(org.organizationId)) return false;
+		  seen.add(org.organizationId);
+		  return true;
+		});
 
 		if (!filteredOrganization || filteredOrganization.length === 0) {
 			return { items: [], total: 0 };
