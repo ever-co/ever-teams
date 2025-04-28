@@ -1,5 +1,5 @@
 'use client';
-import { TimeActivityComponents } from './components/index';
+import { TimeActivityComponents } from './components';
 
 function TimeAndActivity() {
 	return <TimeActivityComponents />;
