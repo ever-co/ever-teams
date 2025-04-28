@@ -2,7 +2,7 @@
 import { format } from 'date-fns';
 import { Avatar } from '@/lib/components';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';
 import { ProjectCell } from './project-cell';
 import { TrackedHoursCell } from './tracked-hours-cell';
@@ -10,7 +10,6 @@ import { EarningsCell } from './earnings-cell';
 import { ActivityLevelCell } from './activity-level-cell';
 import ActivityTableSkeleton from './activity-table-skeleton';
 import { AnimatedEmptyState } from '@components/ui/empty-state';
-import React from 'react';
 
 interface TimeSlot {
 	duration: number;
@@ -234,7 +233,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			{currentEntries.map((dayLog: DailyLog) => (
 				<div
 					key={dayLog.date}
-					className="bg-white dark:bg-dark--theme-light rounded-lg shadow-sm overflow-hidden"
+					className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
 				>
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 						<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
@@ -257,27 +256,27 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 						<TableHeader>
 							<TableRow className="border-b border-gray-200 dark:border-gray-600">
 								{columnVisibility.member && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
 										Member ↑
 									</TableHead>
 								)}
 								{columnVisibility.project && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
 										Project ↑
 									</TableHead>
 								)}
 								{columnVisibility.trackedHours && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
 										Tracked Hours ↑
 									</TableHead>
 								)}
 								{columnVisibility.earnings && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
 										Earnings ↑
 									</TableHead>
 								)}
 								{columnVisibility.activityLevel && (
-									<TableHead className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap px-6">
+									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
 										Activity Level ↑
 									</TableHead>
 								)}
@@ -293,24 +292,24 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										{columnVisibility.member && employeeLog.employee && (
 											<TableCell className="px-6 py-4">
 												<div className="flex items-center gap-3">
-													<Avatar size={32} className="h-8 w-8 rounded-full">
+													<Avatar size={32} className="w-8 h-8 rounded-full">
 														{employeeLog.employee.user?.imageUrl ? (
 															<img
 																src={employeeLog.employee.user.imageUrl}
 																alt={employeeLog.employee.fullName || 'Employee'}
-																className="w-full h-full object-cover rounded-full"
+																className="object-cover w-full h-full rounded-full"
 																loading="lazy"
 															/>
 														) : (
 															<img
 																src="/assets/images/avatar.png"
 																alt={employeeLog.employee.fullName || 'Employee'}
-																className="w-full h-full object-cover rounded-full"
+																className="object-cover w-full h-full rounded-full"
 																loading="lazy"
 															/>
 														)}
 													</Avatar>
-													<span className="text-gray-900 dark:text-gray-100 font-medium">
+													<span className="font-medium text-gray-900 dark:text-gray-100">
 														{employeeLog.employee.fullName || 'Unnamed Employee'}
 													</span>
 												</div>
@@ -374,16 +373,16 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			))}
 
 			{/* Pagination controls */}
-			<div className="flex justify-between items-center mt-4 px-2">
+			<div className="flex items-center justify-between px-2 mt-4">
 				<div className="flex items-center gap-4">
 					<div className="relative">
 						<button
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
 							Show {entriesPerPage}
 							<svg
-								className="w-4 h-4 ml-2 inline-block"
+								className="inline-block w-4 h-4 ml-2"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -392,12 +391,12 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 							</svg>
 						</button>
 						{showEntriesDropdown && (
-							<div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded shadow-lg z-10">
+							<div className="absolute left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded shadow-lg top-full dark:bg-dark--theme dark:border-gray-600">
 								{entryOptions.map((option) => (
 									<button
 										key={option}
 										onClick={() => handleEntriesPerPageChange(option)}
-										className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+										className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
 										Show {option}
 									</button>
@@ -412,28 +411,28 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 				<div className="flex items-center gap-2">
 					<button
-						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
 						First
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
 						Previous
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
 						Next
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark--theme border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>
