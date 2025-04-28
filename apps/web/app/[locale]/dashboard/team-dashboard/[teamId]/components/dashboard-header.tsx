@@ -9,7 +9,7 @@ import { GroupByType } from '@/app/hooks/features/useReportActivity';
 import { ExportMenu } from '@/components/export-menu';
 import { TeamStatsPDF } from './pdf';
 import { ExportDialog } from '@components/ui/export-dialog';
-import { GroupBySelectTimeActivity } from '@/app/[locale]/time-and-activity/components';
+import { GroupBySelectTimeActivity } from '@components/group-by-select-time-activity';
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';

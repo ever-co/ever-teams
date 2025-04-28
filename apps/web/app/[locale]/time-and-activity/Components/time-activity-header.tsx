@@ -4,7 +4,7 @@ import ViewSelect, { ViewOption } from './view-select';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
-import { GroupBySelectTimeActivity } from './group-by-select-time-activity';
+import { GroupBySelectTimeActivity } from '@components/group-by-select-time-activity';
 import { TimeActivityFilterPopover } from './time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 
