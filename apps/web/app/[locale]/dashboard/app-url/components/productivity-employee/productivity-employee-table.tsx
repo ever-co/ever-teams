@@ -290,11 +290,6 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
     >();
 
     try {
-      // Ensure data is an array
-      if (!Array.isArray(paginatedData)) {
-        console.warn('Data is not an array:', paginatedData);
-        return employeeMap;
-      }
 
       paginatedData.forEach((employeeData) => {
         if (!employeeData?.employee?.id || !employeeData?.dates) {

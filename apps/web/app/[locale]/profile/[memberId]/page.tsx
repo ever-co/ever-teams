@@ -182,7 +182,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
 					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				) : (
-					(activityScreens[activityFilter] ?? null)
+					activityScreens[activityFilter] ?? null
 				)}
 			</Container>
 		</MainLayout>
