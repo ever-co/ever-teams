@@ -1,9 +1,9 @@
 'use client';
 
-import { clsxm } from '@app/utils';
-import { Dialog, DialogDescription, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
+import { Description, Dialog, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { PropsWithChildren, useRef } from 'react';
+import { cn } from '../utils';
 
 type Props = {
 	title?: string;
@@ -52,7 +52,7 @@ export function Modal({
 			>
 				<div ref={refDiv} className="fixed inset-0 flex items-center justify-center p-4">
 					<DialogPanel
-						className={clsxm(
+						className={cn(
 							'relative bg-white rounded-lg p-6 shadow-xl dark:bg-dark--theme-light dark:shadow-xl dark:shadow-dark--theme-light',
 							'flex flex-col space-y-4',
 							className
@@ -65,7 +65,7 @@ export function Modal({
 									closeModal();
 									customCloseModal?.();
 								}}
-								className={clsxm(
+								className={cn(
 									'absolute cursor-pointer z-50',
 									alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
 								)}
@@ -82,7 +82,7 @@ export function Modal({
 
 						{title && (
 							<DialogTitle
-								className={clsxm(
+								className={cn(
 									'text-lg font-medium leading-6 text-gray-900 dark:text-white',
 									titleClass
 								)}
@@ -91,9 +91,7 @@ export function Modal({
 							</DialogTitle>
 						)}
 
-						{description && (
-							<DialogDescription className="text-sm text-gray-500">{description}</DialogDescription>
-						)}
+						{description && <Description className="text-sm text-gray-500">{description}</Description>}
 
 						{children}
 					</DialogPanel>
