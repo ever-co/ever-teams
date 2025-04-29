@@ -1,27 +1,32 @@
 {
   "extends": "@ever-teams/ts-config/react-library.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
-    "jsx": "react",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "types": []
-  },
-  "include": [
-    "./src",
-    "helpers.ts"
+  "typeRoots": [
+    "node_modules/@types"
   ],
   "exclude": [
     "dist",
     "build",
-    "components",
-    "node_modules"
-  ]
+    "node_modules",
+    "tailwind.config.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/lib/**/*.ts",
+    "src/lib/**/*.tsx"
+  ],
+  "types": [
+    "react",
+    "react-dom"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "outDir": "dist",
+    "rootDir": "./src",
+    "esModuleInterop": true
+  }
 }

@@ -1,10 +1,9 @@
 'use client';
 import { MainLayout } from '@/lib/layout';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/app/stores/fullWidth';
-import { useParams } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
@@ -88,16 +87,16 @@ const TimeActivityComponents = () => {
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
-						<div className="flex items-center pt-6 w-full">
+						<div className="flex items-center w-full pt-6">
 							<button
 								onClick={handleBack}
-								className="p-1 rounded-full transition-colors hover:bg-gray-100"
+								className="p-1 transition-colors rounded-full hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
-						<div className="flex flex-col gap-6 w-full">
+						<div className="flex flex-col w-full gap-6">
 							<TimeActivityHeader
 								viewOptions={viewOptions}
 								onViewOptionsChange={handleViewOptionsChange}
