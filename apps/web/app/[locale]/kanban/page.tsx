@@ -2,7 +2,7 @@
 import { KanbanTabs } from '@app/constants';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { KanbanView } from '@/core/components/features/team-members-kanban-view';
 import { MainLayout } from '@/core/components/layouts/default-layout';

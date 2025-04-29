@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';

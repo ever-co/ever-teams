@@ -1,6 +1,6 @@
 'use client';
 
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { TimeActivityComponents } from './components/page-component';
 
 function TimeAndActivity() {

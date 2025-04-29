@@ -1,6 +1,6 @@
 'use client';
 
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { DangerZone, PersonalSettingForm, ProfileAvatar } from '@/core/components/settings';
 import { Accordian } from '@/core/components/accordian';
 import Link from 'next/link';

@@ -15,7 +15,7 @@ import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
 import { TeamStatsChart } from './components/team-stats-chart';

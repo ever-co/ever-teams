@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticateUser } from '@app/hooks';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';

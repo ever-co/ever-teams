@@ -2,13 +2,13 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import {
-    useAuthenticateUser,
-    useDailyPlan,
-    useLocalStorageState,
-    useOrganizationTeams,
-    useUserProfilePage
+	useAuthenticateUser,
+	useDailyPlan,
+	useLocalStorageState,
+	useOrganizationTeams,
+	useUserProfilePage
 } from '@app/hooks';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from '@/core/components/features';

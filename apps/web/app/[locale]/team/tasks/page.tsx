@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { ITeamTask } from '@/app/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';

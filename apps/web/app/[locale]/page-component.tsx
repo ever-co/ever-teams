@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@/core/components/pages/main/no-team';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Card, Container } from '@/core/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from '@/core/components/features';
 import { MainLayout } from '@/core/components/layouts/default-layout';

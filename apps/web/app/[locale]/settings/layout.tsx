@@ -9,7 +9,7 @@ import { LeftSideSettingMenu } from '@/core/components/settings';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAtom, useAtomValue } from 'jotai';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
 import { useOrganizationTeams } from '@app/hooks';
 import { cn } from '@/lib/utils';

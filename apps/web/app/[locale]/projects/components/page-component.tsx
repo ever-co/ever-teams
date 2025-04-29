@@ -2,7 +2,7 @@
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Archive,

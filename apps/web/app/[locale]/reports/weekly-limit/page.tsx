@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Paginate } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';

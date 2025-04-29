@@ -1,6 +1,6 @@
 'use client';
 import { fullWidthState } from '@/app/stores/fullWidth';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/lib/utils';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';

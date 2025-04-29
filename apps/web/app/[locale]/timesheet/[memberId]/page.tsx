@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import moment from 'moment';
 import { useTranslations, TranslationHooks } from 'next-intl';
 
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 

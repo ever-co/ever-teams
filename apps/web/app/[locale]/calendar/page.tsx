@@ -5,7 +5,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container, Divider } from '@/core/components';
 import { SetupFullCalendar } from '@/core/components/features';
 import { Footer, MainLayout } from '@/core/components/layouts/default-layout';

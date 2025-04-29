@@ -1,6 +1,6 @@
 'use client';
 
-import { withAuthentication } from 'lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Card } from '@/core/components';
 
 import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from '@/core/components/settings';

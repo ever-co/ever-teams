@@ -2,7 +2,7 @@
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationTeams } from '@/app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 
 function Page() {
 	const { isTrackingEnabled } = useOrganizationTeams();
