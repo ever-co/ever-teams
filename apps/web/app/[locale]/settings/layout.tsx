@@ -4,7 +4,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import SettingsPersonalSkeleton from '@/core/components/shared/skeleton/SettingsPersonalSkeleton';
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { LeftSideSettingMenu } from 'lib/settings';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';

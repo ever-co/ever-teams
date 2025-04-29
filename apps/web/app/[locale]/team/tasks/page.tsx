@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb, Container, Paginate } from '@/core/components';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -130,7 +130,7 @@ const TeamTask = () => {
 																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																)}
 															>
-																<div className="w-5 h-full flex items-center justify-center ">
+																<div className="flex items-center justify-center w-5 h-full ">
 																	{isVisible && <Check size={12} />}
 																</div>
 																<span className="capitalize">

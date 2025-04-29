@@ -1,6 +1,6 @@
 'use client';
 
-import { MainLayout } from '@/lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { useCallback, useEffect, useMemo, useState } from 'react';

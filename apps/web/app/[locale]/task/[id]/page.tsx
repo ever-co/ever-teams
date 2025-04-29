@@ -4,7 +4,7 @@ import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@app/hoo
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';

@@ -6,7 +6,7 @@ import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganiz
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
 import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
-import { MainHeader, MainLayout } from 'lib/layout';
+import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';

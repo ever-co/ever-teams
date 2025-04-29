@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Card, Container, Text, InputField } from '@/core/components';
 import LeftSideSettingMenuSkeleton from './LeftSideSettingMenuSkeleton';
 import DangerZoneSkeleton from './DangerZoneSkeleton';
@@ -7,7 +7,7 @@ import DangerZoneSkeleton from './DangerZoneSkeleton';
 const SettingsPersonalSkeleton = () => {
 	return (
 		<MainLayout>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
+			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
 					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
 				</Container>
@@ -18,16 +18,16 @@ const SettingsPersonalSkeleton = () => {
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
 						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-							<Text className="text-4xl font-medium mb-2">
+							<Text className="mb-2 text-4xl font-medium">
 								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
 								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
-							<div className="flex flex-col justify-between items-center">
+							<div className="flex flex-col items-center justify-between">
 								<div className="w-full">
 									<div className="">
-										<div className="flex w-full items-center justify-between gap-8">
+										<div className="flex items-center justify-between w-full gap-8">
 											<div className="relative">
 												<Skeleton
 													circle={true}

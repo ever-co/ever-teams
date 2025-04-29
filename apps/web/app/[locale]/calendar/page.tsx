@@ -8,7 +8,7 @@ import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from '@/core/components';
 import { SetupFullCalendar } from 'lib/features';
-import { Footer, MainLayout } from 'lib/layout';
+import { Footer, MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';

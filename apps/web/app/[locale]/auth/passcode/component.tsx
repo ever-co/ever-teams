@@ -16,7 +16,7 @@ import {
 	Text
 } from '@/core/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
-import { AuthLayout } from 'lib/layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -219,7 +219,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							</Text>
 							<Text
 								onClick={() => resetForm()}
-								className="text-xs font-normal cursor-pointer hover:underline text-gray-400"
+								className="text-xs font-normal text-gray-400 cursor-pointer hover:underline"
 							>
 								{t('common.RESET')}
 							</Text>
@@ -434,7 +434,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-					<ScrollArea className="h-64 relative w-full pr-2 ">
+					<ScrollArea className="relative w-full h-64 pr-2 ">
 						<div className="flex flex-col gap-y-4 ">
 							{props.workspaces?.map((worksace, index) => (
 								<div
@@ -449,7 +449,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 										<div className="flex justify-between">
 											<div
 												onClick={() => setExpandedWorkspace(index)}
-												className="flex cursor-pointer items-center justify-center gap-1"
+												className="flex items-center justify-center gap-1 cursor-pointer"
 											>
 												<span>{worksace.user.tenant.name}</span>
 												<span

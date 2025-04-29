@@ -5,7 +5,7 @@ import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from '@/core/components';
-import { AuthLayout } from 'lib/layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import SocialLogins from '../social-logins-buttons';
@@ -219,7 +219,7 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 	const [feedback, setFeedback] = useState<string>('');
 
 	const content = RECAPTCHA_SITE_KEY.value && (
-		<div className="w-full flex">
+		<div className="flex w-full">
 			<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
 				<SiteReCAPTCHA
 					siteKey={RECAPTCHA_SITE_KEY.value}

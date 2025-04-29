@@ -1,7 +1,7 @@
 'use client';
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { MainLayout } from '@/lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/lib/utils';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
@@ -96,16 +96,16 @@ function AppUrls() {
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark--theme">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
-						<div className="flex items-center pt-6 w-full">
+						<div className="flex items-center w-full pt-6">
 							<button
 								onClick={handleBack}
-								className="p-1 rounded-full transition-colors hover:bg-gray-100"
+								className="p-1 transition-colors rounded-full hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
-						<div className="flex flex-col gap-6 w-full">
+						<div className="flex flex-col w-full gap-6">
 							<DashboardHeader
 								onUpdateDateRangeAction={updateDateRange}
 								onUpdateFilters={updateFilters}
@@ -123,7 +123,7 @@ function AppUrls() {
 								openModal={openModal}
 							/>
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
-								<div className="flex flex-col gap-6 w-full">
+								<div className="flex flex-col w-full gap-6">
 									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700 pl-8">
 										<ProductivityHeader month="October" year={2024} />
 										<ProductivityStats
@@ -132,7 +132,7 @@ function AppUrls() {
 											unproductivePercentage={unproductivePercentage}
 										/>
 									</div>
-									<div className="flex flex-col px-8 w-full">
+									<div className="flex flex-col w-full px-8">
 										<ProductivityChart data={monthData} />
 									</div>
 								</div>

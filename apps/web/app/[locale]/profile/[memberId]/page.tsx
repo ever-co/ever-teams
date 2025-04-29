@@ -12,7 +12,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from 'lib/features';
-import { MainHeader, MainLayout } from 'lib/layout';
+import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';

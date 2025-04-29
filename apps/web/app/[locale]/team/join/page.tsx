@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthCodeInputField, Button, Card, Text } from '@/core/components';
-import { AuthLayout } from 'lib/layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 
 import { useTranslations } from 'next-intl';
 

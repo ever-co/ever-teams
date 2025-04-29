@@ -6,7 +6,7 @@ import { useTranslations, TranslationHooks } from 'next-intl';
 
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 
 import {
 	useAuthenticateUser,
@@ -213,14 +213,14 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 				mainHeaderSlot={
 					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
 						<Container fullWidth={fullWidth} className="flex flex-col gap-y-2">
-							<div className="flex flex-row justify-between items-start">
-								<div className="flex gap-8 justify-center items-center h-10">
+							<div className="flex flex-row items-start justify-between">
+								<div className="flex items-center justify-center h-10 gap-8">
 									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
 							</div>
 
-							<div className="flex flex-col gap-y-2 justify-start items-start">
+							<div className="flex flex-col items-start justify-start gap-y-2">
 								<h1 className="!text-[23px] font-bold text-[#282048] dark:text-white">
 									{getGreeting(t)}, {username} !
 								</h1>
@@ -228,7 +228,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									{t('pages.timesheet.HEADING_DESCRIPTION')}
 								</span>
 							</div>
-							<div className="flex gap-6 justify-between items-center pt-4 w-full">
+							<div className="flex items-center justify-between w-full gap-6 pt-4">
 								<TimesheetCard
 									count={statusTimesheet.PENDING.length}
 									title={t('common.PENDING_TASKS')}
@@ -270,7 +270,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								)}
 							</div>
-							<div className="flex overflow-hidden justify-between w-full">
+							<div className="flex justify-between w-full overflow-hidden">
 								<div className="flex w-full">
 									<ViewToggleButton
 										icon={<ListViewIcon />}
@@ -322,8 +322,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 				}
 			>
 				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme px-4">
-					<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
-						<div className="rounded-lg border border-gray-200 dark:border-gray-800">
+					<Container fullWidth={fullWidth} className="h-full py-5 mt-3">
+						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
 								<TimesheetView user={user} data={filteredData} loading={loadingTimesheet} />
 							) : (

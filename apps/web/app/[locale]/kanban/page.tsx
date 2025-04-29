@@ -5,7 +5,7 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -190,16 +190,16 @@ const Kanban = () => {
 						}
 					>
 						<Container fullWidth={fullWidth} className="!pt-0">
-							<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
-								<div className="flex gap-8 justify-center items-center h-10">
+							<div className="flex flex-row items-start justify-between mt-4 bg-white dark:bg-dark-high">
+								<div className="flex items-center justify-center h-10 gap-8">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
-								<div className="flex gap-1 justify-center items-center w-max h-10">
+								<div className="flex items-center justify-center h-10 gap-1 w-max">
 									<HeaderTabs kanban={true} linkAll={true} />
 								</div>
 							</div>
-							<div className="flex justify-between items-center mt-4 bg-white dark:bg-dark-high">
+							<div className="flex items-center justify-between mt-4 bg-white dark:bg-dark-high">
 								<h1 className="text-4xl font-semibold">
 									{t('common.KANBAN')} {t('common.BOARD')}
 								</h1>
@@ -225,7 +225,7 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="flex flex-col-reverse justify-between items-center pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
+							<div className="flex flex-col-reverse items-center justify-between pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
 								<div className="flex flex-row">
 									{tabs.map((tab) => (
 										<div
@@ -254,7 +254,7 @@ const Kanban = () => {
 										/>
 									</div>
 									<div className="pr-[90px]">
-										<div className="inline-block relative z-10">
+										<div className="relative z-10 inline-block">
 											<div className="absolute inset-0 flex items-center justify-between w-40 h-11 p-2 bg-[#F2F2F2] dark:bg-dark--theme-light border input-border rounded-xl shadow-sm">
 												<div className="flex items-center">
 													<div
@@ -334,19 +334,19 @@ const Kanban = () => {
 						<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
 							{isLoading || !data ? (
 								<div className="flex flex-col gap-4">
-									<div className="bg-white dark:bg-dark--theme-light rounded-xl p-6 shadow-md animate-pulse">
-										<div className="h-4 bg-gray-200 dark:bg-dark--theme rounded w-1/4 mb-4"></div>
+									<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
+										<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										<div className="space-y-3">
-											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-3/4"></div>
-											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-1/2"></div>
-											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-2/3"></div>
+											<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+											<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+											<div className="w-2/3 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										</div>
 									</div>
-									<div className="bg-white dark:bg-dark--theme-light rounded-xl p-6 shadow-md animate-pulse">
-										<div className="h-4 bg-gray-200 dark:bg-dark--theme rounded w-1/4 mb-4"></div>
+									<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
+										<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										<div className="space-y-3">
-											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-3/4"></div>
-											<div className="h-3 bg-gray-200 dark:bg-dark--theme rounded w-1/2"></div>
+											<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+											<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										</div>
 									</div>
 								</div>

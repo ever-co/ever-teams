@@ -7,7 +7,7 @@ import { userState } from '@app/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from '@/core/components';
-import { MainHeader, MainLayout } from 'lib/layout';
+import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';

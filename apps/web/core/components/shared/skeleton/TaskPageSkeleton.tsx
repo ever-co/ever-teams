@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container, Divider } from '@/core/components';
 import TaskCardSkeleton from './TaskCardSkeleton';
 
@@ -10,11 +10,11 @@ const TaskPageSkeleton = () => {
 
 	return (
 		<MainLayout>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
+			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
 					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
 					<div className="flex items-center justify-between">
-						<div className="w-full flex flex-col">
+						<div className="flex flex-col w-full">
 							<div className="flex items-center">
 								<Skeleton
 									height={100}
@@ -39,9 +39,9 @@ const TaskPageSkeleton = () => {
 							</div>
 
 							<div className="flex items-center mt-12">
-								<div className="flex-1 flex flex-col mr-10 lg:mt-0 ">
-									<div className="flex justify-between items-center space-x-3">
-										<div className="flex-1 flex items-center space-x-4 ">
+								<div className="flex flex-col flex-1 mr-10 lg:mt-0 ">
+									<div className="flex items-center justify-between space-x-3">
+										<div className="flex items-center flex-1 space-x-4 ">
 											<Skeleton
 												height={30}
 												width={180}
@@ -69,7 +69,7 @@ const TaskPageSkeleton = () => {
 						</div>
 
 						<div className="pr-5">
-							<div className="w-full flex flex-col">
+							<div className="flex flex-col w-full">
 								<Skeleton
 									height={140}
 									width={420}
@@ -81,13 +81,13 @@ const TaskPageSkeleton = () => {
 										height={30}
 										width={180}
 										borderRadius={15}
-										className="dark:bg-dark--theme-light mt-16 mr-4"
+										className="mt-16 mr-4 dark:bg-dark--theme-light"
 									/>
 									<Skeleton
 										height={30}
 										width={180}
 										borderRadius={15}
-										className="dark:bg-dark--theme-light mt-16"
+										className="mt-16 dark:bg-dark--theme-light"
 									/>
 								</div>
 							</div>
@@ -97,7 +97,7 @@ const TaskPageSkeleton = () => {
 			</div>
 			<Container className="mb-10">
 				<div className="mt-10">
-					<div className="flex space-x-2 items-center">
+					<div className="flex items-center space-x-2">
 						<Skeleton
 							width={200}
 							height={20}
@@ -106,7 +106,7 @@ const TaskPageSkeleton = () => {
 							baseColor="#E8E8E8"
 						/>
 						<Divider className="flex-1" />
-						<div className="flex space-x-4 items-center">
+						<div className="flex items-center space-x-4">
 							<Skeleton
 								width={200}
 								height={20}
@@ -119,7 +119,7 @@ const TaskPageSkeleton = () => {
 
 					<TaskCardSkeleton />
 
-					<div className="flex space-x-2 items-center mb-3 mt-16">
+					<div className="flex items-center mt-16 mb-3 space-x-2">
 						<Skeleton
 							width={200}
 							height={20}
@@ -128,7 +128,7 @@ const TaskPageSkeleton = () => {
 							baseColor="#E8E8E8"
 						/>
 						<Divider className="flex-1" />
-						<div className="flex space-x-4 items-center">
+						<div className="flex items-center space-x-4">
 							<Skeleton
 								width={200}
 								height={20}

@@ -1,6 +1,6 @@
 'use client';
 
-import { MainLayout } from '@/lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 
@@ -15,7 +15,7 @@ function Page() {
 				<div className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex flex-col items-start justify-between gap-3">
 						<div className="flex items-center justify-center h-10 gap-8">
-							<h3 className=" text-3xl font-medium">Project</h3>
+							<h3 className="text-3xl font-medium ">Project</h3>
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 'use client';
-import { MainLayout } from '@/lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
