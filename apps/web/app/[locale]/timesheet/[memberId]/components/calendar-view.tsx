@@ -1,7 +1,12 @@
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { statusColor } from '@/lib/components';
-import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { statusColor } from '@/core/components';
+import {
+	DisplayTimeForTimesheet,
+	TaskNameInfoDisplay,
+	TotalDurationByDate,
+	TotalTimeDisplay
+} from '@/core/components/features';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
 import { formatDate } from '@/app/helpers';
@@ -11,10 +16,10 @@ import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import WeeklyTimesheetCalendar from './weekly-timesheet-calendar';
 import { TimesheetLog } from '@/app/interfaces';
-import TimesheetSkeleton from '@components/shared/skeleton/TimesheetSkeleton';
-import { Checkbox } from '@components/ui/checkbox';
+import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
+import { Checkbox } from '@/core/components/ui/checkbox';
 // Import AnimatedDataSvg component
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];

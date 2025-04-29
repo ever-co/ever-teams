@@ -2,7 +2,7 @@
 
 import { secondsToTime } from '@/app/helpers';
 import { ITimesheetStatisticsData } from '@/app/interfaces';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/core/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';

@@ -1,11 +1,11 @@
 'use client';
 
 import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
-import { Breadcrumb, Paginate } from '@/lib/components';
-import { MainLayout } from '@/lib/layout';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { Breadcrumb, Paginate } from '@/core/components';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
-import { DatePickerWithRange } from '../../../../components/shared/date-range-select';
+import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
 import { MembersSelect } from './components/members-select';
 import { GroupBySelect, TGroupByOption } from './components/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
@@ -81,7 +81,7 @@ function WeeklyLimitReport() {
 		getTimeLimitsReport({
 			organizationId,
 			tenantId,
-			employeeIds: [...(member === 'all' ? activeTeam?.members.map((m) => m.employeeId) ?? [] : [member])],
+			employeeIds: [...(member === 'all' ? (activeTeam?.members.map((m) => m.employeeId) ?? []) : [member])],
 			startDate: dateRange.from?.toISOString(),
 			endDate: dateRange.to?.toISOString(),
 			duration: duration == 'date' ? 'day' : duration,
@@ -112,7 +112,7 @@ function WeeklyLimitReport() {
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 					</div>
-					<div className=" h-24 w-full flex flex-col justify-between">
+					<div className="flex flex-col justify-between w-full h-24 ">
 						<div className="flex h-[5rem] items-center justify-between">
 							<h2 className="text-3xl font-medium">
 								{groupBy.includes('week') ? t('common.WEEKLY_LIMIT') : t('common.DAILY_LIMIT')}
@@ -144,7 +144,7 @@ function WeeklyLimitReport() {
 								)}
 							</div>
 						</div>
-						<div className="flex gap-2 items-center">
+						<div className="flex items-center gap-2">
 							<span>{t('common.GROUP_BY')}:</span>
 							<GroupBySelect defaultValues={groupBy} onChange={(option) => setGroupBy(option)} />
 						</div>
@@ -152,7 +152,7 @@ function WeeklyLimitReport() {
 				</div>
 			}
 		>
-			<div className="flex flex-col p-4 w-full bg-white gap-6 dark:bg-dark--theme mt-6">
+			<div className="flex flex-col w-full gap-6 p-4 mt-6 bg-white dark:bg-dark--theme">
 				{organization && organizationLimits ? (
 					groupBy.includes('member') ? (
 						groupDataByEmployee(timeLimitsReports).map((data) => {
@@ -206,7 +206,7 @@ function WeeklyLimitReport() {
 			{
 				// TODO : Improve the pagination accordingly to filtered data
 			}
-			<div className=" bg-white dark:bg-dark--theme px-4 py-4 flex">
+			<div className="flex px-4 py-4 bg-white dark:bg-dark--theme">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}

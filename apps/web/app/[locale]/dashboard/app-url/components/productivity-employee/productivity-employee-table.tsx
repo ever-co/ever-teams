@@ -1,15 +1,15 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { Card } from '@/core/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { Paginate } from '@/lib/components';
+import { Paginate } from '@/core/components';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -62,7 +62,7 @@ export interface IUser {
 	image?: IUserImage;
 }
 
- export interface IEmployee {
+export interface IEmployee {
 	id: string;
 	fullName: string;
 	isActive: boolean;
@@ -70,7 +70,7 @@ export interface IUser {
 	user: IUser;
 }
 
-export  interface IActivityItem {
+export interface IActivityItem {
 	sessions: string;
 	duration: string;
 	employeeId: string;
@@ -248,7 +248,7 @@ const MemoizedActivityRow: React.FC<{
 			title: activity.title,
 			duration: activity.duration,
 			duration_percentage: activity.duration_percentage,
-			projectName: activity.projectName,
+			projectName: activity.projectName
 		}),
 		[activity.title, activity.duration, activity.duration_percentage, activity.projectName]
 	);
@@ -259,167 +259,160 @@ const MemoizedActivityRow: React.FC<{
 MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
-  const t = useTranslations();
+	const t = useTranslations();
 
-  const {
-    total,
-    onPageChange,
-    itemsPerPage,
-    itemOffset,
-    endOffset,
-    setItemsPerPage,
-    currentItems
-  } = usePagination<any>(
-    data || []
-  );
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+		usePagination<any>(data || []);
 
-  const groupedData = React.useMemo(() => {
-    const paginatedData = currentItems;
-    const employeeMap = new Map<
-      string,
-      {
-        employee: IEmployee;
-        dateGroups: Map<
-          string,
-          {
-            activities: IActivityItem[];
-            totalDuration: number;
-          }
-        >;
-      }
-    >();
+	const groupedData = React.useMemo(() => {
+		const paginatedData = currentItems;
+		const employeeMap = new Map<
+			string,
+			{
+				employee: IEmployee;
+				dateGroups: Map<
+					string,
+					{
+						activities: IActivityItem[];
+						totalDuration: number;
+					}
+				>;
+			}
+		>();
 
-    try {
+		try {
+			paginatedData.forEach((employeeData) => {
+				if (!employeeData?.employee?.id || !employeeData?.dates) {
+					console.warn('Invalid employee data:', employeeData);
+					return;
+				}
 
-      paginatedData.forEach((employeeData) => {
-        if (!employeeData?.employee?.id || !employeeData?.dates) {
-          console.warn('Invalid employee data:', employeeData);
-          return;
-        }
+				const { employee, dates } = employeeData;
 
-        const { employee, dates } = employeeData;
+				// Get or create employee group
+				if (!employeeMap.has(employee.id)) {
+					employeeMap.set(employee.id, {
+						employee: {
+							...employee,
+							fullName:
+								employee.fullName ||
+								`${employee.user?.firstName || ''} ${employee.user?.lastName || ''}`.trim() ||
+								'Unknown'
+						},
+						dateGroups: new Map()
+					});
+				}
 
-        // Get or create employee group
-        if (!employeeMap.has(employee.id)) {
-          employeeMap.set(employee.id, {
-            employee: {
-              ...employee,
-              fullName: employee.fullName || `${employee.user?.firstName || ''} ${employee.user?.lastName || ''}`.trim() || 'Unknown'
-            },
-            dateGroups: new Map()
-          });
-        }
+				const employeeGroup = employeeMap.get(employee.id)!;
 
-        const employeeGroup = employeeMap.get(employee.id)!;
+				// Process each date
+				dates.forEach((dateGroup: unknown | any) => {
+					if (!dateGroup?.date || !Array.isArray(dateGroup.projects)) {
+						console.warn('Invalid date group:', dateGroup);
+						return;
+					}
 
-        // Process each date
-        dates.forEach((dateGroup:unknown | any) => {
-          if (!dateGroup?.date || !Array.isArray(dateGroup.projects)) {
-            console.warn('Invalid date group:', dateGroup);
-            return;
-          }
+					const date = dateGroup.date;
+					const activities = dateGroup.projects
+						.filter((project: unknown | any) => project && Array.isArray(project.activity))
+						.flatMap((project: unknown | any) => project.activity)
+						.filter((activity: unknown | any) => activity && typeof activity === 'object');
 
-          const date = dateGroup.date;
-          const activities = dateGroup.projects
-            .filter((project: unknown | any) => project && Array.isArray(project.activity))
-            .flatMap((project: unknown | any) => project.activity)
-            .filter((activity: unknown | any) => activity && typeof activity === 'object');
+					if (activities.length > 0) {
+						const totalDuration = calculateTotalDuration(activities);
+						employeeGroup.dateGroups.set(date, {
+							activities,
+							totalDuration
+						});
+					}
+				});
+			});
+		} catch (error) {
+			console.error('Error grouping productivity data:', error);
+		}
 
-          if (activities.length > 0) {
-            const totalDuration = calculateTotalDuration(activities);
-            employeeGroup.dateGroups.set(date, {
-              activities,
-              totalDuration
-            });
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Error grouping productivity data:', error);
-    }
+		return employeeMap;
+	}, [data]);
 
-    return employeeMap;
-  }, [data]);
+	if (isLoading) {
+		return <TableLoadingSkeleton />;
+	}
 
-  if (isLoading) {
-    return <TableLoadingSkeleton />;
-  }
+	if (!data.length) {
+		const selectedDate = new Date().toISOString().split('T')[0];
+		return <EmptyState selectedDate={selectedDate} t={t} />;
+	}
 
-  if (!data.length) {
-    const selectedDate = new Date().toISOString().split('T')[0];
-    return <EmptyState selectedDate={selectedDate} t={t} />;
-  }
+	const employeeList = Array.from(groupedData.values());
 
-  const employeeList = Array.from(groupedData.values());
+	return (
+		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+			<Table>
+				<TableHeader>
+					<TableRow>
+						{TABLE_HEADERS.map((header) => (
+							<TableHead key={header}>{header}</TableHead>
+						))}
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{employeeList.map((employeeGroup) => {
+						const { employee, dateGroups } = employeeGroup;
+						const dates = Array.from(dateGroups.keys()).sort(
+							(a, b) => new Date(b).getTime() - new Date(a).getTime()
+						);
 
-  return (
-    <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {TABLE_HEADERS.map((header) => (
-              <TableHead key={header}>{header}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {employeeList.map((employeeGroup) => {
-            const { employee, dateGroups } = employeeGroup;
-            const dates = Array.from(dateGroups.keys()).sort(
-              (a, b) => new Date(b).getTime() - new Date(a).getTime()
-            );
-
-            return (
-              <React.Fragment key={`${employee.id}-${dates.join('-')}`}>
-                <TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
-                  <TableCell colSpan={5}>
-                    <div className="flex gap-2 items-center px-1 py-2">
-                      <EmployeeAvatar employee={employee} />
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">
-                        {employee.fullName}
-                      </span>
-                      <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">
-                        Total time:{' '}
-                        {formatDuration(
-                          Array.from(dateGroups.values()).reduce(
-                            (sum, group) => sum + group.totalDuration,
-                            0
-                          )
-                        )}
-                      </span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-                {dates.map((date) => {
-                  const dateGroup = dateGroups.get(date)!;
-                  return dateGroup.activities.map((activity, index) => (
-                    <MemoizedActivityRow
-                      key={`${date}-${activity.employeeId}-${index}`}
-                      activity={activity}
-                      date={date}
-                      isFirstOfDay={index === 0}
-                    />
-                  ));
-                })}
-              </React.Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-      <div className="p-2 mt-4">
-        <Paginate
-          total={total}
-          onPageChange={onPageChange}
-          pageCount={1}
-          itemsPerPage={itemsPerPage}
-          itemOffset={itemOffset}
-          endOffset={endOffset}
-          setItemsPerPage={setItemsPerPage}
-          className="pt-0"
-        />
-      </div>
-    </Card>
-  );
+						return (
+							<React.Fragment key={`${employee.id}-${dates.join('-')}`}>
+								<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
+									<TableCell colSpan={5}>
+										<div className="flex gap-2 items-center px-1 py-2">
+											<EmployeeAvatar employee={employee} />
+											<span className="font-semibold text-gray-900 dark:text-gray-100">
+												{employee.fullName}
+											</span>
+											<span className="ml-auto text-sm text-gray-600 dark:text-gray-400">
+												Total time:{' '}
+												{formatDuration(
+													Array.from(dateGroups.values()).reduce(
+														(sum, group) => sum + group.totalDuration,
+														0
+													)
+												)}
+											</span>
+										</div>
+									</TableCell>
+								</TableRow>
+								{dates.map((date) => {
+									const dateGroup = dateGroups.get(date)!;
+									return dateGroup.activities.map((activity, index) => (
+										<MemoizedActivityRow
+											key={`${date}-${activity.employeeId}-${index}`}
+											activity={activity}
+											date={date}
+											isFirstOfDay={index === 0}
+										/>
+									));
+								})}
+							</React.Fragment>
+						);
+					})}
+				</TableBody>
+			</Table>
+			<div className="p-2 mt-4">
+				<Paginate
+					total={total}
+					onPageChange={onPageChange}
+					pageCount={1}
+					itemsPerPage={itemsPerPage}
+					itemOffset={itemOffset}
+					endOffset={endOffset}
+					setItemsPerPage={setItemsPerPage}
+					className="pt-0"
+				/>
+			</div>
+		</Card>
+	);
 };
 
 ProductivityEmployeeTable.displayName = 'ProductivityEmployeeTable';

@@ -1,11 +1,11 @@
 import { ITeamTask } from '@app/interfaces';
-import { ChildIssueCard } from '@components/pages/task/ChildIssueCard';
-import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
-import { RelatedIssueCard } from '@components/pages/task/IssueCard';
-import TaskDetailsAside from '@components/pages/task/task-details-aside';
-import TaskProperties from '@components/pages/task/TaskProperties';
-import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
-import { TaskActivity } from 'lib/features/task/task-activity';
+import { ChildIssueCard } from '@/core/components/pages/task/ChildIssueCard';
+import RichTextEditor from '@/core/components/pages/task/description-block/task-description-editor';
+import { RelatedIssueCard } from '@/core/components/pages/task/IssueCard';
+import TaskDetailsAside from '@/core/components/pages/task/task-details-aside';
+import TaskProperties from '@/core/components/pages/task/TaskProperties';
+import TaskTitleBlock from '@/core/components/pages/task/title-block/task-title-block';
+import { TaskActivity } from '@/core/components/features/task/task-activity';
 
 interface ITaskDetailsComponentProps {
 	task: ITeamTask;

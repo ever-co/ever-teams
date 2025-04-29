@@ -1,8 +1,8 @@
 'use client';
 
 import { useEmailVerifyToken } from '@app/hooks';
-import { BackdropLoader } from 'lib/components';
-import { MainLayout } from 'lib/layout';
+import { BackdropLoader } from '@/core/components';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 
 import { useTranslations } from 'next-intl';
 

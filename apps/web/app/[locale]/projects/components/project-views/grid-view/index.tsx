@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useCallback } from 'react';
 import { ProjectViewDataType } from '..';
 import GridItem from './grid-item';
 import { ProjectsGridSkeleton } from './grid-skeleton';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 interface IProps {
 	selectedProjects: Record<string, boolean>;

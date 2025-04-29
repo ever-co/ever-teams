@@ -3,19 +3,19 @@
 import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
-import HeaderTabs from '@components/pages/main/header-tabs';
+import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
-import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container, Divider } from 'lib/components';
-import { SetupFullCalendar } from 'lib/features';
-import { Footer, MainLayout } from 'lib/layout';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { Breadcrumb, Container, Divider } from '@/core/components';
+import { SetupFullCalendar } from '@/core/components/features';
+import { Footer, MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { HeadCalendar } from './component';
-import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
-import { SetupTimeSheet, timesheetCalendar } from 'lib/features/integrations/calendar';
+import { AddManualTimeModal } from '@/core/components/features/manual-time/add-manual-time-modal';
+import { SetupTimeSheet, timesheetCalendar } from '@/core/components/features/integrations/calendar';
 
 const CalendarPage = () => {
 	const t = useTranslations();

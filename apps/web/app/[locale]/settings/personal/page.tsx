@@ -1,12 +1,12 @@
 'use client';
 
-import { withAuthentication } from 'lib/app/authenticator';
-import { DangerZone, PersonalSettingForm, ProfileAvatar } from 'lib/settings';
-import { Accordian } from 'lib/components/accordian';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { DangerZone, PersonalSettingForm, ProfileAvatar } from '@/core/components/settings';
+import { Accordian } from '@/core/components/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { SyncZone } from 'lib/settings/sync.zone';
-import { WorkingHours } from '@/lib/settings/working-hours';
+import { SyncZone } from '@/core/components/settings/sync.zone';
+import { WorkingHours } from '@/core/components/settings/working-hours';
 
 const Personal = () => {
 	const t = useTranslations();
@@ -29,10 +29,7 @@ const Personal = () => {
 				<ProfileAvatar />
 				<PersonalSettingForm />
 			</Accordian>
-			<Accordian
-				title='Working hours'
-				className="p-4 mt-4 dark:bg-dark--theme"
-				id="working-hours">
+			<Accordian title="Working hours" className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
 				<WorkingHours />
 			</Accordian>
 			<Accordian

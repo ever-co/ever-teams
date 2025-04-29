@@ -1,6 +1,6 @@
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { clsxm } from '@/app/utils';
-import { Modal } from '@/lib/components';
+import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -43,11 +43,13 @@ export function RejectSelectedModal({
 		try {
 			updateTimesheetStatus({
 				status: 'DENIED',
-				ids: selectTimesheetId || [],
-			}).then(() => {
-				setSelectTimesheetId([])
-				closeModal();
-			}).catch((error) => console.error(error));
+				ids: selectTimesheetId || []
+			})
+				.then(() => {
+					setSelectTimesheetId([]);
+					closeModal();
+				})
+				.catch((error) => console.error(error));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -98,7 +100,9 @@ export function RejectSelectedModal({
 						<button
 							type="submit"
 							disabled={
-								loadingUpdateTimesheetStatus || isSubmitting || (minReasonLength !== undefined && reason.length < minReasonLength)
+								loadingUpdateTimesheetStatus ||
+								isSubmitting ||
+								(minReasonLength !== undefined && reason.length < minReasonLength)
 							}
 							aria-label="Confirm rejection"
 							className={clsxm(
@@ -106,9 +110,7 @@ export function RejectSelectedModal({
 								'disabled:opacity-50 disabled:cursor-not-allowed'
 							)}
 						>
-							{loadingUpdateTimesheetStatus && (
-								<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
-							)}
+							{loadingUpdateTimesheetStatus && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
 							{isSubmitting ? 'Rejecting...' : 'Reject Entry'}
 						</button>
 					</div>

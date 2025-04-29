@@ -1,8 +1,8 @@
-import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/core/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Skeleton } from '@/core/components/ui/skeleton';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 export const LoadingSkeleton: React.FC = () => {
 	const t = useTranslations();

@@ -1,6 +1,6 @@
 'use client';
 
-import ErrorPage from '@components/pages/error';
+import ErrorPage from '@/core/components/pages/error';
 
 const Error = ({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) => {
 	return (

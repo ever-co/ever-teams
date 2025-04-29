@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, Avatar } from '@/lib/components';
+import { Modal, Avatar } from '@/core/components';
 import { ITimerEmployeeLog } from '@/app/interfaces/timer/ITimerLog';
 import { useState, useMemo } from 'react';
 

@@ -4,9 +4,9 @@ import { getActiveUserIdCookie } from '@app/helpers';
 import { useRefreshIntervalV2 } from '@app/hooks';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
-import { Breadcrumb, Container } from 'lib/components';
-import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
-import { MainHeader, MainLayout } from 'lib/layout';
+import { Breadcrumb, Container } from '@/core/components';
+import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
+import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -22,7 +22,7 @@ const Team = () => {
 	const {
 		loadPublicTeamData,
 		loadPublicTeamMiscData,
-		loading : teamsFetching,
+		loading: teamsFetching,
 		publicTeam: publicTeamData
 	} = usePublicOrganizationTeams();
 	const t = useTranslations();

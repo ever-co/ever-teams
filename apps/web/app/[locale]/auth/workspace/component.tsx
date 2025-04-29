@@ -1,7 +1,7 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import { AuthLayout } from 'lib/layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';

@@ -1,14 +1,14 @@
 import { cn } from '@/lib/utils';
-import { Checkbox } from '@components/ui/checkbox';
+import { Checkbox } from '@/core/components/ui/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';
 import { useModal, useTaskStatus } from '@/app/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
-import AvatarStack from '@components/shared/avatar-stack';
+import AvatarStack from '@/core/components/shared/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 
 interface IGridItemProps {
@@ -120,7 +120,7 @@ export default function GridItem(props: IGridItemProps) {
 									style={{
 										backgroundColor:
 											resolvedTheme === 'light'
-												? statusColorsMap.get(data?.status) ?? 'transparent'
+												? (statusColorsMap.get(data?.status) ?? 'transparent')
 												: '#6A7280'
 									}}
 									className="rounded px-3 py-0.5 text-xs font-medium text-white"

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clsxm } from '@/app/utils';
 import { checkPastDate, cn } from '@/lib/utils';
-import { DatePicker } from '@components/ui/DatePicker';
-import { Button } from '@components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { DatePicker } from '@/core/components/ui/DatePicker';
+import { Button } from '@/core/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { format, isAfter, isToday, startOfToday } from 'date-fns';
 import { TranslationHooks } from 'next-intl';

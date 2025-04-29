@@ -1,6 +1,6 @@
 'use client';
-import { Breadcrumb, Container, Paginate } from 'lib/components';
-import { MainLayout } from 'lib/layout';
+import { Breadcrumb, Container, Paginate } from '@/core/components';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -9,17 +9,17 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { ITeamTask } from '@/app/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
-import StatusBadge from '@components/pages/team/tasks/StatusBadge';
+import StatusBadge from '@/core/components/pages/team/tasks/StatusBadge';
 import { cn, getStatusColor } from '@/lib/utils';
-import { Input } from '@components/ui/input';
+import { Input } from '@/core/components/ui/input';
 import { Check, Search, Settings2 } from 'lucide-react';
-import { Button } from '@components/ui/button';
-import { TaskTable } from '@components/pages/team/tasks/TaskTable';
-import { columns, hidableColumnNames } from '@components/pages/team/tasks/columns';
+import { Button } from '@/core/components/ui/button';
+import { TaskTable } from '@/core/components/pages/team/tasks/TaskTable';
+import { columns, hidableColumnNames } from '@/core/components/pages/team/tasks/columns';
 import { usePagination } from '@/app/hooks/features/usePagination';
 import { Menu, Transition } from '@headlessui/react';
 const TeamTask = () => {
@@ -130,7 +130,7 @@ const TeamTask = () => {
 																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																)}
 															>
-																<div className="w-5 h-full flex items-center justify-center ">
+																<div className="flex items-center justify-center w-5 h-full ">
 																	{isVisible && <Check size={12} />}
 																</div>
 																<span className="capitalize">

@@ -1,18 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
-import { Modal, statusColor } from '@/lib/components';
+import { Modal, statusColor } from '@/core/components';
 import { DatePickerFilter } from './timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/app/utils';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
+import {
+	Item,
+	ManageOrMemberComponent,
+	getNestedValue
+} from '@/core/components/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
-import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
+import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { statusTable } from './timesheet-action';
 import { TimesheetLog } from '@/app/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { toast } from '@components/ui/use-toast';
-import { ToastAction } from '@components/ui/toast';
+import { toast } from '@/core/components/ui/use-toast';
+import { ToastAction } from '@/core/components/ui/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock7 } from 'lucide-react';

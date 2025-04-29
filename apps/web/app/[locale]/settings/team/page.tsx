@@ -1,23 +1,23 @@
 'use client';
 
-import { withAuthentication } from 'lib/app/authenticator';
-import { Card } from 'lib/components';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { Card } from '@/core/components';
 
-import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from 'lib/settings';
+import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from '@/core/components/settings';
 
 import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
 import { fetchingTeamInvitationsState, userState } from '@app/stores';
-import NoTeam from '@components/pages/main/no-team';
+import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
-import { Accordian } from 'lib/components/accordian';
-import { IntegrationSetting } from 'lib/settings/integration-setting';
-import { InvitationSetting } from 'lib/settings/invitation-setting';
-import { IssuesSettings } from 'lib/settings/issues-settings';
-import { MemberSetting } from 'lib/settings/member-setting';
+import { Accordian } from '@/core/components/accordian';
+import { IntegrationSetting } from '@/core/components/settings/integration-setting';
+import { InvitationSetting } from '@/core/components/settings/invitation-setting';
+import { IssuesSettings } from '@/core/components/settings/issues-settings';
+import { MemberSetting } from '@/core/components/settings/member-setting';
 import { activeSettingTeamTab } from '@app/stores/setting';
-import { InteractionObserverVisible } from '@components/pages/setting/interaction-observer';
+import { InteractionObserverVisible } from '@/core/components/pages/setting/interaction-observer';
 
 const Team = () => {
 	const t = useTranslations();
@@ -30,11 +30,11 @@ const Team = () => {
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 
 	return (
-		<div className="overflow-hidden pb-16">
+		<div className="pb-16 overflow-hidden">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
-						<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
+						<button className="w-full p-4 mt-2 border lg:hidden hover:bg-white rounded-xl border-dark text-dark">
 							{t('pages.settingsTeam.GO_TO_PERSONAL_SETTINGS')}
 						</button>
 					</Link>

@@ -2,8 +2,8 @@
 
 import { useCollaborative, useQuery } from '@app/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api/meet-auth';
-import { withAuthentication } from 'lib/app/authenticator';
-import { BackdropLoader, Meta } from 'lib/components';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -13,7 +13,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
 // Lazy load Meet component
-const Meet = dynamic(() => import('lib/features/integrations/meet'), {
+const Meet = dynamic(() => import('@/core/components/features/integrations/meet'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />
 });

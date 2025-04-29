@@ -14,12 +14,12 @@ import {
 	useReactTable
 } from '@tanstack/react-table';
 
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/core/components/ui/checkbox';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import { useTranslations } from 'next-intl';
 import { formatIntegerToHour, formatTimeString } from '@/app/helpers';
-import { ProgressBar } from '@/lib/components';
+import { ProgressBar } from '@/core/components';
 
 export type WeeklyLimitTableDataType = {
 	indexValue: string;

@@ -1,9 +1,14 @@
 import { formatDate } from '@/app/helpers';
-import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { Badge } from '@components/ui/badge';
+import {
+	DisplayTimeForTimesheet,
+	TaskNameInfoDisplay,
+	TotalDurationByDate,
+	TotalTimeDisplay
+} from '@/core/components/features';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Badge } from '@/core/components/ui/badge';
 import { ArrowRightIcon } from 'assets/svg';
-import { Button, Card, statusColor } from 'lib/components';
+import { Button, Card, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from './compact-timesheet-component';
@@ -35,7 +40,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 			className="w-full  h-[175px] rounded-md border border-gray-200 dark:border-gray-600 flex  gap-[8px] shadow shadow-gray-100 dark:shadow-transparent p-[24px]"
 		>
 			<div className="!gap-8 w-full space-y-4 ">
-				<div className="flex flex-col gap-1 justify-start items-start">
+				<div className="flex flex-col items-start justify-start gap-1">
 					<h1 className="text-2xl md:text-[25px] font-bold truncate w-full">{hours ?? count}</h1>
 					<h2 className="text-base md:text-[16px] font-medium text-[#282048] dark:text-gray-400 truncate w-full">
 						{title}
@@ -118,12 +123,12 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
 													statusColor(status).text
 												)}
 											>
-												<div className="flex justify-between items-center space-x-1 w-full">
+												<div className="flex items-center justify-between w-full space-x-1">
 													<div className="flex items-center space-x-1">
 														<div
 															className={cn('p-2 rounded', statusColor(status).bg)}
 														></div>
-														<div className="flex gap-x-1 items-center">
+														<div className="flex items-center gap-x-1">
 															<span className="text-base font-normal text-gray-400 uppercase">
 																{status === 'DENIED' ? 'REJECTED' : status}
 															</span>
@@ -173,7 +178,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
 																taskNumberClassName="text-sm"
 															/>
 														</div>
-														<div className="flex flex-1 gap-x-2 items-center">
+														<div className="flex items-center flex-1 gap-x-2">
 															<EmployeeAvatar imageUrl={task.employee.user.imageUrl!} />
 															<span className="flex-1 font-medium text-[12px] overflow-hidden">
 																{task.employee.fullName}

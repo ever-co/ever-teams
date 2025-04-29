@@ -3,19 +3,19 @@
 import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/core/components/ui/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { TeamStatsGrid } from './components/team-stats-grid';
 import { TeamStatsTable } from './components/team-stats-table';
 import { DashboardHeader } from './components/dashboard-header';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
-import { MainLayout } from '@/lib/layout';
-import { Breadcrumb, Container } from '@/lib/components';
+import { MainLayout } from '@/core/components/layouts/default-layout';
+import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
 import { TeamStatsChart } from './components/team-stats-chart';
@@ -61,7 +61,7 @@ function TeamDashboard() {
 						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<button
 								onClick={handleBack}
-								className="p-1 rounded-full transition-colors hover:bg-gray-100"
+								className="p-1 transition-colors rounded-full hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
@@ -97,8 +97,8 @@ function TeamDashboard() {
 									</div>
 								)}
 								{showChart && (
-									<Card className="w-full dark:bg-dark--theme-light transition-all duration-300 ease-in-out transform origin-top overflow-hidden">
-										<div className="transition-all duration-300 ease-in-out transform origin-top scale-y-100 opacity-100 h-auto">
+									<Card className="w-full overflow-hidden transition-all duration-300 ease-in-out origin-top transform dark:bg-dark--theme-light">
+										<div className="h-auto transition-all duration-300 ease-in-out origin-top transform scale-y-100 opacity-100">
 											<div className="relative">
 												<TeamStatsChart
 													rapportChartActivity={rapportChartActivity}

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BREAKPOINTS } from '@/lib/config/constants';
+import { BREAKPOINTS } from '@/core/constants/config/constants';
 const { MOBILE } = BREAKPOINTS;
 
 export function useIsMobile() {

@@ -1,13 +1,13 @@
 import { useTimer } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { isValidUrl } from '@app/utils';
-import { getTimerStatusValue, TimerStatus } from 'lib/features';
+import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
 import { cn } from 'lib/utils';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
-import { Avatar, Text } from 'lib/components';
+import { Avatar, Text } from '@/core/components';
 import { imgTitle } from '@app/helpers';
-import { TableActionPopover } from 'lib/settings/table-action-popover';
+import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 
 export function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);

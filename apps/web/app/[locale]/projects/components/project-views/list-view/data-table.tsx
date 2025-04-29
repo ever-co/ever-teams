@@ -2,36 +2,36 @@
 
 import * as React from 'react';
 import {
-	Column,
-	ColumnDef,
-	ColumnFiltersState,
-	OnChangeFn,
-	RowSelectionState,
-	SortingState,
-	VisibilityState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable
+    Column,
+    ColumnDef,
+    ColumnFiltersState,
+    OnChangeFn,
+    RowSelectionState,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/core/components/ui/checkbox';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useModal, useTaskStatus } from '@/app/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
-import AvatarStack from '@components/shared/avatar-stack';
-import { HorizontalSeparator } from '@/lib/components';
+import AvatarStack from '@/core/components/shared/avatar-stack';
+import { HorizontalSeparator } from '@/core/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
@@ -200,7 +200,7 @@ export const ProjectsTable = memo(
 								style={{
 									backgroundColor:
 										resolvedTheme == 'light'
-											? statusColorsMap.get(row.original?.status) ?? 'transparent'
+											? (statusColorsMap.get(row.original?.status) ?? 'transparent')
 											: '#6A7280'
 								}}
 								className="rounded text-xs px-4 py-1"

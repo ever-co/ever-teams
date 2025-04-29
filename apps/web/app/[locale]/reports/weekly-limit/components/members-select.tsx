@@ -1,5 +1,12 @@
 import { useOrganizationTeams } from '@/app/hooks';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/ui/select';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 

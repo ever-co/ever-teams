@@ -1,9 +1,9 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
+import { Card } from '@/core/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Skeleton } from '@/core/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 import {
 	IActivityReport,
@@ -14,10 +14,10 @@ import {
 import React from 'react';
 import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-config';
 import { useSortableData } from '@/app/hooks/useSortableData';
-import { SortPopover } from '@components/ui/sort-popover';
+import { SortPopover } from '@/core/components/ui/sort-popover';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { Paginate } from '@/lib/components';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { Paginate } from '@/core/components';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { format } from 'date-fns';
 
 export function ProductivityApplicationTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {

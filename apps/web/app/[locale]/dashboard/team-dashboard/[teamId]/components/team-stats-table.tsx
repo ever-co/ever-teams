@@ -1,22 +1,22 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
-import { PaginationDropdown } from '@/lib/settings/page-dropdown';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
+import { Button } from '@/core/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
-import { SortPopover } from '@/components/ui/sort-popover';
+import { SortPopover } from '@/core/components/ui/sort-popover';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
-import { Skeleton } from '@components/ui/skeleton';
-import { Card } from '@components/ui/card';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { Card } from '@/core/components/ui/card';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -147,7 +147,7 @@ export function TeamStatsTable({
 		<>
 			{employeeLog && <ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />}
 			<div className="w-full dark:bg-dark--theme-light">
-				<div className="relative rounded-md border">
+				<div className="relative border rounded-md">
 					<div className="overflow-x-auto">
 						<div className="inline-block min-w-full align-middle">
 							<div className="overflow-hidden">
@@ -234,7 +234,7 @@ export function TeamStatsTable({
 														projectLog.employeeLogs?.map((employeeLog) => (
 															<TableRow key={`employee-${employeeLog.employee?.id}`}>
 																<TableCell className="w-[320px] font-normal">
-																	<div className="flex gap-2 items-center">
+																	<div className="flex items-center gap-2">
 																		<Avatar className="w-8 h-8 shrink-0">
 																			<AvatarImage
 																				src={
@@ -276,7 +276,7 @@ export function TeamStatsTable({
 																	{formatPercentage(0)}
 																</TableCell>
 																<TableCell className="w-[200px]">
-																	<div className="flex gap-2 items-center">
+																	<div className="flex items-center gap-2">
 																		<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
 																			<div
 																				className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
@@ -317,7 +317,7 @@ export function TeamStatsTable({
 						</div>
 					</div>
 				</div>
-				<div className="flex gap-4 justify-between items-center p-2 sm:flex-row">
+				<div className="flex items-center justify-between gap-4 p-2 sm:flex-row">
 					<div className="flex items-center space-x-2">
 						<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
 							<ChevronsLeft className="w-4 h-4" />
@@ -355,7 +355,7 @@ export function TeamStatsTable({
 							<ChevronsRight className="w-4 h-4" />
 						</Button>
 					</div>
-					<div className="flex gap-4 items-center">
+					<div className="flex items-center gap-4">
 						<PaginationDropdown
 							setValue={(value) => {
 								setPageSize(value);
@@ -396,7 +396,7 @@ const LoadingTable = () => {
 					{[...Array(7)].map((_, i) => (
 						<TableRow key={i}>
 							<TableCell className="w-[320px]">
-								<div className="flex gap-2 items-center">
+								<div className="flex items-center gap-2">
 									<Skeleton className="w-8 h-8 rounded-full" />
 									<Skeleton className="w-32 h-4" />
 								</div>

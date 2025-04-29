@@ -1,15 +1,22 @@
 import { clsxm } from '@app/utils';
-import { DatePicker } from '@components/ui/DatePicker';
+import { DatePicker } from '@/core/components/ui/DatePicker';
 import { QueueListIcon } from '@heroicons/react/20/solid';
 import { addDays, format } from 'date-fns';
-import { Button } from 'lib/components';
-import { TimeSheetFilter, timesheetCalendar } from 'lib/features/integrations/calendar';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import { Button } from '@/core/components';
+import { TimeSheetFilter, timesheetCalendar } from '@/core/components/features/integrations/calendar';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/ui/select';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
-import { Input } from '@components/ui/input';
+import { Input } from '@/core/components/ui/input';
 import { SettingFilterIcon } from 'assets/svg';
 import { IconsCalendarMonthOutline } from '@/icons';
 

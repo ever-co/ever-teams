@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Popover } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
