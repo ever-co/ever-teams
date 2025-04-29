@@ -1,4 +1,4 @@
-import { ProgressBar, SegmentedProgressBar } from 'lib/components';
+import { ProgressBar, SegmentedProgressBar } from '@/core/components';
 import { ScreenshotPerHour, ScreenshotPerHourTeam } from './components/screenshoots-per-hour';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';

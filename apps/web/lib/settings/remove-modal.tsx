@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 

@@ -1,7 +1,7 @@
 import { useModal } from '@app/hooks';
 // import { useTimeDailyActivity } from '@app/hooks/features/useTimeDailyActivity';
-import { Modal } from 'lib/components';
-import React, { PropsWithChildren } from 'react';
+import { Modal } from '@/core/components';
+import { PropsWithChildren } from 'react';
 
 export function AppVisitedModal({ children }: PropsWithChildren) {
 	const { closeModal, isOpen, openModal } = useModal();

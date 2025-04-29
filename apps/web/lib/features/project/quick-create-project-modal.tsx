@@ -1,6 +1,6 @@
 import { useOrganizationProjects } from '@/app/hooks';
 import { IProject } from '@/app/interfaces';
-import { Button, Card, InputField, Modal, Text } from 'lib/components';
+import { Button, Card, InputField, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 

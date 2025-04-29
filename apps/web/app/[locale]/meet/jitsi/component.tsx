@@ -3,7 +3,7 @@
 import { useCollaborative, useQuery } from '@app/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api/meet-auth';
 import { withAuthentication } from 'lib/app/authenticator';
-import { BackdropLoader, Meta } from 'lib/components';
+import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';

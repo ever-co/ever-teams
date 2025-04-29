@@ -1,6 +1,6 @@
 import Skeleton from 'react-loading-skeleton';
 import { MainLayout } from 'lib/layout';
-import { Container, Divider } from 'lib/components';
+import { Container, Divider } from '@/core/components';
 import TaskCardSkeleton from './TaskCardSkeleton';
 
 const TaskPageSkeleton = () => {

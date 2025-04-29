@@ -3,7 +3,7 @@ import { filterValue } from '@app/stores/all-teams';
 import { clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon, CircleIcon } from 'assets/svg';
-import { Card, Tooltip } from 'lib/components';
+import { Card, Tooltip } from '@/core/components';
 import { Fragment, PropsWithChildren } from 'react';
 import { useAtom } from 'jotai';
 

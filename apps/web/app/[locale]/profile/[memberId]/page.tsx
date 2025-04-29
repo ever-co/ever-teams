@@ -9,7 +9,7 @@ import {
 	useUserProfilePage
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Button, Container, Text, VerticalSeparator } from 'lib/components';
+import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -182,7 +182,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
 					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				) : (
-					activityScreens[activityFilter] ?? null
+					(activityScreens[activityFilter] ?? null)
 				)}
 			</Container>
 		</MainLayout>

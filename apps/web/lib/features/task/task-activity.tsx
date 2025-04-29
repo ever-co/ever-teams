@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from 'lib/components';
+import { Card } from '@/core/components';
 import React from 'react';
 import { UserTaskActivity } from './activity/user-task-activity';
 import { ITeamTask } from '@app/interfaces';

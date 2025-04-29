@@ -7,7 +7,7 @@ import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@app/constants';
 import { useOrganizationProjects } from '@app/hooks';
 import { TrashIcon } from 'assets/svg';
-import { Button, InputField } from 'lib/components';
+import { Button, InputField } from '@/core/components';
 import { getActiveProjectIdCookie } from '@app/helpers';
 import { Switch } from '@headlessui/react';
 import debounce from 'lodash/debounce';

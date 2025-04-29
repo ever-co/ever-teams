@@ -1,7 +1,7 @@
 import { IOrganizationTeamList } from '@app/interfaces';
 import UserTeamCard from './all-teams/users-teams-card/user-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
-import { HorizontalSeparator } from 'lib/components';
+import { HorizontalSeparator } from '@/core/components';
 
 export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeamList[] }) {
 	return (

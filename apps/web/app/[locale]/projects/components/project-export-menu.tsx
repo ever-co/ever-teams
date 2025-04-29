@@ -1,4 +1,4 @@
-import { Button } from '@/lib/components';
+import { Button } from '@/core/components';
 import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';

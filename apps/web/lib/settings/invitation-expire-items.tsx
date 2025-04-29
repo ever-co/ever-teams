@@ -1,6 +1,6 @@
 import { IInvitationExpire } from '@app/interfaces/IInvitation_Expire';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem } from '@/core/components';
 
 export type InvitationExpireItem = DropdownItem<IInvitationExpire>;
 

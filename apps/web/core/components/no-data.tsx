@@ -1,4 +1,4 @@
-import { Text } from 'lib/components';
+import { Text } from '@/core/components';
 
 export function NoData({ text, component }: { text: string; component?: React.ReactNode }) {
 	return (

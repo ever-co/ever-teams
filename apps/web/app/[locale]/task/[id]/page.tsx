@@ -2,7 +2,7 @@
 
 import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container } from 'lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from 'lib/layout';
 import { useRouter, useParams } from 'next/navigation';

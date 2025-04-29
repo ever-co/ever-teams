@@ -2,7 +2,7 @@
 import { imgTitle } from '@app/helpers';
 import { useAuthenticateUser, useImageAssets, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Avatar, Button } from 'lib/components';
+import { Avatar, Button } from '@/core/components';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { readableColor } from 'polished';

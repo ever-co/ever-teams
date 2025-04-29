@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Modal, statusColor } from '@/lib/components';
+import { Modal, statusColor } from '@/core/components';
 import { DatePickerFilter } from './timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';

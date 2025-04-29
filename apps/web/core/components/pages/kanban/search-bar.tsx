@@ -1,4 +1,4 @@
-import { Button, InputField } from 'lib/components';
+import { Button, InputField } from '@/core/components';
 import { useState, useEffect, useRef } from 'react';
 import { SearchNormalIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';

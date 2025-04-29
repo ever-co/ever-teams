@@ -3,7 +3,7 @@
 import { useModal, useTeamInvitations } from '@app/hooks';
 import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
 import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import cloneDeep from 'lodash/cloneDeep';

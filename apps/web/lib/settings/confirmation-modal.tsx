@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 
 export const ConfirmationModal = ({

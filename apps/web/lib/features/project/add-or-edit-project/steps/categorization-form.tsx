@@ -1,4 +1,4 @@
-import { Button } from '@/lib/components';
+import { Button } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { Popover } from '@headlessui/react';
 import { FormEvent, useCallback, useEffect, useState } from 'react';

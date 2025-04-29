@@ -3,7 +3,7 @@ import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { setNextPublicEnv } from '@app/env';
 import React, { useMemo } from 'react';
-import { JitsuAnalytics } from 'lib/components/services/jitsu-analytics';
+import { JitsuAnalytics } from '@/core/components/services/jitsu-analytics';
 
 type MyAppProps = {
 	pageProps?: {

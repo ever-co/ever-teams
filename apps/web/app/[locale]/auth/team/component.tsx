@@ -4,7 +4,7 @@ import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
+import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from '@/core/components';
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dropdown } from 'lib/components';
+import { Dropdown } from '@/core/components';
 import { mapIconItems, IconItem } from './icon-items';
 
 import { clsxm } from '@app/utils';

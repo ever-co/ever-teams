@@ -1,5 +1,5 @@
-import { Text } from 'lib/components';
-import { EverTeamsLogo } from 'lib/components/svgs';
+import { Text } from '@/core/components';
+import { EverTeamsLogo } from '@/core/components/svgs';
 import { useTranslations } from 'next-intl';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';

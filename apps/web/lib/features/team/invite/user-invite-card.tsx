@@ -13,7 +13,7 @@ import {
 	TimeInputField,
 	Tooltip,
 	VerticalSeparator
-} from 'lib/components';
+} from '@/core/components';
 import { TimerStatus } from 'lib/features/timer/timer-status';
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg';

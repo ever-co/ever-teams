@@ -16,7 +16,7 @@ import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-con
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@/core/components/ui/sort-popover';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { Paginate } from '@/lib/components';
+import { Paginate } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { format } from 'date-fns';
 

@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { Card, VerticalSeparator } from 'lib/components';
+import { Card, VerticalSeparator } from '@/core/components';
 import { SixSquareGridIcon } from 'assets/svg';
 
 const TaskCardSkeleton = () => {

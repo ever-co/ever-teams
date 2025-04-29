@@ -3,7 +3,7 @@
 import { Description, Dialog, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { PropsWithChildren, useRef } from 'react';
-import { cn } from '../utils';
+import { cn } from '../../lib/utils';
 
 type Props = {
 	title?: string;

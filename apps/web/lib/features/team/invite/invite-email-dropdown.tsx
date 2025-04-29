@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { AutoCompleteDropdown } from 'lib/components';
+import { AutoCompleteDropdown } from '@/core/components';
 import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@app/utils';

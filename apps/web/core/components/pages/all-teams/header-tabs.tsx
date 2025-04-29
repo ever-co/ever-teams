@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { QueueListIcon, Squares2X2Icon } from '@heroicons/react/20/solid';
 import { IssuesView } from '@app/constants';
 import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { clsxm } from '@app/utils';
 
 export function HeaderTabs() {

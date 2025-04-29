@@ -5,7 +5,7 @@ import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
 import { IUser } from '@app/interfaces';
 import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
-import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from 'lib/components';
+import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 

@@ -1,4 +1,4 @@
-import { Dropdown } from 'lib/components';
+import { Dropdown } from '@/core/components';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IFilter } from '@app/interfaces/IFilter';

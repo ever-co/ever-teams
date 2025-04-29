@@ -1,4 +1,4 @@
-import { Card } from '@/lib/components';
+import { Card } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { useCallback, useState } from 'react';

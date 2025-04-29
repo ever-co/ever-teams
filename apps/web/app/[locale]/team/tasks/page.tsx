@@ -1,5 +1,5 @@
 'use client';
-import { Breadcrumb, Container, Paginate } from 'lib/components';
+import { Breadcrumb, Container, Paginate } from '@/core/components';
 import { MainLayout } from 'lib/layout';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';

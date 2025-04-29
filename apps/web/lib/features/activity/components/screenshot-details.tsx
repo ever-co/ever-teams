@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, ProgressBar } from 'lib/components';
+import { Modal, ProgressBar } from '@/core/components';
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';

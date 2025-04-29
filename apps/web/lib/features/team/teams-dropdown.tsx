@@ -4,7 +4,7 @@ import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@
 import { clsxm } from '@app/utils';
 import { useToast } from '@/core/components/ui/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Dropdown, Tooltip } from 'lib/components';
+import { Button, Dropdown, Tooltip } from '@/core/components';
 import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';

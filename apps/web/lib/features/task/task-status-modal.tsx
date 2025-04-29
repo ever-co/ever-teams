@@ -2,7 +2,7 @@
 
 import { IHookModal, useModal } from '@app/hooks';
 import { ITaskStatusField } from '@app/interfaces';
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';
 import {

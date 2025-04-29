@@ -4,7 +4,7 @@ import { useQuery } from '@app/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
-import { Card, Dropdown, DropdownItem } from 'lib/components';
+import { Card, Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { TaskNameInfoDisplay } from './task-displays';

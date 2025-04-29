@@ -1,5 +1,5 @@
 'use client';
-import { Button, Text } from 'lib/components';
+import { Button, Text } from '@/core/components';
 import Link from 'next/link';
 // import { useTranslations } from 'next-intl';
 

@@ -2,7 +2,7 @@
 
 import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
-import { RoundedButton } from 'lib/components';
+import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
 import {
 	TaskStatus,

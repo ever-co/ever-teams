@@ -17,7 +17,7 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
 } from '@/core/components/ui/dropdown-menu';
-import { Button } from 'lib/components/button';
+import { Button } from '@/core/components/button';
 import { DatePicker } from '@/core/components/ui/DatePicker';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';

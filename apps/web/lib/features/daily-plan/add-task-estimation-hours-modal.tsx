@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
-import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';

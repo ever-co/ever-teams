@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { SpinnerLoader, Text, Tooltip } from 'lib/components';
+import { SpinnerLoader, Text, Tooltip } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@app/hooks';

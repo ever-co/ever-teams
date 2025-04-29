@@ -3,7 +3,7 @@ import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import { insertLink } from './editor-components/TextEditorService';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { Button, InputField } from 'lib/components';
+import { Button, InputField } from '@/core/components';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { useTranslations } from 'next-intl';

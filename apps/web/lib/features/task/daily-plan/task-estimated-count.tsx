@@ -1,6 +1,6 @@
 import { secondsToTime } from '@app/helpers';
 import { IDailyPlan, IUser } from '@app/interfaces';
-import { VerticalSeparator } from 'lib/components';
+import { VerticalSeparator } from '@/core/components';
 import { useTranslations } from 'next-intl';
 
 interface ITaskEstimatedCount {

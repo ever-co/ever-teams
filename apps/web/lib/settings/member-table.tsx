@@ -5,8 +5,8 @@ import { usePagination } from '@app/hooks/features/usePagination';
 import { IRole, OT_Member, OT_Role } from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Avatar, InputField, Text, Tooltip } from 'lib/components';
-import { Paginate } from 'lib/components/pagination';
+import { Avatar, InputField, Text, Tooltip } from '@/core/components';
+import { Paginate } from '@/core/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useRef } from 'react';
@@ -19,16 +19,8 @@ import { EditUserRoleDropdown } from './edit-role-dropdown';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
-	const {
-		total,
-		onPageChange,
-		itemsPerPage,
-		itemOffset,
-		endOffset,
-		setItemsPerPage,
-		currentItems,
-		pageCount
-	} = usePagination<OT_Member>(members, 5);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
+		usePagination<OT_Member>(members, 5);
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
@@ -148,13 +140,15 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	return (
 		<div>
-			<div className={clsxm(
-				"sm:rounded-lg overflow-auto",
-				itemsPerPage <= 5 ? "h-[28rem]" : "",
-				itemsPerPage > 5 && itemsPerPage <= 10 ? "h-[35rem]" : "",
-				itemsPerPage > 10 && itemsPerPage <= 20 ? "h-[45rem]" : "",
-				itemsPerPage > 20 ? "h-[55rem]" : ""
-			)}>
+			<div
+				className={clsxm(
+					'sm:rounded-lg overflow-auto',
+					itemsPerPage <= 5 ? 'h-[28rem]' : '',
+					itemsPerPage > 5 && itemsPerPage <= 10 ? 'h-[35rem]' : '',
+					itemsPerPage > 10 && itemsPerPage <= 20 ? 'h-[45rem]' : '',
+					itemsPerPage > 20 ? 'h-[55rem]' : ''
+				)}
+			>
 				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>

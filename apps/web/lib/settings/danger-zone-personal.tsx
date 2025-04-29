@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@app/hooks';
-import { Button, Text } from 'lib/components';
+import { Button, Text } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';

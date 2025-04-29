@@ -2,7 +2,7 @@ import { useTaskStatus } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
-import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
+import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/Kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
 	DragDropContext,

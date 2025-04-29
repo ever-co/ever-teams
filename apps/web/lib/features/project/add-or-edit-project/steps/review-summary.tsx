@@ -1,4 +1,4 @@
-import { Button, VerticalSeparator } from '@/lib/components';
+import { Button, VerticalSeparator } from '@/core/components';
 import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';

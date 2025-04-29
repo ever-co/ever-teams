@@ -1,8 +1,8 @@
 import { secondsToTime } from '@app/helpers';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
-import { ProgressBar } from 'lib/components';
+import { ProgressBar } from '@/core/components';
 import Link from 'next/link';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 const VisitedItem = ({
 	app,

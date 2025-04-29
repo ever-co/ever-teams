@@ -3,7 +3,7 @@ import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, Tota
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { Badge } from '@/core/components/ui/badge';
 import { ArrowRightIcon } from 'assets/svg';
-import { Button, Card, statusColor } from 'lib/components';
+import { Button, Card, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from './compact-timesheet-component';

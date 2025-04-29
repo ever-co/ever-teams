@@ -1,4 +1,4 @@
-import { Modal } from 'lib/components';
+import { Modal } from '@/core/components';
 import AddOrEditProjectForm from './add-or-edit-project';
 
 interface ICreateProjectModalProps {

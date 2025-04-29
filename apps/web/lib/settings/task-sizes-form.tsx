@@ -6,7 +6,7 @@ import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { Button, ColorPicker, InputField, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';

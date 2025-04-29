@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/app/stores/fullWidth';
-import { Breadcrumb, Container } from '@/lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';

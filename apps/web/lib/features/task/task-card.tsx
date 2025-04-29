@@ -16,7 +16,7 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from '@/core/components/image-overlapper';
 import {
 	DailyPlanStatusEnum,
 	IClassName,
@@ -39,7 +39,7 @@ import {
 	SpinnerLoader,
 	Text,
 	VerticalSeparator
-} from 'lib/components';
+} from '@/core/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState, useTransition } from 'react';

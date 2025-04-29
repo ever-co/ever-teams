@@ -1,4 +1,4 @@
-import { Avatar } from '@/lib/components';
+import { Avatar } from '@/core/components';
 import Image from 'next/image';
 
 interface ProjectCellProps {

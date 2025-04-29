@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { HorizontalSeparator, ProgressBar } from 'lib/components';
+import { HorizontalSeparator, ProgressBar } from '@/core/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { useTranslations } from 'next-intl';

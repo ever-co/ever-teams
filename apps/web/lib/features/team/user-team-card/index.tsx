@@ -13,7 +13,7 @@ import {
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, Container, InputField, Text, VerticalSeparator } from 'lib/components';
+import { Card, Container, InputField, Text, VerticalSeparator } from '@/core/components';
 import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from 'lib/features';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';

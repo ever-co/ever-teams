@@ -9,7 +9,7 @@ import React from 'react';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { Paginate } from '@/lib/components';
+import { Paginate } from '@/core/components';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;

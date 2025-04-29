@@ -1,4 +1,4 @@
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';
 
 export function UserTeamCardSkeleton() {

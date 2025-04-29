@@ -1,5 +1,5 @@
 import { useAuthenticationPasscode } from '@app/hooks';
-import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
+import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 
 /**

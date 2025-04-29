@@ -1,6 +1,6 @@
 import { SixSquareGridIcon } from 'assets/svg';
 import Skeleton from './Skeleton';
-import { Card, VerticalSeparator } from 'lib/components';
+import { Card, VerticalSeparator } from '@/core/components';
 
 const InviteUserTeamCardSkeleton = () => {
 	return (

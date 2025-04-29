@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container } from 'lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from 'lib/layout';
 import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';
 import { useEffect } from 'react';

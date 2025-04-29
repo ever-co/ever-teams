@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, InputField } from '@/lib/components';
+import { Button, InputField } from '@/core/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Listbox, Popover } from '@headlessui/react';

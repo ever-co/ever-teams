@@ -1,11 +1,11 @@
 import { Excalidraw, THEME } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { useTheme } from 'next-themes';
-import { EverTeamsLogo } from 'lib/components/svgs';
+import { EverTeamsLogo } from '@/core/components/svgs';
 import debounce from 'lodash/debounce';
 import { useBoard } from './hooks';
 import { useEffect, useState } from 'react';
-import { SpinnerLoader } from 'lib/components';
+import { SpinnerLoader } from '@/core/components';
 import { LOCAL_STORAGE_THEME } from './constants';
 import { clsxm } from '@app/utils';
 import { AppMainMenu } from './AppMainMenu';

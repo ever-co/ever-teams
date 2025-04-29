@@ -1,5 +1,5 @@
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
-import { Modal, statusColor } from '@/lib/components';
+import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';

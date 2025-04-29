@@ -1,6 +1,6 @@
 'use client';
 import { RocketIcon } from '@radix-ui/react-icons';
-import { Text } from 'lib/components';
+import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 function Maintenance() {

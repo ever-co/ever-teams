@@ -4,7 +4,7 @@ import { mergeRefs, secondsToTime } from '@app/helpers';
 import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@app/hooks';
 import { IClassName, IDailyPlan } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { SpinnerLoader, Text } from 'lib/components';
+import { SpinnerLoader, Text } from '@/core/components';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';

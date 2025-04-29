@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { HTMLAttributes } from 'react';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { clsxm } from '@app/utils';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useTranslations } from 'next-intl';

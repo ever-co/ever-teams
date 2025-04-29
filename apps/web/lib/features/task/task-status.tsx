@@ -14,7 +14,7 @@ import {
 } from '@app/interfaces';
 import { Queue, clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
-import { Card, Tooltip } from 'lib/components';
+import { Card, Tooltip } from '@/core/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, { PropsWithChildren, RefObject, useCallback, useEffect, useMemo, useState } from 'react';

@@ -1,13 +1,13 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { ArrowRightIcon } from 'assets/svg';
 import { MouseEventHandler } from 'react';
 
 type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;
 	disabled: boolean;
-	iconClassName?: string
+	iconClassName?: string;
 } & IClassName;
 
 export function TaskAssignButton({ onClick, disabled, className, iconClassName }: Props) {
@@ -23,7 +23,7 @@ export function TaskAssignButton({ onClick, disabled, className, iconClassName }
 				className
 			)}
 		>
-			<ArrowRightIcon className={clsxm("w-[60%] h-[60%]", iconClassName)} />
+			<ArrowRightIcon className={clsxm('w-[60%] h-[60%]', iconClassName)} />
 		</Button>
 	);
 }

@@ -7,7 +7,7 @@ import { EmptyState, LoadingSkeleton } from './states';
 import { groupActivitiesByProjectAndDate } from './utils';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { Paginate } from '@/lib/components';
+import { Paginate } from '@/core/components';
 
 interface ProductivityProjectTableProps {
 	data?: IActivityReport[];

@@ -3,7 +3,7 @@ import { ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
 import { useToast } from '@/core/components/ui/use-toast';
-import { Button, CopyTooltip } from 'lib/components';
+import { Button, CopyTooltip } from '@/core/components';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';

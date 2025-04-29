@@ -1,10 +1,9 @@
 'use client';
 
 import { LockClosedIcon } from '@radix-ui/react-icons';
-import { Button, Text } from 'lib/components';
+import { Button, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import React from 'react';
 
 function UnauthorizedPage() {
 	const t = useTranslations();

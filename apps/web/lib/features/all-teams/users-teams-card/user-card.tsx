@@ -2,7 +2,7 @@ import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
-import { Card, VerticalSeparator } from 'lib/components';
+import { Card, VerticalSeparator } from '@/core/components';
 import MemberInfo from './member-infos';
 import UserTeamActiveTaskInfo from './user-team-active-task';
 import UserTeamActiveTaskTimes from './user-team-active-task-times';

@@ -2,7 +2,7 @@
 
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Avatar, Button, Text, Tooltip } from 'lib/components';
+import { Avatar, Button, Text, Tooltip } from '@/core/components';
 import { CreateTeamModal } from 'lib/features';
 import React, { PropsWithChildren } from 'react';
 import noTeamImg from '@/public/assets/svg/no-team.svg';

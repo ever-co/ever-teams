@@ -1,7 +1,7 @@
 import { clsxm } from '@app/utils';
 import { Badge } from '@/core/components/ui/badge';
 import { Button } from '@/core/components/ui/button';
-import { Modal } from 'lib/components';
+import { Modal } from '@/core/components';
 import React from 'react';
 
 interface ConfirmStatusChangeProps {

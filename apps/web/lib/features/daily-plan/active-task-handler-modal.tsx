@@ -1,5 +1,5 @@
 import { ITeamTask } from '@app/interfaces';
-import { Modal, Card, Text } from 'lib/components';
+import { Modal, Card, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { clsxm } from '@app/utils';
 import { useTranslations } from 'next-intl';

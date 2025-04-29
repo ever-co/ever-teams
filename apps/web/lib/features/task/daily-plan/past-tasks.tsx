@@ -5,7 +5,7 @@ import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
-import { HorizontalSeparator } from 'lib/components';
+import { HorizontalSeparator } from '@/core/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';

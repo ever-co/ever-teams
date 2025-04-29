@@ -2,7 +2,7 @@
 
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
-import { Button, Card, Modal } from 'lib/components';
+import { Button, Card, Modal } from '@/core/components';
 import { TaskLabelForm } from 'lib/settings';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';

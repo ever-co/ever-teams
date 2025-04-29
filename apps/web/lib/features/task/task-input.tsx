@@ -27,7 +27,7 @@ import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
-import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
+import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from '@/core/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -38,7 +38,7 @@ import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatus
 import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@/core/components/shared/Observer';
-import { LazyRender } from 'lib/components/lazy-render';
+import { LazyRender } from '@/core/components/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 import { cn } from '@/lib/utils';
 

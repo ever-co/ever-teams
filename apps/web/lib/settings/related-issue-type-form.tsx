@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text } from 'lib/components';
+import { Button, InputField, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { StatusesListCard } from './list-card';
 

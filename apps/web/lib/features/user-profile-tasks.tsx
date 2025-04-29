@@ -1,5 +1,5 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
-import { Divider, Text } from 'lib/components';
+import { Divider, Text } from '@/core/components';
 import { EmptyPlans, UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';

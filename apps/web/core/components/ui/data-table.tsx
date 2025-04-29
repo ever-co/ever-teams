@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { clsxm } from '@app/utils';
 import { cn } from '@/lib/utils';
 

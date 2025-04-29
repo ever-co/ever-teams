@@ -1,7 +1,7 @@
 import { useTimer } from '@app/hooks';
 import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator } from 'lib/components';
+import { Card, HorizontalSeparator } from '@/core/components';
 import { getTimerStatusValue } from 'lib/features/timer/timer-status';
 import { useMemo } from 'react';
 import MemberBoxInfo from './user-info';

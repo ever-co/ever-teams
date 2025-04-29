@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/core/components/ui/button';
-import { MultiSelect } from 'lib/components/custom-select';
+import { MultiSelect } from '@/core/components/custom-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';

@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container, Divider } from 'lib/components';
+import { Breadcrumb, Container, Divider } from '@/core/components';
 import { SetupFullCalendar } from 'lib/features';
 import { Footer, MainLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';

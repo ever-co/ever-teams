@@ -2,7 +2,7 @@
 import { imgTitle } from '@app/helpers';
 import { isValidUrl } from '@app/utils';
 import clsx from 'clsx';
-import { Avatar } from 'lib/components';
+import { Avatar } from '@/core/components';
 import stc from 'string-to-color';
 
 type Props = {

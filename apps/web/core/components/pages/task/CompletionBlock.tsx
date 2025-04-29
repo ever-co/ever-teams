@@ -1,4 +1,4 @@
-import { Card } from 'lib/components';
+import { Card } from '@/core/components';
 import { useState } from 'react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';

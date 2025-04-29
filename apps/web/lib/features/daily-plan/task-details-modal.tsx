@@ -1,4 +1,4 @@
-import { Card, Modal } from 'lib/components';
+import { Card, Modal } from '@/core/components';
 import { useCallback } from 'react';
 import { clsxm } from '@app/utils';
 import { ITeamTask } from '@app/interfaces';

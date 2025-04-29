@@ -1,6 +1,6 @@
 import { IChoose } from '@app/interfaces/IChoose';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem } from '@/core/components';
 
 export type ChooseItem = DropdownItem<IChoose>;
 

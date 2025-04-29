@@ -1,7 +1,7 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { IIcon } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -82,7 +82,7 @@ export function IconItem({
 							decoding="async"
 							data-nimg="1"
 							loading="lazy"
-							className='dark:invert'
+							className="dark:invert"
 						/>
 					</div>
 				) : (

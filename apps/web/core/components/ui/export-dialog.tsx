@@ -5,7 +5,7 @@ import { Button } from '@/core/components/ui/button';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
 
-import { Modal } from '@/lib/components';
+import { Modal } from '@/core/components';
 import { ProductivityApplicationPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-application/productivity-application-pdf';
 import { ProductivityPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-pdf';
 

@@ -1,4 +1,4 @@
-import { Button } from '@/lib/components';
+import { Button } from '@/core/components';
 import { CheckIcon, Plus, X } from 'lucide-react';
 import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';

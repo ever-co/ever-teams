@@ -14,7 +14,7 @@ import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, Card, InputField, SpinnerLoader, Tooltip } from 'lib/components';
+import { Button, Card, InputField, SpinnerLoader, Tooltip } from '@/core/components';
 import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';

@@ -12,11 +12,11 @@ import {
 	useTeamMemberCard,
 	useTimerView
 } from '@app/hooks';
-import ImageComponent, { ImageOverlapperProps } from '../../components/image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from '../../../core/components/image-overlapper';
 import { TaskIssueStatus } from './task-issue';
-import { Priority, setCommentIconColor } from 'lib/components/kanban-card';
+import { Priority, setCommentIconColor } from '@/core/components/kanban-card';
 import CircularProgress from '@/core/components/ui/svgs/circular-progress';
-import { HorizontalSeparator } from 'lib/components';
+import { HorizontalSeparator } from '@/core/components';
 // import { TaskStatus } from '@app/constants';
 import { secondsToTime } from '@app/helpers';
 import React from 'react';

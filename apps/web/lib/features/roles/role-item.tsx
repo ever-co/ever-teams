@@ -1,6 +1,6 @@
 import { IRoleList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem } from '@/core/components';
 import React, { HTMLAttributes } from 'react';
 
 export type RoleItem = DropdownItem<IRoleList>;
@@ -39,7 +39,8 @@ export function RoleItem({
 		<div
 			role="menuitem"
 			aria-label={title}
-			className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
+			className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}
+		>
 			<span className={clsxm('text-normal dark:text-white')} title={title}>
 				{title}
 			</span>

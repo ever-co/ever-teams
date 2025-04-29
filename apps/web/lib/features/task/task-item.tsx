@@ -3,8 +3,8 @@ import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
-import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
-import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from '@/core/components';
+import ImageComponent, { ImageOverlapperProps } from '@/core/components/image-overlapper';
 import { CrossIcon, RefreshIcon } from 'assets/svg';
 import Link from 'next/link';
 import { useCallback } from 'react';
@@ -88,7 +88,11 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				<div onClick={(e) => e.stopPropagation()}>
 					{task?.status !== 'closed' && (
 						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
-							<ConfirmDropdown onConfirm={() => handleChange('closed')} confirmText={'Confirm'} className='fixed z-50'>
+							<ConfirmDropdown
+								onConfirm={() => handleChange('closed')}
+								confirmText={'Confirm'}
+								className="fixed z-50"
+							>
 								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="w-5 h-5 z-10" />}
 							</ConfirmDropdown>
 						</Tooltip>

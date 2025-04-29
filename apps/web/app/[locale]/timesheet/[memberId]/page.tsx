@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useTranslations, TranslationHooks } from 'next-intl';
 
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container } from 'lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from 'lib/layout';
 
 import {

@@ -14,7 +14,7 @@ import {
 	InputField,
 	SpinnerLoader,
 	Text
-} from 'lib/components';
+} from '@/core/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';

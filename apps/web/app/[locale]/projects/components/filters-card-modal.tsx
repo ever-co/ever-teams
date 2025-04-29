@@ -1,4 +1,4 @@
-import { Card, Modal } from '@/lib/components';
+import { Card, Modal } from '@/core/components';
 import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from './multi-select-with-search';

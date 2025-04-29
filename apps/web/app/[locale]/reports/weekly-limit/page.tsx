@@ -2,7 +2,7 @@
 
 import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { Breadcrumb, Paginate } from '@/lib/components';
+import { Breadcrumb, Paginate } from '@/core/components';
 import { MainLayout } from '@/lib/layout';
 import { useEffect, useMemo, useState } from 'react';
 import { DatePickerWithRange } from '../../../../core/components/shared/date-range-select';

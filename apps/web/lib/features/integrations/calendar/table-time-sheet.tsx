@@ -29,7 +29,7 @@ import { useModal, useTimelogFilterOptions } from '@app/hooks';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { clsxm } from '@/app/utils';
-import { AlertConfirmationModal, statusColor } from '@/lib/components';
+import { AlertConfirmationModal, statusColor } from '@/core/components';
 import { Badge } from '@/core/components/ui/badge';
 import {
 	EditTaskModal,

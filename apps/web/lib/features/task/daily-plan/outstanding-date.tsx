@@ -3,7 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
-import { HorizontalSeparator } from 'lib/components';
+import { HorizontalSeparator } from '@/core/components';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { useAtomValue } from 'jotai';

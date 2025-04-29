@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
-import { Avatar, DropdownItem, Tooltip } from 'lib/components';
+import { Avatar, DropdownItem, Tooltip } from '@/core/components';
 import { SettingOutlineIcon } from 'assets/svg';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';

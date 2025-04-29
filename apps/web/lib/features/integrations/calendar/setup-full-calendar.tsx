@@ -5,7 +5,7 @@ import { IoTimeSharp } from 'react-icons/io5';
 import FullCalendar from '@fullcalendar/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { SettingFilterIcon } from 'assets/svg';
 import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';

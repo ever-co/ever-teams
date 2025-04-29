@@ -1,8 +1,8 @@
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { Button } from '@/core/components/ui/button';
-import { Modal } from 'lib/components';
+import { Modal } from '@/core/components';
 import { statusOptions } from '@app/constants';
-import { MultiSelect } from 'lib/components/custom-select/multi-select';
+import { MultiSelect } from '@/core/components/custom-select/multi-select';
 import { Input } from '@/core/components/ui/input';
 interface TimeSheetFilterProps {
 	isOpen: boolean;

@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/ui/button';
 import { SettingFilterIcon } from '@/assets/svg';
-import { MultiSelect } from '@/lib/components/custom-select';
+import { MultiSelect } from '@/core/components/custom-select';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useTimelogFilterOptions } from '@/app/hooks';

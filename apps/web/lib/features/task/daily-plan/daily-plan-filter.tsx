@@ -4,7 +4,7 @@ import { clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { CircleIcon } from 'assets/svg';
-import { Card, Tooltip } from 'lib/components';
+import { Card, Tooltip } from '@/core/components';
 import { PropsWithChildren, useEffect, useState } from 'react';
 
 export function DailyPlanDropDownItem({

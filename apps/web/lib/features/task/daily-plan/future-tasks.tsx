@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { HorizontalSeparator, AlertPopup } from 'lib/components';
+import { HorizontalSeparator, AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { IDailyPlan, IUser } from '@app/interfaces';

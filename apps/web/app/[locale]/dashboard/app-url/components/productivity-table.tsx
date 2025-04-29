@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@/core/components/ui/sort-popover';
 import { useProductivityTableConfig } from '@/app/hooks/use-table-config';
-import { Paginate } from '@/lib/components';
+import { Paginate } from '@/core/components';
 import { usePagination } from '@/app/hooks/features/usePagination';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 

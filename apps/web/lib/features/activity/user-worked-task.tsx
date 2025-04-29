@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { TaskCard } from '../task/task-card';
 import { useUserSelectedPage } from '@app/hooks/features/useUserSelectedPage';
 import { useTaskFilter } from '../task/task-filters';
-import { Divider, Text } from 'lib/components';
+import { Divider, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@app/hooks';
 

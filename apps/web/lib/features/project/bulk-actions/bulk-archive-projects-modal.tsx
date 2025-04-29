@@ -1,5 +1,5 @@
 import { useOrganizationProjects } from '@/app/hooks';
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import moment from 'moment';

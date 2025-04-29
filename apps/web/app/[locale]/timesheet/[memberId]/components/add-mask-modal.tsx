@@ -5,7 +5,7 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/ma
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
 import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
-import { Modal } from '@/lib/components';
+import { Modal } from '@/core/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { DatePickerFilter } from './timesheet-filter-date';

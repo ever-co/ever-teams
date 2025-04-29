@@ -1,5 +1,5 @@
 import { clsxm } from '@/app/utils';
-import { CustomCombobox } from 'lib/components/combobox';
+import { CustomCombobox } from '@/core/components/combobox';
 import React from 'react';
 
 /**

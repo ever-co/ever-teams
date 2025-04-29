@@ -4,7 +4,7 @@ import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { BackdropLoader, Button, Card, InputField, Text } from 'lib/components';
+import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -122,7 +122,6 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		() => form.workspaces.some((workspace) => workspace.current_teams.length > 1),
 		[form.workspaces]
 	);
-
 
 	useEffect(() => {
 		if (form.workspaces.length === 1 && !hasMultipleTeams) {

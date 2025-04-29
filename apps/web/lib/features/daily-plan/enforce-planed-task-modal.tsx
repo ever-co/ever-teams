@@ -1,6 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@app/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
 

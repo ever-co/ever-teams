@@ -1,5 +1,5 @@
 import { signInFunction } from './social-logins';
-import { Divider } from 'lib/components';
+import { Divider } from '@/core/components';
 import { mappedProviders, providerNames } from '@app/utils/check-provider-env-vars';
 import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/icons';
 

@@ -1,5 +1,5 @@
 import { Popover, Transition } from '@headlessui/react';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EditPenUnderlineIcon } from 'assets/svg';

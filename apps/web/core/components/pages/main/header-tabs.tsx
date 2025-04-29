@@ -1,5 +1,5 @@
 import { clsxm } from '@app/utils';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import LinkWrapper from '../kanban/link-wrapper';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
 import KanbanIcon from '@/core/components/ui/svgs/kanban';

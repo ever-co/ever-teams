@@ -1,5 +1,5 @@
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
-import { Button, Text, Tooltip } from 'lib/components';
+import { Button, Text, Tooltip } from '@/core/components';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';

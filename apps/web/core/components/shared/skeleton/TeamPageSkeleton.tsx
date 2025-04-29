@@ -1,9 +1,9 @@
 import Skeleton from 'react-loading-skeleton';
 import { MainLayout, MainHeader } from 'lib/layout';
-import { Container } from 'lib/components';
+import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from './UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from './InviteTeamCardSkeleton';
-import { Card } from 'lib/components';
+import { Card } from '@/core/components';
 
 const TeamPageSkeleton = () => {
 	const TeamCards = Array.from({ length: 5 }, (_, index) => {

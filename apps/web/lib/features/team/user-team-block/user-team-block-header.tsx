@@ -1,4 +1,4 @@
-import { Button, VerticalSeparator } from 'lib/components';
+import { Button, VerticalSeparator } from '@/core/components';
 import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { taskBlockFilterState } from '@app/stores/task-filter';

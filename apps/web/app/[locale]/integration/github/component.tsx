@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { withAuthentication } from 'lib/app/authenticator';
-import { BackdropLoader } from 'lib/components';
+import { BackdropLoader } from '@/core/components';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 
 /**

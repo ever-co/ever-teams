@@ -21,7 +21,7 @@ import {
 } from '@/core/components/ui/sidebar';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useAuthenticateUser } from '@/app/hooks';
-import { Button } from '@/lib/components/button';
+import { Button } from '@/core/components/button';
 import { useTranslations } from 'next-intl';
 
 export function NavProjects({

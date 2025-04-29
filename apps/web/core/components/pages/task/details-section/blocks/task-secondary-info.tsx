@@ -2,7 +2,7 @@ import { useModal, useTeamTasks } from '@app/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, Card, Modal, SpinnerLoader, Tooltip } from 'lib/components';
+import { Button, Card, Modal, SpinnerLoader, Tooltip } from '@/core/components';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,

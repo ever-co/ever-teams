@@ -3,7 +3,7 @@
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@app/hooks';
 import { IRequestToJoinCreate } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
+import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { PositionDropDown } from './position-dropdown';
 import { useTranslations } from 'next-intl';
@@ -306,7 +306,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 					<div className="flex items-center justify-between w-full mt-5">
 						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
-						<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
+							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
 
 						<Button

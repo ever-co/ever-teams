@@ -1,6 +1,6 @@
 import { useLanguageSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Dropdown } from 'lib/components';
+import { Dropdown } from '@/core/components';
 import { mapLanguageItems, LanguageItem } from 'lib/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

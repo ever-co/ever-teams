@@ -1,7 +1,7 @@
 'use client';
 
 import { withAuthentication } from 'lib/app/authenticator';
-import { Card } from 'lib/components';
+import { Card } from '@/core/components';
 
 import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from 'lib/settings';
 
@@ -11,7 +11,7 @@ import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
-import { Accordian } from 'lib/components/accordian';
+import { Accordian } from '@/core/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dropdown } from 'lib/components';
+import { Dropdown } from '@/core/components';
 import { mapColorItems, IColorItem } from './color-items';
 
 import { clsxm } from '@app/utils';

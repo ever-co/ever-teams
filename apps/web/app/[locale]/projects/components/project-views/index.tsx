@@ -1,6 +1,6 @@
 import { useModal } from '@/app/hooks';
 import { IProject } from '@/app/interfaces';
-import { HorizontalSeparator } from '@/lib/components';
+import { HorizontalSeparator } from '@/core/components';
 import { ArchiveProjectModal } from '@/lib/features/project/archive-project-modal';
 import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-project-modal';
 import { EditProjectModal } from '@/lib/features/project/edit-project-modal';

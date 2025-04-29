@@ -4,7 +4,7 @@ import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { ITaskTimesheet } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import ScreenshotItem from 'lib/features/activity/components/screenshot-item';
 
 export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) => {

@@ -2,7 +2,7 @@
 import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
 import { IDailyPlan, IEmployee, IUser } from '@app/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { memo, useEffect, useMemo, useState } from 'react';

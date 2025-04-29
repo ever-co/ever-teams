@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';

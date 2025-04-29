@@ -2,8 +2,8 @@
 import { useIsMemberManager, useLeftSettingData } from '@app/hooks';
 import { userState } from '@app/stores';
 import { scrollToElement } from '@app/utils';
-import { Text } from 'lib/components';
-import { SidebarAccordian } from 'lib/components/sidebar-accordian';
+import { Text } from '@/core/components';
+import { SidebarAccordian } from '@/core/components/sidebar-accordian';
 import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';

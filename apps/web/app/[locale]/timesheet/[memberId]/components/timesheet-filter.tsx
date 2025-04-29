@@ -1,6 +1,6 @@
 import { FilterStatus, FilterWithStatus } from './filter-with-status';
 import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate, TimesheetFilterDateProps } from '.';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
 import { AddTaskModal } from './add-mask-modal';
 import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';

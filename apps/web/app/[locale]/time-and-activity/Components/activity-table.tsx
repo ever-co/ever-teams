@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { format } from 'date-fns';
-import { Avatar } from '@/lib/components';
+import { Avatar } from '@/core/components';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';

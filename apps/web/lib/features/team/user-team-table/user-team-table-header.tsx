@@ -1,6 +1,6 @@
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
-import { Container, Tooltip } from 'lib/components';
+import { Container, Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';
 
 function UserTeamTableHeader() {

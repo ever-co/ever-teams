@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
 import { SixSquareGridIcon } from 'assets/svg';
-import { Card, VerticalSeparator } from 'lib/components';
+import { Card, VerticalSeparator } from '@/core/components';
 
 const UserTeamCardSkeletonCard = () => {
 	return (

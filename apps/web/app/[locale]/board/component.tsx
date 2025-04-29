@@ -1,7 +1,7 @@
 'use client';
 
 import { withAuthentication } from 'lib/app/authenticator';
-import { BackdropLoader, Meta } from 'lib/components';
+import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import '@excalidraw/excalidraw/index.css';
 

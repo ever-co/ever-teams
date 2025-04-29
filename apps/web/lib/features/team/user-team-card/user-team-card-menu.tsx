@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@app/hooks
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { Card, ConfirmDropdown, HorizontalSeparator, SpinnerLoader, Text } from 'lib/components';
+import { Card, ConfirmDropdown, HorizontalSeparator, SpinnerLoader, Text } from '@/core/components';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';

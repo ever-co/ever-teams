@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from 'lib/components';
+import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';

@@ -2,7 +2,7 @@ import { IssuesView } from '@app/constants';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { clsxm } from '@app/utils';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 

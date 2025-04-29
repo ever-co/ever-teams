@@ -6,7 +6,7 @@ import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
 import { publicState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from 'lib/components';
+import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from '@/core/components';
 
 import {
 	DevicesIcon,
@@ -17,7 +17,7 @@ import {
 	SettingOutlineIcon,
 	FullWidthIcon
 } from 'assets/svg';
-import ThemesPopup from 'lib/components/themes-popup';
+import ThemesPopup from '@/core/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -28,7 +28,7 @@ import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import { TimerStatus, getTimerStatusValue } from './timer/timer-status';
 import Collaborate from '@/core/components/shared/collaborate';
 import { TeamsDropDown } from './team/teams-dropdown';
-import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
+import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Globe2Icon } from 'lucide-react';

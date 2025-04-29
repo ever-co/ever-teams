@@ -11,7 +11,7 @@ import { TeamStatsTable } from './components/team-stats-table';
 import { DashboardHeader } from './components/dashboard-header';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { MainLayout } from '@/lib/layout';
-import { Breadcrumb, Container } from '@/lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';

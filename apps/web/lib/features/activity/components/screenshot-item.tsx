@@ -2,11 +2,10 @@ import { useModal } from '@app/hooks';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
-import { Button, Modal, ProgressBar } from 'lib/components';
+import { Button, Modal, ProgressBar } from '@/core/components';
 import { TrashIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import React from 'react';
 
 const ScreenshotItem = ({
 	idSlot,

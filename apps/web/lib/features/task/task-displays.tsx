@@ -1,6 +1,6 @@
 import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Tooltip } from 'lib/components';
+import { Tooltip } from '@/core/components';
 import { TaskIssueStatus } from './task-issue';
 import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from '@radix-ui/react-icons';

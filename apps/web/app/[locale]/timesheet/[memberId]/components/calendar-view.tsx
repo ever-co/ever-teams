@@ -1,5 +1,5 @@
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { statusColor } from '@/lib/components';
+import { statusColor } from '@/core/components';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';

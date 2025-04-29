@@ -1,4 +1,4 @@
-import { Dropdown } from 'lib/components';
+import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { INotify } from '@app/interfaces/INotify';

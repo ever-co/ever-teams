@@ -2,7 +2,7 @@ import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } 
 import { activeTeamTaskId } from '@app/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { HorizontalSeparator, SpinnerLoader } from 'lib/components';
+import { HorizontalSeparator, SpinnerLoader } from '@/core/components';
 import { PlanTask } from 'lib/features/task/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';

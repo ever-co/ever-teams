@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
-import { Breadcrumb, Container } from '@/lib/components';
+import { Breadcrumb, Container } from '@/core/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { Card } from '@/core/components/ui/card';

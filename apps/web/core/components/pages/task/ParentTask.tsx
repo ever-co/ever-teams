@@ -1,6 +1,6 @@
 import { IHookModal, useTeamTasks } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces';
-import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
+import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { TaskInput } from 'lib/features';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';

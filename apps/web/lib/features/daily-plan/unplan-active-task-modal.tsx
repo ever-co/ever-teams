@@ -1,6 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@app/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
-import { Button, Card, Modal, Text } from 'lib/components';
+import { Button, Card, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 
 interface UnplanActiveTaskModalProps {

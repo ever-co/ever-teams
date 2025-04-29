@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { userState } from '@app/stores';
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { Button, ColorPicker, InputField, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';

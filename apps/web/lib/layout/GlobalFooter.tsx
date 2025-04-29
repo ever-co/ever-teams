@@ -3,7 +3,7 @@
 import { forwardRef, LegacyRef } from 'react';
 
 import { cn } from '@/lib/utils';
-import { Container, Divider } from 'lib/components';
+import { Container, Divider } from '@/core/components';
 import { Footer } from '.';
 import { useSidebar } from '@/core/components/ui/sidebar';
 interface GlobalFooterProps {

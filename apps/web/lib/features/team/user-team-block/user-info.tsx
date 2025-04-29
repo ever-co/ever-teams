@@ -2,7 +2,7 @@
 import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
 import { IClassName, ITimerStatusEnum } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
-import { Avatar } from 'lib/components';
+import { Avatar } from '@/core/components';
 // import { MailIcon } from 'lib/components/svgs';
 import { getTimerStatusValue, TimerStatus } from 'lib/features';
 import Link from 'next/link';

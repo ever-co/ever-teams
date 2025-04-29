@@ -1,7 +1,7 @@
 import { useModal } from '@app/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
 import {
 	IActiveTaskStatuses,

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { InputField } from 'lib/components';
+import { InputField } from '@/core/components';
 import { useTimezoneSettings } from '@app/hooks';
 import moment from 'moment-timezone';
 import _debounce from 'lodash/debounce';

@@ -2,7 +2,7 @@ import { clsxm } from '@app/utils';
 import { DatePicker } from '@/core/components/ui/DatePicker';
 import { QueueListIcon } from '@heroicons/react/20/solid';
 import { addDays, format } from 'date-fns';
-import { Button } from 'lib/components';
+import { Button } from '@/core/components';
 import { TimeSheetFilter, timesheetCalendar } from 'lib/features/integrations/calendar';
 import {
 	Select,

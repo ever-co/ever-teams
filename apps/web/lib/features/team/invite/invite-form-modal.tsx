@@ -5,7 +5,7 @@ import { useEmployee } from '@app/hooks/features/useEmployee';
 import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
-import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';

@@ -1,6 +1,6 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Container } from 'lib/components';
+import { Container } from '@/core/components';
 import { PropsWithChildren } from 'react';
 
 export function MainHeader({ children, className, fullWidth }: PropsWithChildren<IClassName>) {

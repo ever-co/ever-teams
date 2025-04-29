@@ -7,7 +7,7 @@ import {
 } from '@app/helpers';
 import { useLanguage, useSettings } from '@app/hooks';
 import { userState } from '@app/stores';
-import { Button, InputField, Text, ThemeToggler } from 'lib/components';
+import { Button, InputField, Text, ThemeToggler } from '@/core/components';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,7 +18,7 @@ import { EmailResetModal } from './email-reset-modal';
 import { LanguageDropDown } from './language-dropdown';
 import { TimezoneDropDown } from './timezone-dropdown';
 import { useRouter } from 'next/navigation';
-import InternationalPhoneInput from '../components/inputs/international-phone-Input';
+import InternationalPhoneInput from '../../core/components/inputs/international-phone-Input';
 
 interface IValidation {
 	email: boolean;

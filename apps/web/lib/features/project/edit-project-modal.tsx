@@ -1,5 +1,5 @@
 import { useOrganizationProjects } from '@/app/hooks';
-import { Modal } from 'lib/components';
+import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
 import { RolesEnum } from '@/app/interfaces/IRoles';

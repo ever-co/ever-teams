@@ -1,4 +1,4 @@
-import { Button, InputField } from '@/lib/components';
+import { Button, InputField } from '@/core/components';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';

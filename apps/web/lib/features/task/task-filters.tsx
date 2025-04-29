@@ -13,7 +13,7 @@ import {
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
-import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
+import { Button, InputField, Tooltip, VerticalSeparator } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -22,7 +22,7 @@ import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStat
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
-import { Divider } from 'lib/components';
+import { Divider } from '@/core/components';
 
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';

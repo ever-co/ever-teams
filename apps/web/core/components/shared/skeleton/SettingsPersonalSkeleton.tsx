@@ -1,6 +1,6 @@
 import Skeleton from 'react-loading-skeleton';
 import { MainLayout } from 'lib/layout';
-import { Card, Container, Text, InputField } from 'lib/components';
+import { Card, Container, Text, InputField } from '@/core/components';
 import LeftSideSettingMenuSkeleton from './LeftSideSettingMenuSkeleton';
 import DangerZoneSkeleton from './DangerZoneSkeleton';
 

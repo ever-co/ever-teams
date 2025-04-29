@@ -5,7 +5,7 @@ import { getTimerStatusValue, TimerStatus } from 'lib/features';
 import { cn } from 'lib/utils';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
-import { Avatar, Text } from 'lib/components';
+import { Avatar, Text } from '@/core/components';
 import { imgTitle } from '@app/helpers';
 import { TableActionPopover } from 'lib/settings/table-action-popover';
 

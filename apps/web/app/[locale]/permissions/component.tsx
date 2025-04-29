@@ -6,7 +6,7 @@ import { IRole } from '@app/interfaces';
 import { userState } from '@app/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from 'lib/components';
+import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from '@/core/components';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';

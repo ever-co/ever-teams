@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { Text } from 'lib/components';
+import { Text } from '@/core/components';
 
 const DangerZoneSkeleton = () => {
 	return (

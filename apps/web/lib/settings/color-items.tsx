@@ -1,6 +1,6 @@
 import { IColor } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem } from '@/core/components';
 
 export type IColorItem = DropdownItem<IColor>;
 

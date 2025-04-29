@@ -2,7 +2,7 @@ import { IIcon } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Divider, InputField, Tooltip } from 'lib/components';
+import { Divider, InputField, Tooltip } from '@/core/components';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';

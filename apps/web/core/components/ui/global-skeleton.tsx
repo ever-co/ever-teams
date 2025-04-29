@@ -1,5 +1,5 @@
 import { fullWidthState } from '@app/stores/fullWidth';
-import { Container } from 'lib/components';
+import { Container } from '@/core/components';
 import { Navbar } from 'lib/layout';
 import { useAtomValue } from 'jotai';
 

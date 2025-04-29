@@ -1,7 +1,7 @@
 import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { InputField } from 'lib/components';
+import { InputField } from '@/core/components';
 import { TaskTimes } from './task/task-times';
 import { TaskEstimateInfo } from './team/user-team-card/task-estimate';
 import { TaskInfo } from './team/user-team-card/task-info';

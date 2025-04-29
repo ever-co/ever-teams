@@ -3,7 +3,7 @@ import { IRole } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Card, InputField } from 'lib/components';
+import { Button, Card, InputField } from '@/core/components';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { PermissonItem } from './permission-item';

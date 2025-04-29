@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { Text, InputField } from 'lib/components';
+import { Text, InputField } from '@/core/components';
 
 const StatusListCard = () => {
 	return (

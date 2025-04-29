@@ -2,7 +2,7 @@
 import { imgTitle } from '@app/helpers';
 import { useAuthenticateUser, useImageAssets, useSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Avatar, Button } from 'lib/components';
+import { Avatar, Button } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';

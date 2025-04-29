@@ -1,4 +1,4 @@
-import { CommonToggle, Text } from 'lib/components';
+import { CommonToggle, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { PeriodDropdown } from './period-dropdown';
 import { ProofDropdown } from './proof-dropdown';
