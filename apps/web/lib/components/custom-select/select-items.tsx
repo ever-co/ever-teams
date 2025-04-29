@@ -1,5 +1,5 @@
-import { Button } from '@components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Button } from '@/core/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { cn } from 'lib/utils';
 import { useEffect, useState } from 'react';
 import {
@@ -10,7 +10,7 @@ import {
 	SelectLabel,
 	SelectTrigger,
 	SelectValue
-} from '@/components/ui/select';
+} from '@/core/components/ui/select';
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 

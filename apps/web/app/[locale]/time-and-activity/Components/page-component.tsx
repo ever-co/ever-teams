@@ -8,7 +8,7 @@ import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
-import { Card } from '@components/ui/card';
+import { Card } from '@/core/components/ui/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';

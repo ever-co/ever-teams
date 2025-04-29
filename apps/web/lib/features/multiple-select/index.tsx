@@ -1,103 +1,89 @@
 import React from 'react';
 import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-    SelectGroup,
-    SelectLabel,
-} from '@components/ui/select';
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem,
+	SelectGroup,
+	SelectLabel
+} from '@/core/components/ui/select';
 import { Check } from 'lucide-react';
 import { clsxm } from '@/app/utils';
 
 type Option = {
-    label: string;
-    value: string;
+	label: string;
+	value: string;
 };
 
 interface MultipleSelectProps {
-    options: Option[];
-    selectedValues: string[];
-    onChange: (values: string[]) => void;
-    placeholder?: string;
-    label?: string;
-    setOpen: (_: any) => void;
-    open: boolean;
+	options: Option[];
+	selectedValues: string[];
+	onChange: (values: string[]) => void;
+	placeholder?: string;
+	label?: string;
+	setOpen: (_: any) => void;
+	open: boolean;
 }
 
 export function MultipleSelect({
-    options,
-    selectedValues,
-    onChange,
-    placeholder = 'Select options',
-    label,
-    open = false,
-    setOpen
+	options,
+	selectedValues,
+	onChange,
+	placeholder = 'Select options',
+	label,
+	open = false,
+	setOpen
 }: MultipleSelectProps) {
+	const handleSelect = (value: string) => {
+		const newSelectedValues = selectedValues.includes(value)
+			? selectedValues.filter((v) => v !== value)
+			: [...selectedValues, value];
 
-    const handleSelect = (value: string) => {
-        const newSelectedValues = selectedValues.includes(value)
-            ? selectedValues.filter((v) => v !== value)
-            : [...selectedValues, value];
+		onChange(newSelectedValues);
+	};
 
-        onChange(newSelectedValues);
-    };
-
-    return (
-        <div>
-            <Select open={open} onOpenChange={setOpen}>
-                <SelectTrigger
-                    className="w-64"
-                    onClick={() => setOpen(true)}
-                >
-                    <SelectValue>
-                        {selectedValues.length > 0
-                            ? selectedValues.join(', ')
-                            : placeholder}
-                    </SelectValue>
-                </SelectTrigger>
-                <SelectContent
-                    className="max-h-60 z-50"
-                    onClick={() => setOpen(true)}
-                >
-                    <SelectGroup>
-                        {label && <SelectLabel>{label}</SelectLabel>}
-                        {options.map((option) => (
-                            <SelectItem
-                                key={option.value}
-                                value={option.value}
-                                onClick={() => handleSelect(option.value)}
-                            >
-                                <div className="flex items-center">
-                                    <span>{option.label}</span>
-                                    {selectedValues.includes(option.value) && (
-                                        <Check className="ml-auto h-4 w-4 text-primary" />
-                                    )}
-                                </div>
-                            </SelectItem>
-                        ))}
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
-        </div>
-    );
+	return (
+		<div>
+			<Select open={open} onOpenChange={setOpen}>
+				<SelectTrigger className="w-64" onClick={() => setOpen(true)}>
+					<SelectValue>{selectedValues.length > 0 ? selectedValues.join(', ') : placeholder}</SelectValue>
+				</SelectTrigger>
+				<SelectContent className="max-h-60 z-50" onClick={() => setOpen(true)}>
+					<SelectGroup>
+						{label && <SelectLabel>{label}</SelectLabel>}
+						{options.map((option) => (
+							<SelectItem
+								key={option.value}
+								value={option.value}
+								onClick={() => handleSelect(option.value)}
+							>
+								<div className="flex items-center">
+									<span>{option.label}</span>
+									{selectedValues.includes(option.value) && (
+										<Check className="ml-auto h-4 w-4 text-primary" />
+									)}
+								</div>
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
+		</div>
+	);
 }
 
-
-
-
 type CustomSelectProps = {
-    className?: string,
-    ariaLabel?: string
-    defaultValue?: string
-    classNameGroup?: string
-    options: any[];
-    renderOption?: (option: any) => React.ReactNode;
-    value?: any;
-    onChange?: (value: any) => void;
-    valueKey?: string;
-    placeholder?: string;
+	className?: string;
+	ariaLabel?: string;
+	defaultValue?: string;
+	classNameGroup?: string;
+	options: any[];
+	renderOption?: (option: any) => React.ReactNode;
+	value?: any;
+	onChange?: (value: any) => void;
+	valueKey?: string;
+	placeholder?: string;
 };
 
 /**
@@ -116,43 +102,41 @@ type CustomSelectProps = {
  * @returns {React.ReactNode} A React component representing the customizable dropdown select menu.
  */
 export function CustomSelect({
-    options,
-    renderOption,
-    ariaLabel,
-    className,
-    value,
-    onChange,
-    defaultValue,
-    classNameGroup,
-    valueKey = 'id',
-    placeholder = "Select an option"
+	options,
+	renderOption,
+	ariaLabel,
+	className,
+	value,
+	onChange,
+	defaultValue,
+	classNameGroup,
+	valueKey = 'id',
+	placeholder = 'Select an option'
 }: CustomSelectProps) {
-    return (
-        <Select
-            defaultValue={defaultValue}
-            value={value}
-            onValueChange={onChange}
-            aria-label={ariaLabel || "Select an option"}>
-            <SelectTrigger
-                className={`overflow-hidden text-clip bg-white dark:bg-dark--theme-light focus:ring-0 ${className}`}
-            >
-                <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent className='z-[10000] dark:bg-dark--theme-light w-auto'>
-                <SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
-                    {options?.map((option, index) => {
-                        const optionValue = typeof option === 'object' ? option[valueKey] : option;
-                        return (
-                            <SelectItem
-                                key={optionValue || index}
-                                value={optionValue}
-                            >
-                                {renderOption ? renderOption(option) : (option.label || option.name || option.toString())}
-                            </SelectItem>
-                        );
-                    })}
-                </SelectGroup>
-            </SelectContent>
-        </Select>
-    );
+	return (
+		<Select
+			defaultValue={defaultValue}
+			value={value}
+			onValueChange={onChange}
+			aria-label={ariaLabel || 'Select an option'}
+		>
+			<SelectTrigger
+				className={`overflow-hidden text-clip bg-white dark:bg-dark--theme-light focus:ring-0 ${className}`}
+			>
+				<SelectValue placeholder={placeholder} />
+			</SelectTrigger>
+			<SelectContent className="z-[10000] dark:bg-dark--theme-light w-auto">
+				<SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
+					{options?.map((option, index) => {
+						const optionValue = typeof option === 'object' ? option[valueKey] : option;
+						return (
+							<SelectItem key={optionValue || index} value={optionValue}>
+								{renderOption ? renderOption(option) : option.label || option.name || option.toString()}
+							</SelectItem>
+						);
+					})}
+				</SelectGroup>
+			</SelectContent>
+		</Select>
+	);
 }

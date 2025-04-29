@@ -3,7 +3,7 @@ import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from './multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/app/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';

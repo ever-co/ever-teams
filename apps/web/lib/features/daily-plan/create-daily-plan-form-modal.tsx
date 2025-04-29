@@ -6,10 +6,17 @@ import { Avatar, Card, Modal, Text } from 'lib/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@app/helpers';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { Calendar } from '@components/ui/calendar';
-import { Button } from '@components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@components/ui/command';
-import { ScrollArea } from '@components/ui/scroll-bar';
+import { Calendar } from '@/core/components/ui/calendar';
+import { Button } from '@/core/components/ui/button';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList
+} from '@/core/components/ui/command';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
 import { Check, ChevronDown } from 'lucide-react';

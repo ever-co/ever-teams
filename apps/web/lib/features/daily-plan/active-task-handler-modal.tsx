@@ -1,6 +1,6 @@
 import { ITeamTask } from '@app/interfaces';
 import { Modal, Card, Text } from 'lib/components';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { clsxm } from '@app/utils';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';

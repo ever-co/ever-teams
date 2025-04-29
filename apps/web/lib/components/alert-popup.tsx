@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 
 interface IConfirmPopup {
 	buttonOpen: any;

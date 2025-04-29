@@ -15,7 +15,7 @@ import { clsxm } from '@app/utils';
 import { planBadgeContent, planBadgeContPast } from '@app/helpers';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../user-profile-plans';
-import ProjectIcon from '@components/ui/svgs/project-icon';
+import ProjectIcon from '@/core/components/ui/svgs/project-icon';
 import { useAtomValue } from 'jotai';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 

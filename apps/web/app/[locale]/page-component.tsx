@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import NoTeam from '@components/pages/main/no-team';
+import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
@@ -19,7 +19,7 @@ import '../../styles/globals.css';
 import { useAtom } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
-import HeaderTabs from '@components/pages/main/header-tabs';
+import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';

@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 import { PropsWithChildren, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/ui/resizable';
+import { SidebarProvider, SidebarInset } from '@/core/components/ui/sidebar';
 import MainSidebarTrigger from './MainSidebarTrigger';
 import AppContainer from './AppContainer';
 import GlobalHeader from './GlobalHeader';
 import GlobalFooter from './GlobalFooter';
-import { AppSidebar } from '@components/app-sidebar';
+import { AppSidebar } from '@/core/components/app-sidebar';
 
 /**
  * Props interface for the MainLayout component

@@ -1,5 +1,5 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
-import PriorityIcon from '@components/ui/svgs/priority-icon';
+import PriorityIcon from '@/core/components/ui/svgs/priority-icon';
 import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
 import {
 	useAuthenticateUser,
@@ -12,10 +12,10 @@ import {
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
-import CircularProgress from '@components/ui/svgs/circular-progress';
+import CircularProgress from '@/core/components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
 import { secondsToTime } from '@app/helpers';
-import MenuKanbanCard from '@components/pages/kanban/menu-kanban-card';
+import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { activeTeamTaskId } from '@app/stores';
 import { useAtom } from 'jotai';
 

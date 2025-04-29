@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar } from '@/core/components/ui/avatar';
 import Image from 'next/image';
 import ProgressBar from './progress-bar';
 import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';

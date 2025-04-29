@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { format } from 'date-fns';
 import { Avatar } from '@/lib/components';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';
 import { ProjectCell } from './project-cell';
@@ -9,7 +9,7 @@ import { TrackedHoursCell } from './tracked-hours-cell';
 import { EarningsCell } from './earnings-cell';
 import { ActivityLevelCell } from './activity-level-cell';
 import ActivityTableSkeleton from './activity-table-skeleton';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 interface TimeSlot {
 	duration: number;

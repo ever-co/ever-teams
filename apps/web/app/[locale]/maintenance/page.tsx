@@ -1,5 +1,4 @@
-import Maintenance from '@components/pages/maintenance';
-import React from 'react';
+import Maintenance from '@/core/components/pages/maintenance';
 
 const Page = () => {
 	return <Maintenance />;

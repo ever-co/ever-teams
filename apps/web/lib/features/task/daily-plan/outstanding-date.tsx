@@ -1,5 +1,5 @@
 import { formatDayPlanDate, handleDragAndDrop } from '@app/helpers';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';

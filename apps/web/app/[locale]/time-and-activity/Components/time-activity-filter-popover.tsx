@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { MultiSelect } from 'lib/components/custom-select';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';

@@ -1,5 +1,5 @@
 import { useOrganizationProjects, useTeamTasks } from '@/app/hooks';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Button, Card, Modal, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';

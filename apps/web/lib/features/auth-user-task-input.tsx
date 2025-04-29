@@ -9,7 +9,7 @@ import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task/task-status';
 import { useTranslations } from 'next-intl';
-import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
+import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();

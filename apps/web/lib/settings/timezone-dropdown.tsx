@@ -6,8 +6,8 @@ import _debounce from 'lodash/debounce';
 import { Listbox } from '@headlessui/react';
 import { cn } from '../utils';
 import { CheckIcon, ChevronDown, Search } from 'lucide-react';
-import { ScrollArea } from '@components/ui/scroll-area';
-import { ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/ui/scroll-area';
+import { ScrollBar } from '@/core/components/ui/scroll-bar';
 
 const allTimezonesNames = moment.tz.names();
 

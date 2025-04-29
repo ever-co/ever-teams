@@ -1,8 +1,8 @@
 import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { Transition } from '@headlessui/react';
-import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
-import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
-import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
+import UserTeamCardSkeletonCard from '@/core/components/shared/skeleton/UserTeamCardSkeleton';
+import InviteUserTeamCardSkeleton from '@/core/components/shared/skeleton/InviteTeamCardSkeleton';
+import { UserCard } from '@/core/components/shared/skeleton/TeamPageSkeleton';
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
 import { IssuesView } from '@app/constants';

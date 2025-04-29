@@ -1,5 +1,12 @@
 import React from 'react';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/ui/select';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -9,9 +16,9 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
-} from '@components/ui/dropdown-menu';
+} from '@/core/components/ui/dropdown-menu';
 import { Button } from 'lib/components/button';
-import { DatePicker } from '@components/ui/DatePicker';
+import { DatePicker } from '@/core/components/ui/DatePicker';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/app/hooks';

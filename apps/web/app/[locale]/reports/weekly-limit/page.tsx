@@ -5,7 +5,7 @@ import { withAuthentication } from '@/lib/app/authenticator';
 import { Breadcrumb, Paginate } from '@/lib/components';
 import { MainLayout } from '@/lib/layout';
 import { useEffect, useMemo, useState } from 'react';
-import { DatePickerWithRange } from '../../../../components/shared/date-range-select';
+import { DatePickerWithRange } from '../../../../core/components/shared/date-range-select';
 import { MembersSelect } from './components/members-select';
 import { GroupBySelect, TGroupByOption } from './components/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
@@ -81,7 +81,7 @@ function WeeklyLimitReport() {
 		getTimeLimitsReport({
 			organizationId,
 			tenantId,
-			employeeIds: [...(member === 'all' ? activeTeam?.members.map((m) => m.employeeId) ?? [] : [member])],
+			employeeIds: [...(member === 'all' ? (activeTeam?.members.map((m) => m.employeeId) ?? []) : [member])],
 			startDate: dateRange.from?.toISOString(),
 			endDate: dateRange.to?.toISOString(),
 			duration: duration == 'date' ? 'day' : duration,

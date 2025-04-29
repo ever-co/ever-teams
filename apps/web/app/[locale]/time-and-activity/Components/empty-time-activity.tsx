@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 export const EmptyTimeActivity: FC = () => {
 	return (

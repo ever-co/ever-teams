@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
-import { Card } from '@components/ui/card';
+import { Card } from '@/core/components/ui/card';
 import { useLocalStorageState, useModal } from '@/app/hooks';
 import {
 	ProductivityApplicationTable,

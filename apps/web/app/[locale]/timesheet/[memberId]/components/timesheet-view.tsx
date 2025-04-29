@@ -1,9 +1,9 @@
 import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
 import { IUser } from '@/app/interfaces';
-import TimesheetSkeleton from '@components/shared/skeleton/TimesheetSkeleton';
+import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
 import { useTranslations } from 'next-intl';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 export function TimesheetView({
 	data,

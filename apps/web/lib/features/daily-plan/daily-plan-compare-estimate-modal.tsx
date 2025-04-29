@@ -2,7 +2,7 @@
 
 import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from 'lib/components';
 import { useState } from 'react';
-import Separator from '@components/ui/separator';
+import Separator from '@/core/components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { clsxm } from '@app/utils';
@@ -11,7 +11,7 @@ import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@a
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
-import { ScrollArea } from '@components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { IconsErrorWarningFill } from '@/icons';
 
 export interface IDailyPlanCompareEstimated {

@@ -5,9 +5,9 @@ import { Fragment, useMemo, useState } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
-import Separator from '@components/ui/separator';
+import Separator from '@/core/components/ui/separator';
 import { useTranslations } from 'next-intl';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 
 export function ActivityCalendar() {
 	const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();

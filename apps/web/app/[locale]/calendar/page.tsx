@@ -3,7 +3,7 @@
 import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
-import HeaderTabs from '@components/pages/main/header-tabs';
+import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';

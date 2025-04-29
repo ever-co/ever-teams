@@ -1,7 +1,7 @@
 'use client';
 
 import { useOrganizationTeams, useTimer } from '@app/hooks';
-import { useToast } from '@components/ui/use-toast';
+import { useToast } from '@/core/components/ui/use-toast';
 import { useCallback } from 'react';
 import { TeamItem } from '@/lib/features/team/team-item';
 import { useTranslations } from 'next-intl';

@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/core/components/ui/card';
+import { Skeleton } from '@/core/components/ui/skeleton';
 
 export const TimeActivityTableSkeleton: FC = () => {
 	return (

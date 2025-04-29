@@ -1,5 +1,5 @@
 import { Modal, Card, Text } from 'lib/components';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { useCallback, useMemo } from 'react';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE, HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL } from '@app/constants';
 import { useTranslations } from 'next-intl';

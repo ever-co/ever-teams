@@ -30,9 +30,9 @@ import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { clsxm } from '@app/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { Button } from '@components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Button } from '@/core/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 
 import {

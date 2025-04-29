@@ -15,8 +15,8 @@ import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigati
 import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
-import GlobalSkeleton from '@components/ui/global-skeleton';
-import OfflineWrapper from '@components/offline-wrapper';
+import GlobalSkeleton from '@/core/components/ui/global-skeleton';
+import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './integration/posthog/provider';

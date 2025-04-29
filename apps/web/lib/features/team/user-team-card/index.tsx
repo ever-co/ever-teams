@@ -23,7 +23,7 @@ import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { useCallback, useState } from 'react';
 import UserTeamActivity from './user-team-card-activity';
-import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
+import { CollapseUpIcon, ExpandIcon } from '@/core/components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
 import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
@@ -174,7 +174,7 @@ export function UserTeamCard({
 									setUserDetailAccordion(
 										userDetailAccordion == memberInfo.memberUser?.id
 											? ''
-											: memberInfo.memberUser?.id ?? ''
+											: (memberInfo.memberUser?.id ?? '')
 									);
 									setShowActivity(false);
 								}}

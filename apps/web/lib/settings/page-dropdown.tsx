@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
 import { PaginationItems, mappaginationItems } from './page-items';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ChevronDownIcon } from 'lucide-react';
 
 export const PaginationDropdown = ({
@@ -18,7 +18,7 @@ export const PaginationDropdown = ({
 	total?: number;
 }) => {
 	const calculatePaginationOptions = useCallback((total = 0) => {
-		const baseOptions = [10, 20, 30,40, 50];
+		const baseOptions = [10, 20, 30, 40, 50];
 
 		if (total > 50) {
 			const nextOption = Math.ceil(total / 10) * 10;
@@ -28,7 +28,7 @@ export const PaginationDropdown = ({
 		}
 		baseOptions.sort((a, b) => a - b);
 
-		return baseOptions.map(size => ({
+		return baseOptions.map((size) => ({
 			title: size.toString()
 		}));
 	}, []);

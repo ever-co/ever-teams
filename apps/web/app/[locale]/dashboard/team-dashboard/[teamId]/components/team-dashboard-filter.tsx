@@ -1,7 +1,7 @@
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { SettingFilterIcon } from '@/assets/svg';
 import { MultiSelect } from '@/lib/components/custom-select';
 import { cn } from '@/lib/utils';

@@ -5,7 +5,7 @@ import { Transition, Popover } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
-import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@components/ui/popover';
+import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@/core/components/ui/popover';
 
 export const ColorPicker = ({
 	defaultColor,

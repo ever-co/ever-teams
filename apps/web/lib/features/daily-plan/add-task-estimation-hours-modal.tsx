@@ -2,7 +2,7 @@
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from 'lib/components';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -17,7 +17,7 @@ import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';

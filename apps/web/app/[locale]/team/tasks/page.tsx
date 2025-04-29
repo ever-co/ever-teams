@@ -13,13 +13,13 @@ import { withAuthentication } from '@/lib/app/authenticator';
 import { ITeamTask } from '@/app/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
-import StatusBadge from '@components/pages/team/tasks/StatusBadge';
+import StatusBadge from '@/core/components/pages/team/tasks/StatusBadge';
 import { cn, getStatusColor } from '@/lib/utils';
-import { Input } from '@components/ui/input';
+import { Input } from '@/core/components/ui/input';
 import { Check, Search, Settings2 } from 'lucide-react';
-import { Button } from '@components/ui/button';
-import { TaskTable } from '@components/pages/team/tasks/TaskTable';
-import { columns, hidableColumnNames } from '@components/pages/team/tasks/columns';
+import { Button } from '@/core/components/ui/button';
+import { TaskTable } from '@/core/components/pages/team/tasks/TaskTable';
+import { columns, hidableColumnNames } from '@/core/components/pages/team/tasks/columns';
 import { usePagination } from '@/app/hooks/features/usePagination';
 import { Menu, Transition } from '@headlessui/react';
 const TeamTask = () => {

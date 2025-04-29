@@ -1,5 +1,5 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Skeleton } from '@/core/components/ui/skeleton';
 
 interface ActivityTableSkeletonProps {
 	columnVisibility: {
@@ -16,10 +16,7 @@ interface ActivityTableSkeletonProps {
 	withFooter?: boolean;
 }
 
-export default function ActivityTableSkeleton({
-	columnVisibility,
-	withFooter = true,
-}: ActivityTableSkeletonProps) {
+export default function ActivityTableSkeleton({ columnVisibility, withFooter = true }: ActivityTableSkeletonProps) {
 	return (
 		<div className="space-y-4">
 			{[1, 2].map((groupIndex) => (

@@ -1,7 +1,7 @@
 import { formatDate } from '@/app/helpers';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { Badge } from '@components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Badge } from '@/core/components/ui/badge';
 import { ArrowRightIcon } from 'assets/svg';
 import { Button, Card, statusColor } from 'lib/components';
 import { useTranslations } from 'next-intl';

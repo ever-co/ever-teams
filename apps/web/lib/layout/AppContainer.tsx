@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react';
-import { Toaster, ToastMessageManager } from '@components/ui/toaster';
+import { Toaster, ToastMessageManager } from '@/core/components/ui/toaster';
 import { Meta } from '../components/meta';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/app/stores/fullWidth';

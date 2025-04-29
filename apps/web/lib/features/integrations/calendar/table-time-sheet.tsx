@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
-} from '@components/ui/dropdown-menu';
+} from '@/core/components/ui/dropdown-menu';
 import {
 	Select,
 	SelectContent,
@@ -22,15 +22,15 @@ import {
 	SelectLabel,
 	SelectTrigger,
 	SelectValue
-} from '@components/ui/select';
+} from '@/core/components/ui/select';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import { ConfirmStatusChange, statusOptions } from '.';
 import { useModal, useTimelogFilterOptions } from '@app/hooks';
-import { Checkbox } from '@components/ui/checkbox';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Checkbox } from '@/core/components/ui/checkbox';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { clsxm } from '@/app/utils';
 import { AlertConfirmationModal, statusColor } from '@/lib/components';
-import { Badge } from '@components/ui/badge';
+import { Badge } from '@/core/components/ui/badge';
 import {
 	EditTaskModal,
 	RejectSelectedModal,
@@ -51,8 +51,8 @@ import {
 	TotalTimeDisplay
 } from '../../task/task-displays';
 import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
-import { toast } from '@components/ui/use-toast';
-import { ToastAction } from '@components/ui/toast';
+import { toast } from '@/core/components/ui/use-toast';
+import { ToastAction } from '@/core/components/ui/toast';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
 	const accordionRef = React.useRef(null);

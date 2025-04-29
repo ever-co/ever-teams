@@ -9,7 +9,7 @@ import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/component
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
-import { useToast } from '@components/ui/use-toast';
+import { useToast } from '@/core/components/ui/use-toast';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();

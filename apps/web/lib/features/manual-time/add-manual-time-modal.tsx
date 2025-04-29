@@ -14,7 +14,7 @@ import { useManualTime } from '@app/hooks/features/useManualTime';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { clsxm } from '@app/utils';
-import { DatePicker } from '@components/ui/DatePicker';
+import { DatePicker } from '@/core/components/ui/DatePicker';
 
 import { getNestedValue, Item, ManageOrMemberComponent } from './manage-member-component';
 import { CustomSelect } from '../multiple-select';

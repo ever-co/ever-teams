@@ -1,4 +1,4 @@
-import ThreeDotIcon from '@components/ui/svgs/three-dot';
+import ThreeDotIcon from '@/core/components/ui/svgs/three-dot';
 import React, { RefObject } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -15,17 +15,17 @@ import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
-import { Button } from '@components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 
 import { useModal } from '@app/hooks';
 import { Modal } from './modal';
-import CreateTaskModal from '@components/pages/kanban/create-task-modal';
+import CreateTaskModal from '@/core/components/pages/kanban/create-task-modal';
 import Image from 'next/image';
-import EditStatusModal from '@components/pages/kanban/edit-status-modal';
-import { ScrollArea } from '@components/ui/scroll-area';
+import EditStatusModal from '@/core/components/pages/kanban/edit-status-modal';
+import { ScrollArea } from '@/core/components/ui/scroll-area';
 import { cn } from '../utils';
 
 const grid = 8;

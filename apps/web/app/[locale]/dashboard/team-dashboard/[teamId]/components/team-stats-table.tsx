@@ -1,22 +1,22 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
+import { Button } from '@/core/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import { PaginationDropdown } from '@/lib/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
-import { SortPopover } from '@/components/ui/sort-popover';
+import { SortPopover } from '@/core/components/ui/sort-popover';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
-import { Skeleton } from '@components/ui/skeleton';
-import { Card } from '@components/ui/card';
-import { AnimatedEmptyState } from '@components/ui/empty-state';
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { Card } from '@/core/components/ui/card';
+import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';

@@ -3,7 +3,7 @@ import { useTaskLabels } from '@app/hooks';
 import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Text } from 'lib/components';
 import { useCallback, useEffect, useState, useRef } from 'react';

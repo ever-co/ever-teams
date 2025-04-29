@@ -2,16 +2,23 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@app/hooks';
 import { DailyPlanStatusEnum, IDailyPlan, ITeamTask, OT_Member } from '@app/interfaces';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@components/ui/command';
-import { ScrollArea } from '@components/ui/scroll-bar';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList
+} from '@/core/components/ui/command';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
 import { Card, InputField, Modal, Text } from 'lib/components';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { cn } from 'lib/utils';
 import moment from 'moment';
-import { Calendar } from '@components/ui/calendar';
+import { Calendar } from '@/core/components/ui/calendar';
 
 export function AddTaskToPlan({
 	open,

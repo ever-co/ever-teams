@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { clsxm } from '@app/utils';
 import { ITeamTask } from '@app/interfaces';
 import { TaskDetailsComponent } from '@app/[locale]/task/[id]/component';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 
 interface ITaskDetailsModalProps {
 	closeModal: () => void;

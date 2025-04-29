@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
 import stc from 'string-to-color';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';

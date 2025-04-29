@@ -1,8 +1,8 @@
 import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@app/helpers';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';

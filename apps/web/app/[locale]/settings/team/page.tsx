@@ -7,7 +7,7 @@ import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from 'lib/settings';
 
 import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
 import { fetchingTeamInvitationsState, userState } from '@app/stores';
-import NoTeam from '@components/pages/main/no-team';
+import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
@@ -17,7 +17,7 @@ import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
 import { activeSettingTeamTab } from '@app/stores/setting';
-import { InteractionObserverVisible } from '@components/pages/setting/interaction-observer';
+import { InteractionObserverVisible } from '@/core/components/pages/setting/interaction-observer';
 
 const Team = () => {
 	const t = useTranslations();

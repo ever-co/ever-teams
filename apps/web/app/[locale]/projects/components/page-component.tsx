@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Breadcrumb, Button, Container, InputField, VerticalSeparator } from '@/lib/components';
-import { DatePickerWithRange } from '@components/shared/date-range-select';
+import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
@@ -32,7 +32,7 @@ import { ProjectsGridView } from './project-views/grid-view';
 import { ProjectExportMenu } from './project-export-menu';
 import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
-import { Checkbox } from '@components/ui/checkbox';
+import { Checkbox } from '@/core/components/ui/checkbox';
 import { BulkArchiveProjectsModal } from '@/lib/features/project/bulk-actions/bulk-archive-projects-modal';
 import { BulkRestoreProjectsModal } from '@/lib/features/project/bulk-actions/bulk-restore-projects-modal';
 import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
@@ -102,7 +102,9 @@ function PageComponent() {
 	const filteredProjects = useMemo(
 		() =>
 			searchTerm
-				? activeTeamProjects.filter((el) => el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()))
+				? activeTeamProjects.filter((el) =>
+						el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+					)
 				: activeTeamProjects || [],
 		[activeTeamProjects, searchTerm]
 	);
@@ -266,10 +268,7 @@ function PageComponent() {
 				</Container>
 			}
 		>
-			<Container
-				fullWidth={fullWidth}
-				className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme"
-			>
+			<Container fullWidth={fullWidth} className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme">
 				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
 					<div className="flex items-center justify-between font-light rounded ">
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">

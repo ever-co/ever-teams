@@ -12,7 +12,7 @@ import {
 	EventDropArg,
 	EventSourceInput
 } from '@fullcalendar/core';
-import { ScrollArea } from '@components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
 
 type CalendarComponentProps = {
 	events: EventSourceInput;

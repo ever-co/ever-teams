@@ -1,5 +1,4 @@
-import UnauthorizedPage from '@components/pages/unauthorized';
-import React from 'react';
+import UnauthorizedPage from '@/core/components/pages/unauthorized';
 
 const page = () => {
 	return <UnauthorizedPage />;

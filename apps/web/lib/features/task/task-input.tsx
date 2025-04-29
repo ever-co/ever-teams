@@ -37,9 +37,9 @@ import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
-import { ObserverComponent } from '@components/shared/Observer';
+import { ObserverComponent } from '@/core/components/shared/Observer';
 import { LazyRender } from 'lib/components/lazy-render';
-import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
+import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 import { cn } from '@/lib/utils';
 
 type Props = {

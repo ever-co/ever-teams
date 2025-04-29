@@ -14,7 +14,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger
-} from '../../components/ui/dropdown-menu';
+} from '../../core/components/ui/dropdown-menu';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();

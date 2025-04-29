@@ -2,7 +2,7 @@
 
 import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { useToast } from '@components/ui/use-toast';
+import { useToast } from '@/core/components/ui/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown, Tooltip } from 'lib/components';
 import { useCallback, useMemo, useState } from 'react';

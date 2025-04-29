@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, InputField } from '@/lib/components';
 import RichTextEditor from '../text-editor';
-import { Calendar } from '@components/ui/calendar';
+import { Calendar } from '@/core/components/ui/calendar';
 import { Listbox, Popover } from '@headlessui/react';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
@@ -11,8 +11,8 @@ import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
 import { isValidUrl } from '@/app/utils';
-import { ScrollArea } from '@components/ui/scroll-bar';
-import { ScrollBar } from '@components/ui/scroll-area';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
+import { ScrollBar } from '@/core/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useImageAssets } from '@/app/hooks';
 import { getInitialValue } from '../utils';
@@ -528,7 +528,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 		}
 	}, [searchTerm, options]);
 
-	const items = searchEnabled && searchTerm.length ? filteredItems : options ?? [];
+	const items = searchEnabled && searchTerm.length ? filteredItems : (options ?? []);
 
 	// Dynamic heigh calculation based on number of items
 	const maxVisibleItems = 7;

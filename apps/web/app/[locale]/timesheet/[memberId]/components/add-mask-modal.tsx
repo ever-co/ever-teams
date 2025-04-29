@@ -7,9 +7,16 @@ import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { DatePickerFilter } from './timesheet-filter-date';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/ui/select';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { toUTC } from '@/app/helpers';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';

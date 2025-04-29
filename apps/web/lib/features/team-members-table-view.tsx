@@ -1,5 +1,5 @@
 import * as React from 'react';
-import DataTable from '@components/ui/data-table';
+import DataTable from '@/core/components/ui/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { OT_Member } from '@app/interfaces';
 import { UserInfoCell, TaskCell, WorkedOnTaskCell, TaskEstimateInfoCell, ActionMenuCell } from './team-member-cell';

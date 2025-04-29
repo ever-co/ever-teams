@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
-import { ScrollArea } from '@components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';

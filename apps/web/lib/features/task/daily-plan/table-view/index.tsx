@@ -1,5 +1,5 @@
 import * as React from 'react';
-import DataTable from '@components/ui/data-table';
+import DataTable from '@/core/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import DailyPlanTaskEstimationCell from './cells/task-estimation-cell';

@@ -1,6 +1,6 @@
 'use client';
 
-import NotFound from '@components/pages/404';
+import NotFound from '@/core/components/pages/404';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 

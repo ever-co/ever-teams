@@ -10,12 +10,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
 import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
-import Separator from '@components/ui/separator';
-import HeaderTabs from '@components/pages/main/header-tabs';
+import Separator from '@/core/components/ui/separator';
+import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
-import KanbanSearch from '@components/pages/kanban/search-bar';
+import KanbanSearch from '@/core/components/pages/kanban/search-bar';
 import {
 	EpicPropertiesDropdown,
 	StatusDropdown,
@@ -32,7 +32,7 @@ import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/lib/utils';
 import { ITeamTask } from '@app/interfaces';
-import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
+import KanbanBoardSkeleton from '@/core/components/shared/skeleton/KanbanBoardSkeleton';
 
 const Kanban = () => {
 	// Get all required hooks and states

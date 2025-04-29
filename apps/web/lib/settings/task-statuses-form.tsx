@@ -3,7 +3,7 @@ import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@app/hook
 import { IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -13,7 +13,7 @@ import { useAtom } from 'jotai';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
-import SortTasksStatusSettings from '@components/pages/kanban/sort-tasks-status-settings';
+import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
 import { StandardTaskStatusDropDown } from 'lib/features';
 import { DeleteTaskStatusConfirmationModal } from '../features/task-status/delete-status-confirmation-modal';
 

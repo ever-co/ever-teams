@@ -1,6 +1,6 @@
 import React from 'react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@components/ui/dropdown-menu';
-import { Button } from '@components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/core/components/ui/dropdown-menu';
+import { Button } from '@/core/components/ui/button';
 import { Check } from 'lucide-react';
 
 export interface ViewOption {

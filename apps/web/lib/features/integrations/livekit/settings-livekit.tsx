@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { LocalAudioTrack, Track } from 'livekit-client';
 import { useMaybeLayoutContext, useLocalParticipant, MediaDeviceMenu, TrackToggle } from '@livekit/components-react';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import styles from '../../../../styles/settings.module.css';
 import { shortenLink } from 'lib/utils';
 import { IconsContentCopy, IconsLoader } from '@/icons';

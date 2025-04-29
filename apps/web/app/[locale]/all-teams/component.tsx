@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import TeamMemberHeader from 'lib/features/team-member-header';
 import { IssuesView } from '@app/constants';
-import { HeaderTabs } from '@components/pages/all-teams/header-tabs';
+import { HeaderTabs } from '@/core/components/pages/all-teams/header-tabs';
 import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
 import AllTeamsMembers from 'lib/features/all-teams-members';
 import { MemberFilter } from 'lib/features/all-teams/all-team-members-filter';

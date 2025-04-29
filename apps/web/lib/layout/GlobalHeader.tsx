@@ -2,8 +2,8 @@
 import React, { forwardRef, LegacyRef, useState } from 'react';
 import { Navbar } from '.';
 import { cn } from '../utils';
-import { useSidebar } from '@components/ui/sidebar';
-import { ResizableHandle, ResizablePanel } from '@components/ui/resizable';
+import { useSidebar } from '@/core/components/ui/sidebar';
+import { ResizableHandle, ResizablePanel } from '@/core/components/ui/resizable';
 export interface GlobalHeaderProps {
 	fullWidth?: boolean;
 	showTimer?: boolean;

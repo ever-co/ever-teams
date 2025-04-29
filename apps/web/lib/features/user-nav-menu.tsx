@@ -26,7 +26,7 @@ import stc from 'string-to-color';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import { TimerStatus, getTimerStatusValue } from './timer/timer-status';
-import Collaborate from '@components/shared/collaborate';
+import Collaborate from '@/core/components/shared/collaborate';
 import { TeamsDropDown } from './team/teams-dropdown';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';

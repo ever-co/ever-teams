@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@app/hooks';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { useCallback } from 'react';
 import { Button } from './button';
 import { Tooltip } from './tooltip';
@@ -49,7 +49,9 @@ export function KeyboardShortcuts() {
 											key={`key-seq-${keySeqIndex}`}
 										>
 											<div>
-												<p className="text-sm font-normal">{t(`hotkeys.${keySeq.label}` as DottedLanguageObjectStringPaths)}</p>
+												<p className="text-sm font-normal">
+													{t(`hotkeys.${keySeq.label}` as DottedLanguageObjectStringPaths)}
+												</p>
 											</div>
 											<div className="flex flex-row gap-2">
 												{[...(os === 'Mac' ? keySeq.sequence.MAC : keySeq.sequence.OTHER)].map(

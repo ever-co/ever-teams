@@ -1,5 +1,5 @@
 import { Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
-import { Button } from '@components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { IDailyPlan } from '@app/interfaces';

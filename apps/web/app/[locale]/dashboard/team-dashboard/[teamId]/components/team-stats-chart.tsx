@@ -1,10 +1,10 @@
 'use client';
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/core/components/ui/button';
 import { ITimerDailyLog } from '@/app/interfaces/timer/ITimerLog';
 import { useState, useMemo } from 'react';
-import { Spinner } from '@/components/ui/loaders/spinner';
+import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { format, startOfWeek, startOfMonth } from 'date-fns';
 
 type GroupBy = 'daily' | 'weekly' | 'monthly';

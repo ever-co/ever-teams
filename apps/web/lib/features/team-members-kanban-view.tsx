@@ -12,7 +12,7 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from '@hello-pangea/dnd';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-area';
 import { cn } from '../utils';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
