@@ -6,7 +6,7 @@ import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from '@/core/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
-import { MainLayout } from 'lib/layout';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView } from '@app/constants';
 import { useTranslations } from 'next-intl';
 
@@ -64,13 +64,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex gap-8 justify-center items-center h-10">
+									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex gap-1 justify-center items-center w-max h-10">
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>

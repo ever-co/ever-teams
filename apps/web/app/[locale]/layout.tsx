@@ -5,7 +5,7 @@ import '@/styles/globals.css';
 import clsx from 'clsx';
 import { Provider } from 'jotai';
 import { AppState } from 'lib/app/init-state';
-import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
+import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';

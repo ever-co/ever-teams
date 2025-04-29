@@ -1,6 +1,6 @@
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Container } from '@/core/components';
-import { Navbar } from 'lib/layout';
+import { Navbar } from '@/core/components/layouts/default-layout';
 import { useAtomValue } from 'jotai';
 
 const GlobalSkeleton = () => {

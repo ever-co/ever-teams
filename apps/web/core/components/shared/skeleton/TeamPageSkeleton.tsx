@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainLayout, MainHeader } from 'lib/layout';
+import { MainLayout, MainHeader } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from './UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from './InviteTeamCardSkeleton';
@@ -16,7 +16,7 @@ const TeamPageSkeleton = () => {
 
 	return (
 		<div>
-			<MainLayout className="items-start sm:relative hidden">
+			<MainLayout className="items-start hidden sm:relative">
 				<MainHeader>
 					<Container>
 						<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#353741] " />
@@ -25,9 +25,9 @@ const TeamPageSkeleton = () => {
 
 							<div className="flex items-center">
 								{' '}
-								<div className="flex-1 flex flex-col mr-10 lg:mt-0 mt-8">
-									<div className="flex flex-col lg:flex-row justify-between items-center space-x-3">
-										<div className="flex-1 flex items-center space-x-4 ">
+								<div className="flex flex-col flex-1 mt-8 mr-10 lg:mt-0">
+									<div className="flex flex-col items-center justify-between space-x-3 lg:flex-row">
+										<div className="flex items-center flex-1 space-x-4 ">
 											<Skeleton
 												height={25}
 												width={180}
@@ -72,7 +72,7 @@ const TeamPageSkeleton = () => {
 								</div>
 							</div>
 						</div>
-						<ul className="flex row font-normal justify-between mb-3 mt-16">
+						<ul className="flex justify-between mt-16 mb-3 font-normal row">
 							<li>
 								<Skeleton width={80} height={20} borderRadius={25} className="dark:bg-[#353741]" />
 							</li>
@@ -99,14 +99,14 @@ const TeamPageSkeleton = () => {
 					<InviteUserTeamCardSkeleton />
 				</Container>
 			</MainLayout>
-			<MainLayout className="sm:hidden relative">
+			<MainLayout className="relative sm:hidden">
 				<MainHeader>
 					<Container>
 						<div className="w-full flex flex-col p-4 pb-0 rounded-2xl dark:bg-[#1F2126]">
 							<div className="flex">
 								<Skeleton height={56} width={56} circle={true} className="dark:bg-[#353741] mr-2" />
 								<div className="flex items-center">
-									<div className="flex-1 flex flex-col mr-10 lg:mt-0 mb-4">
+									<div className="flex flex-col flex-1 mb-4 mr-10 lg:mt-0">
 										<Skeleton
 											height={15}
 											width={163}
@@ -156,7 +156,7 @@ const TeamPageSkeleton = () => {
 							</div>
 						</div>
 						<div>
-							<div className="flex mt-4 justify-between">
+							<div className="flex justify-between mt-4">
 								<Skeleton height={42} width={42} circle={true} className="dark:bg-[#353741] mr-2" />
 								<div>
 									<Skeleton height={20} width={60} borderRadius={10} className="dark:bg-[#353741]" />
@@ -199,7 +199,7 @@ export const UserCard = () => {
 				</div>
 			</div>
 			<div>
-				<div className="flex mt-4 justify-between">
+				<div className="flex justify-between mt-4">
 					<Skeleton height={42} width={42} circle={true} className="dark:bg-[#353741] mr-2" />
 					<div>
 						<Skeleton height={20} width={60} borderRadius={10} className="dark:bg-[#353741]" />

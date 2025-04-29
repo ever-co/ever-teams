@@ -1,5 +1,5 @@
 import MainLogo from './mainLogo';
-import { TeamsDropDown } from '../../shared/teams/teams-dropdown';
+import { TeamsDropDown } from '@/core/components/shared/teams/teams-dropdown';
 import Profile from './profile';
 
 /**

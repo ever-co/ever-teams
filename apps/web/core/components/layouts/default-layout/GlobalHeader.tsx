@@ -1,9 +1,9 @@
 /* eslint-disable react/display-name */
 import React, { forwardRef, LegacyRef, useState } from 'react';
 import { Navbar } from '.';
-import { cn } from '../utils';
 import { useSidebar } from '@/core/components/ui/sidebar';
 import { ResizableHandle, ResizablePanel } from '@/core/components/ui/resizable';
+import { cn } from '@/lib/utils';
 export interface GlobalHeaderProps {
 	fullWidth?: boolean;
 	showTimer?: boolean;
