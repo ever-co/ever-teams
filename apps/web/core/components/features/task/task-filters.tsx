@@ -215,7 +215,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		const n = taskName.trim().toLowerCase();
 		const statusFilters = appliedStatusFilter;
 
-		return (tasks || [])
+		return tasks
 			.filter((task) => {
 				return n ? task.title.toLowerCase().includes(n) : true;
 			})

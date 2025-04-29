@@ -81,7 +81,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
-				createTaskSize({
+				await createTaskSize({
 					name: values.name,
 					color: values.color,
 					// description: '',
@@ -103,7 +103,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 					values.color !== edit.color ||
 					values.icon !== edit.icon)
 			) {
-				editTaskSize(edit.id, {
+				await editTaskSize(edit.id, {
 					name: values.name,
 					color: values.color,
 					icon: values.icon

@@ -37,10 +37,10 @@ export default function CategorizationForm(props: IStepElementProps) {
 	}, [colorCode, goToPrevious, tagData, tags]);
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
-			<div className="w-full flex gap-3">
-				<div className="flex gap-1  flex-1 flex-col">
-					<label htmlFor="project_tags" className=" text-xs font-medium">
+		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
+			<div className="flex w-full gap-3">
+				<div className="flex flex-col flex-1 gap-1">
+					<label htmlFor="project_tags" className="text-xs font-medium ">
 						{t('pages.projects.categorizationForm.formFields.tags')}
 					</label>
 					<div className="w-full">
@@ -74,33 +74,35 @@ export default function CategorizationForm(props: IStepElementProps) {
 							}}
 							renderItem={(item, selected) => {
 								return (
-									<div key={item.id} className="w-full h-full p-1 px-2 flex items-center gap-2">
-										<span
-											className={cn(
-												'h-4 w-4 rounded border border-primary flex items-center justify-center',
-												selected && 'bg-primary text-primary-foreground dark:text-white'
-											)}
-										>
-											{selected && <CheckIcon size={10} />}
-										</span>
-										<div className="h-full flex items-center gap-1">
+									item && (
+										<div key={item?.id} className="flex items-center w-full h-full gap-2 p-1 px-2">
 											<span
-												style={{
-													backgroundColor:
-														tagData?.find((el) => el.id == item.id)?.color ?? '#000'
-												}}
-												className="w-4 h-4 rounded-full"
-											/>
-											<span className="capitalize">{item?.value ?? ''}</span>
+												className={cn(
+													'h-4 w-4 rounded border border-primary flex items-center justify-center',
+													selected && 'bg-primary text-primary-foreground dark:text-white'
+												)}
+											>
+												{selected && <CheckIcon size={10} />}
+											</span>
+											<div className="flex items-center h-full gap-1">
+												<span
+													style={{
+														backgroundColor:
+															tagData?.find((el) => el.id == item.id)?.color ?? '#000'
+													}}
+													className="w-4 h-4 rounded-full"
+												/>
+												<span className="capitalize">{item?.value ?? ''}</span>
+											</div>
 										</div>
-									</div>
+									)
 								);
 							}}
 						/>
 					</div>
 				</div>
-				<div className="flex gap-1 flex-1 flex-col">
-					<label htmlFor="project_color" className=" text-xs font-medium">
+				<div className="flex flex-col flex-1 gap-1">
+					<label htmlFor="project_color" className="text-xs font-medium ">
 						{t('pages.projects.categorizationForm.formFields.colorCode')}
 					</label>
 					<div className="w-full">
@@ -113,12 +115,12 @@ export default function CategorizationForm(props: IStepElementProps) {
 											style={{ backgroundColor: colorCode }}
 										/>
 									</div>
-									<span className=" border h-full grow flex items-center px-3 uppercase rounded-lg">
+									<span className="flex items-center h-full px-3 uppercase border rounded-lg grow">
 										{colorCode}
 									</span>
 								</div>
 							</Popover.Button>
-							<Popover.Panel className="w-fit absolute top-11 border rounded-md shadow-md dark:bg-dark--theme-light input-border">
+							<Popover.Panel className="absolute border rounded-md shadow-md w-fit top-11 dark:bg-dark--theme-light input-border">
 								{/* @ts-ignore */}
 								<HexColorPicker defaultValue={colorCode} onChange={(color) => setColorCode(color)} />
 							</Popover.Panel>
@@ -126,7 +128,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 					</div>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-between">
+			<div className="flex items-center justify-between w-full">
 				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
 					{t('common.BACK')}
 				</Button>

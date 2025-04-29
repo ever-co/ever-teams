@@ -39,7 +39,7 @@ export function NavProjects({
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const t = useTranslations();
 
-	return userManagedTeams && userManagedTeams.length > 0 ? (
+	return userManagedTeams?.length > 0 ? (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel>{t('sidebar.PROJECTS')}</SidebarGroupLabel>
 			<SidebarMenu className="w-full max-w-[230px]">

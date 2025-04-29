@@ -33,7 +33,7 @@ const getReportTitle = (groupByType: GroupByType = 'daily') => {
 };
 
 const ExportButtons = ({
-	reportData,
+	reportData = [],
 	exportType,
 	groupByType,
 	endDate,
@@ -48,7 +48,7 @@ const ExportButtons = ({
 					document={
 						groupByType === 'date' ? (
 							<ProductivityPDF
-								data={reportData || []}
+								data={reportData}
 								title={`Activity Report for ${startDate} - ${endDate}`}
 								startDate={startDate}
 								endDate={endDate}
@@ -61,7 +61,7 @@ const ExportButtons = ({
 				>
 					{({ loading }) => (
 						<Button
-							className="bg-light--theme-light dark:bg-dark-high cursor-pointer"
+							className="cursor-pointer bg-light--theme-light dark:bg-dark-high"
 							variant="outline"
 							size="sm"
 							disabled={loading}
@@ -72,7 +72,7 @@ const ExportButtons = ({
 				</PDFDownloadLink>
 			)}
 			{exportType === 'xlsx' && (
-				<Button className="bg-light--theme-light dark:bg-dark-high cursor-pointer" variant="outline" size="sm">
+				<Button className="cursor-pointer bg-light--theme-light dark:bg-dark-high" variant="outline" size="sm">
 					Download XLSX
 				</Button>
 			)}
@@ -90,12 +90,12 @@ export function ExportDialog({ isOpen, onClose, exportType, reportData, groupByT
 			title="Export Successful!"
 			isOpen={isOpen}
 		>
-			<div className="flex flex-col gap-y-4 items-center">
+			<div className="flex flex-col items-center gap-y-4">
 				<CheckCircle2 className="w-12 h-12 text-primary" />
 				<p className="text-center text-muted-foreground">
 					Your export is complete. Click below to download your file.
 				</p>
-				<div className="flex flex-col gap-3 sm:flex-row sm:gap-2 w-full justify-end">
+				<div className="flex flex-col justify-end w-full gap-3 sm:flex-row sm:gap-2">
 					<Button variant="outline" onClick={onClose} className="bg-light--theme-light dark:bg-dark-high">
 						Cancel
 					</Button>

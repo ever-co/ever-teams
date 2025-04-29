@@ -73,6 +73,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		[hook, profile]
 	);
 
+	const activityScreen = activityScreens[activityFilter] ?? null;
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
 
@@ -179,10 +180,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				</Container>
 			)}
 			<Container fullWidth={fullWidth} className="mb-10 -mt-6">
-				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
-					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
+					activityScreen
 				) : (
-					(activityScreens[activityFilter] ?? null)
+					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				)}
 			</Container>
 		</MainLayout>

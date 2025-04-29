@@ -88,7 +88,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
-				createTaskStatus({
+				await createTaskStatus({
 					name: values.name,
 					value: values.name.split(' ').join('-').toLowerCase(),
 					color: values.color,
@@ -112,7 +112,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					values.color !== edit.color ||
 					values.icon !== edit.icon)
 			) {
-				editTaskStatus(edit.id, {
+				await editTaskStatus(edit.id, {
 					name: values.name,
 					color: values.color,
 					icon: values.icon
