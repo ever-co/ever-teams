@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useTokenLiveKit } from '@app/hooks/useLiveKit';
 
-const LiveKit = dynamic(() => import('lib/features/integrations/livekit'), {
+const LiveKit = dynamic(() => import('@/core/components/features/integrations/livekit'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />
 });

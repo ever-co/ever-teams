@@ -5,7 +5,7 @@ import { RelatedIssueCard } from '@/core/components/pages/task/IssueCard';
 import TaskDetailsAside from '@/core/components/pages/task/task-details-aside';
 import TaskProperties from '@/core/components/pages/task/TaskProperties';
 import TaskTitleBlock from '@/core/components/pages/task/title-block/task-title-block';
-import { TaskActivity } from 'lib/features/task/task-activity';
+import { TaskActivity } from '@/core/components/features/task/task-activity';
 
 interface ITaskDetailsComponentProps {
 	task: ITeamTask;

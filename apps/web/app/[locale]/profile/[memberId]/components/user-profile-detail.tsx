@@ -1,7 +1,7 @@
 import { useTimer } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { isValidUrl } from '@app/utils';
-import { getTimerStatusValue, TimerStatus } from 'lib/features';
+import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
 import { cn } from 'lib/utils';
 import { useMemo } from 'react';
 import stc from 'string-to-color';

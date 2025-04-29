@@ -9,12 +9,12 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import TeamMemberHeader from 'lib/features/team-member-header';
+import TeamMemberHeader from '@/core/components/features/team-member-header';
 import { IssuesView } from '@app/constants';
 import { HeaderTabs } from '@/core/components/pages/all-teams/header-tabs';
 import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
-import AllTeamsMembers from 'lib/features/all-teams-members';
-import { MemberFilter } from 'lib/features/all-teams/all-team-members-filter';
+import AllTeamsMembers from '@/core/components/features/all-teams-members';
+import { MemberFilter } from '@/core/components/features/all-teams/all-team-members-filter';
 import { useOrganizationTeams } from '@app/hooks';
 
 function AllTeamsPage() {

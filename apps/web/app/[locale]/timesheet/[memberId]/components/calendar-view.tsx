@@ -1,6 +1,11 @@
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { statusColor } from '@/core/components';
-import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
+import {
+	DisplayTimeForTimesheet,
+	TaskNameInfoDisplay,
+	TotalDurationByDate,
+	TotalTimeDisplay
+} from '@/core/components/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';

@@ -3,7 +3,7 @@ import { activeTeamTaskId } from '@app/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { HorizontalSeparator, SpinnerLoader } from '@/core/components';
-import { PlanTask } from 'lib/features/task/task-card';
+import { PlanTask } from '@/core/components/features/task/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
 import { ITeamTask, OT_Member } from '@app/interfaces';
@@ -139,7 +139,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 		<Popover>
 			<PopoverTrigger asChild>
 				<button>
-					<ThreeCircleOutlineVerticalIcon className="w-4 h-4 z-50" />
+					<ThreeCircleOutlineVerticalIcon className="z-50 w-4 h-4" />
 				</button>
 			</PopoverTrigger>
 			<PopoverContent
@@ -151,7 +151,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 						return (
 							<li key={item.name} onClick={async () => await item?.onClick?.()}>
 								{item.action == 'assignee' ? (
-									<div className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm py-1 px-2">
+									<div className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap">
 										<TeamMembersSelect
 											key={item.name}
 											task={task}
@@ -159,7 +159,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 										/>
 									</div>
 								) : (
-									<button className="font-normal flex justify-between items-center capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
+									<button className="flex items-center justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
 										<p>{item.name}</p>
 										{item.loading && <SpinnerLoader size={15} />}
 									</button>
@@ -170,13 +170,13 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 				</ul>
 				<HorizontalSeparator />
 				<ul className="list-none">
-					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
+					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
 						<PlanTask planMode="today" taskId={task.id} chooseMember={true} />
 					</li>
-					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
+					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
 						<PlanTask planMode="tomorrow" taskId={task.id} chooseMember={true} />
 					</li>
-					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
+					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
 						<PlanTask planMode="custom" taskId={task.id} chooseMember={true} />
 					</li>
 				</ul>
@@ -214,11 +214,11 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 		<div className="w-full">
 			<Combobox multiple={true}>
 				<div className="relative">
-					<div className="relative w-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+					<div className="relative w-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
 						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="absolute hover:font-semibold hover:transition-all inset-y-0 right-0 flex justify-between w-full items-center pr-2">
+						<Combobox.Button className="absolute inset-y-0 right-0 flex items-center justify-between w-full pr-2 hover:font-semibold hover:transition-all">
 							<span>{t('common.ASSIGNEE')}</span>
-							<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+							<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -227,7 +227,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-60 h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute w-full h-auto py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{teamMembers.map((member) => (
 								<Combobox.Option
 									key={member.id}
@@ -283,7 +283,7 @@ function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps):
 			<span className="block truncate">{member.employee.fullName}</span>
 			{!(assignTaskLoading || unAssignTaskLoading) && isAssignee ? (
 				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
-					<CheckIcon className="h-5 w-5" aria-hidden="true" />
+					<CheckIcon className="w-5 h-5" aria-hidden="true" />
 				</span>
 			) : null}
 

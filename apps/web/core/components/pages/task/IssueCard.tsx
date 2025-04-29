@@ -6,7 +6,7 @@ import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { TaskInput, TaskLinkedIssue } from 'lib/features';
+import { TaskInput, TaskLinkedIssue } from '@/core/components/features';
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';

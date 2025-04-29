@@ -1,4 +1,4 @@
-import { StatusDropdown } from 'lib/features';
+import { StatusDropdown } from '@/core/components/features';
 import TaskRow from '../components/task-row';
 
 const TaskTeamInfo = () => {

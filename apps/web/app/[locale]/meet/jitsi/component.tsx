@@ -13,7 +13,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
 // Lazy load Meet component
-const Meet = dynamic(() => import('lib/features/integrations/meet'), {
+const Meet = dynamic(() => import('@/core/components/features/integrations/meet'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />
 });

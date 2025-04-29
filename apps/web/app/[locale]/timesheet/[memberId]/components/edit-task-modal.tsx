@@ -4,9 +4,13 @@ import { DatePickerFilter } from './timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/app/utils';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
+import {
+	Item,
+	ManageOrMemberComponent,
+	getNestedValue
+} from '@/core/components/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
-import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
+import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { statusTable } from './timesheet-action';
 import { TimesheetLog } from '@/app/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/app/helpers';

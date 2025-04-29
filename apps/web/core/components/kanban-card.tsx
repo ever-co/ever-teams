@@ -10,7 +10,7 @@ import {
 	useTimerView
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
-import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from '@/core/components/features';
 import Link from 'next/link';
 import CircularProgress from '@/core/components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';

@@ -3,7 +3,7 @@ import { clsxm } from '@app/utils';
 import { useRoles } from '@app/hooks/features/useRoles';
 import { IRole, IRoleList, OT_Member } from '@app/interfaces';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { mapRoleItems, RoleItem } from '../features/roles/role-item';
+import { mapRoleItems, RoleItem } from '@/core/components/features/roles/role-item';
 
 export const EditUserRoleDropdown = ({
 	member,

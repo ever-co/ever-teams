@@ -1,30 +1,30 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from "date-fns";
-import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet";
+import React, { useMemo, useState, useCallback } from 'react';
+import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from 'date-fns';
+import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
 import { enGB } from 'date-fns/locale';
-import { cn } from "@/lib/utils";
-import { TotalDurationByDate } from "@/lib/features";
-import { formatDate } from "@/app/helpers";
-import { TranslationHooks } from "next-intl";
+import { cn } from '@/lib/utils';
+import { TotalDurationByDate } from '@/core/components/features';
+import { formatDate } from '@/app/helpers';
+import { TranslationHooks } from 'next-intl';
 
 type MonthlyCalendarDataViewProps = {
-    t: TranslationHooks
-    data?: GroupedTimesheet[];
-    onDateClick?: (date: Date) => void;
-    renderDayContent?: (date: Date, plan?: GroupedTimesheet) => React.ReactNode;
-    locale?: Locale;
-    daysLabels?: string[];
-    noDataText?: string;
-    classNames?: {
-        container?: string;
-        header?: string;
-        grid?: string;
-        day?: string;
-        noData?: string;
-    };
+	t: TranslationHooks;
+	data?: GroupedTimesheet[];
+	onDateClick?: (date: Date) => void;
+	renderDayContent?: (date: Date, plan?: GroupedTimesheet) => React.ReactNode;
+	locale?: Locale;
+	daysLabels?: string[];
+	noDataText?: string;
+	classNames?: {
+		container?: string;
+		header?: string;
+		grid?: string;
+		day?: string;
+		noData?: string;
+	};
 };
 
-const defaultDaysLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const defaultDaysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**
  * Generates an array of dates for a full month calendar.
@@ -39,20 +39,19 @@ const defaultDaysLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
  * @returns An array of dates for a full month calendar.
  */
 const generateFullCalendar = (currentMonth: Date) => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = (() => {
-        const month = monthStart.getMonth();
-        if (month === 1) {
-            const year = monthStart.getFullYear();
-            return new Date(year, 1, isLeapYear(monthStart) ? 29 : 28);
-        }
-        return endOfMonth(monthStart);
-    })();
-    const startDate = addDays(monthStart, -monthStart.getDay());
-    const endDate = addDays(monthEnd, 6 - monthEnd.getDay());
-    return eachDayOfInterval({ start: startDate, end: endDate });
+	const monthStart = startOfMonth(currentMonth);
+	const monthEnd = (() => {
+		const month = monthStart.getMonth();
+		if (month === 1) {
+			const year = monthStart.getFullYear();
+			return new Date(year, 1, isLeapYear(monthStart) ? 29 : 28);
+		}
+		return endOfMonth(monthStart);
+	})();
+	const startDate = addDays(monthStart, -monthStart.getDay());
+	const endDate = addDays(monthEnd, 6 - monthEnd.getDay());
+	return eachDayOfInterval({ start: startDate, end: endDate });
 };
-
 
 /**
  * A monthly calendar component for displaying timesheet data.
@@ -73,115 +72,110 @@ const generateFullCalendar = (currentMonth: Date) => {
  * @returns {React.ReactElement} The JSX element for the component.
  */
 const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
-    data = [],
-    onDateClick,
-    renderDayContent,
-    locale = enGB,
-    daysLabels = defaultDaysLabels,
-    noDataText = "No Data",
-    classNames = {},
-    t
+	data = [],
+	onDateClick,
+	renderDayContent,
+	locale = enGB,
+	daysLabels = defaultDaysLabels,
+	noDataText = 'No Data',
+	classNames = {},
+	t
 }) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-    const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
-    const groupedData = useMemo(
-        () => new Map(data.map((plan) => [format(new Date(plan.date), "yyyy-MM-dd"), plan])),
-        [data]
-    );
+	const [currentMonth, setCurrentMonth] = useState(new Date());
+	const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
+	const groupedData = useMemo(
+		() => new Map(data.map((plan) => [format(new Date(plan.date), 'yyyy-MM-dd'), plan])),
+		[data]
+	);
 
-    const handlePreviousMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, -1)), []);
-    const handleNextMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, 1)), []);
+	const handlePreviousMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, -1)), []);
+	const handleNextMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, 1)), []);
 
-    return (
-        <div className={classNames.container || "p-4 w-full"}>
-            {/* Header */}
-            <div className={classNames.header || "flex items-center justify-between mb-4"}>
-                <button
-                    onClick={handlePreviousMonth}
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
-                >
-                    {t('common.PREV')}
-                </button>
-                <h2 className="text-xl font-bold">
-                    {format(currentMonth, "MMMM yyyy", { locale: locale })}
-                </h2>
-                <button
-                    onClick={handleNextMonth}
-                    className="px-4 py-2 bg-gray-200 dark:bg-primary-light rounded hover:bg-gray-300 hover:dark:bg-primary-light"
-                >
-                    {t('common.NEXT')}
-                </button>
-            </div>
+	return (
+		<div className={classNames.container || 'p-4 w-full'}>
+			{/* Header */}
+			<div className={classNames.header || 'flex items-center justify-between mb-4'}>
+				<button
+					onClick={handlePreviousMonth}
+					className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
+				>
+					{t('common.PREV')}
+				</button>
+				<h2 className="text-xl font-bold">{format(currentMonth, 'MMMM yyyy', { locale: locale })}</h2>
+				<button
+					onClick={handleNextMonth}
+					className="px-4 py-2 bg-gray-200 rounded dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
+				>
+					{t('common.NEXT')}
+				</button>
+			</div>
 
-            {/* Grid */}
-            <div className={classNames.grid || "grid grid-cols-7 text-center font-semibold text-gray-600"}>
-                {daysLabels.map((day) => (
-                    <div key={day}>{day}</div>
-                ))}
-            </div>
+			{/* Grid */}
+			<div className={classNames.grid || 'grid grid-cols-7 text-center font-semibold text-gray-600'}>
+				{daysLabels.map((day) => (
+					<div key={day}>{day}</div>
+				))}
+			</div>
 
-            <div
-                className="grid grid-cols-7 mt-2 w-full"
-                role="grid"
-                aria-label="Calendar"
-            >
-                {calendarDates.map((date) => {
-                    const formattedDate = format(date, "yyyy-MM-dd");
-                    const plan = groupedData.get(formattedDate);
-                    return (
-                        <div
-                            key={formattedDate}
-                            role="gridcell"
-                            tabIndex={0}
-                            aria-label={format(date, "MMMM d, yyyy")}
-                            className={cn(
-                                classNames.day,
-                                "border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full", {
-                                "bg-gray-100 dark:bg-gray-900": date.getMonth() !== currentMonth.getMonth(),
-                            }
-                            )}
-                            onClick={() => onDateClick?.(date)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    onDateClick?.(date);
-                                }
-                            }}
-                        >
-                            <div className="px-2 flex items-center justify-between">
-                                <span className="block text-gray-500 text-sm font-medium">
-                                    {format(date, "dd MMM yyyy")}
-                                </span>
-                                <div className="flex items-center gap-x-1 text-gray-500 text-sm font-medium">
-                                    {/* <span className="text-[#868687]">Total{" : "}</span> */}
-                                    {plan && <TotalDurationByDate
-                                        timesheetLog={plan.tasks}
-                                        createdAt={formatDate(plan.date)}
-                                        className="text-black dark:text-gray-500 text-sm"
-                                    />}
-                                </div>
-                            </div>
-                            {renderDayContent ? (
-                                renderDayContent(date, plan)
-                            ) : plan ? (
-                                <div className="p-2">
-                                    {plan.tasks.map((task) => (
-                                        <div key={task.id} className="text-sm mb-1 truncate">
-                                            {task.task?.title}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className={classNames.noData || "text-gray-400 text-sm"}>
-                                    {noDataText}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
+			<div className="grid w-full grid-cols-7 mt-2" role="grid" aria-label="Calendar">
+				{calendarDates.map((date) => {
+					const formattedDate = format(date, 'yyyy-MM-dd');
+					const plan = groupedData.get(formattedDate);
+					return (
+						<div
+							key={formattedDate}
+							role="gridcell"
+							tabIndex={0}
+							aria-label={format(date, 'MMMM d, yyyy')}
+							className={cn(
+								classNames.day,
+								'border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
+								{
+									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentMonth.getMonth()
+								}
+							)}
+							onClick={() => onDateClick?.(date)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									onDateClick?.(date);
+								}
+							}}
+						>
+							<div className="flex items-center justify-between px-2">
+								<span className="block text-sm font-medium text-gray-500">
+									{format(date, 'dd MMM yyyy')}
+								</span>
+								<div className="flex items-center text-sm font-medium text-gray-500 gap-x-1">
+									{/* <span className="text-[#868687]">Total{" : "}</span> */}
+									{plan && (
+										<TotalDurationByDate
+											timesheetLog={plan.tasks}
+											createdAt={formatDate(plan.date)}
+											className="text-sm text-black dark:text-gray-500"
+										/>
+									)}
+								</div>
+							</div>
+							{renderDayContent ? (
+								renderDayContent(date, plan)
+							) : plan ? (
+								<div className="p-2">
+									{plan.tasks.map((task) => (
+										<div key={task.id} className="mb-1 text-sm truncate">
+											{task.task?.title}
+										</div>
+									))}
+								</div>
+							) : (
+								<div className={classNames.noData || 'text-gray-400 text-sm'}>{noDataText}</div>
+							)}
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
 };
 
 export default MonthlyTimesheetCalendar;

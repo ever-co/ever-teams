@@ -14,8 +14,8 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
 import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
-import { StandardTaskStatusDropDown } from 'lib/features';
-import { DeleteTaskStatusConfirmationModal } from '../features/task-status/delete-status-confirmation-modal';
+import { StandardTaskStatusDropDown } from '@/core/components/features';
+import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/task-status/delete-status-confirmation-modal';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -198,7 +198,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							</Text>
 						)}
 
-						<div className="flex flex-col gap-2  items-center sm:items-start">
+						<div className="flex flex-col items-center gap-2 sm:items-start">
 							<div className="flex gap-2">
 								{!createNew && !edit && (
 									<Button
@@ -232,7 +232,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
-											className="mb-0 w-full"
+											className="w-full mb-0"
 											wrapperClassName="mb-0 rounded-lg flex-grow"
 											{...register('name')}
 										/>

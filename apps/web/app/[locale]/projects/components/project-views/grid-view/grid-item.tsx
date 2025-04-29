@@ -8,7 +8,7 @@ import moment from 'moment';
 import AvatarStack from '@/core/components/shared/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 
 interface IGridItemProps {

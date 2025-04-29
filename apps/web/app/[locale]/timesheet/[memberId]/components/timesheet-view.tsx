@@ -1,7 +1,7 @@
 import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
 import { IUser } from '@/app/interfaces';
 import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
-import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
+import { DataTableTimeSheet } from '@/core/components/features/integrations/calendar';
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 

@@ -4,7 +4,7 @@ import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks'
 import { useKanban } from '@app/hooks/features/useKanban';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
-import { KanbanView } from 'lib/features/team-members-kanban-view';
+import { KanbanView } from '@/core/components/features/team-members-kanban-view';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -13,7 +13,7 @@ import ImageComponent, { ImageOverlapperProps } from '@/core/components/image-ov
 import Separator from '@/core/components/ui/separator';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
-import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
+import { InviteFormModal } from '@/core/components/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@/core/components/pages/kanban/search-bar';
 import {
@@ -25,7 +25,7 @@ import {
 	TaskSizesDropdown,
 	taskIssues,
 	useStatusValue
-} from 'lib/features';
+} from '@/core/components/features';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
@@ -268,7 +268,7 @@ const Kanban = () => {
 												{issues?.value && (
 													<button
 														onClick={() =>
-															setIssues((prev) => ({
+															setIssues((prev: TStatusItem) => ({
 																...prev,
 																name: 'Issues',
 																icon: null,

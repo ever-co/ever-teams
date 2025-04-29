@@ -1,12 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
+import {
+	Item,
+	ManageOrMemberComponent,
+	getNestedValue
+} from '@/core/components/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
 import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/core/components';
-import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
+import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { DatePickerFilter } from './timesheet-filter-date';
 import {

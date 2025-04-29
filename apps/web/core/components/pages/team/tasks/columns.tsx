@@ -2,7 +2,7 @@ import { ITeamTask } from '@/app/interfaces';
 import { ColumnDef } from '@tanstack/react-table';
 import { Bug } from 'lucide-react';
 import AssigneeUser from './AssigneeUser';
-import { ActiveTaskStatusDropdown } from '@/lib/features';
+import { ActiveTaskStatusDropdown } from '@/core/components/features';
 import DropdownMenuTask from './DropdownMenuTask';
 
 // Columns that can be hidden in the team tasks table

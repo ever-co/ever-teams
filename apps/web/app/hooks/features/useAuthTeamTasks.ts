@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useDailyPlan } from './useDailyPlan';
-import { estimatedTotalTime, getTotalTasks } from 'lib/features/task/daily-plan';
+import { estimatedTotalTime, getTotalTasks } from '@/core/components/features/task/daily-plan';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
 	const tasks = useAtomValue(tasksByTeamState);

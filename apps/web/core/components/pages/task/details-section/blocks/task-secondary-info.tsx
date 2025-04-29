@@ -12,7 +12,7 @@ import {
 	TaskLabels,
 	TaskStatus,
 	useTaskLabelsValue
-} from 'lib/features';
+} from '@/core/components/features';
 import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
@@ -26,7 +26,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } fro
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
-import { QuickCreateProjectModal } from '@/lib/features/project/quick-create-project-modal';
+import { QuickCreateProjectModal } from '@/core/components/features/project/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 

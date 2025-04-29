@@ -2,19 +2,19 @@
 
 import * as React from 'react';
 import {
-	Column,
-	ColumnDef,
-	ColumnFiltersState,
-	OnChangeFn,
-	RowSelectionState,
-	SortingState,
-	VisibilityState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable
+    Column,
+    ColumnDef,
+    ColumnFiltersState,
+    OnChangeFn,
+    RowSelectionState,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
 import { Checkbox } from '@/core/components/ui/checkbox';
@@ -31,7 +31,7 @@ import AvatarStack from '@/core/components/shared/avatar-stack';
 import { HorizontalSeparator } from '@/core/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';

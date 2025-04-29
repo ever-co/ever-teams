@@ -2,16 +2,16 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import {
-	useAuthenticateUser,
-	useDailyPlan,
-	useLocalStorageState,
-	useOrganizationTeams,
-	useUserProfilePage
+    useAuthenticateUser,
+    useDailyPlan,
+    useLocalStorageState,
+    useOrganizationTeams,
+    useUserProfilePage
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from 'lib/features';
+import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from '@/core/components/features';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -19,13 +19,13 @@ import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { ScreenshootTab } from 'lib/features/activity/screenshoots';
-import { AppsTab } from 'lib/features/activity/apps';
-import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
+import { AppsTab } from '@/core/components/features/activity/apps';
+import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { UserProfileDetail } from './components/user-profile-detail';
 import { cn } from 'lib/utils';
-// import { ActivityCalendar } from 'lib/features/activity/calendar';
+// import { ActivityCalendar } from '@/core/components/features/activity/calendar';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 

@@ -7,7 +7,7 @@ import {
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@app/constants';
-import { estimatedTotalTime } from 'lib/features/task/daily-plan';
+import { estimatedTotalTime } from '@/core/components/features/task/daily-plan';
 
 export function useStartStopTimerHandler() {
 	const {

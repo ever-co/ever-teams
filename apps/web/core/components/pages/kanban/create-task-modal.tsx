@@ -1,5 +1,4 @@
-import { TaskInputKanban } from 'lib/features/task/task-input-kanban';
-import React from 'react';
+import { TaskInputKanban } from '@/core/components/features/task/task-input-kanban';
 
 const CreateTaskModal = (props: { onClose: any; task: any; initEditMode: boolean; tasks: any; title: string }) => {
 	return (

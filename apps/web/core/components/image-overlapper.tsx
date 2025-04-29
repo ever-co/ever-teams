@@ -10,9 +10,9 @@ import { useModal } from '@app/hooks';
 import { Modal, Divider } from '@/core/components';
 import { useOrganizationTeams } from '@app/hooks';
 import { useTranslations } from 'next-intl';
-import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
+import { TaskAssignButton } from '@/core/components/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
-import { TaskAvatars } from 'lib/features';
+import { TaskAvatars } from '@/core/components/features';
 import TeamMember from '@/core/components/team-member';
 import { IEmployee } from '@app/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
@@ -181,12 +181,12 @@ export default function ImageOverlapper({
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="py-6 overflow-auto p-5">
+						<ul className="p-5 py-6 overflow-auto">
 							{allMembers?.map((member: any) => {
 								return (
 									<li
 										key={member.employee}
-										className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
+										className="border border-transparent rounded-lg cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
 									>
 										<TeamMember
 											member={member}
@@ -206,10 +206,7 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex-row justify-center py-2 px-4 bg-primary
-										dark:bg-primary-light text-white text-sm disabled:bg-primary-light
-										 disabled:opacity-40 rounded-xl flex min-w-0 w-28
-										  h-12 gap-1 items-center"
+										className="flex flex-row items-center justify-center h-12 min-w-0 gap-1 px-4 py-2 text-sm text-white bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40 rounded-xl w-28"
 										onClick={() => {
 											onCLickValidate();
 										}}
@@ -271,7 +268,7 @@ export default function ImageOverlapper({
 					</PopoverTrigger>
 					<PopoverContent className="!p-0 bg-white dark:bg-dark--theme input-border">
 						<ScrollArea className="h-40 ">
-							<div className="flex flex-col space-y-2 m-2">
+							<div className="flex flex-col m-2 space-y-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link

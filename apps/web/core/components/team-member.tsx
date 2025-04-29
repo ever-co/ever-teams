@@ -1,4 +1,4 @@
-import { UserInfo } from 'lib/features/team/user-team-card/user-info';
+import { UserInfo } from '@/core/components/features/team/user-team-card/user-info';
 import { useTeamMemberCard } from '@app/hooks';
 import { useEffect } from 'react';
 import { IEmployee } from '@app/interfaces';

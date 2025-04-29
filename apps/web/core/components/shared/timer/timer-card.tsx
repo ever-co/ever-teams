@@ -6,7 +6,11 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@/core/components/ui/progress-bar';
 import { PauseIcon } from '@/core/components/ui/svgs/pause-icon';
 import { PlayIcon } from '@/core/components/ui/svgs/play-icon';
-import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from 'lib/features/daily-plan';
+import {
+	AddTasksEstimationHoursModal,
+	EnforcePlanedTaskModal,
+	SuggestDailyPlanModal
+} from '@/core/components/features/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 

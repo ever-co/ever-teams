@@ -5,13 +5,13 @@ import { clsxm } from '@app/utils';
 import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from '@/core/components';
-import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
+import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from '@/core/components/features';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView } from '@app/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
-import ChatwootWidget from 'lib/features/integrations/chatwoot';
+import ChatwootWidget from '@/core/components/features/integrations/chatwoot';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
@@ -23,8 +23,8 @@ import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
-import TeamMemberHeader from 'lib/features/team-member-header';
-import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
+import TeamMemberHeader from '@/core/components/features/team-member-header';
+import { TeamOutstandingNotifications } from '@/core/components/features/team/team-outstanding-notifications';
 
 function MainPage() {
 	const t = useTranslations();

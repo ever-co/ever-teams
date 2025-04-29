@@ -1,7 +1,7 @@
 import { detailedTaskState } from '@app/stores';
 import { Disclosure } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { TaskEstimate } from 'lib/features';
+import { TaskEstimate } from '@/core/components/features';
 import { useAtom } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';

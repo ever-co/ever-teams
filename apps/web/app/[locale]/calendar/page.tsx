@@ -7,15 +7,15 @@ import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from '@/core/components';
-import { SetupFullCalendar } from 'lib/features';
+import { SetupFullCalendar } from '@/core/components/features';
 import { Footer, MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { HeadCalendar } from './component';
-import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
-import { SetupTimeSheet, timesheetCalendar } from 'lib/features/integrations/calendar';
+import { AddManualTimeModal } from '@/core/components/features/manual-time/add-manual-time-modal';
+import { SetupTimeSheet, timesheetCalendar } from '@/core/components/features/integrations/calendar';
 
 const CalendarPage = () => {
 	const t = useTranslations();

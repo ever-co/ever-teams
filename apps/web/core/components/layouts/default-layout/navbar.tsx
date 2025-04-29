@@ -8,7 +8,7 @@ import { RequestToJoinModal } from '@/core/components/layouts/default-layout/hea
 import Collaborate from '@/core/components/shared/collaborate';
 import { Button, Container } from '@/core/components';
 import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
-import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
+import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from '@/core/components/features';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';

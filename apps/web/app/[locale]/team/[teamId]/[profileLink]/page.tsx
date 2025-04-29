@@ -5,7 +5,7 @@ import { useRefreshIntervalV2 } from '@app/hooks';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
-import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
+import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';

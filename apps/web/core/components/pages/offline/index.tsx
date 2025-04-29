@@ -1,4 +1,4 @@
-import { Timer } from '@/lib/features';
+import { Timer } from '@/core/components/features';
 import { cn } from '@/lib/utils';
 import SadCry from '@/core/components/ui/svgs/sad-cry';
 import { Text } from '@/core/components';

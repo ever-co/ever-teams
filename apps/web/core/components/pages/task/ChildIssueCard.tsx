@@ -1,5 +1,5 @@
 import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
-import { TaskInput, TaskLinkedIssue } from 'lib/features';
+import { TaskInput, TaskLinkedIssue } from '@/core/components/features';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@app/stores';
 import { IHookModal, useModal, useTeamTasks } from '@app/hooks';
@@ -117,13 +117,13 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[45rem]  relative">
 				{loading && (
-					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
+					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center w-full">
-						<Text.Heading as="h3" className="text-center mb-2">
+					<div className="flex flex-col items-center justify-between w-full">
+						<Text.Heading as="h3" className="mb-2 text-center">
 							{trans.common.CHILD_ISSUE_TASK}
 						</Text.Heading>
 					</div>

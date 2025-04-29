@@ -6,7 +6,7 @@ import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { ActiveTaskIssuesDropdown } from 'lib/features';
+import { ActiveTaskIssuesDropdown } from '@/core/components/features';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
