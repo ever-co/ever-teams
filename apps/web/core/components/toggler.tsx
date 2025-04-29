@@ -4,24 +4,24 @@ import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
 import {
-  MoonLightFillIcon as MoonDarkIcon,
-  MoonLightOutlineIcon as MoonIcon,
-  SunFillIcon as SunIcon,
-  SunOutlineIcon as SunDarkIcon,
-  CubeIcon as BoxIcon,
-  TimerStopIcon
+    MoonLightFillIcon as MoonDarkIcon,
+    MoonLightOutlineIcon as MoonIcon,
+    SunFillIcon as SunIcon,
+    SunOutlineIcon as SunDarkIcon,
+    CubeIcon as BoxIcon,
+    TimerStopIcon
 } from 'assets/svg';
 import { Text } from './typography';
 import {
-  AllSidesIcon,
-  Cross2Icon,
-  LightningBoltIcon,
-  UpdateIcon
+    AllSidesIcon,
+    Cross2Icon,
+    LightningBoltIcon,
+    UpdateIcon
 } from '@radix-ui/react-icons';
 import { useAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 import { useModal } from '@app/hooks';
-import { RealTimePopup } from 'lib/settings/sync.zone';
+import { RealTimePopup } from '@/core/components/settings/sync.zone';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 type Props = {

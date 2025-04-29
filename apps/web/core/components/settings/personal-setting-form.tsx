@@ -18,7 +18,7 @@ import { EmailResetModal } from './email-reset-modal';
 import { LanguageDropDown } from './language-dropdown';
 import { TimezoneDropDown } from './timezone-dropdown';
 import { useRouter } from 'next/navigation';
-import InternationalPhoneInput from '../../core/components/inputs/international-phone-Input';
+import InternationalPhoneInput from '@/core/components/inputs/international-phone-Input';
 
 interface IValidation {
 	email: boolean;

@@ -3,7 +3,7 @@
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { Button, Card, Modal } from '@/core/components';
-import { TaskLabelForm } from 'lib/settings';
+import { TaskLabelForm } from '@/core/components/settings';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef } from 'react';
@@ -65,7 +65,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				latestLabels={latestLabels}
 			>
 				<Button
-					className="w-full py-1 px-2 text-xs mt-4 dark:text-white dark:border-white"
+					className="w-full px-2 py-1 mt-4 text-xs dark:text-white dark:border-white"
 					variant="outline"
 					onClick={modal.openModal}
 				>

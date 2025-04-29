@@ -13,8 +13,8 @@ import {
 	TaskStatus,
 	useTaskLabelsValue
 } from '@/core/components/features';
-import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
-import { VersionForm } from 'lib/settings/version-form';
+import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from '@/core/components/settings';
+import { VersionForm } from '@/core/components/settings/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -437,7 +437,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 																			className="rounded-full"
 																		/>
 																	)}
-																	<span className=" truncate w-full">
+																	<span className="w-full truncate ">
 																		{item.name || 'Project'}
 																	</span>
 																</li>
@@ -460,7 +460,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															onClick={openModal}
 														>
 															<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-															<span className=" truncate">{t('common.CREATE_NEW')}</span>
+															<span className="truncate ">{t('common.CREATE_NEW')}</span>
 														</Button>
 													</div>
 												</div>

@@ -3,9 +3,9 @@ import { useTaskStatus } from '@app/hooks';
 import { Button, Text, InputField, ColorPicker, Card } from '@/core/components';
 import { useForm } from 'react-hook-form';
 import { IIcon } from '@app/interfaces';
-import { generateIconList } from 'lib/settings/icon-items';
+import { generateIconList } from '@/core/components/settings/icon-items';
 import { useTranslations } from 'next-intl';
-import IconPopover from 'lib/settings/icon-popover';
+import IconPopover from '@/core/components/settings/icon-popover';
 import { Loader } from 'lucide-react';
 
 type EditSet = {

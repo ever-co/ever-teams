@@ -4,7 +4,7 @@ import { useTimezoneSettings } from '@app/hooks';
 import moment from 'moment-timezone';
 import _debounce from 'lodash/debounce';
 import { Listbox } from '@headlessui/react';
-import { cn } from '../utils';
+import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronDown, Search } from 'lucide-react';
 import { ScrollArea } from '@/core/components/ui/scroll-area';
 import { ScrollBar } from '@/core/components/ui/scroll-bar';
@@ -76,7 +76,7 @@ export const TimezoneDropDown = ({
 							'Pick a timezone'}
 					</span>
 
-					<ChevronDown size={15} className=" text-gray-400" />
+					<ChevronDown size={15} className="text-gray-400 " />
 				</Listbox.Button>
 				<Listbox.Options
 					className={cn(
@@ -91,12 +91,12 @@ export const TimezoneDropDown = ({
 								handleSearchChange(e.target.value);
 							}}
 							placeholder={'Search ...'}
-							className=" text-sm h-full border-none bg-transparent dark:bg-transparent"
+							className="h-full text-sm bg-transparent border-none  dark:bg-transparent"
 							noWrapper
 						/>
 					</div>
 
-					<ScrollArea className="h-72 flex flex-col gap-1">
+					<ScrollArea className="flex flex-col gap-1 h-72">
 						{filteredSearchResult?.map((item) => (
 							<Listbox.Option key={item.id} value={item.value.toLowerCase()} as="div">
 								{({ selected }) => (

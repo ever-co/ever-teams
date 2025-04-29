@@ -5,7 +5,7 @@ import SettingsPersonalSkeleton from '@/core/components/shared/skeleton/Settings
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { LeftSideSettingMenu } from 'lib/settings';
+import { LeftSideSettingMenu } from '@/core/components/settings';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAtom, useAtomValue } from 'jotai';

@@ -32,7 +32,7 @@ import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Globe2Icon } from 'lucide-react';
-import { LanguageDropDownWithFlags } from 'lib/settings/language-dropdown-flags';
+import { LanguageDropDownWithFlags } from '@/core/components/settings/language-dropdown-flags';
 import { signOutFunction } from '@app/[locale]/auth/social-logins';
 
 export function UserNavAvatar() {
