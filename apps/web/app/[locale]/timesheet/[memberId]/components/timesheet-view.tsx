@@ -1,5 +1,5 @@
 import { GroupedTimesheet } from '@/core/hooks/features/useTimesheet';
-import { IUser } from '@/app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
 import { DataTableTimeSheet } from '@/core/components/features/integrations/calendar';
 import { useTranslations } from 'next-intl';

@@ -1,4 +1,4 @@
-import { IPeriod } from '@app/interfaces';
+import { IPeriod } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

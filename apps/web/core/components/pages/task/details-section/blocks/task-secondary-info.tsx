@@ -1,5 +1,5 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { IProject, ITaskVersionCreate, ITeamTask } from '@app/interfaces';
+import { IProject, ITaskVersionCreate, ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Modal, SpinnerLoader, Tooltip } from '@/core/components';

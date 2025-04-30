@@ -1,5 +1,5 @@
 import { post } from '@app/services/client/axios';
-import { IAddManualTimeRequest, ITimeLog } from '@app/interfaces/timer/ITimerLogs';
+import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
 
 export async function addManualTimeRequestAPI(request: IAddManualTimeRequest) {
 	const { startedAt, stoppedAt, ...rest } = request;

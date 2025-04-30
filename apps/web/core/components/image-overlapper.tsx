@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ITeamTask, ITimerStatus } from '@app/interfaces';
+import { ITeamTask, ITimerStatus } from '@/core/types/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
@@ -14,7 +14,7 @@ import { TaskAssignButton } from '@/core/components/features/task/task-assign-bu
 import { clsxm } from '@app/utils';
 import { TaskAvatars } from '@/core/components/features';
 import TeamMember from '@/core/components/team-member';
-import { IEmployee } from '@app/interfaces';
+import { IEmployee } from '@/core/types/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/icons';
 

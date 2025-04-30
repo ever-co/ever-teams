@@ -12,7 +12,7 @@ import {
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { statusTable } from './timesheet-action';
-import { TimesheetLog } from '@/app/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/app/helpers';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { toast } from '@/core/components/ui/use-toast';

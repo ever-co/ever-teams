@@ -1,4 +1,4 @@
-import { TimerSource } from '@app/interfaces/ITimer';
+import { TimerSource } from '@/core/types/interfaces/ITimer';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, startTimerRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';

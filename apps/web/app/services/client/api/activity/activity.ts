@@ -1,6 +1,6 @@
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
+import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
 import qs from 'qs';
 
 export async function getTimerDailyRequestAPI({

@@ -1,4 +1,4 @@
-import { IIntegrationType } from '@app/interfaces';
+import { IIntegrationType } from '@/core/types/interfaces';
 import { get } from '../../axios';
 
 export function getIntegrationTypesAPI() {

@@ -1,4 +1,4 @@
-import { IInputProps } from '@app/interfaces/hooks';
+import { IInputProps } from '@/core/types/interfaces/hooks';
 
 const Input = ({
 	label,

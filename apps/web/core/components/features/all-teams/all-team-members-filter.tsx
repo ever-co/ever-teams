@@ -1,4 +1,4 @@
-import { ITeamsMembersFilter } from '@app/interfaces';
+import { ITeamsMembersFilter } from '@/core/types/interfaces';
 import { filterValue } from '@app/stores/all-teams';
 import { clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';

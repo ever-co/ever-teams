@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
-import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
+import { IClassName, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, Container, InputField, Text, VerticalSeparator } from '@/core/components';

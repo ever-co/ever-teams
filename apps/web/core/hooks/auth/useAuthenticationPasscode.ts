@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@app/helpers/validations';
-import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import {
 	sendAuthCodeAPI,
 	signInEmailAPI,

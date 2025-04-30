@@ -1,6 +1,6 @@
 import { pad } from '@app/helpers';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
-import { IClassName, TimerSource } from '@app/interfaces';
+import { IClassName, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from '@/core/components';
 import { useTranslations } from 'next-intl';

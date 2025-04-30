@@ -1,4 +1,4 @@
-import { DeleteResponse, IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@app/interfaces';
+import { DeleteResponse, IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {

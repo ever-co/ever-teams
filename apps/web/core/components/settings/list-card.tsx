@@ -1,7 +1,7 @@
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { Button, Text, Tooltip } from '@/core/components';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { getTextColor } from '@app/helpers';
 import { useTranslations } from 'next-intl';

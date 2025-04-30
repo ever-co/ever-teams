@@ -1,4 +1,4 @@
-import { IOrganizationTeamWithMStatus } from '@app/interfaces';
+import { IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import qs from 'qs';

@@ -1,4 +1,4 @@
-import { ISuccessResponse } from '@app/interfaces';
+import { ISuccessResponse } from '@/core/types/interfaces';
 import { post } from '../axios';
 
 export function emailResetRequestAPI(email: string) {

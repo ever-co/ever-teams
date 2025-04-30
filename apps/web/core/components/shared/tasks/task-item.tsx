@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import Image from 'next/image';
 import { BadgedTaskStatus } from '../../ui/status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';

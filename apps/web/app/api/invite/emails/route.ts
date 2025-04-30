@@ -1,6 +1,6 @@
 import { INVITE_CALLBACK_URL, INVITE_CALLBACK_PATH } from '@app/constants';
 import { validateForm } from '@app/helpers/validations';
-import { IInviteRequest } from '@app/interfaces/IInvite';
+import { IInviteRequest } from '@/core/types/interfaces/IInvite';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	getEmployeeRoleRequest,

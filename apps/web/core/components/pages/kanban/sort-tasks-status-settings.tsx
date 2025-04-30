@@ -1,6 +1,6 @@
 import { getOrganizationIdCookie } from '@app/helpers';
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatusItemList, ITaskStatusOrder } from '@app/interfaces';
+import { ITaskStatusItemList, ITaskStatusOrder } from '@/core/types/interfaces';
 import { Button } from '@/core/components/ui/button';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';

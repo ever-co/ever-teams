@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 import { TaskTimes } from '../../../task-times';
-import { ITeamTask } from '@/app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
 import get from 'lodash/get';
 import { useMemo } from 'react';

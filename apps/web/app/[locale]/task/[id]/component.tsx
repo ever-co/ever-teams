@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { ChildIssueCard } from '@/core/components/pages/task/ChildIssueCard';
 import RichTextEditor from '@/core/components/pages/task/description-block/task-description-editor';
 import { RelatedIssueCard } from '@/core/components/pages/task/IssueCard';

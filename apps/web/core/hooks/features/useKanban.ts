@@ -2,9 +2,9 @@ import { kanbanBoardState } from '@app/stores/kanban';
 import { useTaskStatus } from './useTaskStatus';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
+import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
 import { useTeamTasks } from './useTeamTasks';
-import { IKanban } from '@app/interfaces/IKanban';
+import { IKanban } from '@/core/types/interfaces/IKanban';
 import { TStatusItem } from '@/core/components/features';
 import { useSearchParams } from 'next/navigation';
 

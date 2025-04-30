@@ -1,4 +1,4 @@
-import { ICreateProjectInput, IProject } from '@app/interfaces/';
+import { ICreateProjectInput, IProject } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createOrganizationProjectRequest(datas: Partial<ICreateProjectInput>, bearer_token: string) {

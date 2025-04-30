@@ -8,7 +8,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@app/helpers/cookies';
-import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@app/interfaces';
+import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
 import {
 	createOrganizationTeamAPI,
 	deleteOrganizationTeamAPI,

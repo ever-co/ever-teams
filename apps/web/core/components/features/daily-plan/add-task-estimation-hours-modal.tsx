@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
-import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
+import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';

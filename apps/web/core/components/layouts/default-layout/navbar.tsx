@@ -1,7 +1,7 @@
 'use client';
 
 import { useModal, useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { cn } from '@/core/lib/helpers';
 import { RequestToJoinModal } from '@/core/components/layouts/default-layout/header/request-to-join-modal';

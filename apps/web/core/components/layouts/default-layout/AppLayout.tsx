@@ -1,4 +1,4 @@
-import { AppLayoutProps } from '@/app/interfaces';
+import { AppLayoutProps } from '@/core/types/interfaces';
 import Footer from './footer/footer';
 import Header from './header/header';
 import Meta from './Meta';

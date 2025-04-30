@@ -1,5 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { IUpdateEmployee, IWorkingEmployee, PaginationResponse } from '@app/interfaces';
+import { IUpdateEmployee, IWorkingEmployee, PaginationResponse } from '@/core/types/interfaces';
 import { get, put } from '../axios';
 import qs from 'qs';
 
@@ -16,7 +16,6 @@ export async function getWorkingEmployeesAPI(tenantId: string, organizationId: s
 	return get<PaginationResponse<IWorkingEmployee>>(endpoint, { tenantId });
 }
 
-
-export function updateEmployeeAPI({ id, data }: { id: string, data: IUpdateEmployee }) {
+export function updateEmployeeAPI({ id, data }: { id: string; data: IUpdateEmployee }) {
 	return put<IUpdateEmployee>(`/employee/${id}`, data);
 }

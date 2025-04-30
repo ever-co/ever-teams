@@ -31,7 +31,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import KanbanBoardSkeleton from '@/core/components/shared/skeleton/KanbanBoardSkeleton';
 
 const Kanban = () => {

@@ -1,6 +1,6 @@
 import { secondsToTime } from '@app/helpers/date';
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { useTranslations } from 'next-intl';
 
 export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITeamTask | null; isAuthUser: boolean }) {

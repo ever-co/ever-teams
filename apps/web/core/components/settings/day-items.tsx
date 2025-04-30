@@ -1,4 +1,4 @@
-import { IDay } from '@app/interfaces/IDay';
+import { IDay } from '@/core/types/interfaces/IDay';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

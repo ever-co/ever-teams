@@ -1,5 +1,5 @@
 import { get } from '@app/services/client/axios';
-import { ITimerLogsDailyReportRequest, ITimerLogsDailyReport } from '@app/interfaces/timer/ITimerLogs';
+import { ITimerLogsDailyReportRequest, ITimerLogsDailyReport } from '@/core/types/interfaces/timer/ITimerLogs';
 import qs from 'qs';
 
 export async function getTimerLogsDailyReportRequestAPI({

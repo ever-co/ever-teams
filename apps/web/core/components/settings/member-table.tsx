@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/features/usePagination';
-import { IRole, OT_Member, OT_Role } from '@app/interfaces';
+import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Avatar, InputField, Text, Tooltip } from '@/core/components';

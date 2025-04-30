@@ -1,5 +1,5 @@
 import { useModal } from '@/core/hooks';
-import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
+import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';

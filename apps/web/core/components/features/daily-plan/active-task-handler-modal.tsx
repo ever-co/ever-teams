@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { Modal, Card, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { clsxm } from '@app/utils';

@@ -19,7 +19,7 @@ import {
 	ITenant,
 	IUser,
 	I_SMTP
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { post } from '../../axios';
 import { createOrganizationTeamGauzy } from '../organization-team';
 import { AxiosResponse } from 'axios';

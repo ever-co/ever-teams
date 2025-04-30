@@ -1,4 +1,4 @@
-import { INotify } from '@app/interfaces';
+import { INotify } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

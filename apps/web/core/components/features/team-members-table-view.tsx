@@ -1,7 +1,7 @@
 import * as React from 'react';
 import DataTable from '@/core/components/ui/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import { UserInfoCell, TaskCell, WorkedOnTaskCell, TaskEstimateInfoCell, ActionMenuCell } from './team-member-cell';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';

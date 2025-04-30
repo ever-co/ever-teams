@@ -5,9 +5,9 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlans,
 	IUpdateDailyPlan
-} from '@app/interfaces/IDailyPlan';
+} from '@/core/types/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
-import { DeleteResponse, ID } from '@app/interfaces';
+import { DeleteResponse, ID } from '@/core/types/interfaces';
 
 export function getAllDayPlans({
 	organizationId,

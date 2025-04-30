@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers/number';
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { TimeInput } from '@/core/components/ui/inputs/time-input';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import Image from 'next/legacy/image';

@@ -1,4 +1,4 @@
-import { ITaskLabelsCreate, ITaskLabelsItemList } from '@app/interfaces';
+import { ITaskLabelsCreate, ITaskLabelsItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

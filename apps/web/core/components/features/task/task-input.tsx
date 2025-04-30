@@ -22,7 +22,7 @@ import {
 	ITeamTask,
 	Nullable,
 	OT_Member
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';

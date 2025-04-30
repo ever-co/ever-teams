@@ -4,7 +4,7 @@ import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
-import { IInvite, IInviteProps } from '../../../../app/interfaces/hooks';
+import { IInvite, IInviteProps } from '../../../types/interfaces/hooks';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/core/components/ui/use-toast';

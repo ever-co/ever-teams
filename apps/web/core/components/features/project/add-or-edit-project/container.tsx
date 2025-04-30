@@ -1,4 +1,4 @@
-import { ICreateProjectInput, IImageAssets, IProject } from '@/app/interfaces';
+import { ICreateProjectInput, IImageAssets, IProject } from '@/core/types/interfaces';
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 import { TModalMode } from '.';
 

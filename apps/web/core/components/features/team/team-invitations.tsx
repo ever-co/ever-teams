@@ -1,7 +1,7 @@
 'use client';
 
 import { useModal, useTeamInvitations } from '@/core/hooks';
-import { MyInvitationActionEnum } from '@app/interfaces';
+import { MyInvitationActionEnum } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';

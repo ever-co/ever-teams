@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@app/interfaces';
+import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@/core/types/interfaces';
 import { post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 

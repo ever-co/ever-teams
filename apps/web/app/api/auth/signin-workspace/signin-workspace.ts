@@ -8,7 +8,7 @@ import {
 	verifyInviteCodeRequest
 } from '@app/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
-import { ILoginResponse, IOrganizationTeam } from '@app/interfaces';
+import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {

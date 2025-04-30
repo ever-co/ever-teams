@@ -4,7 +4,7 @@ import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useC
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import { Text } from './typography';
-import { IInviteEmail } from '@/app/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces';
 
 type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;

@@ -1,5 +1,5 @@
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask } from '@/app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { TaskEstimateInfo } from '@/core/components/features/team/user-team-card/task-estimate';
 import { CellContext } from '@tanstack/react-table';
 import { get } from 'lodash';

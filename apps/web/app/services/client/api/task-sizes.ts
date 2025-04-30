@@ -1,4 +1,4 @@
-import { DeleteResponse, ITaskSizesCreate, ITaskSizesItemList, PaginationResponse } from '@app/interfaces';
+import { DeleteResponse, ITaskSizesCreate, ITaskSizesItemList, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 

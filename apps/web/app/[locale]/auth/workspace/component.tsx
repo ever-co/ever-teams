@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/useAuthenticationSocialLogin';
-import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';

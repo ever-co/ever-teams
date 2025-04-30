@@ -1,4 +1,4 @@
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 
 export const VerticalSeparator = ({ className }: IClassName) => {

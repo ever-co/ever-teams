@@ -1,4 +1,4 @@
-import { ITaskStatusCreate, ITaskStatusItemList } from '@app/interfaces';
+import { ITaskStatusCreate, ITaskStatusItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createStatusRequest(datas: ITaskStatusCreate, bearer_token: string, tenantId?: any) {

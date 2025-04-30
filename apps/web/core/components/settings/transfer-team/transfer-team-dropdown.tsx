@@ -3,7 +3,7 @@ import { AutoCompleteDropdown } from '@/core/components';
 import { mapTeamMemberItems, TeamMemberItem } from './team-member-item';
 
 import { clsxm } from '@app/utils';
-import { IColor, IOrganizationTeamMember } from '@app/interfaces';
+import { IColor, IOrganizationTeamMember } from '@/core/types/interfaces';
 
 export const TransferTeamDropdown = ({
 	active,

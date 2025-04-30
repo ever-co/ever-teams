@@ -1,4 +1,4 @@
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import { post, put } from '../axios';
 
 export function savePersonalSettingsAPI(id: string, data: any) {

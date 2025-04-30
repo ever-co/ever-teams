@@ -1,4 +1,4 @@
-import { IIconProps } from '../../../../app/interfaces/hooks';
+import { IIconProps } from '../../../types/interfaces/hooks';
 
 export const PauseIcon = ({ width, height }: IIconProps) => {
 	return (

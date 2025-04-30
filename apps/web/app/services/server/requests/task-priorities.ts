@@ -1,4 +1,4 @@
-import { ITaskPrioritiesCreate, ITaskPrioritiesItemList } from '@app/interfaces';
+import { ITaskPrioritiesCreate, ITaskPrioritiesItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createPrioritiesRequest(datas: ITaskPrioritiesCreate, bearer_token: string, tenantId?: any) {

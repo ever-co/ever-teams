@@ -3,7 +3,7 @@ import { Dropdown } from '@/core/components';
 import { mapIconItems, IconItem } from './icon-items';
 
 import { clsxm } from '@app/utils';
-import { IIcon } from '@app/interfaces';
+import { IIcon } from '@/core/types/interfaces';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 
 export const IconDropdown = ({

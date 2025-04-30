@@ -1,4 +1,4 @@
-import { IRole } from '@app/interfaces';
+import { IRole } from '@/core/types/interfaces';
 import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@app/services/client/api';
 import { rolesState } from '@app/stores/';
 import { useCallback } from 'react';

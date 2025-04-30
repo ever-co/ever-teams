@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
+import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
 import { isValidUrl } from '@app/utils';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
 import { cn } from '@/core/lib/helpers';

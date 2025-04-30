@@ -8,7 +8,7 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState } from 'react';
-import { ITeamTask, IUser } from '@app/interfaces';
+import { ITeamTask, IUser } from '@/core/types/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
 
 interface OutstandingAll {

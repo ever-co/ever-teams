@@ -15,7 +15,7 @@ import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from './weekly-timesheet-calendar';
-import { TimesheetLog } from '@/app/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces';
 import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
 import { Checkbox } from '@/core/components/ui/checkbox';
 // Import AnimatedDataSvg component

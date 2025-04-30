@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { InputField } from '@/core/components';
 import { TaskTimes } from './task/task-times';

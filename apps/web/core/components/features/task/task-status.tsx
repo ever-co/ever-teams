@@ -11,7 +11,7 @@ import {
 	Nullable,
 	Tag,
 	TaskStatusEnum
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { Queue, clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { Card, Tooltip } from '@/core/components';

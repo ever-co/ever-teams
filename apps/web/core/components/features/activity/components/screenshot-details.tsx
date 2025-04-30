@@ -1,12 +1,12 @@
 'use client';
 
 import { Modal, ProgressBar } from '@/core/components';
-import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
+import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
-import { IProject, ITeamTask } from '@/app/interfaces';
+import { IProject, ITeamTask } from '@/core/types/interfaces';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 

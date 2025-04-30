@@ -1,6 +1,6 @@
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
 import { authFormValidate } from '@app/helpers/validations';
-import { ILoginResponse } from '@app/interfaces';
+import { ILoginResponse } from '@/core/types/interfaces';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,

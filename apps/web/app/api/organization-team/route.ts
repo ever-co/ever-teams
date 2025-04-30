@@ -1,5 +1,5 @@
-import { IUserOrganization } from '@app/interfaces/IOrganization';
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
+import { IUserOrganization } from '@/core/types/interfaces/IOrganization';
+import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,

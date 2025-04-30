@@ -1,4 +1,4 @@
-import { ITag } from '@app/interfaces';
+import { ITag } from '@/core/types/interfaces';
 import { createTagAPI, deleteTagAPI, getTagsAPI, updateTagAPI } from '@app/services/client/api';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

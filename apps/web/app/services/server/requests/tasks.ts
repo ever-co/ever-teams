@@ -1,7 +1,7 @@
-import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
-import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
+import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces';
+import { ICreateTask, ITeamTask } from '@/core/types/interfaces/ITask';
 import { serverFetch } from '../fetch';
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import qs from 'qs';
 
 export function getTeamTasksRequest({

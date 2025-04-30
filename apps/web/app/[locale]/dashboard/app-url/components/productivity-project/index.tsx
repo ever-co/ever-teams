@@ -1,6 +1,6 @@
 import { Card } from '@/core/components/ui/card';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import { IActivityReport, IActivityReportGroupByDate } from '@/app/interfaces/activity/IActivityReport';
+import { IActivityReport, IActivityReportGroupByDate } from '@/core/types/interfaces/activity/IActivityReport';
 import React from 'react';
 import { ActivityRow, DateHeaderRow, ProjectHeaderRow } from './components';
 import { EmptyState, LoadingSkeleton } from './states';

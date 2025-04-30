@@ -1,5 +1,5 @@
-import { PaginationResponse } from '@app/interfaces';
-import { ICreateEmployee, IEmployee, IUpdateEmployee, IWorkingEmployee } from '@app/interfaces/IEmployee';
+import { PaginationResponse } from '@/core/types/interfaces';
+import { ICreateEmployee, IEmployee, IUpdateEmployee, IWorkingEmployee } from '@/core/types/interfaces/IEmployee';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 
@@ -30,12 +30,19 @@ export function getOrganizationEmployees(bearer_token: string, tenantId: string,
 	});
 }
 
-export function updateEmployees({ bearer_token, id, body }: { bearer_token: string, id: string, body: IUpdateEmployee }) {
+export function updateEmployees({
+	bearer_token,
+	id,
+	body
+}: {
+	bearer_token: string;
+	id: string;
+	body: IUpdateEmployee;
+}) {
 	return serverFetch<IEmployee>({
 		path: `/employee/${id}`,
 		method: 'PUT',
 		bearer_token,
 		body
-
-	})
+	});
 }

@@ -1,4 +1,4 @@
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Button } from '@/core/components';
 import { ArrowRightIcon } from 'assets/svg';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
 import { useAtomValue } from 'jotai';

@@ -1,8 +1,8 @@
-import { ITimerStatus, IToggleTimerParams, TimerSource } from '@app/interfaces/ITimer';
+import { ITimerStatus, IToggleTimerParams, TimerSource } from '@/core/types/interfaces/ITimer';
 import api, { get, post } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getActiveTaskIdCookie, getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import qs from 'qs';
 
 export async function getTimerStatusAPI(tenantId: string, organizationId: string) {

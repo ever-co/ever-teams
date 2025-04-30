@@ -6,7 +6,7 @@ import {
 	IValidateRequestToJoin,
 	PaginationResponse,
 	IRequestToJoinActionEnum
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 import qs from 'qs';

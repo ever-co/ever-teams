@@ -2,7 +2,7 @@ import { Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components'
 import { Button } from '@/core/components/ui/button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
-import { IDailyPlan } from '@app/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces';
 import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 

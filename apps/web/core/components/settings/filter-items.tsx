@@ -1,4 +1,4 @@
-import { IFilter } from '@app/interfaces/IFilter';
+import { IFilter } from '@/core/types/interfaces/IFilter';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

@@ -3,7 +3,7 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { DottedLanguageObjectStringPaths } from 'next-intl';
 import { WeeklyLimitTableDataType } from '../../components/data-table';
-import { ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
+import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 import moment from 'moment';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
 import { formatIntegerToHour, formatTimeString } from '@/app/helpers';

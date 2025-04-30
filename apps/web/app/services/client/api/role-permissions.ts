@@ -1,4 +1,4 @@
-import { IRolePermissions, PaginationResponse } from '@app/interfaces/';
+import { IRolePermissions, PaginationResponse } from '@/core/types/interfaces';
 import { get, put } from '../axios';
 import { getTenantIdCookie } from '@app/helpers';
 import qs from 'qs';

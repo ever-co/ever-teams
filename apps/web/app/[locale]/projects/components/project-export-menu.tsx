@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { PDFDocument } from '../export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
-import { IOrganizationTeamList } from '@/app/interfaces';
+import { IOrganizationTeamList } from '@/core/types/interfaces';
 
 interface IProps {
 	projects: ProjectViewDataType[];

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@/core/hooks';
-import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
+import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { Card, Dropdown, DropdownItem } from '@/core/components';

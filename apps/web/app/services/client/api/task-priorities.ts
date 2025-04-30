@@ -1,4 +1,9 @@
-import { DeleteResponse, ITaskPrioritiesCreate, ITaskPrioritiesItemList, PaginationResponse } from '@app/interfaces';
+import {
+	DeleteResponse,
+	ITaskPrioritiesCreate,
+	ITaskPrioritiesItemList,
+	PaginationResponse
+} from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {

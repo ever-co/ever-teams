@@ -1,6 +1,6 @@
 import { useTaskInput } from '@/core/hooks';
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
-import { ITeamTask } from '@app/interfaces/ITask';
+import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import DeleteTask from '@/core/components/shared/tasks/delete-task';
 import TaskFilter from '@/core/components/shared/tasks/task-filter';

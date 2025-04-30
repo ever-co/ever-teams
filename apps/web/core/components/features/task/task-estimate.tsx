@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallbackRef, useTaskEstimation } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@app/interfaces';
+import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { TimeInputField } from '@/core/components';

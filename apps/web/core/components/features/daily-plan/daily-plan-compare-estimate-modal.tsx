@@ -3,7 +3,7 @@
 import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/ui/separator';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { clsxm } from '@app/utils';
 import { TaskEstimateInput } from '../team/user-team-card/task-estimate';

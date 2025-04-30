@@ -1,4 +1,4 @@
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import { tasksByTeamState } from '@app/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';

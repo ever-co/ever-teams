@@ -1,4 +1,4 @@
-import { IDataResponse } from '@app/interfaces';
+import { IDataResponse } from '@/core/types/interfaces';
 import { get } from '../axios';
 import moment from 'moment';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';

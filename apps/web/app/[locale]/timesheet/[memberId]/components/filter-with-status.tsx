@@ -2,7 +2,7 @@
 import React, { HTMLAttributes } from 'react';
 import { Button } from '@/core/components';
 import { clsxm } from '@app/utils';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { useTranslations } from 'next-intl';
 
 export type FilterStatus = 'All Tasks' | 'Pending' | 'Approved' | 'In review' | 'Draft' | 'Rejected';

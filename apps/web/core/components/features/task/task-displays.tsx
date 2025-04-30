@@ -1,4 +1,4 @@
-import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
+import { ITeamTask, Nullable, TimesheetLog } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from '@/core/components';
 import { TaskIssueStatus } from './task-issue';

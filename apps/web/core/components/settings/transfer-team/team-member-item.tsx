@@ -1,4 +1,4 @@
-import { IOrganizationTeamMember } from '@app/interfaces';
+import { IOrganizationTeamMember } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

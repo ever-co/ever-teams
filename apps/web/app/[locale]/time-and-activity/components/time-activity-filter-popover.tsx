@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/po
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
+import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: IOrganizationTeamList[];

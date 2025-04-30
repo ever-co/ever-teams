@@ -1,4 +1,4 @@
-import { ICode } from '@app/interfaces/IUserData';
+import { ICode } from '@/core/types/interfaces/IUserData';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { verifyChangemailRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';

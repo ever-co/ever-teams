@@ -10,7 +10,7 @@ import {
 	IActivityReportGroupByDate,
 	IActivityItem,
 	IProjectWithActivity
-} from '@app/interfaces/activity/IActivityReport';
+} from '@/core/types/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useProductivityApplicationTableConfig } from '@/core/hooks/use-table-config';
 import { useSortableData } from '@/core/hooks/useSortableData';

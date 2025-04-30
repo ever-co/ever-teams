@@ -1,5 +1,5 @@
-import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import { IInvitation, MyInvitationActionEnum, IInviteCreate, IMyInvitations } from '@app/interfaces';
+import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
+import { IInvitation, MyInvitationActionEnum, IInviteCreate, IMyInvitations } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
 import { deleteApi, get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';

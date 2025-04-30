@@ -9,7 +9,7 @@ import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from '@/core/components/features/activity/screenshoots';
 import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import UserWorkedTaskTab from '@/core/components/features/activity/user-worked-task';
 
 const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: OT_Member }) => {

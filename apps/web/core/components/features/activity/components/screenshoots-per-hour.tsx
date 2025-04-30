@@ -1,6 +1,6 @@
 'use client';
 
-import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
+import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
 import { clsxm } from '@app/utils';
 import ScreenshotDetailsModal from './screenshot-details';
 import { useModal } from '@/core/hooks';

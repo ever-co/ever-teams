@@ -1,4 +1,4 @@
-import { IGithubMetadata, IGithubRepositories, IProjectRepository } from '@app/interfaces';
+import { IGithubMetadata, IGithubRepositories, IProjectRepository } from '@/core/types/interfaces';
 import { serverFetch } from '../../fetch';
 import qs from 'qs';
 

@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@app/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { TaskEstimateInfo } from '@/core/components/features/team/user-team-card/task-estimate';
 import { useEffect, useState } from 'react';
 

@@ -1,4 +1,4 @@
-import { IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@app/interfaces';
+import { IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createIssueTypeRequest(datas: IIssueTypesCreate, bearer_token: string, tenantId?: any) {

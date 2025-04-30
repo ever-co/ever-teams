@@ -1,6 +1,6 @@
 import { RECAPTCHA_SITE_KEY, smtpConfiguration } from '@app/constants';
-import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
-import { I_SMTPRequest } from '@app/interfaces/ISmtp';
+import { IRegisterDataAPI } from '@/core/types/interfaces/IAuthentication';
+import { I_SMTPRequest } from '@/core/types/interfaces/ISmtp';
 import { PHONE_REGEX, URL_REGEX } from './regex';
 import { isEmail } from 'class-validator';
 

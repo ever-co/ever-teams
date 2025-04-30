@@ -1,4 +1,4 @@
-import { INextParams, ITaskRelatedIssueTypeCreate } from '@app/interfaces';
+import { INextParams, ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	deleteTaskRelatedIssueTypeRequest,

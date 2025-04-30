@@ -6,7 +6,7 @@ import {
 	useTeamMemberCard
 } from '@/core/hooks';
 import { useRoles } from '@/core/hooks/features/useRoles';
-import { OT_Member, RoleNameEnum } from '@app/interfaces';
+import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { useDropdownAction } from '@/core/components/features/team/user-team-card/user-team-card-menu';
 import { useTranslations } from 'next-intl';
