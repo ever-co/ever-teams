@@ -1,5 +1,5 @@
 import { IPosition } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { AutoCompleteDropdown } from '@/core/components';
 import { mapPositionItems, PositionItem } from '@/core/components/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';

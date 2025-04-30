@@ -1,8 +1,8 @@
 import { INextParams } from '@/core/types/interfaces';
 import { IUser } from '@/core/types/interfaces/IUserData';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getTaskCreator, updateUserAvatarRequest } from '@app/services/server/requests';
-import { deleteUserRequest } from '@app/services/server/requests/user';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
+import { deleteUserRequest } from '@/core/services/server/requests/user';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: INextParams) {

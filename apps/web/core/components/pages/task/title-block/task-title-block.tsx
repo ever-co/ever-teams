@@ -1,6 +1,6 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@/core/types/interfaces';
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
 import { useToast } from '@/core/components/ui/use-toast';
 import { Button, CopyTooltip } from '@/core/components';
@@ -15,7 +15,7 @@ import CreateParentTask from '../ParentTask';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 import { Heart } from 'lucide-react';
 

@@ -1,11 +1,11 @@
 import { Button, VerticalSeparator } from '@/core/components';
 import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
 import { useTaskFilter, TaskNameFilter } from '@/core/components/features';
-import { taskBlockFilterState } from '@app/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/task-filter';
 import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { InviteFormModal } from '../invite/invite-form-modal';
 import { SearchNormalIcon, TimerPlayIcon } from 'assets/svg';
 import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 'assets/svg';

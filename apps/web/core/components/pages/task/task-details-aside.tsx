@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
 import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskProgress from './details-section/blocks/task-progress';

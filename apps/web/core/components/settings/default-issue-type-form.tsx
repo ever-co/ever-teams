@@ -4,10 +4,10 @@ import { SpinnerLoader, Text, Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@/core/hooks';
 import { IIssueTypesItemList } from '@/core/types/interfaces';
-import { getTextColor } from '@app/helpers';
+import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from './list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import Image from 'next/image';
 import {
 	DropdownMenu,

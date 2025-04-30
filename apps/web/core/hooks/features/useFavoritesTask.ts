@@ -1,7 +1,7 @@
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { useAtom } from 'jotai';
-import { favoriteTasksStorageAtom } from '@/app/stores/team-tasks';
+import { favoriteTasksStorageAtom } from '@/core/stores/team-tasks';
 import { useCallback } from 'react';
 /**
  * A React hook that manages a list of favorite tasks for a team.

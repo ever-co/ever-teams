@@ -2,8 +2,8 @@ import { ITeamTask } from '@/core/types/interfaces';
 import {
 	getPublicOrganizationTeamsAPI,
 	getPublicOrganizationTeamsMiscDataAPI
-} from '@app/services/client/api/public-organization-team';
-import { publicactiveTeamState } from '@app/stores';
+} from '@/core/services/client/api/public-organization-team';
+import { publicactiveTeamState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback } from 'react';

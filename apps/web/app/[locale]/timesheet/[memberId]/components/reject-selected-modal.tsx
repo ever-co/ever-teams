@@ -1,5 +1,5 @@
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';

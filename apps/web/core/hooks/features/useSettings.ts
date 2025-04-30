@@ -1,6 +1,6 @@
 import { IUser } from '@/core/types/interfaces';
-import { getAuthenticatedUserDataAPI, updateUserAvatarAPI } from '@app/services/client/api';
-import { userState } from '@app/stores';
+import { getAuthenticatedUserDataAPI, updateUserAvatarAPI } from '@/core/services/client/api';
+import { userState } from '@/core/stores';
 
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

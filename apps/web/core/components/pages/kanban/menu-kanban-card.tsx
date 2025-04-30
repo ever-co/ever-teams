@@ -1,5 +1,5 @@
 import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { activeTeamTaskId } from '@app/stores';
+import { activeTeamTaskId } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { HorizontalSeparator, SpinnerLoader } from '@/core/components';

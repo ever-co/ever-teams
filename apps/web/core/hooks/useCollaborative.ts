@@ -1,10 +1,10 @@
 import { IUser } from '@/core/types/interfaces';
-import { collaborativeMembersState, collaborativeSelectState } from '@app/stores';
+import { collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
-import { BOARD_APP_DOMAIN } from '@app/constants';
+import { BOARD_APP_DOMAIN } from '@/core/constants/config/constants';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';

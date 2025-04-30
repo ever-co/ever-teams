@@ -2,7 +2,7 @@
 
 import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Text } from './typography';
 import { IInviteEmail } from '@/core/types/interfaces';
 

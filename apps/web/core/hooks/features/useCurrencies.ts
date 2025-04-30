@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
-import { currenciesState } from '@/app/stores/currencies';
-import { getCurrenciesAPI } from '@/app/services/client/api';
+import { currenciesState } from '@/core/stores/currencies';
+import { getCurrenciesAPI } from '@/core/services/client/api';
 
 export const useCurrencies = () => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);

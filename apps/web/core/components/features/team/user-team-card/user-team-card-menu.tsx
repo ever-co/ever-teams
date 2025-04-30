@@ -1,7 +1,7 @@
-import { mergeRefs } from '@app/helpers';
+import { mergeRefs } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
 import { IClassName, ITeamTask } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, HorizontalSeparator, SpinnerLoader, Text } from '@/core/components';
 import { TaskUnOrAssignPopover } from '@/core/components/features/task/task-assign-popover';

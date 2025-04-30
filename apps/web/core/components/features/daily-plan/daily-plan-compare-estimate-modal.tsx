@@ -5,14 +5,14 @@ import { useState } from 'react';
 import Separator from '@/core/components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
-import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
-import { secondsToTime } from '@app/helpers';
-import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
+import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
-import { IconsErrorWarningFill } from '@/icons';
+import { IconsErrorWarningFill } from '@/core/components/icons';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;

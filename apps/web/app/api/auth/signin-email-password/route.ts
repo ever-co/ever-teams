@@ -1,5 +1,5 @@
-import { validateForm } from '@app/helpers/validations';
-import { signInEmailPasswordRequest } from '@app/services/server/requests';
+import { validateForm } from '@/core/lib/helpers/validations';
+import { signInEmailPasswordRequest } from '@/core/services/server/requests';
 
 import { NextResponse } from 'next/server';
 

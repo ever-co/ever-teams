@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { timerStatusState, userState } from '@app/stores';
+import { timerStatusState, userState } from '@/core/stores';
 import { useFirstLoad, useSyncRef, useTeamTasks } from '..';
 import { useCallback, useEffect } from 'react';
 import { ITeamTask } from '@/core/types/interfaces';

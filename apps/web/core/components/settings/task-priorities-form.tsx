@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { Button, ColorPicker, InputField, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -8,7 +8,7 @@ import { StatusesListCard } from './list-card';
 
 import { useRefetchData, useTaskPriorities } from '@/core/hooks';
 import { IIcon, ITaskPrioritiesItemList } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTranslations } from 'next-intl';

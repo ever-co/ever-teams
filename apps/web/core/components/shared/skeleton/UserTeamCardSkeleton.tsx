@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { SixSquareGridIcon } from 'assets/svg';
 import { Card, VerticalSeparator } from '@/core/components';
 

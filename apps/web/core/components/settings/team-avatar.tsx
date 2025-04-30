@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { imgTitle } from '@app/helpers';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useImageAssets, useOrganizationTeams } from '@/core/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Avatar, Button } from '@/core/components';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';

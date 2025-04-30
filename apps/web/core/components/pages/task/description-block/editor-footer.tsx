@@ -1,5 +1,5 @@
 import { useCallbackRef, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { Button } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useEffect } from 'react';

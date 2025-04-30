@@ -1,7 +1,10 @@
 import { Modal, Card, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { useCallback, useMemo } from 'react';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE, HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL } from '@app/constants';
+import {
+	DAILY_PLAN_SUGGESTION_MODAL_DATE,
+	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL
+} from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAuthenticateUser, useTeamTasks, useTimer } from '@/core/hooks';

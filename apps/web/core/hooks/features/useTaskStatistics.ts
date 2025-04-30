@@ -5,7 +5,7 @@ import {
 	activeTaskTimesheetStatisticsAPI,
 	allTaskTimesheetStatisticsAPI,
 	tasksTimesheetStatisticsAPI
-} from '@app/services/client/api';
+} from '@/core/services/client/api';
 import {
 	activeTaskStatisticsState,
 	activeTeamTaskState,
@@ -13,7 +13,7 @@ import {
 	tasksFetchingState,
 	tasksStatisticsState,
 	timerStatusState
-} from '@app/stores';
+} from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';

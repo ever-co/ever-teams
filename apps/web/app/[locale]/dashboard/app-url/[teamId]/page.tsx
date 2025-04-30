@@ -1,5 +1,5 @@
 'use client';
-import { fullWidthState } from '@/app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';

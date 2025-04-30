@@ -1,5 +1,5 @@
-import { authFormValidate } from '@app/helpers/validations';
-import { verifyUserEmailByTokenRequest } from '@app/services/server/requests';
+import { authFormValidate } from '@/core/lib/helpers/validations';
+import { verifyUserEmailByTokenRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

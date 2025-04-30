@@ -4,7 +4,7 @@ import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
 import { GroupedTimesheet } from '@/core/hooks/features/useTimesheet';
 import { TotalDurationByDate } from '@/core/components/features';
-import { formatDate } from '@/app/helpers';
+import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
 
 export type WeeklyCalendarProps = {

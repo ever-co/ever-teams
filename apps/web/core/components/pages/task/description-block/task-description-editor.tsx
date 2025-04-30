@@ -7,7 +7,7 @@ import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
 import { useAtom } from 'jotai';
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { htmlToSlate } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
 import LinkElement from './editor-components/LinkElement';

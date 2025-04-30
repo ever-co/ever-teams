@@ -9,7 +9,7 @@ import {
 	SelectLabel
 } from '@/core/components/ui/select';
 import { Check } from 'lucide-react';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 
 type Option = {
 	label: string;

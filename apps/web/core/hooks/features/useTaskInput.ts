@@ -4,7 +4,7 @@ import { useAuthenticateUser, useModal, useSyncRef, useTaskStatus } from '@/core
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@/core/types/interfaces';
 import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/ITask';
-import { memberActiveTaskIdState } from '@app/stores';
+import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 

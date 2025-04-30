@@ -1,9 +1,9 @@
 'use client';
 
-import { setAuthCookies } from '@app/helpers';
+import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
+import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@/core/services/client/api/auth/invite-accept';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useSession } from 'next-auth/react';
 type SigninResult = {

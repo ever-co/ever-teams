@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { addManualTimeRequestAPI } from '@app/services/client/api/timer/manual-time';
+import { addManualTimeRequestAPI } from '@/core/services/client/api/timer/manual-time';
 import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 

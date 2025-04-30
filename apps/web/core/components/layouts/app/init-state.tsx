@@ -1,4 +1,4 @@
-import { DISABLE_AUTO_REFRESH } from '@app/constants';
+import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 import {
 	useAutoAssignTask,
 	useCallbackRef,
@@ -23,7 +23,7 @@ import {
 } from '@/core/hooks';
 import { useEmployee } from '@/core/hooks/features/useEmployee';
 import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
-import { publicState, userState } from '@app/stores';
+import { publicState, userState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';

@@ -1,6 +1,6 @@
 import { ITeamsMembersFilter } from '@/core/types/interfaces';
-import { filterValue } from '@app/stores/all-teams';
-import { clsxm } from '@app/utils';
+import { filterValue } from '@/core/stores/all-teams';
+import { clsxm } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon, CircleIcon } from 'assets/svg';
 import { Card, Tooltip } from '@/core/components';

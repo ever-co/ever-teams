@@ -21,7 +21,7 @@ import { Breadcrumb, Button, Container, InputField, VerticalSeparator } from '@/
 import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
+import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
@@ -38,7 +38,7 @@ import { BulkRestoreProjectsModal } from '@/core/components/features/project/bul
 import { CreateProjectModal } from '@/core/components/features/project/create-project-modal';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { useParams } from 'next/navigation';
 
 type TViewMode = 'GRID' | 'LIST';

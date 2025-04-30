@@ -1,10 +1,10 @@
 'use client';
 
-import { getAccessTokenCookie } from '@app/helpers';
+import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
 import { IUser } from '@/core/types/interfaces';
-import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
-import { clsxm } from '@app/utils';
+import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@/core/services/client/api';
+import { clsxm } from '@/core/lib/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';

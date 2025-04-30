@@ -1,9 +1,9 @@
 'use client';
 
-import { getActiveUserIdCookie } from '@app/helpers';
+import { getActiveUserIdCookie } from '@/core/lib/helpers/index';
 import { useRefreshIntervalV2 } from '@/core/hooks';
 import { usePublicOrganizationTeams } from '@/core/hooks/features/usePublicOrganizationTeams';
-import { publicState } from '@app/stores/public';
+import { publicState } from '@/core/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
 import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
@@ -12,8 +12,8 @@ import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { fullWidthState } from '@app/stores/fullWidth';
-import { IssuesView } from '@app/constants';
+import { fullWidthState } from '@/core/stores/fullWidth';
+import { IssuesView } from '@/core/constants/config/constants';
 
 const Team = () => {
 	const router = useRouter();

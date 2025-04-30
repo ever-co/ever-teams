@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from '@/core/components';
 import { mapIconItems, IconItem } from './icon-items';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { IIcon } from '@/core/types/interfaces';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 

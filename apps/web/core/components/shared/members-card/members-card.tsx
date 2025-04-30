@@ -3,9 +3,9 @@ import DropdownUser from '@/core/components/shared/members-card/components/users
 import { useAuthenticateUser } from '@/core/hooks';
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
-import { secondsToTime } from '@app/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date';
 import { useOutsideClick } from '@/core/hooks/useOutsideClick';
-import { mergeRefs } from '@app/helpers/merge-refs';
+import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/ui/separator';
 import { WorkedOnTask } from './components/worked-on-task';
 import { Worked24Hours } from './components/worked-24-hours';

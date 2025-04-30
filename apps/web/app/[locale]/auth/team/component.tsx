@@ -1,9 +1,9 @@
 'use client';
 
-import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@app/constants';
+import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useAuthenticationTeam, IStepProps } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useState } from 'react';

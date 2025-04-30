@@ -11,7 +11,7 @@ import {
 	useLocalStorageState
 } from '@/core/hooks';
 import { IClassName, ITeamTask } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
@@ -31,7 +31,7 @@ import '@/styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';

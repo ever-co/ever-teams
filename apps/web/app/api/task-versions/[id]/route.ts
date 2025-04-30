@@ -1,6 +1,6 @@
 import { INextParams, ITaskVersionCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteTaskVersionRequest, editTaskVersionRequest } from '@app/services/server/requests/task-version';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, props: INextParams) {

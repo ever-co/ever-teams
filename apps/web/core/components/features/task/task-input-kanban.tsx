@@ -11,8 +11,8 @@ import {
 	useTaskStatus
 } from '@/core/hooks';
 import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@/core/types/interfaces';
-import { timerStatusState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { timerStatusState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, InputField, SpinnerLoader, Tooltip } from '@/core/components';
 import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';

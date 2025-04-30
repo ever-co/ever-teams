@@ -7,7 +7,7 @@ import {
 	setActiveProjectIdCookie,
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
-} from '@app/helpers/cookies';
+} from '@/core/lib/helpers/cookies';
 import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
 import {
 	createOrganizationTeamAPI,
@@ -17,7 +17,7 @@ import {
 	getOrganizationTeamsAPI,
 	removeUserFromAllTeamAPI,
 	updateOrganizationTeamAPI
-} from '@app/services/client/api';
+} from '@/core/services/client/api';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -26,7 +26,7 @@ import {
 	isTeamMemberState,
 	organizationTeamsState,
 	timerStatusState
-} from '@app/stores';
+} from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
@@ -35,7 +35,7 @@ import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useSettings } from './useSettings';
-import { LAST_WORSPACE_AND_TEAM } from '@app/constants';
+import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API

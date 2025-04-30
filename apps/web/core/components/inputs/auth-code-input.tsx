@@ -1,6 +1,6 @@
 'use client';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import React, { MutableRefObject, forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';

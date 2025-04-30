@@ -1,4 +1,4 @@
-import { deleteUserAPI, resetUserAPI } from '@app/services/client/api';
+import { deleteUserAPI, resetUserAPI } from '@/core/services/client/api';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';

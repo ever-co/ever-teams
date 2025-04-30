@@ -1,5 +1,5 @@
 import { IRoleList } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import React, { HTMLAttributes } from 'react';
 

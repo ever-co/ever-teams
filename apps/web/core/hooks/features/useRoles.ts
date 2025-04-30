@@ -1,6 +1,6 @@
 import { IRole } from '@/core/types/interfaces';
-import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@app/services/client/api';
-import { rolesState } from '@app/stores/';
+import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@/core/services/client/api';
+import { rolesState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';

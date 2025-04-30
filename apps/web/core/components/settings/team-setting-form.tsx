@@ -1,6 +1,6 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
 import { RoleNameEnum } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { Button, ColorPicker, InputField, Text, Tooltip } from '@/core/components';
 import { EmojiPicker } from '@/core/components/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/switch';

@@ -11,7 +11,7 @@ import {
 	CommandList
 } from '@/core/components/ui/command';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
-import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
+import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
 import { Card, InputField, Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';

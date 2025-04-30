@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IDay } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { DayItem, mapDayItems } from './day-items';

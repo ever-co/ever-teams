@@ -1,4 +1,4 @@
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { TaskProgressBar } from '@/core/components/features';
 import { useAtom } from 'jotai';
 import TaskRow from '../components/task-row';
@@ -6,7 +6,7 @@ import { Disclosure } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';

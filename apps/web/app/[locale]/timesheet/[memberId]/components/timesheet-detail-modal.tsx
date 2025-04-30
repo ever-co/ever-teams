@@ -10,7 +10,7 @@ import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { Badge } from '@/core/components/ui/badge';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '@/core/components/features';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
-import { groupBy } from '@/app/helpers/array-data';
+import { groupBy } from '@/core/lib/helpers/array-data';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;

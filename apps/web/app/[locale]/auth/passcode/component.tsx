@@ -1,9 +1,9 @@
 'use client';
 
-import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
+import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
 import { IClassName, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import {
 	AuthCodeInputField,
 	Avatar,
@@ -26,7 +26,7 @@ import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 

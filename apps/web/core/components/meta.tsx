@@ -1,4 +1,4 @@
-import { en } from 'lib/i18n';
+import { en } from '@/core/lib/i18n';
 import Head from 'next/head';
 
 type Props = {

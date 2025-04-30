@@ -13,7 +13,7 @@ import {
 	getUniqueApplicationCount,
 	calculateTotalTime,
 	calculateAveragePercentage
-} from '@/app/utils/table-utils';
+} from '@/core/lib/utils/table-utils';
 
 export type TableConfig<T> = {
 	sortableColumns: Record<string, SortableColumn<T, any>>;

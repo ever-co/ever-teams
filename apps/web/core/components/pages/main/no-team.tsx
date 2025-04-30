@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Avatar, Button, Text, Tooltip } from '@/core/components';
 import { CreateTeamModal } from '@/core/components/features';
 import React, { PropsWithChildren } from 'react';

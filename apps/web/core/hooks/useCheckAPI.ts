@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 import { useQuery } from './useQuery';
-import { getDefaultAPI } from '@app/services/client/api';
+import { getDefaultAPI } from '@/core/services/client/api';
 
 export function useCheckAPI() {
 	const { queryCall, loading } = useQuery(getDefaultAPI);

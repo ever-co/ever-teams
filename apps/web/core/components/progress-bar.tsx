@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 
 export function ProgressBar({
 	width,

@@ -1,6 +1,6 @@
 'use client';
 
-import { pad, secondsToTime } from '@app/helpers';
+import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../useOutsideClick';

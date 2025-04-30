@@ -1,5 +1,5 @@
-import { secondsToTime } from '@app/helpers/date';
-import { pad } from '@app/helpers/number';
+import { secondsToTime } from '@/core/lib/helpers/date';
+import { pad } from '@/core/lib/helpers/number';
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { TimeInput } from '@/core/components/ui/inputs/time-input';

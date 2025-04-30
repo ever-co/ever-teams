@@ -1,4 +1,4 @@
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { Disclosure } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { TaskEstimate } from '@/core/components/features';

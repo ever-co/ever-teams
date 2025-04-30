@@ -28,7 +28,7 @@ import { ConfirmStatusChange, statusOptions } from '.';
 import { useModal, useTimelogFilterOptions } from '@/core/hooks';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
 import { Badge } from '@/core/components/ui/badge';
 import {
@@ -42,7 +42,7 @@ import {
 	ProjectLogo
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
-import { formatDate } from '@/app/helpers';
+import { formatDate } from '@/core/lib/helpers/index';
 import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';
 import {
 	DisplayTimeForTimesheet,

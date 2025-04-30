@@ -1,4 +1,4 @@
-import { imgTitle } from '@app/helpers/img-title';
+import { imgTitle } from '@/core/lib/helpers/img-title';
 import { IInvitation } from '@/core/types/interfaces/IInvite';
 import Separator from '@/core/components/ui/separator';
 

@@ -1,6 +1,6 @@
 import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from '@/core/components';
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from './add-task-estimation-hours-modal';

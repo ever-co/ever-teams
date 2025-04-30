@@ -1,6 +1,6 @@
 import { useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { detailedTaskState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';

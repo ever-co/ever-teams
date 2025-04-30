@@ -1,5 +1,5 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getEmployeeDailyRequest } from '@app/services/server/requests/timer/daily';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getEmployeeDailyRequest } from '@/core/services/server/requests/timer/daily';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

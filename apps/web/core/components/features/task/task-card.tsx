@@ -1,6 +1,6 @@
 'use client';
 
-import { secondsToTime, tomorrowDate } from '@app/helpers';
+import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
@@ -29,8 +29,8 @@ import {
 	Nullable,
 	OT_Member
 } from '@/core/types/interfaces';
-import { timerSecondsState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { timerSecondsState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
@@ -59,7 +59,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { SetAtom } from 'types';
+import { SetAtom } from '@/core/types/generics';
 import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 
 type Props = {

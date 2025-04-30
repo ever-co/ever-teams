@@ -7,7 +7,7 @@ import { useBoard } from './hooks';
 import { useEffect, useState } from 'react';
 import { SpinnerLoader } from '@/core/components';
 import { LOCAL_STORAGE_THEME } from './constants';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { AppMainMenu } from './AppMainMenu';
 import { LiveShareIcon } from 'assets/svg';
 

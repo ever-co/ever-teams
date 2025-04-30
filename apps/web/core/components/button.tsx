@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { PropsWithChildren } from 'react';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';

@@ -1,8 +1,8 @@
-import { secondsToTime } from '@app/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date';
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
-import { timerSecondsState } from '@app/stores';
+import { timerSecondsState } from '@/core/stores';
 import { RawStatusDropdown } from '@/core/components/shared/tasks/status-dropdown';
 import { ProgressBar } from '@/core/components/ui/progress-bar';
 import Separator from '@/core/components/ui/separator';

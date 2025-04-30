@@ -10,7 +10,7 @@ import {
 	myDailyPlanListState,
 	profileDailyPlanListState,
 	taskPlans
-} from '@app/stores';
+} from '@/core/stores';
 import {
 	addTaskToPlanAPI,
 	createDailyPlanAPI,
@@ -22,7 +22,7 @@ import {
 	removeManyTaskFromPlansAPI,
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
-} from '@app/services/client/api';
+} from '@/core/services/client/api';
 import {
 	ICreateDailyPlan,
 	IDailyPlanTasksUpdate,
@@ -31,7 +31,7 @@ import {
 } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { removeDuplicateItems } from '@/app/utils/remove-duplicate-item';
+import { removeDuplicateItems } from '@/core/lib/utils/remove-duplicate-item';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 

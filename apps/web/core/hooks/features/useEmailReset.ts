@@ -1,4 +1,4 @@
-import { emailResetRequestAPI, verifyChangeEmailRequestAPI } from '@app/services/client/api';
+import { emailResetRequestAPI, verifyChangeEmailRequestAPI } from '@/core/services/client/api';
 
 import { useQuery } from '../useQuery';
 

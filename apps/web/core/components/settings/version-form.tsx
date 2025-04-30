@@ -3,7 +3,7 @@ import { StatusesListCard } from './list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
 import { ITaskVersionCreate, ITaskVersionItemList } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 
 import { useRefetchData } from '@/core/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 
 type StatusForm = {

@@ -1,8 +1,8 @@
 // import { useOrganizationTeams } from '@app/hooks';
 import { useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { activeTeamTaskState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { activeTeamTaskState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';

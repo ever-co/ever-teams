@@ -1,6 +1,6 @@
 import { IDailyPlanTasksUpdate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { addTaskToDailyPlanRequest, removeTaskFromPlanRequest } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { addTaskToDailyPlanRequest, removeTaskFromPlanRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request, { params }: { params: Promise<{ planId: string }> }) {

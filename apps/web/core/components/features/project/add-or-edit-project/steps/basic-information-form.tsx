@@ -10,7 +10,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
-import { isValidUrl } from '@/app/utils';
+import { isValidUrl } from '@/core/lib/utils';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { ScrollBar } from '@/core/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';

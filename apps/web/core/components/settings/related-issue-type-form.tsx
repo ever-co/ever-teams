@@ -5,7 +5,7 @@ import { StatusesListCard } from './list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
 import { ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';

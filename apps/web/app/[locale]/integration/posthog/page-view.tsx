@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { usePostHog } from 'posthog-js/react';
-import { POSTHOG_HOST, POSTHOG_KEY } from '@app/constants';
+import { POSTHOG_HOST, POSTHOG_KEY } from '@/core/constants/config/constants';
 
 export default function PostHogPageView(): null {
 	const pathname = usePathname();

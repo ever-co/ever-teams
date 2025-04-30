@@ -5,13 +5,13 @@ import InviteUserTeamCardSkeleton from '@/core/components/shared/skeleton/Invite
 import { UserCard } from '@/core/components/shared/skeleton/TeamPageSkeleton';
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
-import { IssuesView } from '@app/constants';
+import { IssuesView } from '@/core/constants/config/constants';
 import TeamMembersBlockView from './team-members-block-view';
 import { useAtomValue } from 'jotai';
-import { taskBlockFilterState } from '@app/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/task-filter';
 import { OT_Member } from '@/core/types/interfaces';
 import { Container } from '@/core/components';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { useMemo, useCallback } from 'react';
 
 type TeamMembersProps = {

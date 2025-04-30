@@ -10,7 +10,7 @@ import {
 	selectTimesheetIdState,
 	allTeamsState,
 	allUserState
-} from '@/app/stores';
+} from '@/core/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
 

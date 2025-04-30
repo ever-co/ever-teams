@@ -5,8 +5,8 @@ import {
 	resendCodeRequestToJoinAPI,
 	getRequestToJoinAPI,
 	acceptRejectRequestToJoinAPI
-} from '@app/services/client/api';
-import { requestToJoinState } from '@app/stores';
+} from '@/core/services/client/api';
+import { requestToJoinState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 

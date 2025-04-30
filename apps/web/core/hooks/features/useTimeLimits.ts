@@ -1,7 +1,7 @@
-import { timeLimitsAtom } from '@/app/stores/time-limits';
+import { timeLimitsAtom } from '@/core/stores/time-limits';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
-import { getTimeLimitsReportAPI } from '@/app/services/client/api/activity/time-limits';
+import { getTimeLimitsReportAPI } from '@/core/services/client/api/activity/time-limits';
 import { useCallback } from 'react';
 import { IGetTimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 

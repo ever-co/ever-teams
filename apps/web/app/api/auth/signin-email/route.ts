@@ -1,6 +1,6 @@
-import { INVITE_CALLBACK_PATH } from '@app/constants';
-import { authFormValidate } from '@app/helpers/validations';
-import { signInEmailRequest } from '@app/services/server/requests';
+import { INVITE_CALLBACK_PATH } from '@/core/constants/config/constants';
+import { authFormValidate } from '@/core/lib/helpers/validations';
+import { signInEmailRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

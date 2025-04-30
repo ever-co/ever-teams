@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useToast } from '@/core/components/ui/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown, Tooltip } from '@/core/components';

@@ -1,6 +1,6 @@
 'use client';
 
-import { isTestDateRange } from '@app/helpers';
+import { isTestDateRange } from '@/core/lib/helpers/index';
 import { IDailyPlan } from '@/core/types/interfaces';
 import {
 	dateRangeAllPlanState,
@@ -12,7 +12,7 @@ import {
 	originalAllPlanState,
 	originalFuturePlanState,
 	originalPastPlanDataState
-} from '@app/stores';
+} from '@/core/stores';
 import { useEffect, useMemo } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAtom, useAtomValue } from 'jotai';

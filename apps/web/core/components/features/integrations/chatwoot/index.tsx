@@ -1,5 +1,5 @@
-import { CHATWOOT_API_KEY } from '@app/constants';
-import React, { useEffect } from 'react';
+import { CHATWOOT_API_KEY } from '@/core/constants/config/constants';
+import { useEffect } from 'react';
 
 declare global {
 	interface Window {

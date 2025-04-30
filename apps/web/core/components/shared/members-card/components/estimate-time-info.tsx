@@ -1,4 +1,4 @@
-import { pad } from '@app/helpers/number';
+import { pad } from '@/core/lib/helpers/number';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { TimeInput } from '@/core/components/ui/inputs/time-input';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

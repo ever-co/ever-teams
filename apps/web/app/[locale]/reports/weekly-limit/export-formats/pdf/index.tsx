@@ -5,8 +5,8 @@ import { DottedLanguageObjectStringPaths } from 'next-intl';
 import { WeeklyLimitTableDataType } from '../../components/data-table';
 import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 import moment from 'moment';
-import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
-import { formatIntegerToHour, formatTimeString } from '@/app/helpers';
+import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
+import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 
 const styles = StyleSheet.create({
 	page: { padding: 20 },

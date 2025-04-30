@@ -1,8 +1,8 @@
 'use client';
 
-import { getAccessTokenCookie } from '@app/helpers';
+import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
-import { post } from '@app/services/client/axios';
+import { post } from '@/core/services/client/axios';
 import { IImageAssets } from '@/core/types/interfaces';
 
 export function useImageAssets() {

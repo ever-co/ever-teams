@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ISort } from '@/core/types/interfaces/ISort';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { SortItem, mapSortItems } from './sort-items';
 

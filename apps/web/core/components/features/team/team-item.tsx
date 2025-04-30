@@ -1,7 +1,7 @@
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { imgTitle } from '@app/helpers';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
-import { clsxm, isValidUrl } from '@app/utils';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Avatar, DropdownItem, Tooltip } from '@/core/components';
 import { SettingOutlineIcon } from 'assets/svg';
 import { useTheme } from 'next-themes';

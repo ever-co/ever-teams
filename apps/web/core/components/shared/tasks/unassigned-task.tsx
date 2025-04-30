@@ -1,10 +1,10 @@
-import { secondsToTime } from '@app/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { RawStatusDropdown } from '@/core/components/shared/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
 import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
-import { timerSecondsState } from '@app/stores';
+import { timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
+import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
@@ -11,9 +11,9 @@ import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@/core/types/interfa
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
-import { clsxm } from '@app/utils';
-import { formatIntegerToHour, formatTimeString } from '@app/helpers';
-import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
+import { clsxm } from '@/core/lib/utils';
+import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
@@ -22,7 +22,7 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
-import { IconsErrorWarningFill } from '@/icons';
+import { IconsErrorWarningFill } from '@/core/components/icons';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.

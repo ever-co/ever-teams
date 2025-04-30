@@ -5,7 +5,7 @@ import { useMaybeLayoutContext, useLocalParticipant, MediaDeviceMenu, TrackToggl
 import { Button } from '@/core/components/ui/button';
 import styles from '@/styles/settings.module.css';
 import { shortenLink } from '@/core/lib/helpers';
-import { IconsContentCopy, IconsLoader } from '@/icons';
+import { IconsContentCopy, IconsLoader } from '@/core/components/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> {}

@@ -1,8 +1,8 @@
 'use client';
 
 import { IIssueTypesCreate } from '@/core/types/interfaces';
-import { createIssueTypeAPI, getIssueTypeList, deleteIssueTypeAPI, editIssueTypeAPI } from '@app/services/client/api';
-import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@app/stores';
+import { createIssueTypeAPI, getIssueTypeList, deleteIssueTypeAPI, editIssueTypeAPI } from '@/core/services/client/api';
+import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';

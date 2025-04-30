@@ -1,4 +1,4 @@
-import { Languages } from '../constants';
+import { Languages } from '../../core/constants/config/constants';
 
 declare module 'next-intl' {
 	export type Translations = Languages;
@@ -9,12 +9,12 @@ declare module 'next-intl' {
 	type Join<T extends string[], D extends string> = T extends []
 		? never
 		: T extends [infer F]
-		? F
-		: T extends [infer F, ...infer R]
-		? F extends string
-			? `${F}${D}${Join<Extract<R, string[]>, D>}`
-			: never
-		: string;
+			? F
+			: T extends [infer F, ...infer R]
+				? F extends string
+					? `${F}${D}${Join<Extract<R, string[]>, D>}`
+					: never
+				: string;
 
 	export type DottedLanguageObjectStringPaths = Join<PathsToStringProps<Translations>, '.'>;
 	export type TranslationHooks = (

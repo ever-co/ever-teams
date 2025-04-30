@@ -1,6 +1,6 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@/core/types/interfaces';
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Modal, SpinnerLoader, Tooltip } from '@/core/components';
 import {
@@ -23,8 +23,8 @@ import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
-import { clsxm } from '@/app/utils';
-import { organizationProjectsState } from '@/app/stores/organization-projects';
+import { clsxm } from '@/core/lib/utils';
+import { organizationProjectsState } from '@/core/stores/organization-projects';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { QuickCreateProjectModal } from '@/core/components/features/project/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';

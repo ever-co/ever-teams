@@ -6,7 +6,7 @@ import {
 	getActiveUserTaskCookie,
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
-} from '@app/helpers';
+} from '@/core/lib/helpers/index';
 import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces';
 import {
 	createTeamTaskAPI,
@@ -18,7 +18,7 @@ import {
 	getTasksByEmployeeIdAPI,
 	getAllDayPlansAPI,
 	getMyDailyPlansAPI
-} from '@app/services/client/api';
+} from '@/core/services/client/api';
 import {
 	activeTeamState,
 	activeTeamTaskId,
@@ -32,7 +32,7 @@ import {
 	tasksByTeamState,
 	tasksFetchingState,
 	teamTasksState
-} from '@app/stores';
+} from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';

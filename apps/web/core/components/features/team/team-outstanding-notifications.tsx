@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { estimatedTotalTime } from '../task/daily-plan';
-import { HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
+import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import moment from 'moment';
 
 interface IEmployeeWithOutstanding {

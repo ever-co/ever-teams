@@ -3,7 +3,7 @@
 import { useIsMemberManager, useOrganizationTeams, useRolePermissions } from '@/core/hooks';
 import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from '@/core/components';
@@ -11,7 +11,7 @@ import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 
 const Permissions = () => {
 	// Translations

@@ -9,7 +9,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
-import { formatDate } from '@/app/helpers';
+import { formatDate } from '@/core/lib/helpers/index';
 import { ClockIcon, CodeSquareIcon } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';

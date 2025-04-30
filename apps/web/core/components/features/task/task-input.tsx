@@ -23,8 +23,8 @@ import {
 	Nullable,
 	OT_Member
 } from '@/core/types/interfaces';
-import { activeTeamTaskId, timerStatusState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { activeTeamTaskId, timerStatusState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from '@/core/components';

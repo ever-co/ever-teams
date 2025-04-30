@@ -4,8 +4,8 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@app/constants';
-import { clsxm } from '@app/utils';
+import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constants';
+import { clsxm } from '@/core/lib/utils';
 
 import { Footer } from './footer';
 

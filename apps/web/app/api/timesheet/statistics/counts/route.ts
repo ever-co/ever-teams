@@ -1,6 +1,6 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
-import { getTimesheetStatisticsCountsRequest } from '@app/services/server/requests';
+import { getTimesheetStatisticsCountsRequest } from '@/core/services/server/requests';
 import { TimeLogType } from '@/core/types/interfaces';
 
 const isValidLogType = (type: string): type is TimeLogType => {

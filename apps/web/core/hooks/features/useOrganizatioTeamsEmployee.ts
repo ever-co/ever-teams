@@ -3,12 +3,12 @@ import {
 	deleteOrganizationEmployeeTeamAPI,
 	updateOrganizationEmployeeTeamAPI,
 	updateOrganizationTeamEmployeeActiveTaskAPI
-} from '@app/services/client/api/organization-team-employee';
+} from '@/core/services/client/api/organization-team-employee';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
-import { editEmployeeOrderOrganizationTeamAPI } from '@app/services/client/api';
-import { userState } from '@app/stores';
+import { editEmployeeOrderOrganizationTeamAPI } from '@/core/services/client/api';
+import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
 
 export function useOrganizationEmployeeTeams() {

@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/ui/DatePicker';
 import { QueueListIcon } from '@heroicons/react/20/solid';
 import { addDays, format } from 'date-fns';
@@ -18,7 +18,7 @@ import React from 'react';
 import { DateRange } from 'react-day-picker';
 import { Input } from '@/core/components/ui/input';
 import { SettingFilterIcon } from 'assets/svg';
-import { IconsCalendarMonthOutline } from '@/icons';
+import { IconsCalendarMonthOutline } from '@/core/components/icons';
 
 export function HeadCalendar({
 	openModal,

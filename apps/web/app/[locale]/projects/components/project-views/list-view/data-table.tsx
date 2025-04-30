@@ -29,7 +29,7 @@ import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
 import AvatarStack from '@/core/components/shared/avatar-stack';
 import { HorizontalSeparator } from '@/core/components';
-import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
+import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/core/constants/config/constants';
 import { useTheme } from 'next-themes';
 import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';

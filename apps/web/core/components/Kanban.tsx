@@ -13,7 +13,7 @@ import {
 
 import Item from './kanban-card';
 import { ITeamTask } from '@/core/types/interfaces';
-import { TaskStatus } from '@app/constants';
+import { TaskStatus } from '@/core/constants/config/constants';
 import { useKanban } from '@/core/hooks/features/useKanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { Button } from '@/core/components/ui/button';

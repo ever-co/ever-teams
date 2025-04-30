@@ -1,6 +1,6 @@
 import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/ITimeLimits';
 import { DataTableWeeklyLimits } from './data-table';
-import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
+import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { JSX } from 'react';
 

@@ -5,13 +5,13 @@ import {
 	getOrganizationProjectsAPI,
 	createOrganizationProjectAPI,
 	deleteOrganizationProjectAPI
-} from '@app/services/client/api';
-import { userState } from '@app/stores';
+} from '@/core/services/client/api';
+import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
-import { organizationProjectsState } from '@/app/stores/organization-projects';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
+import { organizationProjectsState } from '@/core/stores/organization-projects';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 

@@ -18,11 +18,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
 import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
-import { activityTypeState } from '@app/stores/activity-type';
+import { activityTypeState } from '@/core/stores/activity-type';
 import { UserProfileDetail } from './components/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 // import { ActivityCalendar } from '@/core/components/features/activity/calendar';

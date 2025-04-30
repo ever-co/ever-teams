@@ -1,4 +1,4 @@
-import { getOrganizationIdCookie } from '@app/helpers';
+import { getOrganizationIdCookie } from '@/core/lib/helpers/index';
 import { useTaskStatus } from '@/core/hooks';
 import { ITaskStatusItemList, ITaskStatusOrder } from '@/core/types/interfaces';
 import { Button } from '@/core/components/ui/button';

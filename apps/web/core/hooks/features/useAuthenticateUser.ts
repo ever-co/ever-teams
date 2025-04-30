@@ -1,10 +1,10 @@
 'use client';
 
-import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@app/constants';
-import { removeAuthCookies } from '@app/helpers/cookies';
+import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { IUser } from '@/core/types/interfaces/IUserData';
-import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@app/services/client/api/auth';
-import { activeTeamState, userState } from '@app/stores';
+import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@/core/services/client/api/auth';
+import { activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 

@@ -11,12 +11,12 @@ import { Modal, Divider } from '@/core/components';
 import { useOrganizationTeams } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/features/task/task-assign-button';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { TaskAvatars } from '@/core/components/features';
 import TeamMember from '@/core/components/team-member';
 import { IEmployee } from '@/core/types/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
-import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/icons';
+import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 
 export interface ImageOverlapperProps {
 	id: string;
