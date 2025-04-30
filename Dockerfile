@@ -42,13 +42,10 @@ RUN mkdir /temp && cd /temp && npm i sharp
 
 RUN npm cache clean --force
 
-# ------------------------------------------------------------------------------
-# Build stage: installs dependencies, builds the app
-# ------------------------------------------------------------------------------
-
+# Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Pass environment variables into this build stage (for Next.js build-time config)
+# We make env vars passed as build argument to be available in this build stage because we prebuild the NextJs app
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
 ARG NEXT_PUBLIC_CAPTCHA_SITE_KEY
@@ -65,31 +62,37 @@ ARG NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
 ARG NEXT_PUBLIC_GITHUB_APP_NAME
 ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
-# Install system dependencies needed to compile native modules
+# Install packages needed to build node modules
 RUN apt-get update -qq && \
 	apt-get install -y build-essential pkg-config python-is-python3
 
 # Install Yarn
 RUN npm install -g yarn --force
 
-# ✅ Copy the full monorepo so that internal workspaces (@ever-teams/*) are available
+# --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
+COPY package.json yarn.lock ./
+COPY apps/web/package.json ./apps/web/package.json
+
+# Set working directory to the web app
+WORKDIR /app/apps/web
+
+# --- STEP 2: Install deps in deterministic and cacheable way ---
+RUN yarn install --frozen-lockfile --non-interactive --ignore-scripts
+
+# --- STEP 3: Copy the rest of the repo for build ---
+WORKDIR /app
 COPY . .
 
-# ✅ Move to the Next.js web application workspace and install dependencies
-WORKDIR /app/apps/web
-RUN yarn install --ignore-scripts
-
-# Set production environment
+# Set production env
 ENV NODE_ENV=production
 ENV NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
-# Build the web application with Turbo (monorepo-aware)
+# --- STEP 4: Build the web application ---
 RUN yarn run build:web
 
-# Remove dev dependencies (to reduce final image size)
+# --- STEP 5: Remove dev dependencies and clean cache --- Remove dev dependencies (to reduce final image size)
+WORKDIR /app/apps/web
 RUN yarn install --prod --ignore-scripts
-
-# Clean Yarn cache
 RUN yarn cache clean
 
 # ------------------------------------------------------------------------------
