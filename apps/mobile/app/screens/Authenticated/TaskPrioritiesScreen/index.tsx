@@ -25,11 +25,32 @@ import TaskPriorityForm from './components/TaskPriorityForm';
 import { useTaskPriority } from '../../../services/hooks/features/useTaskPriority';
 import PriorityItem from './components/PriorityItem';
 import { BlurView } from 'expo-blur';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
+// Create a type for the route params
+type TaskPriorityRouteParams = {
+  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+};
+
+// Properly type the route object
+type TaskPriorityRouteProp = RouteProp<{ TaskPriority: TaskPriorityRouteParams }, 'TaskPriority'>;
 
 export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority'>> =
   function AuthenticatedDrawerScreen(_props) {
     const { colors, dark } = useAppTheme();
     const { navigation } = _props;
+
+    // Use the properly typed route
+    const route = useRoute<TaskPriorityRouteProp>();
+
+    // Get the previousTab parameter with type assertion
+    const previousTab = route.params?.previousTab || 2 as const;
+
+    // Handle back navigation with correct tab
+    const handleGoBack = useCallback(() => {
+      navigation.navigate('Setting', { activeTab: previousTab });
+    }, [navigation, previousTab]);
+
     const { isLoading, priorities, deletePriority, updatePriority, createPriority } = useTaskPriority();
     const [editMode, setEditMode] = useState(false);
     const [itemToEdit, setItemToEdit] = useState<ITaskPriorityItem>(null);
@@ -140,9 +161,8 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
           <View style={[$headerContainer, { backgroundColor: colors.background }]}>
             <View style={[styles.container, { backgroundColor: colors.background }]}>
               <TouchableOpacity
-                // accessibilityLabel={translate('settingScreen.backButton')}
                 accessibilityRole="button"
-                onPress={() => navigation.navigate('Setting')}
+                onPress={handleGoBack} // Use our custom handler for back navigation
               >
                 <AntDesign name="arrowleft" size={24} color={colors.primary} />
               </TouchableOpacity>
@@ -248,7 +268,6 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             keyboardBehavior="interactive"
             keyboardBlurBehavior="restore"
             android_keyboardInputMode="adjustResize"
-            // handleHeight={30}
             backgroundStyle={{
               backgroundColor: colors.background,
               shadowColor: '#000',

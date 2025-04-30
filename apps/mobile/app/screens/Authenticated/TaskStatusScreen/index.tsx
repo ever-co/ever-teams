@@ -25,12 +25,28 @@ import { useTaskStatus } from '../../../services/hooks/features/useTaskStatus';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskStatusForm from './components/TaskStatusForm';
 import { BlurView } from 'expo-blur';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
+// Create a type for the route params
+type TaskStatusRouteParams = {
+  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+};
+
+// Properly type the route object
+type TaskStatusRouteProp = RouteProp<{ TaskStatus: TaskStatusRouteParams }, 'TaskStatus'>;
 
 export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> = function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
   const { navigation } = _props;
+
+  // Use the properly typed route
+  const route = useRoute<TaskStatusRouteProp>();
+
+  // Get the previousTab parameter with type assertion
+  const previousTab = route.params?.previousTab || 2 as const;
+
   const { isLoading, statuses, deleteStatus, updateStatus, createStatus } = useTaskStatus();
   const [editMode, setEditMode] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem>(null);
@@ -38,6 +54,11 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [desiredSnapIndex, setDesiredSnapIndex] = useState(0); // Track desired snap index
+
+  // Handle back navigation with correct tab
+  const handleGoBack = useCallback(() => {
+    navigation.navigate('Setting', { activeTab: previousTab });
+  }, [navigation, previousTab]);
 
   // ref
   const sheetRef = useRef<BottomSheet>(null);
@@ -140,9 +161,8 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
         <View style={[$headerContainer, { backgroundColor: colors.background }]}>
           <View style={[styles.container, { backgroundColor: colors.background }]}>
             <TouchableOpacity
-            //   accessibilityLabel={translate('settingScreen.backButton')}
               accessibilityRole="button"
-              onPress={() => navigation.navigate('Setting')}
+              onPress={handleGoBack} // Use our custom handler for back navigation
             >
               <AntDesign name="arrowleft" size={24} color={colors.primary} />
             </TouchableOpacity>
@@ -246,7 +266,6 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
           keyboardBehavior="interactive"
           keyboardBlurBehavior="restore"
           android_keyboardInputMode="adjustResize"
-        //   handleHeight={30}
           backgroundStyle={{
             backgroundColor: colors.background,
             shadowColor: '#000',

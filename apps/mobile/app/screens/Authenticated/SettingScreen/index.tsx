@@ -6,7 +6,6 @@ import {
 	LogBox,
 	StatusBar,
 	Keyboard,
-	// Text,
 	StyleSheet,
 	Platform,
 	KeyboardAvoidingView
@@ -27,7 +26,7 @@ import PersonalSettings from './Personal';
 import TeamSettings from './Team';
 import { useAppTheme } from '../../../theme';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 
 export type IPopup =
 	| 'Names'
@@ -57,12 +56,21 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const bottomSheetRef = useRef<BottomSheet>(null);
 
 		// STATES
-		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1);
+		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1); // Initialize from route params
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 		const [keyboardVisible, setKeyboardVisible] = useState(false);
 		const [keyboardHeight, setKeyboardHeight] = useState(0);
 		const [desiredSnapIndex, setDesiredSnapIndex] = useState(1); // New state for tracking desired snap index
+
+		// Update active tab when route params change
+		useFocusEffect(
+			useCallback(() => {
+				if (route.params?.activeTab) {
+					setActiveTab(route.params.activeTab);
+				}
+			}, [route.params])
+		);
 
 		// Include multiple snap points for different sheet heights
 		const snapPoints = useMemo(() => ['1%', '50%', '70%', '85%'], []);
@@ -182,15 +190,6 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			[]
 		);
 
-		// Add navigation listener for debugging
-		useEffect(() => {
-			const unsubscribe = navigation.addListener('focus', () => {
-				// console.log('[SettingScreen] Screen focused');
-			});
-
-			return unsubscribe;
-		}, [navigation]);
-
 		return (
 			<GestureHandlerRootView style={styles.gestureRoot}>
 				{/* Main Screen Content */}
@@ -220,7 +219,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 								) : activeTab === 1 ? (
 									<PersonalSettings onOpenBottomSheet={openBottomSheet} />
 								) : activeTeam ? (
-									<TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
+									<TeamSettings props={_props} onOpenBottomSheet={openBottomSheet} />
 								) : null}
 							</View>
 						</View>
