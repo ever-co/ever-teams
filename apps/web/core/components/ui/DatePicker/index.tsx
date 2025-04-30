@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { cn } from '../../../../lib/utils';
+import { cn } from '../../../lib/helpers';
 import { Button } from '@/core/components/ui/button';
 import { Calendar } from '@/core/components/ui/calendar';
 import { DayPicker } from 'react-day-picker';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTaskStatus } from '@app/hooks';
+import { useTaskStatus } from '@/core/hooks';
 import { Button, Text, InputField, ColorPicker, Card } from '@/core/components';
 import { useForm } from 'react-hook-form';
 import { IIcon } from '@app/interfaces';

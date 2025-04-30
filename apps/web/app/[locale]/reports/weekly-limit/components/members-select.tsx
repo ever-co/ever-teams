@@ -1,4 +1,4 @@
-import { useOrganizationTeams } from '@/app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import {
 	Select,
 	SelectContent,

@@ -1,5 +1,5 @@
 import { imgTitle } from '@app/helpers';
-import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
 import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import {

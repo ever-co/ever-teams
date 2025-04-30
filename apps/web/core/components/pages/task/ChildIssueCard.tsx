@@ -2,7 +2,7 @@ import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { TaskInput, TaskLinkedIssue } from '@/core/components/features';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@app/stores';
-import { IHookModal, useModal, useTeamTasks } from '@app/hooks';
+import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';

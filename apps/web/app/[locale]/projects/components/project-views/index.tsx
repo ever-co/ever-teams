@@ -1,4 +1,4 @@
-import { useModal } from '@/app/hooks';
+import { useModal } from '@/core/hooks';
 import { IProject } from '@/app/interfaces';
 import { HorizontalSeparator } from '@/core/components';
 import { ArchiveProjectModal } from '@/core/components/features/project/archive-project-modal';

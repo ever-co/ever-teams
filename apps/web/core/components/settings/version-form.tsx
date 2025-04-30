@@ -1,7 +1,7 @@
 import { Button, InputField, Text } from '@/core/components';
 import { StatusesListCard } from './list-card';
 
-import { useCallbackRef, useTaskVersion } from '@app/hooks';
+import { useCallbackRef, useTaskVersion } from '@/core/hooks';
 import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 
-import { useRefetchData } from '@app/hooks';
+import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { useTranslations } from 'next-intl';
 

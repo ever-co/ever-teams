@@ -1,11 +1,11 @@
 import { OT_Member } from '@app/interfaces';
 import { memo } from 'react';
 import { TaskCard } from '../task/task-card';
-import { useUserSelectedPage } from '@app/hooks/features/useUserSelectedPage';
+import { useUserSelectedPage } from '@/core/hooks/features/useUserSelectedPage';
 import { useTaskFilter } from '../task/task-filters';
 import { Divider, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser } from '@app/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 
 const UserWorkedTaskTab = ({ member }: { member?: OT_Member }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);

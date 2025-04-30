@@ -17,7 +17,7 @@ import {
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
 import { Tooltip } from '@/core/components';
 import { clsxm } from '@app/utils';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

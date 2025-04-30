@@ -4,7 +4,7 @@ import { LocalAudioTrack, Track } from 'livekit-client';
 import { useMaybeLayoutContext, useLocalParticipant, MediaDeviceMenu, TrackToggle } from '@livekit/components-react';
 import { Button } from '@/core/components/ui/button';
 import styles from '@/styles/settings.module.css';
-import { shortenLink } from '@/lib/utils';
+import { shortenLink } from '@/core/lib/helpers';
 import { IconsContentCopy, IconsLoader } from '@/icons';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

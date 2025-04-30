@@ -1,6 +1,6 @@
 import { languagesFlags } from '@app/constants';
 import { setActiveLanguageIdCookie } from '@app/helpers';
-import { useLanguage, useLanguageSettings } from '@app/hooks';
+import { useLanguage, useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/ui/select';
 import { mapLanguageItems } from '@/core/components/features';

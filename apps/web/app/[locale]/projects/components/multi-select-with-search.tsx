@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Popover } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';

@@ -1,7 +1,7 @@
 import { ProjectViewDataType } from '..';
 import { ProjectsTable } from './data-table';
 import { Paginate } from '@/core/components';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { OnChangeFn, VisibilityState } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
 

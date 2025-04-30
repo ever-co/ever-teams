@@ -1,7 +1,7 @@
 'use client';
 
 import { getAccessTokenCookie } from '@app/helpers';
-import { TAuthenticationPassword, useAuthenticationPassword } from '@app/hooks';
+import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';

@@ -1,4 +1,4 @@
-import { SortConfig } from '@/app/hooks/useSortableData';
+import { SortConfig } from '@/core/hooks/useSortableData';
 import { Button } from '@/core/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ChevronsUpDown } from 'lucide-react';

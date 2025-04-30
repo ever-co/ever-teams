@@ -1,9 +1,9 @@
-import { useOrganizationProjects } from '@/app/hooks';
+import { useOrganizationProjects } from '@/core/hooks';
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
 import { RolesEnum } from '@/app/interfaces/IRoles';
-import { useRoles } from '@/app/hooks/features/useRoles';
+import { useRoles } from '@/core/hooks/features/useRoles';
 
 interface IEditProjectModalProps {
 	open: boolean;

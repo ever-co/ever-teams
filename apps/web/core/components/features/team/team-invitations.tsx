@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useTeamInvitations } from '@app/hooks';
+import { useModal, useTeamInvitations } from '@/core/hooks';
 import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from '@/core/components';

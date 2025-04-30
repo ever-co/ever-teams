@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallbackRef } from '@app/hooks';
+import { useCallbackRef } from '@/core/hooks';
 import { Transition, Popover } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@app/hooks';
+import { useQuery } from '@/core/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';

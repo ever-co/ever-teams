@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';

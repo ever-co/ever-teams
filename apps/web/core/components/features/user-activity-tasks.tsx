@@ -1,4 +1,4 @@
-import { I_UserProfilePage } from '@app/hooks';
+import { I_UserProfilePage } from '@/core/hooks';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 

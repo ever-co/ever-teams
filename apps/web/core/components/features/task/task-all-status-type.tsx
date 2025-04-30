@@ -1,6 +1,6 @@
 'use client';
 
-import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
+import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';

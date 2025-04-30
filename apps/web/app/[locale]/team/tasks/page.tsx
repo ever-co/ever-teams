@@ -8,19 +8,19 @@ import { useAtomValue } from 'jotai';
 
 import { fullWidthState } from '@app/stores/fullWidth';
 
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { ITeamTask } from '@/app/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import StatusBadge from '@/core/components/pages/team/tasks/StatusBadge';
-import { cn, getStatusColor } from '@/lib/utils';
+import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/ui/input';
 import { Check, Search, Settings2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { TaskTable } from '@/core/components/pages/team/tasks/TaskTable';
 import { columns, hidableColumnNames } from '@/core/components/pages/team/tasks/columns';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { Menu, Transition } from '@headlessui/react';
 const TeamTask = () => {
 	const t = useTranslations();

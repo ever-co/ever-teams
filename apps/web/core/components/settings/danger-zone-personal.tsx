@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@/core/hooks';
 import { Button, Text } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';

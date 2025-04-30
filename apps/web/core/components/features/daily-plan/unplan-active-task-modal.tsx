@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useDailyPlan, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';

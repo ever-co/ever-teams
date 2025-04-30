@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import UserTeamCardSkeletonCard from '@/core/components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/shared/skeleton/InviteTeamCardSkeleton';

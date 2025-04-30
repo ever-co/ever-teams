@@ -1,7 +1,7 @@
 'use client';
 
 import { getAccessTokenCookie } from '@app/helpers';
-import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
+import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
 import { IUser } from '@app/interfaces';
 import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';

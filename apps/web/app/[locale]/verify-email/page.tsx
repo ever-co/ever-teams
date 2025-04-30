@@ -1,6 +1,6 @@
 'use client';
 
-import { useEmailVerifyToken } from '@app/hooks';
+import { useEmailVerifyToken } from '@/core/hooks';
 import { BackdropLoader } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 

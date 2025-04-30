@@ -8,11 +8,11 @@ import { format } from 'date-fns';
 import { IActivityReport, IActivityReportGroupByDate, IActivityItem } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useSortableData } from '@/app/hooks/useSortableData';
+import { useSortableData } from '@/core/hooks/useSortableData';
 import { SortPopover } from '@/core/components/ui/sort-popover';
-import { useProductivityTableConfig } from '@/app/hooks/use-table-config';
+import { useProductivityTableConfig } from '@/core/hooks/use-table-config';
 import { Paginate } from '@/core/components';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {

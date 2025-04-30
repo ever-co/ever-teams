@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@app/hooks';
+import { useModal, useTeamTasks } from '@/core/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';

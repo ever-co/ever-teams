@@ -15,7 +15,7 @@ import {
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from './helpers';
-import { chunk, range } from 'lib/utils';
+import { chunk, range } from '@/core/lib/helpers';
 
 type DataParams = {
 	refresh_token: {
@@ -129,7 +129,7 @@ export function removeAuthCookies() {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
 	if (totalChunksCookie) {
 		const totalChunks = parseInt(totalChunksCookie);
-		range(totalChunks).map((index) => {
+		range(totalChunks).forEach((index) => {
 			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
 		});
 	}

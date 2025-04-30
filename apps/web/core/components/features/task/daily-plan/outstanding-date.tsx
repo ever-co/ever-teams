@@ -2,7 +2,7 @@ import { formatDayPlanDate, handleDragAndDrop } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan } from '@/core/hooks';
 import { HorizontalSeparator } from '@/core/components';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';

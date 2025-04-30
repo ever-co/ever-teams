@@ -1,5 +1,5 @@
 // import { useOrganizationTeams } from '@app/hooks';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';

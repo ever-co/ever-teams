@@ -1,4 +1,4 @@
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
@@ -15,7 +15,7 @@ import {
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssue> = {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useIsMemberManager, useOrganizationTeams, useRolePermissions } from '@app/hooks';
-import { useRoles } from '@app/hooks/features/useRoles';
+import { useIsMemberManager, useOrganizationTeams, useRolePermissions } from '@/core/hooks';
+import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@app/interfaces';
 import { userState } from '@app/stores';
 import NotFound from '@/core/components/pages/404';

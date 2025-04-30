@@ -33,3 +33,4 @@ export * from "./components/tooltip";
 export * from "./components/textarea";
 export * from "./components/tooltip";
 export * from "./lib/utils";
+export * from "./hooks/index";

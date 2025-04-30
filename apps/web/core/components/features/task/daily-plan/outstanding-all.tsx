@@ -1,6 +1,6 @@
 import { EmptyPlans } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';

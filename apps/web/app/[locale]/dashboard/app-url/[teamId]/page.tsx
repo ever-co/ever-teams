@@ -2,8 +2,8 @@
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { cn } from '@/lib/utils';
-import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
+import { cn } from '@/core/lib/helpers';
+import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
@@ -12,9 +12,9 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/core/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
-import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
+import { GroupByType, useReportActivity } from '@/core/hooks/features/useReportActivity';
 import { Card } from '@/core/components/ui/card';
-import { useLocalStorageState, useModal } from '@/app/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,

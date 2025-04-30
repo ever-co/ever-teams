@@ -1,5 +1,5 @@
 import { secondsToTime } from '@app/helpers';
-import { I_TeamMemberCardHook, useOrganizationTeams } from '@app/hooks';
+import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
 import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, Tooltip } from '@/core/components';

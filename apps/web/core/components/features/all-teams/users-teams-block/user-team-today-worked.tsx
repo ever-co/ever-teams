@@ -1,5 +1,5 @@
 import { secondsToTime } from '@app/helpers';
-import { useTaskStatistics, useTeamMemberCard } from '@app/hooks';
+import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import { OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';

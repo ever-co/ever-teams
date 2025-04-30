@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { StatusesListCard } from './list-card';
 
-import { useRefetchData, useTaskPriorities } from '@app/hooks';
+import { useRefetchData, useTaskPriorities } from '@/core/hooks';
 import { IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

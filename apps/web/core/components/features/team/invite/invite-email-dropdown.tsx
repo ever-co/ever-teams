@@ -4,7 +4,7 @@ import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@app/utils';
 import { IInviteEmail } from '@app/interfaces';
-import { useSyncRef } from '@app/hooks';
+import { useSyncRef } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 
 export const InviteEmailDropdown = ({

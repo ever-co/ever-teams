@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams, useTimer } from '@app/hooks';
+import { useOrganizationTeams, useTimer } from '@/core/hooks';
 import { useToast } from '@/core/components/ui/use-toast';
 import { useCallback } from 'react';
 import { TeamItem } from '@/core/components/features/team/team-item';

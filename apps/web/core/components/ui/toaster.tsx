@@ -9,7 +9,7 @@ import {
 import { useToast } from '@/core/components/ui/use-toast';
 import { Toaster as ToasterMessage } from '@/core/components/ui/sonner';
 import { toast } from 'sonner';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 

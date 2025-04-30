@@ -27,7 +27,7 @@ import {
 	useTaskStatus,
 	useTaskVersion,
 	useTeamTasks
-} from '@app/hooks';
+} from '@/core/hooks';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -35,7 +35,7 @@ import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@app/helpers';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 export type TStatusItem = {
 	id?: string;

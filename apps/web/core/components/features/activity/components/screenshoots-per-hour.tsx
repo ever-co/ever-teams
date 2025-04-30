@@ -3,7 +3,7 @@
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { clsxm } from '@app/utils';
 import ScreenshotDetailsModal from './screenshot-details';
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 import ScreenshotItem from './screenshot-item';
 import React, { useCallback, useEffect } from 'react';
 
@@ -29,7 +29,7 @@ export const ScreenshotPerHour = ({
 		[openModal]
 	);
 
-	useEffect(() => {		
+	useEffect(() => {
 		if (timeSlots && timeSlots.length > 0) {
 			console.log('First slot screenshots:', timeSlots[0]?.screenshots);
 		}
@@ -58,7 +58,8 @@ export const ScreenshotPerHour = ({
 									startTime={el.startedAt}
 									percent={el.percentage}
 									imageUrl={
-										(el.screenshots && el.screenshots[0]?.thumbUrl) || '/assets/jpeg/placeholder-image.jpeg'
+										(el.screenshots && el.screenshots[0]?.thumbUrl) ||
+										'/assets/jpeg/placeholder-image.jpeg'
 									}
 									onShow={() => openScreenModal(el)}
 									idSlot={el.id}
@@ -74,7 +75,9 @@ export const ScreenshotPerHour = ({
 							endTime={el.stoppedAt}
 							startTime={el.startedAt}
 							percent={el.percentage}
-							imageUrl={(el.screenshots && el.screenshots[0]?.thumbUrl) || '/assets/jpeg/placeholder-image.jpeg'}
+							imageUrl={
+								(el.screenshots && el.screenshots[0]?.thumbUrl) || '/assets/jpeg/placeholder-image.jpeg'
+							}
 							onShow={() => openScreenModal(el)}
 							idSlot={el.id}
 							isTeamPage={isTeamPage}

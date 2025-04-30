@@ -1,4 +1,4 @@
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 // import { useTimeDailyActivity } from '@app/hooks/features/useTimeDailyActivity';
 import { Modal } from '@/core/components';
 import { PropsWithChildren } from 'react';

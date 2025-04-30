@@ -1,7 +1,7 @@
 'use client';
 
 import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@app/constants';
-import { useAuthenticationTeam, IStepProps } from '@app/hooks';
+import { useAuthenticationTeam, IStepProps } from '@/core/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from '@/core/components';

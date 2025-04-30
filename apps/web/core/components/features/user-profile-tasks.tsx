@@ -1,4 +1,4 @@
-import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
+import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { EmptyPlans, UserProfilePlans } from '@/core/components/features';
 import { TaskCard } from './task/task-card';
@@ -6,8 +6,8 @@ import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { ScreenCalendar } from './activity/screen-calendar';
-import { cn } from 'lib/utils';
-import { useScrollPagination } from '@app/hooks/features/usePagination';
+import { cn } from '@/core/lib/helpers';
+import { useScrollPagination } from '@/core/hooks/features/usePagination';
 import { IUser } from '@/app/interfaces';
 
 type Props = {

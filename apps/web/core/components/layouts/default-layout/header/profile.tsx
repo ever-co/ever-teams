@@ -1,4 +1,4 @@
-import { useAuthenticateUser } from '@app/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 import { Popover, Transition } from '@headlessui/react';
 import capitalize from 'lodash/capitalize';
 import Image from 'next/legacy/image';

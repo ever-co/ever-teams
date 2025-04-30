@@ -1,5 +1,5 @@
 'use client';
-import { useCallbackRef } from '@app/hooks';
+import { useCallbackRef } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { useIntersectionObserver } from '@uidotdev/usehooks';
 import React, { useEffect } from 'react';

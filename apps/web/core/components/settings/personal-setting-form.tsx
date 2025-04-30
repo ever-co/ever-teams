@@ -5,7 +5,7 @@ import {
 	setActiveTimezoneCookie,
 	userTimezone
 } from '@app/helpers';
-import { useLanguage, useSettings } from '@app/hooks';
+import { useLanguage, useSettings } from '@/core/hooks';
 import { userState } from '@app/stores';
 import { Button, InputField, Text, ThemeToggler } from '@/core/components';
 import { useTheme } from 'next-themes';

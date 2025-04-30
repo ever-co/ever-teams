@@ -19,8 +19,8 @@ import {
 	SidebarMenuSubButton,
 	useSidebar
 } from '@/core/components/ui/sidebar';
-import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
-import { useAuthenticateUser } from '@/app/hooks';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useAuthenticateUser } from '@/core/hooks';
 import { Button } from '@/core/components/button';
 import { useTranslations } from 'next-intl';
 

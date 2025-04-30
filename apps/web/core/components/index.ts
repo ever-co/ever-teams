@@ -21,13 +21,13 @@ export * from './separator';
 export * from './color-picker';
 export * from './no-data';
 export * from './pagination';
-export * from './time-picker'
-export * from './custom-select/select-items'
+export * from './time-picker';
+export * from './custom-select/select-items';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';
 
 export * from './services/recaptcha';
 export * from './copy-tooltip';
-export * from './alert-popup'
-export * from './alert-dialog-confirmation'
+export * from './alert-popup';
+export * from './alert-dialog-confirmation';

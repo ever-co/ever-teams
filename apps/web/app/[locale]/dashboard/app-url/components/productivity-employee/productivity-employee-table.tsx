@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { Paginate } from '@/core/components';
 
 // Constants

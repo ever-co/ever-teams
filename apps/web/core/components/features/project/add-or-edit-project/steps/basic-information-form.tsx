@@ -3,7 +3,7 @@ import { Button, InputField } from '@/core/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Listbox, Popover } from '@headlessui/react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -14,7 +14,7 @@ import { isValidUrl } from '@/app/utils';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { ScrollBar } from '@/core/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useImageAssets } from '@/app/hooks';
+import { useAuthenticateUser, useImageAssets } from '@/core/hooks';
 import { getInitialValue } from '../utils';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';

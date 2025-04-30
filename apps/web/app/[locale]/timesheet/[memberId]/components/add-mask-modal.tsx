@@ -6,7 +6,7 @@ import {
 	ManageOrMemberComponent,
 	getNestedValue
 } from '@/core/components/features/manual-time/manage-member-component';
-import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
 import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/core/components';
@@ -21,7 +21,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/ui/select';
-import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { toUTC } from '@/app/helpers';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { ToggleButton } from './edit-task-modal';

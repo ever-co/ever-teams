@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers';
-import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@app/hooks';
+import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from '@/core/components';
@@ -16,7 +16,7 @@ import {
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
+import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();

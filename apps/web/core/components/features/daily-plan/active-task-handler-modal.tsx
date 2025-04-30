@@ -4,7 +4,7 @@ import { Button } from '@/core/components/ui/button';
 import { clsxm } from '@app/utils';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
+import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
 

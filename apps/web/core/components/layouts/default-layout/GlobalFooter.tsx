@@ -2,7 +2,7 @@
 'use client';
 import { forwardRef, LegacyRef } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Container, Divider } from '@/core/components';
 import { Footer } from '.';
 import { useSidebar } from '@/core/components/ui/sidebar';

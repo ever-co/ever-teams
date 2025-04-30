@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollaborative, useQuery } from '@app/hooks';
+import { useCollaborative, useQuery } from '@/core/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api/meet-auth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';

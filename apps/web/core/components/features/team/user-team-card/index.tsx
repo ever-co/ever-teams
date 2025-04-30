@@ -9,7 +9,7 @@ import {
 	useAuthenticateUser,
 	useTeamMemberCard,
 	useUserProfilePage
-} from '@app/hooks';
+} from '@/core/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
 import { clsxm } from '@app/utils';

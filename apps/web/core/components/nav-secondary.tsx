@@ -10,7 +10,7 @@ import {
 	useSidebar
 } from '@/core/components/ui/sidebar';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 export function NavSecondary({
 	items,
 	...props

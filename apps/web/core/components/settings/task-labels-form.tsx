@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useTaskLabels } from '@app/hooks';
+import { useTaskLabels } from '@/core/hooks';
 import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';

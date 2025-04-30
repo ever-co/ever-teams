@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader } from '@/core/components';
-import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
+import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
 
 /**
  * GitHub integration page component.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { Avatar, Button, Text, Tooltip } from '@/core/components';
 import { CreateTeamModal } from '@/core/components/features';

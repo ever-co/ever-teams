@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@app/hooks';
+import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@/core/hooks';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { useCallback } from 'react';
 import { Button } from './button';

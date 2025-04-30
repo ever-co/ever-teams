@@ -4,9 +4,9 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/ui/button';
 import { SettingFilterIcon } from '@/assets/svg';
 import { MultiSelect } from '@/core/components/custom-select';
-import { cn } from '@/lib/utils';
-import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
-import { useTimelogFilterOptions } from '@/app/hooks';
+import { cn } from '@/core/lib/helpers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useTimelogFilterOptions } from '@/core/hooks';
 interface TeamDashboardFilterProps {
 	isManage?: boolean;
 }

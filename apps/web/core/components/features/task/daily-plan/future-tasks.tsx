@@ -3,7 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { EmptyPlans, PlanHeader } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { Button } from '@/core/components/ui/button';
-import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
@@ -11,10 +11,10 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { HorizontalSeparator, AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
 import { IDailyPlan, IUser } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useDateRange } from '@app/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {

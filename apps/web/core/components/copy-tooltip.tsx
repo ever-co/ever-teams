@@ -1,4 +1,4 @@
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Tooltip } from './tooltip';
 import { useState, PropsWithChildren } from 'react';
 

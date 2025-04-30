@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@app/hooks';
+import { useModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
@@ -16,7 +16,7 @@ import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@app/utils';
-import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 import { Heart } from 'lucide-react';
 
 const TaskTitleBlock = () => {

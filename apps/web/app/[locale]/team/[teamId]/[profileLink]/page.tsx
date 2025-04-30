@@ -1,8 +1,8 @@
 'use client';
 
 import { getActiveUserIdCookie } from '@app/helpers';
-import { useRefreshIntervalV2 } from '@app/hooks';
-import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
+import { useRefreshIntervalV2 } from '@/core/hooks';
+import { usePublicOrganizationTeams } from '@/core/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
 import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';

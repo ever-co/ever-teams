@@ -14,7 +14,7 @@ import { Poppins } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropsWithChildren, useEffect, use } from 'react';
 
-import { useCheckAPI } from '@app/hooks/useCheckAPI';
+import { useCheckAPI } from '@/core/hooks/useCheckAPI';
 import GlobalSkeleton from '@/core/components/ui/global-skeleton';
 import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';

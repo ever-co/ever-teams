@@ -5,7 +5,7 @@ import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';

@@ -11,7 +11,7 @@ import {
 	useTaskStatistics,
 	useTeamMemberCard,
 	useTimerView
-} from '@app/hooks';
+} from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/image-overlapper';
 import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from '@/core/components/kanban-card';

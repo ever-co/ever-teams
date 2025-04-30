@@ -19,9 +19,9 @@ import {
 } from '@/core/components/ui/dropdown-menu';
 import { Button } from '@/core/components/button';
 import { DatePicker } from '@/core/components/ui/DatePicker';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { format } from 'date-fns';
-import { useTimelogFilterOptions } from '@/app/hooks';
+import { useTimelogFilterOptions } from '@/core/hooks';
 import { TimesheetFilterByDays } from '@/app/interfaces';
 import { IconsCalendarMonthOutline } from '@/icons';
 

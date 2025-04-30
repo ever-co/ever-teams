@@ -9,7 +9,7 @@ import {
 } from '@app/constants';
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
-import { range } from 'lib/utils';
+import { range } from '@/core/lib/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';

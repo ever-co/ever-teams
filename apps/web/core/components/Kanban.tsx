@@ -14,19 +14,19 @@ import {
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
-import { useKanban } from '@app/hooks/features/useKanban';
+import { useKanban } from '@/core/hooks/features/useKanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 import { Modal } from './modal';
 import CreateTaskModal from '@/core/components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@/core/components/pages/kanban/edit-status-modal';
 import { ScrollArea } from '@/core/components/ui/scroll-area';
-import { cn } from '../../lib/utils';
+import { cn } from '../lib/helpers';
 
 const grid = 8;
 

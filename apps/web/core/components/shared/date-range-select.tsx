@@ -4,7 +4,7 @@ import * as React from 'react';
 import { endOfMonth, endOfWeek, format, isSameDay, startOfMonth, startOfWeek, subDays, subMonths } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/ui/button';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';

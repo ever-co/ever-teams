@@ -2,7 +2,7 @@ import { secondsToTime } from '@app/helpers/date';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { RawStatusDropdown } from '@/core/components/shared/tasks/status-dropdown';
 
-import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { timerSecondsState } from '@app/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';

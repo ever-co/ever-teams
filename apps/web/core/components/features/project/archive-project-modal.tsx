@@ -1,4 +1,4 @@
-import { useOrganizationProjects, useTeamTasks } from '@/app/hooks';
+import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';

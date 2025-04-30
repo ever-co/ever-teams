@@ -1,7 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -16,7 +16,7 @@ import {
 	Search,
 	Settings2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Breadcrumb, Button, Container, InputField, VerticalSeparator } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';

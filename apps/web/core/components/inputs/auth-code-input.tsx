@@ -4,7 +4,7 @@ import { clsxm } from '@app/utils';
 import React, { MutableRefObject, forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';
-import { useCallbackRef } from '@app/hooks';
+import { useCallbackRef } from '@/core/hooks';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 

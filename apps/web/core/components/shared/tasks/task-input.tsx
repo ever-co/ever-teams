@@ -3,7 +3,7 @@ import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { useCallback, useEffect, useState } from 'react';
 
-import { useTaskInput } from '@app/hooks';
+import { useTaskInput } from '@/core/hooks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import DeleteTask from './delete-task';

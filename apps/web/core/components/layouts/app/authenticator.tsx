@@ -1,6 +1,6 @@
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@app/helpers';
-import { useOrganizationTeams } from '@app/hooks';
-import { useQuery } from '@app/hooks/useQuery';
+import { useOrganizationTeams } from '@/core/hooks';
+import { useQuery } from '@/core/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { CreateTeamModal } from '@/core/components/features';

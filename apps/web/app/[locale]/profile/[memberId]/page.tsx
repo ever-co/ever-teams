@@ -7,7 +7,7 @@ import {
 	useLocalStorageState,
 	useOrganizationTeams,
 	useUserProfilePage
-} from '@app/hooks';
+} from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -24,7 +24,7 @@ import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { UserProfileDetail } from './components/user-profile-detail';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 // import { ActivityCalendar } from '@/core/components/features/activity/calendar';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';

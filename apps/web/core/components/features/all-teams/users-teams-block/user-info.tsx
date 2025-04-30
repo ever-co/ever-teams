@@ -1,4 +1,4 @@
-import { useTeamMemberCard } from '@app/hooks';
+import { useTeamMemberCard } from '@/core/hooks';
 import { OT_Member } from '@app/interfaces';
 import { UserBoxInfo } from '@/core/components/features/team/user-team-block/user-info';
 

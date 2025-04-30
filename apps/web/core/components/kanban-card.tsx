@@ -8,7 +8,7 @@ import {
 	useTeamMemberCard,
 	useTeamTasks,
 	useTimerView
-} from '@app/hooks';
+} from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from '@/core/components/features';
 import Link from 'next/link';

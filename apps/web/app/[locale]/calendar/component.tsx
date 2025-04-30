@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/ui/select';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';

@@ -1,9 +1,9 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@app/hooks';
+import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@app/interfaces';
 import { userState } from '@app/stores';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { RequestToJoinModal } from '@/core/components/layouts/default-layout/header/request-to-join-modal';
 import Collaborate from '@/core/components/shared/collaborate';
 import { Button, Container } from '@/core/components';

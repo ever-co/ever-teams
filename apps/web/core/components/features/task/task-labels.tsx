@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
+import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { Button, Card, Modal } from '@/core/components';
 import { TaskLabelForm } from '@/core/components/settings';

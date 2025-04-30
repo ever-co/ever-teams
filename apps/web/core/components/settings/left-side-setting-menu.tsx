@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useIsMemberManager, useLeftSettingData } from '@app/hooks';
+import { useIsMemberManager, useLeftSettingData } from '@/core/hooks';
 import { userState } from '@app/stores';
 import { scrollToElement } from '@app/utils';
 import { Text } from '@/core/components';

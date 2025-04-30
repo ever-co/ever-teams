@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@app/hooks';
+import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';

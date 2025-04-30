@@ -2,10 +2,10 @@
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
-import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationTeams } from '@app/hooks';
+import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationTeams } from '@/core/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@app/constants';
-import { useOrganizationProjects } from '@app/hooks';
+import { useOrganizationProjects } from '@/core/hooks';
 import { TrashIcon } from 'assets/svg';
 import { Button, InputField } from '@/core/components';
 import { getActiveProjectIdCookie } from '@app/helpers';

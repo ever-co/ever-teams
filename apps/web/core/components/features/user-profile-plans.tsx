@@ -2,7 +2,7 @@
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from '@/core/components';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
@@ -16,10 +16,10 @@ import {
 	useTeamTasks,
 	useTimer,
 	useUserProfilePage
-} from '@app/hooks';
-import { useDateRange } from '@app/hooks/useDateRange';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
-import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+} from '@/core/hooks';
+import { useDateRange } from '@/core/hooks/useDateRange';
+import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
+import { useLocalStorageState } from '@/core/hooks/useLocalStorageState';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,

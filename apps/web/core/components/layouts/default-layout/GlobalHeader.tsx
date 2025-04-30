@@ -3,7 +3,7 @@ import React, { forwardRef, LegacyRef, useState } from 'react';
 import { Navbar } from '.';
 import { useSidebar } from '@/core/components/ui/sidebar';
 import { ResizableHandle, ResizablePanel } from '@/core/components/ui/resizable';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 export interface GlobalHeaderProps {
 	fullWidth?: boolean;
 	showTimer?: boolean;

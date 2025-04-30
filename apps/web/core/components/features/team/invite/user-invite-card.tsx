@@ -1,4 +1,4 @@
-import { useTeamInvitations } from '@app/hooks';
+import { useTeamInvitations } from '@/core/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';

@@ -1,4 +1,4 @@
-import { HostKeys, useHotkeys, useModal } from '@app/hooks';
+import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Modal } from '@/core/components';

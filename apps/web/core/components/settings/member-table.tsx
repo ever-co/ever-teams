@@ -1,7 +1,7 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { useOrganizationTeams, useSettings, useSyncRef } from '@app/hooks';
-import { usePagination } from '@app/hooks/features/usePagination';
+import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { IRole, OT_Member, OT_Role } from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';

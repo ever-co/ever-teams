@@ -1,6 +1,6 @@
 import { Button } from '@/core/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useEffect, useState } from 'react';
 import {
 	Select,

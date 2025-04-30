@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } from 'date-fns';
 import { enGB } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
+import { cn } from '@/core/lib/helpers';
+import { GroupedTimesheet } from '@/core/hooks/features/useTimesheet';
 import { TotalDurationByDate } from '@/core/components/features';
 import { formatDate } from '@/app/helpers';
 import { TranslationHooks } from 'next-intl';

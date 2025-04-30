@@ -1,7 +1,7 @@
 'use client';
 import { KanbanTabs } from '@app/constants';
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
-import { useKanban } from '@app/hooks/features/useKanban';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useKanban } from '@/core/hooks/features/useKanban';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { KanbanView } from '@/core/components/features/team-members-kanban-view';
@@ -30,7 +30,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { ITeamTask } from '@app/interfaces';
 import KanbanBoardSkeleton from '@/core/components/shared/skeleton/KanbanBoardSkeleton';
 

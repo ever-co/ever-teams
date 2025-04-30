@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@/core/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';

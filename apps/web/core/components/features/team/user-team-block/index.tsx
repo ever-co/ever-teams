@@ -1,6 +1,6 @@
 import React from 'react';
 import { secondsToTime } from '@app/helpers';
-import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@app/hooks';
+import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@/core/hooks';
 import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';

@@ -1,4 +1,4 @@
-import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@app/hooks';
+import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { ProgressBar } from '@/core/components';

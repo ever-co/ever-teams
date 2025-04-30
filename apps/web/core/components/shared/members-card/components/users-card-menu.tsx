@@ -1,4 +1,4 @@
-import { useTaskInput } from '@app/hooks';
+import { useTaskInput } from '@/core/hooks';
 import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

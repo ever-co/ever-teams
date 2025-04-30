@@ -4,7 +4,7 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -19,7 +19,7 @@ import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
 import { IconsErrorWarningFill } from '@/icons';

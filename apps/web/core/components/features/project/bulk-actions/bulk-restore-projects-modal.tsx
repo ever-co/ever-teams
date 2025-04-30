@@ -1,4 +1,4 @@
-import { useOrganizationProjects } from '@/app/hooks';
+import { useOrganizationProjects } from '@/core/hooks';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';

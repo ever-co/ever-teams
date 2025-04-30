@@ -1,5 +1,5 @@
 import { imgTitle } from '@app/helpers';
-import { useTeamTasks } from '@app/hooks';
+import { useTeamTasks } from '@/core/hooks';
 import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';

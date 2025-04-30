@@ -1,5 +1,5 @@
 import { Card } from '@/core/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Check } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import AddOrEditContainer, { TStepData } from './container';

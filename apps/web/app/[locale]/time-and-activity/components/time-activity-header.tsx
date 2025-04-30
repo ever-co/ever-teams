@@ -3,7 +3,7 @@ import React from 'react';
 import ViewSelect, { ViewOption } from './view-select';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 import { DateRange } from 'react-day-picker';
-import { GroupByType } from '@/app/hooks/features/useReportActivity';
+import { GroupByType } from '@/core/hooks/features/useReportActivity';
 import { GroupBySelectTimeActivity } from '@/core/components/group-by-select-time-activity';
 import { TimeActivityFilterPopover } from './time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';

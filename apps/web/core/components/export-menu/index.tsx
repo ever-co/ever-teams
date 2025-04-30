@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import type { DocumentProps } from '@react-pdf/renderer';
 import { useTranslations } from 'next-intl';
-import { GroupByType } from '@/app/hooks/features/useReportActivity';
+import { GroupByType } from '@/core/hooks/features/useReportActivity';
 
 /**
  * Props interface for the ExportMenu component

@@ -14,7 +14,7 @@ import {
 	useRef,
 	useState
 } from 'react';
-import { useOutsideClick } from '@app/hooks/useOutsideClick';
+import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 import data from '@emoji-mart/data';

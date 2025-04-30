@@ -6,7 +6,7 @@ import {
 	useReactTable,
 	VisibilityState
 } from '@tanstack/react-table';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import { ITeamTask } from '@/app/interfaces';
 import { ReactNode } from 'react';

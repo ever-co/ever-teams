@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { useToast } from '@/core/components/ui/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
 import React from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {

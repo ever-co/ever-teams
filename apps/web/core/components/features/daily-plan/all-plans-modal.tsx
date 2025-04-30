@@ -4,13 +4,13 @@ import { clsxm } from '@app/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from './add-task-estimation-hours-modal';
-import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { Button } from '@/core/components/ui/button';
 import { Calendar } from '@/core/components/ui/calendar';
 import { DailyPlanStatusEnum, IDailyPlan } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { ActiveModifiers } from 'react-day-picker';
 

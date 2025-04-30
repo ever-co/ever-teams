@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
+import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
 import { IClassName, ITimerStatusEnum } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar } from '@/core/components';

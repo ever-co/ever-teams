@@ -3,14 +3,14 @@ import '@/styles/style.css';
 
 import { format } from 'date-fns';
 import { Button, Modal } from '@/core/components';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { CalendarDays, Clock7 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { manualTimeReasons } from '@app/constants';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
-import { useManualTime } from '@app/hooks/features/useManualTime';
+import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
+import { useManualTime } from '@/core/hooks/features/useManualTime';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { clsxm } from '@app/utils';

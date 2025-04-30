@@ -1,7 +1,7 @@
 'use client';
 
 import { mergeRefs, secondsToTime } from '@app/helpers';
-import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@app/hooks';
+import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@/core/hooks';
 import { IClassName, IDailyPlan } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { SpinnerLoader, Text } from '@/core/components';
@@ -9,7 +9,7 @@ import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg'
 import { TaskEstimate, TaskProgressBar } from '@/core/components/features';
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
