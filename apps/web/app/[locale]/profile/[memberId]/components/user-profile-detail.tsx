@@ -1,4 +1,4 @@
-import { useTimer } from '@app/hooks';
+import { useTimer } from '@/core/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { isValidUrl } from '@app/utils';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/features';

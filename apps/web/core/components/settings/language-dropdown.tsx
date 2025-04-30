@@ -1,4 +1,4 @@
-import { useLanguageSettings } from '@app/hooks';
+import { useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { Dropdown } from '@/core/components';
 import { mapLanguageItems, LanguageItem } from '@/core/components/features';

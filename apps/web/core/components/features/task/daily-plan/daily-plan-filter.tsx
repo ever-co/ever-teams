@@ -1,5 +1,5 @@
 import { formatDayPlanDate } from '@app/helpers';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';

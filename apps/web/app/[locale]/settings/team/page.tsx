@@ -5,7 +5,7 @@ import { Card } from '@/core/components';
 
 import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from '@/core/components/settings';
 
-import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
+import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { fetchingTeamInvitationsState, userState } from '@app/stores';
 import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';

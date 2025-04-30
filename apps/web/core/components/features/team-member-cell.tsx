@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@app/hooks';
+import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
 import { OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { InputField } from '@/core/components';

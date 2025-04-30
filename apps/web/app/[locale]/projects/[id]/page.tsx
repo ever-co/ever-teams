@@ -1,7 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useOrganizationTeams } from '@/app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 
 function Page() {

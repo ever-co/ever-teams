@@ -1,12 +1,18 @@
-import { useAuthenticateUser, useModal, useOrganizationTeams, useTMCardTaskEdit, useTeamMemberCard } from '@app/hooks';
-import { useRoles } from '@app/hooks/features/useRoles';
+import {
+	useAuthenticateUser,
+	useModal,
+	useOrganizationTeams,
+	useTMCardTaskEdit,
+	useTeamMemberCard
+} from '@/core/hooks';
+import { useRoles } from '@/core/hooks/features/useRoles';
 import { OT_Member, RoleNameEnum } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { useDropdownAction } from '@/core/components/features/team/user-team-card/user-team-card-menu';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
-import { useEmployeeUpdate } from '@app/hooks/features/useEmployee';
+import { useEmployeeUpdate } from '@/core/hooks/features/useEmployee';
 
 type Props = {
 	member: OT_Member;

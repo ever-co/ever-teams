@@ -27,7 +27,7 @@ import {
 	useTaskStatus,
 	useTaskVersion,
 	useTeamTasks
-} from '@app/hooks';
+} from '@/core/hooks';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
 import { XMarkIcon } from '@heroicons/react/24/outline';

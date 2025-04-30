@@ -1,7 +1,7 @@
 'use client';
 
-import { useOrganizationTeams, useTeamInvitations } from '@app/hooks';
-import { useEmployee } from '@app/hooks/features/useEmployee';
+import { useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { useEmployee } from '@/core/hooks/features/useEmployee';
 import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';

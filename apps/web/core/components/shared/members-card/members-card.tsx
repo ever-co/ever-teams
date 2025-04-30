@@ -1,10 +1,10 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/shared/members-card/components/users-card-menu';
-import { useAuthenticateUser } from '@app/hooks';
-import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { useAuthenticateUser } from '@/core/hooks';
+import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
-import { useOutsideClick } from '@app/hooks/useOutsideClick';
+import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { mergeRefs } from '@app/helpers/merge-refs';
 import Separator from '@/core/components/ui/separator';
 import { WorkedOnTask } from './components/worked-on-task';

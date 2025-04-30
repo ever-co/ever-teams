@@ -3,7 +3,7 @@ import { Button, InputField, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { StatusesListCard } from './list-card';
 
-import { useRefetchData, useTaskRelatedIssueType } from '@app/hooks';
+import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
 import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

@@ -1,4 +1,4 @@
-import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
+import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
 import { RoleNameEnum } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Button, ColorPicker, InputField, Text, Tooltip } from '@/core/components';

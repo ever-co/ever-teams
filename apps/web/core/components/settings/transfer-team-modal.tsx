@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { IOrganizationTeamMember } from '@app/interfaces';
 import { activeTeamManagersState } from '@app/stores';
 import { BackButton, Button, Card, Modal, Text } from '@/core/components';

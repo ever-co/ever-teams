@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useIssueType } from '@app/hooks';
+import { useIssueType } from '@/core/hooks';
 import { IIcon, IIssueTypesItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

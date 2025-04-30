@@ -2,7 +2,7 @@ import { ITeamTask } from '@/app/interfaces';
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
-import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/app/hooks';
+import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
 

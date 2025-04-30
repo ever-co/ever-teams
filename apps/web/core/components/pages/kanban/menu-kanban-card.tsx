@@ -1,4 +1,4 @@
-import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } from '@app/hooks';
+import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { activeTeamTaskId } from '@app/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';

@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useRefetchData } from '@app/hooks';
-import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
+import { useRefetchData } from '@/core/hooks';
+import { useTaskSizes } from '@/core/hooks/features/useTaskSizes';
 import { IIcon, ITaskSizesItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';

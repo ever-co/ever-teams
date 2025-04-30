@@ -1,5 +1,5 @@
 import { UserInfo } from '@/core/components/features/team/user-team-card/user-info';
-import { useTeamMemberCard } from '@app/hooks';
+import { useTeamMemberCard } from '@/core/hooks';
 import { useEffect } from 'react';
 import { IEmployee } from '@app/interfaces';
 import { IconsCheck } from '@/icons';

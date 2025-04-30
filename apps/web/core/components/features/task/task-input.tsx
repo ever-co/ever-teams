@@ -12,7 +12,7 @@ import {
 	useOutsideClick,
 	useTaskInput,
 	useTaskLabels
-} from '@app/hooks';
+} from '@/core/hooks';
 import {
 	IIssueTypesItemList,
 	ITaskIssue,
@@ -36,7 +36,7 @@ import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
+import { useInfinityScrolling } from '@/core/hooks/useInfinityFetch';
 import { ObserverComponent } from '@/core/components/shared/Observer';
 import { LazyRender } from '@/core/components/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';

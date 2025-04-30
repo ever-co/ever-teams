@@ -3,7 +3,7 @@ import DataTable from '@/core/components/ui/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { OT_Member } from '@app/interfaces';
 import { UserInfoCell, TaskCell, WorkedOnTaskCell, TaskEstimateInfoCell, ActionMenuCell } from './team-member-cell';
-import { useAuthenticateUser, useModal } from '@app/hooks';
+import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { useTranslations } from 'next-intl';

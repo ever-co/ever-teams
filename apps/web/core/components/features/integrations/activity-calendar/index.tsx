@@ -1,6 +1,6 @@
 'use client';
 
-import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
+import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
 import { Fragment, useMemo, useState } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import Skeleton from 'react-loading-skeleton';

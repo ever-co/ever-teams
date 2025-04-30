@@ -1,7 +1,7 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@app/interfaces';
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@/core/hooks';
 import { Avatar, Card, Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@app/helpers';
 import { ReloadIcon } from '@radix-ui/react-icons';

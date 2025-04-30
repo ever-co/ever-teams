@@ -3,7 +3,7 @@ import { Button } from '@/core/components/ui/button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { IDailyPlan } from '@app/interfaces';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
+import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 
 interface IAddDailyPlanWorkHoursModalProps {

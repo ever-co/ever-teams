@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallbackRef, useTaskEstimation } from '@app/hooks';
+import { useCallbackRef, useTaskEstimation } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useLocalStorageState, useModal, useOrganizationTeams } from '@/core/hooks';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';

@@ -1,38 +1,38 @@
 import * as React from 'react';
 import {
-    MonitorSmartphone,
-    LayoutDashboard,
-    Heart,
-    SquareActivity,
-    Files,
-    X,
-    Command,
-    AudioWaveform,
-    GalleryVerticalEnd,
-    FolderKanban
+	MonitorSmartphone,
+	LayoutDashboard,
+	Heart,
+	SquareActivity,
+	Files,
+	X,
+	Command,
+	AudioWaveform,
+	GalleryVerticalEnd,
+	FolderKanban
 } from 'lucide-react';
 import Image from 'next/image';
 
 import { NavMain } from '@/core/components/nav-main';
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarRail,
-    SidebarTrigger,
-    useSidebar,
-    SidebarMenuSubButton,
-    SidebarFooter
+	Sidebar,
+	SidebarContent,
+	SidebarHeader,
+	SidebarRail,
+	SidebarTrigger,
+	useSidebar,
+	SidebarMenuSubButton,
+	SidebarFooter
 } from '@/core/components/ui/sidebar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
-import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
+import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
+import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 import { CreateTeamModal, TaskIssueStatus } from '@/core/components/features';
 import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
-import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
+import { useActiveTeam } from '@/core/hooks/features/useActiveTeam';
 import { useMemo } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {

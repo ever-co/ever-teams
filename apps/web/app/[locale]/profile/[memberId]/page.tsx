@@ -7,7 +7,7 @@ import {
 	useLocalStorageState,
 	useOrganizationTeams,
 	useUserProfilePage
-} from '@app/hooks';
+} from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';

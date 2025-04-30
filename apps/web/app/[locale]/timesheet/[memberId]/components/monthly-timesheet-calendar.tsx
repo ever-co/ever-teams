@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from 'date-fns';
-import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
+import { GroupedTimesheet } from '@/core/hooks/features/useTimesheet';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { TotalDurationByDate } from '@/core/components/features';

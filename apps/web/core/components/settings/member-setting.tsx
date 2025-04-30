@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
 import { Button, InputField, NoData, Text } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/team/invite/invite-form-modal';

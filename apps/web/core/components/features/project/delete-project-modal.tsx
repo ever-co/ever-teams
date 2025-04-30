@@ -1,4 +1,4 @@
-import { useOrganizationProjects } from '@/app/hooks';
+import { useOrganizationProjects } from '@/core/hooks';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';

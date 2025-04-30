@@ -9,7 +9,7 @@ import {
 	useTaskInput,
 	useTaskLabels,
 	useTaskStatus
-} from '@app/hooks';
+} from '@/core/hooks';
 import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';

@@ -1,6 +1,6 @@
 import { imgTitle } from '@app/helpers';
-import { useRequestToJoinTeam } from '@app/hooks';
-import { usePagination } from '@app/hooks/features/usePagination';
+import { useRequestToJoinTeam } from '@/core/hooks';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from '@/core/components';

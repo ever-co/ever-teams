@@ -2,19 +2,19 @@
 
 import * as React from 'react';
 import {
-    Column,
-    ColumnDef,
-    ColumnFiltersState,
-    OnChangeFn,
-    RowSelectionState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable
+	Column,
+	ColumnDef,
+	ColumnFiltersState,
+	OnChangeFn,
+	RowSelectionState,
+	SortingState,
+	VisibilityState,
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
 import { Checkbox } from '@/core/components/ui/checkbox';
@@ -23,7 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { useModal, useTaskStatus } from '@/app/hooks';
+import { useModal, useTaskStatus } from '@/core/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';

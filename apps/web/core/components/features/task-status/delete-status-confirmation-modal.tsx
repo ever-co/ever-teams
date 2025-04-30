@@ -1,5 +1,5 @@
 import { ITaskStatusItemList, TaskStatusEnum } from '@/app/interfaces';
-import { useTaskStatus, useTeamTasks } from '@app/hooks';
+import { useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';

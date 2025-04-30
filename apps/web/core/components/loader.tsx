@@ -1,4 +1,4 @@
-import { useHasMounted } from '@app/hooks';
+import { useHasMounted } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { createPortal } from 'react-dom';
 import { Card } from './card';

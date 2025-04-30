@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useEmailReset } from '@app/hooks';
+import { useAuthenticateUser, useEmailReset } from '@/core/hooks';
 import { AuthCodeInputField, Button, Card, InputField, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';

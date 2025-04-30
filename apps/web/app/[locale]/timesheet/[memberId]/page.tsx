@@ -14,7 +14,7 @@ import {
 	useModal,
 	useOrganizationProjects,
 	useOrganizationTeams
-} from '@app/hooks';
+} from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -35,13 +35,13 @@ import {
 import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
-import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/timesheet-detail-modal';
-import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPagination';
+import { useTimesheetPagination } from '@/core/hooks/features/useTimesheetPagination';
 import TimesheetPagination from './components/timesheet-pagination';
-import { useTimesheetFilters } from '@/app/hooks/features/useTimesheetFilters';
-import { useTimesheetViewData } from '@/app/hooks/features/useTimesheetViewData';
+import { useTimesheetFilters } from '@/core/hooks/features/useTimesheetFilters';
+import { useTimesheetViewData } from '@/core/hooks/features/useTimesheetViewData';
 import { IconsSearch } from '@/icons';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';

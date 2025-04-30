@@ -1,4 +1,4 @@
-import { useCallbackRef, useTeamTasks } from '@app/hooks';
+import { useCallbackRef, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@app/stores';
 import { Button } from '@/core/components';
 import Image from 'next/image';

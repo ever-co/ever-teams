@@ -5,7 +5,7 @@ import { HeadTimeSheet } from '@app/[locale]/calendar/component';
 import { statusOptions, timesheetCalendar } from './helper-calendar';
 import { StatusBadge } from './confirm-change-status';
 import { RiDeleteBinLine } from 'react-icons/ri';
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 
 interface ISetupTimeSheetProps {
 	timesheet?: timesheetCalendar;

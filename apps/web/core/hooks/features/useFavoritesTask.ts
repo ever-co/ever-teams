@@ -1,4 +1,4 @@
-import { useTeamTasks } from '@/app/hooks/features/useTeamTasks';
+import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITeamTask } from '@/app/interfaces/ITask';
 import { useAtom } from 'jotai';
 import { favoriteTasksStorageAtom } from '@/app/stores/team-tasks';

@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@app/hooks';
+import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';

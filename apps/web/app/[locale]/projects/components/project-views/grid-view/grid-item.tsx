@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';
-import { useModal, useTaskStatus } from '@/app/hooks';
+import { useModal, useTaskStatus } from '@/core/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@/core/components/shared/avatar-stack';

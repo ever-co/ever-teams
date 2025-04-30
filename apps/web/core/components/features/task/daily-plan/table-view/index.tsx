@@ -6,7 +6,7 @@ import DailyPlanTaskEstimationCell from './cells/task-estimation-cell';
 import DailyPlanTaskInfoCell from './cells/task-info-cell';
 import DailyPlanTaskTimesCell from './cells/task-times-cell';
 import TaskActionMenuCell from './cells/task-action-menu-cell';
-import { FilterTabs, I_UserProfilePage } from '@/app/hooks';
+import { FilterTabs, I_UserProfilePage } from '@/core/hooks';
 
 interface IDailyPlanTasksTableViewProps {
 	data: ITeamTask[];

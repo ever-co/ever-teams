@@ -1,4 +1,4 @@
-import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';

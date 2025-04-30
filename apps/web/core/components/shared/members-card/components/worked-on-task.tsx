@@ -1,5 +1,5 @@
 import { secondsToTime } from '@app/helpers/date';
-import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { useTranslations } from 'next-intl';
 

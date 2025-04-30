@@ -16,10 +16,10 @@ import {
 	useTeamTasks,
 	useTimer,
 	useUserProfilePage
-} from '@app/hooks';
-import { useDateRange } from '@app/hooks/useDateRange';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
-import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+} from '@/core/hooks';
+import { useDateRange } from '@/core/hooks/useDateRange';
+import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
+import { useLocalStorageState } from '@/core/hooks/useLocalStorageState';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,

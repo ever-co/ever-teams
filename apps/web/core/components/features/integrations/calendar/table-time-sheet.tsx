@@ -25,7 +25,7 @@ import {
 } from '@/core/components/ui/select';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import { ConfirmStatusChange, statusOptions } from '.';
-import { useModal, useTimelogFilterOptions } from '@app/hooks';
+import { useModal, useTimelogFilterOptions } from '@/core/hooks';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { clsxm } from '@/app/utils';
@@ -43,7 +43,7 @@ import {
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
-import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,

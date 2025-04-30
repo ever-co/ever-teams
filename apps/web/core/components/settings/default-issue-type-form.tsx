@@ -2,7 +2,7 @@
 import { SpinnerLoader, Text, Tooltip } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
-import { useIssueType } from '@app/hooks';
+import { useIssueType } from '@/core/hooks';
 import { IIssueTypesItemList } from '@app/interfaces';
 import { getTextColor } from '@app/helpers';
 import { StatusesListCard } from './list-card';

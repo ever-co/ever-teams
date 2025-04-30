@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { useTeamMemberCard } from '@app/hooks';
+import { useTeamMemberCard } from '@/core/hooks';
 import { OT_Member } from '@app/interfaces';
 import { TodayWorkedTime } from '@/core/components/features/task/task-times';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { mergeRefs, secondsToTime } from '@app/helpers';
-import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@app/hooks';
+import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@/core/hooks';
 import { IClassName, IDailyPlan } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { SpinnerLoader, Text } from '@/core/components';

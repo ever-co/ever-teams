@@ -1,4 +1,4 @@
-import { IHookModal, useTeamTasks } from '@app/hooks';
+import { IHookModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@app/interfaces';
 import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { TaskInput } from '@/core/components/features';

@@ -4,7 +4,7 @@ import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
 import { AddTaskModal } from './add-mask-modal';
 import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
-import { useTimelogFilterOptions } from '@/app/hooks';
+import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from './timesheet-icons';
 
 interface ITimesheetFilter {

@@ -1,4 +1,4 @@
-import { useRoles } from '@app/hooks/features/useRoles';
+import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';

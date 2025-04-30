@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useAtom, useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 

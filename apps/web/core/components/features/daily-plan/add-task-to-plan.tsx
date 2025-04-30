@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan } from '@/core/hooks';
 import { DailyPlanStatusEnum, IDailyPlan, ITeamTask, OT_Member } from '@app/interfaces';
 import {
 	Command,

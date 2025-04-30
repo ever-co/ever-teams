@@ -7,7 +7,7 @@ import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { clsxm } from '@app/utils';
 import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
-import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
+import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';

@@ -1,5 +1,5 @@
 import { secondsToTime } from '@app/helpers/date';
-import { useTimer } from '@app/hooks/features/useTimer';
+import { useTimer } from '@/core/hooks/features/useTimer';
 
 export function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
 	const { timerStatus } = useTimer();

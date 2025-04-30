@@ -2,17 +2,17 @@ import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@app/helper
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, FilterTabs, PlanHeader } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from '@/core/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
 import { useEffect, useState } from 'react';
 import { IDailyPlan, IUser } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
-import { useDateRange } from '@app/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 
 export function PastTasks({

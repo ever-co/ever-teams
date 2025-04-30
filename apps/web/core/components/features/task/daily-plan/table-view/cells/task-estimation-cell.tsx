@@ -1,4 +1,4 @@
-import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/app/hooks';
+import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { ITeamTask } from '@/app/interfaces';
 import { TaskEstimateInfo } from '@/core/components/features/team/user-team-card/task-estimate';
 import { CellContext } from '@tanstack/react-table';

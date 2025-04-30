@@ -9,14 +9,14 @@ import { Button } from '@/core/components/ui/button';
 import { TeamStatsGrid } from './components/team-stats-grid';
 import { TeamStatsTable } from './components/team-stats-table';
 import { DashboardHeader } from './components/dashboard-header';
-import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
+import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useReportActivity } from '@/app/hooks/features/useReportActivity';
+import { useReportActivity } from '@/core/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
 import { TeamStatsChart } from './components/team-stats-chart';
 

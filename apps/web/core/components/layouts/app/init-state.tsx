@@ -20,14 +20,14 @@ import {
 	useTeamInvitations,
 	useTeamTasks,
 	useTimer
-} from '@app/hooks';
-import { useEmployee } from '@app/hooks/features/useEmployee';
-import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
+} from '@/core/hooks';
+import { useEmployee } from '@/core/hooks/features/useEmployee';
+import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
 import { publicState, userState } from '@app/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useRoles } from '@/app/hooks/features/useRoles';
+import { useRoles } from '@/core/hooks/features/useRoles';
 
 export function AppState() {
 	const user = useAtomValue(userState);

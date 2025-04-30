@@ -1,4 +1,4 @@
-import { useCallbackRef } from '@app/hooks';
+import { useCallbackRef } from '@/core/hooks';
 import React, { JSX } from 'react';
 
 export const ObserverComponent = ({

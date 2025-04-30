@@ -1,4 +1,4 @@
-import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { IInviteProps } from '@app/interfaces/hooks';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';

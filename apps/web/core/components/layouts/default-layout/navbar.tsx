@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@app/hooks';
+import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { cn } from '@/lib/utils';

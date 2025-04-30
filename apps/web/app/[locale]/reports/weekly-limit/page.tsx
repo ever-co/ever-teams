@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Paginate } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -9,11 +9,11 @@ import { DatePickerWithRange } from '@/core/components/shared/date-range-select'
 import { MembersSelect } from './components/members-select';
 import { GroupBySelect, TGroupByOption } from './components/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
-import { useTimeLimits } from '@/app/hooks/features/useTimeLimits';
+import { useTimeLimits } from '@/core/hooks/features/useTimeLimits';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
 import { getUserOrganizationsRequest } from '@/app/services/server/requests';
 import { IOrganization } from '@/app/interfaces';

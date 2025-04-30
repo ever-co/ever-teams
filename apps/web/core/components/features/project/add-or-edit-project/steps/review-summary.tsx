@@ -1,7 +1,7 @@
 import { Button, VerticalSeparator } from '@/core/components';
 import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
-import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
@@ -14,7 +14,7 @@ import {
 } from '@/app/interfaces';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { useRoles } from '@/app/hooks/features/useRoles';
+import { useRoles } from '@/core/hooks/features/useRoles';
 import { RolesEnum } from '@/app/interfaces/IRoles';
 
 export default function FinalReview(props: IStepElementProps) {

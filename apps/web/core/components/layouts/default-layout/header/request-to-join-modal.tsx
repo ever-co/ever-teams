@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@app/hooks';
+import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
 import { IRequestToJoinCreate } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';

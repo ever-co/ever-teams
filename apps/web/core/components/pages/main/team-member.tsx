@@ -1,6 +1,6 @@
-import { useAuthenticateUser } from '@app/hooks';
-import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
-import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
+import { useAuthenticateUser } from '@/core/hooks';
+import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
+import { useTeamInvitations } from '@/core/hooks/features/useTeamInvitations';
 import InviteCard from '@/core/components/shared/invite/invite-card';
 import { InvitedCard } from '@/core/components/shared/invite/invited-card';
 import UsersCard from '@/core/components/shared/members-card/members-card';

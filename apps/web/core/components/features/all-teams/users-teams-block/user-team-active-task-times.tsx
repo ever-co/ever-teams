@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTeamTasks } from '@app/hooks';
+import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { TaskTimes } from '@/core/components/features/task/task-times';
 import { useEffect, useState } from 'react';

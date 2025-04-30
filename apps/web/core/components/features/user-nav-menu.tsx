@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
 import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
 import { publicState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';

@@ -6,9 +6,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator
 } from '@/core/components/ui/dropdown-menu';
-import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 import { ITeamTask } from '@app/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';

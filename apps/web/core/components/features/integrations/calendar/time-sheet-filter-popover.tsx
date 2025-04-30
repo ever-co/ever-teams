@@ -1,4 +1,4 @@
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { Button } from '@/core/components/ui/button';
 import { Modal } from '@/core/components';
 import { statusOptions } from '@app/constants';

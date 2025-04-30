@@ -12,10 +12,10 @@ import {
 	IProjectWithActivity
 } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
-import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-config';
-import { useSortableData } from '@/app/hooks/useSortableData';
+import { useProductivityApplicationTableConfig } from '@/core/hooks/use-table-config';
+import { useSortableData } from '@/core/hooks/useSortableData';
 import { SortPopover } from '@/core/components/ui/sort-popover';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/features/usePagination';
 import { Paginate } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { format } from 'date-fns';

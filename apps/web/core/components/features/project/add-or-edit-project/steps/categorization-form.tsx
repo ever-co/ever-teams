@@ -6,7 +6,7 @@ import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
 import { IStepElementProps } from '../container';
-import { useTags } from '@/app/hooks/features/useTags';
+import { useTags } from '@/core/hooks/features/useTags';
 import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
 

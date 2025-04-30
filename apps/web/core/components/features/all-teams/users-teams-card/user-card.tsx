@@ -9,7 +9,7 @@ import UserTeamActiveTaskTimes from './user-team-active-task-times';
 import UserTeamActiveTaskEstimate from './user-team-task-estimate';
 import UserTeamActiveTaskTodayWorked from './user-team-today-worked';
 import { UserTeamCardMenu } from '@/core/components/features/team/user-team-card/user-team-card-menu';
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@app/hooks';
+import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 
 export default function UserTeamCard({

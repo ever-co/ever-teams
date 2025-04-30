@@ -1,4 +1,4 @@
-import { useAuthenticationPasscode } from '@app/hooks';
+import { useAuthenticationPasscode } from '@/core/hooks';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 

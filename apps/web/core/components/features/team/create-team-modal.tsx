@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';

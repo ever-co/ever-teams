@@ -1,5 +1,5 @@
 import { Button, VerticalSeparator } from '@/core/components';
-import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
 import { useTaskFilter, TaskNameFilter } from '@/core/components/features';
 import { taskBlockFilterState } from '@app/stores/task-filter';
 import { useAtom } from 'jotai';

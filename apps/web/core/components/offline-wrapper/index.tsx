@@ -4,7 +4,7 @@ import { useNetworkState } from '@uidotdev/usehooks';
 import { PropsWithChildren } from 'react';
 import dynamic from 'next/dynamic';
 import Offline from '@/core/components/pages/offline';
-import { useTimerView } from '@app/hooks';
+import { useTimerView } from '@/core/hooks';
 import { usePathname } from 'next/navigation';
 
 /**

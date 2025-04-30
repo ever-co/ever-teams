@@ -1,4 +1,4 @@
-import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { statusColor } from '@/core/components';
 import {
 	DisplayTimeForTimesheet,
@@ -13,7 +13,7 @@ import { formatDate } from '@/app/helpers';
 import { ClockIcon, CodeSquareIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';
-import { useTimelogFilterOptions } from '@/app/hooks';
+import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from './weekly-timesheet-calendar';
 import { TimesheetLog } from '@/app/interfaces';
 import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';

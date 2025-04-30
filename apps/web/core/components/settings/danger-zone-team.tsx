@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from '@/core/components';
 import { useCallback, useState } from 'react';

@@ -9,7 +9,7 @@ import {
 	useOutsideClick,
 	useModal,
 	useLocalStorageState
-} from '@app/hooks';
+} from '@/core/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -24,12 +24,12 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
-import { useDateRange } from '@app/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
-import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
+import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
 import { usePathname } from 'next/navigation';

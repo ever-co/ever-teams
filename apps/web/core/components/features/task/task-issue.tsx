@@ -1,4 +1,4 @@
-import { useModal } from '@app/hooks';
+import { useModal } from '@/core/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
