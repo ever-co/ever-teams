@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import {
 	View,
 	ViewStyle,
@@ -99,7 +99,7 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 					</>
 				) : (
 					<TaskVersionForm
-						onDismiss={() => setCreateVersionMode(false)}
+						onDismiss={useCallback(() => setCreateVersionMode(false), [])}
 						onCreateVersion={createTaskVersion}
 						onUpdateVersion={updateTaskVersion}
 						isEdit={false}
