@@ -22,14 +22,13 @@ ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
 FROM node:${NODE_VERSION}-slim AS base
 
-# Output the environment variable value
+# Output the environment variable value (debug)
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
 
 LABEL maintainer="ever@ever.co"
 LABEL org.opencontainers.image.source https://github.com/ever-co/ever-teams
 
-# Next.js app lives here
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -37,9 +36,9 @@ ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 ENV NEXT_SHARP_PATH=/temp/node_modules/sharp
 
 RUN npm i -g npm@9
-# Install sharp, NextJS image optimization
-RUN mkdir /temp && cd /temp && \
-	npm i sharp
+
+# Pre-install Sharp for Next.js image optimization support
+RUN mkdir /temp && cd /temp && npm i sharp
 
 RUN npm cache clean --force
 
@@ -70,43 +69,46 @@ RUN apt-get update -qq && \
 # Install Yarn
 RUN npm install -g yarn --force
 
-# Install node modules
-COPY package.json ./
-COPY yarn.lock ./
+# --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
+COPY package.json yarn.lock ./
 COPY apps/web/package.json ./apps/web/package.json
 
-RUN cd apps/web && \
-	yarn install --ignore-scripts
+# Set working directory to the web app
+WORKDIR /app/apps/web
 
-# Copy application code
+# --- STEP 2: Install deps in deterministic and cacheable way ---
+RUN yarn install --frozen-lockfile --non-interactive --ignore-scripts
+
+# --- STEP 3: Copy the rest of the repo for build ---
+WORKDIR /app
 COPY . .
 
+# Set production env
 ENV NODE_ENV=production
 ENV NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
-RUN echo $NEXT_PUBLIC_GAUZY_API_SERVER_URL
-
-# Build application
+# --- STEP 4: Build the web application ---
 RUN yarn run build:web
 
-# Remove development dependencies
-RUN cd apps/web && \
-	yarn install --prod --ignore-scripts
-
+# --- STEP 5: Remove dev dependencies and clean cache --- Remove dev dependencies (to reduce final image size)
+WORKDIR /app/apps/web
+RUN yarn install --prod --ignore-scripts
 RUN yarn cache clean
 
+# ------------------------------------------------------------------------------
+# Runtime stage: lightweight image that serves the built application
+# ------------------------------------------------------------------------------
 
-# Final stage for app image
 FROM base
 
-# Copy built application
+# Copy build artifacts from the previous stage
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build /app/apps/web/public ./apps/web/public
 
-# Start the server by default, this can be overwritten at runtime
+# Default port for the web server
 EXPOSE 3030
-
 ENV PORT=3030
 
+# Start Next.js server
 CMD [ "node", "./apps/web/server.js" ]
