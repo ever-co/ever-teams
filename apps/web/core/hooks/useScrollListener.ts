@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { TimesheetLog } from '../../app/interfaces';
+import { TimesheetLog } from '../types/interfaces';
 
 export function useScrollListener() {
 	const [scrolling, setScrolling] = React.useState(false);

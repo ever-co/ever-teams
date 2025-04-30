@@ -1,6 +1,6 @@
 'use client';
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
-import { IDailyPlan, IEmployee, IUser } from '@app/interfaces';
+import { IDailyPlan, IEmployee, IUser } from '@/core/types/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';

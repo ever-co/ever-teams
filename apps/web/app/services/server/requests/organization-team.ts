@@ -1,5 +1,5 @@
-import { TimerSource } from '@app/interfaces';
-import { PaginationResponse } from '@app/interfaces/IDataResponse';
+import { TimerSource } from '@/core/types/interfaces';
+import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
@@ -7,7 +7,7 @@ import {
 	IOrganizationTeamUpdate,
 	IOrganizationTeamWithMStatus,
 	ITeamRequestParams
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';

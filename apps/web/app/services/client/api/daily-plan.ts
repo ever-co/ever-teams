@@ -9,7 +9,7 @@ import {
 	IRemoveTaskFromManyPlans,
 	IUpdateDailyPlan,
 	PaginationResponse
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export function getAllDayPlansAPI(activeTeamId?: ID) {

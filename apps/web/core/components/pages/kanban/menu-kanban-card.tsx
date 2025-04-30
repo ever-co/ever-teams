@@ -6,7 +6,7 @@ import { HorizontalSeparator, SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/features/task/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
-import { ITeamTask, OT_Member } from '@app/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';

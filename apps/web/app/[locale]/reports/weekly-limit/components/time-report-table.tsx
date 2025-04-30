@@ -1,4 +1,4 @@
-import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/app/interfaces/ITimeLimits';
+import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/ITimeLimits';
 import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/app/constants';
 import moment from 'moment';

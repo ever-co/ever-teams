@@ -1,6 +1,6 @@
 import { imgTitle } from '@app/helpers';
 import { useTeamTasks } from '@/core/hooks';
-import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@app/interfaces';
+import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from '@/core/components';

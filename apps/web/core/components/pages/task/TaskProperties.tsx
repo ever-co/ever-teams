@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
 

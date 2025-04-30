@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from './list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
+import { ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';

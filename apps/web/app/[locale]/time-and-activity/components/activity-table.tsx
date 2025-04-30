@@ -3,7 +3,13 @@ import { format } from 'date-fns';
 import { Avatar } from '@/core/components';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ITimerEmployeeLog, ITimerLogGrouped, ITimerProjectLog, ITimerTaskLog, ITimerTask } from '@app/interfaces';
+import {
+	ITimerEmployeeLog,
+	ITimerLogGrouped,
+	ITimerProjectLog,
+	ITimerTaskLog,
+	ITimerTask
+} from '@/core/types/interfaces';
 import { ProjectCell } from './project-cell';
 import { TrackedHoursCell } from './tracked-hours-cell';
 import { EarningsCell } from './earnings-cell';

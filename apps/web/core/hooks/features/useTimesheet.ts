@@ -11,7 +11,7 @@ import {
 	updateTimesheetFromAPi
 } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
+import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 import axios from 'axios';
 
@@ -545,6 +545,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		groupedByTimesheetIds,
 		rowsToObject,
 		formatDate,
-        currentDateRange
+		currentDateRange
 	};
 }

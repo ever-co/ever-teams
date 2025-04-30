@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
 import { useTaskSizes } from '@/core/hooks/features/useTaskSizes';
-import { IIcon, ITaskSizesItemList } from '@app/interfaces';
+import { IIcon, ITaskSizesItemList } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

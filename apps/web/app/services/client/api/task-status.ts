@@ -4,7 +4,7 @@ import {
 	ITaskStatusItemList,
 	ITaskStatusOrder,
 	PaginationResponse
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { deleteApi, get, post, put, patch } from '../axios';
 import qs from 'qs';
 
@@ -21,7 +21,7 @@ export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?
 }
 
 export function editTaskStatusOrderAPI(data: ITaskStatusOrder, tenantId?: string) {
-	return patch<ITaskStatusOrder["reorder"]>(`/task-statuses/reorder`, data, {
+	return patch<ITaskStatusOrder['reorder']>(`/task-statuses/reorder`, data, {
 		tenantId,
 		method: 'PATCH'
 	});

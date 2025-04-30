@@ -1,4 +1,4 @@
-import { IPosition } from '@app/interfaces';
+import { IPosition } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { AutoCompleteDropdown } from '@/core/components';
 import { mapPositionItems, PositionItem } from '@/core/components/features';

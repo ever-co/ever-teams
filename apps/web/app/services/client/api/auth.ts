@@ -1,6 +1,6 @@
 import { getRefreshTokenCookie, getTenantIdCookie, setAccessTokenCookie } from '@app/helpers/cookies';
-import { IOrganizationTeam, ISuccessResponse, IUser } from '@app/interfaces';
-import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
+import { IOrganizationTeam, ISuccessResponse, IUser } from '@/core/types/interfaces';
+import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@/core/types/interfaces/IAuthentication';
 import api, { get, post } from '../axios';
 import {
 	APP_LOGO_URL,

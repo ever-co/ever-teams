@@ -12,7 +12,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
-import { ICreateProjectInput, IEditProjectInput } from '@/app/interfaces';
+import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useOrganizationProjects() {

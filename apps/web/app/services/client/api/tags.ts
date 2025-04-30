@@ -1,4 +1,4 @@
-import { ITag, PaginationResponse } from '@app/interfaces';
+import { ITag, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import qs from 'qs';

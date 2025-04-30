@@ -1,4 +1,4 @@
-import { ITaskRelatedIssueTypeCreate, ITaskRelatedIssueTypeItemList } from '@app/interfaces';
+import { ITaskRelatedIssueTypeCreate, ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createRelatedIssueTypeRequest(

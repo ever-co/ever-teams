@@ -1,6 +1,6 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/ui/svgs/priority-icon';
-import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
+import { ITaskPriority, ITeamTask, Tag } from '@/core/types/interfaces';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,

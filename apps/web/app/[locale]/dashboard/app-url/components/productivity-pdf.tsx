@@ -4,7 +4,7 @@ import {
 	IActivityReportGroupByDate,
 	IEmployeeWithProjects,
 	IProjectWithActivity
-} from '@app/interfaces/activity/IActivityReport';
+} from '@/core/types/interfaces/activity/IActivityReport';
 
 // Create styles
 

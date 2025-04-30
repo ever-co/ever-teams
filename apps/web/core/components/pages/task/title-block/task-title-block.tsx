@@ -1,5 +1,5 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
 import { useToast } from '@/core/components/ui/use-toast';

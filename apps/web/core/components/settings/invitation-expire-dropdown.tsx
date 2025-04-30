@@ -1,11 +1,11 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IFilter } from '@app/interfaces/IFilter';
+import { IFilter } from '@/core/types/interfaces/IFilter';
 import { clsxm } from '@app/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { FilterItem } from './filter-items';
-import { IInvitationExpire } from '@app/interfaces/IInvitation_Expire';
+import { IInvitationExpire } from '@/core/types/interfaces/IInvitation_Expire';
 import { mapInvitationExpireItems, InvitationExpireItem } from './invitation-expire-items';
 
 export const InvitationExpireDropdown = ({

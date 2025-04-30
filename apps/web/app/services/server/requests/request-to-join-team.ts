@@ -6,7 +6,7 @@ import {
 	ISuccessResponse,
 	IValidateRequestToJoin,
 	IRequestToJoinActionEnum
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

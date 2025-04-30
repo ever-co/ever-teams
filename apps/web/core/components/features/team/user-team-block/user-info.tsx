@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
-import { IClassName, ITimerStatusEnum } from '@app/interfaces';
+import { IClassName, ITimerStatusEnum } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar } from '@/core/components';
 // import { MailIcon } from 'lib/components/svgs';

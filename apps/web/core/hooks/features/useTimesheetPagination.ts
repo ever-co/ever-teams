@@ -1,22 +1,22 @@
 import { useState, useMemo } from 'react';
-import { TimesheetLog } from '@/app/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces';
 
 export interface GroupedTimesheet {
-    date: string;
-    tasks: TimesheetLog[];
+	date: string;
+	tasks: TimesheetLog[];
 }
 
 interface PaginationState {
-    currentPage: number;
-    totalPages: number;
-    totalGroups: number;
-    totalTasks: number;
-    dates: string[];
+	currentPage: number;
+	totalPages: number;
+	totalGroups: number;
+	totalTasks: number;
+	dates: string[];
 }
 
 interface UseTimesheetPaginationProps {
-    data: GroupedTimesheet[];
-    pageSize?: number;
+	data: GroupedTimesheet[];
+	pageSize?: number;
 }
 
 /**
@@ -38,86 +38,77 @@ interface UseTimesheetPaginationProps {
  * @property {function} getPageNumbers - A function to get an array of page numbers for pagination controls.
  */
 
-export function useTimesheetPagination({
-    data,
-    pageSize = 10,
-}: UseTimesheetPaginationProps) {
-    const [currentPage, setCurrentPage] = useState(1);
+export function useTimesheetPagination({ data, pageSize = 10 }: UseTimesheetPaginationProps) {
+	const [currentPage, setCurrentPage] = useState(1);
 
-    const paginationState = useMemo<PaginationState>(() => {
-        const totalGroups = data.length;
-        const totalPages = Math.max(1, Math.ceil(totalGroups / pageSize));
-        const validCurrentPage = Math.min(currentPage, totalPages);
+	const paginationState = useMemo<PaginationState>(() => {
+		const totalGroups = data.length;
+		const totalPages = Math.max(1, Math.ceil(totalGroups / pageSize));
+		const validCurrentPage = Math.min(currentPage, totalPages);
 
-        const startIndex = (validCurrentPage - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, totalGroups);
-        const paginatedDates = data
-            .slice(startIndex, endIndex)
-            .map(group => group.date);
+		const startIndex = (validCurrentPage - 1) * pageSize;
+		const endIndex = Math.min(startIndex + pageSize, totalGroups);
+		const paginatedDates = data.slice(startIndex, endIndex).map((group) => group.date);
 
-        const totalTasks = data.reduce((sum, group) => sum + group.tasks.length, 0);
+		const totalTasks = data.reduce((sum, group) => sum + group.tasks.length, 0);
 
-        return {
-            currentPage: validCurrentPage,
-            totalPages,
-            totalGroups,
-            totalTasks,
-            dates: paginatedDates,
-        };
-    }, [data, pageSize, currentPage]);
+		return {
+			currentPage: validCurrentPage,
+			totalPages,
+			totalGroups,
+			totalTasks,
+			dates: paginatedDates
+		};
+	}, [data, pageSize, currentPage]);
 
-    const paginatedGroups = useMemo(() => {
-        const startIndex = (paginationState.currentPage - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, data.length);
-        return data.slice(startIndex, endIndex);
-    }, [data, pageSize, paginationState.currentPage]);
+	const paginatedGroups = useMemo(() => {
+		const startIndex = (paginationState.currentPage - 1) * pageSize;
+		const endIndex = Math.min(startIndex + pageSize, data.length);
+		return data.slice(startIndex, endIndex);
+	}, [data, pageSize, paginationState.currentPage]);
 
-    const goToPage = (page: number) => {
-        setCurrentPage(Math.max(1, Math.min(page, paginationState.totalPages)));
-    };
+	const goToPage = (page: number) => {
+		setCurrentPage(Math.max(1, Math.min(page, paginationState.totalPages)));
+	};
 
-    const nextPage = () => {
-        if (currentPage < paginationState.totalPages) {
-            goToPage(currentPage + 1);
-        }
-    };
+	const nextPage = () => {
+		if (currentPage < paginationState.totalPages) {
+			goToPage(currentPage + 1);
+		}
+	};
 
-    const previousPage = () => {
-        if (currentPage > 1) {
-            goToPage(currentPage - 1);
-        }
-    };
+	const previousPage = () => {
+		if (currentPage > 1) {
+			goToPage(currentPage - 1);
+		}
+	};
 
-    const getPageNumbers = (): (number | string)[] => {
-        const { currentPage, totalPages } = paginationState;
-        const delta = 2;
-        const range: (number | string)[] = [];
+	const getPageNumbers = (): (number | string)[] => {
+		const { currentPage, totalPages } = paginationState;
+		const delta = 2;
+		const range: (number | string)[] = [];
 
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - delta && i <= currentPage + delta)
-            ) {
-                range.push(i);
-            } else if (range[range.length - 1] !== '...') {
-                range.push('...');
-            }
-        }
+		for (let i = 1; i <= totalPages; i++) {
+			if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+				range.push(i);
+			} else if (range[range.length - 1] !== '...') {
+				range.push('...');
+			}
+		}
 
-        return range;
-    };
+		return range;
+	};
 
-    return {
-        paginatedGroups,
-        currentPage: paginationState.currentPage,
-        totalPages: paginationState.totalPages,
-        totalGroups: paginationState.totalGroups,
-        totalTasks: paginationState.totalTasks,
-        dates: paginationState.dates,
-        goToPage,
-        nextPage,
-        previousPage,
-        getPageNumbers,
-    };
+	return {
+		paginatedGroups,
+		currentPage: paginationState.currentPage,
+		totalPages: paginationState.totalPages,
+		totalGroups: paginationState.totalGroups,
+		totalTasks: paginationState.totalTasks,
+		dates: paginationState.dates,
+		goToPage,
+		nextPage,
+		previousPage,
+		getPageNumbers
+	};
 }

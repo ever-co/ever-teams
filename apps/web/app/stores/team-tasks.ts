@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { ITeamTask } from '@app/interfaces/ITask';
-import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 

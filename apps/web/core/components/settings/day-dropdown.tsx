@@ -1,7 +1,7 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IDay } from '@app/interfaces';
+import { IDay } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { useTranslations } from 'next-intl';

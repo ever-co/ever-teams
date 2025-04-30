@@ -1,6 +1,6 @@
 import { useOrganizationTeams } from '@/core/hooks';
 import { useOrganizationEmployeeTeams } from '@/core/hooks/features/useOrganizatioTeamsEmployee';
-import { OT_Member, RoleNameEnum } from '@app/interfaces';
+import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
 import { Switch } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Text } from './typography';

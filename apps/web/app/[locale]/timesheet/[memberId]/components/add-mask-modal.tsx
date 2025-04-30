@@ -7,7 +7,7 @@ import {
 	getNestedValue
 } from '@/core/components/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
-import { TimeLogType, TimerSource } from '@/app/interfaces';
+import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/core/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';

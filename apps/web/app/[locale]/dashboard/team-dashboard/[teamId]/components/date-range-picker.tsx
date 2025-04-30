@@ -25,7 +25,7 @@ import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { ITimerLogGrouped } from '@/app/interfaces';
+import { ITimerLogGrouped } from '@/core/types/interfaces';
 
 interface DateRangePickerProps {
 	className?: string;

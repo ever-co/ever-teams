@@ -1,4 +1,4 @@
-import { IRequestToJoinCreate } from '@app/interfaces';
+import { IRequestToJoinCreate } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getRequestToJoinRequest, requestToJoinRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';

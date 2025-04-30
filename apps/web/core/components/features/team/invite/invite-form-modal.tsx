@@ -2,7 +2,7 @@
 
 import { useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { useEmployee } from '@/core/hooks/features/useEmployee';
-import { IInviteEmail } from '@app/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';

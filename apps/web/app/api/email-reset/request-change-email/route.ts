@@ -1,4 +1,4 @@
-import { IEmail } from '@app/interfaces/IUserData';
+import { IEmail } from '@/core/types/interfaces/IUserData';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { emailResetRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';

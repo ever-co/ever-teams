@@ -1,4 +1,4 @@
-import { ThemesPopup as IThemesPopup } from '@app/interfaces';
+import { ThemesPopup as IThemesPopup } from '@/core/types/interfaces';
 import { Switch } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -37,8 +37,8 @@ const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, inde
 						currentTheme === 'light' && index === 0
 							? { boxShadow: '5px 20px 26px rgba(0,0,0,0.18)' }
 							: currentTheme === 'light' && index > 0
-							? { boxShadow: '7px 20px 26px rgba(0,0,0,0.5)' }
-							: {}
+								? { boxShadow: '7px 20px 26px rgba(0,0,0,0.5)' }
+								: {}
 					}
 				/>
 			</div>

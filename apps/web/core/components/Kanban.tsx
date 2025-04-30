@@ -12,7 +12,7 @@ import {
 } from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@/core/hooks/features/useKanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';

@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@app/interfaces';
+import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator } from '@/core/components';
 import { getTimerStatusValue } from '@/core/components/features/timer/timer-status';

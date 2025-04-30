@@ -1,6 +1,6 @@
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
+import { ITimerSlotDataRequest } from '@/core/types/interfaces/timer/ITimerSlot';
 import qs from 'qs';
 
 export async function getTimerLogsRequestAPI({

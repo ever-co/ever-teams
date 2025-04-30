@@ -1,4 +1,4 @@
-import { IInviteEmail } from '@app/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

@@ -2,7 +2,7 @@
 
 import { mergeRefs, secondsToTime } from '@app/helpers';
 import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@/core/hooks';
-import { IClassName, IDailyPlan } from '@app/interfaces';
+import { IClassName, IDailyPlan } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { SpinnerLoader, Text } from '@/core/components';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';

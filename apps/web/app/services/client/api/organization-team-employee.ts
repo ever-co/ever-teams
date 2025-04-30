@@ -1,5 +1,5 @@
-import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
-import { IOrganizationTeam } from '@app/interfaces/IOrganizationTeam';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/IOrganizationTeam';
 import { deleteApi, put } from '../axios';
 import { getActiveTeamIdCookie } from '@app/helpers';
 

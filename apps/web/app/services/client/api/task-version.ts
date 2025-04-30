@@ -1,4 +1,4 @@
-import { DeleteResponse, ITaskVersionCreate, ITaskVersionItemList, PaginationResponse } from '@app/interfaces';
+import { DeleteResponse, ITaskVersionCreate, ITaskVersionItemList, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string) {

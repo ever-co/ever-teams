@@ -3,7 +3,7 @@ import {
 	ITaskRelatedIssueTypeCreate,
 	ITaskRelatedIssueTypeItemList,
 	PaginationResponse
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskRelatedIssueTypeAPI(data: ITaskRelatedIssueTypeCreate, tenantId?: string) {

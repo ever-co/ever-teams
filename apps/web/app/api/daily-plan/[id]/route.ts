@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@app/services/server/requests';
-import { IUpdateDailyPlan } from '@/app/interfaces';
+import { IUpdateDailyPlan } from '@/core/types/interfaces';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const id = (await params).id;

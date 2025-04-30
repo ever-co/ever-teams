@@ -1,4 +1,4 @@
-import { IUser } from '@app/interfaces/IUserData';
+import { IUser } from '@/core/types/interfaces/IUserData';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { ChangeEventHandler } from 'react';

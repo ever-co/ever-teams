@@ -1,4 +1,4 @@
-import { IRolePermissions } from '@app/interfaces';
+import { IRolePermissions } from '@/core/types/interfaces';
 import { getRolePermissionAPI, updateRolePermissionAPI } from '@app/services/client/api';
 import { rolePermissionsFormatedState, rolePermissionsState } from '@app/stores/';
 import { useCallback } from 'react';

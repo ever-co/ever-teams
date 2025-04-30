@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';

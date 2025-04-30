@@ -3,7 +3,7 @@
 import { Card } from '@/core/components';
 import React from 'react';
 import { UserTaskActivity } from './activity/user-task-activity';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { useTaskTimeSheets } from '@/core/hooks/features/useTaskActivity';
 import { groupByTime } from '@app/helpers/array-data';
 

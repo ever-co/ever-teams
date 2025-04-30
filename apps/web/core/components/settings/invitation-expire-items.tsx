@@ -1,4 +1,4 @@
-import { IInvitationExpire } from '@app/interfaces/IInvitation_Expire';
+import { IInvitationExpire } from '@/core/types/interfaces/IInvitation_Expire';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

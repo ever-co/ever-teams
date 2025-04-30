@@ -1,4 +1,4 @@
-import { ITaskTimesheet } from '@app/interfaces';
+import { ITaskTimesheet } from '@/core/types/interfaces';
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import qs from 'qs';

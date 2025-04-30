@@ -28,7 +28,7 @@ import {
 	ITeamTask,
 	Nullable,
 	OT_Member
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';

@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IPagination } from '@app/interfaces/IPagination';
+import { IPagination } from '@/core/types/interfaces/IPagination';
 import { clsxm } from '@app/utils';
 import { PaginationItems, mappaginationItems } from './page-items';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';

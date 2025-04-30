@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { ChooseItem, mapChooseItems } from './choose-item';
-import { IChoose } from '@app/interfaces';
+import { IChoose } from '@/core/types/interfaces';
 
 export const ChooseDropdown = ({
 	setValue,

@@ -5,7 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/core/components/ui/skeleton';
 import { Card } from '@/core/components/ui/card';
 import { format } from 'date-fns';
-import { IActivityReport, IActivityReportGroupByDate, IActivityItem } from '@app/interfaces/activity/IActivityReport';
+import {
+	IActivityReport,
+	IActivityReportGroupByDate,
+	IActivityItem
+} from '@/core/types/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/useSortableData';

@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 import React from 'react';
 import ViewSelect, { ViewOption } from './view-select';
-import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
+import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/features/useReportActivity';
 import { GroupBySelectTimeActivity } from '@/core/components/group-by-select-time-activity';

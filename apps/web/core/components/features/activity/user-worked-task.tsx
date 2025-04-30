@@ -1,4 +1,4 @@
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import { memo } from 'react';
 import { TaskCard } from '../task/task-card';
 import { useUserSelectedPage } from '@/core/hooks/features/useUserSelectedPage';

@@ -1,9 +1,9 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
-import { I_SMTPRequest } from './interfaces/ISmtp';
+import { I_SMTPRequest } from '@/core/types/interfaces/ISmtp';
 import { getNextPublicEnv, getServerRuntimeConfig } from './env';
 import enLanguage from '../locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
-import { ManualTimeReasons } from './interfaces/timer/IManualTimeReasons';
+import { ManualTimeReasons } from '@/core/types/interfaces/timer/IManualTimeReasons';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';

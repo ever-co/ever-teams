@@ -1,5 +1,5 @@
 import { validateForm } from '@app/helpers/validations';
-import { IInviteVerifyCode } from '@app/interfaces/IInvite';
+import { IInviteVerifyCode } from '@/core/types/interfaces/IInvite';
 import { verifyInviteCodeRequest } from '@app/services/server/requests';
 
 import { NextResponse } from 'next/server';

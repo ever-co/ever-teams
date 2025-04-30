@@ -3,7 +3,7 @@ import { AutoCompleteDropdown } from '@/core/components';
 import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@app/utils';
-import { IInviteEmail } from '@app/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces';
 import { useSyncRef } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 

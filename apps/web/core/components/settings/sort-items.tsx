@@ -1,4 +1,4 @@
-import { ISort } from '@app/interfaces/ISort';
+import { ISort } from '@/core/types/interfaces/ISort';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

@@ -5,7 +5,7 @@ import { Button } from '@/core/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
-import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
+import { ITimerEmployeeLog, ITimerLogGrouped } from '@/core/types/interfaces';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/ui/sort-popover';

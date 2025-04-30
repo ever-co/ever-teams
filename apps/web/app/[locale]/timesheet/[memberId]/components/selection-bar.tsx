@@ -1,4 +1,4 @@
-import { ID, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { ID, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';

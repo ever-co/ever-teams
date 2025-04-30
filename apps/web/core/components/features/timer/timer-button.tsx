@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Button } from '@/core/components';
 import { TimerPlayIcon, TimerStopIcon } from 'assets/svg';

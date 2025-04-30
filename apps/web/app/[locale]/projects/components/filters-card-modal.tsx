@@ -7,7 +7,7 @@ import { Button } from '@/core/components/ui/button';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { OrganizationProjectBudgetTypeEnum } from '@/app/interfaces';
+import { OrganizationProjectBudgetTypeEnum } from '@/core/types/interfaces';
 
 interface IFiltersCardModalProps {
 	open: boolean;

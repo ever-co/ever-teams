@@ -1,8 +1,19 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped, TimeLogType, ITimesheetStatisticsData } from '@app/interfaces';
+import {
+	TimesheetLog,
+	ITimerStatus,
+	IUpdateTimesheetStatus,
+	UpdateTimesheetStatus,
+	UpdateTimesheet,
+	ITimerDailyLog,
+	ITimeLogReportDailyChartProps,
+	ITimerLogGrouped,
+	TimeLogType,
+	ITimesheetStatisticsData
+} from '@/core/types/interfaces';
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import qs from 'qs';
-import { IActivityReport } from '@/app/interfaces/activity/IActivityReport';
+import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -16,7 +27,6 @@ export async function getTimerLogs(
 }
 
 // todayStart, todayEnd;
-
 
 interface ITaskTimesheetParams {
 	organizationId: string;
@@ -89,15 +99,14 @@ export async function getTaskTimesheetLogsApi({
 	return get<TimesheetLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId });
 }
 
-
 export async function deleteTaskTimesheetLogsApi({
 	logIds,
 	organizationId,
 	tenantId
 }: {
-	organizationId: string,
-	tenantId: string,
-	logIds: string[]
+	organizationId: string;
+	tenantId: string;
+	logIds: string[];
 }) {
 	// Validate required parameters
 	if (!organizationId || !tenantId || !logIds?.length) {
@@ -134,7 +143,6 @@ export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
 	return put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
 }
 
-
 export function createTimesheetFromApi(data: UpdateTimesheet) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
@@ -142,21 +150,21 @@ export function createTimesheetFromApi(data: UpdateTimesheet) {
 		throw new Error('Required parameters missing: organizationId and tenantId are required');
 	}
 	try {
-		return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId })
+		return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId });
 	} catch (error) {
 		throw new Error('Failed to create timesheet log');
 	}
 }
 
 export function updateTimesheetFromAPi(params: UpdateTimesheet) {
-	const { id, ...data } = params
+	const { id, ...data } = params;
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	if (!organizationId || !tenantId) {
 		throw new Error('Required parameters missing: organizationId and tenantId are required');
 	}
 	try {
-		return put<TimesheetLog>(`/timesheet/time-log/${id}`, { ...data, organizationId }, { tenantId })
+		return put<TimesheetLog>(`/timesheet/time-log/${id}`, { ...data, organizationId }, { tenantId });
 	} catch (error) {
 		throw new Error('Failed to create timesheet log');
 	}
@@ -165,28 +173,28 @@ export function updateTimesheetFromAPi(params: UpdateTimesheet) {
 const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export function getTimeLogReportDailyChart({
-    activityLevel,
-    organizationId,
-    tenantId,
-    startDate,
-    endDate,
-    timeZone = getDefaultTimezone(),
-    groupBy,
-    projectIds = [],
-    employeeIds = [],
-    logType = [],
-    teamIds = []
+	activityLevel,
+	organizationId,
+	tenantId,
+	startDate,
+	endDate,
+	timeZone = getDefaultTimezone(),
+	groupBy,
+	projectIds = [],
+	employeeIds = [],
+	logType = [],
+	teamIds = []
 }: ITimeLogReportDailyChartProps) {
-    const baseParams = {
-        'activityLevel[start]': activityLevel.start.toString(),
-        'activityLevel[end]': activityLevel.end.toString(),
-        organizationId,
-        tenantId,
-        startDate,
-        endDate,
-        timeZone,
-        ...(groupBy && { groupBy })
-    };
+	const baseParams = {
+		'activityLevel[start]': activityLevel.start.toString(),
+		'activityLevel[end]': activityLevel.end.toString(),
+		organizationId,
+		tenantId,
+		startDate,
+		endDate,
+		timeZone,
+		...(groupBy && { groupBy })
+	};
 
 	if (!organizationId || !tenantId || !startDate || !endDate) {
 		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
@@ -195,24 +203,21 @@ export function getTimeLogReportDailyChart({
 		throw new Error('Invalid activity level range');
 	}
 
-    const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
-        values.forEach((value, index) => {
-            params[`${key}[${index}]`] = value;
-        });
-    };
+	const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
+		values.forEach((value, index) => {
+			params[`${key}[${index}]`] = value;
+		});
+	};
 
-    const queryParams = { ...baseParams };
-    if (projectIds.length) addArrayParams(queryParams, 'projectIds', projectIds);
-    if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
-    if (logType.length) addArrayParams(queryParams, 'logType', logType);
-    if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
+	const queryParams = { ...baseParams };
+	if (projectIds.length) addArrayParams(queryParams, 'projectIds', projectIds);
+	if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
+	if (logType.length) addArrayParams(queryParams, 'logType', logType);
+	if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
 
-    const queryString = new URLSearchParams(queryParams).toString();
+	const queryString = new URLSearchParams(queryParams).toString();
 
-    return get<ITimerDailyLog[]>(
-        `/timesheet/time-log/report/daily-chart?${queryString}`,
-        { tenantId }
-    );
+	return get<ITimerDailyLog[]>(`/timesheet/time-log/report/daily-chart?${queryString}`, { tenantId });
 }
 
 interface ITimeLogReportDailyProps {
@@ -282,22 +287,22 @@ export function getTimeLogReportDaily({
  * Format duration in seconds to human readable format (HH:mm:ss)
  */
 export function formatDuration(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
 
-    return [
-        hours.toString().padStart(2, '0'),
-        minutes.toString().padStart(2, '0'),
-        remainingSeconds.toString().padStart(2, '0')
-    ].join(':');
+	return [
+		hours.toString().padStart(2, '0'),
+		minutes.toString().padStart(2, '0'),
+		remainingSeconds.toString().padStart(2, '0')
+	].join(':');
 }
 
 /**
  * Format activity percentage with 2 decimal places
  */
 export function formatActivity(activity: number): string {
-    return `${activity.toFixed(2)}%`;
+	return `${activity.toFixed(2)}%`;
 }
 
 /**

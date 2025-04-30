@@ -1,4 +1,4 @@
-import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
+import { ITaskVersionCreate, ITaskVersionItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createVersionRequest(datas: ITaskVersionCreate, bearer_token: string, tenantId?: any) {

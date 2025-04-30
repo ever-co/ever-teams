@@ -9,7 +9,7 @@ import {
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/core/components/ui/use-toast';

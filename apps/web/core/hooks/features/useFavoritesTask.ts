@@ -1,5 +1,5 @@
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
-import { ITeamTask } from '@/app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { useAtom } from 'jotai';
 import { favoriteTasksStorageAtom } from '@/app/stores/team-tasks';
 import { useCallback } from 'react';

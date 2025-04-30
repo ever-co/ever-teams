@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@app/helpers';
-import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
+import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 

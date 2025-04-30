@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@/core/hooks';
-import { IIcon, ITaskStatusItemList } from '@app/interfaces';
+import { IIcon, ITaskStatusItemList } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

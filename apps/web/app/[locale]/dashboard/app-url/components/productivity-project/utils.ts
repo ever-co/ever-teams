@@ -1,4 +1,4 @@
-import { IActivityReportGroupByDate } from '@/app/interfaces/activity/IActivityReport';
+import { IActivityReportGroupByDate } from '@/core/types/interfaces/activity/IActivityReport';
 import { ProjectGroups, DateGroup, DailyReportData } from './types';
 
 export const formatDuration = (seconds: number | string): string => {

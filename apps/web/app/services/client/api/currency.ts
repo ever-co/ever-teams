@@ -1,4 +1,4 @@
-import { ICurrency, PaginationResponse } from '@app/interfaces';
+import { ICurrency, PaginationResponse } from '@/core/types/interfaces';
 import { get } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import qs from 'qs';

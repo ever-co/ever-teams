@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskSizesCreate } from '@app/interfaces';
+import { ITaskSizesCreate } from '@/core/types/interfaces';
 import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@app/services/client/api';
 import { activeTeamIdState } from '@app/stores';
 import { taskSizesListState } from '@app/stores/task-sizes';
@@ -75,7 +75,6 @@ export function useTaskSizes() {
 			} catch (error) {
 				console.error('Failed to edit task size:', error);
 			}
-
 		},
 		[editTaskSizeQueryCall, activeTeamId]
 	);

@@ -10,7 +10,7 @@ import {
 	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@app/interfaces';
+import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@/core/types/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';

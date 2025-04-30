@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { get } from '../../axios';
-import { IGetTimeLimitReport, ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
+import { IGetTimeLimitReport, ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 
 export async function getTimeLimitsReportAPI(params: IGetTimeLimitReport) {
 	const query = qs.stringify({

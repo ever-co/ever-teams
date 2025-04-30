@@ -23,7 +23,12 @@ import {
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpdateDailyPlan } from '@app/interfaces';
+import {
+	ICreateDailyPlan,
+	IDailyPlanTasksUpdate,
+	IRemoveTaskFromManyPlans,
+	IUpdateDailyPlan
+} from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { removeDuplicateItems } from '@/app/utils/remove-duplicate-item';

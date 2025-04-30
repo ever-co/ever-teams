@@ -1,4 +1,4 @@
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
+import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
 
 export type IMember = IOrganizationTeamList['members'][number];
 

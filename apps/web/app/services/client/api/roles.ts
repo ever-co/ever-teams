@@ -1,4 +1,4 @@
-import { IRole, PaginationResponse } from '@app/interfaces';
+import { IRole, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, post, put } from '../axios';
 
 export function getRolesAPI() {

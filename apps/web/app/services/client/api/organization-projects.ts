@@ -1,4 +1,4 @@
-import { IEditProjectInput, IProject, PaginationResponse } from '@app/interfaces';
+import { IEditProjectInput, IProject, PaginationResponse } from '@/core/types/interfaces';
 import { deleteApi, get, put } from '../axios';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';

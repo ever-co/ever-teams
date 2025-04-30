@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { MetaProps } from '@/app/interfaces';
+import { MetaProps } from '@/core/types/interfaces';
 
 const Meta = ({ title = 'Gauzy Teams', keywords = '', description = '' }: Partial<MetaProps>) => {
 	return (

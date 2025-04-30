@@ -1,6 +1,6 @@
 'use client';
 
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import { useJitsu } from '@jitsu/jitsu-react';
 import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';

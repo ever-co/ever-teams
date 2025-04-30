@@ -11,11 +11,11 @@ import {
 	OrganizationProjectBudgetTypeEnum,
 	ProjectBillingEnum,
 	TaskStatusEnum
-} from '@/app/interfaces';
+} from '@/core/types/interfaces';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
 import { useRoles } from '@/core/hooks/features/useRoles';
-import { RolesEnum } from '@/app/interfaces/IRoles';
+import { RolesEnum } from '@/core/types/interfaces/IRoles';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;

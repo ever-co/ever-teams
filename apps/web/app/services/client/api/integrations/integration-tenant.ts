@@ -1,4 +1,4 @@
-import { IIntegrationTenant, PaginationResponse, DeleteResponse } from '@app/interfaces';
+import { IIntegrationTenant, PaginationResponse, DeleteResponse } from '@/core/types/interfaces';
 import { deleteApi, get } from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';

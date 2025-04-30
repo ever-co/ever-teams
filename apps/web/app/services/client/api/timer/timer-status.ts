@@ -1,4 +1,4 @@
-import { ITimerStatus } from '@app/interfaces';
+import { ITimerStatus } from '@/core/types/interfaces';
 import { get } from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import qs from 'qs';

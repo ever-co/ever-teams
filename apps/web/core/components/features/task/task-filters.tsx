@@ -10,7 +10,7 @@ import {
 	useModal,
 	useLocalStorageState
 } from '@/core/hooks';
-import { IClassName, ITeamTask } from '@app/interfaces';
+import { IClassName, ITeamTask } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from '@/core/components';

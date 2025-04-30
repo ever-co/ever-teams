@@ -5,7 +5,7 @@ import {
 	ITimerParams,
 	ITimerTimeslotParams,
 	TimerSource
-} from '@app/interfaces/ITimer';
+} from '@/core/types/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

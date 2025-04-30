@@ -1,7 +1,7 @@
 import { Dropdown } from '@/core/components';
 import { clsxm } from '@app/utils';
 import { useRoles } from '@/core/hooks/features/useRoles';
-import { IRole, IRoleList, OT_Member } from '@app/interfaces';
+import { IRole, IRoleList, OT_Member } from '@/core/types/interfaces';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapRoleItems, RoleItem } from '@/core/components/features/roles/role-item';
 

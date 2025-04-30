@@ -1,6 +1,6 @@
 import { mergeRefs } from '@app/helpers';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
-import { IClassName, ITeamTask } from '@app/interfaces';
+import { IClassName, ITeamTask } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, HorizontalSeparator, SpinnerLoader, Text } from '@/core/components';

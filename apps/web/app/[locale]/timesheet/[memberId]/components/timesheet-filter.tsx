@@ -3,7 +3,7 @@ import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate, Timesheet
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
 import { AddTaskModal } from './add-mask-modal';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from './timesheet-icons';
 

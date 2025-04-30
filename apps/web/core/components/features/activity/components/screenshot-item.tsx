@@ -1,6 +1,6 @@
 import { useModal } from '@/core/hooks';
 import { useTimeSlots } from '@/core/hooks/features/useTimeSlot';
-import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
+import { IScreenShootItem } from '@/core/types/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
 import { Button, Modal, ProgressBar } from '@/core/components';
 import { TrashIcon } from 'lucide-react';

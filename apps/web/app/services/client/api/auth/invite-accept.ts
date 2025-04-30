@@ -10,7 +10,7 @@ import {
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput,
 	IOrganizationTeam
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import { AcceptInviteParams } from '@app/services/server/requests';
 import { get, post } from '../../axios';
 import { authFormValidate, generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';

@@ -1,4 +1,4 @@
-import { IChoose } from '@app/interfaces/IChoose';
+import { IChoose } from '@/core/types/interfaces/IChoose';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

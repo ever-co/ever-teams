@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskStatusCreate, ITaskStatusOrder } from '@app/interfaces';
+import { ITaskStatusCreate, ITaskStatusOrder } from '@/core/types/interfaces';
 import {
 	createTaskStatusAPI,
 	getTaskStatusesAPI,

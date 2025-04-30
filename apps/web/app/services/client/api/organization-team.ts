@@ -1,4 +1,4 @@
-import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/IDataResponse';
 
 import {
 	IOrganizationTeamList,
@@ -8,7 +8,7 @@ import {
 	OT_Member,
 	IOrganizationTeamCreate,
 	IUser
-} from '@app/interfaces';
+} from '@/core/types/interfaces';
 import moment from 'moment';
 import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';

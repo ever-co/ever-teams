@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
 import { MC_EditableValues } from '../types';

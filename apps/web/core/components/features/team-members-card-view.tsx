@@ -3,7 +3,7 @@ import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import React, { useCallback, useEffect } from 'react';
 
 interface Props {

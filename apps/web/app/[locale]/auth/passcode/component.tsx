@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
-import { IClassName, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { IClassName, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import {
 	AuthCodeInputField,

@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@app/interfaces';
+import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createTaskLinkedIsssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {

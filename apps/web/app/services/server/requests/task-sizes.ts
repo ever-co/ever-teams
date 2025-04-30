@@ -1,4 +1,4 @@
-import { ITaskSizesCreate, ITaskSizesItemList } from '@app/interfaces';
+import { ITaskSizesCreate, ITaskSizesItemList } from '@/core/types/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createSizesRequest(datas: ITaskSizesCreate, bearer_token: string, tenantId?: any) {

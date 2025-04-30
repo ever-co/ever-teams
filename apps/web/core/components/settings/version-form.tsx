@@ -2,7 +2,7 @@ import { Button, InputField, Text } from '@/core/components';
 import { StatusesListCard } from './list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
-import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
+import { ITaskVersionCreate, ITaskVersionItemList } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';

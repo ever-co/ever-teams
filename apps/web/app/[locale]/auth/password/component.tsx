@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';

@@ -1,4 +1,4 @@
-import { ILanguageItemList, PaginationResponse } from '@app/interfaces';
+import { ILanguageItemList, PaginationResponse } from '@/core/types/interfaces';
 import { get } from '../axios';
 
 export async function getLanguageListAPI(is_system: boolean) {

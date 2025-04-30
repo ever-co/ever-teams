@@ -7,7 +7,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@app/helpers';
-import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
+import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,

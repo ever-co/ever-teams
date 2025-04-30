@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@app/helpers';
 import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
-import { IUser } from '@app/interfaces';
+import { IUser } from '@/core/types/interfaces';
 import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from '@/core/components';

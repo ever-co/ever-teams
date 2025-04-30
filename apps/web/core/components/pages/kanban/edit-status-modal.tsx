@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTaskStatus } from '@/core/hooks';
 import { Button, Text, InputField, ColorPicker, Card } from '@/core/components';
 import { useForm } from 'react-hook-form';
-import { IIcon } from '@app/interfaces';
+import { IIcon } from '@/core/types/interfaces';
 import { generateIconList } from '@/core/components/settings/icon-items';
 import { useTranslations } from 'next-intl';
 import IconPopover from '@/core/components/settings/icon-popover';

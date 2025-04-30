@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useTaskLabels } from '@/core/hooks';
-import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
+import { IIcon, ITaskLabelsItemList } from '@/core/types/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';

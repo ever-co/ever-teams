@@ -1,4 +1,4 @@
-import { IColor } from '@app/interfaces';
+import { IColor } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from '@/core/components';
 

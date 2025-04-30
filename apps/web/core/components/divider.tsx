@@ -1,4 +1,4 @@
-import { IClassName } from '@app/interfaces';
+import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 
 export function Divider({ className, type = 'HORIZONTAL' }: IClassName) {

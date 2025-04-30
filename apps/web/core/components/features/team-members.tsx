@@ -9,7 +9,7 @@ import { IssuesView } from '@app/constants';
 import TeamMembersBlockView from './team-members-block-view';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@app/stores/task-filter';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member } from '@/core/types/interfaces';
 import { Container } from '@/core/components';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useMemo, useCallback } from 'react';

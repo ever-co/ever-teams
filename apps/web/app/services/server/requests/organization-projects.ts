@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { serverFetch } from '../fetch';
-import { IProject, PaginationResponse } from '@/app/interfaces';
+import { IProject, PaginationResponse } from '@/core/types/interfaces';
 
 export function editOrganizationProjectsSettingsRequest({
 	id,
@@ -66,13 +66,12 @@ export function getOrganizationProjectsRequest({
 }: {
 	tenantId: string;
 	bearer_token: string;
-	organizationId : string;
+	organizationId: string;
 }) {
-
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId,
-	}
+		'where[tenantId]': tenantId
+	};
 	const query = qs.stringify(obj);
 
 	return serverFetch<PaginationResponse<IProject>>({

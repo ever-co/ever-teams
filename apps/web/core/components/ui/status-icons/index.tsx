@@ -1,4 +1,4 @@
-import { ITaskStatus } from '@app/interfaces/ITask';
+import { ITaskStatus } from '@/core/types/interfaces/ITask';
 import React from 'react';
 import { ClosedTaskIcon } from './closed-task';
 import { CompletedTaskIcon } from './completed-task';

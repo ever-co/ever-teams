@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-table';
 import { cn } from '@/core/lib/helpers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import { ITeamTask } from '@/app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { ReactNode } from 'react';
 interface DataTableProps {
 	columns: ColumnDef<ITeamTask>[];

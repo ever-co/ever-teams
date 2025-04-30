@@ -1,4 +1,4 @@
-import { DeleteResponse } from '@app/interfaces';
+import { DeleteResponse } from '@/core/types/interfaces';
 import { deleteApi } from '../axios';
 
 export function deleteUserAPI(id: string) {

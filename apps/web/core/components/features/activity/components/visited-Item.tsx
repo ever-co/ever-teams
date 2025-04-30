@@ -1,5 +1,5 @@
 import { secondsToTime } from '@app/helpers';
-import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
+import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
 import { ProgressBar } from '@/core/components';
 import Link from 'next/link';
 import { useMemo } from 'react';

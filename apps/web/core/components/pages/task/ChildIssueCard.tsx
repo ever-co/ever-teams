@@ -3,7 +3,7 @@ import { TaskInput, TaskLinkedIssue } from '@/core/components/features';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@app/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@/core/types/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';

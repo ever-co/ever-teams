@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
+import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/timer/ITimerLog';
 import {
 	getActivityReport,
 	getTimeLogReportDaily,
@@ -15,7 +15,7 @@ import {
 	timeLogsRapportDailyState,
 	timesheetStatisticsCountsState
 } from '@/app/stores';
-import { TimeLogType } from '@/app/interfaces';
+import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 export interface UseReportActivityProps

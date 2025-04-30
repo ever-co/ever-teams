@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@app/helpers';
 import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@app/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';

@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
-import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
-import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/IDataResponse';
+import { ICreateTask, ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
 import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import {

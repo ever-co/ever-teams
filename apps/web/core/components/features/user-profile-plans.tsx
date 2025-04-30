@@ -25,7 +25,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@app/constants';
-import { IDailyPlan, ITeamTask, IUser } from '@app/interfaces';
+import { IDailyPlan, ITeamTask, IUser } from '@/core/types/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';

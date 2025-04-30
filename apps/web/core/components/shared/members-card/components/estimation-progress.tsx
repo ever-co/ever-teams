@@ -1,5 +1,5 @@
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { timerSecondsState } from '@app/stores';
 import { ProgressBar } from '@/core/components/ui/progress-bar';
 import { useAtomValue } from 'jotai';

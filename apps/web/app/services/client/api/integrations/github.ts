@@ -1,6 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
-import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
+import { IGithubMetadata, IGithubRepositories } from '@/core/types/interfaces';
 import { get, post } from '../../axios';
 import qs from 'qs';
 

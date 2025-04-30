@@ -1,5 +1,5 @@
 import { useRoles } from '@/core/hooks/features/useRoles';
-import { IRole } from '@app/interfaces';
+import { IRole } from '@/core/types/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
