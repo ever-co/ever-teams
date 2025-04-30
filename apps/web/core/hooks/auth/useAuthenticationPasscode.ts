@@ -106,16 +106,16 @@ export function useAuthenticationPasscode() {
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
 			signInEmailConfirmQueryCall(email, code)
 				.then((res) => {
-					if ('team' in res.data) {
+					if ('team' in res?.data) {
 						router.replace('/');
 						return;
 					}
 
 					const checkError: {
 						message: string;
-					} = res.data as any;
+					} = res?.data as any;
 
-					const isError = checkError.message === 'Unauthorized';
+					const isError = checkError?.message === 'Unauthorized';
 
 					if (isError) {
 						setErrors({
@@ -125,12 +125,12 @@ export function useAuthenticationPasscode() {
 						setErrors({});
 					}
 
-					const data = res.data as ISigninEmailConfirmResponse;
-					if (!data.workspaces) {
+					const data = res?.data as ISigninEmailConfirmResponse;
+					if (!data?.workspaces) {
 						return;
 					}
 
-					if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
+					if (Array.isArray(data?.workspaces) && data?.workspaces?.length > 0) {
 						setWorkspaces(data.workspaces);
 						setDefaultTeamId(data.defaultTeamId);
 

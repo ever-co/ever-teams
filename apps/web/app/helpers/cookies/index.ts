@@ -129,7 +129,7 @@ export function removeAuthCookies() {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
 	if (totalChunksCookie) {
 		const totalChunks = parseInt(totalChunksCookie);
-		range(totalChunks).map((index) => {
+		range(totalChunks).forEach((index) => {
 			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
 		});
 	}
