@@ -6,7 +6,7 @@ import {
 	LogBox,
 	StatusBar,
 	Keyboard,
-	Text,
+	// Text,
 	StyleSheet,
 	Platform,
 	KeyboardAvoidingView
