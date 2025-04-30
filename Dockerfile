@@ -70,7 +70,10 @@ RUN apt-get update -qq && \
 # Install Yarn
 RUN npm install -g yarn --force
 
-# Install node modules
+# Copy the full monorepo context to ensure all internal workspaces (@ever-teams/*) are available.
+# Set the working directory to apps/web and install dependencies.
+# This allows Yarn Workspaces to correctly resolve local packages (e.g., @ever-teams/types, @ever-teams/ui, @ever-teams/services,...)
+# which would fail if only apps/web was copied in isolation.
 COPY . .
 WORKDIR /app/apps/web
 RUN yarn install --ignore-scripts
