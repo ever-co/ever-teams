@@ -1,6 +1,6 @@
 'use client';
-import { userState } from '@app/stores';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { userState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import SettingsPersonalSkeleton from '@/core/components/shared/skeleton/SettingsPersonalSkeleton';
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';

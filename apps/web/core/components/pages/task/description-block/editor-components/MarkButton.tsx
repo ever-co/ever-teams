@@ -1,6 +1,5 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { TextEditorService } from './TextEditorService';
-import React from 'react';
 import { useSlate } from 'slate-react';
 
 interface IMarkButtonProps {

@@ -12,7 +12,7 @@ import CalendarComponent from './calendar-component';
 import { PiTimerBold } from 'react-icons/pi';
 import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
-import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/icons';
+import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/core/components/icons';
 
 // import { IOrganizationTeamList } from '@app/interfaces';
 

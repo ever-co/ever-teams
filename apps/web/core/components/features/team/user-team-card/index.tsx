@@ -1,6 +1,6 @@
 'use client';
 
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import {
 	useCollaborative,
 	useTMCardTaskEdit,
@@ -11,8 +11,8 @@ import {
 	useUserProfilePage
 } from '@/core/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
-import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Card, Container, InputField, Text, VerticalSeparator } from '@/core/components';
 import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from '@/core/components/features';
 import { useTranslations } from 'next-intl';
@@ -24,7 +24,7 @@ import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { useCallback, useState } from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/ui/svgs/expand';
-import { activityTypeState } from '@app/stores/activity-type';
+import { activityTypeState } from '@/core/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
 import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
 import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
@@ -32,7 +32,7 @@ import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
 import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 
 type IUserTeamCard = {
 	active?: boolean;

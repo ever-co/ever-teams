@@ -8,7 +8,7 @@ import {
 } from '@/core/components/features/manual-time/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
@@ -22,7 +22,7 @@ import {
 	SelectValue
 } from '@/core/components/ui/select';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
-import { toUTC } from '@/app/helpers';
+import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { ToggleButton } from './edit-task-modal';
 

@@ -4,9 +4,9 @@ import {
 	setActiveLanguageIdCookie,
 	setActiveTimezoneCookie,
 	userTimezone
-} from '@app/helpers';
+} from '@/core/lib/helpers/index';
 import { useLanguage, useSettings } from '@/core/hooks';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { Button, InputField, Text, ThemeToggler } from '@/core/components';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useState } from 'react';

@@ -1,5 +1,5 @@
-import { getWorkingEmployeesAPI, updateEmployeeAPI } from '@app/services/client/api';
-import { workingEmployeesEmailState, workingEmployeesState } from '@app/stores/employee';
+import { getWorkingEmployeesAPI, updateEmployeeAPI } from '@/core/services/client/api';
+import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores/employee';
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 

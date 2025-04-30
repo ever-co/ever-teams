@@ -1,7 +1,7 @@
 import { ProgressBar, SegmentedProgressBar } from '@/core/components';
 import { ScreenshotPerHour, ScreenshotPerHourTeam } from './components/screenshoots-per-hour';
 import { useTimeSlots } from '@/core/hooks/features/useTimeSlot';
-import { groupDataByHour } from '@app/helpers/array-data';
+import { groupDataByHour } from '@/core/lib/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import { ScreenshootSkeleton } from './components/screenshoots-per-hour-skeleton';
 import { useLiveTimerStatus } from '@/core/hooks';

@@ -1,7 +1,7 @@
-import { pad } from '@app/helpers';
+import { pad } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
 import { IClassName, TimerSource } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';

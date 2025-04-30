@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FieldError, UseFormRegister } from 'react-hook-form';
 import PhoneInput, { Country } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { PHONE_REGEX } from '@app/helpers';
+import { PHONE_REGEX } from '@/core/lib/helpers/index';
 import en from 'react-phone-number-input/locale/en.json';
 
 type Option = {

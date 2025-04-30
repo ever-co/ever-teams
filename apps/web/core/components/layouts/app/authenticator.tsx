@@ -1,8 +1,8 @@
-import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@app/helpers';
+import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { useOrganizationTeams } from '@/core/hooks';
 import { useQuery } from '@/core/hooks/useQuery';
-import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
-import { userState } from '@app/stores';
+import { getAuthenticatedUserDataAPI } from '@/core/services/client/api';
+import { userState } from '@/core/stores';
 import { CreateTeamModal } from '@/core/components/features';
 import { JoinTeamModal } from '@/core/components/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';

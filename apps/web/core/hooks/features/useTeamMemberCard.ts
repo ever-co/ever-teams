@@ -1,9 +1,9 @@
 'use client';
 
-import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@app/helpers';
+import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@/core/types/interfaces';
-import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
-import { getPublicState } from '@app/stores/public';
+import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
+import { getPublicState } from '@/core/stores/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useOutsideClick } from '../useOutsideClick';

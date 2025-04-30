@@ -1,10 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { imgTitle } from '@app/helpers';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
 import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces';
-import { publicState } from '@app/stores';
-import { clsxm, isValidUrl } from '@app/utils';
+import { publicState } from '@/core/stores';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from '@/core/components';
 

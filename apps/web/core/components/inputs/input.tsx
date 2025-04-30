@@ -1,8 +1,8 @@
 'use client';
 
-import { mergeRefs } from '@app/helpers';
+import { mergeRefs } from '@/core/lib/helpers/index';
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import {
 	Dispatch,
 	forwardRef,
@@ -19,7 +19,7 @@ import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { IconsEmojiEmotions } from '@/icons';
+import { IconsEmojiEmotions } from '@/core/components/icons';
 
 type Props = {
 	readonly errors?: Record<string, string>;

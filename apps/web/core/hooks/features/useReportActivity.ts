@@ -5,7 +5,7 @@ import {
 	getTimeLogReportDaily,
 	getTimeLogReportDailyChart,
 	getTimesheetStatisticsCounts
-} from '@/app/services/client/api/timer/timer-log';
+} from '@/core/services/client/api/timer/timer-log';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
@@ -14,7 +14,7 @@ import {
 	timeLogsRapportChartState,
 	timeLogsRapportDailyState,
 	timesheetStatisticsCountsState
-} from '@/app/stores';
+} from '@/core/stores';
 import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 

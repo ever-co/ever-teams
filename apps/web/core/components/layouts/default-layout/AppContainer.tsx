@@ -2,7 +2,7 @@ import { FC, PropsWithChildren } from 'react';
 import { Toaster, ToastMessageManager } from '@/core/components/ui/toaster';
 import { Meta } from '@/core/components/meta';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 interface AppContainerProps extends PropsWithChildren {
 	title?: string;
 }

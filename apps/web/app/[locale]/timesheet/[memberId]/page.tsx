@@ -15,8 +15,8 @@ import {
 	useOrganizationProjects,
 	useOrganizationTeams
 } from '@/core/hooks';
-import { clsxm } from '@app/utils';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { clsxm } from '@/core/lib/utils';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
@@ -34,7 +34,7 @@ import {
 } from './components';
 import type { IconBaseProps } from 'react-icons';
 
-import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
+import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/timesheet-detail-modal';
@@ -42,7 +42,7 @@ import { useTimesheetPagination } from '@/core/hooks/features/useTimesheetPagina
 import TimesheetPagination from './components/timesheet-pagination';
 import { useTimesheetFilters } from '@/core/hooks/features/useTimesheetFilters';
 import { useTimesheetViewData } from '@/core/hooks/features/useTimesheetViewData';
-import { IconsSearch } from '@/icons';
+import { IconsSearch } from '@/core/components/icons';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';

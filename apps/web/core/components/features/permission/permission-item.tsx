@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type PermissonItem = DropdownItem<{ name: string }>;

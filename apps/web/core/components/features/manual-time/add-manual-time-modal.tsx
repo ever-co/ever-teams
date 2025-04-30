@@ -8,12 +8,12 @@ import { CalendarDays, Clock7 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { manualTimeReasons } from '@app/constants';
+import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/features/useManualTime';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/ITimerLogs';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/ui/DatePicker';
 
 import { getNestedValue, Item, ManageOrMemberComponent } from './manage-member-component';

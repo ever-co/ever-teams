@@ -9,7 +9,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 import { TaskDetailsComponent } from './component';
 

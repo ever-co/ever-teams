@@ -12,7 +12,7 @@ import {
 	Tag,
 	TaskStatusEnum
 } from '@/core/types/interfaces';
-import { Queue, clsxm } from '@app/utils';
+import { Queue, clsxm } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { Card, Tooltip } from '@/core/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -34,7 +34,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
-import { getTextColor } from '@app/helpers';
+import { getTextColor } from '@/core/lib/helpers/index';
 import { cn } from '@/core/lib/helpers';
 
 export type TStatusItem = {

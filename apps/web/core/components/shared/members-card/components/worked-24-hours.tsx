@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date';
 import { useTimer } from '@/core/hooks/features/useTimer';
 
 export function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {

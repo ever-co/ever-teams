@@ -1,6 +1,6 @@
 import { IEmail } from '@/core/types/interfaces/IUserData';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { emailResetRequest } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { emailResetRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createImageAssetsRequest } from '@app/services/server/requests/image-assets';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createImageAssetsRequest } from '@/core/services/server/requests/image-assets';
 
 export async function POST(req: Request, { params }: { params: Promise<{ folder: string }> }) {
 	const folderParam = (await params).folder;

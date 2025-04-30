@@ -1,13 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@/core/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Card, Container } from '@/core/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from '@/core/components/features';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { IssuesView } from '@app/constants';
+import { IssuesView } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
@@ -17,10 +17,10 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
 import { useAtom } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
-import { headerTabs } from '@app/stores/header-tabs';
+import { headerTabs } from '@/core/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from '@/core/components/features/team-member-header';

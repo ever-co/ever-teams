@@ -1,7 +1,7 @@
 import React from 'react';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Tab } from '@headlessui/react';
-import { ActivityFilters } from '@app/constants';
+import { ActivityFilters } from '@/core/constants/config/constants';
 import { ITaskTimesheet } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { Tooltip } from '@/core/components';

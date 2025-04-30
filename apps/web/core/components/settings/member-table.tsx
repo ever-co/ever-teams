@@ -1,10 +1,10 @@
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { imgTitle } from '@app/helpers';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/features/usePagination';
 import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces';
-import { activeTeamIdState, organizationTeamsState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Avatar, InputField, Text, Tooltip } from '@/core/components';
 import { Paginate } from '@/core/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';

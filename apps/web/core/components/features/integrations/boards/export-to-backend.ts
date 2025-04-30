@@ -1,7 +1,7 @@
 import { serializeAsJSON } from '@excalidraw/excalidraw';
 import { compressData } from './encode';
 import { generateEncryptionKey } from './encryption';
-import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@app/constants';
+import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@/core/constants/config/constants';
 import { FILE_UPLOAD_MAX_BYTES } from './constants';
 import { saveFilesToFirebase } from './firebase';
 import { encodeFilesForUpload, isInitializedImageElement } from './files';

@@ -1,6 +1,6 @@
 import { ICreateDailyPlan } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createPlanRequest, getAllDayPlans } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createPlanRequest, getAllDayPlans } from '@/core/services/server/requests';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {

@@ -4,13 +4,13 @@ import {
 	installGitHubIntegrationAPI,
 	oAuthEndpointAuthorizationAPI,
 	syncGitHubRepositoryAPI
-} from '@app/services/client/api/integrations/github';
-import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@app/stores';
+} from '@/core/services/client/api/integrations/github';
+import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { IProjectRepository } from '@/core/types/interfaces';
-import { editOrganizationProjectSettingAPI } from '@app/services/client/api';
+import { editOrganizationProjectSettingAPI } from '@/core/services/client/api';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);

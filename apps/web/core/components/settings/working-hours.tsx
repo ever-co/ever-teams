@@ -6,10 +6,10 @@ import {
 	getActiveTimezoneIdCookie,
 	setActiveTimezoneCookie,
 	userTimezone
-} from '@/app/helpers';
+} from '@/core/lib/helpers/index';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
-import { userState } from '@/app/stores';
+import { userState } from '@/core/stores';
 
 import { useTranslations } from 'next-intl';
 

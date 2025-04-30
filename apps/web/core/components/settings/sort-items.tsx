@@ -1,5 +1,5 @@
 import { ISort } from '@/core/types/interfaces/ISort';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type SortItem = DropdownItem<ISort>;

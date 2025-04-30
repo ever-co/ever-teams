@@ -2,7 +2,7 @@ import { UserInfo } from '@/core/components/features/team/user-team-card/user-in
 import { useTeamMemberCard } from '@/core/hooks';
 import { useEffect } from 'react';
 import { IEmployee } from '@/core/types/interfaces';
-import { IconsCheck } from '@/icons';
+import { IconsCheck } from '@/core/components/icons';
 
 export default function TeamMember({
 	member,

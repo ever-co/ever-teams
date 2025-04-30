@@ -1,6 +1,6 @@
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAtom } from 'jotai';
-import { timesheetRapportState } from '@/app/stores/time-logs';
+import { timesheetRapportState } from '@/core/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -9,7 +9,7 @@ import {
 	updateStatusTimesheetFromApi,
 	createTimesheetFromApi,
 	updateTimesheetFromAPi
-} from '@/app/services/client/api/timer/timer-log';
+} from '@/core/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';

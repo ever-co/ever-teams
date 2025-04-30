@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import Link from 'next/link';
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';

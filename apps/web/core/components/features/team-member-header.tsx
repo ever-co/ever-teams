@@ -1,9 +1,9 @@
-import { IssuesView } from '@app/constants';
+import { IssuesView } from '@/core/constants/config/constants';
 import { UserTeamCardHeader } from './team/user-team-card/task-skeleton';
 import { UserTeamBlockHeader } from './team/user-team-block/user-team-block-header';
 import { Container } from '@/core/components';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 function TeamMemberHeader({ view }: { view: IssuesView }) {

@@ -1,5 +1,5 @@
 import { IUser } from '@/core/types/interfaces';
-import { tasksByTeamState } from '@app/stores';
+import { tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useOrganizationTeams } from './useOrganizationTeams';

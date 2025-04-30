@@ -1,6 +1,6 @@
 import { useTimeDailyActivity } from '@/core/hooks/features/useTimeDailyActivity';
 import { VisitedItemSkeleton } from './components/visited-item-skeleton';
-import { groupAppsByHour } from '@app/helpers/array-data';
+import { groupAppsByHour } from '@/core/lib/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import VisitedItem from './components/visited-Item';
 import { useMemo } from 'react';

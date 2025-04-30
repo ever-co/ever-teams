@@ -3,7 +3,7 @@ import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
 import { useAtom } from 'jotai';
-import { activeTeamTaskId } from '@app/stores';
+import { activeTeamTaskId } from '@/core/stores';
 import Link from 'next/link';
 import {
 	useAuthenticateUser,
@@ -18,7 +18,7 @@ import { Priority, setCommentIconColor } from '@/core/components/kanban-card';
 import CircularProgress from '@/core/components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from '@/core/components';
 // import { TaskStatus } from '@app/constants';
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 
 interface TaskItemProps {

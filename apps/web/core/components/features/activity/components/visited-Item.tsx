@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
 import { ProgressBar } from '@/core/components';
 import Link from 'next/link';

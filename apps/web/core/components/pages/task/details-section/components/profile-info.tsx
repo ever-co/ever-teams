@@ -1,6 +1,6 @@
 // import { auto } from '@popperjs/core';
-import { imgTitle } from '@app/helpers';
-import { isValidUrl } from '@app/utils';
+import { imgTitle } from '@/core/lib/helpers/index';
+import { isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { Avatar } from '@/core/components';
 import stc from 'string-to-color';

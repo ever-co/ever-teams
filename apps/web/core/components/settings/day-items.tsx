@@ -1,5 +1,5 @@
 import { IDay } from '@/core/types/interfaces/IDay';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type DayItem = DropdownItem<IDay>;

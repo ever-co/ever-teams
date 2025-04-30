@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -10,9 +10,9 @@ import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganiz
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import TeamMemberHeader from '@/core/components/features/team-member-header';
-import { IssuesView } from '@app/constants';
+import { IssuesView } from '@/core/constants/config/constants';
 import { HeaderTabs } from '@/core/components/pages/all-teams/header-tabs';
-import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
+import { allTeamsHeaderTabs } from '@/core/stores/header-tabs';
 import AllTeamsMembers from '@/core/components/features/all-teams-members';
 import { MemberFilter } from '@/core/components/features/all-teams/all-team-members-filter';
 import { useOrganizationTeams } from '@/core/hooks';

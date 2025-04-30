@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IProof } from '@/core/types/interfaces/IProof';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { ProofItem, mapPropfItems } from './proof-items';
 

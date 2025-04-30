@@ -1,5 +1,5 @@
 import { Dropdown } from '@/core/components';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole, IRoleList, OT_Member } from '@/core/types/interfaces';
 import { useCallback, useEffect, useMemo, useState } from 'react';

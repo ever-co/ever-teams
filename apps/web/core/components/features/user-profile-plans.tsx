@@ -7,8 +7,8 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 
-import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
-import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
+import { formatDayPlanDate, formatIntegerToHour } from '@/core/lib/helpers/index';
+import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
 import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
@@ -24,12 +24,12 @@ import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
-} from '@app/constants';
+} from '@/core/constants/config/constants';
 import { IDailyPlan, ITeamTask, IUser } from '@/core/types/interfaces';
-import { dataDailyPlanState } from '@app/stores';
-import { fullWidthState } from '@app/stores/fullWidth';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
-import { clsxm } from '@app/utils';
+import { dataDailyPlanState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/fullWidth';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
+import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { Button } from '@/core/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
@@ -50,7 +50,7 @@ import { TaskCard } from './task/task-card';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import DailyPlanTasksTableView from './task/daily-plan/table-view';
-import { IconsCalendarMonthOutline } from '@/icons';
+import { IconsCalendarMonthOutline } from '@/core/components/icons';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';

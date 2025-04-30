@@ -1,8 +1,8 @@
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import { OT_Member } from '@/core/types/interfaces';
-import { timerSecondsState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { timerSecondsState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';

@@ -1,5 +1,5 @@
 'use client';
-import { KanbanTabs } from '@app/constants';
+import { KanbanTabs } from '@/core/constants/config/constants';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
 import { useKanban } from '@/core/hooks/features/useKanban';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -14,7 +14,7 @@ import Separator from '@/core/components/ui/separator';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/team/invite/invite-form-modal';
-import { userTimezone } from '@app/helpers';
+import { userTimezone } from '@/core/lib/helpers/index';
 import KanbanSearch from '@/core/components/pages/kanban/search-bar';
 import {
 	EpicPropertiesDropdown,
@@ -27,7 +27,7 @@ import {
 	useStatusValue
 } from '@/core/components/features';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';

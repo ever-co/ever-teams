@@ -1,10 +1,10 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 import { QueueListIcon, Squares2X2Icon } from '@heroicons/react/20/solid';
-import { IssuesView } from '@app/constants';
-import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
+import { IssuesView } from '@/core/constants/config/constants';
+import { allTeamsHeaderTabs } from '@/core/stores/header-tabs';
 import { Tooltip } from '@/core/components';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 
 export function HeaderTabs() {
 	const t = useTranslations();

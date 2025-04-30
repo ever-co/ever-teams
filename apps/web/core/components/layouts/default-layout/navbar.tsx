@@ -2,7 +2,7 @@
 
 import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
+import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { RequestToJoinModal } from '@/core/components/layouts/default-layout/header/request-to-join-modal';
 import Collaborate from '@/core/components/shared/collaborate';

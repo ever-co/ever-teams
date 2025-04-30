@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { INotify } from '@/core/types/interfaces/INotify';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { NotifyItem, mapNotifyItems } from './notify-item';
 

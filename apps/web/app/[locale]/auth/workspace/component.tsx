@@ -1,6 +1,6 @@
 'use client';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -10,7 +10,7 @@ import { useAuthenticationSocialLogin } from '@/core/hooks/auth/useAuthenticatio
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();

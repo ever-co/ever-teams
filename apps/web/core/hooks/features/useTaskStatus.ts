@@ -7,13 +7,13 @@ import {
 	deleteTaskStatusAPI,
 	editTaskStatusAPI,
 	editTaskStatusOrderAPI
-} from '@app/services/client/api';
-import { taskStatusesState, activeTeamIdState } from '@app/stores';
+} from '@/core/services/client/api';
+import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

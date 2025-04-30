@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IFilter } from '@/core/types/interfaces/IFilter';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { FilterItem } from './filter-items';
 import { IInvitationExpire } from '@/core/types/interfaces/IInvitation_Expire';

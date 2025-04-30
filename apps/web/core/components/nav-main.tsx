@@ -17,7 +17,7 @@ import {
 	useSidebar
 } from '@/core/components/ui/sidebar';
 import Link from 'next/link';
-import { activeMenuIndexState, activeSubMenuIndexState, openMenusState } from '@/app/stores/menu';
+import { activeMenuIndexState, activeSubMenuIndexState, openMenusState } from '@/core/stores/menu';
 import { ReactNode } from 'react';
 
 export function NavMain({

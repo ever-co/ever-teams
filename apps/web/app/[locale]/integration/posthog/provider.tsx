@@ -1,6 +1,6 @@
 'use client';
 
-import { POSTHOG_HOST, POSTHOG_KEY } from '@app/constants';
+import { POSTHOG_HOST, POSTHOG_KEY } from '@/core/constants/config/constants';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 

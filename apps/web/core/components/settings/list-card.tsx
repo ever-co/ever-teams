@@ -1,12 +1,12 @@
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { Button, Text, Tooltip } from '@/core/components';
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
-import { getTextColor } from '@app/helpers';
+import { clsxm } from '@/core/lib/utils';
+import { getTextColor } from '@/core/lib/helpers/index';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
-import { svgFetch } from '@app/services/server/fetch';
+import { svgFetch } from '@/core/services/server/fetch';
 
 export const StatusesListCard = ({
 	statusIcon,

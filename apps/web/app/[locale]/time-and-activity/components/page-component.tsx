@@ -3,7 +3,7 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { Breadcrumb, Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';

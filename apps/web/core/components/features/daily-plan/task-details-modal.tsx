@@ -1,6 +1,6 @@
 import { Card, Modal } from '@/core/components';
 import { useCallback } from 'react';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { ITeamTask } from '@/core/types/interfaces';
 import { TaskDetailsComponent } from '@app/[locale]/task/[id]/component';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';

@@ -1,8 +1,8 @@
 import NextAuth, { type DefaultSession, type NextAuthConfig } from 'next-auth';
-import { filteredProviders } from '@app/utils/check-provider-env-vars';
-import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
+import { filteredProviders } from '@/core/lib/utils/check-provider-env-vars';
+import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@/core/services/server/requests/OAuth';
 import { NextRequest } from 'next/server';
-import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@app/constants';
+import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
 
 declare module 'next-auth' {
 	interface Session extends DefaultSession {

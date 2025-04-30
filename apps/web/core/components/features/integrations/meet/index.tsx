@@ -1,6 +1,6 @@
 'use client';
 
-import { MEET_DOMAIN } from '@app/constants';
+import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';

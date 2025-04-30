@@ -1,10 +1,10 @@
 import { ITag } from '@/core/types/interfaces';
-import { createTagAPI, deleteTagAPI, getTagsAPI, updateTagAPI } from '@app/services/client/api';
+import { createTagAPI, deleteTagAPI, getTagsAPI, updateTagAPI } from '@/core/services/client/api';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import cloneDeep from 'lodash/cloneDeep';
-import { tagsState } from '@/app/stores/tags';
+import { tagsState } from '@/core/stores/tags';
 
 export const useTags = () => {
 	const [tags, setTags] = useAtom(tagsState);

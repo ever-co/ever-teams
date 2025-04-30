@@ -1,6 +1,6 @@
-import { validateForm } from '@app/helpers/validations';
+import { validateForm } from '@/core/lib/helpers/validations';
 import { IInviteVerifyCode } from '@/core/types/interfaces/IInvite';
-import { verifyInviteCodeRequest } from '@app/services/server/requests';
+import { verifyInviteCodeRequest } from '@/core/services/server/requests';
 
 import { NextResponse } from 'next/server';
 

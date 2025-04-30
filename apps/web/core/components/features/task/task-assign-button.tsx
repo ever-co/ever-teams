@@ -1,5 +1,5 @@
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
 import { ArrowRightIcon } from 'assets/svg';
 import { MouseEventHandler } from 'react';

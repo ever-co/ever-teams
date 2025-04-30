@@ -1,4 +1,4 @@
-import { kanbanBoardState } from '@app/stores/kanban';
+import { kanbanBoardState } from '@/core/stores/kanban';
 import { useTaskStatus } from './useTaskStatus';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';

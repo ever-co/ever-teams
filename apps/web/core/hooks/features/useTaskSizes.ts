@@ -1,9 +1,9 @@
 'use client';
 
 import { ITaskSizesCreate } from '@/core/types/interfaces';
-import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@app/services/client/api';
-import { activeTeamIdState } from '@app/stores';
-import { taskSizesListState } from '@app/stores/task-sizes';
+import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@/core/services/client/api';
+import { activeTeamIdState } from '@/core/stores';
+import { taskSizesListState } from '@/core/stores/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';

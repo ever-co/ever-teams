@@ -1,11 +1,11 @@
 import { IUserOrganization } from '@/core/types/interfaces/IOrganization';
 import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest
-} from '@app/services/server/requests';
+} from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

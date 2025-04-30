@@ -1,13 +1,13 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
-import { activeTeamManagersState } from '@app/stores';
+import { activeTeamManagersState } from '@/core/stores';
 import { Button, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { RemoveModal } from './remove-modal';
 import { TransferTeamModal } from './transfer-team-modal';
-import { LAST_WORSPACE_AND_TEAM } from '@app/constants';
+import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();

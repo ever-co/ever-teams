@@ -3,13 +3,13 @@ import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState } from 'react';
 import { ITeamTask, IUser } from '@/core/types/interfaces';
-import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
+import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 
 interface OutstandingAll {
 	profile: any;

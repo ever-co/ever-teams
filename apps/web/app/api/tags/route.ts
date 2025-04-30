@@ -1,6 +1,6 @@
 import { ITaskLabelsCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createLabelsRequest, getTaskLabelsListRequest } from '@app/services/server/requests/task-labels';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createLabelsRequest, getTaskLabelsListRequest } from '@/core/services/server/requests/task-labels';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 
 const CompletionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);

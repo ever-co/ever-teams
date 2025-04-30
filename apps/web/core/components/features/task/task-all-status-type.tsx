@@ -11,13 +11,13 @@ import {
 	useTaskSizesValue,
 	useTaskStatusValue
 } from './task-status';
-import { clsxm } from '@app/utils';
-import { planBadgeContent, planBadgeContPast } from '@app/helpers';
+import { clsxm } from '@/core/lib/utils';
+import { planBadgeContent, planBadgeContPast } from '@/core/lib/helpers/index';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../user-profile-plans';
 import ProjectIcon from '@/core/components/ui/svgs/project-icon';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/app/stores/organization-projects';
+import { organizationProjectsState } from '@/core/stores/organization-projects';
 
 export function TaskAllStatusTypes({
 	task,

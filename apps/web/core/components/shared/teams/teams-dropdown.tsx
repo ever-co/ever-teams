@@ -1,4 +1,4 @@
-import { imgTitle } from '@app/helpers/img-title';
+import { imgTitle } from '@/core/lib/helpers/img-title';
 import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';

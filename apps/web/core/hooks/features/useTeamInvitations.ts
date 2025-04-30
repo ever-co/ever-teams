@@ -8,14 +8,14 @@ import {
 	resendTeamInvitationsAPI,
 	getMyInvitationsAPI,
 	acceptRejectMyInvitationsAPI
-} from '@app/services/client/api';
+} from '@/core/services/client/api';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
 	getTeamInvitationsState,
 	myInvitationsState,
 	teamInvitationsState
-} from '@app/stores';
+} from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';

@@ -1,7 +1,7 @@
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { Button } from '@/core/components/ui/button';
 import { Modal } from '@/core/components';
-import { statusOptions } from '@app/constants';
+import { statusOptions } from '@/core/constants/config/constants';
 import { MultiSelect } from '@/core/components/custom-select/multi-select';
 import { Input } from '@/core/components/ui/input';
 interface TimeSheetFilterProps {

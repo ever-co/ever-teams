@@ -1,9 +1,9 @@
 'use client';
 
-import { getAccessTokenCookie } from '@app/helpers';
+import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import SocialLogins from '../social-logins-buttons';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 
 export default function AuthPassword() {
 	const t = useTranslations();

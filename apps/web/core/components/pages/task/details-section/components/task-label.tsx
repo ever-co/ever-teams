@@ -1,4 +1,4 @@
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import Image from 'next/image';
 
 type TaskLabelProps = {

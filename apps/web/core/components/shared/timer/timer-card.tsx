@@ -1,4 +1,4 @@
-import { pad } from '@app/helpers/number';
+import { pad } from '@/core/lib/helpers/number';
 import { useTeamTasks } from '@/core/hooks';
 import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';

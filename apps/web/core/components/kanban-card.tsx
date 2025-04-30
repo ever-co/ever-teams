@@ -14,9 +14,9 @@ import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from '@/core/component
 import Link from 'next/link';
 import CircularProgress from '@/core/components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
-import { activeTeamTaskId } from '@app/stores';
+import { activeTeamTaskId } from '@/core/stores';
 import { useAtom } from 'jotai';
 
 function getStyle(provided: DraggableProvided, style: any) {

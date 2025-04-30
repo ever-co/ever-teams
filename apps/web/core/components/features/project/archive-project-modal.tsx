@@ -3,7 +3,7 @@ import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import moment from 'moment';
 

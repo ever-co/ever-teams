@@ -1,6 +1,6 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FilterTabs, TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from '@/core/components/features';
 import { useRouter } from 'next/navigation';
 

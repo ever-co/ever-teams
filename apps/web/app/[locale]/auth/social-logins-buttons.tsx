@@ -1,7 +1,7 @@
 import { signInFunction } from './social-logins';
 import { Divider } from '@/core/components';
-import { mappedProviders, providerNames } from '@app/utils/check-provider-env-vars';
-import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/icons';
+import { mappedProviders, providerNames } from '@/core/lib/utils/check-provider-env-vars';
+import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/core/components/icons';
 
 export default function SocialLogins() {
 	const providerIcons = [

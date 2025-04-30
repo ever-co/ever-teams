@@ -1,8 +1,8 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	deleteEmployeeTimeSlotsRequest,
 	getEmployeeTimeSlotsRequest
-} from '@app/services/server/requests/timer/timer-slot';
+} from '@/core/services/server/requests/timer/timer-slot';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

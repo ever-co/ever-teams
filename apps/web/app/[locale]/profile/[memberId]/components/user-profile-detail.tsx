@@ -1,12 +1,12 @@
 import { useTimer } from '@/core/hooks';
 import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
-import { isValidUrl } from '@app/utils';
+import { isValidUrl } from '@/core/lib/utils';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
 import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { Avatar, Text } from '@/core/components';
-import { imgTitle } from '@app/helpers';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 
 export function UserProfileDetail({ member }: { member?: OT_Member }) {

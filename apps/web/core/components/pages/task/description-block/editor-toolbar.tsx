@@ -27,10 +27,10 @@ import {
 	AlignFullIcon,
 	ChevronDownIcon
 } from 'assets/svg';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { IconsCloseRounded, IconsEmojiEmotions } from '@/icons';
+import { IconsCloseRounded, IconsEmojiEmotions } from '@/core/components/icons';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;

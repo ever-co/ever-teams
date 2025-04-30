@@ -1,6 +1,6 @@
 import { INextParams, ITaskStatusCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteTaskStatusRequest, editTaskStatusRequest } from '@app/services/server/requests/taskStatus';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteTaskStatusRequest, editTaskStatusRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, props: INextParams) {

@@ -6,7 +6,7 @@ import { Card } from '@/core/components';
 import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from '@/core/components/settings';
 
 import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { fetchingTeamInvitationsState, userState } from '@app/stores';
+import { fetchingTeamInvitationsState, userState } from '@/core/stores';
 import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -16,7 +16,7 @@ import { IntegrationSetting } from '@/core/components/settings/integration-setti
 import { InvitationSetting } from '@/core/components/settings/invitation-setting';
 import { IssuesSettings } from '@/core/components/settings/issues-settings';
 import { MemberSetting } from '@/core/components/settings/member-setting';
-import { activeSettingTeamTab } from '@app/stores/setting';
+import { activeSettingTeamTab } from '@/core/stores/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/setting/interaction-observer';
 
 const Team = () => {

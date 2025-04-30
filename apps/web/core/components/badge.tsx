@@ -1,5 +1,5 @@
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { PropsWithChildren } from 'react';
 
 export function OutlineBadge({

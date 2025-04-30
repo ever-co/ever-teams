@@ -1,12 +1,12 @@
 import { ITeamTask } from '@/core/types/interfaces';
 import { Modal, Card, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { RadioGroup } from '@headlessui/react';
-import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
+import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.

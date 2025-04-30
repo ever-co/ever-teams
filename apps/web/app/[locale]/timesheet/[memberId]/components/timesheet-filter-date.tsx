@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { checkPastDate, cn } from '@/core/lib/helpers';
 import { DatePicker } from '@/core/components/ui/DatePicker';
 import { Button } from '@/core/components/ui/button';

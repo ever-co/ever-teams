@@ -1,6 +1,6 @@
 import { IRolePermissions } from '@/core/types/interfaces';
-import { getRolePermissionAPI, updateRolePermissionAPI } from '@app/services/client/api';
-import { rolePermissionsFormatedState, rolePermissionsState } from '@app/stores/';
+import { getRolePermissionAPI, updateRolePermissionAPI } from '@/core/services/client/api';
+import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';

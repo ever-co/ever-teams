@@ -1,14 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
 
-import { userTimezone } from '@app/helpers/date';
-import { authFormValidate } from '@app/helpers/validations';
+import { userTimezone } from '@/core/lib/helpers/date';
+import { authFormValidate } from '@/core/lib/helpers/validations';
 import { IRegisterDataAPI } from '@/core/types/interfaces';
-import { registerUserTeamAPI } from '@app/services/client/api';
+import { registerUserTeamAPI } from '@/core/services/client/api';
 import { AxiosError } from 'axios';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { RECAPTCHA_SITE_KEY } from '@app/constants';
+import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const FIRST_STEP = 'STEP1' as const;

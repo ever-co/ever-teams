@@ -1,14 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
 import { IClassName, ITimerStatusEnum } from '@/core/types/interfaces';
-import { clsxm, isValidUrl } from '@app/utils';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Avatar, Text, Tooltip } from '@/core/components';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
 import Link from 'next/link';
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
-import { imgTitle } from '@app/helpers';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { MailIcon } from 'assets/svg';
 import { UserManagerIcon } from 'assets/svg';
 

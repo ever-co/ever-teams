@@ -6,14 +6,14 @@ import {
 	deleteTaskLabelsAPI,
 	createTaskLabelsAPI,
 	editTaskLabelsAPI
-} from '@app/services/client/api';
-import { userState, taskLabelsListState, activeTeamIdState } from '@app/stores';
+} from '@/core/services/client/api';
+import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
-import { getActiveTeamIdCookie } from '@app/helpers';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);

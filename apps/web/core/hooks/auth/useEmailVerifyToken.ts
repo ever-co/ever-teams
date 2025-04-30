@@ -1,6 +1,6 @@
 'use client';
 
-import { verifyUserEmailByTokenAPI } from '@app/services/client/api';
+import { verifyUserEmailByTokenAPI } from '@/core/services/client/api';
 import { AxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';

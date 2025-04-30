@@ -1,7 +1,7 @@
 'use client';
 
 import { useCollaborative, useQuery } from '@/core/hooks';
-import { getMeetJwtAuthTokenAPI } from '@app/services/client/api/meet-auth';
+import { getMeetJwtAuthTokenAPI } from '@/core/services/client/api/meet-auth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';

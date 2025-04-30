@@ -1,9 +1,9 @@
 import React from 'react';
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@/core/hooks';
 import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@/core/types/interfaces';
-import { timerSecondsState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { timerSecondsState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Card, HorizontalSeparator, InputField, Text } from '@/core/components';
 import { TaskTimes, getTimerStatusValue } from '@/core/components/features';
 import { useTranslations } from 'next-intl';

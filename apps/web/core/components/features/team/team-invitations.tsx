@@ -2,7 +2,7 @@
 
 import { useModal, useTeamInvitations } from '@/core/hooks';
 import { MyInvitationActionEnum } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Button, Card, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
 import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';

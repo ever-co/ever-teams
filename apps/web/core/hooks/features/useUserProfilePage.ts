@@ -8,7 +8,7 @@ import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTeamTasks } from './useTeamTasks';
 import { useAtomValue } from 'jotai';
-import { userDetailAccordion } from '@app/stores';
+import { userDetailAccordion } from '@/core/stores';
 import { useGetTasksStatsData } from './useGetTasksStatsData';
 
 export function useUserProfilePage() {

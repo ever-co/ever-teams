@@ -1,6 +1,6 @@
 import { INextParams, ITaskLabelsCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteTaskLabelsRequest, editTaskLabelsRequest } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteTaskLabelsRequest, editTaskLabelsRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function DELETE(req: Request, props: INextParams) {

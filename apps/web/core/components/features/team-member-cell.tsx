@@ -1,6 +1,6 @@
 import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
 import { OT_Member } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { InputField } from '@/core/components';
 import { TaskTimes } from './task/task-times';
 import { TaskEstimateInfo } from './team/user-team-card/task-estimate';
@@ -9,7 +9,7 @@ import { UserInfo } from './team/user-team-card/user-info';
 import { UserTeamCardMenu } from './team/user-team-card/user-team-card-menu';
 import get from 'lodash/get';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;

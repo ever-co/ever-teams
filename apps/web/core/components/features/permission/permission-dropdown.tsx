@@ -1,6 +1,6 @@
 import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from '@/core/components';

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getActivityReportRequest } from '@/app/services/server/requests/timesheet';
-import { IActivityRequestParams } from '@/app/services/server/requests/timesheet';
+import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
+import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
 import { TimeLogType } from '@/core/types/interfaces';
 
 export const dynamic = 'force-dynamic';

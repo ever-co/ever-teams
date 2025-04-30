@@ -1,8 +1,8 @@
 import { ITeamTask, Nullable, TimesheetLog } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Tooltip } from '@/core/components';
 import { TaskIssueStatus } from './task-issue';
-import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
+import { differenceBetweenHours, formatDate, secondsToTime } from '@/core/lib/helpers/index';
 import { ClockIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';

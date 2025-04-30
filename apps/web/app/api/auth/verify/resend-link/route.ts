@@ -1,6 +1,6 @@
-import { VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { resentVerifyUserLinkRequest } from '@app/services/server/requests';
+import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { resentVerifyUserLinkRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

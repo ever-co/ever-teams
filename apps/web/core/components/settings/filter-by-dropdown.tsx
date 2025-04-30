@@ -2,7 +2,7 @@ import { Dropdown } from '@/core/components';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IFilter } from '@/core/types/interfaces/IFilter';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { FilterItem, mapFilterItems } from './filter-items';
 import { MemberSettingfilterByType } from '@/core/types/interfaces/IMemberSetting';
 

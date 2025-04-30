@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { convertMsToTime, secondsToTime } from '@app/helpers/date';
+import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/ITimer';
 import {
@@ -9,7 +9,7 @@ import {
 	stopTimerAPI,
 	toggleTimerAPI,
 	syncTimerAPI
-} from '@app/services/client/api/timer';
+} from '@/core/services/client/api/timer';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -17,7 +17,7 @@ import {
 	timerSecondsState,
 	timerStatusFetchingState,
 	timerStatusState
-} from '@app/stores';
+} from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';

@@ -1,8 +1,8 @@
 'use client';
 
 import { useLocalStorageState, useModal, useOrganizationTeams } from '@/core/hooks';
-import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
+import { fullWidthState } from '@/core/stores/fullWidth';
+import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/pages/main/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';

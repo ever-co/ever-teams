@@ -5,7 +5,7 @@ import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/ui/button';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 
 export type TimePickerValue = {
 	hours: string;

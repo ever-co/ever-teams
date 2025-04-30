@@ -1,6 +1,6 @@
 import { ITaskVersionCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createVersionRequest, getTaskVersionListRequest } from '@app/services/server/requests/task-version';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createVersionRequest, getTaskVersionListRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

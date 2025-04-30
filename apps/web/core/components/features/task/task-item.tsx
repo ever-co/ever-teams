@@ -1,7 +1,7 @@
-import { imgTitle } from '@app/helpers';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { useTeamTasks } from '@/core/hooks';
 import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces';
-import { clsxm, isValidUrl } from '@app/utils';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from '@/core/components';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/image-overlapper';

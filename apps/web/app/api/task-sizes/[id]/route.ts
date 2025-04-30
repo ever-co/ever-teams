@@ -1,6 +1,6 @@
 import { INextParams, ITaskSizesCreate } from '@/core/types/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteTaskSizesRequest, editTaskSizesRequest } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteTaskSizesRequest, editTaskSizesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, props: INextParams) {

@@ -1,5 +1,5 @@
 import { IRequestToJoinCreate } from '@/core/types/interfaces';
-import { resendCodeRequestToJoinRequest } from '@app/services/server/requests';
+import { resendCodeRequestToJoinRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

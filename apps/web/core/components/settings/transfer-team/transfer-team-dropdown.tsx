@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AutoCompleteDropdown } from '@/core/components';
 import { mapTeamMemberItems, TeamMemberItem } from './team-member-item';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { IColor, IOrganizationTeamMember } from '@/core/types/interfaces';
 
 export const TransferTeamDropdown = ({

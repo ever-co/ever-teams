@@ -2,8 +2,8 @@
 import { useRefetchData } from '@/core/hooks';
 import { useTaskSizes } from '@/core/hooks/features/useTaskSizes';
 import { IIcon, ITaskSizesItemList } from '@/core/types/interfaces';
-import { userState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { userState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Text } from '@/core/components';

@@ -1,6 +1,6 @@
-import { setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers/cookies';
-import { generateToken } from '@app/helpers/generate-token';
-import { authFormValidate } from '@app/helpers/validations';
+import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
+import { generateToken } from '@/core/lib/helpers/generate-token';
+import { authFormValidate } from '@/core/lib/helpers/validations';
 import { ILoginDataAPI, ILoginResponse as ILoginResponse } from '@/core/types/interfaces/IAuthentication';
 import {
 	acceptInviteRequest,
@@ -8,7 +8,7 @@ import {
 	getUserOrganizationsRequest,
 	verifyAuthCodeRequest,
 	verifyInviteCodeRequest
-} from '@app/services/server/requests';
+} from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

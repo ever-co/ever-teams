@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date';
 import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { useTranslations } from 'next-intl';

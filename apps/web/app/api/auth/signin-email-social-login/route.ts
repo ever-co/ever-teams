@@ -1,5 +1,5 @@
-import { signWithSocialLoginsRequest } from '@app/services/server/requests';
-import { ProviderEnum } from '@app/services/server/requests/OAuth';
+import { signWithSocialLoginsRequest } from '@/core/services/server/requests';
+import { ProviderEnum } from '@/core/services/server/requests/OAuth';
 
 import { NextResponse } from 'next/server';
 

@@ -1,4 +1,4 @@
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { cn } from '@/core/lib/helpers';
@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
 
 import { statusColor } from '..';
-import { IconsCloseRounded } from '@/icons';
+import { IconsCloseRounded } from '@/core/components/icons';
 
 interface MultiSelectProps<T> {
 	items: T[];

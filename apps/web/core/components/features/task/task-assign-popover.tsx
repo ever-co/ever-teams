@@ -1,6 +1,6 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
 import { ITeamTask, OT_Member } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from './task-input';

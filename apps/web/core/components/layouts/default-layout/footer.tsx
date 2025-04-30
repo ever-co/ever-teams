@@ -4,10 +4,10 @@ import { LanguageDropDownWithFlags } from '@/core/components/settings/language-d
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-import { APP_LINK, APP_NAME, CHATWOOT_API_KEY, COMPANY_LINK, COMPANY_NAME } from '@app/constants';
+import { APP_LINK, APP_NAME, CHATWOOT_API_KEY, COMPANY_LINK, COMPANY_NAME } from '@/core/constants/config/constants';
 import { IClassName } from '@/core/types/interfaces';
-import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
+import { fullWidthState } from '@/core/stores/fullWidth';
+import { clsxm } from '@/core/lib/utils';
 
 export function Footer({ className }: IClassName) {
 	const t = useTranslations();

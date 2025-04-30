@@ -1,10 +1,10 @@
 'use client';
 
-import { validateForm } from '@app/helpers';
+import { validateForm } from '@/core/lib/helpers/index';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useCallback, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { signInEmailPasswordAPI, signInWorkspaceAPI } from '@app/services/client/api';
+import { signInEmailPasswordAPI, signInWorkspaceAPI } from '@/core/services/client/api';
 import { AxiosError, isAxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 

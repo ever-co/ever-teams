@@ -1,9 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
-import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
-import { detailedTaskState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { createTaskLinkedIsssueAPI } from '@/core/services/client/api';
+import { detailedTaskState } from '@/core/stores';
+import { clsxm } from '@/core/lib/utils';
 import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { TaskInput, TaskLinkedIssue } from '@/core/components/features';

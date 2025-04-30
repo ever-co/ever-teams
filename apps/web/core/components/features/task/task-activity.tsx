@@ -5,9 +5,9 @@ import React from 'react';
 import { UserTaskActivity } from './activity/user-task-activity';
 import { ITeamTask } from '@/core/types/interfaces';
 import { useTaskTimeSheets } from '@/core/hooks/features/useTaskActivity';
-import { groupByTime } from '@app/helpers/array-data';
+import { groupByTime } from '@/core/lib/helpers/array-data';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 
 export function TaskActivity({ task }: { task: ITeamTask }) {

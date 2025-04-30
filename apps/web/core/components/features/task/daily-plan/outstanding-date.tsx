@@ -1,13 +1,13 @@
-import { formatDayPlanDate, handleDragAndDrop } from '@app/helpers';
+import { formatDayPlanDate, handleDragAndDrop } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { HorizontalSeparator } from '@/core/components';
 import TaskBlockCard from '../task-block-card';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import { IDailyPlan, IUser } from '@/core/types/interfaces';

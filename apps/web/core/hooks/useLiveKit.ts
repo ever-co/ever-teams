@@ -1,5 +1,5 @@
 'use client';
-import { tokenLiveKitRoom } from '@app/services/server/livekitroom';
+import { tokenLiveKitRoom } from '@/core/services/server/livekitroom';
 import { useEffect, useState } from 'react';
 
 interface ITokenLiveKitProps {

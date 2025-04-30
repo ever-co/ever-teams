@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from '@/core/components';
 import { mapColorItems, IColorItem } from './color-items';
 
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { IColor } from '@/core/types/interfaces';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 

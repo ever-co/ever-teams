@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useDailyPlan } from '@/core/hooks';
-import { detailedTaskState } from '@app/stores';
+import { detailedTaskState } from '@/core/stores';
 import { useAtom } from 'jotai';
 import TaskRow from '../components/task-row';
-import { formatDayPlanDate } from '@app/helpers';
+import { formatDayPlanDate } from '@/core/lib/helpers/index';
 
 export function TaskPlans() {
 	const [task] = useAtom(detailedTaskState);

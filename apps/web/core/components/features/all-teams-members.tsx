@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
-import { IssuesView } from '@app/constants';
+import { IssuesView } from '@/core/constants/config/constants';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from '@/core/components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/shared/skeleton/InviteTeamCardSkeleton';

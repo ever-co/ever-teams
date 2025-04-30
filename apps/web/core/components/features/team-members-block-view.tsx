@@ -3,7 +3,7 @@ import { OT_Member } from '@/core/types/interfaces';
 import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
 import { useAtomValue } from 'jotai';
-import { taskBlockFilterState } from '@app/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/task-filter';
 import { UserTeamCardSkeleton } from './team/user-team-card/task-skeleton';
 import { useTranslations } from 'next-intl';
 

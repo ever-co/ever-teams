@@ -1,4 +1,11 @@
-import { APP_LINK, APP_NAME, COMPANY_LINK, COMPANY_NAME, PRIVACY_POLICY_LINK, TERMS_LINK } from '@app/constants';
+import {
+	APP_LINK,
+	APP_NAME,
+	COMPANY_LINK,
+	COMPANY_NAME,
+	PRIVACY_POLICY_LINK,
+	TERMS_LINK
+} from '@/core/constants/config/constants';
 import ToggleThemeContainer from '../toggleThemeBtns';
 import { useTranslations } from 'next-intl';
 

@@ -3,7 +3,7 @@ import { Avatar } from '@/core/components/ui/avatar';
 import Image from 'next/image';
 import ProgressBar from './progress-bar';
 import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';
-import { formatDuration, getWeekRange } from '@/utils/formatDuration';
+import { formatDuration, getWeekRange } from '@/core/lib/utils/formatDuration';
 import { EmptyTimeActivity } from './empty-time-activity';
 
 interface TimeEntry {
@@ -86,14 +86,14 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 				if (!value) return <div>No Project Data</div>;
 				return (
 					<div className="flex items-center gap-3">
-						<Avatar className="rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-gray-800">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}
 									alt={value.name || 'No project'}
 									width={40}
 									height={40}
-									className="rounded-full w-full h-full object-cover"
+									className="object-cover w-full h-full rounded-full"
 								/>
 							)}
 						</Avatar>

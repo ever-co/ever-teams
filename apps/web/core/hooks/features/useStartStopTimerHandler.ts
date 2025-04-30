@@ -6,7 +6,7 @@ import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
-} from '@app/constants';
+} from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/components/features/task/daily-plan';
 
 export function useStartStopTimerHandler() {

@@ -1,5 +1,5 @@
 import { IClassName } from '@/core/types/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
@@ -14,10 +14,10 @@ import {
 import { Text } from './typography';
 import { AllSidesIcon, Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useAtom } from 'jotai';
-import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
+import { dataSyncModeState, isDataSyncState } from '@/core/stores/data-sync';
 import { useModal } from '@/core/hooks';
 import { RealTimePopup } from '@/core/components/settings/sync.zone';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 
 type Props = {
 	className?: string;

@@ -1,4 +1,4 @@
-import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@app/helpers';
+import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/features/user-profile-plans';
 import { TaskCard } from '../task-card';
@@ -6,9 +6,9 @@ import { Button } from '@/core/components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
-import { clsxm } from '@app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { HorizontalSeparator, AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';

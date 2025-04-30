@@ -1,5 +1,5 @@
 import { TimesheetFilterByDays, TimesheetStatus } from '@/core/types/interfaces';
-import { clsxm } from '@/app/utils';
+import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
 import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
