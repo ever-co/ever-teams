@@ -1,5 +1,5 @@
 import { Skeleton } from '@/core/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { FC } from 'react';
 
 /**

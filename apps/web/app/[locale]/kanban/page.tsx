@@ -30,7 +30,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { ITeamTask } from '@app/interfaces';
 import KanbanBoardSkeleton from '@/core/components/shared/skeleton/KanbanBoardSkeleton';
 

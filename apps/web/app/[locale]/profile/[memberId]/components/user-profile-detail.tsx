@@ -2,7 +2,7 @@ import { useTimer } from '@/core/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { isValidUrl } from '@app/utils';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/features';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { Avatar, Text } from '@/core/components';

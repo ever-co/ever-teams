@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { TaskInfo } from '@/core/components/features/team/user-team-card/task-info';

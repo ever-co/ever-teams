@@ -7,7 +7,7 @@ import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { statusTable } from './timesheet-action';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {

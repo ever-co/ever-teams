@@ -2,7 +2,7 @@
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';

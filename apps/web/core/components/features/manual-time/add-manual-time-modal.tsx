@@ -3,7 +3,7 @@ import '@/styles/style.css';
 
 import { format } from 'date-fns';
 import { Button, Modal } from '@/core/components';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { CalendarDays, Clock7 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';

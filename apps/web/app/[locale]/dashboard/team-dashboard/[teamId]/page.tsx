@@ -12,7 +12,7 @@ import { DashboardHeader } from './components/dashboard-header';
 import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb, Container } from '@/core/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';

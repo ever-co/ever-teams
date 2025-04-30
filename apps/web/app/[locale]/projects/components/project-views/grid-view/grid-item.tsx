@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';

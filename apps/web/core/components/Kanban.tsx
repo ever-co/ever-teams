@@ -26,7 +26,7 @@ import CreateTaskModal from '@/core/components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@/core/components/pages/kanban/edit-status-modal';
 import { ScrollArea } from '@/core/components/ui/scroll-area';
-import { cn } from '../../lib/utils';
+import { cn } from '../lib/helpers';
 
 const grid = 8;
 

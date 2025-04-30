@@ -2,7 +2,7 @@
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from '@/core/components';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';

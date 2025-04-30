@@ -27,7 +27,7 @@ import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 
 function AuthPasscode() {

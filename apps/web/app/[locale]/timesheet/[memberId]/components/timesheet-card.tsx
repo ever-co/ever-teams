@@ -15,7 +15,7 @@ import { EmployeeAvatar } from './compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from './timesheet-icons';
 
 interface ITimesheetCard {

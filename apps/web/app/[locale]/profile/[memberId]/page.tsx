@@ -24,7 +24,7 @@ import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { UserProfileDetail } from './components/user-profile-detail';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 // import { ActivityCalendar } from '@/core/components/features/activity/calendar';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';

@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { Breadcrumb, Container } from '@/core/components';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/ui/card';

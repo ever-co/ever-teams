@@ -14,7 +14,7 @@ import { ITeamTask } from '@/app/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import StatusBadge from '@/core/components/pages/team/tasks/StatusBadge';
-import { cn, getStatusColor } from '@/lib/utils';
+import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/ui/input';
 import { Check, Search, Settings2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';

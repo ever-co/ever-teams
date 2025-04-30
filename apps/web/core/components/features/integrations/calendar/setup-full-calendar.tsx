@@ -10,7 +10,7 @@ import { SettingFilterIcon } from 'assets/svg';
 import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';
 import { PiTimerBold } from 'react-icons/pi';
-import { formatWithSuffix } from 'lib/utils';
+import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
 import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/icons';
 

@@ -9,7 +9,7 @@ import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg'
 import { TaskEstimate, TaskProgressBar } from '@/core/components/features';
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;

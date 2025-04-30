@@ -15,7 +15,7 @@ import {
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from './helpers';
-import { chunk, range } from 'lib/utils';
+import { chunk, range } from '@/core/lib/helpers';
 
 type DataParams = {
 	refresh_token: {

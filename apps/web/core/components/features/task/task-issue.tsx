@@ -15,7 +15,7 @@ import {
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssue> = {

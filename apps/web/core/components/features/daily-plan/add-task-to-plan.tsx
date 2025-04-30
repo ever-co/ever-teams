@@ -16,7 +16,7 @@ import { Card, InputField, Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/ui/button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import moment from 'moment';
 import { Calendar } from '@/core/components/ui/calendar';
 

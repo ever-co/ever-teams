@@ -10,7 +10,7 @@ import { Calendar } from '@/core/components/ui/calendar';
 import { DailyPlanStatusEnum, IDailyPlan } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { ActiveModifiers } from 'react-day-picker';
 

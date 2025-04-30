@@ -1,7 +1,7 @@
 'use client';
 import { useAtom } from 'jotai';
 import { ChevronRight, type LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/core/components/ui/collapsible';
 import {
 	SidebarGroup,

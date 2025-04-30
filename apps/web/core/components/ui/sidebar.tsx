@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
 
-import { useIsMobile } from '@/lib/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/ui/button';
 import { Input } from '@/core/components/ui/input';
 import Separator from '@/core/components/ui/separator';
 import { Sheet, SheetContent } from '@/core/components/ui/sheet';
 import { Skeleton } from '@/core/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { useIsMobile } from '@/core/hooks';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

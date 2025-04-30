@@ -22,7 +22,7 @@ import { Checkbox } from '@/core/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useModal, useTaskStatus } from '@/core/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';

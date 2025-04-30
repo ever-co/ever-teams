@@ -40,7 +40,7 @@ import { useInfinityScrolling } from '@/core/hooks/useInfinityFetch';
 import { ObserverComponent } from '@/core/components/shared/Observer';
 import { LazyRender } from '@/core/components/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 type Props = {
 	task?: Nullable<ITeamTask>;

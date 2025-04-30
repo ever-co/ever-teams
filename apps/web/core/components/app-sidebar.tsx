@@ -25,7 +25,7 @@ import {
 	SidebarFooter
 } from '@/core/components/ui/sidebar';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
 import { CreateTeamModal, TaskIssueStatus } from '@/core/components/features';

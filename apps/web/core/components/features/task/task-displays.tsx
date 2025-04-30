@@ -6,7 +6,7 @@ import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers
 import { ClockIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 type Props = {
 	task: Nullable<ITeamTask>;

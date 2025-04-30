@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import React from 'react';
 
 interface StatusBadgeProps {

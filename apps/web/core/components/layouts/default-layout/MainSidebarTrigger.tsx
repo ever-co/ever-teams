@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { SidebarTrigger, useSidebar } from '@/core/components/ui/sidebar';
 interface MainSidebarTriggerProps {
 	className?: string;

@@ -5,7 +5,7 @@ import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { useRoles } from '@/core/hooks/features/useRoles';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { IProjectRelation, ProjectRelationEnum } from '@/app/interfaces';
 import { RolesEnum } from '@/app/interfaces/IRoles';
 import { useTranslations } from 'next-intl';

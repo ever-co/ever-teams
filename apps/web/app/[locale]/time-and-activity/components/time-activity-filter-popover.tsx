@@ -4,7 +4,7 @@ import { MultiSelect } from '@/core/components/custom-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 
 interface TimeActivityHeaderProps {

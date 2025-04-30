@@ -20,7 +20,7 @@ import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
 import { Check, ChevronDown } from 'lucide-react';
-import { cn } from 'lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@app/constants';
 import { useTranslations } from 'next-intl';
 

@@ -16,7 +16,7 @@ import {
 	Search,
 	Settings2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import { Breadcrumb, Button, Container, InputField, VerticalSeparator } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';

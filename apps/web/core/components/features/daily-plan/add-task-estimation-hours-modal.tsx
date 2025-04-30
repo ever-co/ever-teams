@@ -19,7 +19,7 @@ import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
-import { checkPastDate } from 'lib/utils';
+import { checkPastDate } from '@/core/lib/helpers';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
 import { IconsErrorWarningFill } from '@/icons';

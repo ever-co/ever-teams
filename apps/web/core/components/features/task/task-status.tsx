@@ -35,7 +35,7 @@ import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@app/helpers';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 export type TStatusItem = {
 	id?: string;

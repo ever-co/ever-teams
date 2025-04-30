@@ -11,7 +11,7 @@ import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
 import { formatDate } from '@/app/helpers';
 import { ClockIcon, CodeSquareIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from './weekly-timesheet-calendar';

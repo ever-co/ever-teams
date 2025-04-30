@@ -73,3 +73,4 @@ export * from './integrations/useIntegrationTypes';
 
 export * from './useLocalStorageState';
 export * from './useScrollListener';
+export * from './use-mobile';

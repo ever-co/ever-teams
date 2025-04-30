@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import { IProject, ITeamTask } from '@/app/interfaces';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 const ScreenshotDetailsModal = ({
 	open,
