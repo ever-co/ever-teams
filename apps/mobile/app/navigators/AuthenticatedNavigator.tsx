@@ -242,13 +242,41 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 		>
 			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} />
 			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} />
-			<drawer.Screen name="Setting" component={AuthenticatedSettingScreen} />
-			<drawer.Screen name="TaskVersion" component={TaskVersionScreen} />
-			<drawer.Screen name="TaskStatus" component={TaskStatusScreen} />
-			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} />
-			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} />
-			<drawer.Screen name="TaskPriority" component={TaskPriorityScreen} />
-			<drawer.Screen name="MembersSettingsScreen" component={MembersSettingsScreen} />
+			<drawer.Screen
+				name="Setting"
+				component={AuthenticatedSettingScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskVersion"
+				component={TaskVersionScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskStatus"
+				component={TaskStatusScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskLabelScreen"
+				component={TaskLabelScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskSizeScreen"
+				component={TaskSizeScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskPriority"
+				component={TaskPriorityScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="MembersSettingsScreen"
+				component={MembersSettingsScreen}
+				options={{ unmountOnBlur: true }}
+			/>
 		</drawer.Navigator>
 	);
 });
@@ -264,5 +292,3 @@ const $tabBarLabel: TextStyle = {
 	fontWeight: '500',
 	flex: 1
 };
-
-// @demo remove-file

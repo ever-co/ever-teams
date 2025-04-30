@@ -51,6 +51,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
 		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
+		const { navigation } = _props;
 
 		// ref
 		const bottomSheetRef = useRef<BottomSheet>(null);
@@ -66,8 +67,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		// Include multiple snap points for different sheet heights
 		const snapPoints = useMemo(() => ['1%', '50%', '70%', '85%'], []);
 
-		// Fixed open function without setTimeout
+		// Fixed open function - dismisses keyboard first
 		const openBottomSheet = useCallback((name: IPopup, snapPoint: number = 1) => {
+			// Dismiss any existing keyboard first
+			Keyboard.dismiss();
+
 			// Calculate desired snap index based on the snapPoint parameter
 			let snapIndex = 1; // Default 50%
 
@@ -81,10 +85,20 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			setShowPopup(name);
 			setBottomSheetVisible(true);
 			setDesiredSnapIndex(snapIndex);
+
+			// Use small delay to ensure state updates before showing sheet
+			setTimeout(() => {
+				if (bottomSheetRef.current) {
+					bottomSheetRef.current.snapToIndex(snapIndex);
+				}
+			}, 50);
 		}, []);
 
-		// Handle closing the sheet
+		// Handle closing the sheet - dismiss keyboard first
 		const handleClose = useCallback(() => {
+			// Dismiss keyboard first
+			Keyboard.dismiss();
+
 			// Close the sheet first
 			if (bottomSheetRef.current) {
 				bottomSheetRef.current.close();
@@ -94,13 +108,14 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			setTimeout(() => {
 				setShowPopup(null);
 				setBottomSheetVisible(false);
-				Keyboard.dismiss();
 			}, 250);
 		}, []);
 
 		// Make sure sheet is properly closed on component unmount
 		useEffect(() => {
 			return () => {
+				Keyboard.dismiss();
+
 				if (bottomSheetRef.current) {
 					bottomSheetRef.current.close();
 				}
@@ -114,17 +129,19 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			}
 		}, [bottomSheetVisible, showPopup, desiredSnapIndex]);
 
-		// Keyboard listeners to adjust the sheet height when keyboard appears
+		// IMPORTANT CHANGE: Keyboard listeners only activate when bottom sheet is visible
 		useEffect(() => {
+			// Only set up listeners if bottom sheet is visible
+			if (!bottomSheetVisible) return () => {};
+
 			const keyboardWillShowListener = Keyboard.addListener(
 				Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
 				(e) => {
 					setKeyboardVisible(true);
 					setKeyboardHeight(e.endCoordinates.height);
 
-					// If form sheet is open, adjust its height to accommodate keyboard
-					if (bottomSheetVisible && bottomSheetRef.current) {
-						// Snap to a higher position when keyboard is visible
+					// Only adjust if this bottom sheet is actually visible
+					if (bottomSheetRef.current) {
 						setDesiredSnapIndex(3); // Use the highest snap point (85%)
 					}
 				}
@@ -136,10 +153,8 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					setKeyboardVisible(false);
 					setKeyboardHeight(0);
 
-					// If form sheet is still open, return to normal height
-					if (bottomSheetVisible && bottomSheetRef.current && showPopup) {
-						// Return to the original snap point if still open
-						// Map from old snapPoint system
+					// Only adjust if this bottom sheet is actually visible
+					if (bottomSheetRef.current && showPopup) {
 						const snapIndex = showPopup === 'TimeZone' || showPopup === 'Language' ? 2 : 1;
 						setDesiredSnapIndex(snapIndex);
 					}
@@ -150,7 +165,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 				keyboardWillShowListener.remove();
 				keyboardWillHideListener.remove();
 			};
-		}, [bottomSheetVisible, showPopup]);
+		}, [bottomSheetVisible, showPopup]); // Only run when these values change
 
 		// Better backdrop with proper opacity
 		const renderBackdrop = useCallback(
@@ -166,6 +181,15 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 			),
 			[]
 		);
+
+		// Add navigation listener for debugging
+		useEffect(() => {
+			const unsubscribe = navigation.addListener('focus', () => {
+				console.log('[SettingScreen] Screen focused');
+			});
+
+			return unsubscribe;
+		}, [navigation]);
 
 		return (
 			<GestureHandlerRootView style={styles.gestureRoot}>
@@ -220,14 +244,14 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					>
 						<BottomSheet
 							ref={bottomSheetRef}
-							index={0}
+							index={-1} // Start closed instead of index 0
 							snapPoints={snapPoints}
 							enablePanDownToClose={true}
 							onClose={handleClose}
 							backdropComponent={renderBackdrop}
-							enableContentPanningGesture={true}
-							keyboardBehavior="extend"
-							keyboardBlurBehavior="restore"
+							enableContentPanningGesture={false} // Changed from true
+							keyboardBehavior="interactive" // Changed from "extend" to "interactive"
+							keyboardBlurBehavior="none" // Changed from "restore" to "none"
 							android_keyboardInputMode="adjustResize"
 							backgroundStyle={{
 								backgroundColor: colors.background,
@@ -252,7 +276,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 									minHeight: 400,
 									paddingBottom: keyboardVisible ? keyboardHeight + 20 : 20
 								}}
-								keyboardShouldPersistTaps="handled"
+								keyboardShouldPersistTaps="always" // Changed from "handled" to "always"
 								showsVerticalScrollIndicator={true}
 								style={{
 									backgroundColor: colors.background
@@ -264,11 +288,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 										onDismiss={handleClose}
 										openBottomSheet={openBottomSheet}
 									/>
-								) : (
-									<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-										<Text>Loading...</Text>
-									</View>
-								)}
+								) : null}
 							</BottomSheetScrollView>
 						</BottomSheet>
 					</KeyboardAvoidingView>

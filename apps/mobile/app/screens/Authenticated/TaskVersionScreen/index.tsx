@@ -1,4 +1,3 @@
-// Changes to TaskVersionScreen.tsx
 import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
@@ -38,14 +37,17 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [desiredSnapIndex, setDesiredSnapIndex] = useState(0); // Track desired snap index
 
   const sheetRef = useRef<BottomSheet>(null);
 
-  // Define snap points - using a single snap point like in the updated TaskStatusScreen
+  // Define a single snap point for simplicity
   const snapPoints = useMemo(() => ['60%'], []);
 
+  // Modified to dismiss keyboard before opening the sheet
   const openForEdit = useCallback((item: ITaskVersionItemList) => {
+    // First dismiss any existing keyboard
+    Keyboard.dismiss();
+
     setEditMode(true);
     setItemToEdit(item);
     setBottomSheetVisible(true);
@@ -58,7 +60,11 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
     }, 150);
   }, []);
 
+  // Modified to dismiss keyboard before opening the sheet
   const handleCreateNew = useCallback(() => {
+    // First dismiss any existing keyboard
+    Keyboard.dismiss();
+
     setEditMode(false);
     setItemToEdit(null);
     setBottomSheetVisible(true);
@@ -71,7 +77,11 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
     }, 150);
   }, []);
 
+  // Modified to ensure keyboard is dismissed first
   const handleClose = useCallback(() => {
+    // First dismiss keyboard
+    Keyboard.dismiss();
+
     if (sheetRef.current) {
       sheetRef.current.close();
     }
@@ -79,21 +89,26 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
     // Clear state after animation completes
     setTimeout(() => {
       setBottomSheetVisible(false);
-      Keyboard.dismiss();
     }, 250);
   }, []);
 
   // Clean up on unmount
   useEffect(() => {
     return () => {
+      Keyboard.dismiss();
+      setBottomSheetVisible(false);
+
       if (sheetRef.current) {
         sheetRef.current.close();
       }
     };
   }, []);
 
-  // Keyboard listeners
+  // IMPORTANT CHANGE: Keyboard listeners only activate when bottom sheet is visible
   useEffect(() => {
+    // Only set up listeners if bottom sheet is visible
+    if (!bottomSheetVisible) return () => {};
+
     const keyboardWillShowListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => {
@@ -114,7 +129,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
     };
-  }, []);
+  }, [bottomSheetVisible]); // Only run when bottomSheetVisible changes
 
   // Backdrop component
   const renderBackdrop = useCallback(
@@ -138,7 +153,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
         <View style={[$headerContainer, { backgroundColor: colors.background }]}>
           <View style={[styles.container, { backgroundColor: colors.background }]}>
             <TouchableOpacity
-              // accessibilityLabel={translate('settingScreen.backButton')}
               accessibilityRole="button"
               onPress={() => navigation.navigate('Setting')}
             >
@@ -239,11 +253,11 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           enablePanDownToClose={true}
           onClose={handleClose}
           backdropComponent={renderBackdrop}
-          enableContentPanningGesture={true}
-          keyboardBehavior="interactive"
-          keyboardBlurBehavior="restore"
+          enableContentPanningGesture={false} // Changed from true to false
+          keyboardBehavior="interactive" // Changed from "extend" to "interactive"
+          keyboardBlurBehavior="none"
           android_keyboardInputMode="adjustResize"
-          // handleHeight={30}
+          // handleHeight={30} // Set explicit handle height
           backgroundStyle={{
             backgroundColor: colors.background,
             shadowColor: '#000',
@@ -264,9 +278,9 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           <BottomSheetScrollView
             style={{ backgroundColor: colors.background }}
             contentContainerStyle={{
-              flexGrow: 1
+              padding: 0 // Changed from padding: 16
             }}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always" // Changed from "handled" to "always"
             showsVerticalScrollIndicator={false}
           >
             {bottomSheetVisible && (
