@@ -33,7 +33,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   const { isLoading, versions, deleteTaskVersion, updateTaskVersion, createTaskVersion } = useTaskVersion();
 
   const [editMode, setEditMode] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ITaskVersionItemList>(null);
+  const [itemToEdit, setItemToEdit] = useState<ITaskVersionItemList | null>(null);
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);

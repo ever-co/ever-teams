@@ -240,8 +240,8 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 				drawerStyle: { width: '83%' }
 			}}
 		>
-			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} />
-			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} />
+			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} options={{ unmountOnBlur: true }} />
 			<drawer.Screen
 				name="Setting"
 				component={AuthenticatedSettingScreen}

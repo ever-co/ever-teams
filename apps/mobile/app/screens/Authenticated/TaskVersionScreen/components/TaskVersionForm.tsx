@@ -60,7 +60,8 @@ const TaskVersionForm = React.memo(({
 
     try {
       if (isEdit) {
-        await onUpdateVersion(item?.id, {
+        if (!item?.id) return;
+        await onUpdateVersion(item.id, {
           name: versionName
         });
       } else {

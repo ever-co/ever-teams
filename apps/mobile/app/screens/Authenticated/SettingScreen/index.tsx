@@ -141,7 +141,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					setKeyboardHeight(e.endCoordinates.height);
 
 					// Only adjust if this bottom sheet is actually visible
-					if (bottomSheetRef.current) {
+					if (bottomSheetRef.current && showPopup) {
 						setDesiredSnapIndex(3); // Use the highest snap point (85%)
 					}
 				}
@@ -185,7 +185,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		// Add navigation listener for debugging
 		useEffect(() => {
 			const unsubscribe = navigation.addListener('focus', () => {
-				console.log('[SettingScreen] Screen focused');
+				// console.log('[SettingScreen] Screen focused');
 			});
 
 			return unsubscribe;
