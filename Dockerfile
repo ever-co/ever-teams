@@ -22,14 +22,13 @@ ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
 FROM node:${NODE_VERSION}-slim AS base
 
-# Output the environment variable value
+# Output the environment variable value (debug)
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
 
 LABEL maintainer="ever@ever.co"
 LABEL org.opencontainers.image.source https://github.com/ever-co/ever-teams
 
-# Next.js app lives here
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -37,16 +36,19 @@ ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 ENV NEXT_SHARP_PATH=/temp/node_modules/sharp
 
 RUN npm i -g npm@9
-# Install sharp, NextJS image optimization
-RUN mkdir /temp && cd /temp && \
-	npm i sharp
+
+# Pre-install Sharp for Next.js image optimization support
+RUN mkdir /temp && cd /temp && npm i sharp
 
 RUN npm cache clean --force
 
-# Throw-away build stage to reduce size of final image
+# ------------------------------------------------------------------------------
+# Build stage: installs dependencies, builds the app
+# ------------------------------------------------------------------------------
+
 FROM base AS build
 
-# We make env vars passed as build argument to be available in this build stage because we prebuild the NextJs app
+# Pass environment variables into this build stage (for Next.js build-time config)
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
 ARG NEXT_PUBLIC_CAPTCHA_SITE_KEY
@@ -63,50 +65,47 @@ ARG NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
 ARG NEXT_PUBLIC_GITHUB_APP_NAME
 ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
-# Install packages needed to build node modules
+# Install system dependencies needed to compile native modules
 RUN apt-get update -qq && \
 	apt-get install -y build-essential pkg-config python-is-python3
 
 # Install Yarn
 RUN npm install -g yarn --force
 
-# Copy the full monorepo context to ensure all internal workspaces (@ever-teams/*) are available.
-# Set the working directory to apps/web and install dependencies.
-# This allows Yarn Workspaces to correctly resolve local packages (e.g., @ever-teams/types, @ever-teams/ui, @ever-teams/services,...)
-# which would fail if only apps/web was copied in isolation.
+# ✅ Copy the full monorepo so that internal workspaces (@ever-teams/*) are available
 COPY . .
+
+# ✅ Move to the Next.js web application workspace and install dependencies
 WORKDIR /app/apps/web
 RUN yarn install --ignore-scripts
 
-# Copy application code
-COPY . .
-
+# Set production environment
 ENV NODE_ENV=production
 ENV NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
-RUN echo $NEXT_PUBLIC_GAUZY_API_SERVER_URL
-
-# Build application
+# Build the web application with Turbo (monorepo-aware)
 RUN yarn run build:web
 
-# Remove development dependencies
-RUN cd apps/web && \
-	yarn install --prod --ignore-scripts
+# Remove dev dependencies (to reduce final image size)
+RUN yarn install --prod --ignore-scripts
 
+# Clean Yarn cache
 RUN yarn cache clean
 
+# ------------------------------------------------------------------------------
+# Runtime stage: lightweight image that serves the built application
+# ------------------------------------------------------------------------------
 
-# Final stage for app image
 FROM base
 
-# Copy built application
+# Copy build artifacts from the previous stage
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build /app/apps/web/public ./apps/web/public
 
-# Start the server by default, this can be overwritten at runtime
+# Default port for the web server
 EXPOSE 3030
-
 ENV PORT=3030
 
+# Start Next.js server
 CMD [ "node", "./apps/web/server.js" ]
