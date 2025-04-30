@@ -71,6 +71,15 @@ RUN npm install -g yarn --force
 
 # --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
 COPY package.json yarn.lock ./
+
+COPY packages/constants/package.json packages/constants/package.json
+COPY packages/types/package.json packages/types/package.json
+COPY packages/utils/package.json packages/utils/package.json
+COPY packages/ui/package.json packages/ui/package.json
+COPY packages/services/package.json packages/services/package.json
+COPY packages/hooks/package.json packages/hooks/package.json
+COPY packages/eslint-config/package.json packages/eslint-config/package.json
+COPY packages/ts-config/package.json packages/ts-config/package.json
 COPY apps/web/package.json ./apps/web/package.json
 
 # Set working directory to the web app
