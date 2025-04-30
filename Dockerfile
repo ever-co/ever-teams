@@ -71,12 +71,9 @@ RUN apt-get update -qq && \
 RUN npm install -g yarn --force
 
 # Install node modules
-COPY package.json ./
-COPY yarn.lock ./
-COPY apps/web/package.json ./apps/web/package.json
-
-RUN cd apps/web && \
-	yarn install --ignore-scripts
+COPY . .
+WORKDIR /app/apps/web
+RUN yarn install --ignore-scripts
 
 # Copy application code
 COPY . .
