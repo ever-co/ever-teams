@@ -156,7 +156,7 @@ export async function getFilteredLabels(
 
 		// Example: Filter by active status
 		if (options?.filterByTeam && params.organizationTeamId) {
-			items = items.filter((item) => item.organizationTeamId === params.organizationTeamId);
+			items = items.filter((item) => item.organizationId === params.organizationTeamId);
 		}
 
 		return items;
