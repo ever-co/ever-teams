@@ -2,8 +2,8 @@ import { Card, Modal } from '@/core/components';
 import { useCallback } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ITeamTask } from '@/core/types/interfaces';
-import { TaskDetailsComponent } from '@/app/[locale]/(main)/task/[id]/component';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
+import { TaskDetailsComponent } from './task-details';
 
 interface ITaskDetailsModalProps {
 	closeModal: () => void;
