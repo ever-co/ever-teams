@@ -92,7 +92,7 @@ export function NavMain({
 
 				<span
 					className={cn(
-						'transition-all font-light !text-sm',
+						'transition-all !text-sm',
 						state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 					)}
 				>
@@ -123,8 +123,8 @@ export function NavMain({
 											'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300 !text-sm',
 											state === 'collapsed' ? ' justify-center' : '',
 											index === activeMenuIndex
-												? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-												: '!font-light' // Style for active menu
+												? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+												: '!font-normal' // Style for active menu
 										)}
 										asChild
 										tooltip={item.title}
@@ -146,8 +146,8 @@ export function NavMain({
 										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300 !text-sm',
 										state === 'collapsed' ? ' justify-center' : '',
 										index === activeMenuIndex
-											? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-											: '!font-light'
+											? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+											: '!font-normal'
 									)}
 									asChild
 									tooltip={item.title}
@@ -162,7 +162,7 @@ export function NavMain({
 										)}
 										<span
 											className={cn(
-												'transition-all font-light text-sm',
+												'transition-all text-sm',
 												state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 											)}
 										>
@@ -192,15 +192,15 @@ export function NavMain({
 
 																// Style for active sub-menu
 																key === activeSubMenuIndex
-																	? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-																	: '!font-light'
+																	? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+																	: '!font-normal'
 															)}
 															onClick={() => handleSubMenuToggle(key)}
 															asChild
 														>
 															<Link
 																href={subItem.url}
-																className="w-full h-full flex items-center gap-2"
+																className="flex items-center w-full h-full gap-2"
 															>
 																{subItem.icon && (
 																	<div
@@ -213,7 +213,7 @@ export function NavMain({
 																)}
 																<span
 																	className={cn(
-																		'transition-all font-light !text-sm',
+																		'transition-all !text-sm',
 																		state === 'collapsed'
 																			? 'opacity-0 hidden'
 																			: 'opacity-100'

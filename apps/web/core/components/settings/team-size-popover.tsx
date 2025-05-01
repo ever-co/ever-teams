@@ -133,7 +133,7 @@ const TeamSize = ({
 							ref={panelRef}
 							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow outline-none"
 						>
-							<div className="bg-white shadow rounded-xl text-[14px] font-light p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
+							<div className="bg-white shadow rounded-xl text-[14px] p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
 									{t('form.SELECT_TEAM_SIZE')}
 								</div>

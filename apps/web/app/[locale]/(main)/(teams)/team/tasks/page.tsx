@@ -98,7 +98,7 @@ const TeamTask = () => {
 										<Menu.Button>
 											<Button
 												type="button"
-												className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
+												className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] hover:dark:bg-transparent"
 												variant="outline"
 											>
 												<Settings2 size={15} /> <span>{t('common.VIEW')}</span>

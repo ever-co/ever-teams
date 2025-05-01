@@ -4,22 +4,24 @@ import '@/styles/globals.css';
 
 import clsx from 'clsx';
 import { Provider } from 'jotai';
+import { AppState } from '@/core/components/layouts/app/init-state';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
 import { JitsuRoot } from '@/core/components/settings/JitsuRoot';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
-import { Geist } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@/core/hooks/useCheckAPI';
+import GlobalSkeleton from '@/core/components/ui/global-skeleton';
 import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
-import { LOCALES } from '@/core/constants/config/constants';
 
+const locales = ['en', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;
 	pageProps: {
@@ -30,9 +32,10 @@ interface Props extends PropsWithChildren {
 	};
 }
 
-const font = Geist({
+const inter = Inter({
 	subsets: ['latin'],
-	variable: '--font-sans',
+	weight: '500',
+	variable: '--font-inter',
 	display: 'swap'
 });
 
@@ -57,7 +60,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	const { locale } = params;
 	const { children, pageProps } = props;
 	// Validate that the incoming `locale` parameter is valid
-	if (!LOCALES.includes(locale as string)) notFound();
+	if (!locales.includes(locale as string)) notFound();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -101,14 +104,14 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	const name = searchParams?.get('name');
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const messages = require(`@/locales/${locale}.json`);
+	const messages = require(`../../locales/${locale}.json`);
 
 	useEffect(() => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
-		<html lang={locale} className={`${font.variable} ${font.className}`} suppressHydrationWarning>
+		<html lang={locale} className={`${inter.variable} ${inter.className}`} suppressHydrationWarning>
 			<head>
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>
@@ -145,7 +148,14 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 									disableTransitionOnChange
 								>
 									<OfflineWrapper>
-										<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+										{loading && !pathname?.startsWith('/auth') ? (
+											<GlobalSkeleton />
+										) : (
+											<>
+												<AppState />
+												<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+											</>
+										)}
 									</OfflineWrapper>
 								</ThemeProvider>
 							</Provider>

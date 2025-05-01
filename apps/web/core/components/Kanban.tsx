@@ -330,7 +330,7 @@ export const EmptyKanbanDroppable = ({
 												</div>
 												<div>
 													<h2
-														className="flex flex-row h-full text-sm not-italic font-semibold text-black capitalize font-poppins"
+														className="flex flex-row h-full text-sm not-italic font-semibold text-black capitalize"
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
@@ -390,7 +390,7 @@ const KanbanDraggableHeader = ({
 					<div className="flex flex-row gap-2.5 items-center">
 						<Image alt={title} src={icon} width={20} height={20} />
 						<h2
-							className="text-sm not-italic font-semibold text-black capitalize font-poppins"
+							className="text-sm not-italic font-semibold text-black capitalize"
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>

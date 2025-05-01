@@ -127,7 +127,6 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					'py-2 px-4 rounded-[10px]',
 					'text-sm outline-none ',
 					'h-[50px] w-full',
-					'font-light tracking-tight',
 					className
 				)}
 				onKeyUp={onKeyUp}
@@ -176,7 +175,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 													| MutableRefObject<HTMLDivElement>
 												)[]
 											)}
-											className="absolute  right-1 z-50"
+											className="absolute z-50 right-1"
 										>
 											<Picker
 												data={data}

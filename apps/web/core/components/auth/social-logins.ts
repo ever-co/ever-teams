@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut } from '../../../auth';
+import { signIn, signOut } from '@/auth';
 
 export async function signInFunction(provider: any) {
 	return await signIn(provider.id, { redirectTo: '/auth/workspace' });

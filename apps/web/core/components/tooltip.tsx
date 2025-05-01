@@ -48,7 +48,7 @@ export function Tooltip({
 						{...getTooltipProps()}
 						className={clsx('tooltip-container w-1/3 md:w-fit', labelContainerClassName)}
 					>
-						<span className={clsx(labelClassName, 'text-xs font-poppins')}>{label}</span>
+						<span className={clsx(labelClassName, 'text-xs')}>{label}</span>
 						<div {...getArrowProps()} className="tooltip-arrow" />
 					</Transition>
 				</>

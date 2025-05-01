@@ -98,7 +98,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="flex relative items-center">
+					<div className="relative flex items-center">
 						{item.fullIconUrl && (
 							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
 						)}
@@ -1100,7 +1100,7 @@ export function StatusDropdown<T extends TStatusItem>({
 
 												return (
 													<ListboxOption key={i} value={item_value} disabled={disabled}>
-														<div className="relative cursor-pointer outline-none">
+														<div className="relative outline-none cursor-pointer">
 															<TaskStatus
 																showIcon={showIcon}
 																{...item}
@@ -1268,14 +1268,14 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						<ListboxOptions static className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
 							>
 								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
 									{items.map((item, i) => {
 										const item_value = item.value || item.name;
 										return (
 											<ListboxOption key={i} value={item_value} as="div" disabled={disabled}>
-												<li className="relative cursor-pointer outline-none list-none">
+												<li className="relative list-none outline-none cursor-pointer">
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}

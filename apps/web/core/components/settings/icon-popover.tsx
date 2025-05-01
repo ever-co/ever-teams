@@ -42,7 +42,7 @@ const IconPopover = ({
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px] text-gray-900 dark:text-gray-100">
 								<IconItem
 									title={values?.title ? values.title.split('-').join(' ') : 'Icons'}
-									className="py-2 mb-0 w-full cursor-pointer dark:text-gray-300"
+									className="w-full py-2 mb-0 cursor-pointer dark:text-gray-300"
 									url={values?.fullUrl ? values.fullUrl : ''}
 								/>
 							</div>
@@ -66,7 +66,7 @@ const IconPopover = ({
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
-							<div className="bg-white shadow dark:bg-[#1B1D22] rounded-[10px] text-[14px] font-light p-[16px]">
+							<div className="bg-white shadow dark:bg-[#1B1D22] rounded-[10px] text-[14px] p-[16px]">
 								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-[#34353D]">
 									<InputField
 										type="search"
