@@ -18,7 +18,7 @@ import { useTaskSizes } from '../../../../services/hooks/features/useTaskSizes';
 import { useTaskLabels } from '../../../../services/hooks/features/useTaskLabels';
 import { useTaskVersion } from '../../../../services/hooks/features/useTaskVersion';
 import SwitchTeamPublicity from '../components/SwitchTeamPublicity';
-import { NavigationProp } from '@react-navigation/native';
+// import { NavigationProp } from '@react-navigation/native';
 import { AuthenticatedDrawerParamList } from '../../../../navigators/AuthenticatedNavigator';
 
 interface ITeamSettingProps {

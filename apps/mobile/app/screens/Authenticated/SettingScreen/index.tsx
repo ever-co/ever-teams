@@ -50,7 +50,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
 		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
-		const { navigation } = _props;
+		// const { navigation } = _props;
 
 		// ref
 		const bottomSheetRef = useRef<BottomSheet>(null);

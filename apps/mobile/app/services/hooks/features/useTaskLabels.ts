@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllLabels from '../../client/queries/task/task-labels';
 import { createLabelRequest, deleteTaskLabelRequest, updateTaskLabelsRequest } from '../../client/requests/task-label';
-import { ITaskLabelItem } from '../../interfaces/ITaskLabel';
+import { ITaskLabelCreate, ITaskLabelItem } from '../../interfaces/ITaskLabel';
 import { ITaskStatusCreate } from '../../interfaces/ITaskStatus';
 
 /**
@@ -77,7 +77,7 @@ export function useTaskLabels() {
       await updateTaskLabelsRequest({
         id,
         tenantId,
-        datas: data as ITaskStatusCreate,
+        datas: data as ITaskLabelCreate,
         bearer_token: authToken
       });
       refreshLabels();
@@ -92,8 +92,8 @@ export function useTaskLabels() {
    * @param data - Label properties
    * @returns The created label object
    */
-  const createLabel = useCallback(async (data: ITaskStatusCreate) => {
-    if (!data || !tenantId || !organizationId || !activeTeamId) {
+  const createLabel = useCallback(async (data: ITaskLabelCreate) => {
+    if (!data || !tenantId || !organizationId) {
       throw new Error('Missing required data for label creation');
     }
 
@@ -103,7 +103,7 @@ export function useTaskLabels() {
         datas: {
           ...data,
           organizationId,
-          organizationTeamId: activeTeamId
+		  ...(activeTeamId ? { organizationTeamId: activeTeamId } : {})
         },
         bearer_token: authToken
       };

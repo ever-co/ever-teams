@@ -26,6 +26,7 @@ import SizeItem from './components/SizeItem';
 import { useTaskSizes } from '../../../services/hooks/features/useTaskSizes';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
 
 // Create a type for the route params
 type TaskSizeRouteParams = {
@@ -54,7 +55,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>
 
   const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes();
   const [editMode, setEditMode] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem>(null);
+  const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem | null>(null);
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
