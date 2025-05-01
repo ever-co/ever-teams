@@ -1,6 +1,6 @@
-import { setAccessTokenCookie } from '@app/helpers/cookies';
-import { hasErrors } from '@app/helpers/validations';
-import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@app/services/server/requests/auth';
+import { setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { hasErrors } from '@/core/lib/helpers/validations';
+import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

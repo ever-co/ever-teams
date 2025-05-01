@@ -1,7 +1,7 @@
-import { INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
-import { validateForm } from '@app/helpers/validations';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { resendInvitationEmailRequest } from '@app/services/server/requests';
+import { INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@/core/constants/config/constants';
+import { validateForm } from '@/core/lib/helpers/validations';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { resendInvitationEmailRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

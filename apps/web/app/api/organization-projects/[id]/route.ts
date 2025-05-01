@@ -1,11 +1,12 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
-import { editOrganizationProjectsRequest, getOrganizationProjectRequest } from '@app/services/server/requests';
+import { editOrganizationProjectsRequest, getOrganizationProjectRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const res = new NextResponse();
-	if (!params.id) {
+	const id = (await params).id;
+	if (!id) {
 		return;
 	}
 
@@ -16,7 +17,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	const response = await editOrganizationProjectsRequest({
 		bearer_token: access_token,
-		id: params.id,
+		id: id,
 		datas: body,
 		tenantId
 	});
@@ -24,9 +25,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	return $res(response.data);
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const res = new NextResponse();
-	if (!params.id) {
+	const id = (await params).id;
+	if (!id) {
 		return;
 	}
 
@@ -36,7 +38,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 	const response = await getOrganizationProjectRequest({
 		bearer_token: access_token,
-		id: params.id,
+		id: id,
 		tenantId
 	});
 

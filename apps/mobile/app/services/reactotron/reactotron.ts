@@ -49,7 +49,7 @@ if (__DEV__) {
 	console.tron = Reactotron; // attach reactotron to `console.tron`
 } else {
 	// attach a mock so if things sneak by our __DEV__ guards, we won't crash.
-	console.tron = fakeReactotron;
+	console.tron = fakeReactotron as unknown as typeof Reactotron;
 }
 
 const config = DEFAULT_REACTOTRON_CONFIG;
@@ -77,7 +77,7 @@ export function setReactotronRootStore(rootStore: RootStore, initialData: any) {
 		}
 
 		// tracks the current MobX-State-Tree tree in Reactotron's "State" tab
-		Reactotron.trackMstNode(rootStore);
+		(Reactotron as any).trackMstNode(rootStore);
 	}
 }
 

@@ -1,15 +1,16 @@
-import { INextParams } from '@app/interfaces';
-import { IUser } from '@app/interfaces/IUserData';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getTaskCreator, updateUserAvatarRequest } from '@app/services/server/requests';
-import { deleteUserRequest } from '@app/services/server/requests/user';
+import { INextParams } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/IUserData';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
+import { deleteUserRequest } from '@/core/services/server/requests/user';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: INextParams) {
+export async function GET(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
 	}
 
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
@@ -26,11 +27,12 @@ export async function GET(req: Request, { params }: INextParams) {
 	return $res(data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
@@ -53,11 +55,12 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
-		return;
+		return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);

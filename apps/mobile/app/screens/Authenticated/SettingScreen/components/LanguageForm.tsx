@@ -14,11 +14,11 @@ import { typography, useAppTheme } from '../../../../theme';
 const LanguageForm = ({
 	onDismiss,
 	user,
-	onUpdateTimezone
+	onUpdateLanguage
 }: {
 	onDismiss: () => unknown;
 	user: IUser;
-	onUpdateTimezone: (userBody: IUser) => unknown;
+	onUpdateLanguage: (userBody: IUser) => unknown;
 }) => {
 	const { colors, dark } = useAppTheme();
 	const { preferredLanguage } = useSettings();
@@ -37,7 +37,7 @@ const LanguageForm = ({
 		}
 
 		setIsLoading(true);
-		await onUpdateTimezone({
+		await onUpdateLanguage({
 			...user,
 			preferredLanguage: userLanguage.code
 		});

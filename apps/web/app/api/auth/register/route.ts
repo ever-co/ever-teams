@@ -1,6 +1,6 @@
-import { generateToken } from '@app/helpers/generate-token';
-import { authFormValidate } from '@app/helpers/validations';
-import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
+import { generateToken } from '@/core/lib/helpers/generate-token';
+import { authFormValidate } from '@/core/lib/helpers/validations';
+import { IRegisterDataAPI } from '@/core/types/interfaces/IAuthentication';
 import {
 	createEmployeeFromUser,
 	createOrganizationRequest,
@@ -10,10 +10,15 @@ import {
 	loginUserRequest,
 	refreshTokenRequest,
 	registerUserRequest
-} from '@app/services/server/requests';
-import { setAuthCookies } from '@app/helpers/cookies';
-import { recaptchaVerification } from '@app/services/server/recaptcha';
-import { RECAPTCHA_SECRET_KEY, SMTP_PASSWORD, SMTP_USERNAME, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
+} from '@/core/services/server/requests';
+import { setAuthCookies } from '@/core/lib/helpers/cookies';
+import { recaptchaVerification } from '@/core/services/server/recaptcha';
+import {
+	RECAPTCHA_SECRET_KEY,
+	SMTP_PASSWORD,
+	SMTP_USERNAME,
+	VERIFY_EMAIL_CALLBACK_PATH
+} from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

@@ -1,8 +1,8 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import UnauthorizedPage from '@components/pages/unauthorized';
-import ErrorPageComponent from '@components/pages/error/error';
+import UnauthorizedPage from '@/core/components/pages/unauthorized';
+import ErrorPageComponent from '@/core/components/pages/error/error';
 
 enum Error {
 	Configuration = 'Configuration',

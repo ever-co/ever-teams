@@ -6,10 +6,10 @@ import {
 	PROTECTED_APP_URL_PATHS,
 	REFRESH_TOKEN_COOKIE_NAME,
 	TOKEN_COOKIE_NAME
-} from '@app/constants';
-import { cookiesKeys } from '@app/helpers/cookies';
-import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
-import { range } from 'lib/utils';
+} from '@/core/constants/config/constants';
+import { cookiesKeys } from '@/core/lib/helpers/cookies';
+import { currentAuthenticatedUserRequest } from '@/core/services/server/requests/auth';
+import { range } from '@/core/lib/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
@@ -17,7 +17,7 @@ import createMiddleware from 'next-intl/middleware';
 export const config = {
 	matcher: [
 		'/',
-		'/(en|de|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
+		'/(en|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
 		'/((?!api|_next|_vercel|.*\\..*).*)',
 		'/auth/(.*)',
 		'/profile/:path*',

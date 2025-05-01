@@ -1,9 +1,9 @@
 'use client';
 
-import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
-import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
-import { IClassName, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
-import { clsxm } from '@app/utils';
+import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
+import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
+import { IClassName, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
+import { clsxm } from '@/core/lib/utils';
 import {
 	AuthCodeInputField,
 	Avatar,
@@ -14,21 +14,21 @@ import {
 	InputField,
 	SpinnerLoader,
 	Text
-} from 'lib/components';
+} from '@/core/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
-import { AuthLayout } from 'lib/layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
 import stc from 'string-to-color';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
-import SocialLogins from '../social-logins-buttons';
+import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
+import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { useSession } from 'next-auth/react';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
-import { cn } from 'lib/utils';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
+import { ChevronDown } from 'lucide-react';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -66,7 +66,9 @@ function AuthPasscode() {
 						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					<div>{t('pages.authLogin.HEADING_DESCRIPTION')}</div>
+					<div>
+						<span>{t('pages.authLogin.HEADING_DESCRIPTION')}</span>
+					</div>
 				)
 			}
 		>
@@ -217,7 +219,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							</Text>
 							<Text
 								onClick={() => resetForm()}
-								className="text-xs font-normal cursor-pointer hover:underline text-gray-400"
+								className="text-xs font-normal text-gray-400 cursor-pointer hover:underline"
 							>
 								{t('common.RESET')}
 							</Text>
@@ -432,7 +434,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-					<ScrollArea className="h-64 relative w-full pr-2 ">
+					<ScrollArea className="relative w-full h-64 pr-2 ">
 						<div className="flex flex-col gap-y-4 ">
 							{props.workspaces?.map((worksace, index) => (
 								<div
@@ -447,7 +449,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 										<div className="flex justify-between">
 											<div
 												onClick={() => setExpandedWorkspace(index)}
-												className="flex cursor-pointer items-center justify-center gap-1"
+												className="flex items-center justify-center gap-1 cursor-pointer"
 											>
 												<span>{worksace.user.tenant.name}</span>
 												<span
@@ -456,7 +458,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														expandedWorkspace === index && 'rotate-180'
 													)}
 												>
-													<MdOutlineKeyboardArrowDown />
+													<ChevronDown />
 												</span>
 											</div>
 											<span

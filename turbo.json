@@ -1,0 +1,35 @@
+{
+	"$schema": "https://turborepo.com/schema.json",
+	"globalDependencies": ["**/.env.*local"],
+	"globalEnv": ["NEXT_PUBLIC_GAUZY_API_URL"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+			"inputs": [".env"],
+			"cache": false
+		},
+		"check-types": {
+			"dependsOn": ["^check-types"]
+		},
+		"lint": {
+			"dependsOn": ["^lint"],
+			"outputs": []
+		},
+		"format": {
+			"dependsOn": ["^format"]
+		},
+		"dev": {
+			"persistent": true,
+			"cache": false,
+			"inputs": [".env"]
+		},
+		"start": {
+			"dependsOn": ["^start"],
+			"cache": false
+		},
+		"clean": {
+			"cache": false
+		}
+	}
+}

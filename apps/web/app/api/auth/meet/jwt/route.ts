@@ -1,9 +1,9 @@
-import { MEET_DOMAIN, MEET_JWT_APP_ID, MEET_JWT_APP_SECRET } from '@app/constants';
+import { MEET_DOMAIN, MEET_JWT_APP_ID, MEET_JWT_APP_SECRET } from '@/core/constants/config/constants';
 // import {
 // 	// getMeetJwtSessionCookie,
 // 	setMeetJwtSessionCookie,
 // } from '@app/helpers';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import jwt from 'jsonwebtoken';
 
 import { NextResponse } from 'next/server';

@@ -50,22 +50,23 @@ import { useOrganizationTeam } from '../services/hooks/useOrganization';
 export type AuthenticatedTabParamList = {
 	Timer: undefined;
 	Team: undefined;
-	Setting: { activeTab: 1 | 2 };
+	Setting: { activeTab?: 1 | 2 };
 	Profile: { userId: string; activeTab: 'worked' | 'assigned' | 'unassigned' };
 	TaskScreen: { taskId: string };
 };
 
 export type AuthenticatedDrawerParamList = {
-	Setting: undefined;
+	Setting: { activeTab?: 1 | 2 };
 	AuthenticatedTab: undefined;
-	TaskLabelScreen: undefined;
-	TaskSizeScreen: undefined;
-	TaskStatus: undefined;
-	TaskPriority: undefined;
-	TaskVersion: undefined;
-	MembersSettingsScreen: undefined;
+	TaskLabelScreen: { previousTab?: number };
+	TaskSizeScreen: { previousTab?: number };
+	TaskStatus: { previousTab?: number };
+	TaskPriority: { previousTab?: number };
+	TaskVersion: { previousTab?: number };
+	MembersSettingsScreen: { previousTab?: number };
 	TaskScreen: { taskId: string };
 };
+
 /**
  * Helper for automatically generating navigation prop types for each route.
  *
@@ -91,7 +92,14 @@ export type DrawerNavigationProp<T extends keyof AuthenticatedDrawerParamList> =
 	StackNavigationProp<AppStackParamList>
 >;
 
+// Define route props for each screen that needs route parameters
 export type SettingScreenRouteProp<T extends keyof AuthenticatedTabParamList> = RouteProp<AuthenticatedTabParamList, T>;
+export type TaskVersionRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskVersion'>;
+export type TaskStatusRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskStatus'>;
+export type TaskLabelScreenRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskLabelScreen'>;
+export type TaskSizeScreenRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskSizeScreen'>;
+export type TaskPriorityRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskPriority'>;
+export type MembersSettingsScreenRouteProp = RouteProp<AuthenticatedDrawerParamList, 'MembersSettingsScreen'>;
 
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>();
 
@@ -240,15 +248,43 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 				drawerStyle: { width: '83%' }
 			}}
 		>
-			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} />
-			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} />
-			<drawer.Screen name="Setting" component={AuthenticatedSettingScreen} />
-			<drawer.Screen name="TaskVersion" component={TaskVersionScreen} />
-			<drawer.Screen name="TaskStatus" component={TaskStatusScreen} />
-			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} />
-			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} />
-			<drawer.Screen name="TaskPriority" component={TaskPriorityScreen} />
-			<drawer.Screen name="MembersSettingsScreen" component={MembersSettingsScreen} />
+			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen
+				name="Setting"
+				component={AuthenticatedSettingScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskVersion"
+				component={TaskVersionScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskStatus"
+				component={TaskStatusScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskLabelScreen"
+				component={TaskLabelScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskSizeScreen"
+				component={TaskSizeScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="TaskPriority"
+				component={TaskPriorityScreen}
+				options={{ unmountOnBlur: true }}
+			/>
+			<drawer.Screen
+				name="MembersSettingsScreen"
+				component={MembersSettingsScreen}
+				options={{ unmountOnBlur: true }}
+			/>
 		</drawer.Navigator>
 	);
 });
@@ -264,5 +300,3 @@ const $tabBarLabel: TextStyle = {
 	fontWeight: '500',
 	flex: 1
 };
-
-// @demo remove-file

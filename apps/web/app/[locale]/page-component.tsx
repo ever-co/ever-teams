@@ -1,32 +1,30 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams } from '@app/hooks';
-import { clsxm } from '@app/utils';
-import NoTeam from '@components/pages/main/no-team';
-import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container } from 'lib/components';
-import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
-import { MainLayout } from 'lib/layout';
-import { IssuesView } from '@app/constants';
+import { useOrganizationTeams } from '@/core/hooks';
+import { clsxm } from '@/core/lib/utils';
+import NoTeam from '@/core/components/pages/main/no-team';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { Breadcrumb, Card, Container } from '@/core/components';
+import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from '@/core/components/features';
+import { MainLayout } from '@/core/components/layouts/default-layout';
+import { IssuesView } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
-import ChatwootWidget from 'lib/features/integrations/chatwoot';
+import ChatwootWidget from '@/core/components/features/integrations/chatwoot';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import '../../styles/globals.css';
+import '@/styles/globals.css';
 
 import { useAtom } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
-import HeaderTabs from '@components/pages/main/header-tabs';
-import { headerTabs } from '@app/stores/header-tabs';
+import HeaderTabs from '@/core/components/pages/main/header-tabs';
+import { headerTabs } from '@/core/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
-import TeamMemberHeader from 'lib/features/team-member-header';
-import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
+import TeamMemberHeader from '@/core/components/features/team-member-header';
+import { TeamOutstandingNotifications } from '@/core/components/features/team/team-outstanding-notifications';
 
 function MainPage() {
 	const t = useTranslations();
@@ -50,6 +48,7 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
@@ -65,13 +64,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex gap-8 justify-center items-center h-10">
+									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex gap-1 justify-center items-center w-max h-10">
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>
@@ -94,11 +93,15 @@ function MainPage() {
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-					<div className="h-full">{isTeamMember ?
-						<Container fullWidth={fullWidth} className='mx-auto' >
-							<TeamMembers kanbanView={view} />
-						</Container>
-						: <NoTeam />}</div>
+					<div className="h-full">
+						{isTeamMember ? (
+							<Container fullWidth={fullWidth} className="mx-auto">
+								<TeamMembers kanbanView={view} />
+							</Container>
+						) : (
+							<NoTeam />
+						)}
+					</div>
 				</MainLayout>
 			</div>
 			<Analytics />

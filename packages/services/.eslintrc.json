@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "extends": [
+    "@ever-teams/eslint-config/base"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": true
+  }
+}

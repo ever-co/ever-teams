@@ -1,15 +1,16 @@
 /* eslint-disable no-case-declarations */
-import { MyInvitationActionEnum } from '@app/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { MyInvitationActionEnum } from '@/core/types/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getTeamInvitationsRequest,
 	removeTeamInvitationsRequest,
 	getMyInvitationsRequest,
 	acceptRejectMyInvitationsRequest
-} from '@app/services/server/requests';
+} from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+	const params = await props.params;
 	const res = new NextResponse();
 	if (!params.id) {
 		return NextResponse.json({}, { status: 400 });
@@ -23,7 +24,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 	return $res(data);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+	const params = await props.params;
 	const res = new NextResponse();
 	const invitationId = params.id;
 
@@ -53,7 +55,8 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	return $res(data);
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+	const params = await props.params;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({}, { status: 401 });

@@ -1,5 +1,5 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { installGitHubIntegration } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { installGitHubIntegration } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

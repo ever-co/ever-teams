@@ -1,6 +1,6 @@
-import { getActiveTeamIdCookie } from '@app/helpers/cookies';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@app/services/server/requests';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

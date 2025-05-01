@@ -41,7 +41,10 @@ const HeaderTimer = observer(() => {
 			}
 			// convert milliseconds to seconds
 			const seconds = timeCounterState / 1000;
-			return seconds / activeTask.estimate;
+			const percentage = seconds / activeTask.estimate;
+
+
+			return Math.min(Math.round(percentage * 100) / 100, 1);
 		} else {
 			return 0;
 		}
