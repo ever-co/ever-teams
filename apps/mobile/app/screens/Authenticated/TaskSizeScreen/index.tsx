@@ -26,7 +26,7 @@ import SizeItem from './components/SizeItem';
 import { useTaskSizes } from '../../../services/hooks/features/useTaskSizes';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
+// import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
 
 // Create a type for the route params
 type TaskSizeRouteParams = {
