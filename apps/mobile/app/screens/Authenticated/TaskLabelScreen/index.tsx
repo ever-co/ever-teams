@@ -25,11 +25,32 @@ import TaskLabelForm from './components/TaskLabelForm';
 import { ITaskLabelItem } from '../../../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../../../services/hooks/features/useTaskLabels';
 import { BlurView } from 'expo-blur';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
+// Create a type for the route params
+type TaskLabelRouteParams = {
+  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+};
+
+// Properly type the route object
+type TaskLabelRouteProp = RouteProp<{ TaskLabelScreen: TaskLabelRouteParams }, 'TaskLabelScreen'>;
 
 export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen'>> =
 	function AuthenticatedDrawerScreen(_props) {
 		const { colors, dark } = useAppTheme();
 		const { navigation } = _props;
+
+		// Use the properly typed route
+    const route = useRoute<TaskLabelRouteProp>();
+
+    // Get the previousTab parameter with type assertion
+    const previousTab = route.params?.previousTab || 2 as const;
+
+    // Handle back navigation with correct tab
+    const handleGoBack = useCallback(() => {
+      navigation.navigate('Setting', { activeTab: previousTab });
+    }, [navigation, previousTab]);
+
 		const { isLoading, labels, deleteLabel, updateLabel, createLabel } = useTaskLabels();
 		const [editMode, setEditMode] = useState(false);
 		const [itemToEdit, setItemToEdit] = useState<ITaskLabelItem>(null);
@@ -184,7 +205,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 				<Animated.View style={{ flex: 1 }}>
 					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 						<View style={[styles.container, { backgroundColor: colors.background }]}>
-							<TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Setting')}>
+							<TouchableOpacity accessibilityRole="button" onPress={handleGoBack}>
 								<AntDesign name="arrowleft" size={24} color={colors.primary} />
 							</TouchableOpacity>
 							<Text style={[styles.title, { color: colors.primary }]}>

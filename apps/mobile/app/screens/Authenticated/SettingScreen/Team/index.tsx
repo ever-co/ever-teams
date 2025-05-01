@@ -18,6 +18,8 @@ import { useTaskSizes } from '../../../../services/hooks/features/useTaskSizes';
 import { useTaskLabels } from '../../../../services/hooks/features/useTaskLabels';
 import { useTaskVersion } from '../../../../services/hooks/features/useTaskVersion';
 import SwitchTeamPublicity from '../components/SwitchTeamPublicity';
+// import { NavigationProp } from '@react-navigation/native';
+import { AuthenticatedDrawerParamList } from '../../../../navigators/AuthenticatedNavigator';
 
 interface ITeamSettingProps {
 	props: any;
@@ -40,6 +42,11 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 	const { labels } = useTaskLabels();
 	const { versions } = useTaskVersion();
 
+	// Function to navigate to screens with previousTab param
+	const navigateWithTab = (screenName: keyof AuthenticatedDrawerParamList) => {
+		navigation.navigate(screenName, { previousTab: 2 });
+	};
+
 	return (
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
 			<TransferOwnership visible={open} onDismiss={() => setOpen(false)} />
@@ -60,34 +67,34 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					value={`There ${versions?.total === 1 ? 'is' : 'are'} ${versions?.total} active ${
 						versions?.total === 1 ? 'version' : 'versions'
 					}`}
-					onPress={() => navigation.navigate('TaskVersion')}
+					onPress={() => navigateWithTab('TaskVersion')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskStatuses')}
 					value={`There are ${statuses?.total} active statuses`}
-					onPress={() => navigation.navigate('TaskStatus')}
+					onPress={() => navigateWithTab('TaskStatus')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskPriorities')}
 					value={`There are ${priorities?.total} active priorities`}
-					onPress={() => navigation.navigate('TaskPriority')}
+					onPress={() => navigateWithTab('TaskPriority')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskSizes')}
 					value={`There are ${sizes?.total} active sizes`}
-					onPress={() => navigation.navigate('TaskSizeScreen')}
+					onPress={() => navigateWithTab('TaskSizeScreen')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskLabel')}
 					value={`There ${labels?.total === 1 ? 'is' : 'are'} ${labels?.total} active ${
 						labels?.total === 1 ? 'label' : 'labels'
 					}`}
-					onPress={() => navigation.navigate('TaskLabelScreen')}
+					onPress={() => navigateWithTab('TaskLabelScreen')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.teamRole')}
 					value={isTeamManager ? 'Yes' : 'No'}
-					onPress={() => navigation.navigate('MembersSettingsScreen')}
+					onPress={() => navigateWithTab('MembersSettingsScreen')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.workSchedule')}

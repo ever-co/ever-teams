@@ -25,15 +25,37 @@ import TaskSizeForm from './components/TaskSizeForm';
 import SizeItem from './components/SizeItem';
 import { useTaskSizes } from '../../../services/hooks/features/useTaskSizes';
 import { BlurView } from 'expo-blur';
+import { useRoute, RouteProp } from '@react-navigation/native';
+// import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
+
+// Create a type for the route params
+type TaskSizeRouteParams = {
+  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+};
+
+// Properly type the route object
+type TaskSizeRouteProp = RouteProp<{ TaskSizeScreen: TaskSizeRouteParams }, 'TaskSizeScreen'>;
 
 export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>> = function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
   const { navigation } = _props;
+
+  // Use the properly typed route
+  const route = useRoute<TaskSizeRouteProp>();
+
+  // Get the previousTab parameter with type assertion
+  const previousTab = route.params?.previousTab || 2 as const;
+
+  // Handle back navigation with correct tab
+  const handleGoBack = useCallback(() => {
+    navigation.navigate('Setting', { activeTab: previousTab });
+  }, [navigation, previousTab]);
+
   const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes();
   const [editMode, setEditMode] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem>(null);
+  const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem | null>(null);
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -139,7 +161,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>
           <View style={[styles.container, { backgroundColor: colors.background }]}>
             <TouchableOpacity
               accessibilityRole="button"
-              onPress={() => navigation.navigate('Setting')}
+              onPress={handleGoBack} // Use our custom handler for back navigation
             >
               <AntDesign name="arrowleft" size={24} color={colors.primary} />
             </TouchableOpacity>
