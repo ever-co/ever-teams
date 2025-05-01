@@ -1,4 +1,4 @@
-import { Languages } from '../../core/constants/config/constants';
+import { Languages } from '@/core/constants/config/constants';
 
 declare module 'next-intl' {
 	export type Translations = Languages;

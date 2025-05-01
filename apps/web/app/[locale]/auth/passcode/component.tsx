@@ -24,7 +24,7 @@ import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, use
 
 import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
-import SocialLogins from '../../../../core/components/auth/social-logins-buttons';
+import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
