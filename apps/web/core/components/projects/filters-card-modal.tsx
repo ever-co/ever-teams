@@ -3,7 +3,7 @@ import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from './multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@ever-teams/ui';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -236,19 +236,19 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 
 	return (
 		<Modal className="w-[26rem]" isOpen={open} closeModal={closeModal}>
-			<Card className="w-full border  h-full " shadow="custom">
+			<Card className="w-full h-full border " shadow="custom">
 				<div className="w-full flex gap-2 font-medium text-[1rem]">
 					<ListFilterPlus size={20} strokeWidth={2} /> <span>{t('common.FILTER')}</span>
 				</div>
 				<hr className="w-full my-4" />
-				<div className="w-full flex flex-col gap-5">
-					<div className="w-full flex flex-col gap-2">
-						<div className="w-full text-sm flex items-center justify-between">
+				<div className="flex flex-col w-full gap-5">
+					<div className="flex flex-col w-full gap-2">
+						<div className="flex items-center justify-between w-full text-sm">
 							<span className="">{t('common.TEAM')}</span>
 							{selectedTeams.length > 0 && (
 								<button
 									onClick={() => setSelectedTeams([])}
-									className="flex  items-center text-xs text-primary gap-1"
+									className="flex items-center gap-1 text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedTeams.length})</span>
@@ -261,7 +261,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={teamOptions}
 							placeholder="Select a team..."
 						/>
-						<div className="w-full flex-wrap flex gap-1">
+						<div className="flex flex-wrap w-full gap-1">
 							{selectedTeams.map((teamId) => (
 								<div
 									className=" rounded-md shrink-0 flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
@@ -277,13 +277,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							))}
 						</div>
 					</div>
-					<div className="w-full flex flex-col gap-2">
-						<div className="w-full text-sm flex items-center justify-between">
+					<div className="flex flex-col w-full gap-2">
+						<div className="flex items-center justify-between w-full text-sm">
 							<span className="">{t('common.STATUS')}</span>
 							{selectedStatus.length > 0 && (
 								<button
 									onClick={() => setSelectedStatus([])}
-									className="flex  items-center text-xs text-primary gap-1"
+									className="flex items-center gap-1 text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedStatus.length})</span>
@@ -296,7 +296,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={statusOptions}
 							placeholder="Select a status..."
 						/>
-						<div className="w-full flex gap-1">
+						<div className="flex w-full gap-1">
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
@@ -319,13 +319,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							))}
 						</div>
 					</div>
-					<div className="w-full flex flex-col gap-2">
-						<div className="w-full text-sm flex items-center justify-between">
+					<div className="flex flex-col w-full gap-2">
+						<div className="flex items-center justify-between w-full text-sm">
 							<span className="">{t('common.MANAGER')}</span>
 							{selectedManagers.length > 0 && (
 								<button
 									onClick={() => setSelectedManagers([])}
-									className="flex  items-center text-xs text-primary gap-1"
+									className="flex items-center gap-1 text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedManagers.length})</span>
@@ -338,7 +338,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={managerOptions}
 							placeholder="Select a manager..."
 						/>
-						<div className="w-full flex gap-1">
+						<div className="flex w-full gap-1">
 							{selectedManagers.map((managerId) => {
 								const manager = managers.find((manager) => manager.id === managerId);
 
@@ -353,7 +353,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 												height={20}
 												width={20}
 												alt={manager.value}
-												className="w-5 h-5 rounded-full object-cover"
+												className="object-cover w-5 h-5 rounded-full"
 											/>
 										) : (
 											<div className="w-5 h-5 rounded-full">{manager.value.substring(0, 2)}</div>
@@ -375,13 +375,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							})}
 						</div>
 					</div>
-					<div className="w-full flex flex-col gap-2">
-						<div className="w-full text-sm flex items-center justify-between">
+					<div className="flex flex-col w-full gap-2">
+						<div className="flex items-center justify-between w-full text-sm">
 							<span className="">{t('common.MEMBER')}</span>
 							{selectedMembers.length > 0 && (
 								<button
 									onClick={() => setSelectedMembers([])}
-									className="flex  items-center text-xs text-primary gap-1"
+									className="flex items-center gap-1 text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedMembers.length})</span>
@@ -395,7 +395,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							searchEnabled
 							placeholder="Select a member..."
 						/>
-						<div className="w-full flex gap-1">
+						<div className="flex w-full gap-1">
 							{selectedMembers.map((memberId) => {
 								const member = members.find((member) => member.id === memberId);
 
@@ -410,7 +410,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 												height={20}
 												width={20}
 												alt={member.value}
-												className="w-5 h-5 rounded-full object-cover"
+												className="object-cover w-5 h-5 rounded-full"
 											/>
 										) : (
 											<div className="w-5 h-5 rounded-full">{member.value.substring(0, 2)}</div>
@@ -431,13 +431,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							})}
 						</div>
 					</div>
-					<div className="w-full flex flex-col gap-2">
-						<div className="w-full text-sm flex items-center justify-between">
+					<div className="flex flex-col w-full gap-2">
+						<div className="flex items-center justify-between w-full text-sm">
 							<span className="">{t('common.BUDGET_TYPE')}</span>
 							{selectedBudgetType.length > 0 && (
 								<button
 									onClick={() => setSelectedBudgetType([])}
-									className="flex  items-center text-xs text-primary gap-1"
+									className="flex items-center gap-1 text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedBudgetType.length})</span>
@@ -450,7 +450,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={budgetTypeOptions}
 							placeholder="Select a budget type..."
 						/>
-						<div className="w-full flex gap-1">
+						<div className="flex w-full gap-1">
 							{selectedBudgetType.map((typeId) => {
 								const type = budgetTypes.find((budget) => budget.id === typeId);
 
@@ -474,7 +474,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 					</div>
 				</div>
 				<hr className="w-full my-4" />
-				<div className="w-full flex items-center justify-end gap-2">
+				<div className="flex items-center justify-end w-full gap-2">
 					<Button onClick={handleClearAllFilters} variant="outline">
 						{t('common.CLEAR_FILTERS')}
 					</Button>

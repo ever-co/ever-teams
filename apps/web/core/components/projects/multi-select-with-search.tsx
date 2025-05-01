@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@ever-teams/ui';
 import { Popover } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
@@ -46,9 +46,9 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 
 	return (
 		<Popover className={'relative '}>
-			<div className="w-full flex ">
+			<div className="flex w-full ">
 				{searchEnabled && (
-					<Search size={15} className=" text-slate-400 z-10 absolute top-1/2 -translate-y-1/2 left-3" />
+					<Search size={15} className="absolute z-10 -translate-y-1/2  text-slate-400 top-1/2 left-3" />
 				)}
 				<Popover.Button
 					className={cn(
@@ -65,10 +65,10 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 							}
 						: {
 								as: 'button',
-								children: <div className="w-full text-xs text-slate-400 text-left">{placeholder}</div>
+								children: <div className="w-full text-xs text-left text-slate-400">{placeholder}</div>
 							})}
 				></Popover.Button>
-				<ChevronDown size={20} className=" text-slate-400  absolute top-1/2 -translate-y-1/2 right-3" />
+				<ChevronDown size={20} className="absolute -translate-y-1/2  text-slate-400 top-1/2 right-3" />
 			</div>
 			<Popover.Panel className={'absolute w-full mt-1 z-20 bg-white dark:bg-gray-800 rounded-md shadow-md'}>
 				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
@@ -92,7 +92,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 										)}
 										size={15}
 									/>
-									<span className=" text-xs grow truncate overflow-hidden whitespace-nowrap ">
+									<span className="overflow-hidden text-xs truncate  grow whitespace-nowrap">
 										{String(option.value)}
 									</span>
 								</li>
