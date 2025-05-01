@@ -23,7 +23,7 @@ import { ScreenshootTab } from '@/core/components/features/activity/screenshoots
 import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
 import { activityTypeState } from '@/core/stores/activity-type';
-import { UserProfileDetail } from './components/user-profile-detail';
+import { UserProfileDetail } from '@/core/components/profile/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 // import { ActivityCalendar } from '@/core/components/features/activity/calendar';
 

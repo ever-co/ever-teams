@@ -27,7 +27,7 @@ import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { SettingsIcon } from '../../dashboard/team-dashboard/[teamId]/components/team-icon';
+import { SettingsIcon } from '../dashboard/team-icon';
 
 interface DateRangePickerProps {
 	className?: string;

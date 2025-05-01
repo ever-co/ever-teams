@@ -3,7 +3,7 @@ import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import { TimesheetDetailMode } from '../page';
+import { TimesheetDetailMode } from '../../../app/[locale]/timesheet/[memberId]/page';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { cn } from '@/core/lib/helpers';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';

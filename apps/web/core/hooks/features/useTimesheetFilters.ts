@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { FilterStatus } from '@/app/[locale]/timesheet/[memberId]/components/filter-with-status';
+import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './useTimesheet';
 import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { useLocalStorageState } from '../useLocalStorageState';

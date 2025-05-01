@@ -199,7 +199,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						className="w-full font-medium"
 						options={tasks}
 						renderOption={(option) => (
-							<div className="flex items-center gap-x-2 overflow-y-auto">
+							<div className="flex items-center overflow-y-auto gap-x-2">
 								<TaskNameInfoDisplay
 									task={option as any}
 									className={clsxm(
@@ -231,7 +231,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						renderOption={(option) => (
 							<div className="flex items-center gap-x-2">
 								<img
-									className="h-6 w-6 rounded-full"
+									className="w-6 h-6 rounded-full"
 									src={option.employee.user.imageUrl}
 									alt={option.employee.fullName}
 								/>
@@ -249,7 +249,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					/>
 				</div>
 
-				<div className="w-full flex flex-col">
+				<div className="flex flex-col w-full">
 					<ManageOrMemberComponent
 						classNameTitle="text-[#282048] dark:text-gray-400 font-medium mr-12 capitalize"
 						fields={fields}
@@ -261,7 +261,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						itemToValue={itemToValue}
 					/>
 				</div>
-				<div className=" flex flex-col items-start w-full">
+				<div className="flex flex-col items-start w-full ">
 					<label className="text-[#282048] dark:text-gray-400 font-medium mr-12 capitalize">
 						{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 					</label>
@@ -279,7 +279,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</div>
 				</div>
 
-				<div className="w-full flex flex-col">
+				<div className="flex flex-col w-full">
 					<span className="text-[#282048] dark:text-gray-400 font-medium">{t('common.NOTES')}</span>
 					<textarea
 						value={formState.notes}
@@ -300,7 +300,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
-				<div className="flex items-center gap-x-2 justify-end w-full">
+				<div className="flex items-center justify-end w-full gap-x-2">
 					<button
 						type="button"
 						onClick={closeModal}
@@ -336,7 +336,7 @@ interface ShiftTimingSelectProps {
 }
 
 const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChange, value }: ShiftTimingSelectProps) => (
-	<div className="flex items-center border border-gray-200 dark:border-gray-700 gap-2 rounded w-full">
+	<div className="flex items-center w-full gap-2 border border-gray-200 rounded dark:border-gray-700">
 		<button
 			className={clsxm(
 				'  border-r px-2 py-2 text-center flex items-center font-medium hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
@@ -346,7 +346,7 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
 			{label}
 		</button>
 		<Select onValueChange={onChange} value={value}>
-			<SelectTrigger className="w-full text-ellipsis border-transparent rounded-none bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="w-full bg-white border-transparent rounded-none text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent className="z-[10000] max-h-60 overflow-y-auto">
@@ -446,7 +446,7 @@ const OptimizedAccordion = ({
 				return (
 					<Accordion key={index} type="single" collapsible className="w-full p-1">
 						<AccordionItem value={`item-${index}`} className="border rounded">
-							<AccordionTrigger className="flex flex-row-reverse justify-end h-10 p-1 items-center hover:no-underline">
+							<AccordionTrigger className="flex flex-row-reverse items-center justify-end h-10 p-1 hover:no-underline">
 								<div className="flex items-center justify-between w-full">
 									<label className="block text-[#282048] dark:text-gray-400 mb-1 px-2">
 										{t('common.DATE_AND_TIME')}
@@ -454,7 +454,7 @@ const OptimizedAccordion = ({
 									</label>
 									<span
 										onClick={() => handleRemoveShift(index)}
-										className="hover:underline font-normal text-primary dark:text-primary-light cursor-pointer"
+										className="font-normal cursor-pointer hover:underline text-primary dark:text-primary-light"
 									>
 										{t('common.REMOVE_PERIOD')}
 									</span>
@@ -510,9 +510,9 @@ const ShiftManagement = ({
 					setDate={(value) => onChange(index, 'dateFrom', value as any)}
 				/>
 			</div>
-			<div className="flex flex-col w-full items-start gap-2">
+			<div className="flex flex-col items-start w-full gap-2">
 				<span className="font-medium">{t('common.SHIFT_TIMING')}</span>
-				<div className="flex items-center w-full justify-between gap-4 mb-4">
+				<div className="flex items-center justify-between w-full gap-4 mb-4">
 					<ShiftTimingSelect
 						label="Start"
 						timeOptions={timeOptions}
@@ -529,7 +529,7 @@ const ShiftManagement = ({
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
 					/>
-					<button className="bg-gray-100 dark:bg-gray-800 border-r px-2 py-2 text-center flex items-center font-medium hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+					<button className="flex items-center px-2 py-2 font-medium text-center bg-gray-100 border-r dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
 						{value.totalHours}
 					</button>
 				</div>

@@ -48,6 +48,7 @@ export const WeeklyLimitByEmployeePDFDocument = ({
 
 				<View>
 					{data?.map((el, idx) => {
+						if (!el || !el.employee) return null;
 						return (
 							<View key={idx} style={{ marginBottom: '10px' }}>
 								<View
@@ -66,7 +67,7 @@ export const WeeklyLimitByEmployeePDFDocument = ({
 									<Text>{el?.employee?.fullName}</Text>
 								</View>
 								<Table
-									data={el.reports?.map((item) => {
+									data={el?.reports?.map((item) => {
 										const limit =
 											item.limit || organizationLimits[displayMode] || DEFAULT_WORK_HOURS_PER_DAY;
 										const percentageUsed = (item.duration / limit) * 100;
