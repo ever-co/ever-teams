@@ -14,7 +14,7 @@ import { Analytics } from '@vercel/analytics/react';
 import ChatwootWidget from '@/core/components/features/integrations/chatwoot';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import '../../styles/globals.css';
+import '@/styles/globals.css';
 
 import { useAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
