@@ -6,9 +6,9 @@ import { useAtom, useAtomValue } from 'jotai';
 import { timeSlotsState } from '@/core/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { deleteTimerLogsRequestAPI, getTimerLogsRequestAPI } from '@/core/services/client/api';
 import { useUserProfilePage } from './useUserProfilePage';
 import { activityTypeState } from '@/core/stores/activity-type';
+import { timeSlotsService } from '@/core/services/client/api/activity';
 
 export function useTimeSlots(hasFilter?: boolean) {
 	const { user } = useAuthenticateUser();
@@ -16,8 +16,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(getTimerLogsRequestAPI);
-	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(deleteTimerLogsRequestAPI);
+	const { loading, queryCall } = useQuery(timeSlotsService.getTimeSlots);
+	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotsService.deleteTimeSlots);
 
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();

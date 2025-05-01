@@ -1,15 +1,16 @@
 import { timeLimitsAtom } from '@/core/stores/time-limits';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
-import { getTimeLimitsReportAPI } from '@/core/services/client/api/activity/time-limits';
 import { useCallback } from 'react';
 import { IGetTimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
+import { timeLimitsService } from '@/core/services/client/api/activity';
 
 export function useTimeLimits() {
 	const [timeLimitsReports, setTimeLimitsReport] = useAtom(timeLimitsAtom);
 
-	const { queryCall: getTimeLimitsReportQueryCall, loading: getTimeLimitReportLoading } =
-		useQuery(getTimeLimitsReportAPI);
+	const { queryCall: getTimeLimitsReportQueryCall, loading: getTimeLimitReportLoading } = useQuery(
+		timeLimitsService.getTimeLimitsReport
+	);
 
 	const getTimeLimitsReport = useCallback(
 		async (data: IGetTimeLimitReport) => {

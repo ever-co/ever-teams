@@ -1,5 +1,4 @@
 import { useAtom } from 'jotai';
-import { getTimerLogsDailyReportRequestAPI } from '@/core/services/client/api/activity/time-logs';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { timerLogsDailyReportState } from '@/core/stores/time-logs';
 import { useQuery } from '../useQuery';
@@ -7,6 +6,7 @@ import { useCallback, useEffect } from 'react';
 import moment from 'moment';
 import { useFirstLoad } from '../useFirstLoad';
 import { useUserProfilePage } from '..';
+import { timeLogsService } from '@/core/services/client/api/activity';
 
 export function useTimeLogs() {
 	const { user } = useAuthenticateUser();
@@ -17,7 +17,7 @@ export function useTimeLogs() {
 	const [timerLogsDailyReport, setTimerLogsDailyReport] = useAtom(timerLogsDailyReportState);
 
 	const { loading: timerLogsDailyReportLoading, queryCall: queryTimerLogsDailyReport } = useQuery(
-		getTimerLogsDailyReportRequestAPI
+		timeLogsService.getTimerLogsDailyReport
 	);
 
 	const getTimerLogsDailyReport = useCallback(
