@@ -3,7 +3,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PDFDocument } from '../export-formats/pdf';
+import { PDFDocument } from '@/core/components/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
@@ -20,7 +20,7 @@ export function ProjectExportMenu(props: IProps) {
 
 	return (
 		<Menu as="div" className="relative inline-block text-left">
-			<Menu.Button className=" w-full h-full items-center justify-between">
+			<Menu.Button className="items-center justify-between w-full h-full ">
 				<Button
 					type="button"
 					className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
@@ -42,7 +42,7 @@ export function ProjectExportMenu(props: IProps) {
 					static
 					className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none"
 				>
-					<div className="p-1 flex flex-col gap-1">
+					<div className="flex flex-col gap-1 p-1">
 						<Menu.Item>
 							{({ active }) => (
 								<button

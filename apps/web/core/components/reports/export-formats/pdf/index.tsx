@@ -2,11 +2,11 @@
 
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { DottedLanguageObjectStringPaths } from 'next-intl';
-import { WeeklyLimitTableDataType } from '../../components/data-table';
 import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 import moment from 'moment';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { WeeklyLimitTableDataType } from '@/core/components/reports/data-table';
 
 const styles = StyleSheet.create({
 	page: { padding: 20 },
