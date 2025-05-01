@@ -9,10 +9,9 @@ import { JitsuRoot } from '@/core/components/settings/JitsuRoot';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
-import { Geist } from 'next/font/google';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropsWithChildren, useEffect, use } from 'react';
-
+import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/useCheckAPI';
 import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
@@ -131,7 +130,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 				<PHProvider>
 					<body
 						className={clsx(
-							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-100'
+							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-100 antialiased '
 						)}
 					>
 						<PostHogPageView />

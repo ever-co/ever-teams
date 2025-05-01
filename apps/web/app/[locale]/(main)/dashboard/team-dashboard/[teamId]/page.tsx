@@ -87,7 +87,7 @@ function TeamDashboard() {
 										<Button
 											variant="ghost"
 											size="sm"
-											className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
+											className="gap-0.5 text-[10px] font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
 											onClick={() => setShowChart(!showChart)}
 										>
 											<ChevronUpIcon
@@ -108,7 +108,7 @@ function TeamDashboard() {
 													<Button
 														variant="ghost"
 														size="sm"
-														className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
+														className="gap-0.5 text-[10px] font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
 														onClick={() => setShowChart(!showChart)}
 													>
 														<ChevronDownIcon

@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	darkMode: ['class'],
+	corePlugins: {
+		fontSmoothing: true
+	},
 	content: [
 		'./pages/**/*.{ts,tsx}',
 		'./components/**/*.{ts,tsx}',
