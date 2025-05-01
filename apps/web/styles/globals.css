@@ -15,11 +15,6 @@ html.dark {
 .font-poppins {
 	font-family: 'Poppins', sans-serif !important;
 }
-body {
-	font-family:
-		var(--font-sans), 'Plus-Jakarta-Sans-VariableFont_wght', 'Inter', 'Geist Sans', ui-sans-serif, system-ui,
-		sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
-}
 *,
 *::before,
 *::after {
@@ -135,9 +130,15 @@ body {
 	}
 
 	body {
+		font-family:
+			var(--font-sans), 'Plus-Jakarta-Sans-VariableFont_wght', 'Inter', 'Geist Sans', ui-sans-serif, system-ui,
+			sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
 		font-style: normal;
-		font-weight: 300;
-		line-height: 160%;
+		font-weight: 400;
+		line-height: 150%;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
 		@apply text-default dark:text-white bg-[rgb(242,242,242)] dark:bg-background text-foreground text-sm;
 	}
 
