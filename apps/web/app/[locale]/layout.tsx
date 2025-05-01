@@ -17,7 +17,7 @@ import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
-import { LOCALES } from '@/core/constants/config/constants';
+import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
 
 interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;

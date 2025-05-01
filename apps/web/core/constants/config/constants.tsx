@@ -5,7 +5,6 @@ import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { ManualTimeReasons } from '@/core/types/interfaces/timer/IManualTimeReasons';
 
-export const LOCALES = ['en', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 export const BREAKPOINTS = {
 	MOBILE: 768
 };
