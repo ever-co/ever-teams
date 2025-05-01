@@ -30,7 +30,7 @@ import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
 import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
 import { AppsTab } from '@/core/components/features/activity/apps';
 import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
-import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
+import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
 import { fullWidthState } from '@/core/stores/fullWidth';
 

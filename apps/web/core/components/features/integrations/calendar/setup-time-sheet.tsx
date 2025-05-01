@@ -1,7 +1,7 @@
 'use client';
 
 import { DataTableTimeSheet, SelectFilter } from './table-time-sheet';
-import { HeadTimeSheet } from '@app/[locale]/calendar/component';
+import { HeadTimeSheet } from '@/app/[locale]/(main)/calendar/component';
 import { statusOptions, timesheetCalendar } from './helper-calendar';
 import { StatusBadge } from './confirm-change-status';
 import { RiDeleteBinLine } from 'react-icons/ri';

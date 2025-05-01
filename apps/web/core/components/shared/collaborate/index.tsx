@@ -25,7 +25,7 @@ import { Button } from '@/core/components/button';
 import { Check } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
-import { JitsuAnalytics } from '../../services/jitsu-analytics';
+import { JitsuAnalytics } from '../../analytics/jitsu-analytics';
 import { useTranslations } from 'next-intl';
 import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';

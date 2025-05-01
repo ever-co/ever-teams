@@ -8,7 +8,7 @@ import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Te
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import SocialLogins from '../social-logins-buttons';
+import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
 

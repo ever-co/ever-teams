@@ -59,7 +59,7 @@ export function LanguageDropDownWithFlags({
 			<SelectTrigger className={clsxm(btnClassName)}>
 				{showFlag ? <ActiveFlag className=" h-3 w-4 mr-2.5 " /> : null}
 
-				<span className=" font-light text-sm text-gray-500">
+				<span className="text-sm text-gray-500 ">
 					{items.filter((v) => v.data?.code == pathArray[1]).length
 						? items.filter((v) => v.data?.code == pathArray[1])[0].data?.name
 						: 'English'}
@@ -78,7 +78,7 @@ export function LanguageDropDownWithFlags({
 							)}
 						>
 							<div className="flex gap-2 text-xs">
-								<Flag className="h-4 w-6" />
+								<Flag className="w-6 h-4" />
 								<span>{item.data.name}</span>
 							</div>
 						</SelectItem>

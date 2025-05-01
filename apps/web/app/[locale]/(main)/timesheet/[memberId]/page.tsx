@@ -31,15 +31,15 @@ import {
 	TimesheetCard,
 	TimesheetFilter,
 	TimesheetView
-} from '../../../../core/components/timesheet';
+} from '@/core/components/timesheet';
 import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/features/useTimesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import TimesheetDetailModal from '../../../../core/components/timesheet/timesheet-detail-modal';
+import TimesheetDetailModal from '@/core/components/timesheet/timesheet-detail-modal';
 import { useTimesheetPagination } from '@/core/hooks/features/useTimesheetPagination';
-import TimesheetPagination from '../../../../core/components/timesheet/timesheet-pagination';
+import TimesheetPagination from '@/core/components/timesheet/timesheet-pagination';
 import { useTimesheetFilters } from '@/core/hooks/features/useTimesheetFilters';
 import { useTimesheetViewData } from '@/core/hooks/features/useTimesheetViewData';
 import { IconsSearch } from '@/core/components/icons';
