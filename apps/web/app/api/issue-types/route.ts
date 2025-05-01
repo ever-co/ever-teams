@@ -1,6 +1,6 @@
-import { IIssueTypesCreate } from '@app/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createIssueTypeRequest, getIssueTypesListRequest } from '@app/services/server/requests';
+import { IIssueTypesCreate } from '@/core/types/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { createIssueTypeRequest, getIssueTypesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

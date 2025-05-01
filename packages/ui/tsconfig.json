@@ -1,0 +1,32 @@
+{
+  "extends": "@ever-teams/ts-config/react-library.json",
+  "typeRoots": [
+    "node_modules/@types"
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules",
+    "tailwind.config.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/lib/**/*.ts",
+    "src/lib/**/*.tsx"
+  ],
+  "types": [
+    "react",
+    "react-dom"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "outDir": "dist",
+    "rootDir": "./src",
+    "esModuleInterop": true
+  }
+}

@@ -1,9 +1,9 @@
-import { ITaskRelatedIssueTypeCreate } from '@app/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createRelatedIssueTypeRequest,
 	getTaskRelatedIssueTypeListRequest
-} from '@app/services/server/requests/task-related-issue-type';
+} from '@/core/services/server/requests/task-related-issue-type';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

@@ -1,18 +1,18 @@
 'use client';
 
-import { getAccessTokenCookie } from '@app/helpers';
-import { TAuthenticationPassword, useAuthenticationPassword } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
-import { clsxm } from '@app/utils';
-import { BackdropLoader, Button, Card, InputField, Text } from 'lib/components';
-import { AuthLayout } from 'lib/layout';
+import { getAccessTokenCookie } from '@/core/lib/helpers/index';
+import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
+import { IClassName } from '@/core/types/interfaces';
+import { cn } from '@ever-teams/ui';
+import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';
+import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
-import SocialLogins from '../social-logins-buttons';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
+import SocialLogins from '@/core/components/auth/social-logins-buttons';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -23,8 +23,8 @@ export default function AuthPassword() {
 			title={t('pages.authLogin.HEADING_TITLE')}
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
-			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+			<div className="max-w-[98%] md:max-w-[550px] overflow-x-hidden overflow-y-visible">
+				<div className={cn('flex flex-row transition-[transform] duration-500')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
 					{form.authScreen.screen === 'workspace' && <WorkSpaceScreen form={form} className="w-full" />}
@@ -39,7 +39,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 
 	return (
 		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-transparent rounded-2xl">
-			<Card className={clsxm('w-full dark:bg-[#25272D]')} shadow="bigger">
+			<Card className={cn('w-full dark:bg-[#25272D]')} shadow="bigger">
 				<form onSubmit={form.handleSubmit} className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
@@ -123,7 +123,6 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		[form.workspaces]
 	);
 
-
 	useEffect(() => {
 		if (form.workspaces.length === 1 && !hasMultipleTeams) {
 			setTimeout(() => {
@@ -165,7 +164,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 	return (
 		<>
 			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
-			<div className={clsxm(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
+			<div className={cn(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}

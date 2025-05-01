@@ -91,12 +91,17 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		const responseTask = find ? cloneDeep(cTask) : null
 
 		if (responseTask) {
+			// Add more checks to prevent "find is not a function" error
+			const all = tasksStatisticsState?.all;
 			const taskStatistics =
-				tasksStatisticsState?.all.find((statistics) => statistics.id === responseTask.id) ||
-				[]
-			responseTask.totalWorkedTime = taskStatistics.duration || 0
-		}
+			  (all && Array.isArray(all))
+				? all.find((statistics) => statistics.id === responseTask.id)
+				: null;
 
+			responseTask.totalWorkedTime = (taskStatistics && typeof taskStatistics === 'object')
+			  ? taskStatistics.duration || 0
+			  : 0;
+		  }
 		return responseTask
 	}, [activeTeamTask, activeTaskId, isAuthUser, authUser, member, tasks, publicTeam])
 

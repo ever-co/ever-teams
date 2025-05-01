@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getTimerStatusRequest, stopTimerRequest } from '@app/services/server/requests';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTimerStatusRequest, stopTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 			...(taskId
 				? {
 						taskId
-				  }
+					}
 				: {})
 		},
 		access_token

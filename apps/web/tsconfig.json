@@ -1,7 +1,10 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"target": "ES2015",
+		"types": [
+			"node"
+		],
+		"target": "es2015",
 		"lib": [
 			"dom",
 			"dom.iterable",
@@ -21,7 +24,7 @@
 		"jsx": "preserve",
 		"baseUrl": ".",
 		"paths": {
-			"@components/*": [
+			"@/components/*": [
 				"./components/*"
 			],
 			"@/*": [
@@ -29,6 +32,9 @@
 			],
 			"@/lib/*": [
 				"./lib/*"
+			],
+			"@/app/*": [
+				"./app/*"
 			],
 			"@app/*": [
 				"./app/*"

@@ -27,15 +27,16 @@
 		"config:prod": "yarn run config -- --environment=prod",
 		"start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web\"",
 		"start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web:prod\"",
-		"start:web": "cd apps/web && yarn run start",
-		"start:web:dev": "cd apps/web && yarn run dev",
+		"start:web": "turbo start --filter=@ever-teams/web",
+		"start:web:dev": "turbo dev --filter=@ever-teams/web",
+		"dev:playground": "turbo dev --filter=@ever-teams/playground",
 		"start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
 		"start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/web/src/pm2bootstrap.ts",
 		"start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
 		"bootstrap": "yarn install && yarn lerna bootstrap",
 		"prebuild": "rimraf dist coverage",
-		"build": "yarn build:web && yarn build:mobile && yarn build:extensions",
-		"build:web": "cd apps/web && yarn run build",
+		"build": "turbo build",
+		"build:web": "turbo build --filter=@ever-teams/web",
 		"build:mobile": "cd apps/mobile && yarn install && yarn run build",
 		"build:extensions": "cd apps/extensions && yarn install && yarn run build",
 		"commit": "git-cz",
@@ -94,18 +95,18 @@
 		"pack:server-web:mac": "cd apps/server-web && yarn run pack:mac",
 		"pack:server-web:win": "cd apps/server-web && yarn run pack:win",
 		"pack:server-web:linux": "cd apps/server-web && yarn run pack:linux",
-		"build:server-web": "yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web && yarn postinstall:electron",
+		"build:server-web": "yarn prepare:config:server-web && yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web && yarn postinstall:electron",
 		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
 		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
 		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux",
 		"generate:icons": "yarn ts-node .scripts/icon-utils/icon-factory.ts",
 		"generate:icons:server-web": "yarn run generate:icons --desktop=server-web",
 		"prepare:config:server-web": "cross-env NODE_ENV=production yarn config:server-web && yarn pack:server-web && yarn generate:icons:server-web",
-		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:mac",
-		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:win",
-		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:win"
+		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:mac",
+		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:win",
+		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win"
 	},
 	"config": {
 		"commitizen": {
@@ -168,6 +169,7 @@
 		"packages": [
 			"apps/web",
 			"apps/server-web",
+			"apps/playground",
 			"packages/*",
 			"libs/*",
 			"tools"
@@ -179,8 +181,9 @@
 		"@lexical/react": "^0.8.0",
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
-		"yargs": "^17.5.0",
-		"sharp": "^0.33.4"
+		"react-phone-number-input": "^3.4.12",
+		"sharp": "^0.33.4",
+		"yargs": "^17.5.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.6.6",
@@ -192,6 +195,8 @@
 		"@cucumber/cucumber-expressions": "^16.0.1",
 		"@cucumber/gherkin": "^25.0.2",
 		"@cypress/browserify-preprocessor": "^3.0.2",
+		"@ever-teams/types": "*",
+		"@hapi/shot": "^6.0.1",
 		"@lerna/legacy-package-management": "^8.1.2",
 		"@next/eslint-plugin-next": "^13.0.5",
 		"@nx/cypress": "^16.7.4",
@@ -247,7 +252,8 @@
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
-		"ts-node": "^10.9.2"
+		"ts-node": "^10.9.2",
+		"turbo": "^2.5.2"
 	},
 	"overrides": {
 		"prebuild": {
@@ -291,5 +297,6 @@
 			}
 		]
 	},
-	"snyk": true
+	"snyk": true,
+	"packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

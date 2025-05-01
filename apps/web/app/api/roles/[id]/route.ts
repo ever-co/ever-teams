@@ -1,9 +1,10 @@
-import { INextParams, IRole } from '@app/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteRoleRequest, updateRoleRequest } from '@app/services/server/requests';
+import { INextParams, IRole } from '@/core/types/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteRoleRequest, updateRoleRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {
@@ -24,7 +25,8 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, props: INextParams) {
+	const params = await props.params;
 	const res = new NextResponse();
 
 	if (!params.id) {

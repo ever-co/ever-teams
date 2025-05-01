@@ -1,6 +1,6 @@
-import { TimerSource } from '@app/interfaces/ITimer';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getTimerStatusRequest, startTimerRequest } from '@app/services/server/requests';
+import { TimerSource } from '@/core/types/interfaces/ITimer';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTimerStatusRequest, startTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

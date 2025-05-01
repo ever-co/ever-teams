@@ -1,0 +1,12 @@
+{
+	"name": "@ever-teams/ts-config",
+	"version": "0.1.0",
+	"license": "AGPL-3.0",
+	"private": true,
+	"files": [
+		"base.json",
+		"nextjs.json",
+		"react-library.json",
+		"node-library.json"
+	]
+}

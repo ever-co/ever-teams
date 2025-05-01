@@ -23,18 +23,18 @@ const TaskVersionForm = ({
 	createVersionModal?: boolean;
 }) => {
 	const { colors, dark } = useAppTheme();
-	const [versionName, setVersionName] = useState<string>(null);
+	const [versionName, setVersionName] = useState<string>('');
 
 	useEffect(() => {
 		if (isEdit) {
-			setVersionName(item.name);
+			setVersionName(item?.name ?? '');
 		} else {
 			setVersionName(null);
 		}
 	}, [item, isEdit]);
 
 	const handleSubmit = async () => {
-		if (versionName.trim().length <= 0) {
+				if (!versionName || versionName.trim().length <= 0) {
 			return;
 		}
 

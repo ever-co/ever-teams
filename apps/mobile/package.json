@@ -59,6 +59,7 @@
 	"dependencies": {
 		"@expo-google-fonts/space-grotesk": "^0.2.2",
 		"@expo/metro-runtime": "~4.0.0",
+		"@gorhom/bottom-sheet": "^5.1.2",
 		"@react-native-async-storage/async-storage": "1.23.1",
 		"@react-navigation/bottom-tabs": "^6.5.7",
 		"@react-navigation/drawer": "^6.6.2",
@@ -130,7 +131,6 @@
 		"react-native-vector-icons": "^9.2.0",
 		"react-native-web": "~0.19.6",
 		"react-native-webview": "13.12.5",
-		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
 		"reanimated-color-picker": "^2.3.4",
 		"sentry-expo": "~7.0.0",
 		"validator": "^13.11.0"
@@ -139,8 +139,9 @@
 		"@babel/core": "^7.20.0",
 		"@babel/preset-env": "^7.20.0",
 		"@babel/runtime": "^7.20.0",
+		"@hapi/shot": "^6.0.1",
 		"@testing-library/react-native": "^12.5.2",
-		"@types/jest": "^29.2.1",
+		"@types/jest": "^29.5.14",
 		"@types/react": "~18.3.12",
 		"babel-jest": "^29.2.1",
 		"eslint": "^8.57.0",
@@ -162,6 +163,7 @@
 		"reactotron-react-native-mmkv": "^0.2.6",
 		"ts-jest": "^29.1.1",
 		"ts-node": "^10.9.2",
+		"@types/hapi__shot": "^6.0.0",
 		"typescript": "~5.3.3"
 	},
 	"prettier": {

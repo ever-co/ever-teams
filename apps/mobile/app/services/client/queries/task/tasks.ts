@@ -8,25 +8,35 @@ interface IGetAllTasksParams {
 	activeTeamId: string;
 }
 const fetchAllTasks = async (params: IGetAllTasksParams) => {
-	const { data } = await getTeamTasksRequest({
-		bearer_token: params.authToken,
-		tenantId: params.tenantId,
-		organizationId: params.organizationId
-	});
-
-	const tasks = data.items.filter((task) => {
-		return task.teams.some((tm) => {
-			return tm.id === params.activeTeamId;
+	try {
+		// Pass the teamId directly to the API call
+		const { data } = await getTeamTasksRequest({
+			bearer_token: params.authToken,
+			tenantId: params.tenantId,
+			organizationId: params.organizationId,
+			activeTeamId: params.activeTeamId
 		});
-	});
-	return tasks;
+
+		// Server filtering should already be done, but we keep client filtering as a backup
+		const tasks =
+			data?.items?.filter((task) => {
+				return !params.activeTeamId || task?.teams?.some((tm) => tm.id === params.activeTeamId);
+			}) || [];
+
+		return tasks;
+	} catch (error) {
+		console.error('Error fetching tasks:', error);
+		return [];
+	}
 };
 
-const useFetchAllTasks = (IGetAllTasksParams) =>
+const useFetchAllTasks = (params: IGetAllTasksParams) =>
 	useQuery({
-		queryKey: ['tasks'],
-		queryFn: () => fetchAllTasks(IGetAllTasksParams),
+		queryKey: ['tasks', params.tenantId, params.organizationId, params.activeTeamId],
+		queryFn: () => fetchAllTasks(params),
 		refetchInterval: 5000,
-		notifyOnChangeProps: ['data'] // Re-render only when data changes
+		notifyOnChangeProps: ['data'],
+		enabled: !!params.activeTeamId // Only fetch when we have a team ID
 	});
+
 export default useFetchAllTasks;

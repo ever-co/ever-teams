@@ -1,14 +1,15 @@
-import { INextParams } from '@app/interfaces';
+import { INextParams } from '@/core/types/interfaces';
 import {
 	getPublicOrganizationTeamMiscDataRequest,
 	getPublicOrganizationTeamRequest
-} from '@app/services/server/requests/public-organization-team';
+} from '@/core/services/server/requests/public-organization-team';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: INextParams) {
+	const { profileLink, teamId } = await params;
 	const { searchParams } = new URL(req.url);
 
-	if (!params.profileLink || !params.teamId) {
+	if (!profileLink || !teamId) {
 		return;
 	}
 
@@ -16,16 +17,16 @@ export async function GET(req: Request, { params }: INextParams) {
 
 	if (type === 'misc') {
 		const response = await getPublicOrganizationTeamMiscDataRequest({
-			profileLink: params.profileLink,
-			teamId: params.teamId
+			profileLink,
+			teamId
 		});
 
 		return NextResponse.json(response.data);
 	}
 
 	const response = await getPublicOrganizationTeamRequest({
-		profileLink: params.profileLink,
-		teamId: params.teamId
+		profileLink,
+		teamId
 	});
 
 	return NextResponse.json(response.data);

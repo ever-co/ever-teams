@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getTimeLogReportDailyRequest } from '@/app/services/server/requests/timesheet';
-import { ITimeLogRequestParams } from '@/app/services/server/requests/timesheet';
+import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
+import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
 		if (!params.tenantId || !params.organizationId || !params.startDate || !params.endDate) {
 			return new Response(
 				JSON.stringify({
-					message: 'Required parameters missing: tenantId, organizationId, startDate, and endDate are required'
+					message:
+						'Required parameters missing: tenantId, organizationId, startDate, and endDate are required'
 				}),
 				{
 					status: 400,

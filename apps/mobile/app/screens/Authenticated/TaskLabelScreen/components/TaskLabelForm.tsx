@@ -12,18 +12,25 @@ import IconModal from "../../../../components/IconModal"
 import { IIcon } from "../../../../services/interfaces/IIcon"
 import { SvgUri } from "react-native-svg"
 
+// Create a flexible type that can handle both scenarios
+type UpdateLabelParam = ITaskLabelItem | (Partial<ITaskLabelItem> & { id: string });
+
 const TaskLabelForm = ({
 	isEdit,
 	onDismiss,
 	item,
 	onCreateLabel,
 	onUpdateLabel,
+	error,
+	onErrorDismiss,
 }: {
 	isEdit: boolean
 	onDismiss: () => unknown
 	item?: ITaskLabelItem
-	onUpdateLabel: (id: string, data: ITaskLabelCreate) => unknown
+	onUpdateLabel: (labelData: UpdateLabelParam) => unknown
 	onCreateLabel: (data: ITaskLabelCreate) => unknown
+	error?: string | null
+	onErrorDismiss?: () => void
 }) => {
 	const { colors, dark } = useAppTheme()
 	const [labelName, setLabelName] = useState<string>(null)
@@ -34,7 +41,7 @@ const TaskLabelForm = ({
 	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
-		if (isEdit) {
+		if (isEdit && item) {
 			setLabelName(item.name)
 			setLabelColor(item.color)
 			setLabelIcon(item.icon)
@@ -46,15 +53,19 @@ const TaskLabelForm = ({
 	}, [item, isEdit])
 
 	const handleSubmit = async () => {
-		if (labelName.trim().length <= 0 || labelColor.trim().length <= 0) {
+		if (!labelName?.trim() || !labelColor?.trim()) {
 			return
 		}
 
-		if (isEdit) {
-			await onUpdateLabel(item?.id, {
+		if (isEdit && item) {
+			await onUpdateLabel({
+				id: item.id,
 				icon: labelIcon,
 				color: labelColor,
 				name: labelName,
+				// Keep the original values for fields we're not changing
+				// This preserves compatibility with ITaskLabelItem
+				...item,
 			})
 		} else {
 			await onCreateLabel({
@@ -74,6 +85,22 @@ const TaskLabelForm = ({
 		setIconModalVisible(false)
 	}
 
+	// Display error message if error exists
+	const renderError = () => {
+		if (!error) return null;
+
+		return (
+			<View style={styles.errorContainer}>
+				<Text style={styles.errorText}>{error}</Text>
+				{onErrorDismiss && (
+					<TouchableOpacity onPress={onErrorDismiss}>
+						<Text style={styles.dismissText}>Dismiss</Text>
+					</TouchableOpacity>
+				)}
+			</View>
+		);
+	};
+
 	return (
 		<View
 			style={{
@@ -84,6 +111,8 @@ const TaskLabelForm = ({
 				height: 452,
 			}}
 		>
+			{renderError()}
+
 			<IconModal
 				visible={iconModalVisible}
 				onDismiss={onDismissModal}
@@ -217,6 +246,27 @@ const styles = StyleSheet.create({
 		color: "#FFF",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
+	},
+	errorContainer: {
+		backgroundColor: "#ffdddd",
+		borderRadius: 8,
+		padding: 10,
+		marginBottom: 16,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+	errorText: {
+		color: "#cc0000",
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		flex: 1,
+	},
+	dismissText: {
+		color: "#cc0000",
+		fontFamily: typography.primary.semiBold,
+		fontSize: 14,
+		marginLeft: 8,
 	},
 	formTitle: {
 		color: "#1A1C1E",

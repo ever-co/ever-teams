@@ -1,4 +1,4 @@
-import { authFormValidate } from '@app/helpers/validations';
+import { authFormValidate } from '@/core/lib/helpers/validations';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
 	acceptInviteRequest,
@@ -6,9 +6,9 @@ import {
 	getUserOrganizationsRequest,
 	signInWorkspaceRequest,
 	verifyInviteCodeRequest
-} from '@app/services/server/requests';
-import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
-import { ILoginResponse, IOrganizationTeam } from '@app/interfaces';
+} from '@/core/services/server/requests';
+import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
+import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {

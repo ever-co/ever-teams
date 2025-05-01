@@ -1,7 +1,7 @@
-import { IRole } from '@app/interfaces';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { IRole } from '@/core/types/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
-import { createRoleRequest, getRolesRequest } from '@app/services/server/requests';
+import { createRoleRequest, getRolesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {

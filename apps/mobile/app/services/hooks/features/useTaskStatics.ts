@@ -57,14 +57,20 @@ export function useTaskStatistics(addSeconds = 0) {
 	}, [isLoading, isRefetching, isSuccess, data]);
 
 	const getTaskStat = useCallback(
-		(task: ITeamTask | null) => {
+		(task: Nullable<ITeamTask>) => {
 			const stats = statTasksRef.current;
 			return {
-				taskTotalStat: (stats && stats?.all.find((t) => t.id === task?.id)) || [],
-				taskDailyStat: (stats && stats?.today.find((t) => t.id === task?.id)) || []
+				taskTotalStat:
+					stats && stats.all && Array.isArray(stats.all)
+						? stats.all.find((t) => t.id === task?.id) || null
+						: null,
+				taskDailyStat:
+					stats && stats.today && Array.isArray(stats.today)
+						? stats.today.find((t) => t.id === task?.id) || null
+						: null
 			};
 		},
-		[statTasksRef, data]
+		[statTasksRef]
 	);
 
 	/**

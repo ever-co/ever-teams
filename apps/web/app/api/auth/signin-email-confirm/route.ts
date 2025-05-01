@@ -1,13 +1,13 @@
-import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
-import { authFormValidate } from '@app/helpers/validations';
-import { ILoginResponse } from '@app/interfaces';
+import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
+import { authFormValidate } from '@/core/lib/helpers/validations';
+import { ILoginResponse } from '@/core/types/interfaces';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest,
 	signInEmailConfirmRequest,
 	verifyInviteCodeRequest
-} from '@app/services/server/requests';
+} from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

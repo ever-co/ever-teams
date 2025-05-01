@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@app/services/server/requests';
-import { INextParams, IUpdateDailyPlan } from '@app/interfaces';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@/core/services/server/requests';
+import { IUpdateDailyPlan } from '@/core/types/interfaces';
 
-export async function GET(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
-	const { id } = params;
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const id = (await params).id;
 	if (!id) {
-		return;
+		return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
 	}
 
 	const {
@@ -17,8 +16,11 @@ export async function GET(req: Request, { params }: INextParams) {
 		organizationId,
 		teamId: organizationTeamId,
 		access_token
-	} = await authenticatedGuard(req, res);
-	if (!user) return $res('Unauthorized');
+	} = await authenticatedGuard(req, new NextResponse());
+
+	if (!user) {
+		return $res('Unauthorized');
+	}
 
 	const response = await getDayPlansByEmployee({
 		bearer_token: access_token,
@@ -31,13 +33,12 @@ export async function GET(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
-	const { id } = params;
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const id = (await params).id;
 	if (!id) {
 		return;
 	}
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');
 
@@ -53,14 +54,13 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
-	const res = new NextResponse();
-	const { id } = params;
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const id = (await params).id;
 	if (!id) {
 		return;
 	}
 
-	const { $res, user, access_token } = await authenticatedGuard(req, res);
+	const { $res, user, access_token } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
 
 	const response = await deleteDailyPlanRequest({

@@ -10,10 +10,16 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"importHelpers": true,
-		"target": "es2016",
+		"target": "ES2017",
 		"module": "esnext",
-		"typeRoots": ["node_modules/@types"],
-		"lib": ["dom", "es2018", "esnext.array"],
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"lib": [
+			"dom",
+			"esnext",
+			"esnext.array"
+		],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
@@ -24,5 +30,10 @@
 		"noImplicitAny": true,
 		"esModuleInterop": false
 	},
-	"exclude": ["coverage/**/*", "dist/**/*", "node_modules", "tmp"]
+	"exclude": [
+		"coverage/**/*",
+		"dist/**/*",
+		"node_modules",
+		"tmp"
+	]
 }

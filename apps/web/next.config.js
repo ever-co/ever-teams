@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const withNextIntl = require('next-intl/plugin')();
+const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -46,7 +46,6 @@ const nextConfig = {
 	reactStrictMode: false,
 	transpilePackages: ['geist'],
 	...eslintBuildConfig,
-	swcMinify: true,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');
 		config.resolve.alias['@components'] = path.join(__dirname, 'components');
@@ -86,6 +85,11 @@ const nextConfig = {
 				protocol: 'https',
 				hostname: 'dummyimage.com',
 				port: ''
+			},
+			{
+				protocol: 'http',
+				hostname: 'localhost',
+				port: '3000'
 			},
 			{ protocol: 'https', hostname: 'res.cloudinary.com', port: '' },
 			{
