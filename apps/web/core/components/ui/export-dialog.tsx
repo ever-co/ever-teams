@@ -6,8 +6,8 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { GroupByType } from '@/core/hooks/features/useReportActivity';
 
 import { Modal } from '@/core/components';
-import { ProductivityApplicationPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-application/productivity-application-pdf';
-import { ProductivityPDF } from '@/app/[locale]/dashboard/app-url/components/productivity-pdf';
+import { ProductivityApplicationPDF } from '@/core/components/dashboard/productivity-application/productivity-application-pdf';
+import { ProductivityPDF } from '@/core/components/dashboard/productivity-pdf';
 
 interface ExportDialogProps {
 	isOpen: boolean;

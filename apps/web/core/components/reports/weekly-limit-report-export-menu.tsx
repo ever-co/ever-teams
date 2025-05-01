@@ -3,24 +3,58 @@ import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PDFDocument } from '../export-formats/pdf';
-import { ProjectViewDataType } from './project-views';
-import moment from 'moment';
+import { useMemo } from 'react';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/ITimeLimits';
+import { WeeklyLimitPDFDocument } from './export-formats/pdf';
+import { WeeklyLimitByEmployeePDFDocument } from './export-formats/pdf/grouped-by-employee';
 
 interface IProps {
-	projects: ProjectViewDataType[];
+	data: ITimeLimitReport[];
+	dataByEmployee: ITimeLimitReportByEmployee[];
 	activeTeam: IOrganizationTeamList | null;
+	displayMode: 'week' | 'date';
+	organizationLimits: {
+		date: number;
+		week: number;
+	};
+	isGroupedByEmployee: boolean;
 }
 
-export function ProjectExportMenu(props: IProps) {
-	const { projects, activeTeam } = props;
+export function WeeklyLimitExportMenu(props: IProps) {
+	const { data, activeTeam, displayMode, organizationLimits, dataByEmployee, isGroupedByEmployee } = props;
 
 	const t = useTranslations();
 
+	const PDFDocumentProps = useMemo(
+		() => ({
+			headers: {
+				indexValue: t('common.MEMBER'),
+				limit: t('pages.timeLimitReport.LIMIT'),
+				remaining: t('pages.timeLimitReport.REMAINING'),
+				timeSpent: t('pages.timeLimitReport.TIME_SPENT'),
+				percentageUsed: t('pages.timeLimitReport.PERCENTAGE_USED')
+			},
+			title: `Weekly Limit Report - ${activeTeam?.name}`,
+			organizationLimits,
+			displayMode
+		}),
+		[activeTeam?.name, displayMode, organizationLimits, t]
+	);
+
+	const pdfDocument = useMemo(
+		() =>
+			isGroupedByEmployee ? (
+				<WeeklyLimitByEmployeePDFDocument data={dataByEmployee} {...PDFDocumentProps} />
+			) : (
+				<WeeklyLimitPDFDocument data={data} {...PDFDocumentProps} />
+			),
+		[isGroupedByEmployee, dataByEmployee, PDFDocumentProps, data]
+	);
+
 	return (
 		<Menu as="div" className="relative inline-block text-left">
-			<Menu.Button className=" w-full h-full items-center justify-between">
+			<Menu.Button className="items-center justify-between w-full h-full ">
 				<Button
 					type="button"
 					className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
@@ -42,7 +76,7 @@ export function ProjectExportMenu(props: IProps) {
 					static
 					className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none"
 				>
-					<div className="p-1 flex flex-col gap-1">
+					<div className="flex flex-col gap-1 p-1">
 						<Menu.Item>
 							{({ active }) => (
 								<button
@@ -50,40 +84,8 @@ export function ProjectExportMenu(props: IProps) {
 								>
 									<PDFDownloadLink
 										className="w-full h-full text-left"
-										document={
-											<PDFDocument
-												data={projects.map((el) => {
-													return {
-														projectName: el.project.name || '-',
-														status: el.status || '-',
-														archivedAt: el.archivedAt
-															? moment(el.archivedAt).format('YYYY-MM-DD')
-															: '-',
-														startDate: el.startDate
-															? moment(el.startDate).format('YYYY-MM-DD')
-															: '-',
-														endDate: el.endDate
-															? moment(el.endDate).format('YYYY-MM-DD')
-															: '-',
-														members: el.members?.map((el) => el.employee.fullName) ?? [],
-														managers: el.managers?.map((el) => el.employee.fullName) ?? [],
-														teams: el.teams?.map((el) => el.name) ?? []
-													};
-												})}
-												headers={{
-													projectName: t('pages.projects.projectTitle.SINGULAR'),
-													status: t('common.STATUS'),
-													archivedAt: t('common.ARCHIVE_AT'),
-													startDate: t('common.START_DATE'),
-													endDate: t('common.END_DATE'),
-													members: t('common.MEMBERS'),
-													managers: t('common.MANAGERS'),
-													teams: t('common.TEAMS')
-												}}
-												title={`${activeTeam?.name} Organization Projects`}
-											/>
-										}
-										fileName={`${activeTeam?.name}-organization-projects.pdf`}
+										document={pdfDocument}
+										fileName={`${activeTeam?.name}-weekly-limit-report.pdf`}
 									>
 										{({ loading }) =>
 											loading ? (

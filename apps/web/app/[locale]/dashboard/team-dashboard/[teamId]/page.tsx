@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { Card } from '@/core/components/ui/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
-import { TeamStatsGrid } from './components/team-stats-grid';
-import { TeamStatsTable } from './components/team-stats-table';
-import { DashboardHeader } from './components/dashboard-header';
+import { TeamStatsGrid } from '@/core/components/dashboard/team-stats-grid';
+import { TeamStatsTable } from '@/core/components/dashboard/team-stats-table';
+import { DashboardHeader } from '@/core/components/dashboard/dashboard-header';
 import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb, Container } from '@/core/components';
@@ -18,7 +18,7 @@ import { fullWidthState } from '@/core/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/core/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
-import { TeamStatsChart } from './components/team-stats-chart';
+import { TeamStatsChart } from '@/core/components/dashboard/team-stats-chart';
 
 function TeamDashboard() {
 	const t = useTranslations();

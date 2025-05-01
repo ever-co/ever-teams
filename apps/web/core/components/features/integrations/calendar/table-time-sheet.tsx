@@ -40,7 +40,7 @@ import {
 	getTimesheetButtons,
 	statusTable,
 	ProjectLogo
-} from '@/app/[locale]/timesheet/[memberId]/components';
+} from '@/core/components/timesheet';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/core/lib/helpers/index';
 import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';

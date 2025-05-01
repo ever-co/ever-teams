@@ -28,7 +28,7 @@ export function ActivityLevelCell({ activity, duration }: ActivityLevelCellProps
 			<div className="flex-1 max-w-[120px]">
 				<ProgressBar progress={activity} />
 			</div>
-			<span className="text-gray-900 dark:text-gray-100 font-medium w-8">{activity}%</span>
+			<span className="w-8 font-medium text-gray-900 dark:text-gray-100">{activity}%</span>
 		</div>
 	);
 }
