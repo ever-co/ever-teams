@@ -27,7 +27,7 @@ export * from './custom-select/select-items';
 export * from './inputs/input';
 export * from './inputs/auth-code-input';
 
-export * from './services/recaptcha';
+export * from './analytics/recaptcha';
 export * from './copy-tooltip';
 export * from './alert-popup';
 export * from './alert-dialog-confirmation';

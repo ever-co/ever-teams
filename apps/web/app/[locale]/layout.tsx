@@ -19,7 +19,7 @@ import GlobalSkeleton from '@/core/components/ui/global-skeleton';
 import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
-import { PHProvider } from './integration/posthog/provider';
+import { PHProvider } from './(main)/integration/posthog/provider';
 
 const locales = ['en', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props extends PropsWithChildren {
@@ -39,7 +39,7 @@ const poppins = Poppins({
 	display: 'swap'
 });
 
-const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'), {
+const PostHogPageView = dynamic(() => import('./(main)/integration/posthog/page-view'), {
 	ssr: false
 });
 

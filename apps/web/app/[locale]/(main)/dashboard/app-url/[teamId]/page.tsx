@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/core/components';
-import { DashboardHeader } from '../../../../../core/components/dashboard/dashboard-header';
+import { DashboardHeader } from '../../../../../../core/components/dashboard/dashboard-header';
 import { GroupByType, useReportActivity } from '@/core/hooks/features/useReportActivity';
 import { Card } from '@/core/components/ui/card';
 import { useLocalStorageState, useModal } from '@/core/hooks';
@@ -23,7 +23,7 @@ import {
 	ProductivityChart,
 	ProductivityStats,
 	ProductivityTable
-} from '../../../../../core/components/dashboard';
+} from '../../../../../../core/components/dashboard';
 
 interface ProductivityData {
 	date: string;
