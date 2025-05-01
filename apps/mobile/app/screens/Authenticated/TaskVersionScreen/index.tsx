@@ -61,7 +61,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
   // Handle back navigation with the correct tab
   const handleGoBack = useCallback(() => {
-    // Now this is properly typed
     navigation.navigate('Setting', { activeTab: previousTab });
   }, [navigation, previousTab]);
 

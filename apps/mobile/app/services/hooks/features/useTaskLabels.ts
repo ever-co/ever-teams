@@ -46,13 +46,24 @@ export function useTaskLabels() {
 
 	// Create the label
 	const createLabel = useCallback(async (data: ITaskStatusCreate) => {
-		await createLabelRequest({
+
+		try {
+		  // Create the label request object with full logging
+		  const requestData = {
 			tenantId,
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken
-		});
-		queryClient.invalidateQueries({ queryKey: ['labels'] });
-	}, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
+		  };
+
+		  // Make the request
+		  const response = await createLabelRequest(requestData);
+		  queryClient.invalidateQueries({ queryKey: ['labels'] });
+		  return response;
+		} catch (error) {
+		  console.error('[useTaskLabels] Create label error:', error);
+		  throw error;
+		}
+	  }, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
 
 	useEffect(() => {
 		if (isSuccess) {
