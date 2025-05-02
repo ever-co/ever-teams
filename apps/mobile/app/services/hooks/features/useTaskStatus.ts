@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllStatuses from '../../client/queries/task/task-status';
@@ -20,6 +20,9 @@ export function useTaskStatus() {
     teamStore: { activeTeamId }
   } = useStores();
 
+  // Keep allStatuses state to maintain backward compatibility
+  const [allStatuses, setAllStatuses] = useState<ITaskStatusItem[]>([]);
+
   // Fetch all task statuses
   const {
     data: statuses,
@@ -33,6 +36,13 @@ export function useTaskStatus() {
     activeTeamId,
     authToken
   });
+
+  // Update allStatuses when statuses change
+  useEffect(() => {
+    if (statuses?.items) {
+      setAllStatuses(statuses.items);
+    }
+  }, [statuses]);
 
   // Delete a task status by ID
   const deleteStatus = useCallback(async (id: string) => {
@@ -73,7 +83,7 @@ export function useTaskStatus() {
           icon: data.icon,
           organizationId: organizationId,
           organizationTeamId: activeTeamId, // Critical for filter matching
-          template: data.template || "blocked"
+          template: data.template
         };
 
         // Create the status
@@ -99,6 +109,8 @@ export function useTaskStatus() {
     isRefetching,
     deleteStatus,
     updateStatus,
-    createStatus
+    createStatus,
+    allStatuses,
+    setAllStatuses
   };
 }
