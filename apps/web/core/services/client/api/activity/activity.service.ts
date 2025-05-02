@@ -4,7 +4,7 @@ import qs from 'qs';
 import { ITaskTimesheet, ITimerApps } from '@/core/types/interfaces';
 
 class ActivityService extends APIService {
-	async getTaskTimesheet({
+	getTaskTimesheet = async ({
 		taskId,
 		tenantId,
 		organizationId,
@@ -16,7 +16,7 @@ class ActivityService extends APIService {
 		defaultRange?: string;
 		taskId?: string;
 		unitOfTime?: 'day';
-	}) {
+	}) => {
 		const params: {
 			tenantId: string;
 			organizationId: string;
@@ -35,9 +35,9 @@ class ActivityService extends APIService {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/activity?${query}` : `/timer/timesheet?${query}`;
 
 		return this.get<ITaskTimesheet[]>(endpoint);
-	}
+	};
 
-	async getTimerDaily({
+	getTimerDaily = async ({
 		tenantId,
 		organizationId,
 		employeeId,
@@ -53,7 +53,7 @@ class ActivityService extends APIService {
 		todayStart: Date;
 		type?: string | undefined;
 		title?: string;
-	}) {
+	}) => {
 		const params: {
 			tenantId: string;
 			organizationId: string;
@@ -78,7 +78,7 @@ class ActivityService extends APIService {
 			: `/timer/daily?${query}`;
 
 		return this.get<ITimerApps[]>(endpoint);
-	}
+	};
 }
 
 export const activityService = new ActivityService(GAUZY_API_BASE_SERVER_URL.value);

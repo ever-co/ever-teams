@@ -1,0 +1,194 @@
+import {
+	APP_LOGO_URL,
+	APP_NAME,
+	APP_SIGNATURE,
+	GAUZY_API_BASE_SERVER_URL,
+	smtpConfiguration,
+	VERIFY_EMAIL_CALLBACK_PATH,
+	VERIFY_EMAIL_CALLBACK_URL
+} from '@/core/constants/config/constants';
+import { APIService } from '../../api.service';
+import {
+	I_SMTP,
+	ICreateEmployee,
+	IEmployee,
+	ILoginResponse,
+	IOrganization,
+	IOrganizationCreate,
+	IOrganizationTeam,
+	IRegisterDataAPI,
+	IRegisterDataRequest,
+	ITenant,
+	IUser
+} from '@/core/types/interfaces';
+import { authFormValidate } from '@/core/lib/helpers/validations';
+import { generateToken } from '@/core/lib/helpers/generate-token';
+import { createOrganizationTeamGauzy } from '../organization-team';
+import { setAuthCookies } from '@/core/lib/helpers/cookies';
+import { AxiosResponse } from 'axios';
+
+class RegiterService extends APIService {
+	protected registerDefaultValue = {
+		appName: APP_NAME,
+		appSignature: APP_SIGNATURE,
+		appLogo: APP_LOGO_URL
+	};
+
+	registerUserAPI = async (data: IRegisterDataRequest) => {
+		const body = {
+			...data,
+			...this.registerDefaultValue,
+			appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
+		};
+
+		return this.post<IUser>('/auth/register', body).then(({ data }) => data);
+	};
+
+	loginUserAPI = async (email: string, password: string) => {
+		return this.post<ILoginResponse>('/auth/login', { email, password }).then(({ data }) => data);
+	};
+
+	createTenantAPI = async (name: string, bearer_token: string) => {
+		return this.post<ITenant>(
+			'/tenant',
+			{ name },
+			{
+				headers: { Authorization: `Bearer ${bearer_token}` }
+			}
+		).then(({ data }) => data);
+	};
+
+	createTenantSmtpAPI = ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
+		const config = smtpConfiguration();
+
+		console.log(`SMTP Config: ${JSON.stringify(config)}`);
+
+		return this.post<I_SMTP>('/smtp', config, {
+			tenantId,
+			headers: { Authorization: `Bearer ${access_token}` }
+		});
+	};
+
+	createOrganizationAPI = async (datas: IOrganizationCreate, bearer_token: string) => {
+		return this.post<IOrganization>('/organization', datas, {
+			headers: { Authorization: `Bearer ${bearer_token}` }
+		}).then(({ data }) => data);
+	};
+
+	createEmployeeFromUserAPI = async (data: ICreateEmployee, bearer_token: string) => {
+		const { data: data_1 } = await this.post<IEmployee>('/employee', data, {
+			tenantId: data.tenantId,
+			headers: { Authorization: `Bearer ${bearer_token}` }
+		});
+		return data_1;
+	};
+
+	refreshTokenAPI = async (refresh_token: string) => {
+		return this.post<{ token: string }>('/auth/refresh-token', {
+			refresh_token
+		}).then(({ data }) => data);
+	};
+
+	registerGauzy = async (body: IRegisterDataAPI) => {
+		const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
+
+		const noRecaptchaArray = ['email', 'name', 'team'];
+
+		const validationFields = noRecaptchaArray;
+
+		const { errors, valid: formValid } = authFormValidate(validationFields, body);
+
+		if (!formValid) {
+			return Promise.reject({ errors });
+		}
+
+		const password = generateToken(8);
+		const names = body.name.split(' ');
+
+		const user = await this.registerUserAPI({
+			password: password,
+			confirmPassword: password,
+			user: {
+				firstName: names[0],
+				lastName: names[1] || '',
+				email: body.email,
+				timeZone: body.timezone as string
+			},
+			appEmailConfirmationUrl
+		});
+
+		// User Login, get the access token
+		const loginRes = await this.loginUserAPI(body.email, password);
+		let auth_token = loginRes.token;
+
+		const tenant = await this.createTenantAPI(body.email, auth_token);
+
+		// TODO: This  should be implemented from Gauzy
+		// Create tenant SMTP
+		// await createTenantSmtpRequest({
+		// 	access_token: auth_token,
+		// 	tenantId: tenant.id
+		// });
+
+		// Create user organization
+		const organization = await this.createOrganizationAPI(
+			{
+				currency: 'USD',
+				name: body.team,
+				tenantId: tenant.id,
+				invitesAllowed: true
+			},
+			auth_token
+		);
+
+		// Create employee
+		const employee = await this.createEmployeeFromUserAPI(
+			{
+				organizationId: organization.id,
+				startedWorkOn: new Date().toISOString(),
+				tenantId: tenant.id,
+				userId: user.id
+			},
+			auth_token
+		);
+
+		const { data: team } = await createOrganizationTeamGauzy(
+			{
+				name: body.team,
+				tenantId: tenant.id,
+				organizationId: organization.id,
+				managerIds: [employee.id],
+				public: true // By default team should be public,
+			},
+			auth_token
+		);
+
+		const refreshTokenRes = await this.refreshTokenAPI(loginRes.refresh_token);
+		auth_token = refreshTokenRes.token;
+
+		setAuthCookies({
+			access_token: auth_token,
+			refresh_token: {
+				token: loginRes.refresh_token
+			},
+			timezone: body['timezone'],
+			teamId: team.id,
+			tenantId: tenant.id,
+			organizationId: organization.id,
+			languageId: 'en', // TODO: not sure what should be here
+			userId: user.id
+		});
+
+		const response: AxiosResponse<{ loginRes: ILoginResponse; team: IOrganizationTeam; employee: IEmployee }> = {
+			data: { loginRes, team, employee },
+			status: 200,
+			statusText: '',
+			headers: {},
+			config: {} as any
+		};
+
+		return Promise.resolve(response);
+	};
+}
+
+export const registerService = new RegiterService(GAUZY_API_BASE_SERVER_URL.value);

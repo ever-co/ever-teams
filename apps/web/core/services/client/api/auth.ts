@@ -12,8 +12,8 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { signInEmailConfirmGauzy, signInWorkspaceGauzy } from './auth/invite-accept';
 import { ProviderEnum } from '@/core/services/server/requests/OAuth';
+import { singinService } from './auth/singin.service';
 
 /**
  * Fetches data of the authenticated user with specified relations and the option to include employee details.
@@ -125,7 +125,7 @@ export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 
 export async function signInEmailConfirmAPI(email: string, code: string) {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
-		return signInEmailConfirmGauzy(email, code);
+		return singinService.signInEmailConfirmGauzy(email, code);
 	}
 
 	return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
@@ -143,7 +143,7 @@ export const signInWorkspaceAPI = (params: {
 	lastTeamId?: IOrganizationTeam['id'];
 }) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
-		return signInWorkspaceGauzy({
+		return singinService.signInWorkspaceGauzy({
 			email: params.email,
 			token: params.token,
 			teamId: params.selectedTeam,

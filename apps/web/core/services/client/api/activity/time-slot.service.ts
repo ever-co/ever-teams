@@ -4,7 +4,7 @@ import { ITimerSlotDataRequest } from '@/core/types/interfaces';
 import qs from 'qs';
 
 class TimeSlotsService extends APIService {
-	async getTimeSlots({
+	getTimerLogsRequestAPI = async ({
 		tenantId,
 		organizationId,
 		employeeId,
@@ -16,7 +16,7 @@ class TimeSlotsService extends APIService {
 		employeeId: string;
 		todayEnd: Date;
 		todayStart: Date;
-	}) {
+	}) => {
 		const params = {
 			tenantId: tenantId,
 			organizationId: organizationId,
@@ -38,9 +38,9 @@ class TimeSlotsService extends APIService {
 			: `/timer/slots?${query}`;
 
 		return this.get<ITimerSlotDataRequest | ITimerSlotDataRequest[]>(endpoint);
-	}
+	};
 
-	async deleteTimeSlots({
+	deleteTimeSlots = async ({
 		tenantId,
 		organizationId,
 		ids
@@ -48,7 +48,7 @@ class TimeSlotsService extends APIService {
 		tenantId: string;
 		organizationId: string;
 		ids: string[];
-	}) {
+	}) => {
 		let idParams = '';
 		ids.map((id, i) => {
 			idParams += `&ids[${i}]=${id}`;
@@ -69,7 +69,7 @@ class TimeSlotsService extends APIService {
 			: `/timer/slots?${query}${idParams}`;
 
 		return this.get(endpoint);
-	}
+	};
 }
 
 export const timeSlotsService = new TimeSlotsService(GAUZY_API_BASE_SERVER_URL.value);

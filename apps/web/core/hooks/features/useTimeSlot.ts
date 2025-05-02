@@ -16,13 +16,14 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(timeSlotsService.getTimeSlots);
+	const { loading, queryCall } = useQuery(timeSlotsService.getTimerLogsRequestAPI);
 	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotsService.deleteTimeSlots);
 
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
+		console.log('reererere');
 		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
@@ -31,7 +32,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 				todayEnd,
 				todayStart
 			}).then((response) => {
-				if (response.data && Array.isArray(response.data)) {
+				if (response?.data && Array.isArray(response.data)) {
 					setTimeSlots(response.data[0]?.timeSlots || []);
 				}
 			});

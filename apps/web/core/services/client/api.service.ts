@@ -23,8 +23,6 @@ export abstract class APIService {
 	constructor(baseURL: string) {
 		this.baseURL = baseURL;
 		this.axiosInstance = axios.create({
-			baseURL: this.baseURL,
-			withCredentials: true,
 			timeout: 60 * 1000
 		});
 
@@ -56,7 +54,7 @@ export abstract class APIService {
 	 * @private
 	 */
 	private setupRequestInterceptors(): void {
-		this.axiosInstance.interceptors.response.use(
+		this.axiosInstance.interceptors.request.use(
 			async (config: any) => {
 				const tenantId = getTenantIdCookie();
 				const cookie = getAccessTokenCookie();
