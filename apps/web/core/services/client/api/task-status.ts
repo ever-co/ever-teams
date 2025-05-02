@@ -9,10 +9,16 @@ import { deleteApi, get, post, put, patch } from '../axios';
 import qs from 'qs';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
+
 	return post<ITaskStatusCreate>('/task-statuses', data, {
-		tenantId
+	  tenantId
+	}).then(response => {
+	  return response;
+	}).catch(error => {
+	  console.error('[WEB][createTaskStatusAPI] Error:', error);
+	  throw error;
 	});
-}
+  }
 
 export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?: string) {
 	return put<ITaskStatusCreate>(`/task-statuses/${id}`, data, {

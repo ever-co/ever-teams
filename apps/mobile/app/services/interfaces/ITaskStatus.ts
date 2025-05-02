@@ -16,6 +16,7 @@ export interface ITaskStatusItem {
 }
 
 export interface ITaskStatusCreate {
+	template: string;
 	name: string;
 	description?: string;
 	icon?: string;
