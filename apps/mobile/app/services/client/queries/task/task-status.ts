@@ -35,7 +35,7 @@ const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
  */
 const useFetchAllStatuses = (params: IGetTaskStatusesParams) =>
   useQuery({
-    queryKey: ['statuses'],
+	queryKey: ['statuses', params.organizationId, params.activeTeamId],
     queryFn: () => fetchAllStatuses(params),
     refetchInterval: 62000 // Auto-refresh approximately every minute
   });

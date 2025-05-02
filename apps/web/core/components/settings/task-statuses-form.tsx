@@ -113,7 +113,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					await editTaskStatus(edit.id, {
 						name: values.name,
 						color: values.color,
-						icon: values.icon
+						icon: values.icon,
+						template: values.template || 'blocked' // Add template with fallback
 					});
 					setEdit(null);
 					refetch();

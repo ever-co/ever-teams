@@ -15,6 +15,7 @@ import { ITaskStatusCreate, ITaskStatusItem } from '../../interfaces/ITaskStatus
  */
 export function useTaskStatus() {
   const queryClient = useQueryClient();
+
   const {
     authenticationStore: { authToken, tenantId, organizationId },
     teamStore: { activeTeamId }
@@ -29,7 +30,7 @@ export function useTaskStatus() {
     isLoading,
     isSuccess,
     isRefetching,
-    refetch
+    // refetch
   } = useFetchAllStatuses({
     tenantId,
     organizationId,
@@ -59,7 +60,7 @@ export function useTaskStatus() {
     await updateTaskStatusRequest({
       id,
       tenantId,
-      datas: data,
+      data: data,
       bearer_token: authToken
     });
     queryClient.invalidateQueries({ queryKey: ['statuses'] });
@@ -69,6 +70,7 @@ export function useTaskStatus() {
   const createStatus = useCallback(
     async (data: ITaskStatusCreate) => {
       if (!data || !tenantId || !organizationId || !activeTeamId) {
+		console.error('Required parameters missing: tenantId, organizationId, or activeTeamId is required.');
         return null;
       }
 
@@ -79,10 +81,10 @@ export function useTaskStatus() {
         const requestData = {
           name: cleanName,
           value: cleanName.split(' ').join('-').toLowerCase(),
-          color: data.color.substring(0, 7), // Remove alpha channel if present
+          color: data.color,
           icon: data.icon,
           organizationId: organizationId,
-          organizationTeamId: activeTeamId, // Critical for filter matching
+          organizationTeamId: activeTeamId,
           template: data.template
         };
 
@@ -90,8 +92,7 @@ export function useTaskStatus() {
         const response = await createStatusRequest(requestData, authToken, tenantId);
 
         // Refresh the data immediately
-        queryClient.invalidateQueries({ queryKey: ['statuses'] });
-        await refetch();
+		queryClient.invalidateQueries({ queryKey: ['statuses'] });
 
         return response;
       } catch (error) {
@@ -99,7 +100,7 @@ export function useTaskStatus() {
         throw error;
       }
     },
-    [authToken, tenantId, organizationId, activeTeamId, queryClient, refetch]
+    [authToken, tenantId, organizationId, activeTeamId, queryClient]
   );
 
   return {

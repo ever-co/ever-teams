@@ -36,9 +36,9 @@ const TaskStatusForm = ({
 
   useEffect(() => {
     if (isEdit) {
-      setStatusName(item.value);
-      setStatusColor(item.color);
-      setStatusIcon(item.icon);
+		setStatusName(item?.value);
+		setStatusColor(item?.color);
+		setStatusIcon(item?.icon);
     } else {
       setStatusName(null);
       setStatusColor(null);
