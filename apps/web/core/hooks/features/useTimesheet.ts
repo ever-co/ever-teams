@@ -3,17 +3,11 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
-import {
-	deleteTaskTimesheetLogsApi,
-	getTaskTimesheetLogsApi,
-	updateStatusTimesheetFromApi,
-	createTimesheetFromApi,
-	updateTimesheetFromAPi
-} from '@/core/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 import axios from 'axios';
+import { timerLogsService } from '@/core/services/client/api/timer/timer-log.service';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -209,12 +203,19 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowByStatusAndDate,
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
-	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
-	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
-	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } =
-		useQuery(updateStatusTimesheetFromApi);
-	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi);
-	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(updateTimesheetFromAPi);
+	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timerLogsService.getTaskTimesheetLogsApi);
+	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(
+		timerLogsService.deleteTaskTimesheetLogsApi
+	);
+	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(
+		timerLogsService.updateStatusTimesheetFromApi
+	);
+	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(
+		timerLogsService.createTimesheetFromApi
+	);
+	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(
+		timerLogsService.updateTimesheetFromAPi
+	);
 	const isManage = user && isUserAllowedToAccess(user);
 
 	/**
