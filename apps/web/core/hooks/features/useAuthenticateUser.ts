@@ -3,7 +3,6 @@
 import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { IUser } from '@/core/types/interfaces/IUserData';
-import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@/core/services/client/api/auth';
 import { activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -12,6 +11,7 @@ import { useQuery } from '../useQuery';
 import { useIsMemberManager } from './useTeamMember';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useUserProfilePage } from './useUserProfilePage';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useAtom(userState);
@@ -25,7 +25,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		queryCall: refreshUserQueryCall,
 		loading: refreshUserLoading,
 		loadingRef: refreshUserLoadingRef
-	} = useQuery(getAuthenticatedUserDataAPI);
+	} = useQuery(authService.getAuthenticatedUserDataAPI);
 
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {
@@ -49,7 +49,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
 		window.clearInterval(intervalRt.current);
-		intervalRt.current = window.setInterval(refreshTokenAPI, interval);
+		intervalRt.current = window.setInterval(authService.refreshTokenAPI, interval);
 
 		return () => {
 			window.clearInterval(intervalRt.current);
@@ -57,7 +57,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	}, []);
 
 	const refreshToken = useCallback(async () => {
-		await refreshTokenAPI();
+		await authService.refreshTokenAPI();
 	}, []);
 
 	return {

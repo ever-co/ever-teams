@@ -1,7 +1,6 @@
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { useOrganizationTeams } from '@/core/hooks';
 import { useQuery } from '@/core/hooks/useQuery';
-import { getAuthenticatedUserDataAPI } from '@/core/services/client/api';
 import { userState } from '@/core/stores';
 import { CreateTeamModal } from '@/core/components/features';
 import { JoinTeamModal } from '@/core/components/features/team/join-team-modal';
@@ -9,6 +8,7 @@ import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 type Params = {
 	displayName: string;
@@ -20,7 +20,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useAtom(userState);
-		const { queryCall, loading } = useQuery(getAuthenticatedUserDataAPI);
+		const { queryCall, loading } = useQuery(authService.getAuthenticatedUserDataAPI);
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();

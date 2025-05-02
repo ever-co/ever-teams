@@ -2,19 +2,13 @@
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
-import {
-	sendAuthCodeAPI,
-	signInEmailAPI,
-	signInEmailConfirmAPI,
-	signInWithEmailAndCodeAPI,
-	signInWorkspaceAPI
-} from '@/core/services/client/api';
 import { AxiosError, isAxiosError } from 'axios';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -56,18 +50,19 @@ export function useAuthenticationPasscode() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 	// Queries
-	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(sendAuthCodeAPI);
+	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCodeAPI);
 
-	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(signInEmailAPI);
-	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } =
-		useQuery(signInEmailConfirmAPI);
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmailAPI);
+	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
+		authService.signInEmailConfirmAPI
+	);
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading: infiniteWLoading
-	} = useQuery(signInWorkspaceAPI);
+	} = useQuery(authService.signInWorkspaceAPI);
 
-	const { queryCall, loading, infiniteLoading } = useQuery(signInWithEmailAndCodeAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCodeAPI);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;

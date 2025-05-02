@@ -1,10 +1,10 @@
 'use client';
 
-import { verifyUserEmailByTokenAPI } from '@/core/services/client/api';
 import { AxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 export function useEmailVerifyToken() {
 	const searchParams = useSearchParams();
@@ -15,7 +15,7 @@ export function useEmailVerifyToken() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall, loading, infiniteLoading } = useQuery(verifyUserEmailByTokenAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(authService.verifyUserEmailByTokenAPI);
 
 	/**
 	 * Verify Email by token request
