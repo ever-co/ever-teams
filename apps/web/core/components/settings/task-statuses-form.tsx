@@ -87,15 +87,6 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			console.log('[WEB][TaskStatusesForm] Form submitted with values:', {
-				name: values.name,
-				color: values.color,
-				icon: values.icon,
-				template: values.template,
-				isCreateNew: createNew,
-				isEdit: !!edit
-			});
-
 			if (createNew) {
 				const requestData = {
 					name: values.name,
@@ -107,21 +98,29 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					template: values.template
 				};
 
-				console.log('[WEB][TaskStatusesForm] Creating new status with data:', requestData);
-
 				try {
-					await createTaskStatus(requestData)?.then(() => {
-						console.log('[WEB][TaskStatusesForm] Status created successfully');
-						!formOnly && setCreateNew(false);
-						onCreated && onCreated();
-						refetch();
-						reset();
-					});
+					await createTaskStatus(requestData);
+					!formOnly && setCreateNew(false);
+					onCreated && onCreated();
+					refetch();
+					reset();
 				} catch (error) {
 					console.error('[WEB][TaskStatusesForm] Error creating status:', error);
 				}
 			}
-			// Rest of your edit logic...
+			if (edit) {
+				try {
+					await editTaskStatus(edit.id, {
+						name: values.name,
+						color: values.color,
+						icon: values.icon
+					});
+					setEdit(null);
+					refetch();
+				} catch (error) {
+					console.error('[WEB][TaskStatusesForm] Error editing status:', error);
+				}
+			}
 		},
 		[edit, createNew, formOnly, editTaskStatus, onCreated, user, reset, createTaskStatus, refetch]
 	);
