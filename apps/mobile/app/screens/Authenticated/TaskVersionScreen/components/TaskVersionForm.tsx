@@ -34,7 +34,7 @@ const TaskVersionForm = ({
 	}, [item, isEdit]);
 
 	const handleSubmit = async () => {
-				if (!versionName || versionName.trim().length <= 0) {
+		if (!versionName || versionName.trim().length <= 0) {
 			return;
 		}
 
