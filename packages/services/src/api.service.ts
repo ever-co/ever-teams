@@ -11,7 +11,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 export abstract class APIService {
 	protected readonly baseURL: string;
 	protected readonly axiosInstance: AxiosInstance;
-
+	protected params: object = {};
 	/**
 	 * Initializes a new instance of the APIService.
 	 *
@@ -52,7 +52,9 @@ export abstract class APIService {
 	 * @param {any} error - The error object from Axios response.
 	 * @private
 	 */
-	private handleUnauthorized(error: any) {}
+	private handleUnauthorized(error: any) {
+		console.log('Unauthorized', error);
+	}
 
 	/**
 	 * Sends a GET request.
@@ -66,6 +68,9 @@ export abstract class APIService {
 			...config,
 			params,
 		});
+	}
+	defineParams(params: object) {
+		this.params = params;
 	}
 
 	/**

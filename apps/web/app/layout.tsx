@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 
 import '@/styles/globals.css';
+import '@ever-teams/ui/styles.css';
 
 type Props = {
 	children: ReactNode;

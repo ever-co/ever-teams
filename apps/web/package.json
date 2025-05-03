@@ -165,6 +165,7 @@
 		"postcss": "^8.4.19",
 		"tailwindcss": "^3.4.1",
 		"tailwindcss-animate": "^1.0.6",
+		"@next/bundle-analyzer": "^15.3.1",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ts-config": "*",
 		"typescript": "^4.9.4"
