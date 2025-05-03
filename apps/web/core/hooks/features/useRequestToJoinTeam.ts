@@ -1,30 +1,31 @@
 import { IRequestToJoinActionEnum, IRequestToJoinCreate, IValidateRequestToJoin } from '@/core/types/interfaces';
-import {
-	requestToJoinAPI,
-	validateRequestToJoinAPI,
-	resendCodeRequestToJoinAPI,
-	getRequestToJoinAPI,
-	acceptRejectRequestToJoinAPI
-} from '@/core/services/client/api';
 import { requestToJoinState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 
 import { useQuery } from '../useQuery';
+import { requestToJoinTeamService } from '../../services/client/api';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
 
-	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(requestToJoinAPI);
-	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } =
-		useQuery(validateRequestToJoinAPI);
-	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } =
-		useQuery(resendCodeRequestToJoinAPI);
+	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(
+		requestToJoinTeamService.requestToJoinAPI
+	);
+	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQuery(
+		requestToJoinTeamService.validateRequestToJoinAPI
+	);
+	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQuery(
+		requestToJoinTeamService.resendCodeRequestToJoinAPI
+	);
 
-	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(getRequestToJoinAPI);
+	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(
+		requestToJoinTeamService.getRequestToJoinAPI
+	);
 
-	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } =
-		useQuery(acceptRejectRequestToJoinAPI);
+	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQuery(
+		requestToJoinTeamService.acceptRejectRequestToJoinAPI
+	);
 
 	const getRequestToJoin = useCallback(() => {
 		return getRequestToJoinQueryCall().then((res) => {
