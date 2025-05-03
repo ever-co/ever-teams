@@ -21,6 +21,7 @@
 		"isomorphic-dompurify": "^2.16.0",
 		"lodash": "^4.17.21",
 		"react": "^ 19.1.0",
+		"@ever-teams/constants": "*",
 		"tailwind-merge": "^2.5.5",
 		"zxcvbn": "^4.4.2"
 	},
