@@ -10,7 +10,7 @@ export * from './task-status';
 export * from './task-version';
 export * from './task-priorities';
 export * from './task-sizes';
-export * from './task-labels';
+export * from './task-label';
 export * from './issue-type';
 export * from './task-related-issue-type';
 export * from './daily-plan';
@@ -18,13 +18,13 @@ export * from './daily-plan';
 export * from './user';
 export * from './request-to-join-team';
 export * from './employee';
-export * from './roles';
+export * from './role';
 export * from './role-permission';
 export * from './task-linked-issue';
 export * from './meet-auth';
 
-export * from './integrations';
-export * from './integrations/types';
+export * from './integration';
+export * from './integration/types';
 
 export * from './organization-project';
 export * from './default';
