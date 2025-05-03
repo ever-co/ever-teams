@@ -9,7 +9,7 @@ export * from './language';
 export * from './task-status';
 export * from './task-version';
 export * from './task-priority';
-export * from './task-sizes';
+export * from './task-size';
 export * from './task-label';
 export * from './issue-type';
 export * from './task-related-issue-type';
