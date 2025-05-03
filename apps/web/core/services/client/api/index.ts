@@ -30,4 +30,3 @@ export * from './organization-projects';
 export * from './default';
 export * from './projects';
 export * from './tags';
-export * from './currency';
