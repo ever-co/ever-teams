@@ -23,9 +23,9 @@ import {
 } from '@/core/types/interfaces';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
-import { createOrganizationTeamGauzy } from '../organization-team';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
+import { organizationTeamService } from '../organization-team';
 
 class RegiterService extends APIService {
 	protected registerDefaultValue = {
@@ -152,7 +152,7 @@ class RegiterService extends APIService {
 			auth_token
 		);
 
-		const { data: team } = await createOrganizationTeamGauzy(
+		const { data: team } = await organizationTeamService.createOrganizationTeamGauzy(
 			{
 				name: body.team,
 				tenantId: tenant.id,

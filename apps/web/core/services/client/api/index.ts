@@ -29,3 +29,4 @@ export * from './integrations/types';
 export * from './organization-project';
 export * from './default';
 export * from './tags';
+export * from './organization-team-employee';

@@ -2,10 +2,10 @@ import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfa
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
-import { editEmployeeOrderOrganizationTeamAPI } from '@/core/services/client/api';
+import { organizationTeamService } from '@/core/services/client/api';
 import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
-import { organizationTeamEmployeeService } from '@/core/services/client/api/organization-team-employee/organization-team-employee.service';
+import { organizationTeamEmployeeService } from '@/core/services/client/api';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
@@ -20,7 +20,7 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQuery(
-		editEmployeeOrderOrganizationTeamAPI
+		organizationTeamService.editEmployeeOrderOrganizationTeamAPI
 	);
 
 	const {
