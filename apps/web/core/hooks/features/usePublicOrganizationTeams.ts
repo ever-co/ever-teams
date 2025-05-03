@@ -1,8 +1,4 @@
 import { ITeamTask } from '@/core/types/interfaces';
-import {
-	getPublicOrganizationTeamsAPI,
-	getPublicOrganizationTeamsMiscDataAPI
-} from '@/core/services/client/api/public-organization-team';
 import { publicactiveTeamState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
@@ -15,10 +11,13 @@ import { useTaskPriorities } from './useTaskPriorities';
 import { useTaskSizes } from './useTaskSizes';
 import { useTaskStatus } from './useTaskStatus';
 import { useTeamTasks } from './useTeamTasks';
+import { publicOrganizationTeamService } from '../../services/client/api';
 
 export function usePublicOrganizationTeams() {
-	const { loading, queryCall, loadingRef } = useQuery(getPublicOrganizationTeamsAPI);
-	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
+	const { loading, queryCall, loadingRef } = useQuery(publicOrganizationTeamService.getPublicOrganizationTeams);
+	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(
+		publicOrganizationTeamService.getPublicOrganizationTeamsMiscData
+	);
 	const { activeTeam, teams, setTeams, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
 	const { setTaskStatuses } = useTaskStatus();

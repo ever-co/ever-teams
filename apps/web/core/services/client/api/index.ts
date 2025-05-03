@@ -30,3 +30,4 @@ export * from './organization-project';
 export * from './default';
 export * from './tags';
 export * from './organization-team-employee';
+export * from './public-organization-team';
