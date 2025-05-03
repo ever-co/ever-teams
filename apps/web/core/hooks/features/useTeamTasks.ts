@@ -16,8 +16,7 @@ import {
 	deleteEmployeeFromTasksAPI,
 	getTasksByIdAPI,
 	getTasksByEmployeeIdAPI,
-	getAllDayPlansAPI,
-	getMyDailyPlansAPI
+	dailyPlanService
 } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -114,8 +113,8 @@ export function useTeamTasks() {
 
 	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(updateTaskAPI);
 
-	const { queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
-	const { queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
+	const { queryCall: getAllQueryCall } = useQuery(dailyPlanService.getAllDayPlansAPI);
+	const { queryCall: getMyDailyPlansQueryCall } = useQuery(dailyPlanService.getMyDailyPlansAPI);
 
 	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } =
 		useQuery(deleteEmployeeFromTasksAPI);
