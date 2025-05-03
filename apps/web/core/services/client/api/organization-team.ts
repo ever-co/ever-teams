@@ -13,8 +13,8 @@ import moment from 'moment';
 import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { createOrganizationProjectAPI } from './projects';
 import qs from 'qs';
+import { organizationProjectService } from './organization-project';
 
 /**
  * Fetches a list of teams for a specified organization.
@@ -51,7 +51,7 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 }
 
 export async function createOrganizationTeamGauzy(datas: IOrganizationTeamCreate, bearer_token: string) {
-	const project = await createOrganizationProjectAPI({
+	const project = await organizationProjectService.createOrganizationProject({
 		name: datas.name,
 		tenantId: datas.tenantId,
 		organizationId: datas.organizationId

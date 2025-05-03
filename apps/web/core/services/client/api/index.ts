@@ -26,7 +26,6 @@ export * from './meet-auth';
 export * from './integrations';
 export * from './integrations/types';
 
-export * from './organization-projects';
+export * from './organization-project';
 export * from './default';
-export * from './projects';
 export * from './tags';

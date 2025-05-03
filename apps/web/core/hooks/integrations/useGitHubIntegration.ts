@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { IProjectRepository } from '@/core/types/interfaces';
-import { editOrganizationProjectSettingAPI, githubService } from '@/core/services/client/api';
+import { githubService, organizationProjectService } from '@/core/services/client/api';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);
@@ -83,7 +83,7 @@ export function useGitHubIntegration() {
 				repository
 			}).then((response) => {
 				if (response.data.id) {
-					editOrganizationProjectSettingAPI(
+					organizationProjectService.editOrganizationProjectSetting(
 						projectId,
 						{
 							tenantId,
