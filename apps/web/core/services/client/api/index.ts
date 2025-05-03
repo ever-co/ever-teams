@@ -28,6 +28,6 @@ export * from './integration/types';
 
 export * from './organization-project';
 export * from './default';
-export * from './tags';
+export * from './tag';
 export * from './organization-team-employee';
 export * from './public-organization-team';
