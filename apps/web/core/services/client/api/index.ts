@@ -1,5 +1,5 @@
 export * from './organization-team';
-export * from './tasks';
+export * from './task';
 export * from './invite';
 export * from './user-setting';
 export * from './email-reset';
