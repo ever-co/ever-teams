@@ -2,12 +2,6 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ITaskVersionCreate } from '@/core/types/interfaces';
-import {
-	createTaskVersionAPI,
-	getTaskVersionList,
-	deleteTaskVersionAPI,
-	editTaskVersionAPI
-} from '@/core/services/client/api';
 import { userState, taskVersionFetchingState, taskVersionListState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -15,15 +9,20 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
+import { taskVersionService } from '@/core/services/client/api';
 
 export function useTaskVersion() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskVersionList);
-	const { loading: createTaskVersionLoading, queryCall: createQueryCall } = useQuery(createTaskVersionAPI);
-	const { loading: deleteTaskVersionLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskVersionAPI);
-	const { loading: editTaskVersionLoading, queryCall: editQueryCall } = useQuery(editTaskVersionAPI);
+	const { loading, queryCall } = useQuery(taskVersionService.getTaskVersionList);
+	const { loading: createTaskVersionLoading, queryCall: createQueryCall } = useQuery(
+		taskVersionService.createTaskVersion
+	);
+	const { loading: deleteTaskVersionLoading, queryCall: deleteQueryCall } = useQuery(
+		taskVersionService.deleteTaskVersion
+	);
+	const { loading: editTaskVersionLoading, queryCall: editQueryCall } = useQuery(taskVersionService.editTaskVersion);
 
 	const [taskVersion, setTaskVersion] = useAtom(taskVersionListState);
 
