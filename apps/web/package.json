@@ -138,6 +138,7 @@
 		"sonner": "^2.0.3",
 		"string-to-color": "^2.2.2",
 		"tailwind-merge": "^1.14.0",
+		"@next/bundle-analyzer": "^15.3.1",
 		"zod": "^3.23.8",
 		"@ever-teams/constants": "*",
 		"@ever-teams/hooks": "*",

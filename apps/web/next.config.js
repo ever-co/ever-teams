@@ -3,7 +3,9 @@
 const path = require('path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
-
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+	enabled: process.env.ANALYZE === 'true'
+});
 const isProduction = process.env.NODE_ENV === 'production';
 
 const isSentryEnabled = isProduction && process.env.SENTRY_DSN;
@@ -44,6 +46,17 @@ const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
 	reactStrictMode: false,
+	experimental: {
+		optimizePackageImports: [
+			'geist',
+			'@ever-teams/constants',
+			'@ever-teams/hooks',
+			'@ever-teams/services',
+			'@ever-teams/types',
+			'@ever-teams/utils',
+			'@ever-teams/ui'
+		]
+	},
 	transpilePackages: [
 		'geist',
 		'@ever-teams/constants',
@@ -51,7 +64,10 @@ const nextConfig = {
 		'@ever-teams/services',
 		'@ever-teams/types',
 		'@ever-teams/utils',
-		'@ever-teams/ui'
+		'@ever-teams/ui',
+		'@radix-ui/react-icons',
+		'react-icons',
+		'@heroicons/react'
 	],
 	...eslintBuildConfig,
 	webpack: (config, { isServer }) => {
@@ -252,7 +268,8 @@ const nextConfig = {
 		TERMS_LINK: process.env.TERMS_LINK,
 		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
 		MAIN_PICTURE: process.env.MAIN_PICTURE,
-		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK
+		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK,
+		ANALYZE: process.env.ANALYZE
 	},
 	...sentryConfig
 };
@@ -276,5 +293,5 @@ const sentryWebpackPluginOptions = {
 // Make sure adding Sentry options is the last code to run before exporting
 module.exports =
 	process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN
-		? withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions)
-		: withNextIntl(nextConfig);
+		? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
+		: withNextIntl(withBundleAnalyzer(nextConfig));
