@@ -69,3 +69,8 @@ export interface ISigninEmailConfirmResponse {
 	status?: number;
 	defaultTeamId?: string;
 }
+
+export interface IMeetAuthRequest {
+	room?: string;
+	tenant?: string;
+}
