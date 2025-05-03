@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
-import { createTaskLinkedIsssueAPI } from '@/core/services/client/api';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Card, Modal, SpinnerLoader, Text } from '@/core/components';
@@ -11,6 +10,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
+import { taskLinkedIssueService } from '@/core/services/client/api';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -107,7 +107,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
-	const { queryCall } = useQuery(createTaskLinkedIsssueAPI);
+	const { queryCall } = useQuery(taskLinkedIssueService.createTaskLinkedIsssue);
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
