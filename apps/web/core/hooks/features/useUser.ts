@@ -1,14 +1,14 @@
-import { deleteUserAPI, resetUserAPI } from '@/core/services/client/api';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { userService } from '@/core/services/client/api';
 
 export const useUser = () => {
 	const { user, logOut } = useAuthenticateUser();
 
-	const { loading: deleteUserLoading, queryCall: deleteQueryCall } = useQuery(deleteUserAPI);
+	const { loading: deleteUserLoading, queryCall: deleteQueryCall } = useQuery(userService.deleteUser);
 
-	const { loading: resetUserLoading, queryCall: resetQueryCall } = useQuery(resetUserAPI);
+	const { loading: resetUserLoading, queryCall: resetQueryCall } = useQuery(userService.resetUser);
 
 	const deleteUser = useCallback(() => {
 		if (user) {
