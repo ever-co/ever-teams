@@ -2,7 +2,6 @@
 
 import { APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
 import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
-import { getLanguageListAPI } from '@/core/services/client/api';
 import {
 	activeLanguageIdState,
 	activeLanguageState,
@@ -15,10 +14,11 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useLanguage } from '../useLanguage';
 import { useQuery } from '../useQuery';
+import { languageService } from '@/core/services/client/api';
 
 export function useLanguageSettings() {
 	const [user] = useAtom(userState);
-	const { loading, queryCall } = useQuery(getLanguageListAPI);
+	const { loading, queryCall } = useQuery(languageService.getLanguages);
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);

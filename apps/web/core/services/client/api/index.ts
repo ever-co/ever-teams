@@ -4,7 +4,7 @@ export * from './invite';
 export * from './settings';
 export * from './email-reset';
 
-export * from './languages';
+export * from './language';
 
 export * from './task-status';
 export * from './task-version';
