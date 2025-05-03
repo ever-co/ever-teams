@@ -1,26 +1,22 @@
 import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces';
-import {
-	deleteOrganizationEmployeeTeamAPI,
-	updateOrganizationEmployeeTeamAPI,
-	updateOrganizationTeamEmployeeActiveTaskAPI
-} from '@/core/services/client/api/organization-team-employee';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { editEmployeeOrderOrganizationTeamAPI } from '@/core/services/client/api';
 import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
+import { organizationTeamEmployeeService } from '@/core/services/client/api/organization-team-employee/organization-team-employee.service';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
 	const [user] = useAtom(userState);
 
 	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQuery(
-		deleteOrganizationEmployeeTeamAPI
+		organizationTeamEmployeeService.deleteOrganizationEmployeeTeam
 	);
 
 	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQuery(
-		updateOrganizationEmployeeTeamAPI
+		organizationTeamEmployeeService.updateOrganizationEmployeeTeam
 	);
 
 	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQuery(
@@ -30,7 +26,7 @@ export function useOrganizationEmployeeTeams() {
 	const {
 		loading: updateOrganizationTeamEmployeeActiveTaskLoading,
 		queryCall: updateOrganizationTeamEmployeeActiveTaskQueryCall
-	} = useQuery(updateOrganizationTeamEmployeeActiveTaskAPI);
+	} = useQuery(organizationTeamEmployeeService.updateOrganizationTeamEmployeeActiveTask);
 
 	const deleteOrganizationTeamEmployee = useCallback(
 		({
