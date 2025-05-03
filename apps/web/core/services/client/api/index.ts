@@ -8,7 +8,7 @@ export * from './language';
 
 export * from './task-status';
 export * from './task-version';
-export * from './task-priorities';
+export * from './task-priority';
 export * from './task-sizes';
 export * from './task-label';
 export * from './issue-type';
