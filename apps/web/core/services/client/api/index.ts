@@ -19,7 +19,7 @@ export * from './user';
 export * from './request-to-join-team';
 export * from './employee';
 export * from './roles';
-export * from './role-permissions';
+export * from './role-permission';
 export * from './task-linked-issue';
 export * from './meet-auth';
 
