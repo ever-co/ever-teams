@@ -44,7 +44,15 @@ const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
 	reactStrictMode: false,
-	transpilePackages: ['geist'],
+	transpilePackages: [
+		'geist',
+		'@ever-teams/constants',
+		'@ever-teams/hooks',
+		'@ever-teams/services',
+		'@ever-teams/types',
+		'@ever-teams/utils',
+		'@ever-teams/ui'
+	],
 	...eslintBuildConfig,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');

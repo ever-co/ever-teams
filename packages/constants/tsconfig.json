@@ -1,0 +1,23 @@
+{
+    "extends": "@ever-teams/ts-config/base.json",
+    "compilerOptions": {
+        "target": "ES2016",
+        "module": "ESNext",
+        "declaration": true,
+        "declarationMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "types": [
+            "node"
+        ],
+        "strict": true,
+        "emitDecoratorMetadata": false,
+        "experimentalDecorators": false,
+    },
+    "include": [
+        "src"
+    ]
+}

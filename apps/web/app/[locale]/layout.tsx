@@ -2,8 +2,7 @@
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
-import clsx from 'clsx';
-import { Provider } from 'jotai';
+import { Provider as JotaiProvider } from 'jotai';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
 import { JitsuRoot } from '@/core/components/settings/JitsuRoot';
 import { NextIntlClientProvider } from 'next-intl';
@@ -18,6 +17,7 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
 import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
+import { cn } from '@ever-teams/ui';
 
 interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;
@@ -61,6 +61,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const { isApiWork, loading } = useCheckAPI();
+
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 	const formatTitle = (url: string) => {
@@ -98,7 +99,6 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	};
 
 	const name = searchParams?.get('name');
-
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`@/locales/${locale}.json`);
 
@@ -129,14 +129,14 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
 				<PHProvider>
 					<body
-						className={clsx(
+						className={cn(
 							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-100 antialiased '
 						)}
 					>
 						<PostHogPageView />
 
 						<NextAuthSessionProvider>
-							<Provider>
+							<JotaiProvider>
 								<ThemeProvider
 									attribute="class"
 									defaultTheme="system"
@@ -147,7 +147,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 										<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
 									</OfflineWrapper>
 								</ThemeProvider>
-							</Provider>
+							</JotaiProvider>
 						</NextAuthSessionProvider>
 					</body>
 				</PHProvider>

@@ -4,5 +4,21 @@
 	"license": "AGPL-3.0",
 	"private": true,
 	"main": "./src/index.ts",
-	"types": "./src/index.d.ts"
+	"types": "./src/index.d.ts",
+	"scripts": {
+		"build": "tsup ./src/index.ts --format esm,cjs --dts --external react --minify",
+		"lint": "eslint src --ext .ts",
+		"dev": "tsc --project tsconfig.json --traceResolution --watch",
+		"lint:errors": "eslint src --ext .ts --quiet"
+	},
+	"dependencies": {
+		"@ever-teams/constants": "*",
+		"tsup": "^8.4.0",
+		"typescript": "^5.3.3"
+	},
+	"devDependencies": {
+		"@ever-teams/eslint-config": "*",
+		"@types/node": "^20.12.2",
+		"@types/react": "^19.1.2"
+	}
 }
