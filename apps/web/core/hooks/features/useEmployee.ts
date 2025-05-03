@@ -1,4 +1,3 @@
-import { getWorkingEmployeesAPI, updateEmployeeAPI } from '@/core/services/client/api';
 import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores/employee';
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
@@ -7,6 +6,7 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { IUpdateEmployee } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
+import { employeeService } from '../../services/client/api/employee';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
@@ -14,8 +14,9 @@ export const useEmployee = () => {
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
 	const { firstLoad, firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
-	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } =
-		useQuery(getWorkingEmployeesAPI);
+	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQuery(
+		employeeService.getWorkingEmployeesAPI
+	);
 
 	const getWorkingEmployee = useCallback(() => {
 		if (!user?.tenantId) {
@@ -47,7 +48,7 @@ export const useEmployee = () => {
 };
 
 export const useEmployeeUpdate = () => {
-	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(updateEmployeeAPI);
+	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(employeeService.updateEmployeeAPI);
 
 	const updateEmployee = useCallback(
 		({ id, data }: { id: string; data: IUpdateEmployee }) => {
