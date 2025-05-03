@@ -56,7 +56,10 @@ export function useTaskStatus() {
 		async (data: ITaskStatusCreate) => {
 			try {
 				if (tenantId) {
-					const res = await createQueryCall({ ...data, organizationTeamId: activeTeamId }, tenantId);
+					const requestData = { ...data, organizationTeamId: activeTeamId };
+
+					const res = await createQueryCall(requestData, tenantId);
+
 					return res;
 				} else {
 					throw Error(
@@ -64,10 +67,10 @@ export function useTaskStatus() {
 					);
 				}
 			} catch (error) {
-				console.error('Failed to create task status:', error);
+				console.error('[WEB][useTaskStatus] Failed to create task status:', error);
+				throw error;
 			}
 		},
-
 		[tenantId, createQueryCall, activeTeamId]
 	);
 
