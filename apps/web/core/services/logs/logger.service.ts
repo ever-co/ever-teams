@@ -122,7 +122,7 @@ export class Logger {
 		}
 
 		// Log to a file if we are not in a browser environment
-		if (this.isServer()) {
+		if (Logger.isServer()) {
 			this.logToFile(logEntry);
 		}
 	}
@@ -157,6 +157,16 @@ export class Logger {
 	}
 
 	/**
+	 * Append a log entry to a file
+	 */
+	private appendToLogFile(filename: string, logEntry: LogEntry): void {
+		const filePath = path.join(this.config.logDir, filename);
+		const logString = JSON.stringify(logEntry, null, 2) + '\n';
+
+		fs.appendFileSync(filePath, logString, { encoding: 'utf8' });
+	}
+
+	/**
 	 * Log a message to a file
 	 */
 	private logToFile(logEntry: LogEntry): void {
@@ -167,9 +177,15 @@ export class Logger {
 			// Create the filename based on the date
 			let filename: string;
 			if (this.config.dateFormat === 'hourly') {
-				filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${String(date.getHours()).padStart(2, '0')}.log`;
+				filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+					2,
+					'0'
+				)}-${String(date.getDate()).padStart(2, '0')}-${String(date.getHours()).padStart(2, '0')}.log`;
 			} else {
-				filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}.log`;
+				filename = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+					2,
+					'0'
+				)}-${String(date.getDate()).padStart(2, '0')}.log`;
 			}
 
 			// Create a specific file for errors if it is an error
@@ -186,20 +202,68 @@ export class Logger {
 	}
 
 	/**
-	 * Append a log entry to a file
+	 * Get the absolute path for a relative directory to the project root
+	 * Compatible with the development and production environments of Next.js
 	 */
-	private appendToLogFile(filename: string, logEntry: LogEntry): void {
-		const filePath = path.join(this.config.logDir, filename);
-		const logString = JSON.stringify(logEntry, null, 2) + '\n';
+	public static getAbsolutePath(relativePath: string): string {
+		if (!Logger.isServer()) {
+			throw new Error('This function can only be called on the server');
+		}
 
-		fs.appendFileSync(filePath, logString, { encoding: 'utf8' });
+		// Determine the project root
+		let rootDir: string;
+
+		// In development, the process runs at the project root
+		// In production with Next.js, the process generally runs in .next/server/
+		if (process.cwd().includes('.next')) {
+			// In production environment
+			rootDir = path.resolve(process.cwd(), '../../');
+		} else {
+			// In development environment
+			rootDir = process.cwd();
+		}
+
+		return path.resolve(rootDir, relativePath);
 	}
 
+	/**
+	 * Create a directory recursively if it does not exist
+	 */
+	public static ensureDirectoryExists(dirPath: string): void {
+		if (!Logger.isServer()) {
+			return; // Nothing to do on the client
+		}
+
+		const absolutePath = Logger.getAbsolutePath(dirPath);
+
+		if (!fs.existsSync(absolutePath)) {
+			try {
+				fs.mkdirSync(absolutePath, { recursive: true });
+			} catch (err) {
+				console.error('[FsUtils] Failed to create directory', absolutePath, err);
+			}
+		}
+	}
+
+	/**
+	 * Append content to an existing file or create it if it does not exist
+	 */
+	public static appendToFile(filePath: string, content: string, encoding: BufferEncoding = 'utf8'): void {
+		if (!Logger.isServer()) {
+			return; // Nothing to do on the client
+		}
+
+		const absolutePath = Logger.getAbsolutePath(filePath);
+		const dirPath = path.dirname(absolutePath);
+
+		Logger.ensureDirectoryExists(dirPath);
+		fs.appendFileSync(absolutePath, content, { encoding });
+	}
 	/**
 	 * Ensure that the log directory exists
 	 */
 	private ensureLogDirExists(): void {
-		if (this.isServer()) {
+		if (Logger.isServer()) {
 			try {
 				if (!fs.existsSync(this.config.logDir)) {
 					fs.mkdirSync(this.config.logDir, { recursive: true });
@@ -211,12 +275,12 @@ export class Logger {
 	}
 
 	/**
-	 * Check if the code is running on the server or the client
+	 * @description Check if the code is running in a server or client environment
 	 */
-	private isServer(): boolean {
+
+	public static isServer(): boolean {
 		return typeof window === 'undefined';
 	}
-
 	/**
 	 * Sanitize the details to avoid serialization errors
 	 */
