@@ -94,6 +94,7 @@ export const AxiosErrorDetails: Record<string, AxiosErrorInfo> = {
  * @class ApiErrorService
  * @extends {Error}
  */
+
 export class ApiErrorService extends Error {
 	/**
 	 * @description HTTP status of the error (ex: 404, 500)
@@ -200,30 +201,36 @@ export class ApiErrorService extends Error {
 	 */
 	static fromAxiosError<T = any>(error: T | AxiosError<ApiErrorResponse>): ApiErrorService {
 		const errorFrom = error as AxiosError<ApiErrorResponse>;
-		const response = errorFrom?.response;
-		const errorCode = errorFrom?.code || 'ERR_BAD_REQUEST';
-		const info = AxiosErrorDetails[errorCode];
+		const errorCode = errorFrom.code;
+		const response = errorFrom.response;
 
-		const fallbackMessage = info
-			? `Error (${info.label}) – ${info.description} (HTTP ${info.httpCode || 'unknown'})`
-			: `Unknown error (${errorCode})`;
-		const extractStatus = extractHttpCode(fallbackMessage.trim().split('HTTP')?.[1]) ?? 500;
+		let errorStatus = errorFrom.status;
+		let errorMessage = errorFrom.message || `Unknown error (${errorCode})`;
 
-		const statusCode = AxiosErrorStatus[errorCode] ?? response?.status ?? info?.httpCode ?? extractStatus;
+		const extractStatus = extractHttpCode(errorMessage.trim().split('HTTP')?.[1]) ?? 500;
+
+		let statusCode = errorFrom.status ?? response?.status ?? extractStatus;
+		const info =
+			Object.values(AxiosErrorDetails).find((value) => value.httpCode === errorStatus) ||
+			AxiosErrorDetails[errorCode!];
+		if (info) {
+			errorMessage = `Error (${info.label}) – ${info.description} (HTTP ${info.httpCode || 'unknown'})`;
+			statusCode = info.httpCode!;
+		}
+
 		if (!response) {
-			return new ApiErrorService(errorFrom?.message || fallbackMessage, statusCode!);
+			return new ApiErrorService(errorMessage, statusCode!);
 		}
 
 		// We extract the useful infos from it (message, code, details…)
 		const data = response?.data;
-		const message = data?.message || fallbackMessage;
+		const message = data?.message || errorMessage;
 		const code = data?.code;
 		const details = data?.details;
 
 		// We put them in our ApiError box
 		return new ApiErrorService(message, statusCode, code, details);
 	}
-
 	/**
 	 * @description Checks if a given error is an instance of ApiErrorService
 	 */
