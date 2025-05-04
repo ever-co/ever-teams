@@ -215,7 +215,7 @@ export class Logger {
 
 		// In development, the process runs at the project root
 		// In production with Next.js, the process generally runs in .next/server/
-		if (process.cwd().includes('.next')) {
+		if (Logger.isProjectRootDir(process.cwd())) {
 			// In production environment
 			rootDir = path.resolve(process.cwd(), '../../');
 		} else {
@@ -224,6 +224,14 @@ export class Logger {
 		}
 
 		return path.resolve(rootDir, relativePath);
+	}
+
+	private static isProjectRootDir(dir: string): boolean {
+		return (
+			fs.existsSync(path.join(dir, 'package.json')) ||
+			fs.existsSync(path.join(dir, 'next.config.js')) ||
+			fs.existsSync(path.join(dir, '.next'))
+		);
 	}
 
 	/**
