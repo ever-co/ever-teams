@@ -15,7 +15,7 @@ export function useEmailVerifyToken() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.verifyUserEmailByTokenAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(authService.verifyUserEmailByToken);
 
 	/**
 	 * Verify Email by token request

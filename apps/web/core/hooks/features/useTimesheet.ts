@@ -203,18 +203,18 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowByStatusAndDate,
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
-	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timerLogsService.getTaskTimesheetLogsApi);
+	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timerLogsService.getTaskTimesheetLogs);
 	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(
-		timerLogsService.deleteTaskTimesheetLogsApi
+		timerLogsService.deleteTaskTimesheetLogs
 	);
 	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(
-		timerLogsService.updateStatusTimesheetFromApi
+		timerLogsService.updateStatusTimesheetFrom
 	);
 	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(
-		timerLogsService.createTimesheetFromApi
+		timerLogsService.createTimesheetFrom
 	);
 	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(
-		timerLogsService.updateTimesheetFromAPi
+		timerLogsService.updateTimesheetFrom
 	);
 	const isManage = user && isUserAllowedToAccess(user);
 

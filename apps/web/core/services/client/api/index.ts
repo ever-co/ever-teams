@@ -24,7 +24,6 @@ export * from './task-linked-issue';
 export * from './meet-auth';
 
 export * from './integration';
-export * from './integration/types';
 
 export * from './organization-project';
 export * from './default';

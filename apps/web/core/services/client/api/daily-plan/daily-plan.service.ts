@@ -14,7 +14,7 @@ import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class DailyPlanService extends APIService {
-	getAllDayPlansAPI = async (activeTeamId?: ID) => {
+	getAllDayPlans = async (activeTeamId?: ID) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const organizationTeamId = getActiveTeamIdCookie();
@@ -35,7 +35,7 @@ class DailyPlanService extends APIService {
 		return this.get<PaginationResponse<IDailyPlan>>(`/daily-plan?${query}`, { tenantId });
 	};
 
-	getMyDailyPlansAPI = async (activeTeamId?: ID) => {
+	getMyDailyPlans = async (activeTeamId?: ID) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const organizationTeamId = getActiveTeamIdCookie();
@@ -56,7 +56,7 @@ class DailyPlanService extends APIService {
 		return this.get<PaginationResponse<IDailyPlan>>(`/daily-plan/me?${query}`, { tenantId });
 	};
 
-	getDayPlansByEmployeeAPI = async (employeeId?: string, activeTeamId?: ID) => {
+	getDayPlansByEmployee = async (employeeId?: string, activeTeamId?: ID) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const organizationTeamId = getActiveTeamIdCookie();
@@ -77,7 +77,7 @@ class DailyPlanService extends APIService {
 		return this.get<PaginationResponse<IDailyPlan>>(`/daily-plan/employee/${employeeId}?${query}`, { tenantId });
 	};
 
-	getPlansByTaskAPI = async (taskId?: string) => {
+	getPlansByTask = async (taskId?: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const organizationTeamId = getActiveTeamIdCookie();
@@ -93,36 +93,36 @@ class DailyPlanService extends APIService {
 		return this.get<PaginationResponse<IDailyPlan>>(`/daily-plan/task/${taskId}?${query}`, { tenantId });
 	};
 
-	createDailyPlanAPI = async (data: ICreateDailyPlan, tenantId?: string) => {
+	createDailyPlan = async (data: ICreateDailyPlan, tenantId?: string) => {
 		return this.post<IDailyPlan>('/daily-plan', data, {
 			tenantId
 		});
 	};
 
-	updateDailyPlanAPI = async (data: IUpdateDailyPlan, planId: string) => {
+	updateDailyPlan = async (data: IUpdateDailyPlan, planId: string) => {
 		return this.put<IDailyPlan>(`/daily-plan/${planId}`, data, {});
 	};
 
-	addTaskToPlanAPI = async (data: IDailyPlanTasksUpdate, planId: string) => {
+	addTaskToPlan = async (data: IDailyPlanTasksUpdate, planId: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
 		return this.post<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 	};
 
-	removeTaskFromPlanAPI = async (data: IDailyPlanTasksUpdate, planId: string) => {
+	removeTaskFromPlan = async (data: IDailyPlanTasksUpdate, planId: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
 		return this.put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 	};
 
-	removeManyTaskFromPlansAPI = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) => {
+	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) => {
 		const organizationId = getOrganizationIdCookie();
 		return this.put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 	};
 
-	deleteDailyPlanAPI = async (planId: string) => {
+	deleteDailyPlan = async (planId: string) => {
 		return this.delete<DeleteResponse>(`/daily-plan/${planId}`);
 	};
 }

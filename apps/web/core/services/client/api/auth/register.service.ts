@@ -27,14 +27,14 @@ import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
 import { organizationTeamService } from '../organization-team';
 
-class RegiterService extends APIService {
+class RegisterService extends APIService {
 	protected registerDefaultValue = {
 		appName: APP_NAME,
 		appSignature: APP_SIGNATURE,
 		appLogo: APP_LOGO_URL
 	};
 
-	registerUserAPI = async (data: IRegisterDataRequest) => {
+	registerUser = async (data: IRegisterDataRequest) => {
 		const body = {
 			...data,
 			...this.registerDefaultValue,
@@ -44,11 +44,11 @@ class RegiterService extends APIService {
 		return this.post<IUser>('/auth/register', body).then(({ data }) => data);
 	};
 
-	loginUserAPI = async (email: string, password: string) => {
+	loginUser = async (email: string, password: string) => {
 		return this.post<ILoginResponse>('/auth/login', { email, password }).then(({ data }) => data);
 	};
 
-	createTenantAPI = async (name: string, bearer_token: string) => {
+	createTenant = async (name: string, bearer_token: string) => {
 		return this.post<ITenant>(
 			'/tenant',
 			{ name },
@@ -58,7 +58,7 @@ class RegiterService extends APIService {
 		).then(({ data }) => data);
 	};
 
-	createTenantSmtpAPI = ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
+	createTenantSmtp = async ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
 		const config = smtpConfiguration();
 
 		console.log(`SMTP Config: ${JSON.stringify(config)}`);
@@ -69,13 +69,13 @@ class RegiterService extends APIService {
 		});
 	};
 
-	createOrganizationAPI = async (datas: IOrganizationCreate, bearer_token: string) => {
+	createOrganization = async (datas: IOrganizationCreate, bearer_token: string) => {
 		return this.post<IOrganization>('/organization', datas, {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
 	};
 
-	createEmployeeFromUserAPI = async (data: ICreateEmployee, bearer_token: string) => {
+	createEmployeeFromUser = async (data: ICreateEmployee, bearer_token: string) => {
 		const { data: data_1 } = await this.post<IEmployee>('/employee', data, {
 			tenantId: data.tenantId,
 			headers: { Authorization: `Bearer ${bearer_token}` }
@@ -83,7 +83,7 @@ class RegiterService extends APIService {
 		return data_1;
 	};
 
-	refreshTokenAPI = async (refresh_token: string) => {
+	refreshToken = async (refresh_token: string) => {
 		return this.post<{ token: string }>('/auth/refresh-token', {
 			refresh_token
 		}).then(({ data }) => data);
@@ -105,7 +105,7 @@ class RegiterService extends APIService {
 		const password = generateToken(8);
 		const names = body.name.split(' ');
 
-		const user = await this.registerUserAPI({
+		const user = await this.registerUser({
 			password: password,
 			confirmPassword: password,
 			user: {
@@ -118,10 +118,10 @@ class RegiterService extends APIService {
 		});
 
 		// User Login, get the access token
-		const loginRes = await this.loginUserAPI(body.email, password);
+		const loginRes = await this.loginUser(body.email, password);
 		let auth_token = loginRes.token;
 
-		const tenant = await this.createTenantAPI(body.email, auth_token);
+		const tenant = await this.createTenant(body.email, auth_token);
 
 		// TODO: This  should be implemented from Gauzy
 		// Create tenant SMTP
@@ -131,7 +131,7 @@ class RegiterService extends APIService {
 		// });
 
 		// Create user organization
-		const organization = await this.createOrganizationAPI(
+		const organization = await this.createOrganization(
 			{
 				currency: 'USD',
 				name: body.team,
@@ -142,7 +142,7 @@ class RegiterService extends APIService {
 		);
 
 		// Create employee
-		const employee = await this.createEmployeeFromUserAPI(
+		const employee = await this.createEmployeeFromUser(
 			{
 				organizationId: organization.id,
 				startedWorkOn: new Date().toISOString(),
@@ -163,7 +163,7 @@ class RegiterService extends APIService {
 			auth_token
 		);
 
-		const refreshTokenRes = await this.refreshTokenAPI(loginRes.refresh_token);
+		const refreshTokenRes = await this.refreshToken(loginRes.refresh_token);
 		auth_token = refreshTokenRes.token;
 
 		setAuthCookies({
@@ -191,4 +191,4 @@ class RegiterService extends APIService {
 	};
 }
 
-export const registerService = new RegiterService(GAUZY_API_BASE_SERVER_URL.value);
+export const registerService = new RegisterService(GAUZY_API_BASE_SERVER_URL.value);

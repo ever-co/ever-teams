@@ -50,19 +50,19 @@ export function useAuthenticationPasscode() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 	// Queries
-	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCodeAPI);
+	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCode);
 
-	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmailAPI);
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmail);
 	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
-		authService.signInEmailConfirmAPI
+		authService.signInEmailConfirm
 	);
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading: infiniteWLoading
-	} = useQuery(authService.signInWorkspaceAPI);
+	} = useQuery(authService.signInWorkspace);
 
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCodeAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCode);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;

@@ -14,9 +14,7 @@ export function UnverifiedEmail() {
 	const t = useTranslations();
 	const [verified, setVefified] = useState(true);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(
-		authService.resentVerifyUserLinkAPI
-	);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resentVerifyUserLink);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
@@ -80,10 +78,8 @@ export function UnverifiedEmail() {
 }
 
 export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
-	const { loading, queryCall } = useQuery(authService.verifyUserEmailByCodeAPI);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(
-		authService.resentVerifyUserLinkAPI
-	);
+	const { loading, queryCall } = useQuery(authService.verifyUserEmailByCode);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resentVerifyUserLink);
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();

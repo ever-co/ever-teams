@@ -4,7 +4,7 @@ import api from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class MeetAuthService extends APIService {
-	getMeetJwtAuthToken = (params?: IMeetAuthRequest) => {
+	getMeetJwtAuthToken = async (params?: IMeetAuthRequest) => {
 		return api.get<{ token: string }>('/auth/meet/jwt', {
 			params
 		});

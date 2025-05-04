@@ -13,13 +13,9 @@ export function useIssueType() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(issueTypeService.getIssueTypeList);
-	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQuery(
-		issueTypeService.createIssueTypeAPI
-	);
-	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(
-		issueTypeService.deleteIssueTypeAPI
-	);
-	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQuery(issueTypeService.editIssueTypeAPI);
+	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQuery(issueTypeService.createIssueType);
+	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(issueTypeService.deleteIssueType);
+	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQuery(issueTypeService.editIssueType);
 
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
 	const [issueTypeFetching, setIssueTypesFetching] = useAtom(issueTypesFetchingState);

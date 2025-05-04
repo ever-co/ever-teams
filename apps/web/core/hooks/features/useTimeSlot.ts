@@ -16,14 +16,13 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(timeSlotsService.getTimerLogsRequestAPI);
+	const { loading, queryCall } = useQuery(timeSlotsService.getTimerLogsRequest);
 	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotsService.deleteTimeSlots);
 
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
-		console.log('reererere');
 		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',

@@ -34,7 +34,7 @@ export function useAuthenticationSocialLogin() {
 		) => {
 			setSignInWorkspaceLoading(true);
 			singinService
-				.signInWorkspaceAPI({
+				.signInWorkspace({
 					email: signinResult.confirmed_mail,
 					token: workspaces[selectedWorkspace].token,
 					defaultTeamId
@@ -44,7 +44,7 @@ export function useAuthenticationSocialLogin() {
 					const access_token = result.token;
 					const userId = result.user?.id;
 
-					const organizations = await singinService.getUserOrganizationsRequest({
+					const organizations = await singinService.getUserOrganizations({
 						tenantId,
 						userId,
 						token: access_token

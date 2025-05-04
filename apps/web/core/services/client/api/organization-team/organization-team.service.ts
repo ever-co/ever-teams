@@ -25,7 +25,7 @@ class OrganizationTeamService extends APIService {
 	 * @param {string} tenantId The tenant identifier.
 	 * @returns A Promise resolving to a paginated response containing the list of organization teams.
 	 */
-	getOrganizationTeamsAPI = async (organizationId: string, tenantId: string) => {
+	getOrganizationTeams = async (organizationId: string, tenantId: string) => {
 		const relations = [
 			'members',
 			'members.role',
@@ -67,7 +67,7 @@ class OrganizationTeamService extends APIService {
 		});
 	};
 
-	createOrganizationTeamAPI = async (name: string, user: IUser) => {
+	createOrganizationTeam = async (name: string, user: IUser) => {
 		const $name = name.trim();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -86,7 +86,7 @@ class OrganizationTeamService extends APIService {
 				access_token
 			);
 
-			return this.getOrganizationTeamsAPI(organizationId, tenantId);
+			return this.getOrganizationTeams(organizationId, tenantId);
 		}
 
 		return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
@@ -100,7 +100,7 @@ class OrganizationTeamService extends APIService {
 	 * @param {string} tenantId The tenant identifier.
 	 * @returns A Promise resolving to the details of the specified organization team.
 	 */
-	getOrganizationTeamAPI = async (teamId: string, organizationId: string, tenantId: string) => {
+	getOrganizationTeam = async (teamId: string, organizationId: string, tenantId: string) => {
 		const relations = [
 			'members',
 			'members.role',
@@ -132,39 +132,39 @@ class OrganizationTeamService extends APIService {
 		return this.get<IOrganizationTeamList>(endpoint);
 	};
 
-	editOrganizationTeamAPI = async (data: IOrganizationTeamUpdate) => {
+	editOrganizationTeam = async (data: IOrganizationTeamUpdate) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
 		let response = await this.put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			response = await this.getOrganizationTeamAPI(data.id, organizationId, tenantId);
+			response = await this.getOrganizationTeam(data.id, organizationId, tenantId);
 		}
 
 		return response;
 	};
 
-	updateOrganizationTeamAPI = async (teamId: string, data: Partial<IOrganizationTeamUpdate>) => {
+	updateOrganizationTeam = async (teamId: string, data: Partial<IOrganizationTeamUpdate>) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
 		let response = await this.put<IOrganizationTeamList>(`/organization-team/${teamId}`, data);
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			response = await this.getOrganizationTeamAPI(teamId, organizationId, tenantId);
+			response = await this.getOrganizationTeam(teamId, organizationId, tenantId);
 		}
 
 		return response;
 	};
 
-	deleteOrganizationTeamAPI = async (id: string) => {
+	deleteOrganizationTeam = async (id: string) => {
 		const organizationId = getOrganizationIdCookie();
 
 		return this.delete<IOrganizationTeam>(`/organization-team/${id}?organizationId=${organizationId}`);
 	};
 
-	removeEmployeeOrganizationTeamAPI = async (employeeId: string) => {
+	removeEmployeeOrganizationTeam = async (employeeId: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? `/organization-team-employee/${employeeId}`
 			: `/organization-team/employee/${employeeId}`;
@@ -172,7 +172,7 @@ class OrganizationTeamService extends APIService {
 		return this.delete<boolean>(endpoint);
 	};
 
-	editEmployeeOrderOrganizationTeamAPI = async (
+	editEmployeeOrderOrganizationTeam = async (
 		employeeId: string,
 		data: { order: number; organizationTeamId: string; organizationId: string },
 		tenantId?: string
@@ -184,7 +184,7 @@ class OrganizationTeamService extends APIService {
 		return this.put<OT_Member>(endpoint, data, { tenantId });
 	};
 
-	removeUserFromAllTeamAPI = async (userId: string) => {
+	removeUserFromAllTeam = async (userId: string) => {
 		return this.delete<DeleteResponse>(`/organization-team/teams/${userId}`);
 	};
 }

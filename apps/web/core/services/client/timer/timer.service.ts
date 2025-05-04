@@ -11,14 +11,14 @@ import {
 import api from '../axios';
 
 class TimerService extends APIService {
-	getTimerStatusAPI = async (tenantId: string, organizationId: string) => {
+	getTimerStatus = async (tenantId: string, organizationId: string) => {
 		const params = qs.stringify({ tenantId, organizationId });
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params}` : '/timer/status';
 
 		return this.get<ITimerStatus>(endpoint);
 	};
 
-	toggleTimerAPI = async (body: Pick<IToggleTimerParams, 'taskId'>) => {
+	toggleTimer = async (body: Pick<IToggleTimerParams, 'taskId'>) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
@@ -39,13 +39,13 @@ class TimerService extends APIService {
 				organizationId
 			});
 
-			return this.getTimerStatusAPI(tenantId, organizationId);
+			return this.getTimerStatus(tenantId, organizationId);
 		}
 
 		return api.post<ITimerStatus>('/timer/toggle', body);
 	};
 
-	startTimerAPI = async () => {
+	startTimer = async () => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const teamId = getActiveTeamIdCookie();
@@ -62,13 +62,13 @@ class TimerService extends APIService {
 				organizationTeamId: teamId
 			});
 
-			return this.getTimerStatusAPI(tenantId, organizationId);
+			return this.getTimerStatus(tenantId, organizationId);
 		}
 
 		return api.post<ITimerStatus>('/timer/start');
 	};
 
-	stopTimerAPI = async (source: TimerSource) => {
+	stopTimer = async (source: TimerSource) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const taskId = getActiveTaskIdCookie();
@@ -82,7 +82,7 @@ class TimerService extends APIService {
 				organizationId
 			});
 
-			return this.getTimerStatusAPI(tenantId, organizationId);
+			return this.getTimerStatus(tenantId, organizationId);
 		}
 
 		return api.post<ITimerStatus>('/timer/stop', {
@@ -90,7 +90,7 @@ class TimerService extends APIService {
 		});
 	};
 
-	syncTimerAPI = async (source: TimerSource, user: IUser | undefined) => {
+	syncTimer = async (source: TimerSource, user: IUser | undefined) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
@@ -104,7 +104,7 @@ class TimerService extends APIService {
 				duration: 5
 			});
 
-			return this.getTimerStatusAPI(tenantId, organizationId);
+			return this.getTimerStatus(tenantId, organizationId);
 		}
 
 		return api.post<ITimerStatus>('/timer/sync', {

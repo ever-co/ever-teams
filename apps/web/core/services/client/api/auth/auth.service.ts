@@ -28,7 +28,7 @@ class AuthService extends APIService {
 	 *
 	 * @returns A Promise resolving to the IUser object.
 	 */
-	getAuthenticatedUserDataAPI = async () => {
+	getAuthenticatedUserData = async () => {
 		// Define the relations to be included in the request
 		const relations = ['role', 'tenant'];
 
@@ -42,7 +42,7 @@ class AuthService extends APIService {
 		return this.get<IUser>(`/user/me?${query}`);
 	};
 
-	refreshTokenAPI = async () => {
+	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -52,7 +52,7 @@ class AuthService extends APIService {
 
 			setAccessTokenCookie(data.token);
 
-			return this.getAuthenticatedUserDataAPI();
+			return this.getAuthenticatedUserData();
 		}
 
 		return api.post<ILoginResponse>(`/auth/refresh`, {
@@ -60,14 +60,14 @@ class AuthService extends APIService {
 		});
 	};
 
-	signInWithEmailAndCodeAPI = async (email: string, code: string) => {
+	signInWithEmailAndCode = async (email: string, code: string) => {
 		return api.post<ILoginResponse>(`/auth/login`, {
 			email,
 			code
 		});
 	};
 
-	sendAuthCodeAPI = async (email: string) => {
+	sendAuthCode = async (email: string) => {
 		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
 
 		return this.post<{ status: number; message: string }>(`/auth/send-code`, {
@@ -76,14 +76,14 @@ class AuthService extends APIService {
 		});
 	};
 
-	verifyUserEmailByCodeAPI = async (code: string, email: string) => {
+	verifyUserEmailByCode = async (code: string, email: string) => {
 		const tenantId = getTenantIdCookie();
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/code' : `/auth/verify/code`;
 
 		return this.post<ISuccessResponse>(endpoint, { code, tenantId, email });
 	};
 
-	resentVerifyUserLinkAPI = async (user: IUser) => {
+	resentVerifyUserLink = async (user: IUser) => {
 		const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 		const registerDefaultValue = {
 			appName: APP_NAME,
@@ -105,7 +105,7 @@ class AuthService extends APIService {
 		return this.post<ISuccessResponse>(endpoint, body);
 	};
 
-	signInEmailAPI = async (email: string) => {
+	signInEmail = async (email: string) => {
 		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email' : `/auth/signin-email`;
 
@@ -116,26 +116,26 @@ class AuthService extends APIService {
 		});
 	};
 
-	signInEmailPasswordAPI = async (email: string, password: string) => {
+	signInEmailPassword = async (email: string, password: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? '/auth/signin.email.password'
 			: `/auth/signin-email-password`;
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { email, password, includeTeams: true });
 	};
 
-	signInEmailSocialLoginAPI = async (provider: ProviderEnum, access_token: string) => {
+	signInEmailSocialLogin = async (provider: ProviderEnum, access_token: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
 
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
 	};
 
-	verifyUserEmailByTokenAPI = async (email: string, token: string) => {
+	verifyUserEmailByToken = async (email: string, token: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify' : `/auth/verify/token`;
 
 		return this.post<ISuccessResponse>(endpoint, { email, token });
 	};
 
-	signInEmailConfirmAPI = async (email: string, code: string) => {
+	signInEmailConfirm = async (email: string, code: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return singinService.signInEmailConfirmGauzy(email, code);
 		}
@@ -146,7 +146,7 @@ class AuthService extends APIService {
 		});
 	};
 
-	signInWorkspaceAPI = async (params: {
+	signInWorkspace = async (params: {
 		email: string;
 		token: string;
 		selectedTeam: string;
@@ -172,7 +172,7 @@ class AuthService extends APIService {
 		});
 	};
 
-	registerUserTeamAPI = async (data: IRegisterDataAPI) => {
+	registerUserTeam = async (data: IRegisterDataAPI) => {
 		return api.post<ILoginResponse>('/auth/register', data);
 	};
 }

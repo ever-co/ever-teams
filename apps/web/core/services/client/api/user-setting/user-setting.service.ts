@@ -3,7 +3,7 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class UserSettingService extends APIService {
-	savePersonalSettingsAPI = async (id: string, data: any) => {
+	savePersonalSettings = async (id: string, data: any) => {
 		return this.post<IUser>(`/user/${id}`, { ...data });
 	};
 

@@ -29,35 +29,31 @@ export function useDailyPlan() {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } = useQuery(
-		dailyPlanService.getDayPlansByEmployeeAPI
+		dailyPlanService.getDayPlansByEmployee
 	);
 	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQuery(
-		dailyPlanService.getAllDayPlansAPI
+		dailyPlanService.getAllDayPlans
 	);
 	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(
-		dailyPlanService.getMyDailyPlansAPI
+		dailyPlanService.getMyDailyPlans
 	);
-	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(
-		dailyPlanService.createDailyPlanAPI
-	);
-	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(
-		dailyPlanService.updateDailyPlanAPI
-	);
+	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(dailyPlanService.createDailyPlan);
+	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(dailyPlanService.updateDailyPlan);
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(
-		dailyPlanService.getPlansByTaskAPI
+		dailyPlanService.getPlansByTask
 	);
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(
-		dailyPlanService.addTaskToPlanAPI
+		dailyPlanService.addTaskToPlan
 	);
 	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } = useQuery(
-		dailyPlanService.removeTaskFromPlanAPI
+		dailyPlanService.removeTaskFromPlan
 	);
 	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(
-		dailyPlanService.removeManyTaskFromPlansAPI
+		dailyPlanService.removeManyTaskFromPlans
 	);
 
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(
-		dailyPlanService.deleteDailyPlanAPI
+		dailyPlanService.deleteDailyPlan
 	);
 
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);

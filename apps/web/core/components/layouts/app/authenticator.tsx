@@ -20,7 +20,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useAtom(userState);
-		const { queryCall, loading } = useQuery(authService.getAuthenticatedUserDataAPI);
+		const { queryCall, loading } = useQuery(authService.getAuthenticatedUserData);
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();

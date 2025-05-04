@@ -162,15 +162,15 @@ export function useTimer() {
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQuery(timerService.getTimerStatusAPI);
-	const { queryCall: toggleQueryCall } = useQuery(timerService.toggleTimerAPI);
-	const { queryCall: startTimerQueryCall } = useQuery(timerService.startTimerAPI);
-	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(timerService.stopTimerAPI);
+	const { queryCall, loading, loadingRef } = useQuery(timerService.getTimerStatus);
+	const { queryCall: toggleQueryCall } = useQuery(timerService.toggleTimer);
+	const { queryCall: startTimerQueryCall } = useQuery(timerService.startTimer);
+	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(timerService.stopTimer);
 	const {
 		queryCall: syncTimerQueryCall,
 		loading: syncTimerLoading,
 		loadingRef: syncTimerLoadingRef
-	} = useQuery(timerService.syncTimerAPI);
+	} = useQuery(timerService.syncTimer);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);

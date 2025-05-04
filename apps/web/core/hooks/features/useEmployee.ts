@@ -15,7 +15,7 @@ export const useEmployee = () => {
 	const { firstLoad, firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
 	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQuery(
-		employeeService.getWorkingEmployeesAPI
+		employeeService.getWorkingEmployees
 	);
 
 	const getWorkingEmployee = useCallback(() => {
@@ -48,7 +48,7 @@ export const useEmployee = () => {
 };
 
 export const useEmployeeUpdate = () => {
-	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(employeeService.updateEmployeeAPI);
+	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(employeeService.updateEmployee);
 
 	const updateEmployee = useCallback(
 		({ id, data }: { id: string; data: IUpdateEmployee }) => {

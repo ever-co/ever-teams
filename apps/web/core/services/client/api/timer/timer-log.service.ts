@@ -30,7 +30,7 @@ class TimerLogsService extends APIService {
 
 		return this.get<ITimerStatus>(endpoint, { tenantId });
 	};
-	getTaskTimesheetLogsApi = async ({
+	getTaskTimesheetLogs = async ({
 		organizationId,
 		tenantId,
 		startDate,
@@ -82,7 +82,7 @@ class TimerLogsService extends APIService {
 		return this.get<TimesheetLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId });
 	};
 
-	deleteTaskTimesheetLogsApi = async ({
+	deleteTaskTimesheetLogs = async ({
 		logIds,
 		organizationId,
 		tenantId
@@ -120,13 +120,13 @@ class TimerLogsService extends APIService {
 		}
 	};
 
-	updateStatusTimesheetFromApi = async (data: IUpdateTimesheetStatus) => {
+	updateStatusTimesheetFrom = async (data: IUpdateTimesheetStatus) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		return this.put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
 	};
 
-	createTimesheetFromApi = async (data: UpdateTimesheet) => {
+	createTimesheetFrom = async (data: UpdateTimesheet) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		if (!organizationId || !tenantId) {
@@ -139,7 +139,7 @@ class TimerLogsService extends APIService {
 		}
 	};
 
-	updateTimesheetFromAPi = async (params: UpdateTimesheet) => {
+	updateTimesheetFrom = async (params: UpdateTimesheet) => {
 		const { id, ...data } = params;
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
@@ -205,7 +205,7 @@ class TimerLogsService extends APIService {
 		return this.get<ITimerDailyLog[]>(`/timesheet/time-log/report/daily-chart?${queryString}`, { tenantId });
 	};
 
-	getTimeLogReportDaily({
+	getTimeLogReportDaily = async ({
 		organizationId,
 		tenantId,
 		startDate,
@@ -217,7 +217,7 @@ class TimerLogsService extends APIService {
 		taskIds = [],
 		teamIds = [],
 		activityLevel = { start: 0, end: 100 }
-	}: ITimeLogReportDailyProps) {
+	}: ITimeLogReportDailyProps) => {
 		if (!organizationId || !tenantId || !startDate || !endDate) {
 			throw new Error(
 				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
@@ -250,7 +250,7 @@ class TimerLogsService extends APIService {
 		const queryString = new URLSearchParams(queryParams).toString();
 
 		return this.get<ITimerLogGrouped[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
-	}
+	};
 
 	/**
 	 * Format duration in seconds to human readable format (HH:mm:ss)
@@ -298,7 +298,7 @@ class TimerLogsService extends APIService {
 	 *   todayDuration: formatDuration(data.todayDuration)
 	 * });
 	 */
-	async getTimesheetStatisticsCounts({
+	getTimesheetStatisticsCounts = async ({
 		activityLevel,
 		logType,
 		organizationId,
@@ -306,7 +306,7 @@ class TimerLogsService extends APIService {
 		startDate,
 		endDate,
 		timeZone = 'Etc/UTC'
-	}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> {
+	}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> => {
 		const queryString = qs.stringify(
 			{
 				activityLevel,
@@ -323,7 +323,7 @@ class TimerLogsService extends APIService {
 			}
 		);
 		return this.get<ITimesheetStatisticsData>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
-	}
+	};
 
 	/**
 	 * Get activity report data
@@ -340,7 +340,7 @@ class TimerLogsService extends APIService {
 	 *   groupBy: 'date'
 	 * });
 	 */
-	async getActivityReport({
+	getActivityReport = async ({
 		activityLevel = { start: 0, end: 100 },
 		organizationId,
 		tenantId,
@@ -364,7 +364,7 @@ class TimerLogsService extends APIService {
 		employeeIds?: string[];
 		source?: string[];
 		logType?: TimeLogType[];
-	}) {
+	}) => {
 		const queryString = qs.stringify(
 			{
 				activityLevel,
@@ -386,7 +386,7 @@ class TimerLogsService extends APIService {
 		);
 
 		return this.get<IActivityReport[]>('/timesheet/activity/report?' + queryString, { tenantId });
-	}
+	};
 }
 
 export const timerLogsService = new TimerLogsService(GAUZY_API_BASE_SERVER_URL.value);

@@ -3,19 +3,19 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class IssueTypeService extends APIService {
-	createIssueTypeAPI = async (data: IIssueTypesCreate, tenantId?: string) => {
+	createIssueType = async (data: IIssueTypesCreate, tenantId?: string) => {
 		return this.post<IIssueTypesCreate>('/issue-types', data, {
 			tenantId
 		});
 	};
 
-	editIssueTypeAPI = async (id: string, data: IIssueTypesCreate, tenantId?: string) => {
+	editIssueType = async (id: string, data: IIssueTypesCreate, tenantId?: string) => {
 		return this.put<IIssueTypesCreate>(`/issue-types/${id}`, data, {
 			tenantId
 		});
 	};
 
-	deleteIssueTypeAPI = async (id: string) => {
+	deleteIssueType = async (id: string) => {
 		return this.delete<DeleteResponse>(`/issue-types/${id}`);
 	};
 

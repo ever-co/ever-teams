@@ -10,21 +10,21 @@ export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
 
 	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(
-		requestToJoinTeamService.requestToJoinAPI
+		requestToJoinTeamService.requestToJoin
 	);
 	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQuery(
-		requestToJoinTeamService.validateRequestToJoinAPI
+		requestToJoinTeamService.validateRequestToJoin
 	);
 	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQuery(
-		requestToJoinTeamService.resendCodeRequestToJoinAPI
+		requestToJoinTeamService.resendCodeRequestToJoin
 	);
 
 	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(
-		requestToJoinTeamService.getRequestToJoinAPI
+		requestToJoinTeamService.getRequestToJoin
 	);
 
 	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQuery(
-		requestToJoinTeamService.acceptRejectRequestToJoinAPI
+		requestToJoinTeamService.acceptRejectRequestToJoin
 	);
 
 	const getRequestToJoin = useCallback(() => {

@@ -7,7 +7,7 @@ import { useQuery } from '../useQuery';
 export function useIntegration() {
 	const [integration, setIntegration] = useAtom(integrationState);
 
-	const { loading: loading, queryCall: queryCall } = useQuery(integrationService.getIntegrationAPI);
+	const { loading: loading, queryCall: queryCall } = useQuery(integrationService.getIntegration);
 
 	const getIntegration = useCallback(
 		(name: string) => {

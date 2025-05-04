@@ -25,7 +25,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		queryCall: refreshUserQueryCall,
 		loading: refreshUserLoading,
 		loadingRef: refreshUserLoadingRef
-	} = useQuery(authService.getAuthenticatedUserDataAPI);
+	} = useQuery(authService.getAuthenticatedUserData);
 
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {
@@ -49,7 +49,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
 		window.clearInterval(intervalRt.current);
-		intervalRt.current = window.setInterval(authService.refreshTokenAPI, interval);
+		intervalRt.current = window.setInterval(authService.refreshToken, interval);
 
 		return () => {
 			window.clearInterval(intervalRt.current);
@@ -57,7 +57,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	}, []);
 
 	const refreshToken = useCallback(async () => {
-		await authService.refreshTokenAPI();
+		await authService.refreshToken();
 	}, []);
 
 	return {

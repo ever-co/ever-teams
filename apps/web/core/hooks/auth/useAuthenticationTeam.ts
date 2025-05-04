@@ -52,7 +52,7 @@ export function useAuthenticationTeam() {
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.registerUserTeamAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(authService.registerUserTeam);
 
 	const handleSubmit = (e: any) => {
 		e.preventDefault();

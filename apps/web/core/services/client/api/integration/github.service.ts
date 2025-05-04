@@ -5,15 +5,15 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { IGithubMetadata, IGithubRepositories } from '@/core/types/interfaces';
 
 class GithubService extends APIService {
-	installGitHubIntegrationAPI = async (body: any) => {
+	installGitHubIntegration = async (body: any) => {
 		return this.post<any>('/integration/github/install', body);
 	};
 
-	oAuthEndpointAuthorizationAPI = async (body: any) => {
+	oAuthEndpointAuthorization = async (body: any) => {
 		return this.post<any>('/integration/github/oauth', body);
 	};
 
-	getGithubIntegrationMetadataAPI = async (integrationId: string) => {
+	getGithubIntegrationMetadata = async (integrationId: string) => {
 		const query = qs.stringify({
 			tenantId: getTenantIdCookie(),
 			organizationId: getOrganizationIdCookie()
@@ -26,7 +26,7 @@ class GithubService extends APIService {
 		return this.get<IGithubMetadata>(endpoint);
 	};
 
-	getGithubIntegrationRepositoriesAPI = async (integrationId: string) => {
+	getGithubIntegrationRepositories = async (integrationId: string) => {
 		const query = qs.stringify({
 			tenantId: getTenantIdCookie(),
 			organizationId: getOrganizationIdCookie()
@@ -39,7 +39,7 @@ class GithubService extends APIService {
 		return this.get<IGithubRepositories>(endpoint);
 	};
 
-	syncGitHubRepositoryAPI = async (body: any) => {
+	syncGitHubRepository = async (body: any) => {
 		return this.post<any>('/integration/github/repository/sync', body);
 	};
 }

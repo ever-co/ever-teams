@@ -16,7 +16,7 @@ import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 class InviteService extends APIService {
-	inviteByEmailsAPI = async (data: IIInviteRequest, tenantId: string) => {
+	inviteByEmails = async (data: IIInviteRequest, tenantId: string) => {
 		const endpoint = '/invite/emails';
 
 		if (!GAUZY_API_BASE_SERVER_URL.value) {
@@ -52,7 +52,7 @@ class InviteService extends APIService {
 		return this.post<PaginationResponse<IInvitation>>(endpoint, dataToInviteUser, { tenantId });
 	};
 
-	getTeamInvitationsAPI = async (tenantId: string, organizationId: string, role: string, teamId: string) => {
+	getTeamInvitations = async (tenantId: string, organizationId: string, role: string, teamId: string) => {
 		const query = qs.stringify({
 			'where[tenantId]': tenantId,
 			'where[organizationId]': organizationId,
@@ -66,7 +66,7 @@ class InviteService extends APIService {
 		return this.get<PaginationResponse<IInvitation>>(endpoint, { tenantId });
 	};
 
-	removeTeamInvitationsAPI = async (
+	removeTeamInvitations = async (
 		invitationId: string,
 		tenantId: string,
 		organizationId: string,
@@ -76,13 +76,13 @@ class InviteService extends APIService {
 		let response = await this.delete<PaginationResponse<IInvitation>>(`/invite/${invitationId}`, { tenantId });
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			response = await this.getTeamInvitationsAPI(tenantId, organizationId, role, teamId);
+			response = await this.getTeamInvitations(tenantId, organizationId, role, teamId);
 		}
 
 		return response;
 	};
 
-	resendTeamInvitationsAPI = async (inviteId: string) => {
+	resendTeamInvitations = async (inviteId: string) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
@@ -105,13 +105,13 @@ class InviteService extends APIService {
 		return this.post<PaginationResponse<IInvitation>>(`/invite/resend`, data);
 	};
 
-	getMyInvitationsAPI = async (tenantId: string) => {
+	getMyInvitations = async (tenantId: string) => {
 		const endpoint = '/invite/me';
 
 		return this.get<PaginationResponse<IMyInvitations>>(endpoint, { tenantId });
 	};
 
-	acceptRejectMyInvitationsAPI = async (invitationId: string, action: MyInvitationActionEnum) => {
+	acceptRejectMyInvitations = async (invitationId: string, action: MyInvitationActionEnum) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? `/invite/${invitationId}/${action}`
 			: `/invite/${invitationId}?action=${action}`;

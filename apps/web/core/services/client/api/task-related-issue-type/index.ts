@@ -1,1 +1,1 @@
-export * from './task-related-issue.service-type';
+export * from './task-related-issue-type.service';

@@ -8,9 +8,7 @@ import { manualTimeService } from '@/core/services/client/api/timer/manual-time.
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
 
-	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(
-		manualTimeService.addManualTimeRequestAPI
-	);
+	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(manualTimeService.addManualTime);
 	const [timeLog, setTimeLog] = useState<ITimeLog>();
 
 	const addManualTime = useCallback(

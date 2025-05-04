@@ -28,26 +28,26 @@ export function useTeamInvitations() {
 	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
-	const { queryCall, loading } = useQuery(inviteService.getTeamInvitationsAPI);
+	const { queryCall, loading } = useQuery(inviteService.getTeamInvitations);
 
-	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteService.inviteByEmailsAPI);
+	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteService.inviteByEmails);
 
 	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(
-		inviteService.removeTeamInvitationsAPI
+		inviteService.removeTeamInvitations
 	);
 
 	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(
-		inviteService.resendTeamInvitationsAPI
+		inviteService.resendTeamInvitations
 	);
 
 	const {
 		queryCall: myInvitationsQueryCall,
 		loading: myInvitationsLoading,
 		loadingRef: myInvitationsLoadingRef
-	} = useQuery(inviteService.getMyInvitationsAPI);
+	} = useQuery(inviteService.getMyInvitations);
 
 	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQuery(
-		inviteService.acceptRejectMyInvitationsAPI
+		inviteService.acceptRejectMyInvitations
 	);
 
 	const { user } = useAuthenticateUser();

@@ -21,7 +21,7 @@ import { AcceptInviteParams } from '@/core/services/server/requests';
 import qs from 'qs';
 
 class SinginService extends APIService {
-	acceptInviteAPI = async (params: AcceptInviteParams) => {
+	acceptInvite = async (params: AcceptInviteParams) => {
 		try {
 			const res = await this.post<ILoginResponse>('/invite/accept', params);
 			return res.data;
@@ -30,7 +30,7 @@ class SinginService extends APIService {
 		}
 	};
 
-	verifyInviteCodeAPI = async (params: IInviteVerifyCode) => {
+	verifyInviteCode = async (params: IInviteVerifyCode) => {
 		const res = await this.post<IInviteVerified>('/invite/validate-by-code', params);
 		return res.data;
 	};
@@ -41,7 +41,7 @@ class SinginService extends APIService {
 	 * @param params - Parameters including tenantId, userId, and token for authentication.
 	 * @returns A promise that resolves to a pagination response of user organizations.
 	 */
-	getUserOrganizationsRequest = async (params: { tenantId: string; userId: string; token: string }) => {
+	getUserOrganizations = async (params: { tenantId: string; userId: string; token: string }) => {
 		// Create a new instance of URLSearchParams for query string construction
 		const query = new URLSearchParams();
 
@@ -71,7 +71,7 @@ class SinginService extends APIService {
 	 * @param {string} bearer_token The bearer token for authentication.
 	 * @returns A Promise resolving to the pagination response of organization teams.
 	 */
-	getAllOrganizationTeamAPI = async (params: ITeamRequestParams, bearer_token: string) => {
+	getAllOrganizationTeam = async (params: ITeamRequestParams, bearer_token: string) => {
 		const relations = params.relations || [
 			'members',
 			'members.role',
@@ -103,7 +103,7 @@ class SinginService extends APIService {
 		});
 	};
 
-	signInEmailConfirmAPI = (data: { code: string; email: string }) => {
+	signInEmailConfirm = async (data: { code: string; email: string }) => {
 		const { code, email } = data;
 		return this.post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', {
 			code,
@@ -121,13 +121,13 @@ class SinginService extends APIService {
 			return Promise.reject({ errors });
 		}
 
-		const inviteReq = await this.verifyInviteCodeAPI({ email, code });
+		const inviteReq = await this.verifyInviteCode({ email, code });
 
 		if (inviteReq && inviteReq.fullName) {
 			const password = generateToken(8);
 			const names = inviteReq.fullName.split(' ');
 
-			const acceptInviteRes = await this.acceptInviteAPI({
+			const acceptInviteRes = await this.acceptInvite({
 				code,
 				email,
 				password,
@@ -157,7 +157,7 @@ class SinginService extends APIService {
 			const access_token = loginResponse.token;
 			const userId = loginResponse.user?.id;
 
-			const { data: organizations } = await this.getUserOrganizationsRequest({
+			const { data: organizations } = await this.getUserOrganizations({
 				tenantId,
 				userId,
 				token: access_token
@@ -172,7 +172,7 @@ class SinginService extends APIService {
 				});
 			}
 
-			const { data: teams } = await this.getAllOrganizationTeamAPI(
+			const { data: teams } = await this.getAllOrganizationTeam(
 				{ tenantId, organizationId: organization.organizationId },
 				access_token
 			);
@@ -209,7 +209,7 @@ class SinginService extends APIService {
 		return loginResponse;
 	};
 
-	signInWorkspaceAPI = async (input: ISigninWorkspaceInput) => {
+	signInWorkspace = async (input: ISigninWorkspaceInput) => {
 		const res = await this.post<ILoginResponse>('/auth/signin.workspace', input);
 		return res.data;
 	};
@@ -234,7 +234,7 @@ class SinginService extends APIService {
 		}
 
 		try {
-			const signinResponse = await this.signInEmailConfirmAPI({ email, code });
+			const signinResponse = await this.signInEmailConfirm({ email, code });
 			return signinResponse;
 		} catch (error) {
 			return Promise.reject(error);
@@ -265,7 +265,7 @@ class SinginService extends APIService {
 			}
 		}
 
-		const data = await this.signInWorkspaceAPI({
+		const data = await this.signInWorkspace({
 			email: params.email,
 			token: params.token,
 			defaultTeamId: params.defaultTeamId,
@@ -279,7 +279,7 @@ class SinginService extends APIService {
 		const access_token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await this.getUserOrganizationsRequest({
+		const { data: organizations } = await this.getUserOrganizations({
 			tenantId,
 			userId,
 			token: access_token

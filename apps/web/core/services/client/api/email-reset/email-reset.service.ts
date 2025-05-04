@@ -3,12 +3,12 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class EmailResetService extends APIService {
-	emailResetRequestAPI = async (email: string) => {
+	resetEmail = async (email: string) => {
 		return this.post<ISuccessResponse>(`/email-reset/request-change-email`, {
 			email
 		});
 	};
-	verifyChangeEmailRequestAPI = async (code: string) => {
+	verifyChangeEmail = async (code: string) => {
 		return this.post<ISuccessResponse>(`/email-reset/verify-change-email`, { code });
 	};
 }

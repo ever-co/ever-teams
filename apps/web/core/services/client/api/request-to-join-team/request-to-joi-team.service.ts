@@ -13,7 +13,7 @@ import {
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class RequestToJoinTeamService extends APIService {
-	getRequestToJoinAPI = async () => {
+	getRequestToJoin = async () => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
@@ -25,23 +25,23 @@ class RequestToJoinTeamService extends APIService {
 		return this.get<PaginationResponse<IRequestToJoin>>(`/organization-team-join?${query}`);
 	};
 
-	requestToJoinAPI = async (data: IRequestToJoinCreate) => {
+	requestToJoin = async (data: IRequestToJoinCreate) => {
 		const endpoint = '/organization-team-join';
 		return this.post<IRequestToJoin>(endpoint, data);
 	};
 
-	validateRequestToJoinAPI = async (data: IValidateRequestToJoin) => {
+	validateRequestToJoin = async (data: IValidateRequestToJoin) => {
 		return this.post<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>(
 			'/organization-team-join/validate',
 			data
 		);
 	};
 
-	resendCodeRequestToJoinAPI = async (data: IRequestToJoinCreate) => {
+	resendCodeRequestToJoin = async (data: IRequestToJoinCreate) => {
 		return this.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
 	};
 
-	acceptRejectRequestToJoinAPI = async (id: string, action: IRequestToJoinActionEnum) => {
+	acceptRejectRequestToJoin = async (id: string, action: IRequestToJoinActionEnum) => {
 		return this.put<PaginationResponse<IRequestToJoin>>(`/organization-team-join/${id}/${action}`);
 	};
 }

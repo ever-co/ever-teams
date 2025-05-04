@@ -157,7 +157,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 			});
 		}
 
-		const data = await singinService.signInWorkspaceAPI({
+		const data = await singinService.signInWorkspace({
 			email: gauzyUser?.data.confirmed_email,
 			token: gauzyUser?.data.workspaces[0].token
 		});
@@ -165,7 +165,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 		const token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await singinService.getUserOrganizationsRequest({
+		const { data: organizations } = await singinService.getUserOrganizations({
 			tenantId,
 			userId,
 			token

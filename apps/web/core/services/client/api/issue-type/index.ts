@@ -1,1 +1,1 @@
-export * from './issue-type.serivice';
+export * from './issue-type.service';

@@ -30,13 +30,13 @@ export function useAuthenticationPassword() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(authService.signInEmailPasswordAPI);
+	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(authService.signInEmailPassword);
 
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading
-	} = useQuery(authService.signInWorkspaceAPI);
+	} = useQuery(authService.signInWorkspace);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;

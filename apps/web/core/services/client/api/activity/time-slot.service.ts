@@ -4,7 +4,7 @@ import { ITimerSlotDataRequest } from '@/core/types/interfaces';
 import qs from 'qs';
 
 class TimeSlotsService extends APIService {
-	getTimerLogsRequestAPI = async ({
+	getTimerLogsRequest = async ({
 		tenantId,
 		organizationId,
 		employeeId,

@@ -13,18 +13,16 @@ export function useGitHubIntegration() {
 		integrationGithubRepositoriesState
 	);
 
-	const { loading: installLoading, queryCall: installQueryCall } = useQuery(
-		githubService.installGitHubIntegrationAPI
-	);
-	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(githubService.oAuthEndpointAuthorizationAPI);
+	const { loading: installLoading, queryCall: installQueryCall } = useQuery(githubService.installGitHubIntegration);
+	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(githubService.oAuthEndpointAuthorization);
 	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
-		githubService.getGithubIntegrationMetadataAPI
+		githubService.getGithubIntegrationMetadata
 	);
 	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
-		githubService.getGithubIntegrationRepositoriesAPI
+		githubService.getGithubIntegrationRepositories
 	);
 	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } = useQuery(
-		githubService.syncGitHubRepositoryAPI
+		githubService.syncGitHubRepository
 	);
 
 	const installGitHub = useCallback(

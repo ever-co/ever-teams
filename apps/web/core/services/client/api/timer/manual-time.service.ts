@@ -3,7 +3,7 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class ManualTimeService extends APIService {
-	addManualTimeRequestAPI = async (request: IAddManualTimeRequest) => {
+	addManualTime = async (request: IAddManualTimeRequest) => {
 		const { startedAt, stoppedAt, ...rest } = request;
 		const data = {
 			...rest,

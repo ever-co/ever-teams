@@ -49,7 +49,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				return;
 			}
 			taskService
-				.tasksTimesheetStatisticsAPI(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
+				.tasksTimesheetStatistics(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
 				.then(({ data }) => {
 					setStatTasks({
 						all: data.global || [],
@@ -60,7 +60,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
-		taskService.allTaskTimesheetStatisticsAPI().then(({ data }) => {
+		taskService.allTaskTimesheetStatistics().then(({ data }) => {
 			setAllTaskStatistics(data);
 		});
 	}, [setAllTaskStatistics]);
@@ -91,7 +91,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		setTasksFetching(true);
 
-		const promise = taskService.activeTaskTimesheetStatisticsAPI(
+		const promise = taskService.activeTaskTimesheetStatistics(
 			user?.employee.tenantId,
 			'',
 			user?.employee.organizationId,

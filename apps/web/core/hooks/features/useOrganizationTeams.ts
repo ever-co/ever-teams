@@ -65,7 +65,7 @@ function useTeamsState() {
  * 2. loading: A boolean value.
  */
 function useCreateOrganizationTeam() {
-	const { loading, queryCall } = useQuery(organizationTeamService.createOrganizationTeamAPI);
+	const { loading, queryCall } = useQuery(organizationTeamService.createOrganizationTeam);
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
@@ -118,7 +118,7 @@ function useCreateOrganizationTeam() {
  * It takes a team and an optional data object and updates the team with the data
  */
 function useUpdateOrganizationTeam() {
-	const { loading, queryCall } = useQuery(organizationTeamService.updateOrganizationTeamAPI);
+	const { loading, queryCall } = useQuery(organizationTeamService.updateOrganizationTeam);
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
@@ -276,12 +276,12 @@ export function useOrganizationTeams() {
 		loading: getOrganizationTeamsLoading,
 		queryCall: getOrganizationTeamsQueryCall,
 		loadingRef: getOrganizationTeamsLoadingRef
-	} = useQuery(organizationTeamService.getOrganizationTeamsAPI);
+	} = useQuery(organizationTeamService.getOrganizationTeams);
 	const {
 		loading: loadingTeam,
 		queryCall: queryCallTeam,
 		loadingRef: loadingRefTeam
-	} = useQuery(organizationTeamService.getOrganizationTeamAPI);
+	} = useQuery(organizationTeamService.getOrganizationTeam);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationId = getOrganizationIdCookie();
@@ -321,15 +321,15 @@ export function useOrganizationTeams() {
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } = useQuery(
-		organizationTeamService.editOrganizationTeamAPI
+		organizationTeamService.editOrganizationTeam
 	);
 
 	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } = useQuery(
-		organizationTeamService.deleteOrganizationTeamAPI
+		organizationTeamService.deleteOrganizationTeam
 	);
 
 	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } = useQuery(
-		organizationTeamService.removeUserFromAllTeamAPI
+		organizationTeamService.removeUserFromAllTeam
 	);
 
 	const isManager = useCallback(() => {
@@ -494,7 +494,7 @@ export function useOrganizationTeams() {
 		await loadTeamsData();
 
 		if (activeTeamId && organizationId && tenantId) {
-			const res = await organizationTeamService.getOrganizationTeamAPI(activeTeamId, organizationId, tenantId);
+			const res = await organizationTeamService.getOrganizationTeam(activeTeamId, organizationId, tenantId);
 
 			if (res) {
 				!loadingTeamsRef.current && setTeamsUpdate(res.data);

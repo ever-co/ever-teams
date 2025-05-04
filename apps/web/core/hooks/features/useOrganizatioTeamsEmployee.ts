@@ -20,7 +20,7 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQuery(
-		organizationTeamService.editEmployeeOrderOrganizationTeamAPI
+		organizationTeamService.editEmployeeOrderOrganizationTeam
 	);
 
 	const {
