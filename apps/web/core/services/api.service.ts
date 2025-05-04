@@ -1,11 +1,4 @@
-import axios, {
-	AxiosError,
-	AxiosInstance,
-	AxiosProgressEvent,
-	AxiosRequestConfig,
-	AxiosResponse,
-	CancelTokenSource
-} from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosProgressEvent, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { CacheItem, ErrorInterceptor, HttpClientConfig, ResponseInterceptor } from '@/core/types/generics';
 
@@ -18,7 +11,7 @@ export class APIService {
 	private readonly cache: Map<string, CacheItem<any>> = new Map();
 	private readonly pendingRequests: Map<string, Promise<any>> = new Map();
 	private readonly config: Required<HttpClientConfig>;
-	private cancelSources: Map<string, CancelTokenSource> = new Map();
+	private cancelSources: Map<string, AbortController> = new Map();
 
 	private logger: Logger;
 	private httpLogger: HttpLoggerAdapter;
@@ -93,8 +86,8 @@ export class APIService {
 	 * @description Cancels all pending requests
 	 */
 	public cancelAllRequests(reason = 'Operation cancelled by user'): void {
-		this.cancelSources.forEach((source) => {
-			source.cancel(reason);
+		this.cancelSources.forEach((controller) => {
+			controller.abort();
 		});
 		this.cancelSources.clear();
 	}
@@ -103,9 +96,9 @@ export class APIService {
 	 * @description Cancels a specific request based on its identifier
 	 */
 	public cancelRequest(requestId: string, reason = 'Operation cancelled'): void {
-		const source = this.cancelSources.get(requestId);
-		if (source) {
-			source.cancel(reason);
+		const controller = this.cancelSources.get(requestId);
+		if (controller) {
+			controller.abort();
 			this.cancelSources.delete(requestId);
 		}
 	}
@@ -135,12 +128,12 @@ export class APIService {
 		}
 
 		// Preparation of the cancellation token
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(cacheKey, source);
+		const controller = new AbortController();
+		this.cancelSources.set(cacheKey, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
-			cancelToken: source.token
+			signal: controller.signal
 		};
 
 		// Perform the request with retry logic
@@ -174,12 +167,12 @@ export class APIService {
 	 */
 	public async post<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
 		const requestId = `POST:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
-			cancelToken: source.token
+			signal: controller.signal
 		};
 
 		try {
@@ -202,12 +195,12 @@ export class APIService {
 	 */
 	public async put<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
 		const requestId = `PUT:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
-			cancelToken: source.token
+			signal: controller.signal
 		};
 
 		try {
@@ -230,14 +223,13 @@ export class APIService {
 	 */
 	public async patch<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
 		const requestId = `PATCH:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
-			cancelToken: source.token
+			signal: controller.signal
 		};
-
 		try {
 			const response = await this._executeWithRetry<T>(() =>
 				this.instance.patch<T>(url, data, requestConfig).then(this._unwrapResponse)
@@ -257,12 +249,12 @@ export class APIService {
 	 */
 	public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
 		const requestId = `DELETE:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
-			cancelToken: source.token
+			signal: controller.signal
 		};
 
 		try {
@@ -286,20 +278,22 @@ export class APIService {
 		config?: AxiosRequestConfig
 	): Promise<Blob> {
 		const requestId = `DOWNLOAD:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		const requestConfig: AxiosRequestConfig = {
 			...config,
 			responseType: 'blob',
-			cancelToken: source.token,
+			signal: controller.signal,
 			onDownloadProgress: onProgress
 		};
 
 		try {
-			const response = await this.instance.get<Blob>(url, requestConfig);
+			const response = await this._executeWithRetry<Blob>(() =>
+				this.instance.get<Blob>(url, requestConfig).then(this._unwrapResponse)
+			);
 			this.cancelSources.delete(requestId);
-			return response.data;
+			return response;
 		} catch (error) {
 			this.cancelSources.delete(requestId);
 			throw error;
@@ -316,8 +310,9 @@ export class APIService {
 		config?: AxiosRequestConfig
 	): Promise<T> {
 		const requestId = `UPLOAD:${url}:${Date.now()}`;
-		const source = axios.CancelToken.source();
-		this.cancelSources.set(requestId, source);
+
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
 
 		let formData: FormData;
 		if (file instanceof FormData) {
@@ -333,7 +328,7 @@ export class APIService {
 				...config?.headers,
 				'Content-Type': 'multipart/form-data'
 			},
-			cancelToken: source.token,
+			signal: controller.signal,
 			onUploadProgress: onProgress
 		};
 
@@ -388,7 +383,7 @@ export class APIService {
 			this.httpLogger.logError(axiosError);
 
 			// Transform the error before rejecting it
-			throw this._handleError(axiosError);
+			throw this._handleAxiosError(axiosError);
 		}
 	}
 
@@ -428,38 +423,47 @@ export class APIService {
 	 * @description Initializes the request and response interceptors
 	 */
 	private _initializeInterceptors() {
-		// Request interceptor
-		this.instance.interceptors.request.use(
-			(config) => {
-				// Add a timestamp to avoid browser cache if necessary
-				if (config.method?.toLowerCase() === 'get' && config.params !== undefined) {
-					config.params = {
-						...config.params,
-						_t: new Date().getTime()
-					};
-				}
-				return config;
-			},
-			(error) => Promise.reject(error)
-		);
+		this._addRequestInterceptor();
+		this._addResponseInterceptor();
+	}
 
-		// Response interceptor
-		this.instance.interceptors.response.use(
-			(response) => response,
-			(error: AxiosError) => {
-				// Log the error but let it propagate
-				const statusCode = error.response?.status;
-				const url = error.config?.url;
-				const method = error.config?.method?.toUpperCase();
+	private _addRequestInterceptor() {
+		this.instance.interceptors.request.use(this._onRequestInterceptor.bind(this), (error) => {
+			this.httpLogger.logError(error);
+			return Promise.reject(error);
+		});
+	}
 
-				console.error(
-					`[HttpClient Error ${statusCode}] ${method} ${url}`,
-					error.response?.data || error.message
-				);
+	private _onRequestInterceptor(config: any) {
+		if (config.method?.toLowerCase() === 'get') {
+			config.params = {
+				...(config.params ?? {}),
+				_t: Date.now()
+			};
+		}
+		this.httpLogger.logRequest(config);
+		return config;
+	}
 
-				return Promise.reject(error);
-			}
-		);
+	private _addResponseInterceptor() {
+		this.instance.interceptors.response.use(this._onResponseInterceptor.bind(this), (error: AxiosError) => {
+			this.httpLogger.logError(error);
+			return Promise.reject(error);
+		});
+	}
+
+	private _onResponseInterceptor(response: any) {
+		this.httpLogger.logResponse(response);
+		return response;
+	}
+
+	protected _handleError(error: AxiosError) {
+		const statusCode = error.response?.status;
+		const url = error.config?.url;
+		const method = error.config?.method?.toUpperCase();
+		console.error(`[HttpClient Error ${statusCode}] ${method} ${url}`, error.response?.data || error.message);
+		this.httpLogger.logError(error);
+		return Promise.reject(error);
 	}
 
 	/**
@@ -472,9 +476,12 @@ export class APIService {
 	/**
 	 * @description Transforms Axios errors into ApiError for better management
 	 */
-	private _handleError(error: AxiosError): never {
+	private _handleAxiosError(error: AxiosError): never {
 		if (axios.isCancel(error)) {
-			throw new Error('Request cancelled');
+			throw ApiErrorService.fromAxiosError({
+				...error,
+				message: `Request cancelled (${error.message})`
+			});
 		}
 
 		throw ApiErrorService.fromAxiosError(error);

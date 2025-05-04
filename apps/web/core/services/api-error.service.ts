@@ -1,7 +1,6 @@
 import { AxiosError } from 'axios';
 
 import { extractHttpCode } from '@/core/lib/utils';
-// core/services/api/clients/http-client.ts
 import { ApiErrorResponse } from '@/core/types/generics';
 
 type AxiosErrorInfo = {
@@ -17,7 +16,7 @@ export const AxiosErrorStatus: Record<string, number> = {
 	ERR_NETWORK: 503,
 	ERR_DEPRECATED: 426,
 	ERR_BAD_RESPONSE: 502,
-	ERR_BAD_REQUEST: 404,
+	ERR_BAD_REQUEST: 400,
 	ERR_NOT_SUPPORT: 501,
 	ERR_INVALID_URL: 400,
 	ERR_CANCELED: 499,
@@ -202,17 +201,15 @@ export class ApiErrorService extends Error {
 	static fromAxiosError<T = any>(error: T | AxiosError<ApiErrorResponse>): ApiErrorService {
 		const errorFrom = error as AxiosError<ApiErrorResponse>;
 		const response = errorFrom?.response;
-		const errorCode = errorFrom?.code || 'unknown';
+		const errorCode = errorFrom?.code || 'ERR_BAD_REQUEST';
 		const info = AxiosErrorDetails[errorCode];
-		console.log('ERROR CODE===>', errorCode, info);
 
 		const fallbackMessage = info
 			? `Error (${info.label}) – ${info.description} (HTTP ${info.httpCode || 'unknown'})`
 			: `Unknown error (${errorCode})`;
-		const extractStatus = extractHttpCode(fallbackMessage.trim().split('HTTP')?.[1]);
-		console.log('Status', extractStatus);
+		const extractStatus = extractHttpCode(fallbackMessage.trim().split('HTTP')?.[1]) ?? 500;
 
-		const statusCode = AxiosErrorStatus[errorCode] ?? response?.status ?? info?.httpCode;
+		const statusCode = AxiosErrorStatus[errorCode] ?? response?.status ?? info?.httpCode ?? extractStatus;
 		if (!response) {
 			return new ApiErrorService(errorFrom?.message || fallbackMessage, statusCode!);
 		}

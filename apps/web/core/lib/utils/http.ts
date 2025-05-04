@@ -1,5 +1,5 @@
 export function extractHttpCode(str: string): number | null {
-	console.log('STR', str);
 	const match = str?.match(/\d+/);
-	return match ? Number(match[0]) : null;
+	const code = match ? Number(match[0]) : null;
+	return code && code >= 100 && code <= 599 ? code : null;
 }

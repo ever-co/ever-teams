@@ -130,23 +130,28 @@ export class Logger {
 	/**
 	 * Display a log message in the console
 	 */
-	private logToConsole(logEntry: LogEntry): void {
-		const { timestamp, level, message, context, details } = logEntry;
-		const formattedMessage = `[${timestamp}] [${level}] [${context}] ${message}`;
+	private formatLogEntry(logEntry: LogEntry): string {
+		const { timestamp, level, message, context } = logEntry;
+		return `[${timestamp}] [${level}] [${context}] ${message}`;
+	}
 
-		switch (level) {
+	private logToConsole(logEntry: LogEntry): void {
+		const formattedMessage = this.formatLogEntry(logEntry);
+		const details = logEntry.details || '';
+
+		switch (logEntry.level) {
 			case LogLevel.DEBUG:
-				console.debug(formattedMessage, details || '');
+				console.debug(formattedMessage, details);
 				break;
 			case LogLevel.INFO:
-				console.info(formattedMessage, details || '');
+				console.info(formattedMessage, details);
 				break;
 			case LogLevel.WARN:
-				console.warn(formattedMessage, details || '');
+				console.warn(formattedMessage, details);
 				break;
 			case LogLevel.ERROR:
 			case LogLevel.FATAL:
-				console.error(formattedMessage, details || '');
+				console.error(formattedMessage, details);
 				break;
 		}
 	}

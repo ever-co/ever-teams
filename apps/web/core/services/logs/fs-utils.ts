@@ -48,7 +48,11 @@ export class FsUtils {
 		const absolutePath = FsUtils.getAbsolutePath(dirPath);
 
 		if (!fs.existsSync(absolutePath)) {
-			fs.mkdirSync(absolutePath, { recursive: true });
+			try {
+				fs.mkdirSync(absolutePath, { recursive: true });
+			} catch (err) {
+				console.error('[FsUtils] Failed to create directory', absolutePath, err);
+			}
 		}
 	}
 

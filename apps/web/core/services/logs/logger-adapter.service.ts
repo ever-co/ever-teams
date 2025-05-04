@@ -1,14 +1,7 @@
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse, AxiosResponseHeaders, RawAxiosRequestHeaders } from 'axios';
 
 import { Logger, LogLevel } from './logger.service';
-
-export interface HttpLoggerConfig {
-	logRequestData?: boolean;
-	logResponseData?: boolean;
-	logErrorData?: boolean;
-	excludeUrls?: RegExp[];
-	sensitiveHeaders?: string[];
-}
+import { HttpLoggerConfig } from '@/core/types/generics';
 
 export class HttpLoggerAdapter {
 	private logger: Logger;
@@ -26,86 +19,135 @@ export class HttpLoggerAdapter {
 		this.logger = Logger.getInstance();
 		this.config = {
 			...HttpLoggerAdapter.DEFAULT_CONFIG,
-			...config
+			...config,
+			excludeUrls: [...HttpLoggerAdapter.DEFAULT_CONFIG.excludeUrls, ...(config?.excludeUrls ?? [])],
+			sensitiveHeaders: [
+				...HttpLoggerAdapter.DEFAULT_CONFIG.sensitiveHeaders,
+				...(config?.sensitiveHeaders ?? [])
+			]
 		};
 	}
 
 	/**
 	 * Log the details of an HTTP request
+	 * @param config - The Axios request configuration
 	 */
 	public logRequest(config: AxiosRequestConfig): void {
 		const { url, method, headers, params, data } = config;
 
-		// Check if the URL is excluded from the logs
-		if (this.shouldExcludeUrl(url)) {
-			return;
-		}
-
-		const sanitizedHeaders = this.sanitizeHeaders(headers);
-
-		this.logger.info(
-			`HTTP Request: ${method?.toUpperCase()} ${url}`,
+		this.logHttpEvent(
+			'Request',
+			method,
+			url,
+			undefined,
+			headers as RawAxiosRequestHeaders,
+			data,
+			params,
 			this.config.logRequestData
-				? {
-						headers: sanitizedHeaders,
-						params,
-						data: this.truncateData(data)
-					}
-				: undefined,
-			'HttpClient'
 		);
 	}
 
 	/**
 	 * Log the details of an HTTP response
+	 * @param response - The Axios response object
 	 */
 	public logResponse(response: AxiosResponse): void {
 		const { config, status, headers, data } = response;
 
-		// Check if the URL is excluded from the logs
-		if (this.shouldExcludeUrl(config.url)) {
-			return;
-		}
-
-		const sanitizedHeaders = this.sanitizeHeaders(headers);
-
-		this.logger.info(
-			`HTTP Response: ${config.method?.toUpperCase()} ${config.url} ${status}`,
+		this.logHttpEvent(
+			'Response',
+			config.method,
+			config.url,
+			status,
+			headers as AxiosResponseHeaders,
+			data,
+			undefined,
 			this.config.logResponseData
-				? {
-						headers: sanitizedHeaders,
-						data: this.truncateData(data)
-					}
-				: { statusCode: status },
-			'HttpClient'
 		);
 	}
 
 	/**
-	 * Log the details of an HTTP error
+	 * Log HTTP event data (request or response) in a standardized format.
+	 *
+	 * @param eventType - Type of the HTTP event ('Request' or 'Response')
+	 * @param method - HTTP method used (GET, POST, etc.)
+	 * @param url - URL of the request/response
+	 * @param status - (Optional) HTTP status code (for responses only)
+	 * @param headers - HTTP headers of the request/response
+	 * @param data - Payload of the request/response
+	 * @param params - (Optional) Query parameters (for requests only)
+	 * @param shouldLogData - Flag to determine if data should be included in the logs
 	 */
-	public logError(error: AxiosError): void {
-		if (!error.config) {
-			this.logger.error(`HTTP Error without config: ${error.message}`, error, 'HttpClient');
-			return;
-		}
-
-		const { config, response } = error;
-		const { url, method } = config;
-
-		// Check if the URL is excluded from the logs
+	private logHttpEvent(
+		eventType: 'Request' | 'Response',
+		method: string | undefined,
+		url: string | undefined,
+		status: number | undefined,
+		headers: RawAxiosRequestHeaders | AxiosResponseHeaders,
+		data: unknown,
+		params: unknown = undefined,
+		shouldLogData: boolean
+	): void {
 		if (this.shouldExcludeUrl(url)) {
 			return;
 		}
 
-		// Determine the log level based on the HTTP status code
-		const statusCode = response?.status;
-		const logLevel = this.getLogLevelForStatus(statusCode);
+		const sanitizedHeaders = this.sanitizeHeaders(headers);
+		const upperMethod = method?.toUpperCase();
+		const message =
+			eventType === 'Request'
+				? `HTTP Request: ${upperMethod} ${url}`
+				: `HTTP Response: ${upperMethod} ${url} ${status}`;
 
-		// Error details to log
-		const errorDetails = this.config.logErrorData
+		const logData = shouldLogData
 			? {
-					statusCode,
+					headers: sanitizedHeaders,
+					...(params && typeof params === 'object' ? { params } : {}),
+					data: this.truncateData(data),
+					...(status !== undefined && { statusCode: status })
+				}
+			: status !== undefined
+				? { statusCode: status }
+				: undefined;
+
+		this.logger.info(message, logData, 'HttpClient');
+	}
+
+	/**
+	 * @description Log the details of an HTTP error
+	 * @param error The error to log
+	 */
+	public logError(error: AxiosError): void {
+		if (!this.shouldLogAxiosError(error)) {
+			return;
+		}
+
+		const logLevel = this.getLogLevel(error);
+		const errorDetails = this.getErrorDetails(error);
+		const message = this.getLogMessage(error);
+
+		this.logWithLevel(logLevel, message, errorDetails);
+	}
+
+	private shouldLogAxiosError(error: AxiosError): boolean {
+		if (!error.config) {
+			this.logger.error(`HTTP Error without config: ${error.message}`, error, 'HttpClient');
+			return false;
+		}
+		const { url } = error.config;
+		return !this.shouldExcludeUrl(url);
+	}
+
+	private getLogLevel(error: AxiosError): LogLevel {
+		const statusCode = error.response?.status;
+		return this.getLogLevelForStatus(statusCode);
+	}
+
+	private getErrorDetails(error: AxiosError): any {
+		const { response } = error;
+		return this.config.logErrorData
+			? {
+					statusCode: response?.status,
 					statusText: response?.statusText,
 					headers: this.sanitizeHeaders(response?.headers),
 					data: this.truncateData(response?.data),
@@ -114,13 +156,17 @@ export class HttpLoggerAdapter {
 					stack: error.stack
 				}
 			: {
-					statusCode,
+					statusCode: response?.status,
 					errorMessage: error.message
 				};
+	}
 
-		// Log with the appropriate level
-		const message = `HTTP Error: ${method?.toUpperCase()} ${url} ${statusCode || 'NO_RESPONSE'}`;
+	private getLogMessage(error: AxiosError): string {
+		const statusCode = error.response?.status;
+		return `HTTP Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} ${statusCode || 'NO_RESPONSE'}`;
+	}
 
+	private logWithLevel(logLevel: LogLevel, message: string, errorDetails: any): void {
 		switch (logLevel) {
 			case LogLevel.WARN:
 				this.logger.warn(message, errorDetails, 'HttpClient');
