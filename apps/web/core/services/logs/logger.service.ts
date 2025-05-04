@@ -289,7 +289,7 @@ export class Logger {
 
 		try {
 			// Test of serialization to check if the object can be serialized
-			JSON.stringify(details);
+			JSON.stringify(details, null, 2);
 			return details;
 		} catch (error) {
 			// If serialization fails, convert to string

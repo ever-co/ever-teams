@@ -503,7 +503,7 @@ export class APIService {
 					)
 			: undefined;
 
-		return `${url}:${sortedParams ? JSON.stringify(sortedParams) : ''}`;
+		return `${url}:${sortedParams ? JSON.stringify(sortedParams, null, 2) : ''}`;
 	}
 
 	/**
