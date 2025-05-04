@@ -73,14 +73,13 @@ const configuration: webpack.Configuration = {
               sourceMap: true,
               importLoaders: 1,
             },
-          },
-          'sass-loader',
+          }
         ],
         include: /\.module\.s?(c|a)ss$/,
       },
       {
         test: /\.s?css$/,
-        use: ['style-loader', 'css-loader', 'sass-loader', 'postcss-loader'],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
         exclude: /\.module\.s?(c|a)ss$/,
         include: [webpackPaths.srcRendererPath],
       },

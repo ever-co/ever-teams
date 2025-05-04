@@ -26043,14 +26043,6 @@ react-dom@19.1.0, react-dom@^19.0.0, react-dom@^19.1.0:
   dependencies:
     scheduler "^0.26.0"
 
-react-dom@^18.2.0:
-  version "18.3.1"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.3.1.tgz#c2265d79511b57d479b3dd3fdfa51536494c5cb4"
-  integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
-  dependencies:
-    loose-envify "^1.1.0"
-    scheduler "^0.23.2"
-
 react-error-boundary@^3.1.4:
   version "3.1.4"
   resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.4.tgz#255db92b23197108757a888b01e5b729919abde0"
@@ -26283,13 +26275,6 @@ react@19.1.0, "react@^ 19.1.0", react@^19.0.0, react@^19.1.0:
   version "19.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
   integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
-
-react@^18.2.0:
-  version "18.3.1"
-  resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
-  integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
-  dependencies:
-    loose-envify "^1.1.0"
 
 reactcss@^1.2.0:
   version "1.2.3"
