@@ -68,7 +68,11 @@ export class FsUtils {
 		const dirPath = path.dirname(absolutePath);
 
 		FsUtils.ensureDirectoryExists(dirPath);
-		fs.writeFileSync(absolutePath, content, { encoding });
+		try {
+			fs.writeFileSync(absolutePath, content, { encoding });
+		} catch (err) {
+			console.error('[FsUtils] Failed to write file', absolutePath, err);
+		}
 	}
 
 	/**
