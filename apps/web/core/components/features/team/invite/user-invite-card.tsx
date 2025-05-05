@@ -169,7 +169,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 				<Popover.Panel>
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+							<Card shadow="custom" className="shadow-xl card !py-3 !px-4">
 								<ul>
 									<li>
 										<Popover.Button

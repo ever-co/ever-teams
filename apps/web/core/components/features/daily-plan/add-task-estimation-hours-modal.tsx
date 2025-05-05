@@ -941,7 +941,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				<Popover.Panel>
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
+							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
 								<ul className="flex flex-col justify-end gap-3 ">
 									<li
 										onClick={openTaskDetailsModal}
@@ -1104,7 +1104,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 						return (
 							<Card
 								shadow="custom"
-								className=" shadow-xlcard  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
+								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
 								<ul className="flex flex-col justify-end w-full gap-3 p-3 border">
 									<li

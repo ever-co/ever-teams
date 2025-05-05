@@ -1,6 +1,4 @@
 'use client';
-import 'react-loading-skeleton/dist/skeleton.css';
-import '@/styles/globals.css';
 
 import { Provider as JotaiProvider } from 'jotai';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';

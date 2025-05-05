@@ -45,7 +45,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 	// 	setIsOpen(!isOpen);
 	// };
 	return (
-		<Popover className="w-full relative no-underline border-none">
+		<Popover className="relative w-full no-underline border-none">
 			{() => (
 				<>
 					<Transition
@@ -58,7 +58,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel
-							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}
+							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xl card dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}
 						>
 							{/* TODO Dynamic */}
 							{/* Edit */}
@@ -84,7 +84,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 							</div> */}
 							<RolePopover />
 							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER && (
-								<div className=" flex justify-between items-center gap-x-2">
+								<div className="flex items-center justify-between gap-x-2">
 									<span>Time tracking</span>
 									<div
 										className={`w-16 h-6 flex items-center   bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}

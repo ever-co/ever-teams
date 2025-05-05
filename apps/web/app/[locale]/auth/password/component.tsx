@@ -24,7 +24,7 @@ export default function AuthPassword() {
 			title={t('pages.authLogin.HEADING_TITLE')}
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
-			<div className="max-w-[98%] md:max-w-[550px] overflow-x-hidden overflow-y-visible">
+			<div className="max-w-[98%] md:max-w-[550px] overflow-x-hidden overflow-y-clip">
 				<div className={cn('flex flex-row transition-[transform] duration-500')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
