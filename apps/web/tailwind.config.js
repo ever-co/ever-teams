@@ -2,28 +2,19 @@
 
 import defaultTheme from 'tailwindcss/defaultTheme';
 module.exports = {
-	important: true,
 	darkMode: ['class'],
 	content: [
-		'./app/**/*.{js,ts,jsx,tsx}',
-		'./pages/**/*.{ts,tsx}',
-		'./assets/**/*.{ts,tsx}',
-		'./src/**/*.{js,ts,jsx,tsx}',
-		'./components/**/*.{js,ts,jsx,tsx}',
-		'./components/**/*.{ts,tsx}',
-		'./libs/**/*.{ts,tsx}',
-		'./app/**/*.{ts,tsx}',
-		'./utils/**/*.{ts,tsx}',
-		'./lib/**/*.{ts,tsx}',
-		'./icons/**/*.{ts,tsx}',
-		'./core/**/*.{ts,tsx}',
-		'./core/components/**/*.{js,ts,jsx,tsx}',
-		'./core/utils/**/*.{js,ts,jsx,tsx}',
-		'./core/hooks/**/*.{js,ts,jsx,tsx}',
-		'./core/constants/**/*.{js,ts,jsx,tsx}',
-		'./core/stores/**/*.{js,ts,jsx,tsx}',
-		'./styles/**/*.{js,ts,jsx,tsx}'
+		'./app/**/*.{js,ts,jsx,tsx,mdx}',
+		'./pages/**/*.{js,ts,jsx,tsx,mdx}',
+		'./components/**/*.{js,ts,jsx,tsx,mdx}',
+		'./core/**/*.{js,ts,jsx,tsx,mdx}',
+		'./lib/**/*.{js,ts,jsx,tsx,mdx}',
+		'./utils/**/*.{js,ts,jsx,tsx,mdx}',
+		'./hooks/**/*.{js,ts,jsx,tsx,mdx}',
+		'./icons/**/*.{js,ts,jsx,tsx,mdx}',
+		'./assets/**/*.{js,ts,jsx,tsx,mdx}'
 	],
+
 	corePlugins: {
 		fontSmoothing: true
 	},

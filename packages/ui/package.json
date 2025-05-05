@@ -8,11 +8,11 @@
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"exports": {
-		"./styles.css": "./dist/styles.css",
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.es.js"
-		}
+		},
+		"./styles.css": "./dist/styles.css"
 	},
 	"sideEffects": false,
 	"license": "AGPL-3.0",
