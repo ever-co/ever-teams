@@ -184,7 +184,7 @@ class OrganizationTeamService extends APIService {
 		return this.put<OT_Member>(endpoint, data, { tenantId });
 	};
 
-	removeUserFromAllTeam = async (userId: string) => {
+	removeUserFromAllTeams = async (userId: string) => {
 		return this.delete<DeleteResponse>(`/organization-team/teams/${userId}`);
 	};
 }

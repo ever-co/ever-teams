@@ -329,7 +329,7 @@ export function useOrganizationTeams() {
 	);
 
 	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } = useQuery(
-		organizationTeamService.removeUserFromAllTeam
+		organizationTeamService.removeUserFromAllTeams
 	);
 
 	const isManager = useCallback(() => {
