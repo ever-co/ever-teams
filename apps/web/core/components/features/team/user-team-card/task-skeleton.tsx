@@ -46,38 +46,41 @@ export function UserTeamCardHeader() {
 		<div className="w-full h-14 dark:text-[#7B8089] font-normal -mt-1 z-50 dark:bg-dark-high px-8 m-0">
 			<div className="w-full h-full px-4 ml-4 md:px-8">
 				<div className="relative flex items-center w-full h-full m-0">
-					<div className="flex items-center ml-6 w-72">
-						<div className="text-nowrap">
+					<div className="flex items-center justify-center ml-6 w-72">
+						<span className="font-semibold text-nowrap">
 							{t('common.TEAM')} {t('common.MEMBER')}
-						</div>
+						</span>
 					</div>
 
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 
-					<div className="flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px] px-2 lg:px-4">
-						<div className="text-nowrap">{t('common.TASK')}</div>
+					<div className="flex-1 flex justify-center md:min-w-[25%] xl:min-w-[30%] !max-w-[250px] px-2 lg:px-4">
+						<span className="font-medium text-center text-nowrap">{t('common.TASK')}</span>
 					</div>
 
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 
-					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex justify-start items-center pl-6">
-						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')} className="text-nowrap">
+					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex justify-center items-center pl-6">
+						<Tooltip
+							label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}
+							className="font-semibold text-nowrap"
+						>
 							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>
 					</div>
 
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 
-					<div className="flex items-center justify-start pl-6 2xl:w-52 3xl:w-64">
-						<div className="text-nowrap">{t('common.ESTIMATE')}</div>
+					<div className="flex items-center justify-center pl-6 2xl:w-52 3xl:w-64">
+						<span className="font-semibold text-nowrap">{t('common.ESTIMATE')}</span>
 					</div>
 
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 
-					<div className="w-1/5 2xl:w-52 max-w-[13rem] flex justify-center">
+					<div className="w-1/5 2xl:w-52 max-w-[13rem] flex justify-end">
 						<Tooltip
 							label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}
-							className="text-nowrap"
+							className="font-semibold text-nowrap"
 						>
 							{t('dailyPlan.TOTAL_TODAY')}
 						</Tooltip>

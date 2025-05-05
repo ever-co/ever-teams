@@ -167,7 +167,7 @@ export function UserTeamCard({
 
 					{/* Show user name, email and image */}
 					<div className="relative">
-						<UserInfo memberInfo={memberInfo} className="w-72" publicTeam={publicTeam} />
+						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
 						{!publicTeam && (
 							<div
 								onClick={() => {
@@ -192,7 +192,7 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
+					<div className="flex justify-between items-start flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
@@ -203,7 +203,7 @@ export function UserTeamCard({
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800 shrink-0"
+								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer -left-1 dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -234,7 +234,7 @@ export function UserTeamCard({
 						memberInfo={memberInfo}
 						edition={taskEdition}
 						activeAuthTask={true}
-						className="2xl:w-52 3xl:w-64"
+						className="min-w-52 2xl:w-52 3xl:w-64 max-w-64"
 					/>
 
 					<VerticalSeparator />
