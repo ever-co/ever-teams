@@ -10,7 +10,7 @@
  * if you're interested in adding screens and navigators.
  */
 import './i18n';
-import './utils/ignoreWarnings';
+import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
 import React, { useEffect } from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -18,13 +18,13 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
-import { ErrorBoundary } from './screens/ErrorScreen/ErrorBoundary';
+import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
 import { customDarkTheme, customFontsToLoad, customLightTheme } from './theme';
 import { setupReactotron } from './services/reactotron';
 import Config from './config';
 import { observer } from 'mobx-react-lite';
-import { initCrashReporting } from './utils/crashReporting';
+import { initCrashReporting } from './utils/crash-reporting';
 import FlashMessage from 'react-native-flash-message';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 

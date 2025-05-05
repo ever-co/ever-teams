@@ -7,19 +7,19 @@ import {
 	AuthenticatedDrawerScreenProps,
 	DrawerNavigationProp,
 	SettingScreenNavigationProp
-} from '../../../navigators/AuthenticatedNavigator';
+} from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
 import { typography, useAppTheme } from '../../../theme';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
-import MembersList from './components/MembersList';
+import MembersList from './components/members-list';
 import { OT_Member } from '../../../services/interfaces/IOrganizationTeam';
 import { SvgXml } from 'react-native-svg';
 import { moreButtonDark, moreButtonLight } from '../../../components/svgs/icons';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import ChangeRoleModal from './components/ChangeRoleModal';
-import ConfirmationModal from '../../../components/ConfirmationModal';
+import ConfirmationModal from '../../../components/confirmation-modal';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
 import { useTeamMemberCard } from '../../../services/hooks/features/useTeamMemberCard';
 import { useNavigation } from '@react-navigation/native';

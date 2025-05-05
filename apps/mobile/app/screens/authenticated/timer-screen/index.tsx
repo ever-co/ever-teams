@@ -4,19 +4,19 @@ import { ViewStyle, View, LogBox, TouchableWithoutFeedback, StatusBar } from 're
 
 // COMPONENTS
 import { Screen } from '../../../components';
-import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
-import HomeHeader from '../../../components/HomeHeader';
-import DropDown from '../../../components/TeamDropdown/DropDown';
-import CreateTeamModal from '../../../components/CreateTeamModal';
-import TimerTaskSection from './components/TimerTaskSection';
+import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
+import HomeHeader from '../../../components/home-header';
+import DropDown from '../../../components/team-dropdown/drop-down';
+import CreateTeamModal from '../../../components/create-team-modal';
+import TimerTaskSection from './components/timer-task-section';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
 import useTimerScreenLogic from './logics/useTimerScreenLogic';
-import TimerScreenSkeleton from './components/TimerScreenSkeleton';
+import TimerScreenSkeleton from './components/timer-screen-skeleton';
 import { useAppTheme } from '../../../theme';
 import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
 import { useTaskInput } from '../../../services/hooks/features/useTaskInput';
-import AcceptInviteModal from '../team-screen/components/AcceptInviteModal';
-import NoTeam from '../../../components/NoTeam';
+import AcceptInviteModal from '../team-screen/components/accept-invite-modal';
+import NoTeam from '../../../components/no-team';
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> = function AuthenticatedTimerScreen(
 	_props

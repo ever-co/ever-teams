@@ -15,15 +15,15 @@ import {
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
-import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { typography, useAppTheme } from '../../../theme';
-import StatusItem from './components/StatusItem';
+import StatusItem from './components/status-item';
 import { ActivityIndicator } from 'react-native-paper';
 import { useTaskStatus } from '../../../services/hooks/features/useTaskStatus';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
-import TaskStatusForm from './components/TaskStatusForm';
+import TaskStatusForm from './components/task-statusForm';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 

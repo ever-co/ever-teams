@@ -14,15 +14,15 @@ import {
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
-import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import { typography, useAppTheme } from '../../../theme';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTaskVersion } from '../../../services/hooks/features/useTaskVersion';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
 import { BlurView } from 'expo-blur';
-import VersionItem from './components/VersionItem';
-import TaskVersionForm from './components/TaskVersionForm';
+import VersionItem from './components/version-item';
+import TaskVersionForm from './components/task-version-form';
 import { useRoute, RouteProp } from '@react-navigation/native';
 
 // Create a type for the route params

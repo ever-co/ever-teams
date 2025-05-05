@@ -1,18 +1,18 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import React, { FC, useEffect } from 'react';
-import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
 import { typography, useAppTheme } from '../../../theme';
 import { AntDesign } from '@expo/vector-icons';
 import { useTeamTasks } from '../../../services/hooks/features/useTeamTasks';
-import TaskTitleBlock from '../../../components/Task/TitleBlock';
-import DetailsBlock from '../../../components/Task/DetailsBlock';
+import TaskTitleBlock from '../../../components/task/title-block';
+import DetailsBlock from '../../../components/task/details-block';
 import { translate } from '../../../i18n';
-import EstimateBlock from '../../../components/Task/EstimateBlock';
-import TimeBlock from '../../../components/Task/TimeBlock';
-import LinkedIssuesBlock from '../../../components/Task/LinkedIssuesBlock';
-import DescriptionBlock from '../../../components/Task/DescrptionBlock';
+import EstimateBlock from '../../../components/task/estimate-block';
+import TimeBlock from '../../../components/task/Time-block';
+import LinkedIssuesBlock from '../../../components/task/linked-issues-block';
+import DescriptionBlock from '../../../components/task/descrption-block';
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();

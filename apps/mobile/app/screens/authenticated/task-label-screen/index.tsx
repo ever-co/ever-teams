@@ -15,13 +15,13 @@ import {
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
-import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { typography, useAppTheme } from '../../../theme';
 import { ActivityIndicator } from 'react-native-paper';
-import LabelItem from './components/LabelItem';
-import TaskLabelForm from './components/TaskLabelForm';
+import LabelItem from './components/label-item';
+import TaskLabelForm from './components/task-label-form';
 import { ITaskLabelItem } from '../../../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../../../services/hooks/features/useTaskLabels';
 import { BlurView } from 'expo-blur';

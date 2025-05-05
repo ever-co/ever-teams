@@ -1,11 +1,11 @@
 export * from "./WelcomeScreen"
 // @demo remove-block-start
-export * from "./LoginScreen"
-export * from "./DemoCommunityScreen"
-export * from "./DemoDebugScreen"
-export * from "./DemoShowroomScreen/DemoShowroomScreen"
+export * from "./login-screen"
+export * from "./demo-community-screen"
+export * from "./demo-debug-screen"
+export * from "./demo-show-room-screen/demo-showroom-screen"
 // @demo remove-block-end
-export * from "./ErrorScreen/ErrorBoundary"
+export * from "./error-screen/error-boundary"
 // export other screens here
 export * from "./authenticated/timer-screen"
 export * from "./authenticated/team-screen"

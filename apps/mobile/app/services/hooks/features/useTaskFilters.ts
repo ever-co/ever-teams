@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { IUserProfile } from '../../../screens/authenticated/profile-screen/logics/useProfileScreenLogic';
+import { IUserProfile } from '../../../screens/authenticated/profile-screen/logics/use-profile-screen-logic';
 import { ITeamTask } from '../../interfaces/ITask';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';

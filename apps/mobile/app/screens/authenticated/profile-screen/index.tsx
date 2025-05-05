@@ -2,21 +2,21 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { ViewStyle, LogBox, StatusBar } from 'react-native';
-import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
-import HomeHeader from '../../../components/HomeHeader';
-import ProfileHeader from './components/ProfileHeader';
+import HomeHeader from '../../../components/home-header';
+import ProfileHeader from './components/profile-header';
 import { useStores } from '../../../models';
-import TaskFilter from './components/TaskFilter';
+import TaskFilter from './components/task-filter';
 import { useTaskFilter } from '../../../services/hooks/features/useTaskFilters';
-import UserProfileTasks from './components/UserProfileTasks';
-import ProfileScreenSkeleton from './components/ProfileScreenSkeleton';
+import UserProfileTasks from './components/user-profile-tasks';
+import ProfileScreenSkeleton from './components/profile-screen-skeleton';
 import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
-import AcceptInviteModal from '../team-screen/components/AcceptInviteModal';
-import NoTeam from '../../../components/NoTeam';
-import CreateTeamModal from '../../../components/CreateTeamModal';
+import AcceptInviteModal from '../team-screen/components/accept-invite-modal';
+import NoTeam from '../../../components/no-team';
+import CreateTeamModal from '../../../components/create-team-modal';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
-import { useProfileScreenLogic } from './logics/useProfileScreenLogic';
+import { useProfileScreenLogic } from './logics/use-profile-screen-logic';
 import { useAppTheme } from '../../../theme';
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile'>> =

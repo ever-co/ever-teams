@@ -15,30 +15,30 @@ import {
 } from 'react-native';
 
 // TYPES
-import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
 
 // COMPONENTS
 import { Screen } from '../../../components';
-import InviteUserModal from './components/InviteUserModal';
-import ListCardItem from './components/ListCardItem';
+import InviteUserModal from './components/invite-user-modal';
+import ListCardItem from './components/list-card-item';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { spacing, typography, useAppTheme } from '../../../theme';
-import HomeHeader from '../../../components/HomeHeader';
-import DropDown from '../../../components/TeamDropdown/DropDown';
-import CreateTeamModal from '../../../components/CreateTeamModal';
+import HomeHeader from '../../../components/home-header';
+import DropDown from '../../../components/team-dropdown/drop-down';
+import CreateTeamModal from '../../../components/create-team-modal';
 import { useStores } from '../../../models';
-import InviteCardItem from './components/InviteCardItem';
+import InviteCardItem from './components/invite-card-item';
 import { BlurView } from 'expo-blur';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
 import { translate } from '../../../i18n';
-import useTeamScreenLogic from './logics/useTeamScreenLogic';
-import TeamScreenSkeleton from './components/TeamScreenSkeleton';
-import AcceptInviteModal from './components/AcceptInviteModal';
+import useTeamScreenLogic from './logics/use-team-screen-logic';
+import TeamScreenSkeleton from './components/team-screen-skeleton';
+import AcceptInviteModal from './components/accept-invite-modal';
 import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
-import NoTeam from '../../../components/NoTeam';
-import VerifyAccountModal from './components/VerifyAccount';
+import NoTeam from '../../../components/no-team';
+import VerifyAccountModal from './components/verify-account';
 import { useVerifyEmail } from '../../../services/hooks/features/useVerifyEmail';
 import { IOrganizationTeamWithMStatus, OT_Member } from '../../../services/interfaces/IOrganizationTeam';
 import { IInvitation } from '../../../services/interfaces/IInvite';
