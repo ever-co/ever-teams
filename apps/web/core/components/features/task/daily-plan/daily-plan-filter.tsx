@@ -108,7 +108,7 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 									<ListboxOptions className="outline-none ">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
+											className="p-4 md:p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
 										>
 											{filteredPlans.map((item) => (
 												<ListboxOption key={item.id} value={item.date.toString()} as="div">

@@ -115,13 +115,13 @@ function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: b
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row gap-4 lg:gap-5 xl:gap-8 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
-				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
+				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
+				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
 			)}
 		>
 			<AuthUserTaskInput
 				className={clsxm(
-					'w-full lg:basis-3/4 grow max-w-[68%]',
+					'w-full lg:basis-3/4 grow max-w-[72%]',
 					!showInput && '!hidden md:!flex',
 					!isTrackingEnabled && 'md:w-full'
 				)}

@@ -418,7 +418,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<Card
 											shadow="bigger"
 											className={clsxm(
-												'p-0 md:p-0 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+												'p-0 md:p-0 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
 												styles?.listCard
 											)}
 										>
