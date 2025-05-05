@@ -152,7 +152,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] !py-4',
+					'sm:flex sm:flex-col hidden transition-all dark:bg-[#1E2025] min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -203,7 +203,7 @@ export function UserTeamCard({
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
+								className="relative flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -212,7 +212,11 @@ export function UserTeamCard({
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon height={24} width={24} />
+									<CollapseUpIcon
+										className="absolute left-1/2 top-1/2 -translate-x-[35%] - translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}

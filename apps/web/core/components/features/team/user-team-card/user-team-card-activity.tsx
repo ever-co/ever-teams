@@ -28,9 +28,9 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 			leave="transition-opacity duration-150"
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
-			className="w-full px-4"
+			className="w-full"
 		>
-			<div className="w-full transition-all px-4">
+			<div className="flex flex-col justify-center w-full transition-all gap-y-4">
 				<HorizontalSeparator className="my-4" />
 				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
 				<div className="flex flex-col justify-between w-full overflow-hidden gap-y-5">
@@ -80,7 +80,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 						</Tab.Group>
 					</div>
 				</div>
-				<div className="overflow-hidden flex-1 w-full">
+				<div className="flex-1 w-full overflow-hidden">
 					<Tab.Group>
 						<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
 							{Object.values(ActivityFilters).map((filter: string) => (
@@ -100,8 +100,8 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 								</Tab>
 							))}
 						</Tab.List>
-						<Tab.Panels className="mt-2 w-full">
-							<Tab.Panel className="overflow-hidden w-full">
+						<Tab.Panels className="w-full mt-2">
+							<Tab.Panel className="w-full overflow-hidden">
 								<UserWorkedTaskTab member={member} />
 							</Tab.Panel>
 							<Tab.Panel className="w-full">

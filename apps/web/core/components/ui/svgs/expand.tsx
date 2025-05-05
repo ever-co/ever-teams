@@ -1,3 +1,5 @@
+import { FC, SVGProps } from 'react';
+
 export function ExpandIcon({ width, height, fill = '#8C7AE4' }: { width: number; height: number; fill?: string }) {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" width={width ?? '1em'} height={height ?? '1em'} viewBox="0 0 24 24">
@@ -6,9 +8,15 @@ export function ExpandIcon({ width, height, fill = '#8C7AE4' }: { width: number;
 	);
 }
 
-export function CollapseUpIcon({ width, height, fill = '#8C7AE4' }: { width: number; height: number; fill?: string }) {
+export const CollapseUpIcon: FC<SVGProps<SVGSVGElement>> = ({ width, height, fill = '#8C7AE4', ...props }) => {
 	return (
-		<svg xmlns="http://www.w3.org/2000/svg" width={width ?? '1em'} height={height ?? '1em'} viewBox="0 0 24 24">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width={width ?? '1em'}
+			height={height ?? '1em'}
+			viewBox="0 0 24 24"
+			{...props}
+		>
 			<g fill="none">
 				<g clipPath="url(#gravityUiChevronsCollapseUpRight0)">
 					<path
@@ -26,4 +34,4 @@ export function CollapseUpIcon({ width, height, fill = '#8C7AE4' }: { width: num
 			</g>
 		</svg>
 	);
-}
+};
