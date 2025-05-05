@@ -26,7 +26,7 @@ import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import { useTaskStatus } from './useTaskStatus';
 import { useDailyPlan } from './useDailyPlan';
-import { timerService } from '@/core/services/client/timer';
+import { timerService } from '@/core/services/client/api/timer';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
