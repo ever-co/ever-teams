@@ -1,4 +1,4 @@
-import { deleteIntegrationTenantAPI, getIntegrationTenantAPI } from '@/core/services/client/api';
+import { integrationTenantService } from '@/core/services/client/api';
 import { integrationTenantState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
@@ -10,8 +10,10 @@ export function useIntegrationTenant() {
 
 	const { setIntegrationGithubRepositories } = useGitHubIntegration();
 
-	const { loading: loading, queryCall: queryCall } = useQuery(getIntegrationTenantAPI);
-	const { loading: deleteLoading, queryCall: deleteQueryCall } = useQuery(deleteIntegrationTenantAPI);
+	const { loading, queryCall } = useQuery(integrationTenantService.getIntegrationTenant);
+	const { loading: deleteLoading, queryCall: deleteQueryCall } = useQuery(
+		integrationTenantService.deleteIntegrationTenant
+	);
 
 	const getIntegrationTenant = useCallback(
 		(name: string) => {

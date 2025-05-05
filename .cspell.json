@@ -4,6 +4,9 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"Blandit",
+		"lobortis",
+		"neque",
 		"Aaiun",
 		"Retryable",
 		"backoff",

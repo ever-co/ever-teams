@@ -57,7 +57,7 @@ export interface IEmployee {
 }
 
 export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
-export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>
+export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
 
 export interface IRole {
 	id?: string;
@@ -88,4 +88,11 @@ export type IWorkingEmployee = Pick<
 export interface IRelationnalEmployee {
 	readonly employee?: IEmployee;
 	readonly employeeId?: IEmployee['id'];
+}
+
+export interface IIInviteRequest {
+	email: string;
+	name: string;
+	teamId: string;
+	organizationId: string;
 }

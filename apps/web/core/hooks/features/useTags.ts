@@ -1,18 +1,18 @@
 import { ITag } from '@/core/types/interfaces';
-import { createTagAPI, deleteTagAPI, getTagsAPI, updateTagAPI } from '@/core/services/client/api';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import cloneDeep from 'lodash/cloneDeep';
 import { tagsState } from '@/core/stores/tags';
+import { tagService } from '@/core/services/client/api';
 
 export const useTags = () => {
 	const [tags, setTags] = useAtom(tagsState);
 
-	const { loading, queryCall: getTagsQueryCall } = useQuery(getTagsAPI);
-	const { loading: createTagLoading, queryCall: createTagQueryCall } = useQuery(createTagAPI);
-	const { loading: updateTagLoading, queryCall: updateTagQueryCall } = useQuery(updateTagAPI);
-	const { loading: deleteTagLoading, queryCall: deleteTagQueryCall } = useQuery(deleteTagAPI);
+	const { loading, queryCall: getTagsQueryCall } = useQuery(tagService.getTags);
+	const { loading: createTagLoading, queryCall: createTagQueryCall } = useQuery(tagService.createTag);
+	const { loading: updateTagLoading, queryCall: updateTagQueryCall } = useQuery(tagService.updateTag);
+	const { loading: deleteTagLoading, queryCall: deleteTagQueryCall } = useQuery(tagService.deleteTag);
 
 	const getTags = useCallback(() => {
 		getTagsQueryCall().then((response) => {

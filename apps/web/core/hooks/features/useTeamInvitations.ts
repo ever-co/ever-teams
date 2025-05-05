@@ -2,14 +2,6 @@
 
 import { MyInvitationActionEnum } from '@/core/types/interfaces';
 import {
-	getTeamInvitationsAPI,
-	inviteByEmailsAPI,
-	removeTeamInvitationsAPI,
-	resendTeamInvitationsAPI,
-	getMyInvitationsAPI,
-	acceptRejectMyInvitationsAPI
-} from '@/core/services/client/api';
-import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
 	getTeamInvitationsState,
@@ -21,6 +13,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { inviteService } from '../../services/client/api/invite';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -35,22 +28,27 @@ export function useTeamInvitations() {
 	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
-	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
+	const { queryCall, loading } = useQuery(inviteService.getTeamInvitations);
 
-	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteByEmailsAPI);
+	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteService.inviteByEmails);
 
-	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(removeTeamInvitationsAPI);
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(
+		inviteService.removeTeamInvitations
+	);
 
-	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(resendTeamInvitationsAPI);
+	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(
+		inviteService.resendTeamInvitations
+	);
 
 	const {
 		queryCall: myInvitationsQueryCall,
 		loading: myInvitationsLoading,
 		loadingRef: myInvitationsLoadingRef
-	} = useQuery(getMyInvitationsAPI);
+	} = useQuery(inviteService.getMyInvitations);
 
-	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } =
-		useQuery(acceptRejectMyInvitationsAPI);
+	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQuery(
+		inviteService.acceptRejectMyInvitations
+	);
 
 	const { user } = useAuthenticateUser();
 

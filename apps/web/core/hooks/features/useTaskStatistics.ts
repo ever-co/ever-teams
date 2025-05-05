@@ -1,11 +1,7 @@
 'use client';
 
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
-import {
-	activeTaskTimesheetStatisticsAPI,
-	allTaskTimesheetStatisticsAPI,
-	tasksTimesheetStatisticsAPI
-} from '@/core/services/client/api';
+
 import {
 	activeTaskStatisticsState,
 	activeTeamTaskState,
@@ -23,6 +19,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { taskService } from '@/core/services/client/api';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -51,19 +48,19 @@ export function useTaskStatistics(addSeconds = 0) {
 			if (!user?.employee.tenantId) {
 				return;
 			}
-			tasksTimesheetStatisticsAPI(user?.employee.tenantId, '', user?.employee.organizationId, employeeId).then(
-				({ data }) => {
+			taskService
+				.tasksTimesheetStatistics(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
+				.then(({ data }) => {
 					setStatTasks({
 						all: data.global || [],
 						today: data.today || []
 					});
-				}
-			);
+				});
 		},
 		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
-		allTaskTimesheetStatisticsAPI().then(({ data }) => {
+		taskService.allTaskTimesheetStatistics().then(({ data }) => {
 			setAllTaskStatistics(data);
 		});
 	}, [setAllTaskStatistics]);
@@ -94,7 +91,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		setTasksFetching(true);
 
-		const promise = activeTaskTimesheetStatisticsAPI(
+		const promise = taskService.activeTaskTimesheetStatistics(
 			user?.employee.tenantId,
 			'',
 			user?.employee.organizationId,

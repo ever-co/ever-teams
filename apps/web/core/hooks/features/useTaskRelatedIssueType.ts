@@ -2,12 +2,6 @@
 
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces';
 import {
-	createTaskRelatedIssueTypeAPI,
-	getTaskRelatedIssueTypeList,
-	deleteTaskRelatedIssueTypeAPI,
-	editTaskRelatedIssueTypeAPI
-} from '@/core/services/client/api';
-import {
 	userState,
 	taskRelatedIssueTypeFetchingState,
 	taskRelatedIssueTypeListState,
@@ -19,19 +13,24 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
+import { taskRelatedIssueTypeService } from '@/core/services/client/api';
 
 export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
-	const { loading: getTaskRelatedIssueTypeLoading, queryCall: getTaskRelatedIssueTypeQueryCall } =
-		useQuery(getTaskRelatedIssueTypeList);
-	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } =
-		useQuery(createTaskRelatedIssueTypeAPI);
-	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskRelatedIssueTypeAPI);
-	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } =
-		useQuery(editTaskRelatedIssueTypeAPI);
+	const { loading: getTaskRelatedIssueTypeLoading, queryCall: getTaskRelatedIssueTypeQueryCall } = useQuery(
+		taskRelatedIssueTypeService.getTaskRelatedIssueTypeList
+	);
+	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } = useQuery(
+		taskRelatedIssueTypeService.createTaskRelatedIssueType
+	);
+	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(
+		taskRelatedIssueTypeService.deleteTaskRelatedIssueType
+	);
+	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } = useQuery(
+		taskRelatedIssueTypeService.editTaskRelatedIssueType
+	);
 
 	const [taskRelatedIssueType, setTaskRelatedIssueType] = useAtom(taskRelatedIssueTypeListState);
 	const [taskRelatedIssueTypeFetching] = useAtom(taskRelatedIssueTypeFetchingState);

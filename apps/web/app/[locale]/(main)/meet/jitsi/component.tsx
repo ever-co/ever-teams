@@ -1,12 +1,12 @@
 'use client';
 
 import { useCollaborative, useQuery } from '@/core/hooks';
-import { getMeetJwtAuthTokenAPI } from '@/core/services/client/api/meet-auth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { meetAuthService } from '@/core/services/client/api';
 
 // Maximum number of retry attempts
 const MAX_RETRIES = 3;
@@ -22,7 +22,7 @@ function useMeetJwtToken(room?: string) {
 	const [token, setToken] = useState<string>();
 	const [error, setError] = useState<Error>();
 	const [retryCount, setRetryCount] = useState(0);
-	const { queryCall, loading } = useQuery(getMeetJwtAuthTokenAPI);
+	const { queryCall, loading } = useQuery(meetAuthService.getMeetJwtAuthToken);
 
 	useEffect(() => {
 		const getToken = async () => {

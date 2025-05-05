@@ -1,17 +1,19 @@
 import { IRolePermissions } from '@/core/types/interfaces';
-import { getRolePermissionAPI, updateRolePermissionAPI } from '@/core/services/client/api';
 import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import cloneDeep from 'lodash/cloneDeep';
+import { rolePermissionService } from '@/core/services/client/api';
 
 export const useRolePermissions = () => {
 	const [rolePermissions, setrolePermissions] = useAtom(rolePermissionsState);
 	const [rolePermissionsFormated, setRolePermissionsFormated] = useAtom(rolePermissionsFormatedState);
 
-	const { loading, queryCall: getRolePermissionsQueryCall } = useQuery(getRolePermissionAPI);
-	const { loading: updateRolePermissionLoading, queryCall: updateRoleQueryCall } = useQuery(updateRolePermissionAPI);
+	const { loading, queryCall: getRolePermissionsQueryCall } = useQuery(rolePermissionService.getRolePermission);
+	const { loading: updateRolePermissionLoading, queryCall: updateRoleQueryCall } = useQuery(
+		rolePermissionService.updateRolePermission
+	);
 
 	const getRolePermissions = useCallback(
 		(id: string) => {

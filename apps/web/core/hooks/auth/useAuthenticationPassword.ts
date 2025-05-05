@@ -4,9 +4,9 @@ import { validateForm } from '@/core/lib/helpers/index';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useCallback, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { signInEmailPasswordAPI, signInWorkspaceAPI } from '@/core/services/client/api';
 import { AxiosError, isAxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -30,13 +30,13 @@ export function useAuthenticationPassword() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(signInEmailPasswordAPI);
+	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(authService.signInEmailPassword);
 
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading
-	} = useQuery(signInWorkspaceAPI);
+	} = useQuery(authService.signInWorkspace);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;

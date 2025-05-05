@@ -1,13 +1,13 @@
 'use client';
 
 import { ITaskSizesCreate } from '@/core/types/interfaces';
-import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@/core/services/client/api';
 import { activeTeamIdState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import { taskSizeService } from '@/core/services/client/api';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -18,10 +18,14 @@ export function useTaskSizes() {
 		loading: getTaskSizesLoading,
 		queryCall: getTaskSizesQueryCall,
 		loadingRef: getTaskSizesLoadingRef
-	} = useQuery(getTaskSizes);
-	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQuery(createTaskSizeAPI);
-	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQuery(deleteTaskSizeAPI);
-	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQuery(editTaskSizeAPI);
+	} = useQuery(taskSizeService.getTaskSizes);
+	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQuery(
+		taskSizeService.createTaskSize
+	);
+	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQuery(
+		taskSizeService.deleteTaskSize
+	);
+	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQuery(taskSizeService.editTaskSize);
 
 	const loadTaskSizes = useCallback(async () => {
 		try {

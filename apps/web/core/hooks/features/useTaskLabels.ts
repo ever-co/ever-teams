@@ -1,12 +1,6 @@
 'use client';
 
 import { ITaskLabelsCreate } from '@/core/types/interfaces';
-import {
-	getTaskLabelsList,
-	deleteTaskLabelsAPI,
-	createTaskLabelsAPI,
-	editTaskLabelsAPI
-} from '@/core/services/client/api';
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -14,6 +8,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
+import { taskLabelService } from '@/core/services/client/api';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);
@@ -23,10 +18,14 @@ export function useTaskLabels() {
 		loading: getTaskLabelsLoading,
 		queryCall: getTaskLabelsQueryCall,
 		loadingRef: getTaskLabelsLoadingRef
-	} = useQuery(getTaskLabelsList);
-	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } = useQuery(createTaskLabelsAPI);
-	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskLabelsAPI);
-	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } = useQuery(editTaskLabelsAPI);
+	} = useQuery(taskLabelService.getTaskLabelsList);
+	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } = useQuery(
+		taskLabelService.createTaskLabels
+	);
+	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } = useQuery(
+		taskLabelService.deleteTaskLabels
+	);
+	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } = useQuery(taskLabelService.editTaskLabels);
 
 	const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
 

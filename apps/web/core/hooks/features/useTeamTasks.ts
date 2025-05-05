@@ -8,17 +8,7 @@ import {
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
 import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces';
-import {
-	createTeamTaskAPI,
-	deleteTaskAPI,
-	getTeamTasksAPI,
-	updateTaskAPI,
-	deleteEmployeeFromTasksAPI,
-	getTasksByIdAPI,
-	getTasksByEmployeeIdAPI,
-	getAllDayPlansAPI,
-	getMyDailyPlansAPI
-} from '@/core/services/client/api';
+import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
 	activeTeamTaskId,
@@ -103,22 +93,24 @@ export function useTeamTasks() {
 	const setMyDailyPlans = useSetAtom(myDailyPlanListState);
 
 	// Queries hooks
-	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
-	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
-	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } =
-		useQuery(getTasksByEmployeeIdAPI);
+	const { queryCall, loading, loadingRef } = useQuery(taskService.getTeamTasks);
+	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(taskService.getTasksById);
+	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } = useQuery(
+		taskService.getTasksByEmployeeId
+	);
 
-	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(deleteTaskAPI);
+	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(taskService.deleteTask);
 
-	const { queryCall: createQueryCall, loading: createLoading } = useQuery(createTeamTaskAPI);
+	const { queryCall: createQueryCall, loading: createLoading } = useQuery(taskService.createTeamTask);
 
-	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(updateTaskAPI);
+	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(taskService.updateTask);
 
-	const { queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
-	const { queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
+	const { queryCall: getAllQueryCall } = useQuery(dailyPlanService.getAllDayPlans);
+	const { queryCall: getMyDailyPlansQueryCall } = useQuery(dailyPlanService.getMyDailyPlans);
 
-	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } =
-		useQuery(deleteEmployeeFromTasksAPI);
+	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } = useQuery(
+		taskService.deleteEmployeeFromTasks
+	);
 
 	const getAllDayPlans = useCallback(async () => {
 		try {

@@ -4,12 +4,12 @@ import { useAtom, useAtomValue } from 'jotai';
 import moment from 'moment';
 import { useCallback, useEffect } from 'react';
 
-import { getTimerDailyRequestAPI } from '@/core/services/client/api';
 import { activityTypeState } from '@/core/stores/activity-type';
 import { timeAppsState, timeVisitedSitesState } from '@/core/stores/time-slot';
 
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { activityService } from '@/core/services/client/api/activity';
 
 export function useTimeDailyActivity(type?: string) {
 	const { user } = useAuthenticateUser();
@@ -17,7 +17,7 @@ export function useTimeDailyActivity(type?: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useAtom(timeVisitedSitesState);
 
-	const { loading, queryCall } = useQuery(getTimerDailyRequestAPI);
+	const { loading, queryCall } = useQuery(activityService.getTimerDaily);
 
 	const getVisitedApps = useCallback(
 		(title?: string) => {

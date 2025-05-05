@@ -4,13 +4,6 @@ import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/ITimer';
 import {
-	getTimerStatusAPI,
-	startTimerAPI,
-	stopTimerAPI,
-	toggleTimerAPI,
-	syncTimerAPI
-} from '@/core/services/client/api/timer';
-import {
 	localTimerStatusState,
 	timeCounterIntervalState,
 	timeCounterState,
@@ -33,6 +26,7 @@ import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import { useTaskStatus } from './useTaskStatus';
 import { useDailyPlan } from './useDailyPlan';
+import { timerService } from '@/core/services/client/api/timer';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -168,15 +162,15 @@ export function useTimer() {
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQuery(getTimerStatusAPI);
-	const { queryCall: toggleQueryCall } = useQuery(toggleTimerAPI);
-	const { queryCall: startTimerQueryCall } = useQuery(startTimerAPI);
-	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(stopTimerAPI);
+	const { queryCall, loading, loadingRef } = useQuery(timerService.getTimerStatus);
+	const { queryCall: toggleQueryCall } = useQuery(timerService.toggleTimer);
+	const { queryCall: startTimerQueryCall } = useQuery(timerService.startTimer);
+	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(timerService.stopTimer);
 	const {
 		queryCall: syncTimerQueryCall,
 		loading: syncTimerLoading,
 		loadingRef: syncTimerLoadingRef
-	} = useQuery(syncTimerAPI);
+	} = useQuery(timerService.syncTimer);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);

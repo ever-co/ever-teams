@@ -3,9 +3,9 @@
 import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@/core/services/client/api/auth/invite-accept';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useSession } from 'next-auth/react';
+import { signinService } from '@/core/services/client/api/auth/signin.service';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -33,17 +33,18 @@ export function useAuthenticationSocialLogin() {
 			defaultTeamId?: IOrganizationTeam['id']
 		) => {
 			setSignInWorkspaceLoading(true);
-			signInWorkspaceAPI({
-				email: signinResult.confirmed_mail,
-				token: workspaces[selectedWorkspace].token,
-				defaultTeamId
-			})
+			signinService
+				.signInWorkspace({
+					email: signinResult.confirmed_mail,
+					token: workspaces[selectedWorkspace].token,
+					defaultTeamId
+				})
 				.then(async (result) => {
 					const tenantId = result.user?.tenantId || '';
 					const access_token = result.token;
 					const userId = result.user?.id;
 
-					const organizations = await getUserOrganizationsRequest({
+					const organizations = await signinService.getUserOrganizations({
 						tenantId,
 						userId,
 						token: access_token

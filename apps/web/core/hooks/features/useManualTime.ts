@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { addManualTimeRequestAPI } from '@/core/services/client/api/timer/manual-time';
 import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
+import { manualTimeService } from '@/core/services/client/api/timer/manual-time.service';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
 
-	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(addManualTimeRequestAPI);
+	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(manualTimeService.addManualTime);
 	const [timeLog, setTimeLog] = useState<ITimeLog>();
 
 	const addManualTime = useCallback(

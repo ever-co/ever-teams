@@ -3,18 +3,18 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
 import { IUser } from '@/core/types/interfaces';
-import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@/core/services/client/api';
 import { clsxm } from '@/core/lib/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
-	const [verified, setVefified] = useState(true);
+	const [verified, setVerified] = useState(true);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
@@ -22,18 +22,18 @@ export function UnverifiedEmail() {
 		const hasVerified = user ? user.isEmailVerified : true;
 
 		if (hasVerified) {
-			setVefified(true);
+			setVerified(true);
 			return;
 		}
 
 		const closed = window.localStorage.getItem('unverified-message-closed') === getAccessTokenCookie();
 
 		if (closed) {
-			setVefified(true);
+			setVerified(true);
 			return;
 		}
 
-		setVefified(false);
+		setVerified(false);
 	}, [user]);
 
 	return !verified ? (
@@ -78,8 +78,8 @@ export function UnverifiedEmail() {
 }
 
 export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
-	const { loading, queryCall } = useQuery(verifyUserEmailByCodeAPI);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
+	const { loading, queryCall } = useQuery(authService.verifyUserEmailByCode);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();

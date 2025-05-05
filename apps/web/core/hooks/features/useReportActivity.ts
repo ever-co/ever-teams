@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/timer/ITimerLog';
-import {
-	getActivityReport,
-	getTimeLogReportDaily,
-	getTimeLogReportDailyChart,
-	getTimesheetStatisticsCounts
-} from '@/core/services/client/api/timer/timer-log';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
@@ -17,6 +11,7 @@ import {
 } from '@/core/stores';
 import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
+import { timerLogsService } from '@/core/services/client/api/timer/timer-log.service';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -87,12 +82,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const [activityReport, setActivityReport] = useAtom(activityReportState);
 
 	// API queries
-	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
-		useQuery(getTimeLogReportDailyChart);
-	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
-	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } =
-		useQuery(getTimesheetStatisticsCounts);
-	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
+	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQuery(
+		timerLogsService.getTimeLogReportDailyChart
+	);
+	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(
+		timerLogsService.getTimeLogReportDaily
+	);
+	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } = useQuery(
+		timerLogsService.getTimesheetStatisticsCounts
+	);
+	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(
+		timerLogsService.getActivityReport
+	);
 
 	// Memoized employee and team IDs
 	const employeeIds = useMemo(

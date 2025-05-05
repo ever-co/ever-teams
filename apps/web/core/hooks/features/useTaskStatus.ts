@@ -1,19 +1,13 @@
 'use client';
 
 import { ITaskStatusCreate, ITaskStatusOrder } from '@/core/types/interfaces';
-import {
-	createTaskStatusAPI,
-	getTaskStatusesAPI,
-	deleteTaskStatusAPI,
-	editTaskStatusAPI,
-	editTaskStatusOrderAPI
-} from '@/core/services/client/api';
 import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import { taskStatusService } from '@/core/services/client/api';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -27,11 +21,17 @@ export function useTaskStatus() {
 		loading: getTaskStatusesLoading,
 		queryCall: getTaskStatusesQueryCall,
 		loadingRef: getTaskStatusesLoadingRef
-	} = useQuery(getTaskStatusesAPI);
-	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
-	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
-	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);
-	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQuery(editTaskStatusOrderAPI);
+	} = useQuery(taskStatusService.getTaskStatuses);
+	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(
+		taskStatusService.createTaskStatus
+	);
+	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(
+		taskStatusService.deleteTaskStatus
+	);
+	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(taskStatusService.editTaskStatus);
+	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQuery(
+		taskStatusService.editTaskStatusOrder
+	);
 
 	const getTaskStatuses = useCallback(async () => {
 		try {

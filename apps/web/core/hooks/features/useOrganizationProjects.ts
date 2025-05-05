@@ -1,11 +1,3 @@
-import {
-	editOrganizationProjectSettingAPI,
-	editOrganizationProjectAPI,
-	getOrganizationProjectAPI,
-	getOrganizationProjectsAPI,
-	createOrganizationProjectAPI,
-	deleteOrganizationProjectAPI
-} from '@/core/services/client/api';
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
@@ -14,6 +6,7 @@ import { organizationProjectsState } from '@/core/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
+import { organizationProjectService } from '@/core/services/client/api';
 
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
@@ -22,23 +15,28 @@ export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
 	const { firstLoadData: firstOrganizationProjectsLoad } = useFirstLoad();
 
-	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } =
-		useQuery(editOrganizationProjectAPI);
+	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } = useQuery(
+		organizationProjectService.editOrganizationProject
+	);
 
 	const { loading: editOrganizationProjectSettingLoading, queryCall: editOrganizationProjectSettingQueryCall } =
-		useQuery(editOrganizationProjectSettingAPI);
+		useQuery(organizationProjectService.editOrganizationProjectSetting);
 
-	const { loading: getOrganizationProjectLoading, queryCall: getOrganizationProjectQueryCall } =
-		useQuery(getOrganizationProjectAPI);
+	const { loading: getOrganizationProjectLoading, queryCall: getOrganizationProjectQueryCall } = useQuery(
+		organizationProjectService.getOrganizationProject
+	);
 
-	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } =
-		useQuery(getOrganizationProjectsAPI);
+	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } = useQuery(
+		organizationProjectService.getOrganizationProjects
+	);
 
-	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } =
-		useQuery(createOrganizationProjectAPI);
+	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } = useQuery(
+		organizationProjectService.createOrganizationProject
+	);
 
-	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } =
-		useQuery(deleteOrganizationProjectAPI);
+	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } = useQuery(
+		organizationProjectService.deleteOrganizationProject
+	);
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {

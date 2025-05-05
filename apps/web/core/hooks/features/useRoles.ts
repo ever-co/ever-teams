@@ -1,18 +1,18 @@
 import { IRole } from '@/core/types/interfaces';
-import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@/core/services/client/api';
 import { rolesState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { useFirstLoad } from '../useFirstLoad';
+import { roleService } from '@/core/services/client/api/role';
 
 export const useRoles = () => {
 	const [roles, setRoles] = useAtom(rolesState);
 	const { firstLoadData: firstRolesLoad } = useFirstLoad();
-	const { loading, queryCall: getRolesQueryCall } = useQuery(getRolesAPI);
-	const { loading: createRoleLoading, queryCall: createRoleQueryCall } = useQuery(createRoleAPI);
-	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } = useQuery(updateRoleAPI);
-	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } = useQuery(deleteRoleAPI);
+	const { loading, queryCall: getRolesQueryCall } = useQuery(roleService.getRoles);
+	const { loading: createRoleLoading, queryCall: createRoleQueryCall } = useQuery(roleService.createRole);
+	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } = useQuery(roleService.updateRole);
+	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } = useQuery(roleService.deleteRole);
 
 	const getRoles = useCallback(async () => {
 		try {

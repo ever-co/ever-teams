@@ -1,16 +1,9 @@
-import {
-	getGithubIntegrationMetadataAPI,
-	getGithubIntegrationRepositoriesAPI,
-	installGitHubIntegrationAPI,
-	oAuthEndpointAuthorizationAPI,
-	syncGitHubRepositoryAPI
-} from '@/core/services/client/api/integrations/github';
 import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { IProjectRepository } from '@/core/types/interfaces';
-import { editOrganizationProjectSettingAPI } from '@/core/services/client/api';
+import { githubService, organizationProjectService } from '@/core/services/client/api';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);
@@ -20,14 +13,17 @@ export function useGitHubIntegration() {
 		integrationGithubRepositoriesState
 	);
 
-	const { loading: installLoading, queryCall: installQueryCall } = useQuery(installGitHubIntegrationAPI);
-	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(oAuthEndpointAuthorizationAPI);
-	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(getGithubIntegrationMetadataAPI);
-	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
-		getGithubIntegrationRepositoriesAPI
+	const { loading: installLoading, queryCall: installQueryCall } = useQuery(githubService.installGitHubIntegration);
+	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(githubService.oAuthEndpointAuthorization);
+	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
+		githubService.getGithubIntegrationMetadata
 	);
-	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } =
-		useQuery(syncGitHubRepositoryAPI);
+	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
+		githubService.getGithubIntegrationRepositories
+	);
+	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } = useQuery(
+		githubService.syncGitHubRepository
+	);
 
 	const installGitHub = useCallback(
 		(installation_id: string, setup_action: string) => {
@@ -85,7 +81,7 @@ export function useGitHubIntegration() {
 				repository
 			}).then((response) => {
 				if (response.data.id) {
-					editOrganizationProjectSettingAPI(
+					organizationProjectService.editOrganizationProjectSetting(
 						projectId,
 						{
 							tenantId,
