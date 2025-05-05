@@ -128,7 +128,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 							return (
 								<Card
 									shadow="custom"
-									className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
+									className="shadow-xl card !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
 								>
 									<ul className="flex flex-col items-start w-full">
 										{menu.map((item, i) => {

@@ -593,7 +593,7 @@ export function TaskCardMenu({
 				<Popover.Panel>
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
+							<Card shadow="custom" className="shadow-xl card !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link

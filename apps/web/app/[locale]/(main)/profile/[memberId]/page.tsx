@@ -143,7 +143,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							{profileIsAuthUser && isTrackingEnabled && (
 								<Timer
 									className={cn(
-										'p-5 rounded-2xl shadow-xlcard',
+										'p-5 rounded-2xl shadow-xl card',
 										'dark:border-[0.125rem] dark:border-[#28292F]',
 										'dark:bg-[#1B1D22]'
 									)}

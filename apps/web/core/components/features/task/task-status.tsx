@@ -1093,7 +1093,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									<ListboxOptions className="outline-none">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
+											className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
 										>
 											{items.map((item, i) => {
 												const item_value = item?.value || item?.name;
@@ -1269,7 +1269,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						<ListboxOptions static className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
+								className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
 							>
 								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
 									{items.map((item, i) => {

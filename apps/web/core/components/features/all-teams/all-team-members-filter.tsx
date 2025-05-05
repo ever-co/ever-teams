@@ -98,7 +98,7 @@ export function MemberFilter() {
 									<ListboxOptions className="outline-none ">
 										<Card
 											shadow="bigger"
-											className="p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
+											className="p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
 										>
 											{options.map((item) => (
 												<ListboxOption key={item.value} value={item} as={Fragment}>
