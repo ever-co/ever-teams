@@ -24,7 +24,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				showTaskNumber={true}
 				autoAssignTaskAuth={isTrackingEnabled}
 			/>
-			<div className="flex flex-row items-center justify-between gap-3 ml-2 lg:items-center">
+			<div className="flex flex-row items-center gap-3 ml-2 lg:gap-4 md:justify-between lg:justify-start">
 				<div className="mb-4 xl:flex lg:mb-0">
 					<span className="pr-2 font-normal text-gray-500">{t('common.ESTIMATE')}:</span>
 					<TaskEstimate />
@@ -32,26 +32,26 @@ export function AuthUserTaskInput({ className }: IClassName) {
 
 				<div className="justify-end flex-1 hidden gap-2 md:flex md:items-center">
 					<ActiveTaskStatusDropdown
-						className="lg:max-w-[190px] dark:text-white dark:border-white"
+						className="w-fit lg:max-w-[190px] dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
 						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] "
 					/>
 
 					<ActiveTaskPropertiesDropdown
-						className="lg:max-w-[190px] grow dark:text-white dark:border-white"
+						className="w-fit lg:max-w-[190px] dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 					/>
 
 					<ActiveTaskSizesDropdown
-						className="lg:max-w-[190px] grow dark:text-white dark:border-white"
+						className="w-fit lg:max-w-[190px] dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 					/>
 
 					<TaskLabels
 						task={activeTeamTask}
-						className="lg:max-w-[170px] grow text-xs"
+						className="w-fit lg:max-w-[170px] text-xs"
 						forDetails={false}
 						taskStatusClassName="dark:bg-[#1B1D22] text-xs border dark:border-[#fff]"
 					/>
