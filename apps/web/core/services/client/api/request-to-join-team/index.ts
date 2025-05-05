@@ -1,1 +1,1 @@
-export * from './request-to-joi-team.service';
+export * from './request-to-join-team.service';

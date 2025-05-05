@@ -49,7 +49,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
 		window.clearInterval(intervalRt.current);
-		intervalRt.current = window.setInterval(authService.refreshToken, interval);
+		intervalRt.current = window.setInterval(() => authService.refreshToken(), interval);
 
 		return () => {
 			window.clearInterval(intervalRt.current);

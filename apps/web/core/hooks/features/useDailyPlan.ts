@@ -45,7 +45,7 @@ export function useDailyPlan() {
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(
 		dailyPlanService.addTaskToPlan
 	);
-	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } = useQuery(
+	const { loading: removeTaskFromPlanLoading, queryCall: removeTaskFromPlanQueryCall } = useQuery(
 		dailyPlanService.removeTaskFromPlan
 	);
 	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(
@@ -270,7 +270,7 @@ export function useDailyPlan() {
 
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			const res = await removeTAskFromPlanQueryCall(data, planId);
+			const res = await removeTaskFromPlanQueryCall(data, planId);
 			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
 				(plan) => plan.id != planId
 			);
@@ -287,7 +287,7 @@ export function useDailyPlan() {
 			employeePlans,
 			getMyDailyPlans,
 			profileDailyPlans,
-			removeTAskFromPlanQueryCall,
+			removeTaskFromPlanQueryCall,
 			setEmployeePlans,
 			setProfileDailyPlans
 		]

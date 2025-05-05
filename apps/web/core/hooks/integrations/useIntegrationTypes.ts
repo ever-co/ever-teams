@@ -7,7 +7,7 @@ import { integrationService } from '@/core/services/client/api';
 export function useIntegrationTypes() {
 	const [integrationTypes, setIntegrationTypes] = useAtom(integrationTypesState);
 
-	const { loading: loading, queryCall: queryCall } = useQuery(integrationService.getIntegrationTypes);
+	const { loading, queryCall } = useQuery(integrationService.getIntegrationTypes);
 
 	const getIntegrationTypes = useCallback(() => {
 		return queryCall().then((response) => {

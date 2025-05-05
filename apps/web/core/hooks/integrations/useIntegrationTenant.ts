@@ -10,9 +10,9 @@ export function useIntegrationTenant() {
 
 	const { setIntegrationGithubRepositories } = useGitHubIntegration();
 
-	const { loading: loading, queryCall: queryCall } = useQuery(integrationTenantService.getIntegrationTenantAPI);
+	const { loading, queryCall } = useQuery(integrationTenantService.getIntegrationTenant);
 	const { loading: deleteLoading, queryCall: deleteQueryCall } = useQuery(
-		integrationTenantService.deleteIntegrationTenantAPI
+		integrationTenantService.deleteIntegrationTenant
 	);
 
 	const getIntegrationTenant = useCallback(

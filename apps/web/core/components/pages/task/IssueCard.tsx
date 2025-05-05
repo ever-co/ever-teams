@@ -107,7 +107,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
-	const { queryCall } = useQuery(taskLinkedIssueService.createTaskLinkedIsssue);
+	const { queryCall } = useQuery(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(

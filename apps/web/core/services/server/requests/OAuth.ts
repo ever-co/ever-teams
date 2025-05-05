@@ -15,7 +15,7 @@ import {
 import { generateToken } from '@/core/lib/helpers/index';
 import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
-import { singinService } from '../../client/api/auth/singin.service';
+import { signinService } from '../../client/api/auth/signin.service';
 
 export enum ProviderEnum {
 	GITHUB = 'github',
@@ -157,7 +157,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 			});
 		}
 
-		const data = await singinService.signInWorkspace({
+		const data = await signinService.signInWorkspace({
 			email: gauzyUser?.data.confirmed_email,
 			token: gauzyUser?.data.workspaces[0].token
 		});
@@ -165,7 +165,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 		const token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await singinService.getUserOrganizations({
+		const { data: organizations } = await signinService.getUserOrganizations({
 			tenantId,
 			userId,
 			token

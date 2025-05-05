@@ -54,7 +54,7 @@ export function useAuthenticationTeam() {
 	const [errors, setErrors] = useState(initialValues);
 	const { queryCall, loading, infiniteLoading } = useQuery(authService.registerUserTeam);
 
-	const handleSubmit = (e: any) => {
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (step === FIRST_STEP) {
 			const { errors, valid } = authFormValidate(['team'], formValues);

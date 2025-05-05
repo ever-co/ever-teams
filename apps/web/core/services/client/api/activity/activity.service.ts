@@ -51,7 +51,7 @@ class ActivityService extends APIService {
 		employeeId: string;
 		todayEnd: Date;
 		todayStart: Date;
-		type?: string | undefined;
+		type?: string;
 		title?: string;
 	}) => {
 		const params: {

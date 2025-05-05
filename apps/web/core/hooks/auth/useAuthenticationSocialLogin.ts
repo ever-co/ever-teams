@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useSession } from 'next-auth/react';
-import { singinService } from '@/core/services/client/api/auth/singin.service';
+import { signinService } from '@/core/services/client/api/auth/signin.service';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -33,7 +33,7 @@ export function useAuthenticationSocialLogin() {
 			defaultTeamId?: IOrganizationTeam['id']
 		) => {
 			setSignInWorkspaceLoading(true);
-			singinService
+			signinService
 				.signInWorkspace({
 					email: signinResult.confirmed_mail,
 					token: workspaces[selectedWorkspace].token,
@@ -44,7 +44,7 @@ export function useAuthenticationSocialLogin() {
 					const access_token = result.token;
 					const userId = result.user?.id;
 
-					const organizations = await singinService.getUserOrganizations({
+					const organizations = await signinService.getUserOrganizations({
 						tenantId,
 						userId,
 						token: access_token

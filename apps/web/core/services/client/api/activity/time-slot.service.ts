@@ -49,26 +49,7 @@ class TimeSlotsService extends APIService {
 		organizationId: string;
 		ids: string[];
 	}) => {
-		let idParams = '';
-		ids.map((id, i) => {
-			idParams += `&ids[${i}]=${id}`;
-		});
-		const params = {
-			tenantId: tenantId,
-			organizationId: organizationId
-		} as Record<string, string>;
-
-		const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
-
-		relations.forEach((rl, i) => {
-			params[`relations[${i}]`] = rl;
-		});
-		const query = qs.stringify(params);
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/timesheet/statistics/time-slots?${query}${idParams}`
-			: `/timer/slots?${query}${idParams}`;
-
-		return this.get(endpoint);
+		// Not implemented in the backend
 	};
 }
 

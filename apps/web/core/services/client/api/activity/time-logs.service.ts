@@ -15,8 +15,8 @@ class TimeLogsService extends APIService {
 			tenantId: tenantId,
 			organizationId: organizationId,
 			employeeIds,
-			todayEnd: startDate.toISOString(),
-			todayStart: endDate.toISOString()
+			todayStart: startDate.toISOString(),
+			todayEnd: endDate.toISOString()
 		};
 
 		const query = qs.stringify(params);

@@ -52,17 +52,17 @@ class OrganizationTeamService extends APIService {
 		return this.get<PaginationResponse<IOrganizationTeamList>>(endpoint, { tenantId });
 	};
 
-	createOrganizationTeamGauzy = async (datas: IOrganizationTeamCreate, bearer_token: string) => {
+	createOrganizationTeamGauzy = async (data: IOrganizationTeamCreate, bearer_token: string) => {
 		const project = await organizationProjectService.createOrganizationProject({
-			name: datas.name,
-			tenantId: datas.tenantId,
-			organizationId: datas.organizationId
+			name: data.name,
+			tenantId: data.tenantId,
+			organizationId: data.organizationId
 		});
 
-		datas.projects = [project.data];
+		data.projects = [project.data];
 
-		return this.post<IOrganizationTeam>('/organization-team', datas, {
-			tenantId: datas.tenantId,
+		return this.post<IOrganizationTeam>('/organization-team', data, {
+			tenantId: data.tenantId,
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		});
 	};

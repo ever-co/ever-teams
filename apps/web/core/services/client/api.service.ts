@@ -70,7 +70,7 @@ export abstract class APIService {
 				return config;
 			},
 			(error: any) => {
-				Promise.reject(error);
+				return Promise.reject(error);
 			}
 		);
 	}

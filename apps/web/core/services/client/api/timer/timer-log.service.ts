@@ -149,7 +149,7 @@ class TimerLogsService extends APIService {
 		try {
 			return this.put<TimesheetLog>(`/timesheet/time-log/${id}`, { ...data, organizationId }, { tenantId });
 		} catch (error) {
-			throw new Error('Failed to create timesheet log');
+			throw new Error('Failed to update timesheet log');
 		}
 	};
 

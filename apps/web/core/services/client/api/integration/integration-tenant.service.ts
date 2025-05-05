@@ -5,7 +5,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, IIntegrationTenant, PaginationResponse } from '@/core/types/interfaces';
 
 class IntegrationTenantService extends APIService {
-	getIntegrationTenantAPI = async (name: string) => {
+	getIntegrationTenant = async (name: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
@@ -22,7 +22,7 @@ class IntegrationTenantService extends APIService {
 		return this.get<PaginationResponse<IIntegrationTenant>>(endpoint);
 	};
 
-	deleteIntegrationTenantAPI = async (integrationId: string) => {
+	deleteIntegrationTenant = async (integrationId: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 

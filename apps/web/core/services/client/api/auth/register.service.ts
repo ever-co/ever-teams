@@ -76,11 +76,11 @@ class RegisterService extends APIService {
 	};
 
 	createEmployeeFromUser = async (data: ICreateEmployee, bearer_token: string) => {
-		const { data: data_1 } = await this.post<IEmployee>('/employee', data, {
+		const { data: _data } = await this.post<IEmployee>('/employee', data, {
 			tenantId: data.tenantId,
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		});
-		return data_1;
+		return _data;
 	};
 
 	refreshToken = async (refresh_token: string) => {
@@ -92,9 +92,7 @@ class RegisterService extends APIService {
 	registerGauzy = async (body: IRegisterDataAPI) => {
 		const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
-		const noRecaptchaArray = ['email', 'name', 'team'];
-
-		const validationFields = noRecaptchaArray;
+		const validationFields = ['email', 'name', 'team'];
 
 		const { errors, valid: formValid } = authFormValidate(validationFields, body);
 

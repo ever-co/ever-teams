@@ -20,7 +20,7 @@ class GithubService extends APIService {
 		});
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/integration/github/${integrationId}/metadata${query}`
+			? `/integration/github/${integrationId}/metadata?${query}`
 			: `/integration/github/metadata?integrationId=${integrationId}`;
 
 		return this.get<IGithubMetadata>(endpoint);
@@ -33,7 +33,7 @@ class GithubService extends APIService {
 		});
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/integration/github/${integrationId}/repositories${query}`
+			? `/integration/github/${integrationId}/repositories?${query}`
 			: `/integration/github/repositories?integrationId=${integrationId}`;
 
 		return this.get<IGithubRepositories>(endpoint);

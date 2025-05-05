@@ -20,7 +20,7 @@ import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/coo
 import { AcceptInviteParams } from '@/core/services/server/requests';
 import qs from 'qs';
 
-class SinginService extends APIService {
+class SigninService extends APIService {
 	acceptInvite = async (params: AcceptInviteParams) => {
 		try {
 			const res = await this.post<ILoginResponse>('/invite/accept', params);
@@ -227,6 +227,7 @@ class SinginService extends APIService {
 			loginResponse = await this.signInEmailCodeConfirmGauzy(email, code);
 		} catch (error) {
 			console.error('Error in signInEmailCodeConfirmation:', error);
+			throw error;
 		}
 
 		if (loginResponse) {
@@ -258,6 +259,7 @@ class SinginService extends APIService {
 				loginResponse = await this.signInEmailCodeConfirmGauzy(params.email, params.code);
 			} catch (error) {
 				console.error('Error in signInWorkspaces', error);
+				throw error;
 			}
 
 			if (loginResponse) {
@@ -320,4 +322,4 @@ class SinginService extends APIService {
 	};
 }
 
-export const singinService = new SinginService(GAUZY_API_BASE_SERVER_URL.value);
+export const signinService = new SigninService(GAUZY_API_BASE_SERVER_URL.value);

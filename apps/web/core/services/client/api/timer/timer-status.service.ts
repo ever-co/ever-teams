@@ -25,7 +25,7 @@ class TimerStatusService extends APIService {
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? `/timesheet/timer/status?${query}`
-			: `/timer/status?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}&employeeId=${employeeId}`;
+			: `/timer/status?tenantId=${tenantId}&organizationId=${organizationId}${organizationTeamId ? `&organizationTeamId=${organizationTeamId}` : ''}&employeeId=${employeeId}`;
 
 		return this.get<ITimerStatus>(endpoint, { tenantId });
 	};

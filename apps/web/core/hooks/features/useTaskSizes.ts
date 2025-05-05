@@ -1,7 +1,6 @@
 'use client';
 
 import { ITaskSizesCreate } from '@/core/types/interfaces';
-// import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@/core/services/client/api';
 import { activeTeamIdState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/task-sizes';
 import { useCallback } from 'react';

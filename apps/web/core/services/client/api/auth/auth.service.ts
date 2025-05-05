@@ -20,7 +20,7 @@ import {
 } from '@/core/constants/config/constants';
 import api from '../../axios';
 import { ProviderEnum } from '@/core/services/server/requests/OAuth';
-import { singinService } from './singin.service';
+import { signinService } from './signin.service';
 
 class AuthService extends APIService {
 	/**
@@ -83,7 +83,7 @@ class AuthService extends APIService {
 		return this.post<ISuccessResponse>(endpoint, { code, tenantId, email });
 	};
 
-	resentVerifyUserLink = async (user: IUser) => {
+	resendVerifyUserLink = async (user: IUser) => {
 		const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 		const registerDefaultValue = {
 			appName: APP_NAME,
@@ -137,7 +137,7 @@ class AuthService extends APIService {
 
 	signInEmailConfirm = async (email: string, code: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return singinService.signInEmailConfirmGauzy(email, code);
+			return signinService.signInEmailConfirmGauzy(email, code);
 		}
 
 		return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
@@ -155,7 +155,7 @@ class AuthService extends APIService {
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return singinService.signInWorkspaceGauzy({
+			return signinService.signInWorkspaceGauzy({
 				email: params.email,
 				token: params.token,
 				teamId: params.selectedTeam,
