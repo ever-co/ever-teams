@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+
+import defaultTheme from 'tailwindcss/defaultTheme';
 module.exports = {
 	darkMode: ['class'],
 	corePlugins: {
@@ -13,10 +15,16 @@ module.exports = {
 		'./utils/**/*.{ts,tsx}',
 		'./lib/**/*.{ts,tsx}',
 		'./icons/**/*.{ts,tsx}',
-		'./core/**/*.{ts,tsx}'
+		'./core/components/**/*.{ts,tsx}',
+		'./core/utils/**/*.{ts,tsx}',
+		'./core/hooks/**/*.{ts,tsx}',
+		'./core/constants/**/*.{ts,tsx}',
+		'./core/stores/**/*.{ts,tsx}'
 	],
 	theme: {
 		screens: {
+			...defaultTheme.screens,
+			xss: '375px',
 			xs: '414px',
 			sm: '576px',
 			md: '768px',
