@@ -203,7 +203,7 @@ export function UserTeamCard({
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="relative flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
+								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -212,11 +212,7 @@ export function UserTeamCard({
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon
-										className="absolute left-1/2 top-1/2 -translate-x-[35%] - translate-y-[35%]"
-										height={24}
-										width={24}
-									/>
+									<CollapseUpIcon className="flex-none shrink-0" height={24} width={24} />
 								)}
 							</p>
 						) : null}

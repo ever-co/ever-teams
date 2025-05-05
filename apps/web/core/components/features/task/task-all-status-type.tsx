@@ -73,13 +73,13 @@ export function TaskAllStatusTypes({
 	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
 
 	return (
-		<div className="relative w-full h-full flex flex-col justify-center">
-			<div ref={viewportRef} className="overflow-hidden w-full relative">
+		<div className="relative flex flex-col justify-center w-full h-full">
+			<div ref={viewportRef} className="relative w-full overflow-hidden">
 				<div className={clsxm('flex space-x-2 h-6 justify-start items-center', className)}>
 					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
 							{...taskStatus[task?.status]}
-							className="rounded-[0.625rem]"
+							className="!rounded-[0.625rem]"
 							active={!!task?.status}
 							name={task?.status?.split('-').join(' ') || 'Status'}
 							titleClassName={'text-[0.625rem] font-[500]'}
@@ -104,8 +104,8 @@ export function TaskAllStatusTypes({
 						/>
 					)}
 					{taskProject && (
-						<div className="flex items-center justify-center gap-1 h-full px-2 bg-slate-200">
-							<ProjectIcon /> <span className=" text-xs truncate">{taskProject.name}</span>
+						<div className="flex items-center justify-center h-full gap-1 px-2 bg-slate-200">
+							<ProjectIcon /> <span className="text-xs truncate ">{taskProject.name}</span>
 						</div>
 					)}
 					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (

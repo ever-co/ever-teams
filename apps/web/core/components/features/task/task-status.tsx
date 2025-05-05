@@ -846,11 +846,11 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative gap-x-2 min-w-fit w-auto`,
+				`p-1 flex items-center text-xs relative gap-x-1.5 min-w-fit w-fit !rounded-[8px]`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
-				issueType === 'issue' && ['px-2 text-white'],
+				issueType === 'issue' && ['text-white'],
 
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]'],
 
@@ -867,7 +867,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex overflow-hidden gap-x-1 items-center whitespace-nowrap text-ellipsis',
+					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis',
 					'',
 					titleClassName
 				)}
@@ -888,7 +888,7 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`overflow-hidden capitalize text-ellipsis`}
+						className={`overflow-hidden text-xs capitalize text-ellipsis`}
 						title={realName || name}
 						style={
 							isVersion || isEpic
@@ -984,7 +984,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			className={clsxm(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
 				!forDetails && 'w-full max-w-[190px]',
-				'flex items-center gap-x-2',
+				'flex items-center gap-x-1.5',
 				sidebarUI && ['text-xs'],
 				!value && [
 					'!text-dark/40 dark:text-white/70',
@@ -1108,10 +1108,11 @@ export function StatusDropdown<T extends TStatusItem>({
 																	item?.value ? values.includes(item?.value) : false
 																}
 																className={clsxm(
+																	'!w-full',
 																	issueType === 'issue' && [
 																		'rounded-md px-2 text-white'
 																	],
-																	sidebarUI && 'rounded-[4px]',
+																	sidebarUI && 'rounded-[8px]',
 																	bordered && 'input-border',
 																	(isVersion || isEpic) && 'dark:text-white',
 																	item?.className
@@ -1281,8 +1282,9 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 														{...item}
 														cheched={item.value ? values.includes(item.value) : false}
 														className={clsxm(
+															'!w-full',
 															issueType === 'issue' && ['rounded-md px-2 text-white'],
-															`${sidebarUI ? 'rounded-[4px]' : ''}`,
+															`${sidebarUI ? 'rounded-[8px]' : ''}`,
 															`${bordered ? 'input-border' : ''}`,
 															isVersion && 'dark:text-white'
 														)}

@@ -333,7 +333,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		<>
 			<div
 				className={clsxm(
-					'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs',
+					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-[7.6875rem] rounded-[8px]',
 					styles?.container
 				)}
 			>
@@ -354,9 +354,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								<ListboxButton
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
-									items-center justify-between h-[2.37rem] px-2
+									items-center justify-between h-fit p-1
 									border-solid border-color-[#F2F2F2]
-									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-lg`,
+									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
 										styles?.value
 									)}
 								>
