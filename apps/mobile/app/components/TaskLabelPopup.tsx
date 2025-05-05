@@ -18,7 +18,7 @@ import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../services/hooks/features/useTaskLabels';
 import { BadgedTaskLabel } from './LabelIcon';
 import { translate } from '../i18n';
-import TaskLabelForm from '../screens/Authenticated/TaskLabelScreen/components/TaskLabelForm';
+import TaskLabelForm from '../screens/authenticated/task-label-screen/components/TaskLabelForm';
 import { BlurView } from 'expo-blur';
 
 export interface Props {

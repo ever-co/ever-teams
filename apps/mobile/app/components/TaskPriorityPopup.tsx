@@ -19,7 +19,7 @@ import { useTaskPriority } from '../services/hooks/features/useTaskPriority';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';
-import TaskPriorityForm from '../screens/Authenticated/TaskPrioritiesScreen/components/TaskPriorityForm';
+import TaskPriorityForm from '../screens/authenticated/task-priorities-screen/components/TaskPriorityForm';
 
 export interface Props {
 	visible: boolean;

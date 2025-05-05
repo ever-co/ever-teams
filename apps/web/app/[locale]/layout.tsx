@@ -15,7 +15,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
 import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
-import { cn } from '@ever-teams/ui';
+import { cn } from '@/core/lib/helpers';
+// import { cn } from '@ever-teams/ui';
 
 interface Props extends PropsWithChildren {
 	params: Promise<{ locale: string }>;

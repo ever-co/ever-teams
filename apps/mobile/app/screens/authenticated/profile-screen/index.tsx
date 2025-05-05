@@ -12,7 +12,7 @@ import { useTaskFilter } from '../../../services/hooks/features/useTaskFilters';
 import UserProfileTasks from './components/UserProfileTasks';
 import ProfileScreenSkeleton from './components/ProfileScreenSkeleton';
 import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
-import AcceptInviteModal from '../TeamScreen/components/AcceptInviteModal';
+import AcceptInviteModal from '../team-screen/components/AcceptInviteModal';
 import NoTeam from '../../../components/NoTeam';
 import CreateTeamModal from '../../../components/CreateTeamModal';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';

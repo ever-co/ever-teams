@@ -13,7 +13,7 @@ import {
 	TextInput,
 } from "react-native"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import ComboBox from "../../../screens/Authenticated/TimerScreen/components/ComboBox"
+import ComboBox from "../../../screens/authenticated/timer-screen/components/ComboBox"
 import { translate } from "../../../i18n"
 import IssuesModal from "../../IssuesModal"
 import { useStores } from "../../../models"

@@ -21,7 +21,7 @@ import { useTaskVersion } from '../services/hooks/features/useTaskVersion';
 import { BadgedTaskVersion } from './VersionIcon';
 import { ITaskVersionItemList } from '../services/interfaces/ITaskVersion';
 import { translate } from '../i18n';
-import TaskVersionForm from '../screens/Authenticated/TaskVersionScreen/components/TaskVersionForm';
+import TaskVersionForm from '../screens/authenticated/task-version-screen/components/TaskVersionForm';
 
 export interface Props {
 	visible: boolean;

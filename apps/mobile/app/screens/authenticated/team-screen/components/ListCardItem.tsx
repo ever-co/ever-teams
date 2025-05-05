@@ -11,7 +11,7 @@ import { Card, ListItem } from '../../../../components';
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { spacing, typography, useAppTheme } from '../../../../theme';
-import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import EstimateTime from '../../timer-screen/components/EstimateTime';
 import AllTaskStatuses from '../../../../components/AllTaskStatuses';
 import { IOrganizationTeamWithMStatus, OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import {

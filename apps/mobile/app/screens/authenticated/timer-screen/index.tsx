@@ -15,7 +15,7 @@ import TimerScreenSkeleton from './components/TimerScreenSkeleton';
 import { useAppTheme } from '../../../theme';
 import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
 import { useTaskInput } from '../../../services/hooks/features/useTaskInput';
-import AcceptInviteModal from '../TeamScreen/components/AcceptInviteModal';
+import AcceptInviteModal from '../team-screen/components/AcceptInviteModal';
 import NoTeam from '../../../components/NoTeam';
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> = function AuthenticatedTimerScreen(

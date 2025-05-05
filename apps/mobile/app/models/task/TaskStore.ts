@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { IFilter } from "../../screens/Authenticated/ProfileScreen/components/FilterPopup"
+import { IFilter } from "../../screens/authenticated/profile-screen/components/FilterPopup"
 import { ITeamTask } from "../../services/interfaces/ITask"
 
 export const TaskStoreModel = types

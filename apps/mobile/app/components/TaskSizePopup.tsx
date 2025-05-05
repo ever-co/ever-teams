@@ -19,7 +19,7 @@ import { ITaskSizeItem } from '../services/interfaces/ITaskSize';
 import { BadgedTaskSize } from './SizeIcon';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';
-import TaskSizeForm from '../screens/Authenticated/TaskSizeScreen/components/TaskSizeForm';
+import TaskSizeForm from '../screens/authenticated/task-size-screen/components/TaskSizeForm';
 
 export interface Props {
 	visible: boolean;

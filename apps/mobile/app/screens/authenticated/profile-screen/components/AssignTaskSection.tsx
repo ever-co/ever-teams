@@ -20,7 +20,7 @@ import { QueryClient } from '@tanstack/react-query';
 import TaskPriorities from '../../../../components/TaskPriority';
 import TaskSize from '../../../../components/TaskSize';
 import TaskLabels from '../../../../components/TaskLabels';
-import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import EstimateTime from '../../timer-screen/components/EstimateTime';
 import { translate } from '../../../../i18n';
 import { ICreateTask, ITeamTask } from '../../../../services/interfaces/ITask';
 import TaskStatus from '../../../../components/TaskStatus';

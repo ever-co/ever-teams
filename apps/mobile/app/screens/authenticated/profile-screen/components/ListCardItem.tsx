@@ -20,7 +20,7 @@ import { IUserProfile } from '../logics/useProfileScreenLogic';
 import TaskTitleDisplay from './TaskTitleDisplay';
 import AllTaskStatuses from '../../../../components/AllTaskStatuses';
 import WorkedOnTaskHours from '../../../../components/WorkedDayHours';
-import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import EstimateTime from '../../timer-screen/components/EstimateTime';
 import { secondsToTime } from '../../../../helpers/date';
 import { useTaskStatistics } from '../../../../services/hooks/features/useTaskStatics';
 import { useStores } from '../../../../models';
