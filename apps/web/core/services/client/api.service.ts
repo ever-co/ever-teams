@@ -98,10 +98,6 @@ export abstract class APIService {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 		let baseURL: string | undefined = this.baseURL;
-		const API = {
-			GAUZY_API: {},
-			EVER_TEAMS_API: {}
-		};
 
 		if (IS_DESKTOP_APP) {
 			// dynamic api host while on desktop mode
