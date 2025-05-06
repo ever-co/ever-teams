@@ -6,7 +6,7 @@ import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import { issueTypeService } from '../../services/client/api';
+import { issueTypeService } from '@/core/services/client/api/task/issue-type.service';
 
 export function useIssueType() {
 	const [user] = useAtom(userState);

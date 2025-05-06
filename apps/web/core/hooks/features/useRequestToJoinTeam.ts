@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 
 import { useQuery } from '../useQuery';
-import { requestToJoinTeamService } from '../../services/client/api';
+import { requestToJoinTeamService } from '@/core/services/client/api/organization-team';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);

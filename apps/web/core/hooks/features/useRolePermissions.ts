@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import cloneDeep from 'lodash/cloneDeep';
-import { rolePermissionService } from '@/core/services/client/api';
+import { rolePermissionService } from '@/core/services/client/api/role/role-permission.service';
 
 export const useRolePermissions = () => {
 	const [rolePermissions, setrolePermissions] = useAtom(rolePermissionsState);

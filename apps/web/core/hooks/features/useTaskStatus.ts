@@ -7,7 +7,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { taskStatusService } from '@/core/services/client/api';
+import { taskStatusService } from '@/core/services/client/api/task/task-status.service';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

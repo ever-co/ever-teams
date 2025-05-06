@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
-import { taskLinkedIssueService } from '@/core/services/client/api';
+import { taskLinkedIssueService } from '@/core/services/client/api/task/task-linked-issue.service';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();

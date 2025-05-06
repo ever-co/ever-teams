@@ -9,7 +9,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
-import { taskVersionService } from '@/core/services/client/api';
+import { taskVersionService } from '@/core/services/client/api/task/task-version.service';
 
 export function useTaskVersion() {
 	const [user] = useAtom(userState);

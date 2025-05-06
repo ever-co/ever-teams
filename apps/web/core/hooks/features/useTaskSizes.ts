@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import { taskSizeService } from '@/core/services/client/api';
+import { taskSizeService } from '@/core/services/client/api/task/task-size.service';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
