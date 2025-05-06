@@ -87,7 +87,7 @@
 				"backgroundColor": "#ffffff"
 			},
 			"infoPlist": {
-				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+				"NSCameraUsageDescription": "This app uses the camera to take photos to share with your team.",
 				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
 				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
 			},

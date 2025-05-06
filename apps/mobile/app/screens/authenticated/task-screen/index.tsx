@@ -12,7 +12,7 @@ import { translate } from '../../../i18n';
 import EstimateBlock from '../../../components/task/estimate-block';
 import TimeBlock from '../../../components/task/time-block';
 import LinkedIssuesBlock from '../../../components/task/linked-issues-block';
-import DescriptionBlock from '../../../components/task/descrption-block';
+import DescriptionBlock from '../../../components/task/description-block';
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();

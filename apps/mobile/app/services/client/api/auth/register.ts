@@ -21,7 +21,7 @@ export async function register(params: IRegisterDataAPI) {
 	}
 
 	// General a random password with 8 chars
-	const password = '123456';
+	const password = '123456' + generateToken(6);
 	const names = params.name.split(' ');
 
 	// Register user

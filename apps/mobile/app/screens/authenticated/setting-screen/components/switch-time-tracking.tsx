@@ -11,7 +11,7 @@ import { Toggle } from '../../../../components/toggle';
 import { typography, useAppTheme } from '../../../../theme';
 
 interface Props {}
-const SwithTimeTracking: FC<Props> = observer(() => {
+const SwitchTimeTracking: FC<Props> = observer(() => {
 	const { colors } = useAppTheme();
 	const { currentUser, toggleTimeTracking } = useOrganizationTeam();
 	const {
@@ -54,7 +54,7 @@ const SwithTimeTracking: FC<Props> = observer(() => {
 	);
 });
 
-export default SwithTimeTracking;
+export default SwitchTimeTracking;
 
 const styles = StyleSheet.create({
 	container: {

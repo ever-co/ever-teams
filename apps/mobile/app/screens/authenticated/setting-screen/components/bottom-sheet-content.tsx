@@ -5,7 +5,7 @@ import { IPopup } from '..';
 import { useSettings } from '../../../../services/hooks/features/useSettings';
 import QuitTheTeam from '../team/quit-team';
 import RemoveTeam from '../team/remove-team';
-import ChangeTeamLogo from './Change-team-logo';
+import ChangeTeamLogo from './change-team-logo';
 import ChangeTeamName from './change-team-name';
 import ChangeUserAvatar from './change-user-avatar';
 import UpdateContactForm from './contact-info-form';

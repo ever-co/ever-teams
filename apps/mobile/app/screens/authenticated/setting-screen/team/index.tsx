@@ -6,7 +6,7 @@ import SingleInfo from '../components/single-info';
 import { translate } from '../../../../i18n';
 import { useStores } from '../../../../models';
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
-import SwithTimeTracking from '../components/switch-time-tracking';
+import SwitchTimeTracking from '../components/switch-time-tracking';
 import { IPopup } from '..';
 import { observer } from 'mobx-react-lite';
 import { useAppTheme } from '../../../../theme';
@@ -61,7 +61,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					onPress={() => onOpenBottomSheet('Team Name', 4)}
 				/>
 				{isTeamManager ? <SwitchTeamPublicity /> : null}
-				{isTeamManager ? <SwithTimeTracking /> : null}
+				{isTeamManager ? <SwitchTimeTracking /> : null}
 				<SingleInfo
 					title={'Task Versions'}
 					value={`There ${versions?.total === 1 ? 'is' : 'are'} ${versions?.total} active ${
