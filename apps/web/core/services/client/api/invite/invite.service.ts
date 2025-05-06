@@ -8,12 +8,16 @@ import {
 	IIInviteRequest,
 	IInvitation,
 	IInviteCreate,
+	IInviteVerified,
+	IInviteVerifyCode,
+	ILoginResponse,
 	IMyInvitations,
 	MyInvitationActionEnum,
 	PaginationResponse
 } from '@/core/types/interfaces';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { AcceptInviteParams } from '@/core/services/server/requests';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IIInviteRequest, tenantId: string) => {
@@ -117,6 +121,20 @@ class InviteService extends APIService {
 			: `/invite/${invitationId}?action=${action}`;
 
 		return this.put<IInvitation & { message?: string }>(endpoint);
+	};
+
+	acceptInvite = async (params: AcceptInviteParams) => {
+		try {
+			const res = await this.post<ILoginResponse>('/invite/accept', params);
+			return res.data;
+		} catch {
+			return void 0;
+		}
+	};
+
+	verifyInviteCode = async (params: IInviteVerifyCode) => {
+		const res = await this.post<IInviteVerified>('/invite/validate-by-code', params);
+		return res.data;
 	};
 }
 

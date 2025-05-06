@@ -6,7 +6,7 @@ import { useCallback, useEffect } from 'react';
 import moment from 'moment';
 import { useFirstLoad } from '../useFirstLoad';
 import { useUserProfilePage } from '..';
-import { timeLogsService } from '@/core/services/client/api/activity';
+import { timeLogService } from '@/core/services/client/api/time-log.service';
 
 export function useTimeLogs() {
 	const { user } = useAuthenticateUser();
@@ -17,7 +17,7 @@ export function useTimeLogs() {
 	const [timerLogsDailyReport, setTimerLogsDailyReport] = useAtom(timerLogsDailyReportState);
 
 	const { loading: timerLogsDailyReportLoading, queryCall: queryTimerLogsDailyReport } = useQuery(
-		timeLogsService.getTimerLogsDailyReport
+		timeLogService.getTimerLogsDailyReport
 	);
 
 	const getTimerLogsDailyReport = useCallback(

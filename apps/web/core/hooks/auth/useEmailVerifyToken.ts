@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { authService } from '@/core/services/client/api/auth/auth.service';
+import { emailVerificationService } from '@/core/services/client/api/email-verification.service';
 
 export function useEmailVerifyToken() {
 	const searchParams = useSearchParams();
@@ -15,7 +15,7 @@ export function useEmailVerifyToken() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.verifyUserEmailByToken);
+	const { queryCall, loading, infiniteLoading } = useQuery(emailVerificationService.verifyUserEmailByToken);
 
 	/**
 	 * Verify Email by token request

@@ -17,7 +17,7 @@ export function useTimeDailyActivity(type?: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useAtom(timeVisitedSitesState);
 
-	const { loading, queryCall } = useQuery(activityService.getTimerDaily);
+	const { loading, queryCall } = useQuery(activityService.getDailyActivities);
 
 	const getVisitedApps = useCallback(
 		(title?: string) => {

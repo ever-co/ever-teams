@@ -1,6 +1,6 @@
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
-import { IOrganizationTeam, IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces';
+import { IOrganizationTeam, IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 class OrganizationTeamEmployeeService extends APIService {
@@ -28,6 +28,26 @@ class OrganizationTeamEmployeeService extends APIService {
 
 	updateOrganizationTeamEmployeeActiveTask = async (id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
 		return this.put<IOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}/active-task`, data);
+	};
+
+	removeEmployeeOrganizationTeam = async (employeeId: string) => {
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/organization-team-employee/${employeeId}`
+			: `/organization-team/employee/${employeeId}`;
+
+		return this.delete<boolean>(endpoint);
+	};
+
+	editEmployeeOrderOrganizationTeam = async (
+		employeeId: string,
+		data: { order: number; organizationTeamId: string; organizationId: string },
+		tenantId?: string
+	) => {
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/organization-team-employee/${employeeId}`
+			: `/organization-team/employee/${employeeId}`;
+
+		return this.put<OT_Member>(endpoint, data, { tenantId });
 	};
 }
 

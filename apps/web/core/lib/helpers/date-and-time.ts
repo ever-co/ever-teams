@@ -289,3 +289,24 @@ export function toLocal(date: string | Date | moment.Moment): moment.Moment {
 export function toUTC(date: string | Date | moment.Moment): moment.Moment {
 	return moment(date).utc();
 }
+
+/**
+ * Format duration in seconds to human readable format (HH:mm:ss)
+ */
+export const formatDuration = (seconds: number): string => {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	return [
+		hours.toString().padStart(2, '0'),
+		minutes.toString().padStart(2, '0'),
+		remainingSeconds.toString().padStart(2, '0')
+	].join(':');
+};
+
+/**
+ *
+ * @returns the default time zone
+ */
+export const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;

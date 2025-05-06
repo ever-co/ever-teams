@@ -19,7 +19,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { taskService } from '@/core/services/client/api';
+import { statisticsService } from '@/core/services/client/api/statistics.service';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -48,7 +48,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			if (!user?.employee.tenantId) {
 				return;
 			}
-			taskService
+			statisticsService
 				.tasksTimesheetStatistics(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
 				.then(({ data }) => {
 					setStatTasks({
@@ -60,7 +60,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
-		taskService.allTaskTimesheetStatistics().then(({ data }) => {
+		statisticsService.allTaskTimesheetStatistics().then(({ data }) => {
 			setAllTaskStatistics(data);
 		});
 	}, [setAllTaskStatistics]);
@@ -91,7 +91,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		setTasksFetching(true);
 
-		const promise = taskService.activeTaskTimesheetStatistics(
+		const promise = statisticsService.activeTaskTimesheetStatistics(
 			user?.employee.tenantId,
 			'',
 			user?.employee.organizationId,

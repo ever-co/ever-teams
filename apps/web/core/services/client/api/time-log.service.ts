@@ -1,35 +1,66 @@
+import { IGetTimeLimitReport, ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
+import { APIService } from '../api.service';
+import qs from 'qs';
+import {
+	IAddManualTimeRequest,
+	ITimeLog,
+	ITimerLogsDailyReport,
+	ITimerLogsDailyReportRequest
+} from '@/core/types/interfaces/timer/ITimerLogs';
 import {
 	ITaskTimesheetParams,
 	ITimeLogReportDailyChartProps,
 	ITimeLogReportDailyProps,
 	ITimerDailyLog,
 	ITimerLogGrouped,
-	ITimerStatus,
-	ITimesheetStatisticsData,
-	IUpdateTimesheetStatus,
-	TimeLogType,
 	TIMESHEET_RELATIONS,
 	TimesheetLog,
-	UpdateTimesheet,
-	UpdateTimesheetStatus
+	UpdateTimesheet
 } from '@/core/types/interfaces';
-import { APIService } from '../../api.service';
+import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import qs from 'qs';
-import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
-class TimerLogsService extends APIService {
-	getTimerLogs = async (
-		tenantId: string,
-		organizationId: string,
-		employeeId: string,
-		organizationTeamId: string | null
-	) => {
-		const endpoint = `/timer/status?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}&employeeIds[0]=${employeeId}`;
+class TimeLogService extends APIService {
+	getTimeLimitsReport = async (params: IGetTimeLimitReport) => {
+		const query = qs.stringify({
+			...params
+		});
 
-		return this.get<ITimerStatus>(endpoint, { tenantId });
+		return await this.get<ITimeLimitReport[]>(`/timesheet/time-log/time-limit?${query}`);
 	};
+
+	getTimerLogsDailyReport = async ({
+		tenantId,
+		organizationId,
+		employeeIds,
+		startDate,
+		endDate
+	}: ITimerLogsDailyReportRequest) => {
+		const params = {
+			tenantId: tenantId,
+			organizationId: organizationId,
+			employeeIds,
+			todayStart: startDate.toISOString(),
+			todayEnd: endDate.toISOString()
+		};
+
+		const query = qs.stringify(params);
+
+		return this.get<ITimerLogsDailyReport[]>(`/timesheet/time-log/report/daily?${query}`);
+	};
+
+	addManualTime = async (request: IAddManualTimeRequest) => {
+		const { startedAt, stoppedAt, ...rest } = request;
+		const data = {
+			...rest,
+			startedAt: startedAt.toISOString(),
+			stoppedAt: stoppedAt.toISOString()
+		};
+
+		return this.post<ITimeLog>('/timesheet/time-log', data);
+	};
+
 	getTaskTimesheetLogs = async ({
 		organizationId,
 		tenantId,
@@ -61,7 +92,7 @@ class TimerLogsService extends APIService {
 			tenantId,
 			startDate: start,
 			endDate: end,
-			timeZone: timeZone || this.getDefaultTimezone()
+			timeZone: timeZone || getDefaultTimezone()
 		});
 
 		TIMESHEET_RELATIONS.forEach((relation, index) => {
@@ -120,12 +151,6 @@ class TimerLogsService extends APIService {
 		}
 	};
 
-	updateStatusTimesheetFrom = async (data: IUpdateTimesheetStatus) => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-		return this.put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
-	};
-
 	createTimesheetFrom = async (data: UpdateTimesheet) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
@@ -153,15 +178,13 @@ class TimerLogsService extends APIService {
 		}
 	};
 
-	getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 	getTimeLogReportDailyChart = async ({
 		activityLevel,
 		organizationId,
 		tenantId,
 		startDate,
 		endDate,
-		timeZone = this.getDefaultTimezone(),
+		timeZone = getDefaultTimezone(),
 		groupBy,
 		projectIds = [],
 		employeeIds = [],
@@ -210,7 +233,7 @@ class TimerLogsService extends APIService {
 		tenantId,
 		startDate,
 		endDate,
-		timeZone = this.getDefaultTimezone(),
+		timeZone = getDefaultTimezone(),
 		groupBy = 'date',
 		projectIds = [],
 		employeeIds = [],
@@ -251,142 +274,6 @@ class TimerLogsService extends APIService {
 
 		return this.get<ITimerLogGrouped[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
 	};
-
-	/**
-	 * Format duration in seconds to human readable format (HH:mm:ss)
-	 */
-	formatDuration = (seconds: number): string => {
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-		const remainingSeconds = seconds % 60;
-
-		return [
-			hours.toString().padStart(2, '0'),
-			minutes.toString().padStart(2, '0'),
-			remainingSeconds.toString().padStart(2, '0')
-		].join(':');
-	};
-
-	/**
-	 * Format activity percentage with 2 decimal places
-	 */
-	formatActivity(activity: number): string {
-		return `${activity.toFixed(2)}%`;
-	}
-
-	/**
-	 * Get timesheet statistics counts
-	 * @param params Request parameters including activity levels, log types, and date range
-	 * @returns Promise with statistics counts data
-	 * @example
-	 * const { data } = await getTimesheetStatisticsCounts({
-	 *   activityLevel: { start: 0, end: 100 },
-	 *   logType: ['TRACKED'],
-	 *   organizationId: '...',
-	 *   tenantId: '...',
-	 *   startDate: '2024-11-30 13:00:00',
-	 *   endDate: '2024-12-31 12:59:59',
-	 *   timeZone: 'Australia/Lord_Howe'
-	 * });
-	 *
-	 * console.log({
-	 *   employees: data.employeesCount,
-	 *   projects: data.projectsCount,
-	 *   weekActivity: formatActivity(data.weekActivities), // "49.93%"
-	 *   weekDuration: formatDuration(data.weekDuration),   // "106:21:19"
-	 *   todayActivity: formatActivity(data.todayActivities),
-	 *   todayDuration: formatDuration(data.todayDuration)
-	 * });
-	 */
-	getTimesheetStatisticsCounts = async ({
-		activityLevel,
-		logType,
-		organizationId,
-		tenantId,
-		startDate,
-		endDate,
-		timeZone = 'Etc/UTC'
-	}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> => {
-		const queryString = qs.stringify(
-			{
-				activityLevel,
-				logType,
-				organizationId,
-				startDate,
-				endDate,
-				timeZone
-			},
-			{
-				arrayFormat: 'indices',
-				encode: true,
-				strictNullHandling: true
-			}
-		);
-		return this.get<ITimesheetStatisticsData>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
-	};
-
-	/**
-	 * Get activity report data
-	 * @param params Request parameters including activity levels, sources, log types, and date range
-	 * @returns Promise with activity report data
-	 * @example
-	 * const data = await getActivityReport({
-	 *   activityLevel: { start: 0, end: 100 },
-	 *   organizationId: '45c3dd72-fc2a-4347-868a-1015562f82f4',
-	 *   tenantId: '23aa65e0-5c82-4d4e-a8f4-89383b1dccc2',
-	 *   startDate: '2025-02-10 00:00:00',
-	 *   endDate: '2025-02-16 23:59:59',
-	 *   timeZone: 'Etc/UTC',
-	 *   groupBy: 'date'
-	 * });
-	 */
-	getActivityReport = async ({
-		activityLevel = { start: 0, end: 100 },
-		organizationId,
-		tenantId,
-		startDate,
-		endDate,
-		timeZone = this.getDefaultTimezone(),
-		groupBy = 'date',
-		projectIds = [],
-		employeeIds = [],
-		source = [],
-		logType = []
-	}: {
-		activityLevel?: { start: number; end: number };
-		organizationId: string;
-		tenantId: string;
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		groupBy?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		source?: string[];
-		logType?: TimeLogType[];
-	}) => {
-		const queryString = qs.stringify(
-			{
-				activityLevel,
-				organizationId,
-				tenantId,
-				startDate,
-				endDate,
-				timeZone,
-				groupBy,
-				...(projectIds.length && { projectIds }),
-				...(employeeIds.length && { employeeIds }),
-				...(source.length && { source }),
-				...(logType.length && { logType })
-			},
-			{
-				arrayFormat: 'indices',
-				encode: false
-			}
-		);
-
-		return this.get<IActivityReport[]>('/timesheet/activity/report?' + queryString, { tenantId });
-	};
 }
 
-export const timerLogsService = new TimerLogsService(GAUZY_API_BASE_SERVER_URL.value);
+export const timeLogService = new TimeLogService(GAUZY_API_BASE_SERVER_URL.value);

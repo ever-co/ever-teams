@@ -11,9 +11,10 @@ import api, { APIConfig, desktopServerOverride } from './axios';
  *
  * @abstract
  */
-export abstract class APIService {
+export class APIService {
 	protected readonly baseURL: string | undefined;
 	protected readonly axiosInstance: AxiosInstance;
+	instance?: this;
 
 	/**
 	 * Initializes a new instance of the APIService.

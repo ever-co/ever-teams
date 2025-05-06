@@ -16,7 +16,7 @@ export function useTaskTimeSheets(id: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(activityService.getTaskTimesheet);
+	const { loading, queryCall } = useQuery(activityService.getActivities);
 	const getTaskTimesheets = useCallback(() => {
 		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({

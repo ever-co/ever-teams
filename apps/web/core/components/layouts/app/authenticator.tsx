@@ -8,7 +8,7 @@ import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { authService } from '@/core/services/client/api/auth/auth.service';
+import { userService } from '@/core/services/client/api';
 
 type Params = {
 	displayName: string;
@@ -20,7 +20,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useAtom(userState);
-		const { queryCall, loading } = useQuery(authService.getAuthenticatedUserData);
+		const { queryCall, loading } = useQuery(userService.getAuthenticatedUserData);
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();

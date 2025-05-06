@@ -3,13 +3,13 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { useCallback } from 'react';
 import { IGetTimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
-import { timeLimitsService } from '@/core/services/client/api/activity';
+import { timeLogService } from '@/core/services/client/api/time-log.service';
 
 export function useTimeLimits() {
 	const [timeLimitsReports, setTimeLimitsReport] = useAtom(timeLimitsAtom);
 
 	const { queryCall: getTimeLimitsReportQueryCall, loading: getTimeLimitReportLoading } = useQuery(
-		timeLimitsService.getTimeLimitsReport
+		timeLogService.getTimeLimitsReport
 	);
 
 	const getTimeLimitsReport = useCallback(

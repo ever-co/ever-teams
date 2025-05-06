@@ -16,6 +16,7 @@ import { generateToken } from '@/core/lib/helpers/index';
 import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { signinService } from '../../client/api/auth/signin.service';
+import { userOrganizationService } from '../../client/api/user-organization.service';
 
 export enum ProviderEnum {
 	GITHUB = 'github',
@@ -165,7 +166,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 		const token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await signinService.getUserOrganizations({
+		const { data: organizations } = await userOrganizationService.getUserOrganizations({
 			tenantId,
 			userId,
 			token

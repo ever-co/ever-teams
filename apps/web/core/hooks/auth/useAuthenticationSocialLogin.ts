@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
+import { userOrganizationService } from '@/core/services/client/api/user-organization.service';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -44,7 +45,7 @@ export function useAuthenticationSocialLogin() {
 					const access_token = result.token;
 					const userId = result.user?.id;
 
-					const organizations = await signinService.getUserOrganizations({
+					const organizations = await userOrganizationService.getUserOrganizations({
 						tenantId,
 						userId,
 						token: access_token

@@ -12,6 +12,7 @@ import { useIsMemberManager } from './useTeamMember';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useUserProfilePage } from './useUserProfilePage';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { userService } from '@/core/services/client/api';
 
 export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useAtom(userState);
@@ -25,7 +26,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		queryCall: refreshUserQueryCall,
 		loading: refreshUserLoading,
 		loadingRef: refreshUserLoadingRef
-	} = useQuery(authService.getAuthenticatedUserData);
+	} = useQuery(userService.getAuthenticatedUserData);
 
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {

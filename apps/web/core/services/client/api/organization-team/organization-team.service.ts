@@ -4,8 +4,8 @@ import {
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
+	ITeamRequestParams,
 	IUser,
-	OT_Member,
 	PaginationResponse,
 	TimerSource
 } from '@/core/types/interfaces';
@@ -164,28 +164,47 @@ class OrganizationTeamService extends APIService {
 		return this.delete<IOrganizationTeam>(`/organization-team/${id}?organizationId=${organizationId}`);
 	};
 
-	removeEmployeeOrganizationTeam = async (employeeId: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/organization-team-employee/${employeeId}`
-			: `/organization-team/employee/${employeeId}`;
-
-		return this.delete<boolean>(endpoint);
-	};
-
-	editEmployeeOrderOrganizationTeam = async (
-		employeeId: string,
-		data: { order: number; organizationTeamId: string; organizationId: string },
-		tenantId?: string
-	) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/organization-team-employee/${employeeId}`
-			: `/organization-team/employee/${employeeId}`;
-
-		return this.put<OT_Member>(endpoint, data, { tenantId });
-	};
-
 	removeUserFromAllTeams = async (userId: string) => {
 		return this.delete<DeleteResponse>(`/organization-team/teams/${userId}`);
+	};
+
+	/**
+	 * Fetches a list of all teams within an organization, including specified relation data.
+	 *
+	 * @param {ITeamRequestParams} params Parameters for the team request, including organization and tenant IDs, and optional relations.
+	 * @param {string} bearer_token The bearer token for authentication.
+	 * @returns A Promise resolving to the pagination response of organization teams.
+	 */
+	getAllOrganizationTeam = async (params: ITeamRequestParams, bearer_token: string) => {
+		const relations = params.relations || [
+			'members',
+			'members.role',
+			'members.employee',
+			'members.employee.user',
+			'createdByUser',
+			'projects',
+			'projects.customFields.repository'
+		];
+
+		// Construct search queries
+		const queryParams = {
+			'where[organizationId]': params.organizationId,
+			'where[tenantId]': params.tenantId,
+			source: TimerSource.TEAMS,
+			withLastWorkedTask: 'true', // Corrected the typo here
+			...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+		};
+
+		// Serialize search queries into a query string
+		const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
+
+		// Construct and execute the request
+		return this.get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${queryString}`, {
+			tenantId: params.tenantId,
+			headers: {
+				Authorization: `Bearer ${bearer_token}`
+			}
+		});
 	};
 }
 

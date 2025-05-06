@@ -1,4 +1,4 @@
-import { secondsToTime } from '@/core/lib/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { pad } from '@/core/lib/helpers/number';
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { useOutsideClick } from '@/core/hooks/useOutsideClick';
