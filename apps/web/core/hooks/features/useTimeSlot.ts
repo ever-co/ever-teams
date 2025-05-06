@@ -8,8 +8,8 @@ import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useUserProfilePage } from './useUserProfilePage';
 import { activityTypeState } from '@/core/stores/activity-type';
-import { statisticsService } from '@/core/services/client/api/timesheet/statistics.service';
-import { timeSlotService } from '@/core/services/client/api/timesheet/time-slot.service';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
+import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot.service';
 
 export function useTimeSlots(hasFilter?: boolean) {
 	const { user } = useAuthenticateUser();

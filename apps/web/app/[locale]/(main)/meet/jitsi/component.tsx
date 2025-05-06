@@ -6,7 +6,7 @@ import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { meetAuthService } from '@/core/services/client/api';
+import { meetAuthService } from '@/core/services/client/api/auth/meet-auth';
 
 // Maximum number of retry attempts
 const MAX_RETRIES = 3;

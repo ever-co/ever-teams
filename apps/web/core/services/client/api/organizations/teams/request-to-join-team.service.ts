@@ -1,5 +1,5 @@
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { APIService } from '../../api.service';
+import { APIService } from '../../../api.service';
 import qs from 'qs';
 import {
 	IDataResponse,

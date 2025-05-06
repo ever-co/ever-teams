@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { APIService } from '../../api.service';
+import { APIService } from '../../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	ICreateEmployee,

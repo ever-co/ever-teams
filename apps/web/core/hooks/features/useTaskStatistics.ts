@@ -19,7 +19,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { statisticsService } from '@/core/services/client/api/timesheet/statistics.service';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();

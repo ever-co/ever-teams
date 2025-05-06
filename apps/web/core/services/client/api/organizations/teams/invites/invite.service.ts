@@ -1,10 +1,4 @@
 import {
-	GAUZY_API_BASE_SERVER_URL,
-	INVITE_CALLBACK_PATH,
-	INVITE_CALLBACK_URL
-} from '@/core/constants/config/constants';
-import { APIService } from '../../api.service';
-import {
 	IIInviteRequest,
 	IInvitation,
 	IInviteCreate,
@@ -15,6 +9,12 @@ import {
 	MyInvitationActionEnum,
 	PaginationResponse
 } from '@/core/types/interfaces';
+import { APIService } from '../../../../api.service';
+import {
+	GAUZY_API_BASE_SERVER_URL,
+	INVITE_CALLBACK_PATH,
+	INVITE_CALLBACK_URL
+} from '@/core/constants/config/constants';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';

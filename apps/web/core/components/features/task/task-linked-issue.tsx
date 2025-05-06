@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { taskLinkedIssueService } from '@/core/services/client/api/task/task-linked-issue.service';
+import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 
 export function TaskLinkedIssue({
 	task,

@@ -11,7 +11,7 @@ import { useTaskPriorities } from './useTaskPriorities';
 import { useTaskSizes } from './useTaskSizes';
 import { useTaskStatus } from './useTaskStatus';
 import { useTeamTasks } from './useTeamTasks';
-import { publicOrganizationTeamService } from '../../services/client/api';
+import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
 
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall, loadingRef } = useQuery(publicOrganizationTeamService.getPublicOrganizationTeams);

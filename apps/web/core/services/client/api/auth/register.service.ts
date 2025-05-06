@@ -23,8 +23,8 @@ import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
-import { tenantService } from '../tenant/tenant.service';
-import { employeeService, organizationTeamService } from '../organization-team';
+import { tenantService } from '../tenants/tenant.service';
+import { employeeService, organizationTeamService } from '../organizations/teams';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {

@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { useFirstLoad } from '../useFirstLoad';
-import { roleService } from '@/core/services/client/api/role';
+import { roleService } from '@/core/services/client/api/roles';
 
 export const useRoles = () => {
 	const [roles, setRoles] = useAtom(rolesState);

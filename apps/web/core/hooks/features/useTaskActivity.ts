@@ -8,7 +8,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useUserProfilePage } from './useUserProfilePage';
 import { activityTypeState } from '@/core/stores/activity-type';
 import { taskTimesheetState } from '@/core/stores/task-timesheet';
-import { activityService } from '@/core/services/client/api/activity';
+import { activityService } from '@/core/services/client/api/activities';
 
 export function useTaskTimeSheets(id: string) {
 	const { user } = useAuthenticateUser();

@@ -11,9 +11,9 @@ import {
 } from '@/core/stores';
 import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
-import { activityService } from '@/core/services/client/api/activity';
-import { statisticsService } from '@/core/services/client/api/timesheet/statistics.service';
-import { timeLogService } from '@/core/services/client/api/timesheet/time-log.service';
+import { activityService } from '@/core/services/client/api/activities';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
+import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {

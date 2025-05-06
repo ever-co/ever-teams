@@ -1,16 +1,14 @@
-export * from './organization';
-export * from './task';
-export * from './invite';
+export * from './tasks';
+export * from './organizations/teams/invites';
 
-export * from './language';
+export * from './languages';
 
-export * from './daily-plan';
+export * from './daily-plans';
 
-export * from './user';
-export * from './role';
-export * from './meet-auth';
+export * from './users';
+export * from './roles';
 
-export * from './integration';
+export * from './integrations';
 
 export * from './default';
-export * from './tag';
+export * from './tags';

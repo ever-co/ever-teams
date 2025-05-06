@@ -20,7 +20,7 @@ import {
 import api from '../../axios';
 import { ProviderEnum } from '@/core/services/server/requests/OAuth';
 import { signinService } from './signin.service';
-import { userService } from '../user';
+import { userService } from '../users';
 
 class AuthService extends APIService {
 	refreshToken = async () => {

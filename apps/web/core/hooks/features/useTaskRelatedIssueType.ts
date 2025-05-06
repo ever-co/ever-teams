@@ -13,7 +13,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
-import { taskRelatedIssueTypeService } from '@/core/services/client/api/task/task-related-issue-type.service';
+import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
 
 export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);

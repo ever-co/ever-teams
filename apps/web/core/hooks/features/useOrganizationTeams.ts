@@ -27,7 +27,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useSettings } from './useSettings';
 import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { organizationTeamService } from '@/core/services/client/api/organization-team';
+import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API

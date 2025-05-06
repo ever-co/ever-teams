@@ -1,4 +1,4 @@
-import { emailResetService } from '@/core/services/client/api/email/email-reset.service';
+import { emailResetService } from '@/core/services/client/api/users/emails/email-reset.service';
 import { useQuery } from '../useQuery';
 
 export const useEmailReset = () => {
