@@ -1,7 +1,7 @@
 import { ISuccessResponse } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { APIService } from '../../../api.service';
+import { APIService } from '@/core/services/client/api.service';
 
 class EmailVerificationService extends APIService {
 	verifyUserEmailByCode = async (code: string, email: string) => {
