@@ -11,7 +11,7 @@ import { SvgXml } from "react-native-svg"
 import { copyIcon } from "../../svgs/icons"
 import * as Clipboard from "expo-clipboard"
 import { showMessage } from "react-native-flash-message"
-import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import { useTeamTasks } from "../../../services/hooks/features/use-team-tasks"
 import { useClickOutside } from "react-native-click-outside"
 
 const DescriptionBlock = () => {

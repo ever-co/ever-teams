@@ -25,7 +25,7 @@ import { translate } from '../../../../i18n';
 import TaskStatus from '../../../../components/task-status';
 import TimerCard from '../../../../components/timer-card';
 import TaskSize from '../../../../components/task-size';
-import { RTuseTaskInput } from '../../../../services/hooks/features/useTaskInput';
+import { RTuseTaskInput } from '../../../../services/hooks/features/use-task-input';
 import TaskLabels from '../../../../components/task-labels';
 import IssuesModal from '../../../../components/issues-modal';
 import { useStores } from '../../../../models';

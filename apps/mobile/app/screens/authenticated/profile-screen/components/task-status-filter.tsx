@@ -17,11 +17,11 @@ import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { observer } from 'mobx-react-lite';
 import { typography, useAppTheme } from '../../../../theme';
-import { useTaskStatus } from '../../../../services/hooks/features/useTaskStatus';
+import { useTaskStatus } from '../../../../services/hooks/features/use-task-status';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
 import { useTaskStatusValue } from '../../../../components/status-type';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { StatusType } from './filter-popup';
 import { BlurView } from 'expo-blur';
 

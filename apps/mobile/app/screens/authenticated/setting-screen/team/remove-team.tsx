@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 import { useStores } from '../../../../models';

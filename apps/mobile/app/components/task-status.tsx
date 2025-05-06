@@ -5,7 +5,7 @@ import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from '
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { observer } from 'mobx-react-lite';
-import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import TaskStatusPopup from './task-status-popup';
 import { typography, useAppTheme } from '../theme';
 import { translate } from '../i18n';

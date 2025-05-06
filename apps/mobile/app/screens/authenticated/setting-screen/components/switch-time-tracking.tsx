@@ -3,7 +3,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { useStores } from '../../../../models';
 import { translate } from '../../../../i18n';
 import { limitTextCharaters } from '../../../../helpers/sub-text';

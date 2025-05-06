@@ -7,7 +7,7 @@ import { useStores } from '../../../../models';
 import { typography, useAppTheme } from '../../../../theme';
 import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
-import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../../services/hooks/features/use-settings';
 import ConfirmationModal from '../../../../components/confirmation-modal';
 import { translate } from '../../../../i18n';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';

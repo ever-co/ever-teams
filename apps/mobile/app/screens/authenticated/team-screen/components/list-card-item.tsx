@@ -19,7 +19,7 @@ import {
 	I_TMCardTaskEditHook,
 	useTeamMemberCard,
 	useTMCardTaskEdit
-} from '../../../../services/hooks/features/useTeamMemberCard';
+} from '../../../../services/hooks/features/use-team-member-card';
 import UserHeaderCard from './user-header-card';
 import TaskInfo from './task-info';
 import { observer } from 'mobx-react-lite';
@@ -28,7 +28,7 @@ import { useNavigation } from '@react-navigation/native';
 import { WorkedOnTask } from './worked-on-task';
 import UnassignedTasksList from './unassigned-task-list';
 import { translate } from '../../../../i18n';
-import { useTimer } from '../../../../services/hooks/useTimer';
+import { useTimer } from '../../../../services/hooks/use-timer';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
 import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 import { useClickOutside } from 'react-native-click-outside';

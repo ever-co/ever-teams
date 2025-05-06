@@ -3,7 +3,7 @@ import { useStores } from '../../../models';
 import { useFetchOrganizationUsers } from '../../client/queries/user/user';
 import { deleteUserRequest } from '../../client/requests/user';
 import { IUser } from '../../interfaces/IUserData';
-import useAuthenticateUser from './useAuthentificateUser';
+import useAuthenticateUser from './use-authentificate-user';
 import { resentVerifyUserLinkRequest } from '../../client/requests/auth';
 import { emailResetRequest, verifyChangemailRequest } from '../../client/requests/email-reset';
 

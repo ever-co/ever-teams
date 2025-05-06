@@ -5,7 +5,7 @@ import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList, Dimensio
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
-import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { useAppTheme, typography } from '../theme';
 import TaskLabelPopup from './task-label-popup';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';

@@ -6,7 +6,7 @@ import { SvgUri } from "react-native-svg"
 import { typography, useAppTheme } from "../theme"
 import { observer } from "mobx-react-lite"
 import { limitTextCharaters } from "../helpers/sub-text"
-import { useTaskVersion } from "../services/hooks/features/useTaskVersion"
+import { useTaskVersion } from "../services/hooks/features/use-task-version"
 
 export const BadgedTaskVersion = observer(
 	({ version, TextSize, iconSize }: { version: string; TextSize: number; iconSize: number }) => {

@@ -8,13 +8,13 @@ import { Dimensions, View, ViewStyle } from 'react-native';
 import { Screen } from '../../components';
 import { AppStackScreenProps } from '../../navigators';
 import { spacing, useAppTheme } from '../../theme';
-import FillTeamNameForm from './Components/fill-team-name-form';
-import { useAuthenticationTeam } from '../../services/hooks/features/useAuthenticationTeam';
-import FillUserInfoForm from './Components/fill-user-info-form';
-import EmailVerificationForm from './Components/email-verification-form';
-import PassCode from './Components/pass-code';
-import LoginHeader from './Components/login-header';
-import LoginBottom from './Components/login-bottom';
+import FillTeamNameForm from './components/fill-team-name-form';
+import { useAuthenticationTeam } from '../../services/hooks/features/use-authentication-team';
+import FillUserInfoForm from './components/fill-user-info-form';
+import EmailVerificationForm from './components/email-verification-form';
+import PassCode from './components/pass-code';
+import LoginHeader from './components/login-header';
+import LoginBottom from './components/login-bottom';
 
 interface LoginScreenProps extends AppStackScreenProps<'Login'> {}
 

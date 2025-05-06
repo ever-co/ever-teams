@@ -1,12 +1,12 @@
 import React, { useMemo } from "react"
 import { View } from "react-native"
 import { SvgUri } from "react-native-svg"
-import { useTaskLabels } from "../services/hooks/features/useTaskLabels"
-import { useTaskPriority } from "../services/hooks/features/useTaskPriority"
-import { useTaskSizes } from "../services/hooks/features/useTaskSizes"
-import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
+import { useTaskLabels } from "../services/hooks/features/use-task-labels"
+import { useTaskPriority } from "../services/hooks/features/use-task-priority"
+import { useTaskSizes } from "../services/hooks/features/use-task-sizes"
+import { useTaskStatus } from "../services/hooks/features/use-task-status"
 import { ITaskStatusItem } from "../services/interfaces/ITaskStatus"
-import { useTaskVersion } from "../services/hooks/features/useTaskVersion"
+import { useTaskVersion } from "../services/hooks/features/use-task-version"
 
 export type TStatusItem = {
 	bgColor?: string

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useStores } from "../../../../models"
-import { useAuthTeamTasks } from "../../../../services/hooks/features/useAuthTeamTasks"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import { useAuthTeamTasks } from "../../../../services/hooks/features/use-auth-team-tasks"
+import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
 import { createTaskRequest } from "../../../../services/client/requests/tasks"
 

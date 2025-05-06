@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
-import { useTaskSizes } from '../services/hooks/features/useTaskSizes';
+import { useTaskSizes } from '../services/hooks/features/use-task-sizes';
 import { ITaskSizeItem } from '../services/interfaces/ITaskSize';
 import { BadgedTaskSize } from './size-icon';
 import { translate } from '../i18n';

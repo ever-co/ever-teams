@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Skeleton } from 'react-native-skeletons';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { useAppTheme } from '../../../../theme';
 
 const TeamScreenSkeleton = () => {

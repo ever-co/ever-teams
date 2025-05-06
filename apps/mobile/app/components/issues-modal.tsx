@@ -12,11 +12,11 @@ import {
 	TouchableWithoutFeedback,
 	TouchableOpacity,
 } from "react-native"
-import { useTaskIssue } from "../services/hooks/features/useTaskIssue"
+import { useTaskIssue } from "../services/hooks/features/use-task-issue"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { SvgUri } from "react-native-svg"
 import { IIssueType } from "../services/interfaces/ITaskIssue"
-import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
+import { useTeamTasks } from "../services/hooks/features/use-team-tasks"
 import { useAppTheme } from "../theme"
 import { BlurView } from "expo-blur"
 

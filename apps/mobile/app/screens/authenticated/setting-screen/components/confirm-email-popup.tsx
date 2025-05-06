@@ -15,8 +15,8 @@ import { colors, typography, useAppTheme } from '../../../../theme';
 import { CodeInput } from '../../../../components/code-input';
 import { Button } from '../../../../components';
 import { translate } from '../../../../i18n';
-import { useUser } from '../../../../services/hooks/features/useUser';
-import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
+import { useUser } from '../../../../services/hooks/features/use-user';
+import useAuthenticateUser from '../../../../services/hooks/features/use-authentificate-user';
 
 export interface Props {
 	visible: boolean;

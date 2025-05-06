@@ -4,10 +4,10 @@
 import React, { FC } from 'react';
 import { StyleSheet } from 'react-native';
 import { useStores } from '../../../../models';
-import { useTimer } from '../../../../services/hooks/useTimer';
+import { useTimer } from '../../../../services/hooks/use-timer';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
-import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAppTheme } from '../../../../theme';
 import { SvgXml } from 'react-native-svg';

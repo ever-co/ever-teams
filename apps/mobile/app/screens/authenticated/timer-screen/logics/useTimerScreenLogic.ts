@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 
 const useTimerScreenLogic = () => {
 	const { members } = useOrganizationTeam();

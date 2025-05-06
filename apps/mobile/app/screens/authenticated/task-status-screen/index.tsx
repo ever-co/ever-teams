@@ -21,7 +21,7 @@ import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom
 import { typography, useAppTheme } from '../../../theme';
 import StatusItem from './components/status-item';
 import { ActivityIndicator } from 'react-native-paper';
-import { useTaskStatus } from '../../../services/hooks/features/useTaskStatus';
+import { useTaskStatus } from '../../../services/hooks/features/use-task-status';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskStatusForm from './components/task-status-form';
 import { BlurView } from 'expo-blur';

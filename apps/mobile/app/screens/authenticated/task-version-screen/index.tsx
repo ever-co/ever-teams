@@ -18,7 +18,7 @@ import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticate
 import { translate } from '../../../i18n';
 import { typography, useAppTheme } from '../../../theme';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useTaskVersion } from '../../../services/hooks/features/useTaskVersion';
+import { useTaskVersion } from '../../../services/hooks/features/use-task-version';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
 import { BlurView } from 'expo-blur';
 import VersionItem from './components/version-item';

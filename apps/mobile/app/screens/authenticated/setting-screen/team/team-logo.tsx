@@ -8,7 +8,7 @@ import { useStores } from '../../../../models';
 import { typography, useAppTheme } from '../../../../theme';
 import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 
 import ConfirmationModal from '../../../../components/confirmation-modal';
 import { translate } from '../../../../i18n';

@@ -9,7 +9,7 @@ import { globeDarkTheme, globeLightTheme, lockDarkTheme, lockLightTheme } from "
 import { useAppTheme } from "../../../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { debounce } from "lodash"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 
 const TaskPublicity = () => {
 	const {

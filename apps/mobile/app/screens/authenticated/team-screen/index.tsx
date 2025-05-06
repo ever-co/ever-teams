@@ -31,17 +31,17 @@ import CreateTeamModal from '../../../components/create-team-modal';
 import { useStores } from '../../../models';
 import InviteCardItem from './components/invite-card-item';
 import { BlurView } from 'expo-blur';
-import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { translate } from '../../../i18n';
 import useTeamScreenLogic from './logics/use-team-screen-logic';
 import TeamScreenSkeleton from './components/team-screen-skeleton';
 import AcceptInviteModal from './components/accept-invite-modal';
-import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
+import { useAcceptInviteModal } from '../../../services/hooks/features/use-accept-invite-modal';
 import NoTeam from '../../../components/no-team';
 import VerifyAccountModal from './components/verify-account';
-import { useVerifyEmail } from '../../../services/hooks/features/useVerifyEmail';
 import { IOrganizationTeamWithMStatus, OT_Member } from '../../../services/interfaces/IOrganizationTeam';
 import { IInvitation } from '../../../services/interfaces/IInvite';
+import { useVerifyEmail } from '../../../services/hooks/features/use-verify-email';
 
 const { width, height } = Dimensions.get('window');
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = function AuthenticatedTeamScreen(

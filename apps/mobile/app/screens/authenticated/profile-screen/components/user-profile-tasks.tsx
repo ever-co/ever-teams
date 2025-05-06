@@ -3,13 +3,13 @@
 import { Dimensions, FlatList, ScrollView, Text, TextStyle, View } from 'react-native';
 import React, { FC, useMemo, useState } from 'react';
 import { IUserProfile } from '../logics/use-profile-screen-logic';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import ListCardItem from './list-card-item';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { observer } from 'mobx-react-lite';
-import { useTimer } from '../../../../services/hooks/useTimer';
+import { useTimer } from '../../../../services/hooks/use-timer';
 import WorkedOnTaskHours from '../../../../components/worked-day-hours';
 import { useStores } from '../../../../models';
 interface IUserProfileTasks {

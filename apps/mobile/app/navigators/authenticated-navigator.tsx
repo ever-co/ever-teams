@@ -45,7 +45,7 @@ import {
 	userNotFocusedDark,
 	userNotFocusedLight
 } from '../components/svgs/icons';
-import { useOrganizationTeam } from '../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../services/hooks/use-organization';
 
 export type AuthenticatedTabParamList = {
 	Timer: undefined;

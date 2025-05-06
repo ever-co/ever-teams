@@ -11,7 +11,7 @@ import CreateTeamModal from './create-team-modal';
 import ProfileImage from './profile-image';
 import { translate } from '../i18n';
 import { observer } from 'mobx-react-lite';
-import { useOrganizationTeam } from '../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../services/hooks/use-organization';
 import { SvgXml } from 'react-native-svg';
 import {
 	briefCaseNotFocusedDark2,

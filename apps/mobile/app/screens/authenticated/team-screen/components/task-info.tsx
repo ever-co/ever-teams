@@ -5,8 +5,8 @@ import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { typography, useAppTheme } from '../../../../theme';
-import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
-import { I_TeamMemberCardHook } from '../../../../services/hooks/features/useTeamMemberCard';
+import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
+import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { Feather } from '@expo/vector-icons';
 import IssuesModal from '../../../../components/issues-modal';
 

@@ -2,16 +2,16 @@
 import { convertMsToTime, secondsToTime } from '../../helpers/date';
 import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from '../client/requests/timer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSyncRef } from './useSyncRef';
+import { useSyncRef } from './use-sync-ref';
 import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
-import { useFirstLoad } from './useFirstLoad';
+import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useStores } from '../../models';
 import { ITeamTask } from '../interfaces/ITask';
-import { useTeamTasks } from './features/useTeamTasks';
+import { useTeamTasks } from './features/use-team-tasks';
 import useFetchTimerStatus from '../client/queries/timer/timer';
-import { useTaskStatistics } from './features/useTaskStatics';
+import { useTaskStatistics } from './features/use-task-statics';
 import moment from 'moment-timezone';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';

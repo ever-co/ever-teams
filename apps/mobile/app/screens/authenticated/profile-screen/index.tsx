@@ -8,14 +8,14 @@ import HomeHeader from '../../../components/home-header';
 import ProfileHeader from './components/profile-header';
 import { useStores } from '../../../models';
 import TaskFilter from './components/task-filter';
-import { useTaskFilter } from '../../../services/hooks/features/useTaskFilters';
+import { useTaskFilter } from '../../../services/hooks/features/use-task-filters';
 import UserProfileTasks from './components/user-profile-tasks';
 import ProfileScreenSkeleton from './components/profile-screen-skeleton';
-import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
+import { useAcceptInviteModal } from '../../../services/hooks/features/use-accept-invite-modal';
 import AcceptInviteModal from '../team-screen/components/accept-invite-modal';
 import NoTeam from '../../../components/no-team';
 import CreateTeamModal from '../../../components/create-team-modal';
-import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { useProfileScreenLogic } from './logics/use-profile-screen-logic';
 import { useAppTheme } from '../../../theme';
 

@@ -4,13 +4,13 @@ import React, { FC } from 'react';
 import { typography } from '../../../../theme/typography';
 import SingleInfo from '../components/single-info';
 import { translate } from '../../../../i18n';
-import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../../services/hooks/features/use-settings';
 import { useStores } from '../../../../models';
 import { IPopup } from '../../..';
 import FlashMessage from 'react-native-flash-message';
 import { useAppTheme } from '../../../../theme';
 import UserAvatar from './user-avatar';
-import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
+import useAuthenticateUser from '../../../../services/hooks/features/use-authentificate-user';
 
 interface IPersonalProps {
 	onOpenBottomSheet: (sheet: IPopup) => unknown;

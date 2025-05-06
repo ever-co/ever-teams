@@ -22,7 +22,7 @@ import AllTaskStatuses from '../../../../components/all-task-statuses';
 import WorkedOnTaskHours from '../../../../components/worked-day-hours';
 import EstimateTime from '../../timer-screen/components/estimate-time';
 import { secondsToTime } from '../../../../helpers/date';
-import { useTaskStatistics } from '../../../../services/hooks/features/useTaskStatics';
+import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statics';
 import { useStores } from '../../../../models';
 import IssuesModal from '../../../../components/issues-modal';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';

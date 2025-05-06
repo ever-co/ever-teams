@@ -9,7 +9,7 @@ import TaskDisplayBox from "./task-display-box"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
-import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
+import { RTuseTaskInput } from "../../../../services/hooks/features/use-task-input"
 import IndividualTask from "./individual-task"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 

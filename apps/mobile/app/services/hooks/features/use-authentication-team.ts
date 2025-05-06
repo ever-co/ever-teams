@@ -9,7 +9,7 @@ import {
 	verifyAuthCodeRequest,
 	verifyUserEmailByCodeRequest
 } from '../../client/requests/auth';
-import { useFirstLoad } from '../useFirstLoad';
+import { useFirstLoad } from '../use-first-load';
 import { signIn } from '../../client/api/auth/signin';
 import { VerificationResponse } from '../../interfaces/IAuthentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';

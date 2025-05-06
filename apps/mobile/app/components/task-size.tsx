@@ -5,7 +5,7 @@ import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from '
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
-import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { typography, useAppTheme } from '../theme';
 import TaskSizePopup from './task-size-popup';

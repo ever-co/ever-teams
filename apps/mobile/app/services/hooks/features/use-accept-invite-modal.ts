@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import { useFetchMyInvitations } from '../../client/queries/invitation/invitations';
 import { acceptRejectMyInvitationsRequest } from '../../client/requests/invite';
 import { IMyInvitation } from '../../interfaces/IInvite';
-import { useSyncRef } from '../useSyncRef';
+import { useSyncRef } from '../use-sync-ref';
 
 export function useAcceptInviteModal() {
 	const {

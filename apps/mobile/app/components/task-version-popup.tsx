@@ -17,7 +17,7 @@ import { spacing, useAppTheme, typography } from '../theme';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 // import { translate } from "../i18n"
 import { BlurView } from 'expo-blur';
-import { useTaskVersion } from '../services/hooks/features/useTaskVersion';
+import { useTaskVersion } from '../services/hooks/features/use-task-version';
 import { BadgedTaskVersion } from './version-icon';
 import { ITaskVersionItemList } from '../services/interfaces/ITaskVersion';
 import { translate } from '../i18n';

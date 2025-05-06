@@ -23,7 +23,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskSizeForm from './components/task-size-form';
 import SizeItem from './components/size-item';
-import { useTaskSizes } from '../../../services/hooks/features/useTaskSizes';
+import { useTaskSizes } from '../../../services/hooks/features/use-task-sizes';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 // import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';

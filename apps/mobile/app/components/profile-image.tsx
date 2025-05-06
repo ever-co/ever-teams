@@ -7,8 +7,8 @@ import { Avatar } from 'react-native-paper';
 import { IUser } from '../services/interfaces/IUserData';
 import { typography, useAppTheme } from '../theme';
 import { imgTitleProfileAvatar } from '../helpers/img-title-profile-avatar';
-import { useOrganizationTeam } from '../services/hooks/useOrganization';
-import { useTimer } from '../services/hooks/useTimer';
+import { useOrganizationTeam } from '../services/hooks/use-organization';
+import { useTimer } from '../services/hooks/use-timer';
 import { getTimerStatusValue } from '../helpers/get-timer-status';
 import {
 	idleStatusIconLarge,

@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { pad } from '../helpers/number';
 import { useStores } from '../models';
-import { useTimer } from '../services/hooks/useTimer';
+import { useTimer } from '../services/hooks/use-timer';
 import { typography, useAppTheme } from '../theme';
 import { SvgXml } from 'react-native-svg';
 import { timerSmallDarkPlayIcon, timerSmallPlayIcon, timerSmallStopIcon } from './svgs/icons';

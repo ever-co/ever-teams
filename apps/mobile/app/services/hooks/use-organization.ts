@@ -15,7 +15,7 @@ import {
 	updateOrganizationTeamEmployeeRequest
 } from '../client/requests/organization-team-employee';
 import { IOrganizationTeamList, IOrganizationTeamWithMStatus, OT_Member } from '../interfaces/IOrganizationTeam';
-import useAuthenticateUser from './features/useAuthentificateUser';
+import useAuthenticateUser from './features/use-authentificate-user';
 
 function useCreateOrganizationTeam() {
 	const {

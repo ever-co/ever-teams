@@ -15,7 +15,7 @@ import {
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
 import { BadgedTaskPriority } from './priority-icon';
-import { useTaskPriority } from '../services/hooks/features/useTaskPriority';
+import { useTaskPriority } from '../services/hooks/features/use-task-priority';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';

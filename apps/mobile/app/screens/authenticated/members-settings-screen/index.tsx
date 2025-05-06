@@ -19,8 +19,8 @@ import { SvgXml } from 'react-native-svg';
 import { moreButtonDark, moreButtonLight } from '../../../components/svgs/icons';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import ConfirmationModal from '../../../components/confirmation-modal';
-import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
-import { useTeamMemberCard } from '../../../services/hooks/features/useTeamMemberCard';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
+import { useTeamMemberCard } from '../../../services/hooks/features/use-team-member-card';
 import { useNavigation } from '@react-navigation/native';
 import ChangeRoleModal from './components/change-role-modal';
 

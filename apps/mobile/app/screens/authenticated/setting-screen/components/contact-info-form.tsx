@@ -6,7 +6,7 @@ import { PHONE_REGEX } from '../../../../helpers/regex';
 import { translate } from '../../../../i18n';
 import { IUser } from '../../../../services/interfaces/IUserData';
 import { typography, useAppTheme } from '../../../../theme';
-import { useUser } from '../../../../services/hooks/features/useUser';
+import { useUser } from '../../../../services/hooks/features/use-user';
 import { IPopup } from '..';
 import ConfirmEmailPopup from './confirm-email-popup';
 import validator from 'validator';

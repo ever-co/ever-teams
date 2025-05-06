@@ -6,7 +6,7 @@ import React, { FC } from 'react';
 import { View, StyleSheet, ViewStyle, ImageStyle, Pressable, Dimensions, PixelRatio } from 'react-native';
 
 import { useStores } from '../models';
-import { useTimer } from '../services/hooks/useTimer';
+import { useTimer } from '../services/hooks/use-timer';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useAppTheme } from '../theme';
 import { SvgXml } from 'react-native-svg';

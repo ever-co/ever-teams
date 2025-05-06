@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
 import { View, ViewStyle } from 'react-native';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { useAppTheme } from '../../../../theme';
 import TaskTab from './task-tab';
 

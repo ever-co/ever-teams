@@ -10,7 +10,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
-import { useSettings } from "../../../../services/hooks/features/useSettings"
+import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 
 interface IMembersList {

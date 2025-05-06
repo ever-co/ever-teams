@@ -19,7 +19,7 @@ import ProfileInfo from './profile-info';
 import { SvgXml } from 'react-native-svg';
 import { trashIconLarge } from '../../../svgs/icons';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
-import { useTeamMemberCard } from '../../../../services/hooks/features/useTeamMemberCard';
+import { useTeamMemberCard } from '../../../../services/hooks/features/use-team-member-card';
 import { ScrollView } from 'react-native-gesture-handler';
 import { BlurView } from 'expo-blur';
 import { translate } from '../../../../i18n';

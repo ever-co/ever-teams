@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ITeamTask } from "../../interfaces/ITask"
-import { useTeamTasks } from "./useTeamTasks"
-import useAuthenticateUser from "./useAuthentificateUser"
-import { useSyncRef } from "../useSyncRef"
+import { useTeamTasks } from "./use-team-tasks"
+import useAuthenticateUser from "./use-authentificate-user"
+import { useSyncRef } from "../use-sync-ref"
 import { Nullable } from "../../interfaces/hooks"
-import { useModal } from "../useModal"
+import { useModal } from "../use-modal"
 import { useStores } from "../../../models"
 
 export const h_filter = (status: string, filters: "closed" | "open") => {

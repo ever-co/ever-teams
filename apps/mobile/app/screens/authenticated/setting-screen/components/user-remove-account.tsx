@@ -3,8 +3,8 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { translate } from '../../../../i18n';
-import { useUser } from '../../../../services/hooks/features/useUser';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useUser } from '../../../../services/hooks/features/use-user';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { typography, useAppTheme } from '../../../../theme';
 import { SvgXml } from 'react-native-svg';
 import { danGerZoneRemoveUserIcon } from '../../../../components/svgs/icons';

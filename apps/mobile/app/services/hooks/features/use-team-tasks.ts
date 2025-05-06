@@ -10,10 +10,10 @@ import {
 	updateTaskRequest,
 } from "../../client/requests/tasks"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
-import { useSyncRef } from "../useSyncRef"
-import { useFirstLoad } from "../useFirstLoad"
+import { useSyncRef } from "../use-sync-ref"
+import { useFirstLoad } from "../use-first-load"
 import isEqual from "lodash/isEqual"
-import { useOrganizationTeam } from "../useOrganization"
+import { useOrganizationTeam } from "../use-organization"
 
 export function useTeamTasks() {
 	const {

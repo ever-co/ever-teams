@@ -7,7 +7,7 @@ import { IUserProfile } from '../logics/use-profile-screen-logic';
 import ProfileTabs from './profile-tabs';
 import AssignTaskFormModal from './assign-task-section';
 import FilterPopup from './filter-popup';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { SvgXml } from 'react-native-svg';
 import { filterDarkIcon, filterLightIcon } from '../../../../components/svgs/icons';
 

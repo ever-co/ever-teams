@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import { typography } from '../theme';
 import { observer } from 'mobx-react-lite';
-import { useTaskStatus } from '../services/hooks/features/useTaskStatus';
+import { useTaskStatus } from '../services/hooks/features/use-task-status';
 import { limitTextCharaters } from '../helpers/sub-text';
 
 export const BadgedTaskStatus = observer(

@@ -11,9 +11,9 @@ import { observer } from 'mobx-react-lite';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { typography, useAppTheme } from '../../../../theme';
 import { BadgedTaskStatus } from '../../../../components/status-icon';
-import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
-import { useTaskStatus } from '../../../../services/hooks/features/useTaskStatus';
+import { useTaskStatus } from '../../../../services/hooks/features/use-task-status';
 
 export interface Props {
 	onDismiss: () => unknown;

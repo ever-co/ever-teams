@@ -22,7 +22,7 @@ import { Text } from 'react-native-paper';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { colors, typography, useAppTheme } from '../../../../theme';
 import { translate } from '../../../../i18n';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import { useStores } from '../../../../models';
 import { BlurView } from 'expo-blur';

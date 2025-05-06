@@ -2,11 +2,11 @@
 /* eslint-disable react-native/no-color-literals */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 import { observer } from 'mobx-react-lite';
-import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
+import useAuthenticateUser from '../../../../services/hooks/features/use-authentificate-user';
 import { SvgXml } from 'react-native-svg';
 import { danGerZoneRemoveUserIcon } from '../../../../components/svgs/icons';
 

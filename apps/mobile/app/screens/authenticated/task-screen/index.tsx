@@ -5,7 +5,7 @@ import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticate
 import { Screen } from '../../../components';
 import { typography, useAppTheme } from '../../../theme';
 import { AntDesign } from '@expo/vector-icons';
-import { useTeamTasks } from '../../../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import TaskTitleBlock from '../../../components/task/title-block';
 import DetailsBlock from '../../../components/task/details-block';
 import { translate } from '../../../i18n';

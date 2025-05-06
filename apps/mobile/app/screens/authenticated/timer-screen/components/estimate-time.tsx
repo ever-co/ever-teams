@@ -6,7 +6,7 @@ import { Text, ActivityIndicator } from 'react-native-paper';
 import { Feather } from '@expo/vector-icons';
 import { secondsToTime } from '../../../../helpers/date';
 import { typography, useAppTheme } from '../../../../theme';
-import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { useClickOutside } from 'react-native-click-outside';
 

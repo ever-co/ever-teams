@@ -6,7 +6,7 @@ import { SvgUri } from 'react-native-svg';
 import { typography } from '../theme';
 import { observer } from 'mobx-react-lite';
 import { limitTextCharaters } from '../helpers/sub-text';
-import { useTaskPriority } from '../services/hooks/features/useTaskPriority';
+import { useTaskPriority } from '../services/hooks/features/use-task-priority';
 
 export const BadgedTaskPriority = observer(
 	({ priority, TextSize, iconSize }: { priority: string; TextSize: number; iconSize: number }) => {

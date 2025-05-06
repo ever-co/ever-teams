@@ -7,9 +7,9 @@ import { IUser } from '../../../../services/interfaces/IUserData';
 import { Avatar } from 'react-native-paper';
 import { typography, useAppTheme } from '../../../../theme';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
-import { useTimer } from '../../../../services/hooks/useTimer';
+import { useTimer } from '../../../../services/hooks/use-timer';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 import { SvgXml } from 'react-native-svg';
 import {

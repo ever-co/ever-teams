@@ -9,7 +9,7 @@ import { observer } from 'mobx-react-lite';
 import { ScrollView } from 'react-native-gesture-handler';
 import TaskStatus from '../../../../components/task-status';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
-import { I_TeamMemberCardHook } from '../../../../services/hooks/features/useTeamMemberCard';
+import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { View } from 'react-native-animatable';
 import UserHeaderCard from './user-header-card';
 import { TodayWorkedTime } from './today-work-time';

@@ -12,7 +12,7 @@ import TaskStatus from "../../../task-status"
 import { translate } from "../../../../i18n"
 import ActionTypesModal from "./action-types-modal"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
-import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
+import { useTaskLinkedIssues } from "../../../../services/hooks/features/use-task-linked-issue"
 import { useAppTheme } from "../../../../theme"
 
 interface ITaskLinkedIssue {

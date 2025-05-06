@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { translate } from '../../../../i18n';
 import { useStores } from '../../../../models';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { typography, useAppTheme } from '../../../../theme';
 
 const ChangeTeamName = observer(({ onDismiss }: { onDismiss: () => unknown }) => {

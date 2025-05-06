@@ -1,14 +1,14 @@
 import { useCallback, useMemo, useRef, useState } from "react"
-import { useSyncRef } from "../useSyncRef"
-import { useTeamTasks } from "./useTeamTasks"
+import { useSyncRef } from "../use-sync-ref"
+import { useTeamTasks } from "./use-team-tasks"
 import cloneDeep from "lodash/cloneDeep"
 import { useStores } from "../../../models"
 import { IOrganizationTeamList } from "../../interfaces/IOrganizationTeam"
-import useAuthenticateUser from "./useAuthentificateUser"
-import { useIsMemberManager } from "./useIsMemberManager"
+import useAuthenticateUser from "./use-authentificate-user"
+import { useIsMemberManager } from "./use-is-member-manager"
 import { ITeamTask } from "../../interfaces/ITask"
 import { Nullable } from "../../interfaces/hooks"
-import { useOrganizationTeam } from "../useOrganization"
+import { useOrganizationTeam } from "../use-organization"
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team

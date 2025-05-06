@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useStores } from '../../../models';
 import { ITeamTask } from '../../interfaces/ITask';
 import { ITasksTimesheet } from '../../interfaces/ITimer';
-import { useFirstLoad } from '../useFirstLoad';
-import { useSyncRef } from '../useSyncRef';
+import { useFirstLoad } from '../use-first-load';
+import { useSyncRef } from '../use-sync-ref';
 // import debounce from "lodash/debounce"
-import { tasksStatistics } from '../../client/api/timer/tasksStatistics';
+import { tasksStatistics } from '../../client/api/timer/tasks-statistics';
 import { useFetchAllTasksStats } from '../../client/queries/task/stats';
 import { Nullable } from '../../interfaces/hooks';
 

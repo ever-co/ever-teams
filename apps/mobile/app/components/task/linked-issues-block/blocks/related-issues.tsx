@@ -5,7 +5,7 @@ import React, { useCallback, useMemo, useState } from "react"
 import Accordion from "../../../accordion"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { useStores } from "../../../../models"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 import {
 	ITeamTask,
 	LinkedTaskIssue,
@@ -13,7 +13,7 @@ import {
 } from "../../../../services/interfaces/ITask"
 import TaskLinkedIssue from "../components/task-linked-issue"
 import CreateLinkedIssueModal from "../components/create-linked-issue-modal"
-import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
+import { useTaskLinkedIssues } from "../../../../services/hooks/features/use-task-linked-issue"
 
 const RelatedIssues = () => {
 	const {

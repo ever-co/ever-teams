@@ -10,9 +10,9 @@ import { useStores } from '../models';
 import { observer } from 'mobx-react-lite';
 import { pad } from '../helpers/number';
 import { typography, useAppTheme } from '../theme';
-import { useTimer } from '../services/hooks/useTimer';
+import { useTimer } from '../services/hooks/use-timer';
 import TimerButton from './timer-button';
-import { useTaskStatistics } from '../services/hooks/features/useTaskStatics';
+import { useTaskStatistics } from '../services/hooks/features/use-task-statics';
 
 export interface Props {}
 

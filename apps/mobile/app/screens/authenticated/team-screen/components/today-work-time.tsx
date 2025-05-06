@@ -6,9 +6,9 @@ import React, { FC } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { pad } from '../../../../helpers/number';
 import { translate } from '../../../../i18n';
-import { I_TeamMemberCardHook } from '../../../../services/hooks/features/useTeamMemberCard';
+import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { typography } from '../../../../theme/typography';
-import { useLiveTimerStatus } from '../../../../services/hooks/useTimer';
+import { useLiveTimerStatus } from '../../../../services/hooks/use-timer';
 import { useTheme } from 'react-native-paper';
 
 interface IProps {

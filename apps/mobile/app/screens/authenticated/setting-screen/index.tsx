@@ -20,12 +20,12 @@ import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { AuthenticatedDrawerScreenProps, SettingScreenRouteProp } from '../../../navigators/authenticated-navigator';
 import SectionTab from './components/section-tab';
 import SettingHeader from './components/setting-header';
-import { useSettings } from '../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../services/hooks/features/use-settings';
 import BottomSheetContent from './components/bottom-sheet-content';
 import PersonalSettings from './personal';
 import TeamSettings from './team';
 import { useAppTheme } from '../../../theme';
-import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 
 export type IPopup =

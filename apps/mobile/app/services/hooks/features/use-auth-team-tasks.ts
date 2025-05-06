@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useStores } from '../../../models';
 import { IUser } from '../../interfaces/interfaces/IUserData';
-import { useTeamTasks } from './useTeamTasks';
-import { useOrganizationTeam } from '../useOrganization';
+import { useTeamTasks } from './use-team-tasks';
+import { useOrganizationTeam } from '../use-organization';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
 	const {

@@ -8,7 +8,7 @@ import {
 } from "../client/requests/invite"
 import { getEmployeeRoleRequest } from "../client/requests/roles"
 import { useFetchTeamInvitations } from "../client/queries/invitation/invitations"
-import { useSyncRef } from "./useSyncRef"
+import { useSyncRef } from "./use-sync-ref"
 
 export function useTeamInvitations() {
 	const {

@@ -23,7 +23,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import LabelItem from './components/label-item';
 import TaskLabelForm from './components/task-label-form';
 import { ITaskLabelItem } from '../../../services/interfaces/ITaskLabel';
-import { useTaskLabels } from '../../../services/hooks/features/useTaskLabels';
+import { useTaskLabels } from '../../../services/hooks/features/use-task-labels';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 

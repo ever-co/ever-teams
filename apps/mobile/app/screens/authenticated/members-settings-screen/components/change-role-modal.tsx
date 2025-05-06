@@ -16,7 +16,7 @@ import { BlurView } from "expo-blur"
 import { Feather, AntDesign } from "@expo/vector-icons"
 import { useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
-import { useTeamMemberCard } from "../../../../services/hooks/features/useTeamMemberCard"
+import { useTeamMemberCard } from "../../../../services/hooks/features/use-team-member-card"
 
 interface IChangeRoleModal {
 	onDismiss: () => void

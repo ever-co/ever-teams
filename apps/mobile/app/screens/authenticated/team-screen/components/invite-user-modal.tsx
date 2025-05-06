@@ -19,7 +19,7 @@ import { Text } from 'react-native-paper';
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { colors, typography, useAppTheme } from '../../../../theme';
-import { useTeamInvitations } from '../../../../services/hooks/useTeamInvitation';
+import { useTeamInvitations } from '../../../../services/hooks/use-team-invitation';
 import { translate } from '../../../../i18n';
 import useTeamScreenLogic from '../logics/use-team-screen-logic';
 

@@ -6,7 +6,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import { useQueryClient } from '@tanstack/react-query';
 import LanguageModal from './language-modal';
 import { ILanguageItemList, IUser } from '../../../../services/interfaces/IUserData';
-import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../../services/hooks/features/use-settings';
 import { translate } from '../../../../i18n';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { typography, useAppTheme } from '../../../../theme';

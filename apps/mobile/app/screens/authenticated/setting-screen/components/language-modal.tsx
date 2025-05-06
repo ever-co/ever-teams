@@ -17,7 +17,7 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 
 // COMPONENTS
 import { ILanguageItemList } from '../../../../services/interfaces/IUserData';
-import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../../services/hooks/features/use-settings';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 

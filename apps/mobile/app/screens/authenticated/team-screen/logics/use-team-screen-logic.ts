@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { EMAIL_REGEX } from '../../../../helpers/regex';
-import { useUser } from '../../../../services/hooks/features/useUser';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
-import { useTeamInvitations } from '../../../../services/hooks/useTeamInvitation';
+import { useUser } from '../../../../services/hooks/features/use-user';
+import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
+import { useTeamInvitations } from '../../../../services/hooks/use-team-invitation';
 
 const useTeamScreenLogic = () => {
 	const [showMoreMenu, setShowMoreMenu] = React.useState(false);

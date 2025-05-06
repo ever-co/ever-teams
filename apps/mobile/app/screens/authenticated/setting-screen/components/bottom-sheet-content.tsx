@@ -2,7 +2,7 @@
 import React, { FC } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { IPopup } from '..';
-import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useSettings } from '../../../../services/hooks/features/use-settings';
 import QuitTheTeam from '../team/quit-team';
 import RemoveTeam from '../team/remove-team';
 import ChangeTeamLogo from './change-team-logo';
@@ -13,7 +13,7 @@ import LanguageForm from './language-form';
 import UpdateFullNameForm from './update-full-name-form';
 import UserRemoveAccount from './user-remove-account';
 import UserTimezone from './user-timezone';
-import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
+import useAuthenticateUser from '../../../../services/hooks/features/use-authentificate-user';
 import { IUser } from '../../../../services/interfaces/IUserData';
 import { useAppTheme } from '../../../../theme';
 import { typography } from '../../../../theme/typography';

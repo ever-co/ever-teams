@@ -17,7 +17,7 @@ import ComboBox from "../../../screens/authenticated/timer-screen/components/com
 import { translate } from "../../../i18n"
 import IssuesModal from "../../issues-modal"
 import { useStores } from "../../../models"
-import { useTaskInput } from "../../../services/hooks/features/useTaskInput"
+import { useTaskInput } from "../../../services/hooks/features/use-task-input"
 import { typography, useAppTheme } from "../../../theme"
 import { Feather } from "@expo/vector-icons"
 import { ITeamTask } from "../../../services/interfaces/ITask"

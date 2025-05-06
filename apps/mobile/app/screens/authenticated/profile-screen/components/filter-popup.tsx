@@ -16,7 +16,7 @@ import {
 
 // COMPONENTS
 import { typography, useAppTheme } from '../../../../theme';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import TaskPriorityFilter from './task-priority-filter';
 import TaskStatusFilter from './task-status-filter';
 import TaskLabelFilter from './task-label-filter';

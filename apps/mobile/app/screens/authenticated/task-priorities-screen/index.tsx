@@ -22,7 +22,7 @@ import { typography, useAppTheme } from '../../../theme';
 import { ActivityIndicator } from 'react-native-paper';
 import { ITaskPriorityItem } from '../../../services/interfaces/ITaskPriority';
 import TaskPriorityForm from './components/task-priority-form';
-import { useTaskPriority } from '../../../services/hooks/features/useTaskPriority';
+import { useTaskPriority } from '../../../services/hooks/features/use-task-priority';
 import PriorityItem from './components/priority-item';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';

@@ -6,7 +6,7 @@ import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { typography, useAppTheme } from '../../../../theme';
 import { AntDesign } from '@expo/vector-icons';
-import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
+import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 
 interface Props {
 	editMode: boolean;

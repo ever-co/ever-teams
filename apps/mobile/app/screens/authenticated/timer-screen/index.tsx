@@ -9,12 +9,12 @@ import HomeHeader from '../../../components/home-header';
 import DropDown from '../../../components/team-dropdown/drop-down';
 import CreateTeamModal from '../../../components/create-team-modal';
 import TimerTaskSection from './components/timer-task-section';
-import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import useTimerScreenLogic from './logics/useTimerScreenLogic';
 import TimerScreenSkeleton from './components/timer-screen-skeleton';
 import { useAppTheme } from '../../../theme';
-import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
-import { useTaskInput } from '../../../services/hooks/features/useTaskInput';
+import { useAcceptInviteModal } from '../../../services/hooks/features/use-accept-invite-modal';
+import { useTaskInput } from '../../../services/hooks/features/use-task-input';
 import AcceptInviteModal from '../team-screen/components/accept-invite-modal';
 import NoTeam from '../../../components/no-team';
 
