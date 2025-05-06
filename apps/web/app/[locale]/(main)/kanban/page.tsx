@@ -249,39 +249,37 @@ const Kanban = () => {
 									<div className="">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light max-h-11"
+											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light max-h-11"
 											multiple={true}
 										/>
 									</div>
-									<div className="pr-[90px]">
-										<div className="relative z-10 inline-block">
-											<div className="absolute inset-0 flex items-center justify-between w-40 h-11 p-2 bg-[#F2F2F2] dark:bg-dark--theme-light border input-border rounded-xl shadow-sm">
-												<div className="flex items-center">
-													<div
-														className="flex items-center justify-center w-6 h-6 p-1.5 mr-1 rounded-md"
-														style={{ backgroundColor: issues?.bgColor ?? 'transparent' }}
-													>
-														{issues?.icon ?? <CircleIcon className="w-3 h-3" />}
-													</div>
-													<span className="text-sm">{issues?.name ?? 'Issues'}</span>
+									<div className="relative z-10 inline-block min-w-fit">
+										<div className="absolute inset-0 flex items-center justify-between min-w-fit max-w-40 h-full bg-[#F2F2F2] dark:bg-dark--theme-light border input-border rounded-xl shadow-sm">
+											<div className="flex items-center">
+												<div
+													className="flex items-center justify-center w-6 h-6 p-1.5 mr-1 rounded-md"
+													style={{ backgroundColor: issues?.bgColor ?? 'transparent' }}
+												>
+													{issues?.icon ?? <CircleIcon className="w-3 h-3" />}
 												</div>
-												{issues?.value && (
-													<button
-														onClick={() =>
-															setIssues((prev: TStatusItem) => ({
-																...prev,
-																name: 'Issues',
-																icon: null,
-																bgColor: '',
-																value: ''
-															}))
-														}
-														className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-hover"
-													>
-														<XMarkIcon className="w-4 h-4 dark:text-white" />
-													</button>
-												)}
+												<span className="text-sm">{issues?.name ?? 'Issues'}</span>
 											</div>
+											{issues?.value && (
+												<button
+													onClick={() =>
+														setIssues((prev: TStatusItem) => ({
+															...prev,
+															name: 'Issues',
+															icon: null,
+															bgColor: '',
+															value: ''
+														}))
+													}
+													className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-hover"
+												>
+													<XMarkIcon className="w-4 h-4 dark:text-white" />
+												</button>
+											)}
 
 											<StatusDropdown
 												taskStatusClassName="w-40 h-10 opacity-0"
@@ -298,21 +296,21 @@ const Kanban = () => {
 									<div>
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
+											className="absolute inset-0 pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
 									<div>
 										<TaskPropertiesDropdown
 											onValueChange={(_, values) => setPriority(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
+											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
 									<div>
 										<TaskSizesDropdown
 											onValueChange={(_, values) => setSizes(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
+											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
