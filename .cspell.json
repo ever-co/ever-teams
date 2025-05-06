@@ -605,7 +605,6 @@
 		"apps/web/lib/i18n/*.ts",
 		"apps/web/icons/icons.tsx",
 		"apps/web/lib/settings/timezones.js",
-		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
 		"apps/mobile/app/i18n/*.ts",
 		"apps/mobile/android/**",
 		"apps/mobile/ios/**",
@@ -615,6 +614,8 @@
 		"apps/server-web/src/locales/**/*.json",
 		"apps/server-web/src/resources/*",
 		"apps/server-web/assets/*",
-		"apps/mobile/package.json"
+		"apps/mobile/package.json",
+		"apps/mobile/app/screens/demo-show-room-screen/**",
+		"**/demo-*.tsx"
 	]
 }
