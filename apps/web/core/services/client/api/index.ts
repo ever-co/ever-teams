@@ -5,7 +5,6 @@ export * from './languages';
 
 export * from './daily-plans';
 
-export * from './users';
 export * from './roles';
 
 export * from './integrations';
