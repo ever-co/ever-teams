@@ -1,4 +1,4 @@
-import { generateToken } from '../../../../helpers/generate-token';
+import generateSecureToken from '../../../../helpers/generate-secure-token';
 import { authFormValidate } from '../../../../helpers/validations';
 import { IRegisterDataAPI } from '../../../interfaces/IAuthentication';
 import { loginUserRequest, refreshTokenRequest, registerUserRequest } from '../../requests/auth';
@@ -21,7 +21,7 @@ export async function register(params: IRegisterDataAPI) {
 	}
 
 	// General a random password with 8 chars
-	const password = '123456' || generateToken(8);
+	const password = '123456' + await generateSecureToken(6);
 	const names = params.name.split(' ');
 
 	// Register user

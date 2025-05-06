@@ -13,14 +13,14 @@
  * @refresh reset
  */
 import { Platform } from 'react-native';
-import { Reactotron } from './reactotronClient';
+import { Reactotron } from './reactotron-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onSnapshot } from 'mobx-state-tree';
-import { RootStore } from '../../models/RootStore';
+import { RootStore } from '../../models/root-store';
 import { clear } from '../../utils/storage';
-import { ReactotronConfig, DEFAULT_REACTOTRON_CONFIG } from './reactotronConfig';
-import { goBack, resetRoot, navigate } from '../../navigators/navigationUtilities';
-import { fakeReactotron } from './reactotronFake';
+import { ReactotronConfig, DEFAULT_REACTOTRON_CONFIG } from './reactotron-config';
+import { goBack, resetRoot, navigate } from '../../navigators/navigation-utilities';
+import { fakeReactotron } from './reactotron-fake';
 
 const { mst } = require('reactotron-mst');
 const { ArgType } = require('reactotron-core-client');

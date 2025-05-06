@@ -1,3 +1,3 @@
-export * from './AppNavigator';
-export * from './navigationUtilities';
+export * from './app-navigator';
+export * from './navigation-utilities';
 // export other navigators from here
