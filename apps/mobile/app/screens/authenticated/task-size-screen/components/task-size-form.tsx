@@ -9,7 +9,7 @@ import ColorPickerModal from "../../../../components/color-picker-modal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
 import { SvgUri } from "react-native-svg"
-import IconModal from "../../../../components/iconModal"
+import IconModal from "../../../../components/icon-modal"
 import { IIcon } from "../../../../services/interfaces/IIcon"
 
 const TaskSizeForm = ({

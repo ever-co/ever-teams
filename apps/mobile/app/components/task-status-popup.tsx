@@ -19,7 +19,7 @@ import { spacing, typography, useAppTheme } from '../theme';
 import { translate } from '../i18n';
 import { useTaskStatusValue } from './status-type';
 import { BlurView } from 'expo-blur';
-import TaskStatusForm from '../screens/authenticated/task-status-screen/components/task-statusForm';
+import TaskStatusForm from '../screens/authenticated/task-status-screen/components/task-status-form';
 
 export interface Props {
 	visible: boolean;

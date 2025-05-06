@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-key */
+// cspell:disable
 import React from 'react';
 import { ImageStyle, TextStyle, View, ViewStyle } from 'react-native';
 import { Button, Icon, Text } from '../../../components';

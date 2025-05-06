@@ -8,7 +8,7 @@ import { typography, useAppTheme } from '../../../../theme';
 import ColorPickerModal from '../../../../components/color-picker-modal';
 import { Badge } from 'react-native-paper';
 import { formatName } from '../../../../helpers/name-format';
-import IconModal from '../../../../components/iconModal';
+import IconModal from '../../../../components/icon-modal';
 import { SvgUri } from 'react-native-svg';
 import { IIcon } from '../../../../services/interfaces/IIcon';
 

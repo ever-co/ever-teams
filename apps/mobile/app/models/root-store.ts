@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from 'mobx-state-tree';
 import { AuthenticationStoreModel } from './authentication-store'; // @demo remove-current-line
-import { EpisodeStoreModel } from './episodeStore'; // @demo remove-current-line
+import { EpisodeStoreModel } from './episode-store'; // @demo remove-current-line
 import { TaskStoreModel } from './task/task-store';
 import { TeamStoreModel } from './team/team-store';
 import { TimerStoreModel } from './timer/timer-store';

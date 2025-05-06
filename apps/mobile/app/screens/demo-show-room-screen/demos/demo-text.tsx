@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-key */
+// cspell:disable
 import React from 'react';
 import { Text } from '../../../components';
 import { colors } from '../../../theme';
