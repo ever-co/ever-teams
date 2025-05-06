@@ -36,7 +36,12 @@ function generateFallbackToken(length: number): string {
 
 	for (let i = 0; i < length; i++) {
 		// Using window.crypto for better randomness in fallback
-		const randomIndex = crypto.getRandomValues(new Uint32Array(1))[0] % chars.length;
+		const max = Math.floor(0xffffffff / chars.length) * chars.length;
+		let rand;
+		do {
+			rand = crypto.getRandomValues(new Uint32Array(1))[0];
+		} while (rand >= max);
+		const randomIndex = rand % chars.length;
 		result += chars.charAt(randomIndex);
 	}
 
