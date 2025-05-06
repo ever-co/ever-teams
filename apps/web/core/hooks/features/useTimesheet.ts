@@ -7,8 +7,8 @@ import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 import axios from 'axios';
-import { timeLogService } from '@/core/services/client/api/time-log.service';
-import { timeSheetService } from '@/core/services/client/api/timesheet.service';
+import { timeLogService } from '@/core/services/client/api/timesheet/time-log.service';
+import { timeSheetService } from '@/core/services/client/api/timesheet/timesheet.service';
 
 interface TimesheetParams {
 	startDate?: Date | string;

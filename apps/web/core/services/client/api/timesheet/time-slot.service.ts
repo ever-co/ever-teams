@@ -1,5 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { APIService } from '../api.service';
+import { APIService } from '../../api.service';
 
 class TimeSlotService extends APIService {
 	deleteTimeSlots = async ({

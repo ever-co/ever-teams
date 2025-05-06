@@ -12,9 +12,9 @@ import { generateToken } from '@/core/lib/helpers/generate-token';
 import { AxiosResponse } from 'axios';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 
-import { organizationTeamService } from '../organization-team';
 import { inviteService } from '../invite';
-import { userOrganizationService } from '../user-organization.service';
+import { userOrganizationService } from '../user/user-organization.service';
+import { organizationTeamService } from '../organization-team';
 
 class SigninService extends APIService {
 	signInEmailConfirm = async (data: { code: string; email: string }) => {

@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { APIService } from '../api.service';
+import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	ITasksTimesheet,
@@ -7,9 +7,9 @@ import {
 	ITimerSlotDataRequest,
 	ITimesheetStatisticsData
 } from '@/core/types/interfaces';
-import api from '../axios';
+import api from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { TTasksTimesheetStatisticsParams } from '../../server/requests';
+import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 
 class StatisticsService extends APIService {
 	getTimerLogsRequest = async ({

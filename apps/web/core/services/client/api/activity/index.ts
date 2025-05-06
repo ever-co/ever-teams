@@ -1,2 +1,2 @@
 export * from './activity.service';
-export * from '../time-slot.service';
+export * from '../timesheet/time-slot.service';

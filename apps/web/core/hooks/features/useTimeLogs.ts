@@ -6,7 +6,7 @@ import { useCallback, useEffect } from 'react';
 import moment from 'moment';
 import { useFirstLoad } from '../useFirstLoad';
 import { useUserProfilePage } from '..';
-import { timeLogService } from '@/core/services/client/api/time-log.service';
+import { timeLogService } from '@/core/services/client/api/timesheet/time-log.service';
 
 export function useTimeLogs() {
 	const { user } = useAuthenticateUser();

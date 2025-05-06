@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { emailVerificationService } from '@/core/services/client/api/email-verification.service';
+import { emailVerificationService } from '@/core/services/client/api/email/email-verification.service';
 
 export function useEmailVerifyToken() {
 	const searchParams = useSearchParams();

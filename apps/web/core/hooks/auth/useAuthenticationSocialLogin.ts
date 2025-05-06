@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
-import { userOrganizationService } from '@/core/services/client/api/user-organization.service';
+import { userOrganizationService } from '@/core/services/client/api/user/user-organization.service';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;

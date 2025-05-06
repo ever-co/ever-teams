@@ -4,7 +4,7 @@ import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
-import { organizationTeamEmployeeService } from '@/core/services/client/api';
+import { organizationTeamEmployeeService } from '@/core/services/client/api/organization-team';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();

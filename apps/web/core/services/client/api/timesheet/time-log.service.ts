@@ -1,5 +1,5 @@
 import { IGetTimeLimitReport, ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
-import { APIService } from '../api.service';
+import { APIService } from '../../api.service';
 import qs from 'qs';
 import {
 	IAddManualTimeRequest,

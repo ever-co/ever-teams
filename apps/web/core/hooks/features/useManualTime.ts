@@ -3,7 +3,7 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
-import { timeLogService } from '@/core/services/client/api/time-log.service';
+import { timeLogService } from '@/core/services/client/api/timesheet/time-log.service';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();

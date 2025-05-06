@@ -124,9 +124,9 @@ class TimerService extends APIService {
 			employeeId: string;
 			organizationTeamId?: string;
 		} = {
-			tenantId: tenantId,
-			organizationId: organizationId,
-			employeeId: employeeId
+			tenantId,
+			organizationId,
+			employeeId
 		};
 		if (organizationTeamId) params.organizationTeamId = organizationTeamId;
 		const query = qs.stringify(params);
