@@ -8,10 +8,9 @@ import * as Crypto from 'expo-crypto';
  */
 export async function generateSecureToken(length: number): Promise<string> {
 	try {
-		 // Request exactly the number of bytes needed for the hex length
-        const bytesNeeded = Math.ceil(length / 2);
+		// Request exactly the number of bytes needed for the hex length
+		const bytesNeeded = Math.ceil(length / 2);
 		const randomBytes = await Crypto.getRandomBytesAsync(bytesNeeded);
-
 
 		// Convert to hexadecimal string
 		return Array.from(randomBytes)
