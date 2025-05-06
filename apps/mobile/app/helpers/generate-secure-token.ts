@@ -56,8 +56,13 @@ export function generateToken(length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
 
+  const maxValidValue = Math.floor(0xffffffff / chars.length) * chars.length;
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] % chars.length));
+    let randomValue;
+    do {
+      randomValue = crypto.getRandomValues(new Uint32Array(1))[0];
+    } while (randomValue >= maxValidValue);
+    result += chars.charAt(randomValue % chars.length);
   }
 
   return result;
