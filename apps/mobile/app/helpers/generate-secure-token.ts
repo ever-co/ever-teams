@@ -8,8 +8,10 @@ import * as Crypto from 'expo-crypto';
  */
 export async function generateSecureToken(length: number): Promise<string> {
 	try {
-		// Generate cryptographically secure random bytes
-		const randomBytes = await Crypto.getRandomBytesAsync(length);
+		 // Request exactly the number of bytes needed for the hex length
+        const bytesNeeded = Math.ceil(length / 2);
+		const randomBytes = await Crypto.getRandomBytesAsync(bytesNeeded);
+
 
 		// Convert to hexadecimal string
 		return Array.from(randomBytes)
@@ -61,10 +63,12 @@ export function generateToken(length: number): string {
 	const max = Math.floor(0xffffffff / chars.length) * chars.length;
 	let rand;
 
-	do {
-		rand = crypto.getRandomValues(new Uint32Array(1))[0];
-	} while (rand >= max);
-	result += chars.charAt(rand % chars.length);
+	for (let i = 0; i < length; i++) {
+		do {
+			rand = crypto.getRandomValues(new Uint32Array(1))[0];
+		} while (rand >= max);
+		result += chars.charAt(rand % chars.length);
+	}
 
 	return result;
 }
