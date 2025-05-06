@@ -1,5 +1,5 @@
 /* eslint-disable no-void */
-import { generateToken } from '../../../../helpers/generate-token';
+import generateSecureToken from '../../../../helpers/generate-secure-token';
 import { authFormValidate } from '../../../../helpers/validations';
 import { ILoginDataAPI, ILoginResponse } from '../../../interfaces/IAuthentication';
 import { loginUserRequest, verifyAuthCodeRequest } from '../../requests/auth';
@@ -57,7 +57,7 @@ export async function login(params: ILoginDataAPI) {
 		 */
 	} else {
 		// generate a random password
-		const password = '123456' + generateToken(6);
+		const password = '123456' + await generateSecureToken(6);
 		const email = inviteResponse.data.email;
 		const names = inviteResponse.data.fullName.split(' ');
 
