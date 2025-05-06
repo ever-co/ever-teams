@@ -7,7 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { secondsToTime } from '../../../../helpers/date';
 import { pad } from '../../../../helpers/number';
 import { translate } from '../../../../i18n';
-import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statics';
+import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { typography } from '../../../../theme/typography';
 import { useTheme } from 'react-native-paper';

@@ -12,7 +12,7 @@ import { pad } from '../helpers/number';
 import { typography, useAppTheme } from '../theme';
 import { useTimer } from '../services/hooks/use-timer';
 import TimerButton from './timer-button';
-import { useTaskStatistics } from '../services/hooks/features/use-task-statics';
+import { useTaskStatistics } from '../services/hooks/features/use-task-statistics';
 
 export interface Props {}
 

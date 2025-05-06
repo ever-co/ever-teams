@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { secondsToTime } from '../../../../helpers/date';
 import { useStores } from '../../../../models';
-import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statics';
+import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { useAppTheme } from '../../../../theme';
 import { typography } from '../../../../theme/typography';

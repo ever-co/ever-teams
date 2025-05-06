@@ -6,7 +6,7 @@ import React from 'react';
 import { View, StyleSheet, Text, ViewStyle, TextStyle } from 'react-native';
 import { secondsToTime } from '../helpers/date';
 import { pad } from '../helpers/number';
-import { useTaskStatistics } from '../services/hooks/features/use-task-statics';
+import { useTaskStatistics } from '../services/hooks/features/use-task-statistics';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { typography } from '../theme/typography';
 import { useTheme } from 'react-native-paper';

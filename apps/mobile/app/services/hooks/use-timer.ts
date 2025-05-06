@@ -11,7 +11,7 @@ import { useStores } from '../../models';
 import { ITeamTask } from '../interfaces/ITask';
 import { useTeamTasks } from './features/use-team-tasks';
 import useFetchTimerStatus from '../client/queries/timer/timer';
-import { useTaskStatistics } from './features/use-task-statics';
+import { useTaskStatistics } from './features/use-task-statistics';
 import moment from 'moment-timezone';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
