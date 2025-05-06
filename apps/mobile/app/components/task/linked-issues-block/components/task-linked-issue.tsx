@@ -10,7 +10,7 @@ import {
 import IssuesModal from "../../../issues-modal"
 import TaskStatus from "../../../task-status"
 import { translate } from "../../../../i18n"
-import ActionTypesModal from "./ActionTypesModal"
+import ActionTypesModal from "./action-types-modal"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
 import { useAppTheme } from "../../../../theme"

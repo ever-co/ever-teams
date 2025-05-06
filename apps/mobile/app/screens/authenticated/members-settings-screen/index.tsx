@@ -18,11 +18,11 @@ import { OT_Member } from '../../../services/interfaces/IOrganizationTeam';
 import { SvgXml } from 'react-native-svg';
 import { moreButtonDark, moreButtonLight } from '../../../components/svgs/icons';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
-import ChangeRoleModal from './components/ChangeRoleModal';
 import ConfirmationModal from '../../../components/confirmation-modal';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
 import { useTeamMemberCard } from '../../../services/hooks/features/useTeamMemberCard';
 import { useNavigation } from '@react-navigation/native';
+import ChangeRoleModal from './components/change-role-modal';
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSettingsScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import LanguageModal from './LanguageModal';
+import LanguageModal from './language-modal';
 import { ILanguageItemList, IUser } from '../../../../services/interfaces/IUserData';
 import { useSettings } from '../../../../services/hooks/features/useSettings';
 import { translate } from '../../../../i18n';

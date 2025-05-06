@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
 import { useAppTheme, typography } from '../theme';
-import TaskLabelPopup from './TaskLabelPopup';
+import TaskLabelPopup from './task-label-popup';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';

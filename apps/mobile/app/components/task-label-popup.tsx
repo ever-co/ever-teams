@@ -16,7 +16,7 @@ import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../services/hooks/features/useTaskLabels';
-import { BadgedTaskLabel } from './LabelIcon';
+import { BadgedTaskLabel } from './label-icon';
 import { translate } from '../i18n';
 import TaskLabelForm from '../screens/authenticated/task-label-screen/components/task-label-form';
 import { BlurView } from 'expo-blur';

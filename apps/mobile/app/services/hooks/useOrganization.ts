@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import { useStores } from '../../models';
-import useFetchUserOrganization from '../client/queries/organizationTeam/organization';
+import useFetchUserOrganization from '../client/queries/organization-team/organization';
 import {
 	createOrganizationTeamRequest,
 	deleteOrganizationTeamRequest,

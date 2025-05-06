@@ -9,7 +9,7 @@ import { imgTitle } from '../../helpers/img-title';
 import { useStores } from '../../models';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
 import { typography, useAppTheme } from '../../theme';
-import DropDownSection from './DropDownSection';
+import DropDownSection from './drop-down-section';
 import { limitTextCharaters } from '../../helpers/sub-text';
 
 export interface Props {

@@ -10,7 +10,7 @@ import { observer } from 'mobx-react-lite';
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { typography, useAppTheme } from '../../../../theme';
-import { BadgedTaskStatus } from '../../../../components/StatusIcon';
+import { BadgedTaskStatus } from '../../../../components/status-icon';
 import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
 import { showMessage } from 'react-native-flash-message';
 import { useTaskStatus } from '../../../../services/hooks/features/useTaskStatus';

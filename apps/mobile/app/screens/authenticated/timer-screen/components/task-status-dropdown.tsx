@@ -9,7 +9,7 @@ import { observer } from 'mobx-react-lite';
 
 // STYLES
 import { typography, useAppTheme } from '../../../../theme';
-import TaskStatusList from './TaskStatusList';
+import TaskStatusList from './task-status-list';
 
 export interface Props {
 	task: ITeamTask;

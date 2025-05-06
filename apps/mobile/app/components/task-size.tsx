@@ -8,7 +8,7 @@ import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
 import { showMessage } from 'react-native-flash-message';
 import { typography, useAppTheme } from '../theme';
-import TaskSizePopup from './TaskSizePopup';
+import TaskSizePopup from './task-size-popup';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
 import { useTaskSizeValue } from './status-type';

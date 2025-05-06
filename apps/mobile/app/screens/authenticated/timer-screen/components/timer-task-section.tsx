@@ -23,7 +23,7 @@ import TaskPriorities from '../../../../components/task-priority';
 import { typography, useAppTheme } from '../../../../theme';
 import { translate } from '../../../../i18n';
 import TaskStatus from '../../../../components/task-status';
-import TimerCard from '../../../../components/TimerCard';
+import TimerCard from '../../../../components/timer-card';
 import TaskSize from '../../../../components/task-size';
 import { RTuseTaskInput } from '../../../../services/hooks/features/useTaskInput';
 import TaskLabels from '../../../../components/task-labels';

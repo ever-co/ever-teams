@@ -3,7 +3,7 @@ import { TextInput } from 'react-native';
 import { useStores } from '../../../models';
 import { login } from '../../client/api/auth/login';
 import { register } from '../../client/api/auth/register';
-import sendAuthCode from '../../client/api/auth/sendAuthCode';
+import sendAuthCode from '../../client/api/auth/send-auth-code';
 import {
 	resentVerifyUserLinkRequest,
 	verifyAuthCodeRequest,

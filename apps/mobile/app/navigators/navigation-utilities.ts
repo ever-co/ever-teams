@@ -56,35 +56,35 @@ export function useBackButtonHandler(canExit: (routeName: string) => boolean) {
 	useEffect(() => {
 		// We'll fire this when the back button is pressed on Android.
 		const onBackPress = () => {
-			if (!navigationRef.isReady()) {
-				return false;
-			}
-
-			// grab the current route
-			const routeName = getActiveRouteName(navigationRef.getRootState());
-
-			// are we allowed to exit?
-			if (canExitRef.current(routeName)) {
-				// exit and let the system know we've handled the event
-				BackHandler.exitApp();
-				return true;
-			}
-
-			// we can't exit, so let's turn this into a back action
-			if (navigationRef.canGoBack()) {
-				navigationRef.goBack();
-				return true;
-			}
-
+		  if (!navigationRef.isReady()) {
 			return false;
+		  }
+
+		  // grab the current route
+		  const routeName = getActiveRouteName(navigationRef.getRootState());
+
+		  // are we allowed to exit?
+		  if (canExitRef.current(routeName)) {
+			// exit and let the system know we've handled the event
+			BackHandler.exitApp();
+			return true;
+		  }
+
+		  // we can't exit, so let's turn this into a back action
+		  if (navigationRef.canGoBack()) {
+			navigationRef.goBack();
+			return true;
+		  }
+
+		  return false;
 		};
 
 		// Subscribe when we come to life
-		BackHandler.addEventListener('hardwareBackPress', onBackPress);
+		const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
 		// Unsubscribe when we're done
-		return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-	}, []);
+		return () => subscription.remove();
+	  }, []);
 }
 
 /**
@@ -110,7 +110,7 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
 	const initNavState = navigationRestoredDefaultState(Config.persistNavigation);
 	const [isRestored, setIsRestored] = useState(initNavState);
 
-	const routeNameRef = useRef<string | undefined>();
+	const routeNameRef = useRef<string | undefined>(undefined);
 
 	const onNavigationStateChange = (state) => {
 		const previousRouteName = routeNameRef.current;

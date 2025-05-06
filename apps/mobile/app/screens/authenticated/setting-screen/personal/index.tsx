@@ -9,7 +9,7 @@ import { useStores } from '../../../../models';
 import { IPopup } from '../../..';
 import FlashMessage from 'react-native-flash-message';
 import { useAppTheme } from '../../../../theme';
-import UserAvatar from './UserAvatar';
+import UserAvatar from './user-avatar';
 import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
 
 interface IPersonalProps {

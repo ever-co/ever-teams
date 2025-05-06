@@ -10,7 +10,7 @@ import TaskTitleBlock from '../../../components/task/title-block';
 import DetailsBlock from '../../../components/task/details-block';
 import { translate } from '../../../i18n';
 import EstimateBlock from '../../../components/task/estimate-block';
-import TimeBlock from '../../../components/task/Time-block';
+import TimeBlock from '../../../components/task/time-block';
 import LinkedIssuesBlock from '../../../components/task/linked-issues-block';
 import DescriptionBlock from '../../../components/task/descrption-block';
 

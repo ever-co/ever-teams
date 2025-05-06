@@ -10,7 +10,7 @@ import { typography, useAppTheme } from '../theme';
 import { translate } from '../i18n';
 import { useTaskVersionValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
-import TaskVersionPopup from './TaskVersionPopup';
+import TaskVersionPopup from './task-version-popup';
 
 interface TaskVersionProps {
 	task?: ITeamTask;

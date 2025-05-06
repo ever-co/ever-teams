@@ -340,7 +340,7 @@ function Switch(props: ToggleInputProps) {
 		detailStyle: $detailStyleOverride
 	} = props;
 
-	const knob = useRef<Animated.View>();
+	const knob = useRef<Animated.View>(null);
 	const [renderedKnobWidth, setRenderedKnobWidth] = useState(null);
 
 	useEffect(() => {

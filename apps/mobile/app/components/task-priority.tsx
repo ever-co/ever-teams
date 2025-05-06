@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/useTeamTasks';
 import { typography, useAppTheme } from '../theme';
-import TaskPriorityPopup from './TaskPriorityPopup';
+import TaskPriorityPopup from './task-priority-popup';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';

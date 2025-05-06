@@ -9,7 +9,7 @@ import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { cloneDeep } from "lodash"
 import { SvgXml } from "react-native-svg"
 import { categoryIcon } from "./svgs/icons"
-import TaskEpicPopup from "./TaskEpicPopup"
+import TaskEpicPopup from "./task-epic-popup"
 import { Entypo } from "@expo/vector-icons"
 import { translate } from "../i18n"
 

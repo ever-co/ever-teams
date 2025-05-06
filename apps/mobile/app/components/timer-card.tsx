@@ -11,7 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { pad } from '../helpers/number';
 import { typography, useAppTheme } from '../theme';
 import { useTimer } from '../services/hooks/useTimer';
-import TimerButton from './TimerButton';
+import TimerButton from './timer-button';
 import { useTaskStatistics } from '../services/hooks/features/useTaskStatics';
 
 export interface Props {}

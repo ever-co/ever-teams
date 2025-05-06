@@ -26,7 +26,7 @@ import {
 // HELPERS
 import { translate } from '../i18n';
 import { spacing, typography, useAppTheme } from '../theme';
-import HamburgerMenu from '../components/HamburgerMenu';
+import HamburgerMenu from '../components/hamburger-menu';
 import { Skeleton } from 'react-native-skeletons';
 import { useStores } from '../models';
 import { observer } from 'mobx-react-lite';

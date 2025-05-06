@@ -12,7 +12,7 @@ import { ListItem } from '../../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { spacing, typography, useAppTheme } from '../../../../theme';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
-import WorkedOnTask from '../../../../components/WorkedOnTask';
+import WorkedOnTask from '../../../../components/worked-on-task';
 import TaskStatus from '../../../../components/task-status';
 import TimerButton from './timer-button';
 import { observer } from 'mobx-react-lite';

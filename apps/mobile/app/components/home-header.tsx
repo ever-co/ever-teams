@@ -2,7 +2,7 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import HeaderTimer from './HeaderTimer';
+import HeaderTimer from './header-timer';
 import { useAppTheme } from '../theme';
 import { useOrganizationTeam } from '../services/hooks/useOrganization';
 import { SvgXml } from 'react-native-svg';

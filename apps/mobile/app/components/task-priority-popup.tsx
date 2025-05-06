@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
-import { BadgedTaskPriority } from './PriorityIcon';
+import { BadgedTaskPriority } from './priority-icon';
 import { useTaskPriority } from '../services/hooks/features/useTaskPriority';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';

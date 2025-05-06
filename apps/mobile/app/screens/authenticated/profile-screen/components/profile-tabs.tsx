@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { View, ViewStyle } from 'react-native';
 import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
 import { useAppTheme } from '../../../../theme';
-import TaskTab from './TaskTab';
+import TaskTab from './task-tab';
 
 interface Props {
 	hook: ITaskFilter;

@@ -115,7 +115,7 @@ export const TextField = forwardRef(function TextField(props: TextFieldProps, re
 		inputWrapperStyle: $inputWrapperStyleOverride,
 		...TextInputProps
 	} = props;
-	const input = useRef<TextInput>();
+	const input = useRef<TextInput>(null);
 
 	const disabled = TextInputProps.editable === false || status === 'disabled';
 

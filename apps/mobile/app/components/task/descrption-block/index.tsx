@@ -15,7 +15,7 @@ import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import { useClickOutside } from "react-native-click-outside"
 
 const DescriptionBlock = () => {
-	const _editor: RefObject<QuillEditor> = React.useRef()
+	const _editor: RefObject<QuillEditor> = React.useRef(null)
 
 	const [editorKey, setEditorKey] = React.useState(1)
 	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
