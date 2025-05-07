@@ -20,7 +20,7 @@ import { Check, Search, Settings2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { TaskTable } from '@/core/components/pages/team/tasks/TaskTable';
 import { columns, hidableColumnNames } from '@/core/components/pages/team/tasks/columns';
-import { usePagination } from '@/core/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Menu, Transition } from '@headlessui/react';
 const TeamTask = () => {
 	const t = useTranslations();

@@ -4,7 +4,7 @@ import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/types/interfaces';
 import { useTranslations } from 'next-intl';
-import { useCurrencies } from '@/core/hooks/features/useCurrencies';
+import { useCurrencies } from '@/core/hooks/currencies/use-currencies';
 import { getInitialValue } from '../utils';
 import { cn } from '@/core/lib/helpers';
 

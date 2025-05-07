@@ -1,5 +1,5 @@
 import { useTaskStatus } from '@/core/hooks';
-import { useKanban } from '@/core/hooks/features/useKanban';
+import { useKanban } from '@/core/hooks/common/use-kanban';
 import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
 import { IKanban } from '@/core/types/interfaces/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/Kanban';

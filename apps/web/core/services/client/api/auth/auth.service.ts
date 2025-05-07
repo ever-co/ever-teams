@@ -18,7 +18,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import api from '../../axios';
-import { ProviderEnum } from '@/core/services/server/requests/OAuth';
+import { ProviderEnum } from '@/core/services/server/requests/o-auth';
 import { signinService } from './signin.service';
 import { userService } from '../users';
 

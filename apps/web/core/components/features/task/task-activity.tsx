@@ -4,7 +4,7 @@ import { Card } from '@/core/components';
 import React from 'react';
 import { UserTaskActivity } from './activity/user-task-activity';
 import { ITeamTask } from '@/core/types/interfaces';
-import { useTaskTimeSheets } from '@/core/hooks/features/useTaskActivity';
+import { useTaskTimeSheets } from '@/core/hooks/tasks/use-task-activity';
 import { groupByTime } from '@/core/lib/helpers/array-data';
 
 import { clsxm } from '@/core/lib/utils';

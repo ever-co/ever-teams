@@ -17,9 +17,9 @@ import {
 	useTimer,
 	useUserProfilePage
 } from '@/core/hooks';
-import { useDateRange } from '@/core/hooks/useDateRange';
-import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
-import { useLocalStorageState } from '@/core/hooks/useLocalStorageState';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,

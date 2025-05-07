@@ -6,7 +6,7 @@ import { TranslationHooks, useTranslations } from 'next-intl';
 import { TimesheetDetailMode } from '../../../app/[locale]/(main)/timesheet/[memberId]/page';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
 import { cn } from '@/core/lib/helpers';
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { Badge } from '@/core/components/ui/badge';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '@/core/components/features';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';

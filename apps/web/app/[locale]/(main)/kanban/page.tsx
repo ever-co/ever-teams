@@ -1,7 +1,7 @@
 'use client';
 import { KanbanTabs } from '@/core/constants/config/constants';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
-import { useKanban } from '@/core/hooks/features/useKanban';
+import { useKanban } from '@/core/hooks/common/use-kanban';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { KanbanView } from '@/core/components/features/team-members-kanban-view';

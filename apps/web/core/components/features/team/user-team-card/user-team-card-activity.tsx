@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
 import { HorizontalSeparator, ProgressBar } from '@/core/components';
 import React from 'react';
-import { useTimeSlots } from '@/core/hooks/features/useTimeSlot';
+import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { useTranslations } from 'next-intl';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';

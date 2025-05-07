@@ -14,7 +14,7 @@ import {
 import Item from './kanban-card';
 import { ITeamTask } from '@/core/types/interfaces';
 import { TaskStatus } from '@/core/constants/config/constants';
-import { useKanban } from '@/core/hooks/features/useKanban';
+import { useKanban } from '@/core/hooks/common/use-kanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';

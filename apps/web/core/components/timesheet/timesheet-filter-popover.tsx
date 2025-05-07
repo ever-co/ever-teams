@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/po
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from './timesheet-action';
 

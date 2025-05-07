@@ -1,4 +1,4 @@
-import { useTeamInvitations } from '@/core/hooks/features/useTeamInvitations';
+import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
 import Input from '@/core/components/ui/inputs/input';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';

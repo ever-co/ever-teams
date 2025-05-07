@@ -1,4 +1,4 @@
-import { ProviderEnum } from '@/core/services/server/requests/OAuth';
+import { ProviderEnum } from '@/core/services/server/requests/o-auth';
 import { IBasePerTenant } from './IBaseModel';
 import { IRelationalUser } from './IUserData';
 

@@ -19,7 +19,7 @@ import {
 	SidebarMenuSubButton,
 	useSidebar
 } from '@/core/components/ui/sidebar';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useAuthenticateUser } from '@/core/hooks';
 import { Button } from '@/core/components/button';
 import { useTranslations } from 'next-intl';

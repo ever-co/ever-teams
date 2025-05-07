@@ -1,7 +1,5 @@
 'use client';
 
-import { useIsMemberManager, useOrganizationTeams, useRolePermissions } from '@/core/hooks';
-import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
@@ -12,6 +10,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
+import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizations';
+import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 
 const Permissions = () => {
 	// Translations

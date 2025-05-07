@@ -24,12 +24,12 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
-import { useDateRange } from '@/core/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { TaskDatePickerWithRange } from './task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
-import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
+import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
