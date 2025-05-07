@@ -14,8 +14,9 @@ import { isValidUrl } from '@/core/lib/utils';
 import { ScrollArea } from '@/core/components/ui/scroll-bar';
 import { ScrollBar } from '@/core/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useImageAssets } from '@/core/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 import { getInitialValue } from '../utils';
+import { useImageAssets } from '@/core/hooks/common/image-assets';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 

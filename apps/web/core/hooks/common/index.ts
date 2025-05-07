@@ -9,7 +9,6 @@ export * from './use-first-load';
 export * from './use-has-mounted';
 export * from './use-hotkeys';
 export * from './use-infinity-fetch';
-export * from './use-kanban';
 export * from './use-language';
 export * from './use-language-settings';
 export * from './use-left-setting-data';

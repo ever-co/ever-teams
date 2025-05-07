@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useImageAssets, useOrganizationTeams } from '@/core/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Avatar, Button } from '@/core/components';
 import { useTheme } from 'next-themes';
@@ -10,6 +10,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
+import { useImageAssets } from '@/core/hooks/common/image-assets';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {
 	const t = useTranslations();
