@@ -451,28 +451,28 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
