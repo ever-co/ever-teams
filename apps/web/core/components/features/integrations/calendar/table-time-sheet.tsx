@@ -43,7 +43,7 @@ import {
 } from '@/core/components/timesheet';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/core/lib/helpers/index';
-import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { GroupedTimesheet, useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,

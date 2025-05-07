@@ -1,5 +1,4 @@
 import { imgTitle } from '@/core/lib/helpers/img-title';
-import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -7,6 +6,7 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
 import { useTranslations } from 'next-intl';
+import { useOrganizationTeams } from '@/core/hooks/organizations';
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const { teams, activeTeam, setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();

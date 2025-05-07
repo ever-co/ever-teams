@@ -9,7 +9,7 @@ import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { AllPlansModal } from '@/core/components/features/daily-plan/all-plans-modal';
-import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;

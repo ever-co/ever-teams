@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropsWithChildren, useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
-import { useCheckAPI } from '@/core/hooks/useCheckAPI';
+import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import OfflineWrapper from '@/core/components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 

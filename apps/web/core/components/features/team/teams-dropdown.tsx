@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {

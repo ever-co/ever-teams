@@ -12,11 +12,11 @@ import {
 } from '@/core/types/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useSortableData } from '@/core/hooks/useSortableData';
+import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { SortPopover } from '@/core/components/ui/sort-popover';
-import { useProductivityTableConfig } from '@/core/hooks/use-table-config';
+import { useProductivityTableConfig } from '@/core/hooks/organizations/employees/use-productivity-table-config';
 import { Paginate } from '@/core/components';
-import { usePagination } from '@/core/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/common/use-pagination';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
 
 export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {

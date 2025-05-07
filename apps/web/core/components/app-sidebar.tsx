@@ -27,12 +27,12 @@ import {
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
 import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
-import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { CreateTeamModal, TaskIssueStatus } from '@/core/components/features';
 import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
-import { useActiveTeam } from '@/core/hooks/features/useActiveTeam';
+import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useMemo } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {

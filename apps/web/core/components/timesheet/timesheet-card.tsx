@@ -12,7 +12,7 @@ import { Button, Card, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from './compact-timesheet-component';
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { cn } from '@/core/lib/helpers';

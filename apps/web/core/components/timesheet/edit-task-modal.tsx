@@ -14,7 +14,7 @@ import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { statusTable } from './timesheet-action';
 import { TimesheetLog } from '@/core/types/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toast } from '@/core/components/ui/use-toast';
 import { ToastAction } from '@/core/components/ui/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';

@@ -1,7 +1,6 @@
 import { Button, VerticalSeparator } from '@/core/components';
 import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
-import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
@@ -14,8 +13,9 @@ import {
 } from '@/core/types/interfaces';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { useRoles } from '@/core/hooks/features/useRoles';
 import { RolesEnum } from '@/core/types/interfaces/IRoles';
+import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
+import { useRoles } from '@/core/hooks/roles';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;

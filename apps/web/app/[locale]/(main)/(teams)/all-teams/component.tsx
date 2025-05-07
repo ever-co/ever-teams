@@ -6,7 +6,7 @@ import { fullWidthState } from '@/core/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb, Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import TeamMemberHeader from '@/core/components/features/team-member-header';
@@ -15,7 +15,7 @@ import { HeaderTabs } from '@/core/components/pages/all-teams/header-tabs';
 import { allTeamsHeaderTabs } from '@/core/stores/header-tabs';
 import AllTeamsMembers from '@/core/components/features/all-teams-members';
 import { MemberFilter } from '@/core/components/features/all-teams/all-team-members-filter';
-import { useOrganizationTeams } from '@/core/hooks';
+import { useOrganizationTeams } from '@/core/hooks/organizations';
 
 function AllTeamsPage() {
 	const t = useTranslations();

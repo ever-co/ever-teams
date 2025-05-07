@@ -1,8 +1,8 @@
 import { pad } from '@/core/lib/helpers/number';
 import { useTeamTasks } from '@/core/hooks';
-import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
-import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
-import { useTimer } from '@/core/hooks/features/useTimer';
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
+import { useTimer } from '@/core/hooks/activities/use-timer';
 import { ProgressBar } from '@/core/components/ui/progress-bar';
 import { PauseIcon } from '@/core/components/ui/svgs/pause-icon';
 import { PlayIcon } from '@/core/components/ui/svgs/play-icon';

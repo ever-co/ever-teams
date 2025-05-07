@@ -1,5 +1,4 @@
 import { useTaskStatus } from '@/core/hooks';
-import { useKanban } from '@/core/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
 import { IKanban } from '@/core/types/interfaces/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/Kanban';
@@ -14,6 +13,7 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-area';
 import { cn } from '@/core/lib/helpers';
+import { useKanban } from '@/core/hooks/tasks/use-kanban';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {

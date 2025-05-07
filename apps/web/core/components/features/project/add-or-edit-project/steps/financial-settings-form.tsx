@@ -4,9 +4,9 @@ import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/types/interfaces';
 import { useTranslations } from 'next-intl';
-import { useCurrencies } from '@/core/hooks/features/useCurrencies';
 import { getInitialValue } from '../utils';
 import { cn } from '@/core/lib/helpers';
+import { useCurrencies } from '@/core/hooks/common/use-currencies';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
