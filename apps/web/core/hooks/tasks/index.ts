@@ -6,7 +6,7 @@ export * from './use-linked-tasks';
 export * from './use-task-activity';
 export * from './use-task-estimation';
 export * from './use-task-input';
-export * from './use-task-tabels';
+export * from './use-task-labels';
 export * from './use-task-priorities';
 export * from './use-task-related-issue-type';
 export * from './use-task-sizes';
