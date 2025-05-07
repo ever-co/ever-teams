@@ -6,7 +6,7 @@ import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/ty
 import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
 import { cn } from '@/core/lib/helpers';
-import { useCurrencies } from '@/core/hooks/common/currencies';
+import { useCurrencies } from '@/core/hooks/common/use-currencies';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;

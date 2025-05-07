@@ -10,7 +10,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
-import { useImageAssets } from '@/core/hooks/common/image-assets';
+import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {
 	const t = useTranslations();

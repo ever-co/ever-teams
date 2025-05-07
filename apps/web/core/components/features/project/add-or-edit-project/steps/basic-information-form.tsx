@@ -16,7 +16,7 @@ import { ScrollBar } from '@/core/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
 import { getInitialValue } from '../utils';
-import { useImageAssets } from '@/core/hooks/common/image-assets';
+import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 

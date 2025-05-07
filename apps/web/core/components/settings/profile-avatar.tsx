@@ -8,7 +8,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
-import { useImageAssets } from '@/core/hooks/common/image-assets';
+import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 
 export const ProfileAvatar = () => {
 	const t = useTranslations();
