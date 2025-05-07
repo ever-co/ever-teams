@@ -3,7 +3,8 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { IProjectRepository } from '@/core/types/interfaces';
-import { githubService, organizationProjectService } from '@/core/services/client/api';
+import { githubService } from '@/core/services/client/api';
+import { organizationProjectService } from '@/core/services/client/api/organizations';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);

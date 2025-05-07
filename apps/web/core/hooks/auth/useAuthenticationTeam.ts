@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
 
-import { userTimezone } from '@/core/lib/helpers/date';
+import { userTimezone } from '@/core/lib/helpers/date-and-time';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { IRegisterDataAPI } from '@/core/types/interfaces';
 import { AxiosError } from 'axios';

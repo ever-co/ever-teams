@@ -1,5 +1,5 @@
 export * from './cookies';
-export * from './date';
+export * from './date-and-time';
 export * from './generate-token';
 export * from './img-title';
 export * from './merge-refs';
@@ -9,4 +9,4 @@ export * from './validations';
 export * from './colors';
 export * from './strings';
 export * from './plan-day-badge';
-export * from './drag-and-drop'
+export * from './drag-and-drop';

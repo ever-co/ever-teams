@@ -1,4 +1,3 @@
-import qs from 'qs';
 import { APIService } from '../../api.service';
 import {
 	ILoginResponse,
@@ -8,7 +7,7 @@ import {
 	ISuccessResponse,
 	IUser
 } from '@/core/types/interfaces';
-import { getRefreshTokenCookie, getTenantIdCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { getRefreshTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	APP_LOGO_URL,
 	APP_NAME,
@@ -21,27 +20,9 @@ import {
 import api from '../../axios';
 import { ProviderEnum } from '@/core/services/server/requests/OAuth';
 import { signinService } from './signin.service';
+import { userService } from '../users';
 
 class AuthService extends APIService {
-	/**
-	 * Fetches data of the authenticated user with specified relations and the option to include employee details.
-	 *
-	 * @returns A Promise resolving to the IUser object.
-	 */
-	getAuthenticatedUserData = async () => {
-		// Define the relations to be included in the request
-		const relations = ['role', 'tenant'];
-
-		// Construct the query string with 'qs', including the includeEmployee parameter
-		const query = qs.stringify({
-			relations: relations,
-			includeEmployee: true // Append includeEmployee parameter set to true
-		});
-
-		// Execute the GET request to fetch the user data
-		return this.get<IUser>(`/user/me?${query}`);
-	};
-
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 
@@ -52,7 +33,7 @@ class AuthService extends APIService {
 
 			setAccessTokenCookie(data.token);
 
-			return this.getAuthenticatedUserData();
+			return userService.getAuthenticatedUserData();
 		}
 
 		return api.post<ILoginResponse>(`/auth/refresh`, {
@@ -74,13 +55,6 @@ class AuthService extends APIService {
 			email,
 			callbackUrl
 		});
-	};
-
-	verifyUserEmailByCode = async (code: string, email: string) => {
-		const tenantId = getTenantIdCookie();
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/code' : `/auth/verify/code`;
-
-		return this.post<ISuccessResponse>(endpoint, { code, tenantId, email });
 	};
 
 	resendVerifyUserLink = async (user: IUser) => {
@@ -127,12 +101,6 @@ class AuthService extends APIService {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
 
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
-	};
-
-	verifyUserEmailByToken = async (email: string, token: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify' : `/auth/verify/token`;
-
-		return this.post<ISuccessResponse>(endpoint, { email, token });
 	};
 
 	signInEmailConfirm = async (email: string, code: string) => {

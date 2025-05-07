@@ -3,12 +3,12 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
-import { manualTimeService } from '@/core/services/client/api/timer/manual-time.service';
+import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
 
-	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(manualTimeService.addManualTime);
+	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(timeLogService.addManualTime);
 	const [timeLog, setTimeLog] = useState<ITimeLog>();
 
 	const addManualTime = useCallback(

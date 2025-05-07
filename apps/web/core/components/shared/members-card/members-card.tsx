@@ -3,7 +3,7 @@ import DropdownUser from '@/core/components/shared/members-card/components/users
 import { useAuthenticateUser } from '@/core/hooks';
 import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
-import { secondsToTime } from '@/core/lib/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/ui/separator';

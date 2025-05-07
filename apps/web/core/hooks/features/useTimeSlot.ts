@@ -8,7 +8,8 @@ import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useUserProfilePage } from './useUserProfilePage';
 import { activityTypeState } from '@/core/stores/activity-type';
-import { timeSlotsService } from '@/core/services/client/api/activity';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
+import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot.service';
 
 export function useTimeSlots(hasFilter?: boolean) {
 	const { user } = useAuthenticateUser();
@@ -16,8 +17,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(timeSlotsService.getTimerLogsRequest);
-	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotsService.deleteTimeSlots);
+	const { loading, queryCall } = useQuery(statisticsService.getTimerLogsRequest);
+	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotService.deleteTimeSlots);
 
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();

@@ -13,7 +13,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { inviteService } from '../../services/client/api/invite';
+import { inviteService } from '../../services/client/api/organizations/teams/invites';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);

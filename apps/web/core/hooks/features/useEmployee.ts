@@ -6,7 +6,7 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { IUpdateEmployee } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
-import { employeeService } from '../../services/client/api/employee';
+import { employeeService } from '@/core/services/client/api/organizations/teams';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();

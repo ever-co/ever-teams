@@ -6,7 +6,7 @@ import { organizationProjectsState } from '@/core/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
-import { organizationProjectService } from '@/core/services/client/api';
+import { organizationProjectService } from '@/core/services/client/api/organizations';
 
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();

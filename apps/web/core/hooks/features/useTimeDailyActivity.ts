@@ -9,7 +9,7 @@ import { timeAppsState, timeVisitedSitesState } from '@/core/stores/time-slot';
 
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { activityService } from '@/core/services/client/api/activity';
+import { activityService } from '@/core/services/client/api/activities';
 
 export function useTimeDailyActivity(type?: string) {
 	const { user } = useAuthenticateUser();
@@ -17,7 +17,7 @@ export function useTimeDailyActivity(type?: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useAtom(timeVisitedSitesState);
 
-	const { loading, queryCall } = useQuery(activityService.getTimerDaily);
+	const { loading, queryCall } = useQuery(activityService.getDailyActivities);
 
 	const getVisitedApps = useCallback(
 		(title?: string) => {

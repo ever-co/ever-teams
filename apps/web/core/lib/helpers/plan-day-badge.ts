@@ -1,5 +1,5 @@
 import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
-import { formatDayPlanDate } from './date';
+import { formatDayPlanDate } from './date-and-time';
 
 export const planBadgeContent = (
 	plans: IDailyPlan[],

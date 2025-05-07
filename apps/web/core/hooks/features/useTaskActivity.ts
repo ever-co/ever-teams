@@ -8,7 +8,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useUserProfilePage } from './useUserProfilePage';
 import { activityTypeState } from '@/core/stores/activity-type';
 import { taskTimesheetState } from '@/core/stores/task-timesheet';
-import { activityService } from '@/core/services/client/api/activity';
+import { activityService } from '@/core/services/client/api/activities';
 
 export function useTaskTimeSheets(id: string) {
 	const { user } = useAuthenticateUser();
@@ -16,7 +16,7 @@ export function useTaskTimeSheets(id: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(activityService.getTaskTimesheet);
+	const { loading, queryCall } = useQuery(activityService.getActivities);
 	const getTaskTimesheets = useCallback(() => {
 		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({

@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date';
+import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/ITimer';
 import {
@@ -26,7 +26,7 @@ import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import { useTaskStatus } from './useTaskStatus';
 import { useDailyPlan } from './useDailyPlan';
-import { timerService } from '@/core/services/client/api/timer';
+import { timerService } from '@/core/services/client/api/timers';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 

@@ -1,4 +1,4 @@
-import { secondsToTime } from '@/core/lib/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { RawStatusDropdown } from '@/core/components/shared/tasks/status-dropdown';
 

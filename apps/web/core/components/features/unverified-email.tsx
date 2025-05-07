@@ -8,6 +8,7 @@ import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from '@/
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
@@ -78,7 +79,7 @@ export function UnverifiedEmail() {
 }
 
 export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
-	const { loading, queryCall } = useQuery(authService.verifyUserEmailByCode);
+	const { loading, queryCall } = useQuery(emailVerificationService.verifyUserEmailByCode);
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
 
 	const [code, setCode] = useState('');

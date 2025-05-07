@@ -7,7 +7,8 @@ import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 import axios from 'axios';
-import { timerLogsService } from '@/core/services/client/api/timer/timer-log.service';
+import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
+import { timeSheetService } from '@/core/services/client/api/timesheets/timesheet.service';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -203,18 +204,18 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowByStatusAndDate,
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
-	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timerLogsService.getTaskTimesheetLogs);
+	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timeLogService.getTaskTimesheetLogs);
 	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(
-		timerLogsService.deleteTaskTimesheetLogs
+		timeLogService.deleteTaskTimesheetLogs
 	);
 	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(
-		timerLogsService.updateStatusTimesheetFrom
+		timeSheetService.updateStatusTimesheetFrom
 	);
 	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(
-		timerLogsService.createTimesheetFrom
+		timeLogService.createTimesheetFrom
 	);
 	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(
-		timerLogsService.updateTimesheetFrom
+		timeLogService.updateTimesheetFrom
 	);
 	const isManage = user && isUserAllowedToAccess(user);
 

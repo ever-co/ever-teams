@@ -8,7 +8,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
-import { taskLabelService } from '@/core/services/client/api';
+import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);

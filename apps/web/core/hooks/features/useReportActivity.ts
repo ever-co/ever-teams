@@ -11,7 +11,9 @@ import {
 } from '@/core/stores';
 import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
-import { timerLogsService } from '@/core/services/client/api/timer/timer-log.service';
+import { activityService } from '@/core/services/client/api/activities';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
+import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -83,16 +85,16 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	// API queries
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQuery(
-		timerLogsService.getTimeLogReportDailyChart
+		timeLogService.getTimeLogReportDailyChart
 	);
 	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(
-		timerLogsService.getTimeLogReportDaily
+		timeLogService.getTimeLogReportDaily
 	);
 	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } = useQuery(
-		timerLogsService.getTimesheetStatisticsCounts
+		statisticsService.getTimesheetStatisticsCounts
 	);
 	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(
-		timerLogsService.getActivityReport
+		activityService.getActivitiesReport
 	);
 
 	// Memoized employee and team IDs

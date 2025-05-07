@@ -8,7 +8,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
-import { taskPriorityService } from '@/core/services/client/api';
+import { taskPriorityService } from '@/core/services/client/api/tasks/task-priority.service';
 
 export function useTaskPriorities() {
 	const [user] = useAtom(userState);

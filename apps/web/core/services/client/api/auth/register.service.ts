@@ -10,7 +10,6 @@ import {
 import { APIService } from '../../api.service';
 import {
 	I_SMTP,
-	ICreateEmployee,
 	IEmployee,
 	ILoginResponse,
 	IOrganization,
@@ -18,14 +17,14 @@ import {
 	IOrganizationTeam,
 	IRegisterDataAPI,
 	IRegisterDataRequest,
-	ITenant,
 	IUser
 } from '@/core/types/interfaces';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
-import { organizationTeamService } from '../organization-team';
+import { tenantService } from '../tenants/tenant.service';
+import { employeeService, organizationTeamService } from '../organizations/teams';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -48,16 +47,6 @@ class RegisterService extends APIService {
 		return this.post<ILoginResponse>('/auth/login', { email, password }).then(({ data }) => data);
 	};
 
-	createTenant = async (name: string, bearer_token: string) => {
-		return this.post<ITenant>(
-			'/tenant',
-			{ name },
-			{
-				headers: { Authorization: `Bearer ${bearer_token}` }
-			}
-		).then(({ data }) => data);
-	};
-
 	createTenantSmtp = async ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
 		const config = smtpConfiguration();
 
@@ -73,14 +62,6 @@ class RegisterService extends APIService {
 		return this.post<IOrganization>('/organization', datas, {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
-	};
-
-	createEmployeeFromUser = async (data: ICreateEmployee, bearer_token: string) => {
-		const { data: _data } = await this.post<IEmployee>('/employee', data, {
-			tenantId: data.tenantId,
-			headers: { Authorization: `Bearer ${bearer_token}` }
-		});
-		return _data;
 	};
 
 	refreshToken = async (refresh_token: string) => {
@@ -119,7 +100,7 @@ class RegisterService extends APIService {
 		const loginRes = await this.loginUser(body.email, password);
 		let auth_token = loginRes.token;
 
-		const tenant = await this.createTenant(body.email, auth_token);
+		const tenant = await tenantService.createTenant(body.email, auth_token);
 
 		// TODO: This  should be implemented from Gauzy
 		// Create tenant SMTP
@@ -140,7 +121,7 @@ class RegisterService extends APIService {
 		);
 
 		// Create employee
-		const employee = await this.createEmployeeFromUser(
+		const employee = await employeeService.createEmployeeFromUser(
 			{
 				organizationId: organization.id,
 				startedWorkOn: new Date().toISOString(),
