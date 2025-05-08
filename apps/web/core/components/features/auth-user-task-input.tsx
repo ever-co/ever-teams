@@ -72,7 +72,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					</div>
 					<div className="flex mt-2">
 						<ActiveTaskSizesDropdown className="w-32 mr-2" disabled={!activeTeamTask} />
-						<TaskLabels task={activeTeamTask} className="lg:min-w-[170px]" forDetails={false} />
+						<TaskLabels task={activeTeamTask} className="min-w-fit lg:max-w-[170px]" forDetails={false} />
 					</div>
 				</div> */}
 			</div>

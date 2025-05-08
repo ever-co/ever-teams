@@ -109,7 +109,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 							optionsClassName
 						)}
 					>
-						<div className="md:px-4 py-2 bg-slate-50  rounded-none">
+						<div className="flex flex-col justify-center py-2 rounded shadow-md md:px-4 bg-slate-50 card">
 							{/* This should only show when New item needs to be created */}
 							{query && handleAddNew && (
 								<Combobox.Option
@@ -118,7 +118,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									onClick={() => {
 										handleAddNew(query);
 									}}
-									className="font-medium cursor-pointer mb-3 flex items-center h-full"
+									className="flex items-center self-stretch h-full font-medium text-gray-900 cursor-pointer"
 								>
 									<div className="flex justify-between">{`${query}`}</div>
 								</Combobox.Option>

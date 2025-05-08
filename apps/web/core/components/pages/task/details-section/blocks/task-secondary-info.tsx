@@ -116,7 +116,7 @@ const TaskSecondaryInfo = () => {
 								id: d
 							} as ITeamTask);
 						}}
-						className="lg:min-w-[170px] text-black"
+						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
 						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -379,7 +379,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<p
 											className={clsxm(
 												'truncate',
-												!selected && ' text-slate-400 flex gap-1 dark:text-white font-light'
+												!selected &&
+													' text-slate-400 text-xs flex gap-1 dark:text-white font-light'
 											)}
 										>
 											{!selected && <CircleIcon className="w-4 h-4" />}
@@ -437,7 +438,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 																			className="rounded-full"
 																		/>
 																	)}
-																	<span className="w-full truncate ">
+																	<span className="w-full text-xs truncate ">
 																		{item.name || 'Project'}
 																	</span>
 																</li>
