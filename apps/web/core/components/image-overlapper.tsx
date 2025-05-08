@@ -60,7 +60,6 @@ export default function ImageOverlapper({
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images?.slice(0, displayImageCount);
-	const widthCalculate = images?.slice(0, 5);
 	const secondArray = images?.slice(displayImageCount);
 	const isMoreThanDisplay = images?.length > displayImageCount;
 	const imageLength = images?.length;
@@ -252,7 +251,7 @@ export default function ImageOverlapper({
 					</Link>
 				))}
 			</div>
-			{images.length > displayImageCount && (
+			{isMoreThanDisplay && (
 				<Popover>
 					<PopoverTrigger asChild>
 						<div className="flex absolute cursor-pointer rounded-full top-1/2 -translate-y-1/2 left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]">
