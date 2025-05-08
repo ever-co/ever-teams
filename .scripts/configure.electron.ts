@@ -47,7 +47,7 @@ function modifiedNextServer() {
 }
 
 function updateWebConstant(setDesktopApp:boolean) {
-    const filePath = path.resolve(__dirname, '../apps/web/app/constants.ts');
+    const filePath = path.resolve(__dirname, '../apps/web/core/constants/config/constants.tsx');
     try {
        let fileContent = fs.readFileSync(filePath, 'utf8');
        const envCheck = `export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';`;

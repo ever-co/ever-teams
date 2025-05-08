@@ -88,42 +88,44 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
-				await createTaskStatus({
+				const requestData = {
 					name: values.name,
 					value: values.name.split(' ').join('-').toLowerCase(),
 					color: values.color,
-					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId ?? '',
 					icon: values.icon,
 					template: values.template
-					// projectId: '',
-				})?.then(() => {
-					!formOnly && setCreateNew(false);
+				};
 
+				try {
+					await createTaskStatus(requestData);
+					!formOnly && setCreateNew(false);
 					onCreated && onCreated();
 					refetch();
 					reset();
-				});
+				} catch (error) {
+					console.error('[WEB][TaskStatusesForm] Error creating status:', error);
+				}
 			}
-			if (
-				edit &&
-				(values.name !== edit.name?.split('-').join(' ') ||
-					values.color !== edit.color ||
-					values.icon !== edit.icon)
-			) {
-				await editTaskStatus(edit.id, {
-					name: values.name,
-					color: values.color,
-					icon: values.icon
-				})?.then(() => {
+			if (edit) {
+				try {
+					await editTaskStatus(edit.id, {
+						name: values.name,
+						color: values.color,
+						icon: values.icon,
+						template: values.template || 'blocked' // Add template with fallback
+					});
 					setEdit(null);
 					refetch();
-				});
+				} catch (error) {
+					console.error('[WEB][TaskStatusesForm] Error editing status:', error);
+				}
 			}
 		},
 		[edit, createNew, formOnly, editTaskStatus, onCreated, user, reset, createTaskStatus, refetch]
 	);
+
 	const updateArray = taskStatuses.slice();
 	const sortedArray =
 		Array.isArray(updateArray) && updateArray.length > 0

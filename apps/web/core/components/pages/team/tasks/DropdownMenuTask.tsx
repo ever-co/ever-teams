@@ -8,7 +8,7 @@ import {
 } from '@/core/components/ui/dropdown-menu';
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { ITeamTask } from '@/core/types/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';

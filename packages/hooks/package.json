@@ -16,7 +16,7 @@
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
 	},
 	"dependencies": {
-		"react": "^18.3.1"
+		"react": "^19.1.0"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",

@@ -1,4 +1,4 @@
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';

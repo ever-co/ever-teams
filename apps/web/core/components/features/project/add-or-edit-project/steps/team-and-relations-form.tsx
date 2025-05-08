@@ -3,13 +3,13 @@ import { CheckIcon, Plus, X } from 'lucide-react';
 import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
-import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
-import { useRoles } from '@/core/hooks/features/useRoles';
 import { cn } from '@/core/lib/helpers';
 import { IProjectRelation, ProjectRelationEnum } from '@/core/types/interfaces';
 import { RolesEnum } from '@/core/types/interfaces/IRoles';
 import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
+import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
+import { useRoles } from '@/core/hooks/roles';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;

@@ -13,7 +13,7 @@ import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { useSortableData } from '@/core/hooks/useSortableData';
+import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/ui/skeleton';
 import { Card } from '@/core/components/ui/card';
 import { AnimatedEmptyState } from '@/core/components/ui/empty-state';

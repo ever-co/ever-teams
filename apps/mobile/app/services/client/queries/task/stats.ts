@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { tasksStatistics } from '../../api/timer/tasksStatistics';
+import { tasksStatistics } from '../../api/timer/tasks-statistics';
 
 interface IGetAllTasksParams {
 	authToken: string;

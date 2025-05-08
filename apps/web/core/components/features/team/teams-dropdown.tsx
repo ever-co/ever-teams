@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
@@ -63,8 +63,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	return (
 		<div>
 			<Dropdown
-				className="md:w-[223px] outline-none"
-				optionsClassName="md:w-[223px] outline-none"
+				className="min-w-fit md:max-w-[223px] outline-none"
+				optionsClassName="min-w-fit md:max-w-[223px] outline-none"
 				buttonClassName={clsxm(
 					'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
 					items.length === 0 && ['py-2']

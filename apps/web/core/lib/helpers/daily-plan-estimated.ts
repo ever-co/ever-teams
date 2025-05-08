@@ -1,5 +1,5 @@
 import { IDailyPlan } from '@/core/types/interfaces';
-import { convertHourToSeconds } from './date';
+import { convertHourToSeconds } from './date-and-time';
 
 export interface IDailyPlanCompareEstimated {
 	difference: boolean;

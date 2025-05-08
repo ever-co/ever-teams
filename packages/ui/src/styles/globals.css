@@ -103,29 +103,6 @@ body {
 		var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
 		"Segoe UI Symbol", "Noto Color Emoji";
 }
-html {
-	scroll-padding-top: 100px;
-}
-*::selection,
-*::before::selection,
-*::after::selection {
-	background-color: #462961;
-	color: #da97f3d2;
-}
-/* Custom scrollbar */
-::-webkit-scrollbar {
-	width: 8px;
-}
-::-webkit-scrollbar-track {
-	background: #1a1a1a;
-}
-::-webkit-scrollbar-thumb {
-	background: #a16bfb;
-	border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-	background: #444;
-}
 /* Remove arrows from number inputs */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

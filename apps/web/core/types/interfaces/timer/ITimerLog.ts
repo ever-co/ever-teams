@@ -282,3 +282,42 @@ export interface ITimesheetStatisticsData {
 	weekActivities: number;
 	weekDuration: number;
 }
+
+export interface ITaskTimesheetParams {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	status?: string[];
+}
+
+export const TIMESHEET_RELATIONS = [
+	'project',
+	'task',
+	'organizationContact',
+	'employee.user',
+	'task.taskStatus',
+	'timesheet'
+] as const;
+
+export interface ITimeLogReportDailyProps {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	groupBy?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	teamIds?: string[];
+	logType?: TimeLogType[];
+	activityLevel?: {
+		start: number;
+		end: number;
+	};
+}

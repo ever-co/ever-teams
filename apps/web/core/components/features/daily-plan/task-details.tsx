@@ -23,7 +23,7 @@ export function TaskDetailsComponent(props: ITaskDetailsComponentProps) {
 	const { task } = props;
 	return (
 		<div className="flex flex-col w-full min-h-screen">
-			<section className="flex flex-col justify-between lg:flex-row lg:items-start 3xl:gap-8">
+			<section className="flex flex-col justify-between lg:flex-row gap-2.5 lg:items-start 3xl:gap-8">
 				<section className="md:max-w-[57rem] w-full 3xl:max-w-none xl:w-full mb-4 md:mb-0">
 					<TaskTitleBlock />
 

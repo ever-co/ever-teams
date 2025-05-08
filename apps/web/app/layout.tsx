@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 import '@/styles/globals.css';
-
+import 'react-loading-skeleton/dist/skeleton.css';
 type Props = {
 	children: ReactNode;
 };

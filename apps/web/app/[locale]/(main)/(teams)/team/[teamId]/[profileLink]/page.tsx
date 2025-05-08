@@ -1,8 +1,7 @@
 'use client';
 
 import { getActiveUserIdCookie } from '@/core/lib/helpers/index';
-import { useRefreshIntervalV2 } from '@/core/hooks';
-import { usePublicOrganizationTeams } from '@/core/hooks/features/usePublicOrganizationTeams';
+
 import { publicState } from '@/core/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
 import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
@@ -14,6 +13,8 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { IssuesView } from '@/core/constants/config/constants';
+import { usePublicOrganizationTeams } from '@/core/hooks/organizations';
+import { useRefreshIntervalV2 } from '@/core/hooks/common';
 
 const Team = () => {
 	const router = useRouter();

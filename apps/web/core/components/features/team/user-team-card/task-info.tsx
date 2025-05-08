@@ -15,11 +15,12 @@ type Props = IClassName & {
 export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
-			{!edition.task && <div className="w-full  justify-center text-center self-center">--</div>}
+			{!edition.task && <div className="self-center justify-center w-full text-center">--</div>}
 
 			<div
 				className={clsxm(
 					'h-full min-w-[20rem] w-fit flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
+					!edition.task && ['min-w-fit'],
 					className
 				)}
 			>
@@ -45,7 +46,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 					<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
 				)}
 			</div>
-			{!edition.task && <div className="w-full justify-center text-center self-center">--</div>}
+			{!edition.task && <div className="self-center justify-center w-full text-center">--</div>}
 		</>
 	);
 }

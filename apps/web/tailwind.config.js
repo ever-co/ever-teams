@@ -1,29 +1,38 @@
 /** @type {import('tailwindcss').Config} */
+
+import defaultTheme from 'tailwindcss/defaultTheme';
 module.exports = {
 	darkMode: ['class'],
+	content: [
+		'./app/**/*.{js,ts,jsx,tsx,mdx}',
+		'./pages/**/*.{js,ts,jsx,tsx,mdx}',
+		'./components/**/*.{js,ts,jsx,tsx,mdx}',
+		'./core/**/*.{js,ts,jsx,tsx,mdx}',
+		'./lib/**/*.{js,ts,jsx,tsx,mdx}',
+		'./utils/**/*.{js,ts,jsx,tsx,mdx}',
+		'./hooks/**/*.{js,ts,jsx,tsx,mdx}',
+		'./icons/**/*.{js,ts,jsx,tsx,mdx}',
+		'./assets/**/*.{js,ts,jsx,tsx,mdx}'
+	],
+
 	corePlugins: {
 		fontSmoothing: true
 	},
-	content: [
-		'./pages/**/*.{ts,tsx}',
-		'./components/**/*.{ts,tsx}',
-		'./libs/**/*.{ts,tsx}',
-		'./app/**/*.{ts,tsx}',
-		'./src/**/*.{ts,tsx}',
-		'./utils/**/*.{ts,tsx}',
-		'./lib/**/*.{ts,tsx}',
-		'./icons/**/*.{ts,tsx}',
-		'./core/**/*.{ts,tsx}'
-	],
 	theme: {
 		screens: {
+			...defaultTheme.screens,
+			xss: '375px',
 			xs: '414px',
 			sm: '576px',
 			md: '768px',
-			lg: '992px',
-			xl: '1200px',
+			lg: '1024px',
+			xl: '1280px',
 			'2xl': '1400px',
-			'3xl': '1600px'
+			'3xl': '1540px',
+			'4xl': '1680px',
+			'5xl': '1820px',
+			'6xl': '1960px',
+			'7xl': '2100px'
 		},
 		container: {
 			center: 'true',

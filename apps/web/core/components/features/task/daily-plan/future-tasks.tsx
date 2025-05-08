@@ -11,10 +11,10 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { HorizontalSeparator, AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
-import { filterDailyPlan } from '@/core/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { IDailyPlan, IUser } from '@/core/types/interfaces';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useDateRange } from '@/core/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {

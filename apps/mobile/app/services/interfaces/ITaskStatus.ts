@@ -16,6 +16,7 @@ export interface ITaskStatusItem {
 }
 
 export interface ITaskStatusCreate {
+	template?: TaskStatusEnum;
 	name: string;
 	description?: string;
 	icon?: string;
@@ -24,4 +25,16 @@ export interface ITaskStatusCreate {
 	organizationId?: string;
 	tenantId?: string | undefined | null;
 	organizationTeamId?: string | undefined | null;
+}
+
+export enum TaskStatusEnum {
+	BACKLOG = 'backlog',
+	OPEN = 'open',
+	IN_PROGRESS = 'in-progress',
+	READY_FOR_REVIEW = 'ready-for-review',
+	IN_REVIEW = 'in-review',
+	BLOCKED = 'blocked',
+	DONE = 'done',
+	COMPLETED = 'completed',
+	CUSTOM = 'custom'
 }

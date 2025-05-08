@@ -67,6 +67,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		defaultValues?: ITaskStatusStack[T][];
 		taskStatusClassName?: string;
 		latestLabels?: RefObject<string[]>;
+		dropdownContentClassName?: string;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -712,7 +713,8 @@ export function TaskLabelsDropdown({
 	placeholder = 'Label',
 	defaultValues,
 	taskStatusClassName,
-	latestLabels
+	latestLabels,
+	dropdownContentClassName
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -744,6 +746,7 @@ export function TaskLabelsDropdown({
 			values={values}
 			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
+			dropdownContentClassName={dropdownContentClassName}
 		>
 			{children}
 		</MultipleStatusDropdown>
@@ -846,11 +849,11 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative gap-x-2 min-w-fit w-auto`,
+				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded-[8px]`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
-				issueType === 'issue' && ['px-2 text-white'],
+				issueType === 'issue' && ['text-white'],
 
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]'],
 
@@ -867,7 +870,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex overflow-hidden gap-x-1 items-center whitespace-nowrap text-ellipsis',
+					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis',
 					'',
 					titleClassName
 				)}
@@ -888,7 +891,7 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`overflow-hidden capitalize text-ellipsis`}
+						className={`overflow-hidden text-xs capitalize text-ellipsis`}
 						title={realName || name}
 						style={
 							isVersion || isEpic
@@ -984,7 +987,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			className={clsxm(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
 				!forDetails && 'w-full max-w-[190px]',
-				'flex items-center gap-x-2',
+				'flex items-center gap-x-1.5',
 				sidebarUI && ['text-xs'],
 				!value && [
 					'!text-dark/40 dark:text-white/70',
@@ -1093,7 +1096,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									<ListboxOptions className="outline-none">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
+											className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
 										>
 											{items.map((item, i) => {
 												const item_value = item?.value || item?.name;
@@ -1108,10 +1111,11 @@ export function StatusDropdown<T extends TStatusItem>({
 																	item?.value ? values.includes(item?.value) : false
 																}
 																className={clsxm(
+																	'!w-full',
 																	issueType === 'issue' && [
 																		'rounded-md px-2 text-white'
 																	],
-																	sidebarUI && 'rounded-[4px]',
+																	sidebarUI && 'rounded-[8px]',
 																	bordered && 'input-border',
 																	(isVersion || isEpic) && 'dark:text-white',
 																	item?.className
@@ -1167,6 +1171,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	items,
 	className,
 	taskStatusClassName,
+	dropdownContentClassName,
 	defaultItem,
 	issueType = 'status',
 	children,
@@ -1188,6 +1193,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	onChange?(value: string[]): void;
 	items: T[];
 	className?: string;
+	dropdownContentClassName?: string;
 	taskStatusClassName?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
@@ -1240,7 +1246,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 							)}
 							titleClassName={clsxm(
 								values.length > 0 && '!text-dark dark:!text-white',
-								!value && 'dark:text-white text-slate-400'
+								!value && 'dark:text-white text-slate-500'
 							)}
 							name={
 								values.length > 0
@@ -1262,13 +1268,14 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						as="div"
 						className={clsxm(
 							'absolute right-0 left-0 z-[999] min-w-min outline-none',
-							issueType === 'issue' && ['left-auto right-auto']
+							issueType === 'issue' && ['left-auto right-auto'],
+							dropdownContentClassName
 						)}
 					>
 						<ListboxOptions static className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
+								className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-fit overflow-x-auto"
 							>
 								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
 									{items.map((item, i) => {
@@ -1281,8 +1288,9 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 														{...item}
 														cheched={item.value ? values.includes(item.value) : false}
 														className={clsxm(
+															'!w-full',
 															issueType === 'issue' && ['rounded-md px-2 text-white'],
-															`${sidebarUI ? 'rounded-[4px]' : ''}`,
+															`${sidebarUI ? 'rounded-[8px]' : ''}`,
 															`${bordered ? 'input-border' : ''}`,
 															isVersion && 'dark:text-white'
 														)}

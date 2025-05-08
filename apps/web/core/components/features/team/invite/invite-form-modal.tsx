@@ -1,7 +1,5 @@
 'use client';
 
-import { useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { useEmployee } from '@/core/hooks/features/useEmployee';
 import { IInviteEmail } from '@/core/types/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
@@ -10,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 import { useToast } from '@/core/components/ui/use-toast';
+import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();

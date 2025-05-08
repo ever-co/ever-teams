@@ -14,7 +14,6 @@ import {
 import Item from './kanban-card';
 import { ITeamTask } from '@/core/types/interfaces';
 import { TaskStatus } from '@/core/constants/config/constants';
-import { useKanban } from '@/core/hooks/features/useKanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { Button } from '@/core/components/ui/button';
 import { useTranslations } from 'next-intl';
@@ -27,6 +26,7 @@ import Image from 'next/image';
 import EditStatusModal from '@/core/components/pages/kanban/edit-status-modal';
 import { ScrollArea } from '@/core/components/ui/scroll-area';
 import { cn } from '../lib/helpers';
+import { useKanban } from '../hooks/tasks/use-kanban';
 
 const grid = 8;
 

@@ -9,7 +9,7 @@ import {
 import { IUser } from '@/core/types/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ProviderEnum } from './OAuth';
+import { ProviderEnum } from './o-auth';
 import {
 	ISocialAccount,
 	ISocialAccountExistUser,
