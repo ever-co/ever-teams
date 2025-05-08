@@ -77,6 +77,7 @@ export function useAuthenticationPasscode() {
 			defaultTeamId?: string;
 			lastTeamId?: string;
 		}) => {
+			// Mobile's workspace signin - just use token, no code validation
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,
