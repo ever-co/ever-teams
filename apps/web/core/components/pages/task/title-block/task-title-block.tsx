@@ -16,7 +16,7 @@ import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
-import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
 
 const TaskTitleBlock = () => {

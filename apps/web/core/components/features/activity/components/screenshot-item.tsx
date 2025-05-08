@@ -1,5 +1,5 @@
 import { useModal } from '@/core/hooks';
-import { useTimeSlots } from '@/core/hooks/features/useTimeSlot';
+import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { IScreenShootItem } from '@/core/types/interfaces/IScreenshoot';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, ProgressBar } from '@/core/components';

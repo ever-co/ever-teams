@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useImageAssets, useSettings } from '@/core/hooks';
+import { useAuthenticateUser, useSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Avatar, Button } from '@/core/components';
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
+import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 
 export const ProfileAvatar = () => {
 	const t = useTranslations();

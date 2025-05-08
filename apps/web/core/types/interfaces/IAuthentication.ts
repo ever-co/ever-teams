@@ -2,6 +2,7 @@ import { IOrganizationTeam } from './IOrganizationTeam';
 import { ITeamProps, IUser } from './IUserData';
 
 export interface ILoginResponse {
+	team: IUser;
 	user: IUser;
 	token: string;
 	refresh_token: string;
@@ -63,9 +64,15 @@ export interface ISigninEmailConfirmWorkspaces {
 	}[];
 }
 export interface ISigninEmailConfirmResponse {
+	team: IUser;
 	confirmed_email: string;
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];
 	status?: number;
 	defaultTeamId?: string;
+}
+
+export interface IMeetAuthRequest {
+	room?: string;
+	tenant?: string;
 }

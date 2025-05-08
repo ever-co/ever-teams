@@ -16,7 +16,7 @@ import {
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();

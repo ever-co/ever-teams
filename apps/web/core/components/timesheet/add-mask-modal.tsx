@@ -21,7 +21,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/ui/select';
-import { useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { ToggleButton } from './edit-task-modal';

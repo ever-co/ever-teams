@@ -1,4 +1,3 @@
-import { useRoles } from '@/core/hooks/features/useRoles';
 import { IRole } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -9,6 +8,7 @@ import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useM
 import { PermissonItem } from './permission-item';
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
+import { useRoles } from '@/core/hooks/roles';
 
 export const PermissionDropDown = ({
 	selectedRole,

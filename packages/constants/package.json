@@ -3,5 +3,20 @@
 	"version": "0.1.0",
 	"private": true,
 	"main": "./src/index.ts",
-	"license": "AGPL-3.0"
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsup ./src/index.ts --format esm,cjs --dts --external react --minify",
+		"lint": "eslint src --ext .ts",
+		"dev": "tsc --project tsconfig.json --traceResolution --watch",
+		"lint:errors": "eslint src --ext .ts --quiet"
+	},
+	"license": "AGPL-3.0",
+	"dependencies": {},
+	"devDependencies": {
+		"tsup": "^8.4.0",
+		"typescript": "^5.3.3",
+		"@ever-teams/eslint-config": "*",
+		"@types/node": "^20.12.2",
+		"@types/react": "^19.1.2"
+	}
 }

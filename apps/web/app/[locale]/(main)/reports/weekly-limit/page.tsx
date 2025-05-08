@@ -9,11 +9,11 @@ import { DatePickerWithRange } from '@/core/components/shared/date-range-select'
 import { MembersSelect } from '@/core/components/reports/members-select';
 import { GroupBySelect, TGroupByOption } from '@/core/components/reports/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { useTimeLimits } from '@/core/hooks/features/useTimeLimits';
+import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
-import { usePagination } from '@/core/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/common/use-pagination';
 import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { IOrganization } from '@/core/types/interfaces';

@@ -1,5 +1,4 @@
 import { useTaskStatus } from '@/core/hooks';
-import { useKanban } from '@/core/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
 import { IKanban } from '@/core/types/interfaces/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/Kanban';
@@ -14,6 +13,7 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-area';
 import { cn } from '@/core/lib/helpers';
+import { useKanban } from '@/core/hooks/tasks/use-kanban';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -198,69 +198,67 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 
 	return (
 		<ScrollArea
-			className="max-w-[95svw] w-full relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3"
+			className="w-[1280px] xl:w-[1500px] 2xl:w-[1600px] mt-6  relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3"
 			ref={containerRef}
 		>
-			<div className="w-max">
-				{/* @ts-ignore */}
+			{/* @ts-ignore */}
 
-				<DragDropContext onDragEnd={onDragEnd}>
-					{Array.isArray(columns) && columns.length > 0 && (
-						// @ts-ignore
-						<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
-							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-								<div
-									className={cn(
-										'flex flex-1 flex-row gap-4 min-h-fit px-8 lg:px-0 w-full h-full',
-										snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : ''
-									)}
-									ref={provided.innerRef}
-									{...provided.droppableProps}
-								>
-									{columns.length > 0
-										? columns.map((column: any, index: number) => (
-												<Fragment key={index}>
-													{isColumnCollapse(column.name) ? (
-														<EmptyKanbanDroppable
-															index={index}
-															title={column.name}
-															status={column}
-															setColumn={setColumn}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-														/>
-													) : (
-														<KanbanDraggable
-															key={index}
-															status={column}
-															setColumn={setColumn}
-															isLoading={isLoading}
-															index={index}
-															icon={column.icon}
-															addNewTask={addNewTask}
-															title={column.name}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-															// @ts-ignore
-															containerRef={containerRef}
-														/>
-													)}
-												</Fragment>
-											))
-										: null}
-									{provided.placeholder as React.ReactElement}
-								</div>
-							)}
-						</Droppable>
-					)}
-				</DragDropContext>
-			</div>
+			<DragDropContext onDragEnd={onDragEnd}>
+				{Array.isArray(columns) && columns.length > 0 && (
+					// @ts-ignore
+					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
+						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							<div
+								className={cn(
+									'flex flex-1 flex-row gap-4 min-h-fit px-8 lg:px-0 w-full h-full',
+									snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : ''
+								)}
+								ref={provided.innerRef}
+								{...provided.droppableProps}
+							>
+								{columns.length > 0
+									? columns.map((column: any, index: number) => (
+											<Fragment key={index}>
+												{isColumnCollapse(column.name) ? (
+													<EmptyKanbanDroppable
+														index={index}
+														title={column.name}
+														status={column}
+														setColumn={setColumn}
+														items={items[column.name]}
+														backgroundColor={getHeaderBackground(
+															kanbanColumns,
+															column.name
+														)}
+													/>
+												) : (
+													<KanbanDraggable
+														key={index}
+														status={column}
+														setColumn={setColumn}
+														isLoading={isLoading}
+														index={index}
+														icon={column.icon}
+														addNewTask={addNewTask}
+														title={column.name}
+														items={items[column.name]}
+														backgroundColor={getHeaderBackground(
+															kanbanColumns,
+															column.name
+														)}
+														// @ts-ignore
+														containerRef={containerRef}
+													/>
+												)}
+											</Fragment>
+										))
+									: null}
+								{provided.placeholder as React.ReactElement}
+							</div>
+						)}
+					</Droppable>
+				)}
+			</DragDropContext>
 			<ScrollBar className="fixed bottom-[90px] left-0 w-full bg-transparent" orientation="horizontal" />
 		</ScrollArea>
 	);

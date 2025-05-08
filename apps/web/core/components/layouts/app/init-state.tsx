@@ -1,33 +1,32 @@
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
-import {
-	useAutoAssignTask,
-	useCallbackRef,
-	useDailyPlan,
-	useIssueType,
-	useLanguageSettings,
-	useOTRefreshInterval,
-	useOrganizationProjects,
-	useOrganizationTeams,
-	useRefreshIntervalV2,
-	useSyncTimer,
-	useTaskLabels,
-	useTaskPriorities,
-	useTaskRelatedIssueType,
-	useTaskSizes,
-	useTaskStatistics,
-	useTaskStatus,
-	useTaskVersion,
-	useTeamInvitations,
-	useTeamTasks,
-	useTimer
-} from '@/core/hooks';
-import { useEmployee } from '@/core/hooks/features/useEmployee';
-import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
+
+import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
 import { publicState, userState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useRoles } from '@/core/hooks/features/useRoles';
+import { useTimer, useSyncTimer } from '@/core/hooks/activities';
+import { useLanguageSettings, useRefreshIntervalV2, useOTRefreshInterval, useCallbackRef } from '@/core/hooks/common';
+import { useDailyPlan } from '@/core/hooks/daily-plans';
+import {
+	useOrganizationTeams,
+	useTeamTasks,
+	useTeamInvitations,
+	useOrganizationProjects,
+	useEmployee
+} from '@/core/hooks/organizations';
+import { useRoles } from '@/core/hooks/roles';
+import {
+	useTaskStatistics,
+	useAutoAssignTask,
+	useTaskStatus,
+	useTaskVersion,
+	useTaskPriorities,
+	useTaskSizes,
+	useTaskLabels,
+	useIssueType,
+	useTaskRelatedIssueType
+} from '@/core/hooks/tasks';
 
 export function AppState() {
 	const user = useAtomValue(userState);

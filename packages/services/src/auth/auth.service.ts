@@ -1,7 +1,7 @@
-import { EVER_TEAMS_API_BASE_URL } from "@ever-teams/constants";
+import { EVER_TEAMS_API_BASE_URL } from '@ever-teams/constants';
 // types
 // services
-import { APIService } from "../api.service";
+import { APIService } from '../api.service';
 
 /**
  * Service class for handling authentication-related operations
@@ -17,11 +17,13 @@ export class AuthService extends APIService {
 		super(BASE_URL || EVER_TEAMS_API_BASE_URL);
 	}
 
-	async generateUniqueCode(data: { email: string }): Promise<any> {}
+	async generateUniqueCode(data: { email: string }): Promise<any> {
+		return this.post('/auth/generate-unique-code/', data);
+	}
 
 	async signOut(baseUrl: string): Promise<any> {
-		const form = document.createElement("form");
-		form.method = "POST";
+		const form = document.createElement('form');
+		form.method = 'POST';
 		form.action = `${baseUrl}/auth/logout/`;
 	}
 }

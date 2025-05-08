@@ -91,9 +91,9 @@ apiDirect.interceptors.response.use(
 	}
 );
 
-type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-async function desktopServerOverride() {
+export async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {
 		try {
 			const serverConfig = await api.get('/desktop-server');

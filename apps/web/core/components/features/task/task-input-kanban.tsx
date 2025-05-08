@@ -370,7 +370,7 @@ function TaskCard({
 
 								<div className="flex flex-wrap justify-start gap-2">
 									<ActiveTaskPropertiesDropdown
-										className="lg:min-w-[170px]"
+										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
 										onValueChange={(v) => {
 											if (v && taskPriority) {
@@ -382,7 +382,7 @@ function TaskCard({
 									/>
 
 									<ActiveTaskSizesDropdown
-										className="lg:min-w-[170px]"
+										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
 										onValueChange={(v) => {
 											if (v && taskSize) {
@@ -393,7 +393,7 @@ function TaskCard({
 										task={null}
 									/>
 									<TaskLabels
-										className="lg:min-w-[170px] text-xs"
+										className="min-w-fit lg:max-w-[170px] text-xs"
 										forDetails={false}
 										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-11 text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {

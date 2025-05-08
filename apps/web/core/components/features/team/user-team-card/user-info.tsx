@@ -68,9 +68,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
+						className="flex w-full gap-2 overflow-hidden text-base text-ellipsis whitespace-nowrap lg:text-lg"
 					>
-						<div className="max-w-[176px] truncate">
+						<div className="max-w-[176px] truncate text-base">
 							{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)}</span> : fullname}
 						</div>
 						{(member?.role?.name === 'MANAGER' ||
@@ -97,9 +97,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						placement="auto"
 						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
-						<Text className="text-gray-400 flex items-center text-sm gap-1">
-							<MailIcon className="h-4 w-4" />
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap pr-1 grow">
+						<Text className="flex items-center gap-1 text-sm text-gray-400">
+							<MailIcon className="w-4 h-4" />
+							<span className="pr-1 overflow-hidden text-nowrap max-w-40 text-ellipsis whitespace-nowrap">
 								{memberUser?.email}
 							</span>
 						</Text>

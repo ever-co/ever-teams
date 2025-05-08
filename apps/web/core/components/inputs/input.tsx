@@ -14,12 +14,12 @@ import {
 	useRef,
 	useState
 } from 'react';
-import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { IconsEmojiEmotions } from '@/core/components/icons';
+import { useOutsideClick } from '@/core/hooks/common';
 
 type Props = {
 	readonly errors?: Record<string, string>;

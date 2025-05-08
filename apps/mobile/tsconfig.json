@@ -11,6 +11,7 @@
 		"noImplicitThis": true,
 		"noUnusedLocals": false,
 		"sourceMap": true,
+		"importHelpers": true,
 		"target": "esnext",
 		"lib": [
 			"esnext",

@@ -1,4 +1,3 @@
-import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/ITask';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -6,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
 import { StatusIcon, statusIcons } from '../../ui/status-icons';
 import { useTranslations } from 'next-intl';
+import { useTeamTasks } from '@/core/hooks/organizations';
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
 

@@ -1,10 +1,10 @@
-import { useAuthenticateUser } from '@/core/hooks';
-import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
-import { useTeamInvitations } from '@/core/hooks/features/useTeamInvitations';
+import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
 import InviteCard from '@/core/components/shared/invite/invite-card';
 import { InvitedCard } from '@/core/components/shared/invite/invited-card';
 import UsersCard from '@/core/components/shared/members-card/members-card';
 import { useTranslations } from 'next-intl';
+import { useAuthenticateUser } from '@/core/hooks/auth';
+import { useOrganizationTeams } from '@/core/hooks/organizations';
 
 const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();

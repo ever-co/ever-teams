@@ -1,4 +1,4 @@
-import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { timerSecondsState } from '@/core/stores';
 import { ProgressBar } from '@/core/components/ui/progress-bar';

@@ -2,7 +2,6 @@
 
 import { useQuery } from '@/core/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
-import { updateTaskLinkedIssueAPI } from '@/core/services/client/api';
 import { clsxm } from '@/core/lib/utils';
 import { Card, Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
@@ -10,6 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 
 export function TaskLinkedIssue({
 	task,
@@ -99,7 +99,7 @@ function mapToActionType(items: ActionType[] = []) {
 function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: LinkedTaskIssue | undefined) {
 	const t = useTranslations();
 
-	const { queryCall } = useQuery(updateTaskLinkedIssueAPI);
+	const { queryCall } = useQuery(taskLinkedIssueService.updateTaskLinkedIssue);
 
 	const actionsTypes = useMemo(
 		() => [

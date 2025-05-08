@@ -1,4 +1,4 @@
-import { useTimeDailyActivity } from '@/core/hooks/features/useTimeDailyActivity';
+import { useTimeDailyActivity } from '@/core/hooks/activities/use-time-daily-activity';
 import { VisitedItemSkeleton } from './components/visited-item-skeleton';
 import { groupAppsByHour } from '@/core/lib/helpers/array-data';
 import { useTranslations } from 'next-intl';
