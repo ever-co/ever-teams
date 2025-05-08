@@ -41,7 +41,13 @@ class AuthService extends APIService {
 		});
 	};
 
+	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
 	signInWithEmailAndCode = async (email: string, code: string) => {
+		console.log('=== signInWithEmailAndCode (Mobile Primary) ===');
+		console.log('email:', email);
+		console.log('code:', code);
+
+		// Direct call to /auth/login like mobile - handles both invite and auth codes
 		return api.post<ILoginResponse>(`/auth/login`, {
 			email,
 			code
@@ -49,8 +55,17 @@ class AuthService extends APIService {
 	};
 
 	sendAuthCode = async (email: string) => {
-		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
+		console.log('=== sendAuthCode ===');
 
+		// Mobile sends to /auth/signin.email
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<{ status: number; message: string }>('/auth/signin.email', {
+				email
+			});
+		}
+
+		// Fallback for non-Gauzy
+		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
 		return this.post<{ status: number; message: string }>(`/auth/send-code`, {
 			email,
 			callbackUrl
@@ -80,10 +95,18 @@ class AuthService extends APIService {
 	};
 
 	signInEmail = async (email: string) => {
-		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email' : `/auth/signin-email`;
+		console.log('=== signInEmail (Mobile Style) ===');
 
-		return this.post<{ status: number; message: string }>(endpoint, {
+		// Mobile just sends { email }
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<{ status: number; message: string }>('/auth/signin.email', {
+				email
+			});
+		}
+
+		// Keep web behavior for non-Gauzy
+		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
+		return this.post<{ status: number; message: string }>(`/auth/signin-email`, {
 			email,
 			appMagicSignUrl: callbackUrl,
 			appName: APP_NAME
@@ -103,17 +126,36 @@ class AuthService extends APIService {
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
 	};
 
-	signInEmailConfirm = async (email: string, code: string) => {
+	// MOBILE SECONDARY METHOD: Only used as fallback
+	signInEmailConfirmMobileStyle = async (email: string, code: string) => {
+		console.log('=== signInEmailConfirmMobileStyle (Fallback) ===');
+		console.log('email:', email);
+		console.log('code:', code);
+
+		// Mobile uses /auth/signin.email/confirm as fallback
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return signinService.signInEmailConfirmGauzy(email, code);
+			return this.post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', {
+				email,
+				code,
+				includeTeams: true
+			});
 		}
 
+		// Non-Gauzy fallback
 		return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
 			email,
-			code
+			code,
+			includeTeams: true
 		});
 	};
 
+	// DEPRECATED: Not used in mobile
+	signInEmailConfirm = async (email: string, code: string) => {
+		// Use mobile style for consistency
+		return this.signInEmailConfirmMobileStyle(email, code);
+	};
+
+	// FIXED: Workspace signin following mobile approach
 	signInWorkspace = async (params: {
 		email: string;
 		token: string;
@@ -122,17 +164,27 @@ class AuthService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
+		console.log('=== signInWorkspace (Mobile Style) ===');
+		console.log('params:', { ...params, token: params.token.substring(0, 10) + '...' });
+
+		// IMPORTANT: Mobile doesn't use code for workspace signin
+		// It only uses email and token
+
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return signinService.signInWorkspaceGauzy({
+			// For Gauzy, use the mobile approach - no code validation
+			const workspaceParams = {
 				email: params.email,
 				token: params.token,
 				teamId: params.selectedTeam,
-				code: params.code,
 				defaultTeamId: params.defaultTeamId,
 				lastTeamId: params.lastTeamId
-			});
+				// Note: NO CODE is sent here
+			};
+
+			return signinService.signInWorkspaceGauzy(workspaceParams);
 		}
 
+		// Non-Gauzy workspace signin - also no code
 		return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 			email: params.email,
 			token: params.token,
