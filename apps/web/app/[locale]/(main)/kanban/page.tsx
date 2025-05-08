@@ -27,7 +27,6 @@ import {
 } from '@/core/components/features';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
 import { ITeamTask } from '@/core/types/interfaces';
@@ -182,7 +181,9 @@ const Kanban = () => {
 			<MainLayout
 				title={`${t('common.KANBAN')} ${t('common.BOARD')}`}
 				showTimer={isTrackingEnabled}
-				childrenClassName="flex flex-col h-hull w-full"
+				footerClassName={cn(Object.values(filteredBoard).length > 3 ? '!pr-32' : 'pr-20')}
+				className="!px-0"
+				childrenClassName="flex flex-col h-hull w-full !mx-0 !px-0 overflow-x-auto"
 				mainHeaderSlot={
 					<div
 						className={
@@ -195,7 +196,7 @@ const Kanban = () => {
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
-								<div className="flex items-center justify-center h-10 gap-1 w-max">
+								<div className="flex items-center justify-center h-10 gap-1 w-fit">
 									<HeaderTabs kanban={true} linkAll={true} />
 								</div>
 							</div>
@@ -203,7 +204,7 @@ const Kanban = () => {
 								<h1 className="text-4xl font-semibold">
 									{t('common.KANBAN')} {t('common.BOARD')}
 								</h1>
-								<div className="flex items-center space-x-2 w-fit">
+								<div className="flex items-center gap-x-2 min-w-fit">
 									<strong className="text-gray-400">
 										{`(`}
 										{timezone.split('(')[1]}
@@ -231,7 +232,7 @@ const Kanban = () => {
 										<div
 											key={tab.name}
 											onClick={() => setActiveTab(tab.value)}
-											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
+											className={`cursor-pointer pt-2 px-5 pb-[30px] text-base font-semibold ${
 												activeTab === tab.value
 													? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
 													: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
@@ -245,45 +246,33 @@ const Kanban = () => {
 										</div>
 									))}
 								</div>
-								<div className="flex gap-5 mt-4 lg:mt-0">
-									<div className="">
-										<EpicPropertiesDropdown
-											onValueChange={(_, values) => setEpics(values || [])}
-											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light max-h-11"
-											multiple={true}
-										/>
-									</div>
-									<div className="relative z-10 inline-block min-w-fit">
-										<div className="absolute inset-0 flex items-center justify-between min-w-fit max-w-40 h-full bg-[#F2F2F2] dark:bg-dark--theme-light border input-border rounded-xl shadow-sm">
-											<div className="flex items-center">
-												<div
-													className="flex items-center justify-center w-6 h-6 p-1.5 mr-1 rounded-md"
-													style={{ backgroundColor: issues?.bgColor ?? 'transparent' }}
+								<div className="flex gap-5 mt-4 lg:mt-0 min-h-8 max-h-10">
+									<EpicPropertiesDropdown
+										onValueChange={(_, values) => setEpics(values || [])}
+										className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
+										multiple
+									/>
+									<div className="relative z-10 flex items-center justify-center min-w-28 max-w-fit  lg:mt-0 input-border flex-col bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-4 max-h-full rounded-[8px]">
+										<div className="absolute inset-0 flex items-center w-full h-full gap-0.5">
+											{!issues?.value && (
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 17 18"
+													className="w-4 h-4 ml-2"
 												>
-													{issues?.icon ?? <CircleIcon className="w-3 h-3" />}
-												</div>
-												<span className="text-sm">{issues?.name ?? 'Issues'}</span>
-											</div>
-											{issues?.value && (
-												<button
-													onClick={() =>
-														setIssues((prev: TStatusItem) => ({
-															...prev,
-															name: 'Issues',
-															icon: null,
-															bgColor: '',
-															value: ''
-														}))
-													}
-													className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-hover"
-												>
-													<XMarkIcon className="w-4 h-4 dark:text-white" />
-												</button>
+													<path d="M8.5 16.5c4.125 0 7.5-3.375 7.5-7.5s-3.375-7.5-7.5-7.5S1 4.875 1 9s3.375 7.5 7.5 7.5Z" />
+												</svg>
 											)}
 
 											<StatusDropdown
-												taskStatusClassName="w-40 h-10 opacity-0"
+												taskStatusClassName="w-40 h-10 !bg-transparent"
 												showIssueLabels
+												className={cn(
+													'h-fit w-fit !border-none !bg-transparent dark:!text-white ',
+													issues?.value ? 'ml-2' : 'ml-0'
+												)}
 												items={items}
 												value={issues}
 												onChange={(e) =>
@@ -291,32 +280,66 @@ const Kanban = () => {
 												}
 												issueType="issue"
 											/>
+											<div className="flex items-center gap-1.5">
+												{issues?.value && (
+													<button
+														onClick={() =>
+															setIssues((prev: TStatusItem) => ({
+																...prev,
+																name: 'Issues',
+																icon: null,
+																bgColor: '',
+																value: ''
+															}))
+														}
+														className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100  dark:hover:bg-gray-900 dark:hover:text-white"
+													>
+														<XMarkIcon className="w-4 h-4 dark:text-white" />
+													</button>
+												)}
+
+												{!issues?.value && (
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														viewBox="0 0 20 20"
+														fill="currentColor"
+														aria-hidden="true"
+														data-slot="icon"
+														className="w-5 h-5 text-default dark:text-white"
+													>
+														<path
+															fillRule="evenodd"
+															d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+															clipRule="evenodd"
+														/>
+													</svg>
+												)}
+											</div>
 										</div>
 									</div>
-									<div>
-										<TaskLabelsDropdown
-											onValueChange={(_, values) => setLabels(values || [])}
-											className="absolute inset-0 pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
-											multiple={true}
-										/>
-									</div>
-									<div>
-										<TaskPropertiesDropdown
-											onValueChange={(_, values) => setPriority(values || [])}
-											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
-											multiple={true}
-										/>
-									</div>
-									<div>
-										<TaskSizesDropdown
-											onValueChange={(_, values) => setSizes(values || [])}
-											className="min-w-fit pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
-											multiple={true}
-										/>
-									</div>
-									<div className="mt-1">
-										<Separator />
-									</div>
+
+									<TaskLabelsDropdown
+										onValueChange={(_, values) => setLabels(values || [])}
+										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
+										dropdownContentClassName="top-10"
+										multiple
+									/>
+
+									<TaskPropertiesDropdown
+										onValueChange={(_, values) => setPriority(values || [])}
+										className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center"
+										multiple
+									/>
+
+									<TaskSizesDropdown
+										onValueChange={(_, values) => setSizes(values || [])}
+										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
+										multiple
+									/>
+									<Separator
+										className="inline-block mt-1 shrink-0 min-h-10 h-full w-0.5"
+										orientation="vertical"
+									/>
 									<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 								</div>
 							</div>
@@ -327,37 +350,35 @@ const Kanban = () => {
 			>
 				{/** TODO:fetch teamtask based on days */}
 
-				<div className="pt-10">
-					{activeTab && (
-						<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
-							{isLoading || !data ? (
-								<div className="flex flex-col gap-4">
-									<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
-										<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										<div className="space-y-3">
-											<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-											<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-											<div className="w-2/3 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										</div>
-									</div>
-									<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
-										<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										<div className="space-y-3">
-											<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-											<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										</div>
+				{activeTab && (
+					<div className="container w-full px-0 mx-0 overflow-x-hidden">
+						{isLoading || !data ? (
+							<div className="flex flex-col gap-4">
+								<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
+									<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
+									<div className="space-y-3">
+										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+										<div className="w-2/3 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 									</div>
 								</div>
-							) : Object.keys(filteredBoard).length > 0 ? (
-								<KanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
-							) : (
-								<div className="flex flex-col flex-1 w-full h-full">
-									<KanbanBoardSkeleton />
+								<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
+									<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
+									<div className="space-y-3">
+										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
+									</div>
 								</div>
-							)}
-						</Container>
-					)}
-				</div>
+							</div>
+						) : Object.keys(filteredBoard).length > 0 ? (
+							<KanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+						) : (
+							<div className="flex flex-col flex-1 w-full h-full">
+								<KanbanBoardSkeleton />
+							</div>
+						)}
+					</div>
+				)}
 			</MainLayout>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>

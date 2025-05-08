@@ -25,10 +25,14 @@ module.exports = {
 			xs: '414px',
 			sm: '576px',
 			md: '768px',
-			lg: '992px',
-			xl: '1200px',
+			lg: '1024px',
+			xl: '1280px',
 			'2xl': '1400px',
-			'3xl': '1600px'
+			'3xl': '1540px',
+			'4xl': '1680px',
+			'5xl': '1820px',
+			'6xl': '1960px',
+			'7xl': '2100px'
 		},
 		container: {
 			center: 'true',

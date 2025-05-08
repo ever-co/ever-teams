@@ -142,7 +142,7 @@ html.dark {
 	}
 
 	.x-container {
-		@apply 3xl:max-w-[1540px] 2xl:max-w-[1320px] xl:max-w-[1140px];
+		@apply 3xl:max-w-[1600px] 2xl:max-w-[1400px] xl:max-w-[1280px];
 	}
 }
 

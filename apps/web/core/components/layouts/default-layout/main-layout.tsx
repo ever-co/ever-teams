@@ -154,7 +154,10 @@ export function MainLayout({
 								<MainSidebarTrigger />
 								{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 								<div
-									className={cn('min-h-[calc(100vh_-_240px)] h-full flex-1', childrenClassName)}
+									className={cn(
+										'min-h-[calc(100vh_-_240px)] h-full w-full flex-1 overflow-x-hidden',
+										childrenClassName
+									)}
 									style={{
 										/*
 								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,*/
