@@ -125,7 +125,7 @@ export default function ImageOverlapper({
 				{hasInfo.length > 0 && showInfo && (
 					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
 						<div className="relative bg-black text-white rounded-[3px]">
-							<span className="text-center p-[6px] z-10">{hasInfo}</span>
+							<span className="text-center p-[6px] z-[5]">{hasInfo}</span>
 							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-t-[10px] border-t-black border-r-[10px] border-r-transparent border-l-[10px] border-l-transparent"></div>
 						</div>
 					</div>
@@ -227,17 +227,17 @@ export default function ImageOverlapper({
 		<div className="relative flex items-center min-w-fit">
 			<div className="relative flex items-center">
 				{firstArray.map((image, index) => (
-					<Link className="!h-10 !w-10 group" key={index} href={onRedirect(image)}>
+					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
 						<div
 							className={cn(
-								'absolute w-full h-full [&:not(:hover)]:!z-0 group-hover:!z-20 transition-all hover:scale-110 even:z-[1] odd:z-[2]'
+								'absolute w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
 							)}
 							style={{ left: index * 30 }}
 						>
 							<Tooltip
 								label={image.alt ?? 'untitled'}
 								labelClassName={image.alt ? '' : 'text-gray-500'}
-								className="absolute group-hover:!z-[1]"
+								className="absolute hover:!z-[1]"
 								placement="top"
 							>
 								<Image

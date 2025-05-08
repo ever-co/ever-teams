@@ -219,7 +219,7 @@ const Kanban = () => {
 
 									<button
 										onClick={openModal}
-										className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white"
+										className="p-2 rounded-full relative z-10 border-2 border-[#0000001a] dark:border-white"
 									>
 										{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
 										<AddIcon className="w-6 h-6 text-foreground" />
