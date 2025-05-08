@@ -54,7 +54,7 @@ export function useAuthenticationPasscode() {
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCode);
 	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmail);
 	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
-		authService.signInEmailConfirmMobileStyle
+		authService.signInEmailConfirm
 	);
 	const {
 		queryCall: signInWorkspaceQueryCall,
@@ -77,7 +77,6 @@ export function useAuthenticationPasscode() {
 			defaultTeamId?: string;
 			lastTeamId?: string;
 		}) => {
-			// Mobile's workspace signin - just use token, no code validation
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,
@@ -102,12 +101,11 @@ export function useAuthenticationPasscode() {
 	);
 
 	/**
-	 * Verify auth request - Pure mobile approach
+	 * Verify auth request
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
 			try {
-				// First try direct /auth/login like mobile
 				const loginResponse = await queryCall(email, code);
 
 				// Check for successful direct login

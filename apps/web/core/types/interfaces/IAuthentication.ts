@@ -64,7 +64,7 @@ export interface ISigninEmailConfirmWorkspaces {
 	}[];
 }
 export interface ISigninEmailConfirmResponse {
-	team: any;
+	team: IUser;
 	confirmed_email: string;
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];

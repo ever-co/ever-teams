@@ -43,11 +43,11 @@ class AuthService extends APIService {
 
 	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
 	signInWithEmailAndCode = async (email: string, code: string) => {
-		console.log('=== signInWithEmailAndCode (Mobile Primary) ===');
-		console.log('email:', email);
-		console.log('code:', code);
+		// console.log('=== signInWithEmailAndCode (Mobile Primary) ===');
+		// console.log('email:', email);
+		// console.log('code:', code);
 
-		// Direct call to /auth/login like mobile - handles both invite and auth codes
+		// Direct call to /auth/login to handles both invite and auth codes
 		return api.post<ILoginResponse>(`/auth/login`, {
 			email,
 			code
@@ -55,9 +55,7 @@ class AuthService extends APIService {
 	};
 
 	sendAuthCode = async (email: string) => {
-		console.log('=== sendAuthCode ===');
-
-		// Mobile sends to /auth/signin.email
+		// console.log('=== sendAuthCode ===');
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return this.post<{ status: number; message: string }>('/auth/signin.email', {
 				email
@@ -95,9 +93,7 @@ class AuthService extends APIService {
 	};
 
 	signInEmail = async (email: string) => {
-		console.log('=== signInEmail (Mobile Style) ===');
 
-		// Mobile just sends { email }
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return this.post<{ status: number; message: string }>('/auth/signin.email', {
 				email
@@ -126,11 +122,10 @@ class AuthService extends APIService {
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
 	};
 
-	// MOBILE SECONDARY METHOD: Only used as fallback
-	signInEmailConfirmMobileStyle = async (email: string, code: string) => {
-		console.log('=== signInEmailConfirmMobileStyle (Fallback) ===');
-		console.log('email:', email);
-		console.log('code:', code);
+	signInEmailConfirm = async (email: string, code: string) => {
+		// console.log('=== signInEmailConfirmMobileStyle (Fallback) ===');
+		// console.log('email:', email);
+		// console.log('code:', code);
 
 		// Mobile uses /auth/signin.email/confirm as fallback
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -150,9 +145,9 @@ class AuthService extends APIService {
 	};
 
 	// DEPRECATED: Not used in mobile
-	signInEmailConfirm = async (email: string, code: string) => {
+	signInEmailConfirmCall = async (email: string, code: string) => {
 		// Use mobile style for consistency
-		return this.signInEmailConfirmMobileStyle(email, code);
+		return this.signInEmailConfirm(email, code);
 	};
 
 	// FIXED: Workspace signin following mobile approach
@@ -164,14 +159,9 @@ class AuthService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
-		console.log('=== signInWorkspace (Mobile Style) ===');
-		console.log('params:', { ...params, token: params.token.substring(0, 10) + '...' });
 
-		// IMPORTANT: Mobile doesn't use code for workspace signin
-		// It only uses email and token
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			// For Gauzy, use the mobile approach - no code validation
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,
