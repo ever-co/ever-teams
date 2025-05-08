@@ -43,19 +43,14 @@ class AuthService extends APIService {
 
 	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
 	signInWithEmailAndCode = async (email: string, code: string) => {
-		// console.log('=== signInWithEmailAndCode (Mobile Primary) ===');
-		// console.log('email:', email);
-		// console.log('code:', code);
-
 		// Direct call to /auth/login to handles both invite and auth codes
-		return api.post<ILoginResponse>(`/auth/login`, {
+		return this.post<ILoginResponse>(`/auth/login`, {
 			email,
 			code
 		});
 	};
 
 	sendAuthCode = async (email: string) => {
-		// console.log('=== sendAuthCode ===');
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return this.post<{ status: number; message: string }>('/auth/signin.email', {
 				email
@@ -93,7 +88,6 @@ class AuthService extends APIService {
 	};
 
 	signInEmail = async (email: string) => {
-
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return this.post<{ status: number; message: string }>('/auth/signin.email', {
 				email
@@ -123,10 +117,6 @@ class AuthService extends APIService {
 	};
 
 	signInEmailConfirm = async (email: string, code: string) => {
-		// console.log('=== signInEmailConfirmMobileStyle (Fallback) ===');
-		// console.log('email:', email);
-		// console.log('code:', code);
-
 		// Mobile uses /auth/signin.email/confirm as fallback
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			return this.post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', {
@@ -159,8 +149,6 @@ class AuthService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
-
-
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			const workspaceParams = {
 				email: params.email,

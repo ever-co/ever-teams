@@ -77,6 +77,7 @@ export function useAuthenticationPasscode() {
 			defaultTeamId?: string;
 			lastTeamId?: string;
 		}) => {
+			// Mobile's workspace signin - just use token, no code validation
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,
@@ -120,7 +121,13 @@ export function useAuthenticationPasscode() {
 					}
 				}
 			} catch (loginError) {
-				// Continue to fallback
+				if (isAxiosError(loginError) && loginError.response?.status === 400) {
+					setErrors(loginError.response.data?.errors || {});
+				} else {
+					setErrors({
+						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
+					});
+				}
 			}
 
 			// Fallback to /auth/signin.email/confirm
