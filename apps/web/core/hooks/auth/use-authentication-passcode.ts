@@ -3,7 +3,7 @@
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
 import { AxiosError, isAxiosError } from 'axios';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../common/use-query';
 import { useRouter } from 'next/navigation';
@@ -17,11 +17,11 @@ type AuthCodeRef = {
 
 export function useAuthenticationPasscode() {
 	const router = useRouter();
-	const pathname = usePathname();
+	// const pathname = usePathname();
 	const query = useSearchParams();
 	const t = useTranslations();
 
-	const queryTeamId = query?.get('teamId');
+	// const queryTeamId = query?.get('teamId');
 
 	const queryEmail = useMemo(() => {
 		const emailQuery = query?.get('email') || '';
@@ -49,9 +49,9 @@ export function useAuthenticationPasscode() {
 	});
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
+
 	// Queries
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCode);
-
 	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmail);
 	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
 		authService.signInEmailConfirm
@@ -61,7 +61,6 @@ export function useAuthenticationPasscode() {
 		loading: signInWorkspaceLoading,
 		infiniteLoading: infiniteWLoading
 	} = useQuery(authService.signInWorkspace);
-
 	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCode);
 
 	const handleChange = (e: any) => {
@@ -78,7 +77,16 @@ export function useAuthenticationPasscode() {
 			defaultTeamId?: string;
 			lastTeamId?: string;
 		}) => {
-			signInWorkspaceQueryCall(params)
+			// Mobile's workspace signin - just use token, no code validation
+			const workspaceParams = {
+				email: params.email,
+				token: params.token,
+				selectedTeam: params.selectedTeam,
+				defaultTeamId: params.defaultTeamId,
+				lastTeamId: params.lastTeamId
+			};
+
+			signInWorkspaceQueryCall(workspaceParams)
 				.then(() => {
 					setAuthenticated(true);
 					router.push('/');
@@ -87,7 +95,6 @@ export function useAuthenticationPasscode() {
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
-
 					inputCodeRef.current?.clear();
 				});
 		},
@@ -99,98 +106,100 @@ export function useAuthenticationPasscode() {
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
-			signInEmailConfirmQueryCall(email, code)
-				.then((res) => {
-					if ('team' in res?.data) {
+			try {
+				const loginResponse = await queryCall(email, code);
+
+				// Check for successful direct login
+				if (loginResponse?.data) {
+					const data = loginResponse.data;
+
+					// If we have user data, redirect
+					if (data.user || data.team) {
+						setAuthenticated(true);
 						router.replace('/');
 						return;
 					}
+				}
+			} catch (loginError) {
+				if (isAxiosError(loginError) && loginError.response?.status === 400) {
+					setErrors(loginError.response.data?.errors || {});
+				} else {
+					setErrors({
+						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
+					});
+				}
+			}
 
-					const checkError: {
-						message: string;
-					} = res?.data as any;
+			// Fallback to /auth/signin.email/confirm
+			try {
+				const response = await signInEmailConfirmQueryCall(email, code);
 
-					const isError = checkError?.message === 'Unauthorized';
+				if (response?.data) {
+					const data = response.data as ISigninEmailConfirmResponse;
 
-					if (isError) {
-						setErrors({
-							code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
-						});
-					} else {
-						setErrors({});
-					}
-
-					const data = res?.data as ISigninEmailConfirmResponse;
-					if (!data?.workspaces) {
+					// If we get workspaces, show workspace selection
+					if (data.workspaces && data.workspaces.length > 0) {
+						setWorkspaces(data.workspaces);
+						setDefaultTeamId(data.defaultTeamId);
+						setScreen('workspace');
 						return;
 					}
 
-					if (Array.isArray(data?.workspaces) && data?.workspaces?.length > 0) {
-						setWorkspaces(data.workspaces);
-						setDefaultTeamId(data.defaultTeamId);
-
-						setScreen('workspace');
+					// If we have team data, redirect
+					if (data.team) {
+						setAuthenticated(true);
+						router.replace('/');
+						return;
 					}
+				}
 
-					// If user tries to login from public Team Page as an Already a Member
-					// Redirect to the current team automatically
-					if (pathname === '/team/[teamId]/[profileLink]' && data.workspaces.length) {
-						if (queryTeamId) {
-							const currentWorkspace = data.workspaces.find((workspace) =>
-								workspace.current_teams.map((item) => item.team_id).includes(queryTeamId as string)
-							);
-
-							signInToWorkspaceRequest({
-								email: email,
-								code: code,
-								token: currentWorkspace?.token as string,
-								selectedTeam: queryTeamId as string,
-								lastTeamId
-							});
-						}
-					}
-
-					// if (res.data?.status !== 200 && res.data?.status !== 201) {
-					// 	setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
-					// }
-				})
-				.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
-					if (isAxiosError(err)) {
-						if (err.response?.status === 400) {
-							setErrors(err.response.data?.errors || {});
-						}
-					} else {
-						setErrors(err.errors || {});
-					}
-				});
-			// eslint-disable-next-line react-hooks/exhaustive-deps
+				// Handle 401 error - check the actual response object
+				if (response?.status === 401) {
+					setErrors({
+						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
+					});
+				} else if (response?.data?.status === 401) {
+					// Some APIs return status in the data object
+					setErrors({
+						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
+					});
+				}
+			} catch (confirmError) {
+				// Handle errors
+				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
+					setErrors(confirmError.response.data?.errors || {});
+				} else {
+					setErrors({
+						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
+					});
+				}
+			}
 		},
-		[signInEmailConfirmQueryCall, t, signInToWorkspaceRequest, router, pathname, queryTeamId]
+		[queryCall, signInEmailConfirmQueryCall, router, t]
 	);
 
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
 				.then((res) => {
-					const errors = (res.data as any).errors ?? {};
-
-					if (errors.email) {
-						setErrors(errors);
-						return;
+					if (res?.data?.user) {
+						setAuthenticated(true);
+						router.replace('/');
+					} else {
+						const errors = (res.data as any).errors ?? {};
+						if (errors.email) {
+							setErrors(errors);
+						}
 					}
-
-					window.location.reload();
-					setAuthenticated(true);
 				})
 				.catch((err: AxiosError) => {
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
-
 					inputCodeRef.current?.clear();
 				});
 		},
-		[queryCall]
+		[queryCall, router]
 	);
 
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -241,7 +250,6 @@ export function useAuthenticationPasscode() {
 
 		signInToWorkspaceRequest({
 			email: formValues.email,
-			code: formValues.code,
 			token,
 			selectedTeam,
 			defaultTeamId: selectedTeam,
@@ -249,25 +257,14 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	/**
-	 * Verifiy immediatly passcode if email and code were passed from url
-	 */
 	useEffect(() => {
 		if (queryEmail && queryCode && !loginFromQuery.current) {
 			setScreen('passcode');
 			verifySignInEmailConfirmRequest({ email: queryEmail, code: queryCode });
-			// verifyPasscodeRequest({
-			// 	email: queryEmail as string,
-			// 	code: queryCode as string
-			// });
 			loginFromQuery.current = true;
 		}
-	}, [query, verifySignInEmailConfirmRequest, queryEmail, queryCode]); // deepscan-disable-line
+	}, [query, verifySignInEmailConfirmRequest, queryEmail, queryCode]);
 
-	/**
-	 * send a fresh auth request handler
-	 * STEP1
-	 */
 	const sendAuthCodeHandler = useCallback(() => {
 		const promise = signInEmailQueryCall(formValues['email']);
 
