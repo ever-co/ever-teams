@@ -49,7 +49,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 			safeAreaEdges={['top']}
 		>
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-			<TouchableWithoutFeedback onPress={() => onClickOutside()}>
+			<TouchableWithoutFeedback onPress={onClickOutside}>
 				<View style={{ flex: 1 }}>
 					{isLoading ? (
 						// Pass only the required props

@@ -6,7 +6,7 @@ import { Skeleton } from 'react-native-skeletons';
 import { useAppTheme } from '../../../../theme';
 
 // Destructure only the props you need, ignoring any others (like 'index')
-const TimerScreenSkeleton = ({ showTaskDropdown }) => {
+const TimerScreenSkeleton =  ({ showTaskDropdown }: { showTaskDropdown: boolean })  => {
 	const { colors, dark } = useAppTheme();
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background2 }]}>

@@ -91,8 +91,10 @@ const createDefaultTask = (): ICreateTask => {
 };
 };
 
+const queryClient = new QueryClient();
+
+
 const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, onDismiss, createNewTask, isAuthUser }) {
-	const queryClient = new QueryClient();
 	const [taskInputText, setTaskInputText] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	// Initialize with our default task to satisfy TypeScript
