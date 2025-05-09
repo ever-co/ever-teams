@@ -26,7 +26,7 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current = teamsRef.current = teams;
+	teamsRef.current  = teams;
 
 	const { user } = useAuthenticateUser();
 
