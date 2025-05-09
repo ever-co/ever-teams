@@ -26,13 +26,12 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current = useMemo(() => (teamsRef.current = teams), [teams]);
+	teamsRef.current = teamsRef.current = teams;
 
 	const { user } = useAuthenticateUser();
 
 	const createOrganizationTeam = useCallback(
 		async (name: string) => {
-
 			// Get employee ID from user if it's not available in the store
 			const effectiveEmployeeId = employeeId || user?.employee?.id;
 
@@ -50,9 +49,9 @@ function useCreateOrganizationTeam() {
 
 			const teams = teamsRef.current?.items || [];
 			const $name = name.trim();
-			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
+			const exists = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
 
-			if (exits || $name.length < 3) {
+			if (exists || $name.length < 3) {
 				return {
 					error: 'Invalid team name'
 				};
@@ -61,7 +60,6 @@ function useCreateOrganizationTeam() {
 			setCreateTeamLoading(true);
 
 			try {
-				// The createOrganizationTeamRequest already handles project creation internally
 				const response = await createOrganizationTeamRequest(
 					{
 						name: $name,
@@ -72,26 +70,33 @@ function useCreateOrganizationTeam() {
 					},
 					authToken
 				);
-
 				if (!response.data || !response.data.id) {
-					setCreateTeamLoading(false);
 					return {
 						error: 'Team creation failed'
 					};
 				}
-
 				const data = response.data;
 				setActiveTeamId(data.id);
-				setCreateTeamLoading(false);
 				return data;
 			} catch (error) {
-				setCreateTeamLoading(false);
 				return {
 					error: 'Team creation failed: ' + (error?.message || 'Unknown error')
 				};
+			} finally {
+				setCreateTeamLoading(false);
 			}
 		},
-		[setCreateTeamLoading, setActiveTeamId, setOrganizationTeams, tenantId, organizationId, employeeId, authToken, user]
+
+		[
+			setCreateTeamLoading,
+			setActiveTeamId,
+			setOrganizationTeams,
+			tenantId,
+			organizationId,
+			employeeId,
+			authToken,
+			user
+		]
 	);
 
 	return {

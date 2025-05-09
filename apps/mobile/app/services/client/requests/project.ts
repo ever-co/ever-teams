@@ -10,7 +10,7 @@ import { serverFetch } from '../fetch';
  * @param {string} bearer_token - Authentication token
  * @returns {Promise} - Promise resolving to created project data
  */
-export function createOrganizationProjectRequest(data, bearer_token) {
+export function createOrganizationProjectRequest(data: { name: string; tenantId: string; organizationId: string }, bearer_token: string)  {
     return serverFetch({
         path: '/organization-projects',
         method: 'POST',

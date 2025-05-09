@@ -26,7 +26,7 @@ export async function createOrganizationTeamRequest(data: IOrganizationTeamCreat
         const teamData = {
             ...data,
             projects: [project],
-            public: true // Make sure to include the public flag
+            public: data.public ?? true // Use passed value or default to true
         };
         // Create the team with the project
         return serverFetch<IOrganizationTeam>({
