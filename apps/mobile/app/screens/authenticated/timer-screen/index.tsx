@@ -40,7 +40,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 	const onClickOutside = useCallback(() => {
 		taskInput.setEditMode(false);
 		setIsTeamModalOpen(false);
-	}, []);
+	}, [taskInput, setIsTeamModalOpen]);
 
 	return (
 		<Screen
@@ -52,9 +52,10 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 			<TouchableWithoutFeedback onPress={() => onClickOutside()}>
 				<View style={{ flex: 1 }}>
 					{isLoading ? (
+						// Pass only the required props
 						<TimerScreenSkeleton showTaskDropdown={false} />
 					) : (
-						<>
+						<React.Fragment>
 							<AcceptInviteModal
 								visible={openModal}
 								onDismiss={() => closeModal()}
@@ -73,23 +74,23 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 							</View>
 
 							{activeTeam ? (
-								<>
+								<React.Fragment>
 									<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
 										<DropDown
 											isOpen={isTeamModalOpen}
 											setIsOpen={setIsTeamModalOpen}
 											resized={false}
 											onCreateTeam={() => setShowCreateTeamModal(true)}
-											isAccountVerified={taskInput.user.isEmailVerified}
+											isAccountVerified={taskInput.user?.isEmailVerified}
 										/>
 									</View>
 
 									<TimerTaskSection outsideClick={onClickOutside} taskInput={taskInput} />
-								</>
+								</React.Fragment>
 							) : (
 								<NoTeam onPress={() => setShowCreateTeamModal(true)} />
 							)}
-						</>
+						</React.Fragment>
 					)}
 				</View>
 			</TouchableWithoutFeedback>
