@@ -23,7 +23,6 @@ import { userService } from '../users';
 
 class AuthService extends APIService {
 	refreshToken = async () => {
-		const api = await getFallbackAPI();
 		const refresh_token = getRefreshTokenCookie();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -36,6 +35,7 @@ class AuthService extends APIService {
 			return userService.getAuthenticatedUserData();
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ILoginResponse>(`/auth/refresh`, {
 			refresh_token
 		});

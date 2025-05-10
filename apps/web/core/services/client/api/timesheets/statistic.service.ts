@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	ITasksTimesheet,
@@ -7,7 +7,6 @@ import {
 	ITimerSlotDataRequest,
 	ITimesheetStatisticsData
 } from '@/core/types/interfaces';
-import api from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 
@@ -62,6 +61,7 @@ class StatisticsService extends APIService {
 		organizationId: string,
 		employeeId?: string
 	) => {
+		const api = await getFallbackAPI();
 		try {
 			if (!tenantId || !organizationId) {
 				throw new Error('TenantId and OrganizationId are required');
@@ -156,6 +156,7 @@ class StatisticsService extends APIService {
 					}
 				};
 			} else {
+				const api = await getFallbackAPI();
 				return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
 					`/timer/timesheet/statistics-tasks?activeTask=true`
 				);
@@ -193,6 +194,7 @@ class StatisticsService extends APIService {
 			return this.post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
 		}
 
+		const api = await getFallbackAPI();
 		return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
 	};
 

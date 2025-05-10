@@ -5,8 +5,7 @@ import {
 	GAUZY_API_BASE_SERVER_URL,
 	IS_DESKTOP_APP
 } from '@/core/constants/config/constants';
-// core/services/client/fallback-api.ts
-// core/services/client/fallback-api.ts
+
 export const getFallbackAPI = async () => {
 	const { getAPI } = await import('./axios');
 	return await getAPI();
