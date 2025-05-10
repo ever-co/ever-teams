@@ -1,6 +1,6 @@
 import { LogEntry, LoggerConfig, LogLevel } from '@/core/types/generics';
-import { sendLogToAPI } from './logger-client';
-import { logServerToFile } from './logger-server';
+import { sendLogToAPI } from '@/core/services/logs/logger-client';
+import { logServerToFile } from '@/core/services/logs/logger-server';
 import { isServer } from '@/core/lib/helpers';
 import { ACTIVE_LOCAL_LOG_SYSTEM } from '@/core/constants/config/constants';
 

@@ -68,8 +68,8 @@ Example:
 
 ## Screenshots (if needed)
 
-| Before | After |
-|--------|-------|
+| Before           | After            |
+| ---------------- | ---------------- |
 | (Add screenshot) | (Add screenshot) |
 
 > You can also add videos or logs here.
