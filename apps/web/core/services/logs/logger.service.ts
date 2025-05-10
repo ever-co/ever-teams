@@ -2,6 +2,7 @@ import { LogEntry, LoggerConfig, LogLevel } from '@/core/types/generics';
 import { sendLogToAPI } from './logger-client';
 import { logServerToFile } from './logger-server';
 import { isServer } from '@/core/lib/helpers';
+import { ACTIVE_LOCAL_LOG_SYSTEM } from '@/core/constants/config/constants';
 
 export class Logger {
 	private config: LoggerConfig;
@@ -166,11 +167,13 @@ export class Logger {
 	 * Append a log entry to a file
 	 */
 	private async appendToLogFile(filename: string, logEntry: LogEntry) {
-		console.log(`<== A NEW LOG WAS BEEN WRITTEN TO FILE==> ${filename}`);
-		if (isServer()) {
-			await logServerToFile(this.config.logDir!, filename, logEntry); // fs
-		} else {
-			await sendLogToAPI(logEntry); // client
+		if (ACTIVE_LOCAL_LOG_SYSTEM.value) {
+			console.log(`<== A NEW LOG WAS BEEN WRITTEN TO FILE==> ${filename}`);
+			if (isServer()) {
+				await logServerToFile(this.config.logDir!, filename, logEntry); // fs
+			} else {
+				await sendLogToAPI(logEntry); // client
+			}
 		}
 	}
 

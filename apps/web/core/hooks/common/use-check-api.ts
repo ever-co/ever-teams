@@ -11,29 +11,35 @@ export function useCheckAPI() {
 	const { queryCall, loading } = useQuery(getDefaultAPI);
 	const [isApiWork, setIsApiWork] = React.useState(true);
 	const logger = Logger.getInstance();
+
+	const logApiCheckSuccess = (response: any) => {
+		logger.logToFile({
+			level: LogLevel.INFO,
+			message: `API CHECK SUCCESS with status code:  ${response.status} 🚀 ${response.data?.message || response.message} on ${response.config?.url}`,
+			details: 'The API is working fine 🚀 🚀  please check the status code',
+			context: '✅✅✅🚀 Check API',
+			timestamp: new Date().toISOString()
+		});
+	};
+
+	const logApiCheckError = (error: any) => {
+		const apiErrorService = ApiErrorService.fromAxiosError(error);
+		logger.logToFile({
+			level: LogLevel.ERROR,
+			message: apiErrorService?.message || 'API CHECK ERROR',
+			details: apiErrorService?.details || 'An error occurred while checking the API',
+			context: 'Check API',
+			timestamp: new Date().toISOString()
+		});
+	};
+
 	const checkAPI = useCallback(async () => {
 		try {
 			const response = await queryCall();
-			const status = response?.status;
-			const message = response?.data?.message || (response as any)?.message;
-
-			logger.logToFile({
-				level: LogLevel.INFO,
-				message: `API CHECK SUCCESS with status code:  ${status} 🚀 ${message} on ${response?.config?.url}`,
-				details: 'The API is working fine 🚀 🚀  please check the status code',
-				context: '✅✅✅🚀 Check API',
-				timestamp: new Date().toISOString()
-			});
-			setIsApiWork(status == 200);
+			logApiCheckSuccess(response);
+			setIsApiWork(response.status === 200);
 		} catch (error) {
-			const apiErrorService = ApiErrorService.fromAxiosError(error);
-			logger.logToFile({
-				level: LogLevel.ERROR,
-				message: apiErrorService?.message || 'API CHECK ERROR',
-				details: apiErrorService?.details || 'An error occurred while checking the API',
-				context: 'Check API',
-				timestamp: new Date().toISOString()
-			});
+			logApiCheckError(error);
 			setIsApiWork(false);
 		}
 	}, [queryCall]);
