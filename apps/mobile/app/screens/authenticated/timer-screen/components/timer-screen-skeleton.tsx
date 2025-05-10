@@ -5,7 +5,8 @@ import { Card } from 'react-native-paper';
 import { Skeleton } from 'react-native-skeletons';
 import { useAppTheme } from '../../../../theme';
 
-const TimerScreenSkeleton = ({ showTaskDropdown }: { showTaskDropdown: boolean }) => {
+// Destructure only the props you need, ignoring any others (like 'index')
+const TimerScreenSkeleton =  ({ showTaskDropdown }: { showTaskDropdown: boolean })  => {
 	const { colors, dark } = useAppTheme();
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background2 }]}>
@@ -29,7 +30,7 @@ const TimerScreenSkeleton = ({ showTaskDropdown }: { showTaskDropdown: boolean }
 			<Card style={[styles.timerCard, { backgroundColor: colors.background }]}>
 				<View style={[styles.inputStyle, { borderColor: colors.border }]} />
 				{showTaskDropdown ? (
-					<>
+					<React.Fragment>
 						<View style={{ marginTop: 16 }}>
 							<Skeleton height={33} borderRadius={9} />
 						</View>
@@ -198,9 +199,9 @@ const TimerScreenSkeleton = ({ showTaskDropdown }: { showTaskDropdown: boolean }
 								<Skeleton height={9} width={11} borderRadius={50} />
 							</View>
 						</View>
-					</>
+					</React.Fragment>
 				) : (
-					<>
+					<React.Fragment>
 						<View style={styles.firstRow}>
 							<View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '47%' }}>
 								<Skeleton width={48} height={9} />
@@ -262,7 +263,7 @@ const TimerScreenSkeleton = ({ showTaskDropdown }: { showTaskDropdown: boolean }
 								<Skeleton width={48} height={48} borderRadius={24} />
 							</View>
 						</View>
-					</>
+					</React.Fragment>
 				)}
 			</Card>
 		</View>
@@ -319,4 +320,5 @@ const styles = StyleSheet.create({
 		width: '35%'
 	}
 });
+
 export default TimerScreenSkeleton;

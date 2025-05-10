@@ -6,16 +6,20 @@ import { IUser } from './IUserData';
 
 export interface IOrganizationTeamCreate {
 	name: string;
+	color?: string;
+	emoji?: string;
+	teamSize?: string;
 	memberIds?: string[];
 	managerIds?: string[];
 	tags?: any[];
 	organizationId: string;
 	tenantId: string;
 	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
-	logo?: string | null;
+	projects?: any[];
 }
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };

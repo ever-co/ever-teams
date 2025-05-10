@@ -75,11 +75,30 @@ const ModalPopUp = ({ visible, children }) => {
 	);
 };
 
+// Create a default task that satisfies the ICreateTask interface
+const createDefaultTask = (): ICreateTask => {
+    return {
+	title: '', // Required
+	status: 'open', // Required
+	description: '', // Required
+	teams: [], // Required
+	tags: [], // Required and needed for our fix
+	estimate: 0, // If required
+	priority: 'medium', // If required
+	size: 'medium',
+	organizationId: '',
+	tenantId: ''
+};
+};
+
+const queryClient = new QueryClient();
+
+
 const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, onDismiss, createNewTask, isAuthUser }) {
-	const queryClient = new QueryClient();
 	const [taskInputText, setTaskInputText] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [newTask, setNewTask] = useState<ICreateTask>(null);
+	// Initialize with our default task to satisfy TypeScript
+	const [newTask, setNewTask] = useState<ICreateTask>(createDefaultTask());
 
 	const { colors } = useAppTheme();
 
@@ -93,7 +112,8 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 				status: newTask?.status || 'open'
 			}).then(() => queryClient.cancelQueries({ queryKey: ['tasks'] }));
 			setIsLoading(false);
-			setNewTask(null);
+			// Reset to default task
+			setNewTask(createDefaultTask());
 			setTaskInputText('');
 			onDismiss();
 		}
@@ -102,6 +122,9 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 	const handleChangeText = (value: string) => {
 		setTaskInputText(value);
 	};
+
+	// Safe access to tags
+	const taskTags = newTask?.tags || [];
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -170,10 +193,10 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 									</Text>
 									<EstimateTime
 										setEstimateTime={(e) =>
-											setNewTask({
-												...newTask,
+											setNewTask((prev) => ({
+												...prev,
 												estimate: e
-											})
+											}))
 										}
 										currentTask={undefined}
 									/>
@@ -181,10 +204,10 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 								<TaskStatus
 									status={newTask?.status}
 									setStatus={(e) =>
-										setNewTask({
-											...newTask,
+										setNewTask((prev) => ({
+											...prev,
 											status: e
-										})
+										}))
 									}
 									containerStyle={{
 										width: width / 2.1,
@@ -203,20 +226,20 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 								<TaskSize
 									size={newTask?.size}
 									setSize={(e) =>
-										setNewTask({
-											...newTask,
+										setNewTask((prev) => ({
+											...prev,
 											size: e
-										})
+										}))
 									}
 									containerStyle={{ width: width / 3.3 }}
 								/>
 								<TaskPriorities
 									priority={newTask?.priority}
 									setPriority={(e) =>
-										setNewTask({
-											...newTask,
+										setNewTask((prev) => ({
+											...prev,
 											priority: e
-										})
+										}))
 									}
 									containerStyle={{ width: width / 3.3 }}
 								/>
@@ -224,25 +247,25 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 									version={newTask?.version}
 									containerStyle={{ width: width / 5 }}
 									setVersion={(e) =>
-										setNewTask({
-											...newTask,
+										setNewTask((prev) => ({
+											...prev,
 											version: e
-										})
+										}))
 									}
 								/>
 							</View>
 							<View style={{ width: '100%', zIndex: 999 }}>
 								<TaskLabels
-									newTaskLabels={newTask?.tags}
+									newTaskLabels={taskTags}
 									setLabels={(e) =>
-										setNewTask({
-											...newTask,
+										setNewTask((prev) => ({
+											...prev,
 											tags: e
-										})
+										}))
 									}
 									containerStyle={{
 										...styles.labelsContainer,
-										width: newTask?.tags.length ? '100%' : width / 3.3,
+										width: taskTags.length ? '100%' : width / 3.3,
 										borderColor: colors.border,
 										marginVertical: 20
 									}}
@@ -253,7 +276,8 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, o
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
 							onPress={() => {
-								setNewTask(null);
+								// Reset to default task
+								setNewTask(createDefaultTask());
 								onDismiss();
 							}}
 							style={[styles.button, { backgroundColor: '#E6E6E9' }]}

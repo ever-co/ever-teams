@@ -26,15 +26,32 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current = useMemo(() => (teamsRef.current = teams), [teams]);
+	teamsRef.current  = teams;
+
+	const { user } = useAuthenticateUser();
 
 	const createOrganizationTeam = useCallback(
 		async (name: string) => {
+			// Get employee ID from user if it's not available in the store
+			const effectiveEmployeeId = employeeId || user?.employee?.id;
+
+			// Check if we have a valid employee ID
+			if (!effectiveEmployeeId) {
+				showMessage({
+					message: 'Error',
+					description: 'Missing employee ID. Please try logging in again.',
+					type: 'danger'
+				});
+				return {
+					error: 'Missing employee ID'
+				};
+			}
+
 			const teams = teamsRef.current?.items || [];
 			const $name = name.trim();
-			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
+			const exists = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
 
-			if (exits || $name.length < 3) {
+			if (exists || $name.length < 3) {
 				return {
 					error: 'Invalid team name'
 				};
@@ -42,21 +59,44 @@ function useCreateOrganizationTeam() {
 
 			setCreateTeamLoading(true);
 
-			const { data } = await createOrganizationTeamRequest(
-				{
-					name: $name,
-					tenantId,
-					organizationId,
-					managerIds: [employeeId]
-				},
-				authToken
-			);
-
-			setActiveTeamId(data.id);
-			setCreateTeamLoading(false);
-			return data;
+			try {
+				const response = await createOrganizationTeamRequest(
+					{
+						name: $name,
+						tenantId,
+						organizationId,
+						managerIds: [effectiveEmployeeId],
+						public: true
+					},
+					authToken
+				);
+				if (!response.data || !response.data.id) {
+					return {
+						error: 'Team creation failed'
+					};
+				}
+				const data = response.data;
+				setActiveTeamId(data.id);
+				return data;
+			} catch (error) {
+				return {
+					error: 'Team creation failed: ' + (error?.message || 'Unknown error')
+				};
+			} finally {
+				setCreateTeamLoading(false);
+			}
 		},
-		[setCreateTeamLoading, setActiveTeamId, setOrganizationTeams]
+
+		[
+			setCreateTeamLoading,
+			setActiveTeamId,
+			setOrganizationTeams,
+			tenantId,
+			organizationId,
+			employeeId,
+			authToken,
+			user
+		]
 	);
 
 	return {
@@ -64,7 +104,6 @@ function useCreateOrganizationTeam() {
 		createTeamLoading
 	};
 }
-
 export function useOrganizationTeam() {
 	const {
 		teamStore: {
@@ -201,7 +240,7 @@ export function useOrganizationTeam() {
 			})
 				.then((res) => {
 					const { response } = res;
-					console.log(JSON.stringify(res));
+					// console.log(JSON.stringify(res));
 					if (!response.ok || response.status === 401 || response.status === 402 || response.status === 403) {
 						showMessage({
 							message: 'QUIT THE TEAM',
