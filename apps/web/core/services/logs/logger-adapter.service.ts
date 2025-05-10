@@ -1,7 +1,7 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse, AxiosResponseHeaders, RawAxiosRequestHeaders } from 'axios';
 
-import { Logger, LogLevel } from './logger.service';
-import { HttpLoggerConfig } from '@/core/types/generics';
+import { Logger } from './logger.service';
+import { HttpLoggerConfig, LogLevel } from '@/core/types/generics';
 
 export class HttpLoggerAdapter {
 	private logger: Logger;
@@ -16,7 +16,9 @@ export class HttpLoggerAdapter {
 	};
 
 	constructor(config?: HttpLoggerConfig) {
-		this.logger = Logger.getInstance();
+		this.logger = Logger.getInstance({
+			console: true
+		});
 		this.config = {
 			...HttpLoggerAdapter.DEFAULT_CONFIG,
 			...config,
@@ -109,7 +111,6 @@ export class HttpLoggerAdapter {
 			: status !== undefined
 				? { statusCode: status }
 				: undefined;
-
 		this.logger.info(message, logData, 'HttpClient');
 	}
 

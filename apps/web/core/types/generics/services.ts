@@ -6,6 +6,30 @@ export type ErrorInterceptor = (error: AxiosError) => any;
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
+export enum LogLevel {
+	DEBUG = 'DEBUG',
+	INFO = 'INFO',
+	WARN = 'WARN',
+	ERROR = 'ERROR',
+	FATAL = 'FATAL'
+}
+
+export interface LogEntry {
+	timestamp: string;
+	level: LogLevel;
+	message: string;
+	details?: any;
+	context?: string;
+}
+
+export interface LoggerConfig {
+	logDir?: string;
+	console?: boolean;
+	maxFileSize?: number; // maximum file size in bytes
+	dateFormat?: 'daily' | 'hourly'; // file rotation format
+	environment?: 'development' | 'production' | 'test';
+}
+
 // Utility types for requests with cache
 export interface CacheItem<T> {
 	data: T;
@@ -23,6 +47,7 @@ export interface HttpClientConfig {
 	customHeaders?: Record<string, string>;
 	withCredentials?: boolean;
 	loggerConfig?: HttpLoggerConfig;
+	directAPI?: boolean;
 }
 export interface HttpLoggerConfig {
 	logRequestData?: boolean;
