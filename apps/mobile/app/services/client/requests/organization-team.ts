@@ -9,14 +9,38 @@ import {
 	IOrganizationTeamWithMStatus
 } from '../../interfaces/IOrganizationTeam';
 import { serverFetch } from '../fetch';
+import { createOrganizationProjectRequest } from './project';
 
-export function createOrganizationTeamRequest(datas: IOrganizationTeamCreate, bearer_token: string) {
-	return serverFetch<IOrganizationTeam>({
-		path: '/organization-team',
-		method: 'POST',
-		body: datas,
-		bearer_token
-	});
+export async function createOrganizationTeamRequest(data: IOrganizationTeamCreate, bearer_token: string) {
+    try {
+        // First create a project
+        const { data: project } = await createOrganizationProjectRequest(
+            {
+                name: data.name,
+                tenantId: data.tenantId,
+                organizationId: data.organizationId
+            },
+            bearer_token
+        );
+        // Add the project to the team data
+        const teamData = {
+            ...data,
+            projects: [project],
+            public: data.public ?? true // Use passed value or default to true
+        };
+        // Create the team with the project
+        return serverFetch<IOrganizationTeam>({
+            path: '/organization-team',
+            method: 'POST',
+            body: teamData,
+            bearer_token,
+            tenantId: data.tenantId // Include tenantId as param
+        });
+    } catch (error) {
+        console.error('[DEBUG] Error in team creation process:', error);
+        console.log('[DEBUG] Error details:', JSON.stringify(error));
+        throw error;
+    }
 }
 
 export function updateOrganizationTeamRequest({
