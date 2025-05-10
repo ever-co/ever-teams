@@ -353,7 +353,7 @@ export class APIService {
 	private async executeWithRetry<T>(fn: () => Promise<AxiosResponse<T>>): Promise<AxiosResponse<T>> {
 		let lastError: any;
 
-		for (let attempt = 0; attempt <= this.config.retries; attempt++) {
+		for (let attempt = 1; attempt <= this.config.retries; attempt++) {
 			try {
 				return await fn();
 			} catch (error: any) {

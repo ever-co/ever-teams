@@ -43,10 +43,6 @@ class AuthService extends APIService {
 
 	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
 	signInWithEmailAndCode = async (email: string, code: string) => {
-		console.log('SIGNING IN WITH EMAIL AND CODE', {
-			email,
-			code
-		});
 		// Direct call to /auth/login to handles both invite and auth codes
 		return this.post<ILoginResponse>(`/auth/login`, {
 			email,

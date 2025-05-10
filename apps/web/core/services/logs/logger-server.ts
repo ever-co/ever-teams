@@ -53,11 +53,11 @@ export async function getAbsolutePath(relativePath: string): Promise<string> {
 	// In development, the process runs at the project root
 	// In production with Next.js, the process generally runs in .next/server/
 	if (await isProjectRootDir(process.cwd())) {
-		// In production environment
-		rootDir = resolve(process.cwd(), '../../');
-	} else {
-		// In development environment
+		// Development ‑ already at project root
 		rootDir = process.cwd();
+	} else {
+		// Production ‑ running from .next/server or dist folder
+		rootDir = resolve(process.cwd(), '../../');
 	}
 
 	return resolve(rootDir, relativePath);

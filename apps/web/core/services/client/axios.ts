@@ -184,7 +184,7 @@ async function patch<T>(url: string, data?: Record<string, any> | FormData, conf
 	const apiClient = isDirect ? await getAPIDirect() : await getAPI();
 
 	if (isDirect && data && !(data instanceof FormData)) {
-		if (!data.tenantId) {
+		if (!data.tenantId && data.tenantId !== null) {
 			data.tenantId = tenantId;
 		}
 

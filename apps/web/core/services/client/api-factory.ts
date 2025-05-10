@@ -1,7 +1,5 @@
-// core/services/client/api-factory.ts
 import { API_BASE_URL, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
-// core/services/client/api-factory.ts
 export const buildAPIService = async () => {
 	const { APIService } = await import('./api.service');
 
