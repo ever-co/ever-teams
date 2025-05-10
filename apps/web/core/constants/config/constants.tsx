@@ -133,6 +133,15 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 
+export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
+	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
+	process.env.NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM
+) || { value: process.env.ACTIVE_LOCAL_LOG_SYSTEM || true };
+export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
+	'NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE',
+	process.env.NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE
+) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
+
 // Invite
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/passcode';
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
