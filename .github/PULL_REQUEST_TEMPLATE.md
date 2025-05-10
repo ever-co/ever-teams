@@ -30,7 +30,7 @@ Example:
 Example:
 > Here are the major changes in that his PR adds
 >
-> - New `CookieManagment` class for cookie handling
+> - New `CookieManagement` class for cookie handling
 > - Cancel requests using `AbortController`
 > - Automatically inject tenant and organization headers
 
