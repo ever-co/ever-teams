@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ITimerStatus, IToggleTimerParams, IUser, TimerSource } from '@/core/types/interfaces';
 import {
@@ -8,7 +8,6 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
-import api from '../../axios';
 
 class TimerService extends APIService {
 	getTimerStatus = async (tenantId: string, organizationId: string) => {
@@ -42,6 +41,7 @@ class TimerService extends APIService {
 			return this.getTimerStatus(tenantId, organizationId);
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/toggle', body);
 	};
 
@@ -65,6 +65,7 @@ class TimerService extends APIService {
 			return this.getTimerStatus(tenantId, organizationId);
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/start');
 	};
 
@@ -85,6 +86,7 @@ class TimerService extends APIService {
 			return this.getTimerStatus(tenantId, organizationId);
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/stop', {
 			source
 		});
@@ -107,6 +109,7 @@ class TimerService extends APIService {
 			return this.getTimerStatus(tenantId, organizationId);
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/sync', {
 			source
 		});

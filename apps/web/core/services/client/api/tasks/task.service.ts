@@ -4,11 +4,10 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, ICreateTask, ITeamTask, PaginationResponse } from '@/core/types/interfaces';
-import api from '../../axios';
 
 class TaskService extends APIService {
 	getTasksById = async (taskId: string) => {
@@ -133,7 +132,7 @@ class TaskService extends APIService {
 
 			return this.getTeamTasks(organizationId, tenantId, projectId, teamId);
 		}
-
+		const api = await getFallbackAPI();
 		return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
 	};
 

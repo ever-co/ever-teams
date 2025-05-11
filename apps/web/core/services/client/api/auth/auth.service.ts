@@ -1,4 +1,4 @@
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
 import {
 	ILoginResponse,
 	IOrganizationTeam,
@@ -17,7 +17,6 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
-import api from '../../axios';
 import { ProviderEnum } from '@/core/services/server/requests/o-auth';
 import { signinService } from './signin.service';
 import { userService } from '../users';
@@ -36,6 +35,7 @@ class AuthService extends APIService {
 			return userService.getAuthenticatedUserData();
 		}
 
+		const api = await getFallbackAPI();
 		return api.post<ILoginResponse>(`/auth/refresh`, {
 			refresh_token
 		});
@@ -125,7 +125,7 @@ class AuthService extends APIService {
 				includeTeams: true
 			});
 		}
-
+		const api = await getFallbackAPI();
 		// Non-Gauzy fallback
 		return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
 			email,
@@ -161,7 +161,7 @@ class AuthService extends APIService {
 
 			return signinService.signInWorkspaceGauzy(workspaceParams);
 		}
-
+		const api = await getFallbackAPI();
 		// Non-Gauzy workspace signin - also no code
 		return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 			email: params.email,
@@ -171,6 +171,7 @@ class AuthService extends APIService {
 	};
 
 	registerUserTeam = async (data: IRegisterDataAPI) => {
+		const api = await getFallbackAPI();
 		return api.post<ILoginResponse>('/auth/register', data);
 	};
 }
