@@ -1,6 +1,4 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import {
-	API_BASE_URL,
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
 	GAUZY_API_BASE_SERVER_URL,
@@ -12,91 +10,88 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { APIService } from './api.service';
+import { buildAPIService, buildDirectAPIService } from './api-factory';
 
-const api = axios.create({
-	baseURL: API_BASE_URL,
-	withCredentials: true,
-	timeout: 60 * 1000
-});
-api.interceptors.request.use(
-	async (config: any) => {
-		const cookie = getActiveTeamIdCookie();
+let api: APIService;
+let apiDirect: APIService;
 
-		if (cookie) {
-			config.headers['Authorization'] = `Bearer ${cookie}`;
-		}
+export const getAPI = async (): Promise<APIService> => {
+	if (!api) {
+		api = await buildAPIService();
 
-		return config;
-	},
-	(error: any) => {
-		Promise.reject(error);
-	}
-);
-api.interceptors.response.use(
-	(response: AxiosResponse) => response,
-	async (error: { response: AxiosResponse }) => {
-		const statusCode = error.response?.status;
+		api.axiosInstance.interceptors.request.use(
+			async (config: any) => {
+				const cookie = getActiveTeamIdCookie();
+				if (cookie) {
+					config.headers['Authorization'] = `Bearer ${cookie}`;
+				}
+				return config;
+			},
+			(error: any) => Promise.reject(error)
+		);
 
-		if (statusCode === 401) {
-			window.location.assign(DEFAULT_APP_PATH);
-		}
-
-		return Promise.reject(error);
-	}
-);
-
-const apiDirect = axios.create({
-	timeout: 60 * 1000
-});
-
-apiDirect.interceptors.request.use(
-	async (config: any) => {
-		const tenantId = getTenantIdCookie();
-		const cookie = getAccessTokenCookie();
-
-		if (cookie) {
-			config.headers['Authorization'] = `Bearer ${cookie}`;
-		}
-
-		if (tenantId) {
-			config.headers['tenant-id'] = tenantId;
-		}
-
-		return config;
-	},
-	(error: any) => {
-		Promise.reject(error);
-	}
-);
-
-apiDirect.interceptors.response.use(
-	(response: AxiosResponse) => response,
-	async (error: { response: AxiosResponse }) => {
-		const statusCode = error.response?.status;
-
-		if (statusCode === 401) {
-			const paths = location.pathname.split('/').filter(Boolean);
-			if (
-				!paths.includes('join') &&
-				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
-			) {
-				return error.response;
+		api.axiosInstance.interceptors.response.use(
+			(response: AxiosResponse) => response,
+			async (error: { response: AxiosResponse }) => {
+				if (error.response?.status === 401) {
+					window.location.assign(DEFAULT_APP_PATH);
+				}
+				return Promise.reject(error);
 			}
-
-			window.location.assign(DEFAULT_APP_PATH);
-		}
-
-		return Promise.reject(error);
+		);
 	}
-);
+	return api;
+};
 
-type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+export const getAPIDirect = async (): Promise<APIService> => {
+	if (!apiDirect) {
+		apiDirect = await buildDirectAPIService();
 
-async function desktopServerOverride() {
+		apiDirect.axiosInstance.interceptors.request.use(
+			async (config: any) => {
+				const cookie = getAccessTokenCookie();
+				const tenantId = getTenantIdCookie();
+				if (cookie) {
+					config.headers['Authorization'] = `Bearer ${cookie}`;
+				}
+				if (tenantId) {
+					config.headers['tenant-id'] = tenantId;
+				}
+				return config;
+			},
+			(error: any) => Promise.reject(error)
+		);
+
+		apiDirect.axiosInstance.interceptors.response.use(
+			(response: AxiosResponse) => response,
+			async (error: { response: AxiosResponse }) => {
+				const statusCode = error.response?.status;
+				if (statusCode === 401) {
+					const paths = location.pathname.split('/').filter(Boolean);
+					if (
+						!paths.includes('join') &&
+						(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
+					) {
+						return error.response;
+					}
+					window.location.assign(DEFAULT_APP_PATH);
+				}
+				return Promise.reject(error);
+			}
+		);
+	}
+	return apiDirect;
+};
+
+export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+
+export async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {
 		try {
-			const serverConfig = await api.get('/desktop-server');
+			const serverConfig = await api.get<{ NEXT_PUBLIC_GAUZY_API_SERVER_URL: string }>('/desktop-server');
+
 			return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 		} catch (error) {
 			return GAUZY_API_BASE_SERVER_URL;
@@ -104,7 +99,6 @@ async function desktopServerOverride() {
 	}
 	return GAUZY_API_BASE_SERVER_URL;
 }
-
 async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
@@ -114,12 +108,12 @@ async function apiConfig(config?: APIConfig) {
 	if (IS_DESKTOP_APP) {
 		// dynamic api host while on desktop mode
 		const runtimeConfig = await desktopServerOverride();
-		baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
+		baseURL = (runtimeConfig || GAUZY_API_BASE_SERVER_URL.value) as string;
 	}
 
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
-	apiDirect.defaults.baseURL = baseURL;
+	apiDirect.axiosInstance.defaults.baseURL = baseURL;
 
 	const headers = {
 		...(config?.tenantId ? { 'tenant-id': config?.tenantId } : {}),
@@ -151,8 +145,9 @@ async function deleteApi<T>(endpoint: string, config?: APIConfig) {
 async function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
 	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
-
-	if (baseURL && directAPI && data && !(data instanceof FormData)) {
+	const isDirect = baseURL && directAPI;
+	const apiClient = isDirect ? await getAPIDirect() : await getAPI();
+	if (isDirect && data && !(data instanceof FormData)) {
 		if (!data.tenantId && data.tenantId !== null) {
 			data.tenantId = tenantId;
 		}
@@ -162,14 +157,16 @@ async function post<T>(url: string, data?: Record<string, any> | FormData, confi
 		}
 	}
 
-	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
+	return isDirect ? apiClient.post<T>(url, data, { ...config, headers }) : apiClient.post<T>(url, data);
 }
 async function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
 	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
+	const isDirect = baseURL && directAPI;
+	const apiClient = isDirect ? await getAPIDirect() : await getAPI();
 
-	if (baseURL && directAPI && data && !(data instanceof FormData)) {
-		if (!data.tenantId) {
+	if (isDirect && data && !(data instanceof FormData)) {
+		if (!data.tenantId && data.tenantId !== null) {
 			data.tenantId = tenantId;
 		}
 
@@ -178,14 +175,16 @@ async function put<T>(url: string, data?: Record<string, any> | FormData, config
 		}
 	}
 
-	return baseURL && directAPI ? apiDirect.put<T>(url, data, { ...config, headers }) : api.put<T>(url, data);
+	return isDirect ? apiClient.put<T>(url, data, { ...config, headers }) : apiClient.put<T>(url, data);
 }
 async function patch<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
 	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
+	const isDirect = baseURL && directAPI;
+	const apiClient = isDirect ? await getAPIDirect() : await getAPI();
 
-	if (baseURL && directAPI && data && !(data instanceof FormData)) {
-		if (!data.tenantId) {
+	if (isDirect && data && !(data instanceof FormData)) {
+		if (!data.tenantId && data.tenantId !== null) {
 			data.tenantId = tenantId;
 		}
 
@@ -194,9 +193,8 @@ async function patch<T>(url: string, data?: Record<string, any> | FormData, conf
 		}
 	}
 
-	return baseURL && directAPI ? apiDirect.patch<T>(url, data, { ...config, headers }) : api.patch<T>(url, data);
+	return isDirect ? apiClient.patch<T>(url, data, { ...config, headers }) : apiClient.patch<T>(url, data);
 }
 
 export { get, post, deleteApi, put, patch };
-
-export default api;
+export default getAPI;

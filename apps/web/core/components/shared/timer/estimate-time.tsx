@@ -1,12 +1,12 @@
-import { secondsToTime } from '@/core/lib/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { pad } from '@/core/lib/helpers/number';
-import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
-import { useOutsideClick } from '@/core/hooks/useOutsideClick';
 import { TimeInput } from '@/core/components/ui/inputs/time-input';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useOutsideClick } from '@/core/hooks/common';
+import { useTeamTasks } from '@/core/hooks/organizations';
 
 export function EstimateTime() {
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();

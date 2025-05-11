@@ -3,7 +3,7 @@
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { GroupByType } from '@/core/hooks/features/useReportActivity';
+import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 
 import { Modal } from '@/core/components';
 import { ProductivityApplicationPDF } from '@/core/components/dashboard/productivity-application/productivity-application-pdf';

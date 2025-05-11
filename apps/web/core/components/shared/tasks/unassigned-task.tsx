@@ -1,8 +1,8 @@
-import { secondsToTime } from '@/core/lib/helpers/date';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { RawStatusDropdown } from '@/core/components/shared/tasks/status-dropdown';
 
-import { useTaskStatistics } from '@/core/hooks/features/useTaskStatistics';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
 import { timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';

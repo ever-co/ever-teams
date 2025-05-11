@@ -6,7 +6,7 @@ import { ActivityRow, DateHeaderRow, ProjectHeaderRow } from './components';
 import { EmptyState, LoadingSkeleton } from './states';
 import { groupActivitiesByProjectAndDate } from './utils';
 import { useTranslations } from 'next-intl';
-import { usePagination } from '@/core/hooks/features/usePagination';
+import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Paginate } from '@/core/components';
 
 interface ProductivityProjectTableProps {

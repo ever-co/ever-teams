@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { ScreenCalendar } from './activity/screen-calendar';
 import { cn } from '@/core/lib/helpers';
-import { useScrollPagination } from '@/core/hooks/features/usePagination';
+import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { IUser } from '@/core/types/interfaces';
 
 type Props = {

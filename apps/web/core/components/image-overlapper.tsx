@@ -17,6 +17,7 @@ import TeamMember from '@/core/components/team-member';
 import { IEmployee } from '@/core/types/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
+import { cn } from '../lib/helpers';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -59,7 +60,6 @@ export default function ImageOverlapper({
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images?.slice(0, displayImageCount);
-	const widthCalculate = images?.slice(0, 5);
 	const secondArray = images?.slice(displayImageCount);
 	const isMoreThanDisplay = images?.length > displayImageCount;
 	const imageLength = images?.length;
@@ -120,11 +120,11 @@ export default function ImageOverlapper({
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
-			<div className="relative">
+			<div className="relative min-w-fit">
 				{hasInfo.length > 0 && showInfo && (
 					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
 						<div className="relative bg-black text-white rounded-[3px]">
-							<span className="text-center p-[6px] z-10">{hasInfo}</span>
+							<span className="text-center p-[6px] z-[5]">{hasInfo}</span>
 							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-t-[10px] border-t-black border-r-[10px] border-r-transparent border-l-[10px] border-l-transparent"></div>
 						</div>
 					</div>
@@ -223,52 +223,44 @@ export default function ImageOverlapper({
 		);
 	}
 	return (
-		<div
-			style={{
-				width:
-					imageLength == 1 ? 40 : isMoreThanDisplay ? widthCalculate.length * 33 : widthCalculate.length * 35
-			}}
-			className="relative "
-		>
-			{firstArray.map((image, index) => (
-				<Link key={index} href={onRedirect(image)}>
-					<div
-						className="absolute hover:!z-20 transition-all hover:scale-110"
-						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
-					>
-						<Tooltip
-							label={image.alt ?? 'untitled'}
-							labelClassName={image.alt ? '' : 'text-gray-500'}
-							placement="top"
+		<div className="relative flex items-center min-w-fit">
+			<div className="relative flex items-center">
+				{firstArray.map((image, index) => (
+					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
+						<div
+							className={cn(
+								'absolute w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
+							)}
+							style={{ left: index * 30 }}
 						>
-							<Image
-								src={image.url}
-								alt={`${image.alt} avatar`}
-								width={80}
-								height={80}
-								style={{ borderRadius: radius }}
-								className="!h-10 !w-10 border-2 border-white"
-							/>
-						</Tooltip>
-					</div>
-				</Link>
-			))}
-			{secondArray.length > 0 && (
+							<Tooltip
+								label={image.alt ?? 'untitled'}
+								labelClassName={image.alt ? '' : 'text-gray-500'}
+								className="absolute hover:!z-[1]"
+								placement="top"
+							>
+								<Image
+									src={image.url}
+									alt={`${image.alt} avatar`}
+									width={80}
+									height={80}
+									className="!h-10 !w-10 rounded-full border-2 border-white"
+								/>
+							</Tooltip>
+						</div>
+					</Link>
+				))}
+			</div>
+			{isMoreThanDisplay && (
 				<Popover>
 					<PopoverTrigger asChild>
-						<div
-							style={{
-								top: isMoreThanDisplay ? -8 : -16,
-								borderRadius: radius
-							}}
-							className="flex absolute left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
-						>
+						<div className="flex absolute cursor-pointer rounded-full top-1/2 -translate-y-1/2 left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]">
 							{secondArray.length < 100 ? secondArray.length : 99}+
 						</div>
 					</PopoverTrigger>
-					<PopoverContent className="!p-0 bg-white dark:bg-dark--theme input-border">
-						<ScrollArea className="h-40 ">
-							<div className="flex flex-col m-2 space-y-2">
+					<PopoverContent className="!py-2 !px-0 bg-white dark:bg-dark--theme input-border">
+						<ScrollArea className="h-40">
+							<div className="flex flex-col m-2 gap-y-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link

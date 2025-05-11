@@ -57,10 +57,10 @@ import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-m
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { useStartStopTimerHandler } from '@/core/hooks/features/useStartStopTimerHandler';
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { SetAtom } from '@/core/types/generics';
-import { useFavoritesTask } from '@/core/hooks/features/useFavoritesTask';
+import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 
 type Props = {
 	active?: boolean;
@@ -593,7 +593,7 @@ export function TaskCardMenu({
 				<Popover.Panel>
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
+							<Card shadow="custom" className="shadow-xl card !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link

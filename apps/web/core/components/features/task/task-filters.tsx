@@ -24,12 +24,12 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
-import { useDateRange } from '@/core/hooks/useDateRange';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { TaskDatePickerWithRange } from './task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
-import { useTimeLogs } from '@/core/hooks/features/useTimeLogs';
+import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
@@ -451,28 +451,28 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 

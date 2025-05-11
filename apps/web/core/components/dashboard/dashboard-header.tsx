@@ -5,7 +5,7 @@ import { DateRangePicker } from './date-range-picker';
 import { DateRange } from 'react-day-picker';
 
 import { TeamDashboardFilter } from './team-dashboard-filter';
-import { GroupByType } from '@/core/hooks/features/useReportActivity';
+import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 import { ExportMenu } from '@/core/components/export-menu';
 import { TeamStatsPDF } from './pdf';
 import { ExportDialog } from '@/core/components/ui/export-dialog';

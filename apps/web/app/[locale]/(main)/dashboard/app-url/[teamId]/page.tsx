@@ -3,7 +3,6 @@ import { fullWidthState } from '@/core/stores/fullWidth';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
-import { useOrganizationTeams } from '@/core/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
@@ -12,9 +11,8 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/core/components';
 import { DashboardHeader } from '@/core/components/dashboard/dashboard-header';
-import { GroupByType, useReportActivity } from '@/core/hooks/features/useReportActivity';
+import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { Card } from '@/core/components/ui/card';
-import { useLocalStorageState, useModal } from '@/core/hooks';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,
@@ -24,6 +22,8 @@ import {
 	ProductivityStats,
 	ProductivityTable
 } from '@/core/components/dashboard';
+import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { useLocalStorageState, useModal } from '@/core/hooks/common';
 
 interface ProductivityData {
 	date: string;

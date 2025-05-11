@@ -6,7 +6,7 @@ const TaskTeamInfo = () => {
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle="Project" wrapperClassName="mb-3">
 				<StatusDropdown
-					className={'lg:min-w-[170px]'}
+					className={'min-w-fit lg:max-w-[170px]'}
 					items={[]}
 					value={undefined}
 					forDetails={true}
@@ -16,7 +16,7 @@ const TaskTeamInfo = () => {
 			</TaskRow>
 			<TaskRow labelTitle="Team" wrapperClassName="mb-3">
 				<StatusDropdown
-					className={'lg:min-w-[170px]'}
+					className={'min-w-fit lg:max-w-[170px]'}
 					items={[]}
 					value={undefined}
 					forDetails={true}

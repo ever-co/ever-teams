@@ -2,15 +2,23 @@
 	"name": "@ever-teams/services",
 	"version": "0.1.0",
 	"license": "AGPL-3.0",
-	"description": "Ever Teams React services for internal use",
+	"description": "Ever Teams API services for internal use",
 	"private": true,
-	"main": "./src/index.ts",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist/**"
+	],
 	"scripts": {
+		"build": "tsup ./src/index.ts --format esm,cjs --dts --external react --minify",
 		"lint": "eslint src --ext .ts,.tsx",
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
 	},
 	"dependencies": {
 		"@ever-teams/constants": "*",
+		"tsup": "^8.4.0",
+		"typescript": "^5.3.3",
 		"axios": "^1.8.3"
 	}
 }

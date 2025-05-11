@@ -1,6 +1,6 @@
 'use client';
 
-import { GroupByType } from '@/core/hooks/features/useReportActivity';
+import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 
 interface GroupBySelectProps {

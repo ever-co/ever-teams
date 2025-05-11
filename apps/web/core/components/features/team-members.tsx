@@ -143,7 +143,7 @@ export function TeamMembersView({
 			teamMembersView = (
 				<>
 					{/* <UserTeamCardHeader /> */}
-					<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
+					<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-0">
 						<TeamMembersCardView
 							teamMembers={$members}
 							currentUser={currentUser}

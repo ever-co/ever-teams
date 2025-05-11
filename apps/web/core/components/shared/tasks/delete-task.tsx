@@ -1,9 +1,9 @@
-import { useTeamTasks } from '@/core/hooks/features/useTeamTasks';
 import { IInviteProps } from '@/core/types/interfaces/hooks';
 import { Spinner } from '@/core/components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { useTeamTasks } from '@/core/hooks/organizations';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();

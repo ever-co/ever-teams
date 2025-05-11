@@ -36,7 +36,7 @@ import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { useInfinityScrolling } from '@/core/hooks/useInfinityFetch';
+import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
 import { ObserverComponent } from '@/core/components/shared/Observer';
 import { LazyRender } from '@/core/components/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
@@ -345,7 +345,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex justify-center items-center p-2 h-full">
+				<div className="flex items-center justify-center h-full p-2">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -497,7 +497,7 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4 overflow-hidden',
-					!cardWithoutShadow && ['shadow-xlcard'],
+					!cardWithoutShadow && ['shadow-xl card'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
 				)}
@@ -518,9 +518,9 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex gap-2 justify-start">
+								<div className="flex justify-start gap-2">
 									<ActiveTaskStatusDropdown
-										className="lg:min-w-[170px]"
+										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
 										onValueChange={(v) => {
 											if (v && taskStatus) {
@@ -533,7 +533,7 @@ function TaskCard({
 									/>
 
 									<ActiveTaskPropertiesDropdown
-										className="lg:min-w-[170px]"
+										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
 										onValueChange={(v) => {
 											if (v && taskPriority) {
@@ -546,7 +546,7 @@ function TaskCard({
 									/>
 
 									<ActiveTaskSizesDropdown
-										className="lg:min-w-[170px]"
+										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
 										onValueChange={(v) => {
 											if (v && taskSize) {
@@ -559,7 +559,7 @@ function TaskCard({
 									/>
 
 									<TaskLabels
-										className="lg:min-w-[170px] text-xs z-[9999]"
+										className="min-w-fit lg:max-w-[170px] text-xs z-[9999]"
 										forDetails={true}
 										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
@@ -579,7 +579,7 @@ function TaskCard({
 									{taskAssignees !== undefined && (
 										<AssigneesSelect
 											key={`assignees-${datas.inputTask?.id || 'new'}`}
-											className="lg:min-w-[170px] bg-white"
+											className="min-w-fit lg:max-w-[170px] bg-white"
 											assignees={taskAssignees}
 											teamMembers={activeTeam?.members ?? []}
 										/>
@@ -587,7 +587,7 @@ function TaskCard({
 
 									<ProjectDropDown
 										styles={{
-											container: 'rounded-xl w-[10.625rem] !max-w-[10.625rem]',
+											container: 'rounded-xl min-w-fit max-w-[10.625rem]',
 											listCard: 'rounded-xl'
 										}}
 										controlled
@@ -666,7 +666,7 @@ function TaskCard({
 											task={task}
 											selected={active}
 											onClick={onItemClick}
-											className="cursor-pointer overflow-y-auto"
+											className="overflow-y-auto cursor-pointer"
 										/>
 										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
 										{!last && <Divider className="my-5" />}
@@ -752,12 +752,12 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto h-full">
-					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center w-40 h-full hover:transition-all">
+				<div className="relative h-full my-auto">
+					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
-									'flex gap-1 items-center  !text-default dark:!text-white',
+									'flex gap-1 items-center  !text-default dark:!text-white text-xs',
 									!assignees?.current?.length && ['!text-dark/40  dark:!text-white']
 								)}
 							>
@@ -792,7 +792,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
-									{authMember.employee.fullName}
+									<span className="text-xs text-nowrap whitespace-nowrap">
+										{authMember.employee.fullName}
+									</span>
 								</Combobox.Option>
 							)}
 
@@ -833,7 +835,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 											</span>
 										)}
 
-										{member.employee.fullName}
+										<span className="text-xs text-nowrap whitespace-nowrap">
+											{member.employee.fullName}
+										</span>
 									</Combobox.Option>
 								))}
 						</Combobox.Options>

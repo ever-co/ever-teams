@@ -23,6 +23,7 @@
 	"vsicons.presets.angular": true,
 	"deepscan.enable": true,
 	"cSpell.words": [
+		"Retryable",
 		"Timepicker"
 	],
 	"files.exclude": {

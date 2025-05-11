@@ -116,7 +116,7 @@ const TaskSecondaryInfo = () => {
 								id: d
 							} as ITeamTask);
 						}}
-						className="lg:min-w-[170px] text-black"
+						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
 						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -333,7 +333,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		<>
 			<div
 				className={clsxm(
-					'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs',
+					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-[7.6875rem] rounded-[8px]',
 					styles?.container
 				)}
 			>
@@ -354,9 +354,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								<ListboxButton
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
-									items-center justify-between h-[2.37rem] px-2
+									items-center justify-between h-fit p-1
 									border-solid border-color-[#F2F2F2]
-									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-lg`,
+									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
 										styles?.value
 									)}
 								>
@@ -379,7 +379,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<p
 											className={clsxm(
 												'truncate',
-												!selected && ' text-slate-400 flex gap-1 dark:text-white font-light'
+												!selected &&
+													' text-slate-400 text-xs flex gap-1 dark:text-white font-light'
 											)}
 										>
 											{!selected && <CircleIcon className="w-4 h-4" />}
@@ -418,7 +419,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<Card
 											shadow="bigger"
 											className={clsxm(
-												'p-0 md:p-0 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+												'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
 												styles?.listCard
 											)}
 										>
@@ -437,7 +438,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 																			className="rounded-full"
 																		/>
 																	)}
-																	<span className="w-full truncate ">
+																	<span className="w-full text-xs truncate ">
 																		{item.name || 'Project'}
 																	</span>
 																</li>

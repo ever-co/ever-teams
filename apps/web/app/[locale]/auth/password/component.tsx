@@ -3,7 +3,7 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
-import { cn } from '@ever-teams/ui';
+// import { cn } from '@ever-teams/ui';
 import { BackdropLoader, Button, Card, InputField, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -23,7 +24,7 @@ export default function AuthPassword() {
 			title={t('pages.authLogin.HEADING_TITLE')}
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
-			<div className="max-w-[98%] md:max-w-[550px] overflow-x-hidden overflow-y-visible">
+			<div className="max-w-[98%] md:max-w-[550px] overflow-x-hidden overflow-y-clip">
 				<div className={cn('flex flex-row transition-[transform] duration-500')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 

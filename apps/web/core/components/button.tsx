@@ -36,7 +36,7 @@ export function Button({ children, className, variant = 'primary', loading, ...r
 	return (
 		<button
 			className={clsxm(
-				'flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md min-w-[140px]',
+				'flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md min-w-fit',
 				[
 					variant === 'primary' && [
 						'bg-primary dark:bg-primary-light text-white text-sm',

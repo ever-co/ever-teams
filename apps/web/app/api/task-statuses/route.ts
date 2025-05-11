@@ -23,16 +23,23 @@ export async function GET(req: Request) {
 
 	return $res(data);
 }
-
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 
-	if (!user) return $res('Unauthorized');
+	if (!user) {
+	  console.log('[WEB][API] Unauthorized request');
+	  return $res('Unauthorized');
+	}
 
-	const body = (await req.json()) as unknown as ITaskStatusCreate;
+	try {
+	  const body = (await req.json()) as unknown as ITaskStatusCreate;
 
-	const response = await createStatusRequest(body, access_token, body?.tenantId);
+	  const response = await createStatusRequest(body, access_token, body?.tenantId);
 
-	return $res(response.data);
-}
+	  return $res(response.data);
+	} catch (error) {
+	  console.error('[WEB][API] Error:', error);
+	  return $res('Error creating task status');
+	}
+  }

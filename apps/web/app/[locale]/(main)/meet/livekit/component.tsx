@@ -1,12 +1,12 @@
 'use client';
 
-import { useAuthenticateUser } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { useTokenLiveKit } from '@/core/hooks/useLiveKit';
+import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
+import { useAuthenticateUser } from '@/core/hooks/auth';
 
 const LiveKit = dynamic(() => import('@/core/components/features/integrations/livekit'), {
 	ssr: false,

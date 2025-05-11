@@ -1,4 +1,4 @@
-import { GroupedTimesheet, useTimesheet } from '@/core/hooks/features/useTimesheet';
+import { GroupedTimesheet, useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { statusColor } from '@/core/components';
 import {
 	DisplayTimeForTimesheet,
