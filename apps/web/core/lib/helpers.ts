@@ -114,3 +114,6 @@ export function getStatusColor(status: ITaskStatus) {
 			return 'bg-gray-100 text-gray-800';
 	}
 }
+export function isServer() {
+	return typeof window === 'undefined';
+}
