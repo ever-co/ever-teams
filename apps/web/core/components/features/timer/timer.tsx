@@ -81,7 +81,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 				className
 			)}
 		>
-			<div className="xl:w-4/5 space-x-2 w-full flex justify-center items-center pr-2">
+			<div className="flex items-center justify-center w-full pr-2 space-x-2 xl:w-4/5">
 				<div className="flex items-start justify-between w-full">
 					<div className="w-full mx-auto">
 						<Text.Heading
@@ -120,7 +120,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 			{showTimerButton && (
 				<>
 					<VerticalSeparator />
-					<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
+					<div className="flex items-center justify-center w-1/4 xl:w-2/5 h-fit">
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 							placement="top-start"
@@ -197,7 +197,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'input-border rounded-[10px] p-2 h-[3.125rem] dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+				'input-border rounded-lg py-2 px-4 h-fit dark:bg-[#1B1D22] dark:border-2 border-[#0000001A] dark:border-[#26272C]',
 				'flex items-center md:space-x-4 space-x-1',
 				className
 			)}
