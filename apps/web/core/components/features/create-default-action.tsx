@@ -79,7 +79,6 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 						<AddUserIcon className="!text-indigo-500" /> Invite
 						<DropdownMenuShortcut className="!text-indigo-500">⌘CI</DropdownMenuShortcut>
 					</DropdownMenuItem>
-					<DropdownMenuGroup></DropdownMenuGroup>
 				</DropdownMenuContent>
 			</DropdownMenu>
 
