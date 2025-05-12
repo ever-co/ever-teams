@@ -88,12 +88,12 @@ const Collaborate = () => {
 						isOpen ? closeModal() : openModal();
 					}}
 					className={clsxm(
-						'flex flex-row items-center justify-center py-3.5 px-4 gap-3 rounded-xl outline-none',
+						'flex flex-row items-center justify-center py-3 text-xs px-4 gap-2 h-fit rounded-lg outline-none',
 						'bg-primary dark:bg-primary-light text-white text-sm',
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
 				>
-					<UserLinearIcon className="text-white w-4 h-4 " />
+					<UserLinearIcon className="w-4 h-4 text-white " />
 					{t('common.COLLABORATE')}
 				</DialogTrigger>
 				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
@@ -216,7 +216,7 @@ const Collaborate = () => {
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"
 							>
-								<PhoneUpArrowIcon className="h-4 w-4" />
+								<PhoneUpArrowIcon className="w-4 h-4" />
 								{t('common.MEET')}
 							</Button>
 
