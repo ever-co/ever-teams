@@ -305,7 +305,7 @@ export const SidebarTaskIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
 			/>
 			<path
 				d="M21 16L15 22V19C15 17 16 16 18 16H21Z"
-				stroke="#292D32"
+				stroke="currentColor"
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
