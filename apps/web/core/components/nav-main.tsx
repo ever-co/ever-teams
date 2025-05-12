@@ -27,7 +27,7 @@ export function NavMain({
 		title: string;
 		url: string;
 		selectable: boolean;
-		icon: LucideIcon;
+		icon: LucideIcon | React.FC<React.SVGProps<SVGSVGElement>>;
 		isActive?: boolean;
 		items?: {
 			title: string;
@@ -71,7 +71,7 @@ export function NavMain({
 		title: string;
 		url: string;
 		selectable: boolean;
-		icon: LucideIcon;
+		icon: LucideIcon | React.FC<React.SVGProps<SVGSVGElement>>;
 		isActive?: boolean;
 		items?: {
 			title: string;

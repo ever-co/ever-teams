@@ -8,7 +8,7 @@ import { RequestToJoinModal } from '@/core/components/layouts/default-layout/hea
 import Collaborate from '@/core/components/shared/collaborate';
 import { Button, Container } from '@/core/components';
 import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
-import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from '@/core/components/features';
+import { DefaultCreateAction, MinTimerFrame, TeamsDropDown, UserNavAvatar } from '@/core/components/features';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -62,7 +62,8 @@ export function Navbar({
 	return !user && !notFound && !publicTeam ? (
 		<HeaderSkeleton />
 	) : (
-		<nav className={cn(className)}>
+		<nav className={cn('flex items-center', className)}>
+			<DefaultCreateAction />
 			{!notFound && (
 				<div className="flex ml-auto items-center gap-10 min-h-[90px]">
 					{publicTeam && (

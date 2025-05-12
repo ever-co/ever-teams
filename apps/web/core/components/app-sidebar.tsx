@@ -1,10 +1,7 @@
 import * as React from 'react';
 import {
 	MonitorSmartphone,
-	LayoutDashboard,
-	Heart,
 	SquareActivity,
-	Files,
 	X,
 	Command,
 	AudioWaveform,
@@ -22,7 +19,8 @@ import {
 	SidebarTrigger,
 	useSidebar,
 	SidebarMenuSubButton,
-	SidebarFooter
+	SidebarFooter,
+	SidebarSeparator
 } from '@/core/components/ui/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
@@ -34,6 +32,8 @@ import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useMemo } from 'react';
+import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from './icons';
+import { NavHome } from './nav-home';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -109,12 +109,28 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					plan: 'Free'
 				}
 			],
+			home: [
+				{
+					title: 'Home',
+					url: '/',
+					selectable: true,
+					icon: HomeIcon,
+					label: 'home'
+				},
+				{
+					title: 'Inbox',
+					url: '/inbox',
+					selectable: true,
+					icon: InboxIcon,
+					label: 'inbox'
+				}
+			],
 			navMain: [
 				{
 					title: t('sidebar.DASHBOARD'),
 					url: '#',
 					selectable: false,
-					icon: LayoutDashboard,
+					icon: DashboardIcon,
 					label: 'dashboard',
 					items: [
 						{
@@ -133,7 +149,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					title: t('sidebar.FAVORITES'),
 					url: '#',
 					selectable: false,
-					icon: Heart,
+					icon: FavoriteIcon,
 					label: 'favorites',
 					items:
 						favoriteTasks && favoriteTasks.length > 0
@@ -150,7 +166,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 												)}
 												asChild
 											>
-												<span className="flex justify-between items-center w-full min-w-fit">
+												<span className="flex items-center justify-between w-full min-w-fit">
 													<Link href={`/task/${task?.id}`} className="flex items-center">
 														{task && (
 															// Show task issue and task number
@@ -199,7 +215,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					title: t('sidebar.TASKS'),
 					url: '#',
 					selectable: false,
-					icon: Files,
+					icon: SidebarTaskIcon,
 					label: 'tasks',
 					items: [
 						{
@@ -348,8 +364,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<WorkspacesSwitcher workspaces={data.workspaces} />
 				</SidebarHeader>
 				<SidebarContent>
+					<NavHome homeData={data.home} />
+					<SidebarSeparator />
 					<NavMain items={data.navMain} />
-					{/* <NavProjects projects={data.projects} /> */}
 				</SidebarContent>
 
 				<SidebarFooter className="p-1 mt-auto">
