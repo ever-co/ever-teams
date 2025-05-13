@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
 import { cn } from '@/core/lib/helpers';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/common/button2';
 import {
 	Command,
 	CommandEmpty,
@@ -9,8 +9,8 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList
-} from '@/core/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+} from '@/core/components/common/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 
 interface ComboboxProps<T> {
 	items: T[];

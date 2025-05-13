@@ -5,7 +5,7 @@ import { forwardRef, LegacyRef } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Container, Divider } from '@/core/components';
 import { Footer } from '.';
-import { useSidebar } from '@/core/components/ui/sidebar';
+import { useSidebar } from '@/core/components/common/sidebar';
 interface GlobalFooterProps {
 	footerClassName?: string;
 	fullWidth?: boolean;

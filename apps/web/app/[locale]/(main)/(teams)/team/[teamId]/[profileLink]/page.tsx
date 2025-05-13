@@ -4,7 +4,7 @@ import { getActiveUserIdCookie } from '@/core/lib/helpers/index';
 
 import { publicState } from '@/core/stores/public';
 import { Breadcrumb, Container } from '@/core/components';
-import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
+import { TeamMembersView, UnverifiedEmail } from '@/core/components/features';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
@@ -15,6 +15,7 @@ import { fullWidthState } from '@/core/stores/fullWidth';
 import { IssuesView } from '@/core/constants/config/constants';
 import { usePublicOrganizationTeams } from '@/core/hooks/organizations';
 import { useRefreshIntervalV2 } from '@/core/hooks/common';
+import { UserTeamCardHeader } from '@/core/components/teams/user-team-card/task-skeleton';
 
 const Team = () => {
 	const router = useRouter();

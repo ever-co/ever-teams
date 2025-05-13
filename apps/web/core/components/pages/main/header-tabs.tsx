@@ -2,7 +2,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Tooltip } from '@/core/components';
 import LinkWrapper from '../kanban/link-wrapper';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
-import KanbanIcon from '@/core/components/ui/svgs/kanban';
+import KanbanIcon from '@/core/components/svgs/kanban';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtom } from 'jotai';
 import { headerTabs } from '@/core/stores/header-tabs';

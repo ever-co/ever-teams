@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/core/components';
 import { DashboardHeader } from '@/core/components/dashboard/dashboard-header';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
-import { Card } from '@/core/components/ui/card';
+import { Card } from '@/core/components/common/card';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,

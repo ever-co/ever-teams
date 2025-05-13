@@ -1,17 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import {
-	Item,
-	ManageOrMemberComponent,
-	getNestedValue
-} from '@/core/components/features/manual-time/manage-member-component';
+import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { DatePickerFilter } from './timesheet-filter-date';
 import {
 	Select,
@@ -20,7 +16,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue
-} from '@/core/components/ui/select';
+} from '@/core/components/common/select';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';

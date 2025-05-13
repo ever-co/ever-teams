@@ -2,7 +2,7 @@
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { DangerZone, PersonalSettingForm, ProfileAvatar } from '@/core/components/settings';
-import { Accordian } from '@/core/components/accordian';
+import { Accordian } from '@/core/components/common/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { SyncZone } from '@/core/components/settings/sync.zone';

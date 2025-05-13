@@ -1,7 +1,7 @@
 'use client';
 
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 
 interface GroupBySelectProps {
 	onGroupByChange?: (value: GroupByType) => void;

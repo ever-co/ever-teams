@@ -5,7 +5,7 @@ import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
 import '@excalidraw/excalidraw/index.css';
 
-const Board = dynamic(() => import('@/core/components/features/integrations/boards'), {
+const Board = dynamic(() => import('@/core/components/integrations/boards'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />
 });

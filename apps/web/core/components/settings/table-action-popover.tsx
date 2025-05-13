@@ -1,6 +1,6 @@
 import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
 import { Popover, Transition } from '@headlessui/react';
-import { useDropdownAction } from '@/core/components/features/team/user-team-card/user-team-card-menu';
+import { useDropdownAction } from '@/core/components/teams/user-team-card/user-team-card-menu';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';

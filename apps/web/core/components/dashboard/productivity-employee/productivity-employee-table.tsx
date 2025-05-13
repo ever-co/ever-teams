@@ -1,10 +1,10 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import { Skeleton } from '@/core/components/ui/skeleton';
-import { Card } from '@/core/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
+import { Skeleton } from '@/core/components/common/skeleton';
+import { Card } from '@/core/components/common/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/common/tooltip';
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import { insertLink } from './editor-components/TextEditorService';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button, InputField } from '@/core/components';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';

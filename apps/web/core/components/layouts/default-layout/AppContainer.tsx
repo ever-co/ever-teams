@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react';
-import { Toaster, ToastMessageManager } from '@/core/components/ui/toaster';
-import { Meta } from '@/core/components/meta';
+import { Toaster, ToastMessageManager } from '@/core/components/common/toaster';
+import { Meta } from '@/core/components/common/meta';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
 interface AppContainerProps extends PropsWithChildren {

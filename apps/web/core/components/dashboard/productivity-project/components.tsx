@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
-import { TableCell, TableRow } from '@/core/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
+import { TableCell, TableRow } from '@/core/components/common/table';
 import { cn } from '@/core/lib/helpers';
 import {
 	ActivityRowProps,

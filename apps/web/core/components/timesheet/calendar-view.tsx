@@ -6,7 +6,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '@/core/components/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
 import { formatDate } from '@/core/lib/helpers/index';
@@ -16,10 +16,10 @@ import MonthlyTimesheetCalendar from './monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from './weekly-timesheet-calendar';
 import { TimesheetLog } from '@/core/types/interfaces';
-import TimesheetSkeleton from '@/core/components/shared/skeleton/TimesheetSkeleton';
-import { Checkbox } from '@/core/components/ui/checkbox';
+import { Checkbox } from '@/core/components/common/checkbox';
 // Import AnimatedDataSvg component
-import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+import TimesheetSkeleton from '../activities/TimesheetSkeleton';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];

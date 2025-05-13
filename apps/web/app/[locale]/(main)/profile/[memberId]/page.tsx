@@ -19,11 +19,11 @@ import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
-import { AppsTab } from '@/core/components/features/activity/apps';
-import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
+import { ScreenshootTab } from '@/core/components/activities/screenshoots';
+import { AppsTab } from '@/core/components/activities/apps';
+import { VisitedSitesTab } from '@/core/components/activities/visited-sites';
 import { activityTypeState } from '@/core/stores/activity-type';
-import { UserProfileDetail } from '@/core/components/profile/user-profile-detail';
+import { UserProfileDetail } from '@/core/components/users/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 // import { ActivityCalendar } from '@/core/components/features/activity/calendar';
 

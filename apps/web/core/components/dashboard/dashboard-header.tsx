@@ -6,10 +6,10 @@ import { DateRange } from 'react-day-picker';
 
 import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
-import { ExportMenu } from '@/core/components/export-menu';
+import { ExportMenu } from '@/core/components/common/export-menu';
 import { TeamStatsPDF } from './pdf';
-import { ExportDialog } from '@/core/components/ui/export-dialog';
-import { GroupBySelectTimeActivity } from '@/core/components/group-by-select-time-activity';
+import { ExportDialog } from '@/core/components/common/export-dialog';
+import { GroupBySelectTimeActivity } from '@/core/components/activities/group-by-select-time-activity';
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';

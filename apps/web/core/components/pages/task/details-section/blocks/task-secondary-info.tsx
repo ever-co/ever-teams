@@ -14,7 +14,7 @@ import {
 	useTaskLabelsValue
 } from '@/core/components/features';
 import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from '@/core/components/settings';
-import { VersionForm } from '@/core/components/settings/version-form';
+import { VersionForm } from '@/core/components/tasks/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -25,8 +25,8 @@ import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { clsxm } from '@/core/lib/utils';
 import { organizationProjectsState } from '@/core/stores/organization-projects';
-import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
-import { QuickCreateProjectModal } from '@/core/components/features/project/quick-create-project-modal';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
+import { QuickCreateProjectModal } from '@/core/components/projects/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 

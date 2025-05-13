@@ -2,7 +2,7 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useMemo, useState, useCallback } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { Badge } from '@/core/components/ui/badge';
+import { Badge } from '@/core/components/common/badge';
 
 export type TGroupByOption = 'date' | 'week' | 'member';
 

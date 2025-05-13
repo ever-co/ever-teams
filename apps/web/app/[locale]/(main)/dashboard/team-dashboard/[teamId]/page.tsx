@@ -3,9 +3,9 @@
 import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Card } from '@/core/components/ui/card';
+import { Card } from '@/core/components/common/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/common/button2';
 import { TeamStatsGrid } from '@/core/components/dashboard/team-stats-grid';
 import { TeamStatsTable } from '@/core/components/dashboard/team-stats-table';
 import { DashboardHeader } from '@/core/components/dashboard/dashboard-header';

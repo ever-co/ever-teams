@@ -5,8 +5,8 @@ import {
 	PaginationEllipsis,
 	PaginationItem,
 	PaginationLink
-} from '@/core/components/ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
+} from '@/core/components/common/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { IconsDoubleAltArrowLeftOutline, IconsDoubleArrowRounded } from '@/core/components/icons';
 interface TimesheetPaginationProps {
 	totalPages?: number;

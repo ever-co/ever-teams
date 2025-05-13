@@ -1,4 +1,4 @@
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Skeleton } from '@/core/components/common/skeleton';
 import { cn } from '@/core/lib/helpers';
 import { FC } from 'react';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TimePicker } from '@/core/components/ui/time-picker';
+import { TimePicker } from '@/core/components/common/time-picker';
 import { TimezoneDropDown } from './timezone-dropdown';
 import {
 	getActiveLanguageIdCookie,

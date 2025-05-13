@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { useAtomValue } from 'jotai';
-import { TaskDetailsComponent } from '@/core/components/features/daily-plan/task-details';
+import { TaskDetailsComponent } from '@/core/components/tasks/task-details';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();

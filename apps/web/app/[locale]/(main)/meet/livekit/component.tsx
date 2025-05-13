@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 
-const LiveKit = dynamic(() => import('@/core/components/features/integrations/livekit'), {
+const LiveKit = dynamic(() => import('@/core/components/integrations/livekit'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />
 });

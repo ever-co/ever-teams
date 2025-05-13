@@ -1,7 +1,7 @@
 'use client';
 import { userState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import SettingsPersonalSkeleton from '@/core/components/shared/skeleton/SettingsPersonalSkeleton';
+import SettingsPersonalSkeleton from '@/core/components/common/skeleton/SettingsPersonalSkeleton';
 import { Breadcrumb, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';

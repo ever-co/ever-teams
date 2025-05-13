@@ -17,21 +17,21 @@ import {
 	useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
-import { Checkbox } from '@/core/components/ui/checkbox';
+import { Checkbox } from '@/core/components/common/checkbox';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { useModal, useTaskStatus } from '@/core/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
-import AvatarStack from '@/core/components/shared/avatar-stack';
+import AvatarStack from '@/core/components/common/avatar-stack';
 import { HorizontalSeparator } from '@/core/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/core/constants/config/constants';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/projects/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';

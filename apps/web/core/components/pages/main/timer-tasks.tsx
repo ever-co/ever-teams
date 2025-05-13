@@ -1,7 +1,7 @@
-import StatusDropdown from '@/core/components/shared/tasks/status-dropdown';
-import TaskInput from '@/core/components/shared/tasks/task-input';
-import TimerCard from '@/core/components/shared/timer/timer-card';
-import { EstimateTime } from '@/core/components/shared/timer/estimate-time';
+import StatusDropdown from '@/core/components/tasks/status-dropdown';
+import TaskInput from '@/core/components/tasks/task-list';
+import TimerCard from '@/core/components/timer/timer-card';
+import { EstimateTime } from '@/core/components/timer/estimate-time';
 
 export function TimerTasksSection() {
 	return (

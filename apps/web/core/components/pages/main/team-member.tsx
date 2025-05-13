@@ -1,7 +1,7 @@
 import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
-import InviteCard from '@/core/components/shared/invite/invite-card';
-import { InvitedCard } from '@/core/components/shared/invite/invited-card';
-import UsersCard from '@/core/components/shared/members-card/members-card';
+import InviteCard from '@/core/components/teams/invite/invite-card';
+import { InvitedCard } from '@/core/components/teams/invite/invited-card';
+import UsersCard from '@/core/components/teams/members-card/members-card';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useOrganizationTeams } from '@/core/hooks/organizations';

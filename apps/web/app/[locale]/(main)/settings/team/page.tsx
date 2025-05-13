@@ -11,11 +11,11 @@ import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
-import { Accordian } from '@/core/components/accordian';
-import { IntegrationSetting } from '@/core/components/settings/integration-setting';
-import { InvitationSetting } from '@/core/components/settings/invitation-setting';
-import { IssuesSettings } from '@/core/components/settings/issues-settings';
-import { MemberSetting } from '@/core/components/settings/member-setting';
+import { Accordian } from '@/core/components/common//accordian';
+import { IntegrationSetting } from '@/core/components/teams/invite/integration-setting';
+import { InvitationSetting } from '@/core/components/teams/invite/invitation-setting';
+import { IssuesSettings } from '@/core/components/tasks/issues-settings';
+import { MemberSetting } from '@/core/components/teams/member-setting';
 import { activeSettingTeamTab } from '@/core/stores/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/setting/interaction-observer';
 

@@ -3,11 +3,12 @@
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
 import { IRequestToJoinCreate } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
+import { Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { PositionDropDown } from './position-dropdown';
 import { useTranslations } from 'next-intl';
 import { ArrowLeftIcon } from 'assets/svg';
+import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
