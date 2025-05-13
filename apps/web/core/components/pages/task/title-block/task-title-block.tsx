@@ -1,8 +1,8 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
-import { useToast } from '@/core/components/ui/use-toast';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
+import { useToast } from '@/core/hooks/common/use-toast';
 import { Button, CopyTooltip } from '@/core/components';
 import { ActiveTaskIssuesDropdown } from '@/core/components/features';
 import Image from 'next/image';

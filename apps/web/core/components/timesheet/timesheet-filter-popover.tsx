@@ -1,14 +1,14 @@
 import React from 'react';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
-import { Button } from '@/core/components/ui/button';
-import { MultiSelect } from '@/core/components/custom-select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import { Button } from '@/core/components/common/button2';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from './timesheet-action';
+import { MultiSelect } from '../common/multi-select';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);

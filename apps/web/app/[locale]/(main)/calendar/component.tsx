@@ -1,9 +1,9 @@
 import { clsxm } from '@/core/lib/utils';
-import { DatePicker } from '@/core/components/ui/DatePicker';
+import { DatePicker } from '@/core/components/common/date-picker';
 import { QueueListIcon } from '@heroicons/react/20/solid';
 import { addDays, format } from 'date-fns';
 import { Button } from '@/core/components';
-import { TimeSheetFilter, timesheetCalendar } from '@/core/components/features/integrations/calendar';
+import { TimeSheetFilter, timesheetCalendar } from '@/core/components/integrations/calendar';
 import {
 	Select,
 	SelectContent,
@@ -11,12 +11,12 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue
-} from '@/core/components/ui/select';
+} from '@/core/components/common/select';
 import { cn } from '@/core/lib/helpers';
 import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
-import { Input } from '@/core/components/ui/input';
+import { Input } from '@/core/components/common/input';
 import { SettingFilterIcon } from 'assets/svg';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
 

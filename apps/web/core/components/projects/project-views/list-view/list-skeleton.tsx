@@ -1,5 +1,5 @@
-import { Skeleton } from '@/core/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Skeleton } from '@/core/components/common/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 
 export function ProjectListSkeleton() {
 	return (

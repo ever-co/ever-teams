@@ -1,4 +1,4 @@
-import SadCry from '@/core/components/ui/svgs/sad-cry';
+import SadCry from '@/core/components/svgs/sad-cry';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';

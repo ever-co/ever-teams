@@ -1,8 +1,8 @@
 'use client';
 
-import { useToast } from '@/core/components/ui/use-toast';
+import { useToast } from '@/core/hooks/common/use-toast';
 import { useCallback } from 'react';
-import { TeamItem } from '@/core/components/features/team/team-item';
+import { TeamItem } from '@/core/components/teams/team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useTimer } from '../../activities';

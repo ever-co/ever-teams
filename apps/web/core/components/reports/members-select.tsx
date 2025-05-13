@@ -6,7 +6,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue
-} from '@/core/components/ui/select';
+} from '@/core/components/common/select';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 

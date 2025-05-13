@@ -1,9 +1,9 @@
 import { getOrganizationIdCookie } from '@/core/lib/helpers/index';
 import { useTaskStatus } from '@/core/hooks';
 import { ITaskStatusItemList, ITaskStatusOrder } from '@/core/types/interfaces';
-import { Button } from '@/core/components/ui/button';
-import { Spinner } from '@/core/components/ui/loaders/spinner';
-import { ScrollArea } from '@/core/components/ui/scroll-bar';
+import { Button } from '@/core/components/common/button2';
+import { Spinner } from '@/core/components/common/spinner';
+import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';

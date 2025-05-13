@@ -5,7 +5,7 @@ import {
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@/core/constants/config/constants';
-import { estimatedTotalTime } from '@/core/components/features/task/daily-plan';
+import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
 import { useTimer } from './use-timer';
 import { useTeamTasks } from '../organizations';
 

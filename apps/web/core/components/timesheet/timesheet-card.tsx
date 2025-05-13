@@ -5,8 +5,8 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '@/core/components/features';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
-import { Badge } from '@/core/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
+import { Badge } from '@/core/components/common/badge';
 import { ArrowRightIcon } from 'assets/svg';
 import { Button, Card, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';

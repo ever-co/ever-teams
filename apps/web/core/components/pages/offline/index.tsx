@@ -1,6 +1,6 @@
 import { Timer } from '@/core/components/features';
 import { cn } from '@/core/lib/helpers';
-import SadCry from '@/core/components/ui/svgs/sad-cry';
+import SadCry from '@/core/components/svgs/sad-cry';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 

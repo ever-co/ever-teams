@@ -1,14 +1,14 @@
 import { cn } from '@/core/lib/helpers';
-import { Checkbox } from '@/core/components/ui/checkbox';
+import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';
 import { useModal, useTaskStatus } from '@/core/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
-import AvatarStack from '@/core/components/shared/avatar-stack';
+import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/core/components/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/core/components/projects/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 
 interface IGridItemProps {

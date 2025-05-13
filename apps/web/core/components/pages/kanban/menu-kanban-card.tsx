@@ -1,9 +1,9 @@
 import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { activeTeamTaskId } from '@/core/stores';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { HorizontalSeparator, SpinnerLoader } from '@/core/components';
-import { PlanTask } from '@/core/components/features/task/task-card';
+import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
 import { ITeamTask, OT_Member } from '@/core/types/interfaces';

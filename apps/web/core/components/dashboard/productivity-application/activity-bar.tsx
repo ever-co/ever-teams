@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/common/tooltip';
 
 interface ActivityBarProps {
 	percentage: string;

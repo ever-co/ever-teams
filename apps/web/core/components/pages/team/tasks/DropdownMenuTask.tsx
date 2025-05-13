@@ -1,18 +1,18 @@
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/common/button2';
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator
-} from '@/core/components/ui/dropdown-menu';
+} from '@/core/components/common/dropdown-menu';
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { ITeamTask } from '@/core/types/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/core/components/ui/use-toast';
+import { useToast } from '@/core/hooks/common/use-toast';
 
 const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();

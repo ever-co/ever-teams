@@ -6,8 +6,8 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { RemoveModal } from './remove-modal';
-import { TransferTeamModal } from './transfer-team-modal';
 import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { TransferTeamModal } from '../teams/transfer-team/transfer-team-modal';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();

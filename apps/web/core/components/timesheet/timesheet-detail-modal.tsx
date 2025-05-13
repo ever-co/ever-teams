@@ -1,13 +1,13 @@
 import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { Modal, statusColor } from '@/core/components';
-import { AnimatedEmptyState } from '@/core/components/ui/empty-state';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { TimesheetDetailMode } from '../../../app/[locale]/(main)/timesheet/[memberId]/page';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { cn } from '@/core/lib/helpers';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { Badge } from '@/core/components/ui/badge';
+import { Badge } from '@/core/components/common/badge';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '@/core/components/features';
 import { EmployeeAvatar, ProjectLogo } from './compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';

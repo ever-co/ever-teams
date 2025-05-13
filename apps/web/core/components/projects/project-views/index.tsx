@@ -1,9 +1,9 @@
 import { useModal } from '@/core/hooks';
 import { IProject } from '@/core/types/interfaces';
 import { HorizontalSeparator } from '@/core/components';
-import { ArchiveProjectModal } from '@/core/components/features/project/archive-project-modal';
-import { DeleteProjectConfirmModal } from '@/core/components/features/project/delete-project-modal';
-import { EditProjectModal } from '@/core/components/features/project/edit-project-modal';
+import { ArchiveProjectModal } from '@/core/components/projects/archive-project-modal';
+import { DeleteProjectConfirmModal } from '@/core/components/projects/delete-project-modal';
+import { EditProjectModal } from '@/core/components/projects/edit-project-modal';
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';

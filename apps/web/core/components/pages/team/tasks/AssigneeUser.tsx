@@ -1,5 +1,5 @@
 import { IEmployee } from '@/core/types/interfaces';
-import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { FC } from 'react';
 
 const AssigneeUser: FC<{ users: IEmployee[] }> = ({ users }) => {

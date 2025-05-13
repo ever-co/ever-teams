@@ -5,7 +5,7 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { Breadcrumb, Paginate } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
-import { DatePickerWithRange } from '@/core/components/shared/date-range-select';
+import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { MembersSelect } from '@/core/components/reports/members-select';
 import { GroupBySelect, TGroupByOption } from '@/core/components/reports/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';

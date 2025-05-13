@@ -3,10 +3,10 @@
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Avatar, Button, Text, Tooltip } from '@/core/components';
-import { CreateTeamModal } from '@/core/components/features';
 import React, { PropsWithChildren } from 'react';
 import noTeamImg from '@/public/assets/svg/no-team.svg';
 import { useTranslations } from 'next-intl';
+import { CreateTeamModal } from '../../teams/create-team-modal';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {

@@ -12,7 +12,7 @@ import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
-import { DatePicker } from '@/core/components/ui/DatePicker';
+import { DatePicker } from '@/core/components/common/date-picker';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';

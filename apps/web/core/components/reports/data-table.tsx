@@ -14,9 +14,9 @@ import {
 	useReactTable
 } from '@tanstack/react-table';
 
-import { Checkbox } from '@/core/components/ui/checkbox';
+import { Checkbox } from '@/core/components/common/checkbox';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { useTranslations } from 'next-intl';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { ProgressBar } from '@/core/components';
