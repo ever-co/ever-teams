@@ -108,6 +108,6 @@
 				"projectId": "$EXPO_PROJECT_ID"
 			}
 		},
-		"runtimeVersion": "exposdk:52.0.0"
+		"runtimeVersion": "exposdk:53.0.0"
 	}
 }
