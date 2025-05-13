@@ -2,6 +2,9 @@
 	"TITLE": "Ever Teams",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
+		"FORYOU": "Algemeen",
+		"HOME": "Startpagina",
+		"INBOX": "Postvak IN",
 		"PROJECTS": "Projecten",
 		"FAVORITES": "Favorieten",
 		"TASKS": "Taken",

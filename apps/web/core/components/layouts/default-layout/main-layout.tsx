@@ -10,6 +10,7 @@ import AppContainer from './AppContainer';
 import GlobalHeader from './GlobalHeader';
 import GlobalFooter from './GlobalFooter';
 import { AppSidebar } from '@/core/components/app-sidebar';
+import { useElementHeight } from '@/core/hooks/common';
 
 /**
  * Props interface for the MainLayout component
@@ -119,6 +120,8 @@ export function MainLayout({
 	// Refs for dynamic height calculations
 	const headerRef = useRef<HTMLDivElement>(null);
 	const footerRef = useRef<HTMLDivElement>(null);
+	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
+	const footerHeight = useElementHeight<HTMLDivElement | null>(footerRef);
 
 	return (
 		<AppContainer title={title}>
@@ -161,14 +164,14 @@ export function MainLayout({
 									style={{
 										/*
 								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,*/
-										marginBottom: `${isFooterFixed ? (footerRef?.current?.offsetHeight ? footerRef.current.offsetHeight : 96) : 0}px`
+										marginBottom: `${isFooterFixed ? footerHeight : 0}px`
 									}}
 								>
-									{headerRef?.current?.offsetHeight && (
+									{headerHeight && (
 										<div
 											className="w-full"
 											style={{
-												height: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight + (mainHeaderSlot ? -30 : 0) : 95}px`
+												height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
 											}}
 										></div>
 									)}

@@ -2,6 +2,9 @@
 	"TITLE": "Ever Отбори",
 	"sidebar": {
 		"DASHBOARD": "Табло",
+		"FORYOU": "Общи",
+		"HOME": "Начало",
+		"INBOX": "Входящи",
 		"PROJECTS": "Проекти",
 		"FAVORITES": "Любими",
 		"TASKS": "Задачи",

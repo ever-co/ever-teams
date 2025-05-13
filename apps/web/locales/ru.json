@@ -2,6 +2,9 @@
 	"TITLE": "Ever Teams",
 	"sidebar": {
 		"DASHBOARD": "Панель управления",
+		"FORYOU": "Общие",
+		"HOME": "Главная",
+		"INBOX": "Входящие",
 		"PROJECTS": "Проекты",
 		"FAVORITES": "Избранное",
 		"TASKS": "Задачи",
