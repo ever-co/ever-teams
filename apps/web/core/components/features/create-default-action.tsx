@@ -50,7 +50,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 								fill="currentColor"
 							/>
 						</svg>
-						Create
+						Quick Create
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent

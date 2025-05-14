@@ -64,6 +64,7 @@ export function Navbar({
 	) : (
 		<nav className={cn('flex gap-3 items-center', className)}>
 			<DefaultCreateAction publicTeam={publicTeam} />
+
 			{!notFound && (
 				<div className="flex ml-auto items-center gap-8 min-h-[90px]">
 					{publicTeam && (

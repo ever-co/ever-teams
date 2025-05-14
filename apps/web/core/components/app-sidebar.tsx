@@ -34,6 +34,7 @@ import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team'
 import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from './icons';
 import { NavHome } from './nav-home';
+import { SidebarCommandForm } from './sidebar-command-form';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -360,12 +361,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						'absolute  top-[8%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
 					)}
 				/>
-				<SidebarHeader className={cn('mb-[1.4rem]', state === 'collapsed' ? 'items-center' : '')}>
+				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
 					<WorkspacesSwitcher workspaces={data.workspaces} />
-				</SidebarHeader>
-				<SidebarContent>
+
+					<SidebarCommandForm />
 					<NavHome homeData={data.home} />
 					<SidebarSeparator />
+				</SidebarHeader>
+				<SidebarContent>
 					<NavMain items={data.navMain} />
 				</SidebarContent>
 
