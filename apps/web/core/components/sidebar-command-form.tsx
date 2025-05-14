@@ -24,8 +24,8 @@ export function SidebarCommandForm({ ...props }: React.ComponentProps<'form'>) {
 							<CommandIcon className="absolute -translate-y-1/2 opacity-50 pointer-events-none select-none left-2 top-1/2 size-4" />
 						</div>
 						<div className="absolute inset-y-0 flex items-center justify-center pointer-events-none end-1 pe-2 text-muted-foreground">
-							<kbd className="inline-flex size-5 max-h-full items-center justify-center rounded bg-background shadow-xs px-1 font-[inherit] text-[0.625rem] font-medium text-muted-foreground/70">
-								<span className="text-xs">⌘</span>/
+							<kbd className="inline-flex size-5 max-h-full items-center justify-center rounded bg-background shadow-xs p-1 font-[inherit] font-medium text-xs text-muted-foreground/70">
+								⌘K
 							</kbd>
 						</div>
 					</SidebarGroupContent>

@@ -365,7 +365,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<WorkspacesSwitcher workspaces={data.workspaces} />
 
 					<SidebarSeparator />
-					<SidebarCommandModal />
+					<SidebarCommandModal publicTeam={publicTeam!} />
 					<NavHome homeData={data.home} />
 					<SidebarSeparator />
 				</SidebarHeader>
