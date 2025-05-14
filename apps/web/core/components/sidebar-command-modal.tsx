@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FC, useEffect, useState, useCallback, useMemo } from 'react';
+import { FC, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -20,7 +20,6 @@ import {
 	AddTeamIcon,
 	AddUserIcon,
 	DashboardIcon,
-	HomeIcon,
 	MoonIcon,
 	ProfileIcon,
 	SettingsIcon,
@@ -38,20 +37,12 @@ import { InviteFormModal } from './features/team/invite/invite-form-modal';
 import { CreateProjectModal } from './features/project/create-project-modal';
 import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
-import { KanbanIcon } from 'lucide-react';
+import { ArrowUpRightIcon } from 'lucide-react';
+import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 
 // Definition of types to improve readability and security
 type KeyModifier = 'ctrl' | 'alt' | 'shift' | 'meta' | null;
 type ShortcutAction = () => void;
-
-interface CommandShortcutConfig {
-	sequence: string[];
-	modifiers?: KeyModifier[];
-	description: string;
-	shortcutDisplay: string;
-	action: ShortcutAction;
-	icon: React.ReactNode;
-}
 
 interface CommandGroupConfig {
 	heading: string;
@@ -94,14 +85,13 @@ const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutActi
 );
 export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam }) => {
 	const [open, setOpen] = useState(false);
-	const [keySequence, setKeySequence] = useState<string[]>([]);
-	const [keyTimeout, setKeyTimeout] = useState<NodeJS.Timeout | null>(null);
 
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const { setTheme, resolvedTheme } = useTheme();
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const profileLink = `/profile/${user?.id}?name=${name || ''}`;
+	const timesheetLink = `/timesheet/${user?.id}?name=${encodeURIComponent(name || '')}`;
 	const router = useRouter();
 
 	// Custom hooks for modals
@@ -124,16 +114,22 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 			navigateToSearchTasks: () => console.log('Searching tasks'),
 			navigateToSearchTeams: () => console.log('Searching teams'),
 			navigateToSearchProjects: () => console.log('Searching projects'),
+			navigateToTimesheetsReport: () => router.push(timesheetLink),
+			navigateToWeeklyLimitReport: () => router.push('/reports/weekly-limit'),
+			navigateToTimeAndActivityReport: () => router.push('/time-and-activity'),
+			navigateToMyTasks: () => router.push(profileLink),
+			navigateToMyTeamsTasks: () => router.push('/teams/tasks'),
+			navigateToProjects: () => router.push('/projects'),
 			navigateToKanban: () => router.push('/kanban'),
 			navigateToHome: () => router.push('/'),
 			assignToMe: () => console.log('Assigning to me'),
 			createTask: () => createTaskModal.openModal(),
-			createTeam: () => inviteModal.openModal(),
+			createTeam: () => teamModal.openModal(),
 			createProject: () => createProjectModal.openModal(),
 			inviteUser: () => inviteModal.openModal(),
 			toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
 		}),
-		[router, createTaskModal, inviteModal, createProjectModal]
+		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
 	);
 
 	// Centralized configuration of commands and shortcuts
@@ -234,12 +230,36 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 				heading: 'Navigation',
 				commands: [
 					{
+						sequence: ['m', 't'],
+						modifiers: ['ctrl'],
+						description: 'Go to My Tasks',
+						shortcutDisplay: '⌘MT',
+						action: actions.navigateToMyTasks,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
+						sequence: ['t', 't'],
+						modifiers: ['ctrl'],
+						description: "Go to My Team's Tasks",
+						shortcutDisplay: '⌘TT',
+						action: actions.navigateToMyTeamsTasks,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
+						sequence: ['t', 'p'],
+						modifiers: ['ctrl'],
+						description: 'Go to Projects',
+						shortcutDisplay: '⌘TP',
+						action: actions.navigateToProjects,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
 						sequence: ['k'],
 						modifiers: ['ctrl'],
 						description: 'Go to Kanban',
 						shortcutDisplay: '⌘K',
 						action: actions.navigateToKanban,
-						icon: <KanbanIcon />
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
 					},
 					{
 						sequence: ['h'],
@@ -247,7 +267,31 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 						description: 'Go to Home Page',
 						shortcutDisplay: '⌘H',
 						action: actions.navigateToHome,
-						icon: <HomeIcon />
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
+						sequence: ['t', 's'],
+						modifiers: ['ctrl'],
+						description: 'Go to Timesheets Report',
+						shortcutDisplay: '⌘TS',
+						action: actions.navigateToTimesheetsReport,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
+						sequence: ['w', 'l'],
+						modifiers: ['ctrl'],
+						description: 'Go to Weekly Limit Report',
+						shortcutDisplay: '⌘WL',
+						action: actions.navigateToWeeklyLimitReport,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+					},
+					{
+						sequence: ['t', 'a'],
+						modifiers: ['ctrl'],
+						description: 'Go to Time & Activity Report',
+						shortcutDisplay: '⌘TA',
+						action: actions.navigateToTimeAndActivityReport,
+						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
 					}
 				]
 			},
@@ -276,109 +320,25 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 		[actions]
 	);
 
-	// Create a lookup map for shortcuts for more efficient O(1) search
-	const shortcutMap = useMemo(() => {
-		const map = new Map<string, ShortcutAction>();
-
-		// Special shortcut for opening/closing the palette
-		map.set('j|ctrl', () => setOpen((prev) => !prev));
-
-		// Add all command shortcuts to the map
+	// Extract all shortcut configurations for the global hook
+	const allShortcuts = useMemo(() => {
+		const shortcuts: CommandShortcutConfig[] = [];
 		commandGroups.forEach((group) => {
 			group.commands.forEach((command) => {
-				// Construction of the unique key for this shortcut
-				const modifierString = command.modifiers?.length
-					? command.modifiers.includes('ctrl')
-						? '|ctrl'
-						: ''
-					: '';
-
-				// Handling of unique key shortcuts
-				if (command.sequence.length === 1) {
-					map.set(`${command.sequence[0]}${modifierString}`, command.action);
-				}
-				// Handling of two-key sequences
-				else if (command.sequence.length === 2) {
-					map.set(`${command.sequence[0]}|${command.sequence[1]}${modifierString}`, command.action);
-				}
+				shortcuts.push(command);
 			});
 		});
-
-		return map;
+		return shortcuts;
 	}, [commandGroups]);
 
-	// Optimized keyboard shortcut handler
-	const handleKeyboardShortcut = useCallback(
-		(e: KeyboardEvent) => {
-			const modifier = e.metaKey || e.ctrlKey;
-			const key = e.key.toLowerCase();
-			const modifierString = modifier ? '|ctrl' : '';
+	// Use our global keyboard shortcut hook
+	useKeyboardShortcuts(allShortcuts, setOpen);
 
-			// Shortcut for opening/closing the palette
-			const toggleKey = `j${modifierString}`;
-			if (shortcutMap.has(toggleKey) && key === 'j' && modifier) {
-				e.preventDefault();
-				shortcutMap.get(toggleKey)!();
-				return;
-			}
-
-			// If the palette is closed, do not process other shortcuts
-			if (!open) return;
-
-			// Unique key shortcuts (with potential modifiers)
-			const singleKeyShortcut = `${key}${modifierString}`;
-			if (shortcutMap.has(singleKeyShortcut)) {
-				e.preventDefault();
-				const action = shortcutMap.get(singleKeyShortcut)!;
-				executeAction(action);
-				return;
-			}
-
-			// Handling of two-key sequences
-			if (keySequence.length === 1) {
-				const sequenceKey = `${keySequence[0]}|${key}${modifierString}`;
-
-				if (shortcutMap.has(sequenceKey)) {
-					e.preventDefault();
-					const action = shortcutMap.get(sequenceKey)!;
-					executeAction(action);
-
-					// Reset the sequence
-					if (keyTimeout) clearTimeout(keyTimeout);
-					setKeySequence([]);
-					setKeyTimeout(null);
-					return;
-				}
-			}
-
-			// If no shortcut was triggered, add the key to the sequence
-			// and set a timeout to reset it
-			if (!modifier) {
-				setKeySequence([key]);
-
-				if (keyTimeout) clearTimeout(keyTimeout);
-				const timeout = setTimeout(() => {
-					setKeySequence([]);
-					setKeyTimeout(null);
-				}, 1000);
-				setKeyTimeout(timeout);
-			}
-		},
-		[open, keySequence, keyTimeout, shortcutMap, executeAction]
-	);
-
-	// Effect to attach and detach event listeners
-	useEffect(() => {
-		document.addEventListener('keydown', handleKeyboardShortcut);
-		return () => {
-			document.removeEventListener('keydown', handleKeyboardShortcut);
-			if (keyTimeout) clearTimeout(keyTimeout);
-		};
-	}, [handleKeyboardShortcut, keyTimeout]);
-
+	// Keyboard shortcut in current component only for Ctrl+K
 	React.useEffect(() => {
 		const down = (e: KeyboardEvent) => {
-			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+			const isToggleKey = e.key === 'k' && (e.metaKey || e.ctrlKey);
+			if (isToggleKey) {
 				e.preventDefault();
 				setOpen((open) => !open);
 			}

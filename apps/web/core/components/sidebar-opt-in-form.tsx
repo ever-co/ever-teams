@@ -72,7 +72,7 @@ export function SidebarOptInForm() {
 
 	return state == 'expanded' ? (
 		<Form {...form}>
-			<Card className="p-1 mt-auto shadow-none">
+			<Card className="p-1 mt-auto shadow-none bg-light--theme-light dark:bg-dark--theme-light ">
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<CardHeader className="flex flex-col gap-1 p-4 pb-0">
 						<CardTitle className="text-sm font-medium">{t('common.SUBSCRIBE_NEWSLETTER')}</CardTitle>
@@ -88,7 +88,7 @@ export function SidebarOptInForm() {
 										<SidebarInput
 											type="email"
 											placeholder="Email"
-											className="placeholder:text-xs"
+											className="border-gray-200 placeholder:text-xs dark:bg-gray-800 dark:border-gray-700"
 											{...field}
 										/>
 									</FormControl>

@@ -30,7 +30,7 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
 			aria-describedby="Command Dialog"
 		>
 			<DialogContent
-				className="p-0 overflow-hidden shadow-lg  dark:bg-[#0a0a0ab3] backdrop-blur"
+				className="p-0 overflow-hidden shadow-lg bg-light--theme-light dark:bg-dark--theme-light backdrop-blur-3xl"
 				aria-label="Command Dialog"
 				aria-labelledby="Command Dialog"
 				aria-describedby="Command Dialog"
