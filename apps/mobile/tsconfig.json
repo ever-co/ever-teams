@@ -15,10 +15,8 @@
 		"lib": ["esnext", "dom"],
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"baseUrl": ".",
+		"types": ["@hapi/shot", "jest"],
 		"paths": {
-			"app/*": ["./app/*"],
-			"assets/*": ["./assets/*"],
 			"@env": ["./node_modules/react-native-dotenv"]
 		}
 	},
