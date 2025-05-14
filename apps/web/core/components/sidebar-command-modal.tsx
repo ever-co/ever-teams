@@ -41,7 +41,6 @@ import { ArrowUpRightIcon } from 'lucide-react';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 
 // Definition of types to improve readability and security
-type KeyModifier = 'ctrl' | 'alt' | 'shift' | 'meta' | null;
 type ShortcutAction = () => void;
 
 interface CommandGroupConfig {
