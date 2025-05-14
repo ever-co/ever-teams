@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 
-import { cn } from '@/core/lib/helpers';
+import { cn } from 'core/lib/helpers';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -21,7 +21,7 @@ const DialogOverlay = React.forwardRef<
 	<DialogPrimitive.Overlay
 		ref={ref}
 		className={cn(
-			'fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+			'fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
 			className
 		)}
 		{...props}
@@ -67,7 +67,11 @@ const DialogTitle = React.forwardRef<
 	React.ElementRef<typeof DialogPrimitive.Title>,
 	React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-	<DialogPrimitive.Title ref={ref} className={cn('text-lg font-semibold leading-none', className)} {...props} />
+	<DialogPrimitive.Title
+		ref={ref}
+		className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+		{...props}
+	/>
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 

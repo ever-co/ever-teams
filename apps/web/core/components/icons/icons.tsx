@@ -500,3 +500,125 @@ export const CommandIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+export const UserCircleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M18.14 21.62c-.88.26-1.92.38-3.14.38H9c-1.22 0-2.26-.12-3.14-.38.22-2.6 2.89-4.65 6.14-4.65 3.25 0 5.92 2.05 6.14 4.65Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15 2H9C4 2 2 4 2 9v6c0 3.78 1.14 5.85 3.86 6.62.22-2.6 2.89-4.65 6.14-4.65 3.25 0 5.92 2.05 6.14 4.65C20.86 20.85 22 18.78 22 15V9c0-5-2-7-7-7Zm-3 12.17c-1.98 0-3.58-1.61-3.58-3.59C8.42 8.6 10.02 7 12 7s3.58 1.6 3.58 3.58-1.6 3.59-3.58 3.59Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15.58 10.58c0 1.98-1.6 3.59-3.58 3.59s-3.58-1.61-3.58-3.59C8.42 8.6 10.02 7 12 7s3.58 1.6 3.58 3.58Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const AddTaskIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path
+			d="M10 12.5H15M12.5 15V10"
+			stroke="currentColor"
+			strokeWidth="0.75"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M16 4.02C19.33 4.2 21 5.43 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44 4.67 4.2 8 4.02"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const TasksIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M12.37 8.88h5.25M6.38 8.88l.75.75 2.25-2.25M12.37 15.88h5.25M6.38 15.88l.75.75 2.25-2.25"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M9 22h6c5 0 7-2 7-7V9c0-5-2-7-7-7H9C4 2 2 4 2 9v6c0 5 2 7 7 7Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const AddIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M6 12h12M12 18V6"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const AddTeamIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={32} height={32} viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path
+			d="M583.333 400C684.586 400 766.667 482.081 766.667 583.333C766.667 684.586 684.586 766.667 583.333 766.667C482.081 766.667 400 684.586 400 583.333C400 482.081 482.081 400 583.333 400ZM583.333 466.641L580.337 466.91C573.534 468.144 568.17 473.509 566.935 480.312L566.667 483.308L566.655 566.641L483.255 566.667L480.259 566.935C473.456 568.17 468.092 573.534 466.857 580.337L466.588 583.333L466.857 586.329C468.092 593.132 473.456 598.497 480.259 599.731L483.255 600L566.688 599.974L566.704 683.449L566.972 686.445C568.207 693.248 573.571 698.613 580.374 699.848L583.37 700.116L586.366 699.848C593.169 698.613 598.534 693.248 599.768 686.445L600.037 683.449L600.022 599.974L683.486 600L686.481 599.731C693.284 598.497 698.649 593.132 699.884 586.329L700.152 583.333L699.884 580.337C698.649 573.534 693.284 568.17 686.481 566.935L683.486 566.667L599.988 566.641L600 483.308L599.731 480.312C598.497 473.509 593.132 468.144 586.329 466.91L583.333 466.641ZM475.134 333.333C502.952 333.333 527.233 348.478 540.181 370.973C522.399 374.561 505.437 380.32 489.55 387.96C485.495 385.032 480.513 383.333 475.134 383.333H325.064C311.257 383.333 300.064 394.526 300.064 408.333V549.965C300.064 596.995 332.519 636.446 376.254 647.14C382.015 665.993 390.325 683.76 400.753 700.04L400.099 700C317.237 700 250.064 632.827 250.064 549.965V408.333C250.064 366.912 283.643 333.333 325.064 333.333H475.134ZM246.882 333.342C233.726 347.055 224.142 364.221 219.627 383.345L141.667 383.333C127.86 383.333 116.667 394.526 116.667 408.333V499.959C116.667 546.005 153.995 583.333 200.041 583.333C206.708 583.333 213.191 582.551 219.405 581.073C222.229 597.87 227.385 613.891 234.496 628.801C223.526 631.768 211.966 633.333 200.041 633.333C126.381 633.333 66.6667 573.619 66.6667 499.959V408.333C66.6667 368.638 97.5054 336.145 136.532 333.506L141.667 333.333L246.882 333.342ZM658.333 333.333C699.755 333.333 733.333 366.912 733.333 408.333L733.361 427.012C694.428 389.638 641.563 366.667 583.333 366.667L575.16 366.818C570.033 354.305 562.556 342.972 553.317 333.342L658.333 333.333ZM616.667 133.333C662.69 133.333 700 170.643 700 216.667C700 262.69 662.69 300 616.667 300C570.643 300 533.333 262.69 533.333 216.667C533.333 170.643 570.643 133.333 616.667 133.333ZM400 100C455.228 100 500 144.772 500 200C500 255.228 455.228 300 400 300C344.772 300 300 255.228 300 200C300 144.772 344.772 100 400 100ZM183.333 133.333C229.357 133.333 266.667 170.643 266.667 216.667C266.667 262.69 229.357 300 183.333 300C137.31 300 100 262.69 100 216.667C100 170.643 137.31 133.333 183.333 133.333ZM616.667 183.333C598.257 183.333 583.333 198.257 583.333 216.667C583.333 235.076 598.257 250 616.667 250C635.076 250 650 235.076 650 216.667C650 198.257 635.076 183.333 616.667 183.333ZM400 150C372.386 150 350 172.386 350 200C350 227.614 372.386 250 400 250C427.614 250 450 227.614 450 200C450 172.386 427.614 150 400 150ZM183.333 183.333C164.924 183.333 150 198.257 150 216.667C150 235.076 164.924 250 183.333 250C201.743 250 216.667 235.076 216.667 216.667C216.667 198.257 201.743 183.333 183.333 183.333Z"
+			fill="currentColor"
+		/>
+	</svg>
+);
+
+export const ProfileIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M12.16 10.87c-.1-.01-.22-.01-.33 0a4.42 4.42 0 0 1-4.27-4.43C7.56 3.99 9.54 2 12 2a4.435 4.435 0 0 1 .16 8.87ZM7.16 14.56c-2.42 1.62-2.42 4.26 0 5.87 2.75 1.84 7.26 1.84 10.01 0 2.42-1.62 2.42-4.26 0-5.87-2.74-1.83-7.25-1.83-10.01 0Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const SettingsIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M9 22h6c5 0 7-2 7-7V9c0-5-2-7-7-7H9C4 2 2 4 2 9v6c0 5 2 7 7 7Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15.57 18.5v-3.9M15.57 7.45V5.5M15.57 12.65a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2ZM8.43 18.5v-1.95M8.43 9.4V5.5M8.43 16.55a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
