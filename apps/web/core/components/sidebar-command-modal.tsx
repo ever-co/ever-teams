@@ -208,9 +208,8 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 				commands: [
 					{
 						sequence: ['c', 'p'],
-						modifiers: ['ctrl'],
 						description: 'Create New Project',
-						shortcutDisplay: '⌘CP',
+						shortcutDisplay: 'CP',
 						action: actions.createProject,
 						icon: <AddIcon />
 					},
