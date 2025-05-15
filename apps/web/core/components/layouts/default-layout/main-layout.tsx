@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/core/lib/helpers';
-import { PropsWithChildren, useRef } from 'react';
+import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/ui/resizable';
@@ -11,6 +11,8 @@ import GlobalHeader from './GlobalHeader';
 import GlobalFooter from './GlobalFooter';
 import { AppSidebar } from '@/core/components/app-sidebar';
 import { useElementHeight } from '@/core/hooks/common';
+import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
+import { usePathname } from 'next/navigation';
 
 /**
  * Props interface for the MainLayout component
@@ -104,7 +106,6 @@ type Props = PropsWithChildren<{
 export function MainLayout({
 	children,
 	title,
-	showTimer,
 	publicTeam,
 	notFound,
 	className,
@@ -117,11 +118,29 @@ export function MainLayout({
 	// Global state for full-width mode
 	const fullWidth = useAtomValue(fullWidthState);
 
+	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
+	const { activeTimer, setActiveTimer } = useActiveTimer();
+	const path = usePathname();
 	// Refs for dynamic height calculations
 	const headerRef = useRef<HTMLDivElement>(null);
 	const footerRef = useRef<HTMLDivElement>(null);
 	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
 	const footerHeight = useElementHeight<HTMLDivElement | null>(footerRef);
+	useEffect(() => {
+		console.log('Header height:', headerHeight, 'Path:', path);
+
+		if (!headerHeight) return;
+
+		const shouldActivateTimer = path !== '/' || headerHeight <= 100;
+
+		setActiveTimer((prev) => {
+			if (prev !== shouldActivateTimer) {
+				return shouldActivateTimer;
+			}
+			return prev;
+		});
+		setShouldRenderTimer(true);
+	}, [path, headerHeight]);
 
 	return (
 		<AppContainer title={title}>
@@ -134,7 +153,7 @@ export function MainLayout({
 						<GlobalHeader
 							ref={headerRef}
 							fullWidth={fullWidth}
-							showTimer={showTimer}
+							showTimer={shouldRenderTimer && activeTimer}
 							publicTeam={publicTeam || false}
 							notFound={notFound || false}
 							mainHeaderSlot={mainHeaderSlot}
