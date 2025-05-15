@@ -1,5 +1,5 @@
-import { Avatar } from '@/core/components';
 import Image from 'next/image';
+import { Avatar } from '../duplicated-components/avatar';
 
 interface ProjectCellProps {
 	imageUrl: string;

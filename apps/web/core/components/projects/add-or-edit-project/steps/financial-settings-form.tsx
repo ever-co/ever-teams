@@ -1,4 +1,4 @@
-import { Button, InputField } from '@/core/components';
+import { Button } from '@/core/components';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
 import { cn } from '@/core/lib/helpers';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
+import { InputField } from '@/core/components/duplicated-components/_input';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;

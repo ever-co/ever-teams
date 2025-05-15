@@ -1,27 +1,27 @@
 'use client';
-import { Breadcrumb, Container, Paginate } from '@/core/components';
+import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-
 import { fullWidthState } from '@/core/stores/fullWidth';
-
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { ITeamTask } from '@/core/types/interfaces';
 
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
-import StatusBadge from '@/core/components/pages/team/tasks/StatusBadge';
 import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/common/input';
 import { Check, Search, Settings2 } from 'lucide-react';
-import { Button } from '@/core/components/common/button2';
-import { TaskTable } from '@/core/components/pages/team/tasks/TaskTable';
-import { columns, hidableColumnNames } from '@/core/components/pages/team/tasks/columns';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Menu, Transition } from '@headlessui/react';
+import { columns, hidableColumnNames } from '@/core/components/pages/teams/team/tasks/columns';
+import StatusBadge from '@/core/components/pages/teams/team/tasks/status-badge';
+import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { Paginate } from '@/core/components/duplicated-components/_pagination';
+import { Button } from '@/core/components/duplicated-components/_button';
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();

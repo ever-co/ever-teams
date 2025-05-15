@@ -1,10 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Tooltip } from '@/core/components';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
 	status: ITimerStatusEnum;

@@ -5,7 +5,7 @@ import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, ColorPicker, InputField, Modal, Text } from '@/core/components';
+import { Button, ColorPicker, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
@@ -14,8 +14,9 @@ import { generateIconList } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
-import { StandardTaskStatusDropDown } from '@/core/components/features';
 import { DeleteTaskStatusConfirmationModal } from '@/core/components/tasks/delete-status-confirmation-modal';
+import { StandardTaskStatusDropDown } from './task-status';
+import { InputField } from '../duplicated-components/_input';
 
 type StatusForm = {
 	formOnly?: boolean;

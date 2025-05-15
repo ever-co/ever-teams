@@ -1,5 +1,5 @@
-import { Modal, Card, Text } from '@/core/components';
-import { Button } from '@/core/components/common/button2';
+import { Modal, Text } from '@/core/components';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo } from 'react';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAuthenticateUser, useTeamTasks, useTimer } from '@/core/hooks';
 import { usePathname } from 'next/navigation';
+import { Card } from '../duplicated-components/card';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;

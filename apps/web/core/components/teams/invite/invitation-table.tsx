@@ -4,11 +4,11 @@ import { usePagination } from '@/core/hooks/common/use-pagination';
 import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
-import { Paginate } from '@/core/components/common/pagination2';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
+import { Paginate } from '../../duplicated-components/_pagination';
 
 export const InvitationTable = ({ invitations }: { invitations: (IInvitation | IRequestToJoin)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button } from '@/core/components/common/button2';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces';
 import { MultiSelect } from '../common/multi-select';
+import { Button } from '../duplicated-components/_button';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: IOrganizationTeamList[];

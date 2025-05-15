@@ -2,7 +2,7 @@
 
 import { Provider as JotaiProvider } from 'jotai';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
-import { JitsuRoot } from '@/core/components/collaborate/JitsuRoot';
+import { JitsuRoot } from '@/core/components/collaborate/jitsu-root';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';

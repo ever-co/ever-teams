@@ -3,13 +3,14 @@
 import { useQuery } from '@/core/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Card, Dropdown, DropdownItem } from '@/core/components';
+import { Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
+import { Card } from '../duplicated-components/card';
 
 export function TaskLinkedIssue({
 	task,

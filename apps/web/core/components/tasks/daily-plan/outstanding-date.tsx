@@ -3,7 +3,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
-import { HorizontalSeparator } from '@/core/components';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
@@ -11,6 +10,7 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import { IDailyPlan, IUser } from '@/core/types/interfaces';
+import { HorizontalSeparator } from '../../duplicated-components/separator';
 
 interface IOutstandingFilterDate {
 	profile: any;

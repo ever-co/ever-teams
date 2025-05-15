@@ -1,7 +1,7 @@
 import { getOrganizationIdCookie } from '@/core/lib/helpers/index';
 import { useTaskStatus } from '@/core/hooks';
 import { ITaskStatusItemList, ITaskStatusOrder } from '@/core/types/interfaces';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/common/spinner';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { SixSquareGridIcon } from 'assets/svg';

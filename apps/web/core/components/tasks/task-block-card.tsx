@@ -16,10 +16,9 @@ import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/i
 import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
 import CircularProgress from '@/core/components/svgs/circular-progress';
-import { HorizontalSeparator } from '@/core/components';
-// import { TaskStatus } from '@app/constants';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
+import { HorizontalSeparator } from '../duplicated-components/separator';
 
 interface TaskItemProps {
 	task: ITeamTask;

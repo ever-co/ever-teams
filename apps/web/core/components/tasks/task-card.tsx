@@ -32,19 +32,11 @@ import {
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
-import {
-	Card,
-	Divider,
-	// ConfirmDropdown,
-	SpinnerLoader,
-	Text,
-	VerticalSeparator
-} from '@/core/components';
+import { Divider, SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
-import { TaskEstimateInfo } from '../teams/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskNameInfoDisplay } from './task-displays';
@@ -61,6 +53,9 @@ import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { SetAtom } from '@/core/types/generics';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
+import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
+import { Card } from '../duplicated-components/card';
+import { VerticalSeparator } from '../duplicated-components/separator';
 
 type Props = {
 	active?: boolean;

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, InputField } from '@/core/components';
+import { Button } from '@/core/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@/core/components/common/calendar';
 import { Listbox, Popover } from '@headlessui/react';
@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
 import { getInitialValue } from '../utils';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
+import { InputField } from '@/core/components/duplicated-components/_input';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 

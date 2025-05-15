@@ -1,8 +1,8 @@
+import { MC_EditableValues } from '@/core/types/interfaces';
 import { IUser } from '@/core/types/interfaces/IUserData';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { ChangeEventHandler } from 'react';
-import { MC_EditableValues } from '../types';
 
 export function MemberInfo({
 	member,

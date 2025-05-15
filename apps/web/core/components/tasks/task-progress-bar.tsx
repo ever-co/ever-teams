@@ -1,9 +1,9 @@
 import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { timerSecondsState } from '@/core/stores';
-import { ProgressBar } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
+import { ProgressBar } from '../duplicated-components/_progress-bar';
 
 export function TaskProgressBar({
 	isAuthUser,

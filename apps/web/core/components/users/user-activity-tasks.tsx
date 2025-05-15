@@ -1,6 +1,6 @@
 import { I_UserProfilePage } from '@/core/hooks';
 import { TaskCard } from '../tasks/task-card';
-import { I_TaskFilter } from '../tasks/task-filters';
+import { I_TaskFilter } from '../pages/profile/task-filters';
 
 type Props = {
 	tabFiltered: I_TaskFilter;

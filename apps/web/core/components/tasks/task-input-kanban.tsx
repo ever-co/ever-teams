@@ -14,13 +14,16 @@ import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@/core/types/inte
 import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, Card, InputField, SpinnerLoader, Tooltip } from '@/core/components';
+import { Button, SpinnerLoader } from '@/core/components';
 import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { TaskLabels } from './task-labels';
+import { InputField } from '../duplicated-components/_input';
+import { Card } from '../duplicated-components/card';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
 	task?: Nullable<ITeamTask>;

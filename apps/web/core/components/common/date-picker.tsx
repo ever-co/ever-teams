@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { cn } from '../../lib/helpers';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { DayPicker } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';

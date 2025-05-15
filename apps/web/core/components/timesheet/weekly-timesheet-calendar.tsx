@@ -3,9 +3,9 @@ import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } fr
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { TotalDurationByDate } from '@/core/components/features';
 import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
+import { TotalDurationByDate } from '../tasks/task-displays';
 
 export type WeeklyCalendarProps = {
 	t: TranslationHooks;

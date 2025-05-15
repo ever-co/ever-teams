@@ -1,4 +1,4 @@
-import { Button, VerticalSeparator } from '@/core/components';
+import { Button } from '@/core/components';
 import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { RolesEnum } from '@/core/types/interfaces/IRoles';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
+import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;

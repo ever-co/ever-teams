@@ -1,4 +1,4 @@
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/common/card';
 import { SidebarInput, useSidebar } from '@/core/components/common/sidebar';
 

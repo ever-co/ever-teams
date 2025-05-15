@@ -2,16 +2,14 @@
 import React, { useEffect } from 'react';
 import { useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import NoTeam from '@/core/components/pages/main/no-team';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Card, Container } from '@/core/components';
-import { AuthUserTaskInput, TeamMembers, Timer, UnverifiedEmail } from '@/core/components/features';
+import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
-import ChatwootWidget from '@/core/components/integrations/chatwoot';
+import ChatwootWidget from '@/core/components/integration/chatwoot';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
@@ -19,13 +17,20 @@ import '@/styles/globals.css';
 import { useAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
-import HeaderTabs from '@/core/components/pages/main/header-tabs';
+import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from '@/core/components/teams/team-member-header';
 import { TeamOutstandingNotifications } from '@/core/components/teams/team-outstanding-notifications';
 import { TeamInvitations } from '@/core/components/teams/team-invitations';
+import NoTeam from '@/core/components/common/no-team';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { UnverifiedEmail } from '@/core/components/common/unverified-email';
+import { TeamMembers } from '@/core/components/pages/teams/team/team-members';
+import { Card } from '@/core/components/duplicated-components/card';
+import { Timer } from '@/core/components/timer/timer';
+import { AuthUserTaskInput } from '@/core/components/auth/auth-user-task-input';
 
 function MainPage() {
 	const t = useTranslations();

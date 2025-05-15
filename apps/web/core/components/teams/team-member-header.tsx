@@ -1,10 +1,10 @@
 import { IssuesView } from '@/core/constants/config/constants';
-import { UserTeamCardHeader } from './user-team-card/task-skeleton';
-import { UserTeamBlockHeader } from './user-team-block/user-team-block-header';
+import { UserTeamCardHeader } from '../pages/teams/team/team-members-views/team-members-header';
 import { Container } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import UserTeamTableHeader from './user-team-table/user-team-table-header';
+import UserTeamTableHeader from '../pages/teams/team/team-members-views/user-team-table/user-team-table-header';
+import { UserTeamBlockHeader } from '../pages/teams/team/team-members-views/user-team-block/user-team-block-header';
 
 function TeamMemberHeader({ view }: { view: IssuesView }) {
 	const fullWidth = useAtomValue(fullWidthState);

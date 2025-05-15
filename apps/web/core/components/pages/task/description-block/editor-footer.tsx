@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { slateToHtml } from 'slate-serializers';
-import { configSlateToHtml } from './editor-components/serializerConfigurations';
+import { configSlateToHtml } from '../../../../lib/helpers/text-editor-serializer-configurations';
 import { useTranslations } from 'next-intl';
 
 interface IDFooterProps {

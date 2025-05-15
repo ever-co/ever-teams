@@ -2,7 +2,7 @@
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { DateRange } from 'react-day-picker';

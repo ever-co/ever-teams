@@ -1,8 +1,8 @@
 // import { auto } from '@popperjs/core';
+import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
-import { Avatar } from '@/core/components';
 import stc from 'string-to-color';
 
 type Props = {

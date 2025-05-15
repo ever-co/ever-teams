@@ -10,14 +10,16 @@ import {
 	useTimerView
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '../common/image-overlapper';
-import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from '@/core/components/features';
 import Link from 'next/link';
 import CircularProgress from '@/core/components/svgs/circular-progress';
-import { HorizontalSeparator } from '../common/separator1';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { activeTeamTaskId } from '@/core/stores';
 import { useAtom } from 'jotai';
+import { TaskAllStatusTypes } from './task-all-status-type';
+import { TaskInput } from './task-input';
+import { TaskIssueStatus } from './task-issue';
+import { HorizontalSeparator } from '../duplicated-components/separator';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {

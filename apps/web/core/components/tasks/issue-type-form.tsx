@@ -1,8 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text } from '@/core/components';
+import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useTranslations } from 'next-intl';
+import { InputField } from '../duplicated-components/_input';
 
 export const IssueTypeForm = () => {
 	const t = useTranslations();

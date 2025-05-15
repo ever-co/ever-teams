@@ -1,5 +1,4 @@
 import { detailedTaskState } from '@/core/stores';
-import { TaskProgressBar } from '@/core/components/features';
 import { useAtom } from 'jotai';
 import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
@@ -10,6 +9,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
+import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);

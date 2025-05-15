@@ -4,8 +4,8 @@ import { useCallbackRef, useTaskEstimation } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
-import { TimeInputField } from '@/core/components';
 import { RefObject, useEffect, useRef } from 'react';
+import { TimeInputField } from '../duplicated-components/_input';
 
 type Props = {
 	_task?: Nullable<ITeamTask>;

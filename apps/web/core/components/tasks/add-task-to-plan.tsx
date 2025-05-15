@@ -12,13 +12,15 @@ import {
 } from '@/core/components/common/command';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
-import { Card, InputField, Modal, Text } from '@/core/components';
-import { Button } from '@/core/components/common/button2';
+import { Modal, Text } from '@/core/components';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { cn } from '@/core/lib/helpers';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 export function AddTaskToPlan({
 	open,

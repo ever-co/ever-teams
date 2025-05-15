@@ -3,10 +3,10 @@ import { setActiveLanguageIdCookie } from '@/core/lib/helpers/index';
 import { useLanguage, useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
-import { mapLanguageItems } from '@/core/components/features';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { mapLanguageItems } from './language-item';
 
 export function LanguageDropDownWithFlags({
 	btnClassName,

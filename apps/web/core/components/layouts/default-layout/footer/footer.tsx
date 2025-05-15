@@ -6,7 +6,7 @@ import {
 	PRIVACY_POLICY_LINK,
 	TERMS_LINK
 } from '@/core/constants/config/constants';
-import ToggleThemeContainer from '../toggleThemeBtns';
+import ToggleThemeContainer from '../toggle-theme-btns';
 import { useTranslations } from 'next-intl';
 
 const Footer = () => {

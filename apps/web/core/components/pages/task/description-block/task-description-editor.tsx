@@ -1,5 +1,10 @@
 import Toolbar from './editor-toolbar';
-import { TextEditorService, withHtml, withChecklists, isValidSlateObject } from './editor-components/TextEditorService';
+import {
+	TextEditorService,
+	withHtml,
+	withChecklists,
+	isValidSlateObject
+} from '../../../../lib/helpers/text-editor-service';
 import isHotkey from 'is-hotkey';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement, Descendant, Transforms } from 'slate';
@@ -9,10 +14,10 @@ import EditorFooter from './editor-footer';
 import { useAtom } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { htmlToSlate } from 'slate-serializers';
-import { isHtml } from './editor-components/TextEditorService';
-import LinkElement from './editor-components/LinkElement';
-import { configHtmlToSlate } from './editor-components/serializerConfigurations';
-import CheckListElement from './editor-components/CheckListElement';
+import { isHtml } from '../../../../lib/helpers/text-editor-service';
+import LinkElement from './editor-components/link-element';
+import { configHtmlToSlate } from '../../../../lib/helpers/text-editor-serializer-configurations';
+import CheckListElement from './editor-components/check-list-element';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',

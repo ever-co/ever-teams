@@ -2,20 +2,21 @@ import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/h
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
-import { HorizontalSeparator, AlertPopup } from '@/core/components';
+import { AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { IDailyPlan, IUser } from '@/core/types/interfaces';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
+import { HorizontalSeparator } from '../../duplicated-components/separator';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();

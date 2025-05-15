@@ -2,7 +2,7 @@ import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } 
 import { activeTeamTaskId } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { HorizontalSeparator, SpinnerLoader } from '@/core/components';
+import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
@@ -10,6 +10,7 @@ import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { HorizontalSeparator } from '../../duplicated-components/separator';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
 	const t = useTranslations();

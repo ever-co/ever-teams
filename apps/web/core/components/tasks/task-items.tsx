@@ -3,7 +3,7 @@ import { useTeamTasks } from '@/core/hooks';
 import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
-import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from '@/core/components';
+import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { CrossIcon, RefreshIcon } from 'assets/svg';
 import Link from 'next/link';
@@ -13,6 +13,8 @@ import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
 import { TaskStatusModal } from './task-status-modal';
 import { useTranslations } from 'next-intl';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { Avatar } from '../duplicated-components/avatar';
 
 type Props = {
 	task?: ITeamTask;

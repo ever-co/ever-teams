@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { userState } from '@/core/stores';
-import { Button, ColorPicker, InputField, Text } from '@/core/components';
+import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
@@ -14,6 +14,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTranslations } from 'next-intl';
 import { generateIconList } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
+import { InputField } from '../duplicated-components/_input';
 
 type StatusForm = {
 	formOnly?: boolean;

@@ -14,17 +14,17 @@ import {
 } from '@/core/types/interfaces';
 import { Queue, clsxm } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
-import { Card, Tooltip } from '@/core/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { PropsWithChildren, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { PropsWithChildren, RefObject, useMemo } from 'react';
 import {
-	useCallbackRef,
+	useStatusValue,
 	useSyncRef,
 	useTaskLabels,
 	useTaskPriorities,
 	useTaskSizes,
 	useTaskStatus,
+	useTaskStatusValue,
 	useTaskVersion,
 	useTeamTasks
 } from '@/core/hooks';
@@ -36,6 +36,8 @@ import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { cn } from '@/core/lib/helpers';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { Card } from '../duplicated-components/card';
 
 export type TStatusItem = {
 	id?: string;
@@ -179,101 +181,6 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		task,
 		field
 	};
-}
-
-/**
- * It returns a set of items, the selected item, and a callback to change the selected item
- * @param statusItems - This is the object that contains the status items.
- * @param {ITaskStatusStack[T] | undefined}  - The current value of the status field.
- * @param [onValueChange] - This is the callback function that will be called when the value changes.
- */
-
-export function useStatusValue<T extends ITaskStatusField>({
-	value: $value,
-	status: statusItems,
-	onValueChange,
-	multiple,
-	defaultValues = []
-}: {
-	status: TStatus<ITaskStatusStack[T]>;
-	value: ITaskStatusStack[T] | undefined;
-	defaultValues?: ITaskStatusStack[T][];
-	onValueChange?: (v: ITaskStatusStack[T], values?: ITaskStatusStack[T][]) => void;
-	multiple?: boolean;
-}) {
-	const onValueChangeRef = useCallbackRef(onValueChange);
-	const multipleRef = useSyncRef(multiple);
-
-	const items = useMemo(() => {
-		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as ITaskStatusStack[T]];
-			if (!value.value) {
-				value.value = key;
-			}
-			return {
-				...value,
-				name: key,
-				displayName: key.split('-').join(' ')
-			} as Required<TStatusItem>;
-		});
-	}, [statusItems]);
-
-	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
-	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
-	const item: TStatusItem | undefined = useMemo(
-		() => items.find((r) => r.value === value || r.name === value),
-		[items, value]
-	);
-
-	useEffect(() => {
-		if ($value !== value) {
-			setValue($value);
-		}
-	}, [$value, value]);
-
-	useEffect(() => {
-		if (defaultValues.length > 0 && JSON.stringify(values) !== JSON.stringify(defaultValues)) {
-			setValues(defaultValues);
-		}
-	}, [defaultValues, values]);
-
-	const onChange = useCallback(
-		(value: ITaskStatusStack[T]) => {
-			if (multipleRef.current) {
-				setValues((prevValues) => {
-					const newValues =
-						typeof value === 'string'
-							? prevValues.includes(value)
-								? prevValues.filter((v) => v !== value)
-								: [...prevValues, value]
-							: Array.isArray(value)
-								? value
-								: [value];
-
-					onValueChangeRef.current?.(value, newValues);
-					return newValues;
-				});
-			} else {
-				setValue(value);
-				onValueChangeRef.current?.(value, [value]);
-			}
-		},
-		[onValueChangeRef, multipleRef]
-	);
-
-	return {
-		items,
-		onChange,
-		item,
-		values
-	};
-}
-
-//! =============== Task Status ================= //
-
-export function useTaskStatusValue() {
-	const { taskStatuses } = useTaskStatus();
-	return useMapToTaskStatusValues(taskStatuses);
 }
 
 /**

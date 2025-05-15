@@ -3,7 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
 
 import { cn } from '@/core/lib/helpers';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Input } from '@/core/components/common/input';
 import Separator from '@/core/components/common/separator';
 import { Sheet, SheetContent } from '@/core/components/common/sheet';

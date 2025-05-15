@@ -1,4 +1,4 @@
-import MainLogo from './mainLogo';
+import MainLogo from './main-logo';
 import { TeamsDropDown } from '@/core/components/teams/teams-dropdown_';
 import Profile from './profile';
 

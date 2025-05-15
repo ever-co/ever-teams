@@ -1,6 +1,6 @@
+import { TaskEstimateInfo } from '@/core/components/pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { ITeamTask } from '@/core/types/interfaces';
-import { TaskEstimateInfo } from '@/core/components/teams/user-team-card/task-estimate';
 import { CellContext } from '@tanstack/react-table';
 import { get } from 'lodash';
 import { useMemo } from 'react';

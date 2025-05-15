@@ -1,8 +1,8 @@
 'use client';
 
-import { IHookModal, useModal } from '@/core/hooks';
+import { IHookModal, useModal, useStatusValue, useTaskStatusValue } from '@/core/hooks';
 import { ITaskStatusField } from '@/core/types/interfaces';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';
 import {
@@ -10,13 +10,12 @@ import {
 	TStatus,
 	TTaskStatusesDropdown,
 	TaskStatus,
-	useStatusValue,
 	useTaskLabelsValue,
 	useTaskPrioritiesValue,
-	useTaskSizesValue,
-	useTaskStatusValue
+	useTaskSizesValue
 } from './task-status';
 import { useTranslations } from 'next-intl';
+import { Card } from '../duplicated-components/card';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
 	types,

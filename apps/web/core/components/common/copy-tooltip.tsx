@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
-import { Tooltip } from './tooltip1';
 import { useState, PropsWithChildren } from 'react';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
 	text: string;

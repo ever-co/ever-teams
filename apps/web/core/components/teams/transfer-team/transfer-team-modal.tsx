@@ -1,11 +1,12 @@
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { IOrganizationTeamMember } from '@/core/types/interfaces';
 import { activeTeamManagersState } from '@/core/stores';
-import { BackButton, Button, Card, Modal, Text } from '@/core/components';
+import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { TransferTeamDropdown } from './transfer-team-dropdown';
+import { Card } from '../../duplicated-components/card';
 
 /**
  * Transfer team modal

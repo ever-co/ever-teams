@@ -5,7 +5,7 @@ import { endOfMonth, endOfWeek, format, isSameDay, startOfMonth, startOfWeek, su
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/core/lib/helpers';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { useTranslations } from 'next-intl';

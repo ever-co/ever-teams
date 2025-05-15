@@ -3,12 +3,14 @@
 import { IInviteEmail } from '@/core/types/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
-import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
+import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 import { useToast } from '@/core/hooks/common/use-toast';
 import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
+import { Card } from '../../duplicated-components/card';
+import { InputField } from '../../duplicated-components/_input';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
