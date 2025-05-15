@@ -127,8 +127,6 @@ export function MainLayout({
 	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
 	const footerHeight = useElementHeight<HTMLDivElement | null>(footerRef);
 	useEffect(() => {
-		console.log('Header height:', headerHeight, 'Path:', path);
-
 		if (!headerHeight) return;
 
 		const shouldActivateTimer = path !== '/' || headerHeight <= 100;
@@ -137,7 +135,7 @@ export function MainLayout({
 			if (prev !== shouldActivateTimer) {
 				return shouldActivateTimer;
 			}
-			return prev;
+			return !shouldActivateTimer;
 		});
 		setShouldRenderTimer(true);
 	}, [path, headerHeight]);
