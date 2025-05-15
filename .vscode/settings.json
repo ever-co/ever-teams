@@ -43,6 +43,7 @@
 		"**/yarn.lock": true
 	},
 	"docwriter.style": "Auto-detect",
+	"nxConsole.generateAiAgentRules": true,
 	"sonarlint.connectedMode.project": {
 		"connectionId": "compodoc",
 		"projectKey": "compodoc_compodoc"
