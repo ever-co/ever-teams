@@ -3,7 +3,7 @@ import { InputField } from '@/core/components';
 import { useTimezoneSettings } from '@/core/hooks';
 import moment from 'moment-timezone';
 import _debounce from 'lodash/debounce';
-import { Listbox } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { cn } from '@/core/lib/helpers';
 import { CheckIcon, ChevronDown, Search } from 'lucide-react';
 import { ScrollArea } from '@/core/components/ui/scroll-area';
@@ -66,9 +66,9 @@ export const TimezoneDropDown = ({
 	return (
 		<div className={cn('relative w-full', className)}>
 			<Listbox value={currentTimezone} onChange={handleChange}>
-				<Listbox.Button
+				<ListboxButton
 					className={cn(
-						'w-full font-medium text-sm rounded-xl  input-border flex items-center justify-between text-left px-2 py-1 h-[54px]'
+						'w-full font-medium text-sm rounded-xl  input-border flex items-center justify-between text-left px-2 py-1 h-[54px] dark:bg-dark--theme-light'
 					)}
 				>
 					<span className={cn('  capitalize', !currentTimezone?.length && 'text-gray-400')}>
@@ -77,10 +77,10 @@ export const TimezoneDropDown = ({
 					</span>
 
 					<ChevronDown size={15} className="text-gray-400 " />
-				</Listbox.Button>
-				<Listbox.Options
+				</ListboxButton>
+				<ListboxOptions
 					className={cn(
-						'absolute z-20 text-xs top-14 border space-y-1 w-full bg-white dark:bg-dark--theme rounded-md p-1 shadow-md'
+						'absolute z-20 text-xs top-14 border space-y-1 w-full bg-white dark:bg-dark--theme-light rounded-md p-1 shadow-md'
 					)}
 				>
 					<div className="w-full flex border dark:border-white rounded-md   h-[2rem] items-center px-1">
@@ -98,7 +98,7 @@ export const TimezoneDropDown = ({
 
 					<ScrollArea className="flex flex-col gap-1 h-72">
 						{filteredSearchResult?.map((item) => (
-							<Listbox.Option key={item.id} value={item.value.toLowerCase()} as="div">
+							<ListboxOption key={item.id} value={item.value.toLowerCase()} as="div">
 								{({ selected }) => (
 									<li className={cn('text-xs cursor-pointer rounded ')}>
 										<div
@@ -114,11 +114,11 @@ export const TimezoneDropDown = ({
 										</div>
 									</li>
 								)}
-							</Listbox.Option>
+							</ListboxOption>
 						))}
 						<ScrollBar className="-pl-7" />
 					</ScrollArea>
-				</Listbox.Options>
+				</ListboxOptions>
 			</Listbox>
 		</div>
 	);
