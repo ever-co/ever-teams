@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import NoTeam from '@/core/components/pages/main/no-team';
@@ -28,7 +28,7 @@ import { TeamOutstandingNotifications } from '@/core/components/features/team/te
 
 function MainPage() {
 	const t = useTranslations();
-	const [headerSize] = useState(10);
+
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
@@ -58,7 +58,6 @@ function MainPage() {
 			<div className="flex flex-col justify-between h-full min-h-screen">
 				{/* <div className="flex-grow"> */}
 				<MainLayout
-					showTimer={headerSize <= 11.8 && isTrackingEnabled}
 					className="h-full"
 					mainHeaderSlot={
 						<div className="bg-white dark:bg-dark-high">
