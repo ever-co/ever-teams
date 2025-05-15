@@ -267,7 +267,7 @@ export const PersonalSettingForm = () => {
 												value={user?.phoneNumber || ''}
 												onChange={handlePhoneChange}
 												disabled={!editContacts}
-												className={`h-[54px] ${!editContacts ? 'bg-[#FCFCFC] dark:bg-[#1B1D22]' : ''}`}
+												className={`h-[54px] ${!editContacts ? 'bg-[#FCFCFC] dark:bg-dark--theme-light' : ''}`}
 												wrapperClassName="mb-0 h-[54px]"
 											/>
 										</div>
@@ -343,7 +343,7 @@ export const PersonalSettingForm = () => {
 											onChange={(t: string) => {
 												handleChangeTimezone(t);
 											}}
-											className="md:w-[469px]"
+											className="md:w-[469px] dark:bg-dark--theme-light"
 										/>
 										<Button
 											variant="grey"

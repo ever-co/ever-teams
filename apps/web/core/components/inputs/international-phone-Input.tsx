@@ -253,16 +253,16 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 	};
 
 	const inputId = `phone-input-${name}`;
-	const inputClassName = `phoneinput-field ${className} ${
+	const inputClassName = `phoneinput-field dark:bg-dark--theme-light ${className} ${
 		disabled ? 'phoneinput-disabled' : ''
 	} ${notValidBorder ? 'phoneinput-error' : ''}`;
-	const wrapperClasses = `phoneinput-wrapper ${notValidBorder ? 'phoneinput-wrapper-error' : ''} ${wrapperClassName}`;
+	const wrapperClasses = `phoneinput-wrapper dark:bg-dark--theme-light ${notValidBorder ? 'phoneinput-wrapper-error' : ''} ${wrapperClassName}`;
 
 	return (
 		<div className={`phoneinput-container ${wrapperClassName}`}>
 			{label && (
-				<label htmlFor={inputId} className="phoneinput-label">
-					{label} {required && <span className="phoneinput-required">*</span>}
+				<label htmlFor={inputId} className="phoneinput-label dark:bg-dark--theme-light">
+					{label} {required && <span className="phoneinput-required dark:bg-dark--theme-light">*</span>}
 				</label>
 			)}
 
