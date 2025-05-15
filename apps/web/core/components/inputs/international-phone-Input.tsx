@@ -252,7 +252,7 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 		onChange?.(finalValue);
 	};
 
-	const inputId = `phone-input-${name} dark:bg-dark--theme-light`;
+	const inputId = `phone-input-${name}`;
 	const inputClassName = `phoneinput-field dark:bg-dark--theme-light ${className} ${
 		disabled ? 'phoneinput-disabled' : ''
 	} ${notValidBorder ? 'phoneinput-error' : ''}`;
