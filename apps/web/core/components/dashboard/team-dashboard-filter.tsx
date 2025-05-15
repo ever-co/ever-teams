@@ -1,7 +1,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingFilterIcon } from '@/assets/svg';
 import { cn } from '@/core/lib/helpers';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';

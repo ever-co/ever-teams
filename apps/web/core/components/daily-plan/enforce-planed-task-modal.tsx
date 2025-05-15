@@ -1,8 +1,9 @@
 import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@/core/hooks';
 import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
+import { Card } from '../duplicated-components/card';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;

@@ -2,7 +2,7 @@ import { pad } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
 import { IClassName, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { ProgressBar, Text, Tooltip, VerticalSeparator } from '@/core/components';
+import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 
@@ -17,6 +17,9 @@ import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { ProgressBar } from '../duplicated-components/_progress-bar';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { VerticalSeparator } from '../duplicated-components/separator';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();

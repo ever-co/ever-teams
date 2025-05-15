@@ -4,7 +4,7 @@ import { IIcon, IIssueTypesItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, ColorPicker, InputField, Text } from '@/core/components';
+import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
@@ -12,6 +12,7 @@ import { useAtom } from 'jotai';
 import { generateIconList } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
+import { InputField } from '../duplicated-components/_input';
 
 export const IssueTypesForm = () => {
 	const t = useTranslations();

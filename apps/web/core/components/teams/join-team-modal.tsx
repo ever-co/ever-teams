@@ -1,7 +1,9 @@
 import { useAuthenticationPasscode } from '@/core/hooks';
-import { Button, Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
+import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { AuthCodeInputField } from '../auth/auth-code-input';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 /**
  * Join team modal

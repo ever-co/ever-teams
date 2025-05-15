@@ -2,9 +2,10 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
 import { IClassName, ITeamTask, Nullable, OT_Member } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Text, Tooltip } from '@/core/components';
+import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
 	task: Nullable<ITeamTask>;

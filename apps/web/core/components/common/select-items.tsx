@@ -1,4 +1,4 @@
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { cn } from '@/core/lib/helpers';
 import { useEffect, useState } from 'react';

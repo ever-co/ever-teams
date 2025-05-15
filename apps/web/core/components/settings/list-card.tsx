@@ -1,5 +1,5 @@
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
-import { Button, Text, Tooltip } from '@/core/components';
+import { Button, Text } from '@/core/components';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
@@ -7,6 +7,7 @@ import { getTextColor } from '@/core/lib/helpers/index';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { svgFetch } from '@/core/services/server/fetch';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export const StatusesListCard = ({
 	statusIcon,

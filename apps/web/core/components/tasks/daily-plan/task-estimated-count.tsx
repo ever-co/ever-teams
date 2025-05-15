@@ -1,7 +1,7 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { IDailyPlan, IUser } from '@/core/types/interfaces';
-import { VerticalSeparator } from '@/core/components';
 import { useTranslations } from 'next-intl';
+import { VerticalSeparator } from '../../duplicated-components/separator';
 
 interface ITaskEstimatedCount {
 	outstandingPlans: any[];

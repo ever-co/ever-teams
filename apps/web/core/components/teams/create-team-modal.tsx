@@ -1,9 +1,11 @@
 'use client';
 
 import { useOrganizationTeams } from '@/core/hooks';
-import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
+import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 /**
  * Create team modal

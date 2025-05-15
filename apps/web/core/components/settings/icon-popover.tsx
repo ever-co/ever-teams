@@ -2,11 +2,13 @@ import { IIcon } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Divider, InputField, Tooltip } from '@/core/components';
+import { Divider } from '@/core/components';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { IconItem } from './icon-items';
+import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 const IconPopover = ({
 	setValue,

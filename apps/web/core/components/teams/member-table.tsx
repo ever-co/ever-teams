@@ -5,8 +5,7 @@ import { usePagination } from '@/core/hooks/common/use-pagination';
 import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Avatar, InputField, Text, Tooltip } from '@/core/components';
-import { Paginate } from '@/core/components/common/pagination2';
+import { Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useRef } from 'react';
@@ -16,6 +15,10 @@ import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from '../settings/table-action-popover';
 import { EditUserRoleDropdown } from '../roles/edit-role-dropdown';
+import { Avatar } from '../duplicated-components/avatar';
+import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { Paginate } from '../duplicated-components/_pagination';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();

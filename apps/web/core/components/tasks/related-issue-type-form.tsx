@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text } from '@/core/components';
+import { Button, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
@@ -11,6 +11,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
+import { InputField } from '../duplicated-components/_input';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();

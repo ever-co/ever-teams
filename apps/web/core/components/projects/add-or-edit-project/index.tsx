@@ -1,4 +1,3 @@
-import { Card } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { Check } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -10,6 +9,7 @@ import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
 import { ICreateProjectInput } from '@/core/types/interfaces';
+import { Card } from '../../duplicated-components/card';
 
 export type TModalMode = 'edit' | 'create';
 

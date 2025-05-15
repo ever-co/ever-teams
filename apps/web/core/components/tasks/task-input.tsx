@@ -27,7 +27,7 @@ import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
-import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from '@/core/components';
+import { Button, Divider, SpinnerLoader } from '@/core/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -37,10 +37,14 @@ import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
-import { ObserverComponent } from '@/core/components/Observer';
+import { ObserverComponent } from '@/core/components/observer';
 import { LazyRender } from '@/core/components/common/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 import { cn } from '@/core/lib/helpers';
+import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { Card } from '../duplicated-components/card';
+import { OutlineBadge } from '../duplicated-components/badge';
 
 type Props = {
 	task?: Nullable<ITeamTask>;

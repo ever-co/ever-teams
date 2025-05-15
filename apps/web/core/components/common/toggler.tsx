@@ -16,7 +16,7 @@ import { AllSidesIcon, Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-
 import { useAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/data-sync';
 import { useModal } from '@/core/hooks';
-import { RealTimePopup } from '@/core/components/settings/sync.zone';
+import { RealTimePopup } from '@/core/components/pages/settings/personal/sync.zone';
 import { fullWidthState } from '@/core/stores/fullWidth';
 
 type Props = {

@@ -1,6 +1,5 @@
 export * from '../types';
 
-export * from './common/card1';
 export * from './common/container';
 export * from './common/typography';
 export * from './common/button';
@@ -8,22 +7,12 @@ export * from './common/loader';
 export * from './common/meta';
 export * from './common/dropdown';
 export * from './common/modal';
-export * from './common/avatar1';
 export * from './common/toggler';
 export * from './common/divider';
-export * from './common/breadcrumb1';
-export * from './common/progress-bar1';
-export * from './common/badge1';
-export * from './common/tooltip1';
-export * from './common/separator1';
 export * from './common/color-picker';
 export * from './common/no-data';
-export * from './common/pagination2';
-export * from './common/time-picker1';
 export * from './common/select-items';
-
-export * from './common/input2';
-export * from './analytics/recaptcha';
+export * from './duplicated-components/recaptcha';
 export * from './common/copy-tooltip';
 export * from './common/alert-popup';
 export * from './common/alert-dialog-confirmation';

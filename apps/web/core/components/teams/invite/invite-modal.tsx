@@ -1,5 +1,4 @@
 import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
-import Input from '@/core/components/common/input1';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, Transition } from '@headlessui/react';
 import { AxiosError } from 'axios';
@@ -8,6 +7,7 @@ import { IInvite, IInviteProps } from '../../../types/interfaces/hooks';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/core/hooks/common/use-toast';
+import Input from '../../duplicated-components/input';
 
 const initalValues: IInvite = {
 	email: '',

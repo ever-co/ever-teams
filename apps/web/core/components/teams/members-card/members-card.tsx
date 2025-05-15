@@ -7,12 +7,12 @@ import Separator from '@/core/components/common/separator';
 import { WorkedOnTask } from './components/worked-on-task';
 import { Worked24Hours } from './components/worked-24-hours';
 import { MemberInfo } from './components/member-info';
-import { IMember, MC_EditableValues } from './types';
 import { TaskInfo1 } from './components/task-info';
 import { EstimateTimeInfo } from './components/estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
+import { IMember, MC_EditableValues } from '@/core/types/interfaces';
 
 const Card = ({ member }: { member: IMember }) => {
 	const { isTeamManager, user } = useAuthenticateUser();

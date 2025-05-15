@@ -1,7 +1,7 @@
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
-import { MC_EditableValues } from '../types';
+import { MC_EditableValues } from '@/core/types/interfaces';
 
 type Props = {
 	memberTask: ITeamTask | null;

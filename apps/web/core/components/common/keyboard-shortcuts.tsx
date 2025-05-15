@@ -3,9 +3,9 @@ import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/core/components/common/dialog';
 import { useCallback } from 'react';
 import { Button } from './button';
-import { Tooltip } from './tooltip1';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { LineDotBoxIcon } from 'assets/svg';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export function KeyboardShortcuts() {
 	const t = useTranslations();

@@ -1,5 +1,5 @@
 import { SortConfig } from '@/core/hooks/common/use-sortable-data';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ChevronsUpDown } from 'lucide-react';
 

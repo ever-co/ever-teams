@@ -1,16 +1,10 @@
 'use client';
 
-import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@/core/hooks';
+import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
-import {
-	TaskStatus,
-	useTaskLabelsValue,
-	useTaskPrioritiesValue,
-	useTaskSizesValue,
-	useTaskStatusValue
-} from './task-status';
+import { TaskStatus, useTaskLabelsValue, useTaskPrioritiesValue, useTaskSizesValue } from './task-status';
 import { clsxm } from '@/core/lib/utils';
 import { planBadgeContent, planBadgeContPast } from '@/core/lib/helpers/index';
 import { CalendarIcon } from '@radix-ui/react-icons';

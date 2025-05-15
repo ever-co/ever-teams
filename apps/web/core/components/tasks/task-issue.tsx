@@ -1,7 +1,7 @@
-import { useModal } from '@/core/hooks';
+import { useModal, useStatusValue } from '@/core/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { BackButton, Button, Card, InputField, Modal, Text } from '@/core/components';
+import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
 import {
 	IActiveTaskStatuses,
@@ -10,12 +10,13 @@ import {
 	TStatus,
 	TStatusItem,
 	TTaskVersionsDropdown,
-	useActiveTaskStatus,
-	useStatusValue
+	useActiveTaskStatus
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssue> = {

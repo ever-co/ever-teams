@@ -1,11 +1,12 @@
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { TaskNameInfoDisplay } from '../tasks/task-displays';
 import moment from 'moment';
+import { Card } from '../duplicated-components/card';
 
 interface IArchiveProjectModalProps {
 	open: boolean;

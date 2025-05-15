@@ -6,9 +6,8 @@ import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelog
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
-import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { DatePickerFilter } from './timesheet-filter-date';
+import { DatePickerFilter } from '../pages/timesheet/timesheet-filter-date';
 import {
 	Select,
 	SelectContent,
@@ -21,6 +20,8 @@ import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { ToggleButton } from './edit-task-modal';
+import { CustomSelect } from '../common/multiple-select';
+import { TaskNameInfoDisplay } from '../tasks/task-displays';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;

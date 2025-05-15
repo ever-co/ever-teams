@@ -8,8 +8,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle
 } from '@/core/components/common/alert-dialog';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { Card } from '../duplicated-components/card';
 
 interface AlertDialogConfirmationProps {
 	title: string;

@@ -15,9 +15,9 @@ import {
 } from '@tanstack/react-table';
 
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
-import { Tooltip } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

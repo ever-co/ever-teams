@@ -1,4 +1,4 @@
-import { Button, InputField, Text } from '@/core/components';
+import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
@@ -13,6 +13,7 @@ import { useAtom } from 'jotai';
 import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
+import { InputField } from '../duplicated-components/_input';
 
 type StatusForm = {
 	formOnly?: boolean;

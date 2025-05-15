@@ -5,7 +5,7 @@ import React, { MutableRefObject, forwardRef, useState, useEffect, useImperative
 // import { InputField } from './input';
 import { useTranslations } from 'next-intl';
 import { useCallbackRef } from '@/core/hooks';
-import { InputField } from '..';
+import { InputField } from '../duplicated-components/_input';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 

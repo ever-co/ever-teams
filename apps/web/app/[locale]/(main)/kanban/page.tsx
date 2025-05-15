@@ -1,16 +1,16 @@
 'use client';
 import { KanbanTabs } from '@/core/constants/config/constants';
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useStatusValue } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Container } from '@/core/components';
-import { KanbanView } from '@/core/components/teams/team-members-kanban-view';
+import { Container } from '@/core/components';
+import { KanbanView } from '@/core/components/pages/kanban/team-members-kanban-view';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import Separator from '@/core/components/common/separator';
-import HeaderTabs from '@/core/components/pages/main/header-tabs';
+import HeaderTabs from '@/core/components/common/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/teams/invite/invite-form-modal';
 import { userTimezone } from '@/core/lib/helpers/index';
@@ -21,17 +21,17 @@ import {
 	TStatusItem,
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
-	TaskSizesDropdown,
-	taskIssues,
-	useStatusValue
-} from '@/core/components/features';
+	TaskSizesDropdown
+} from '@/core/components/tasks/task-status';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
 import { ITeamTask } from '@/core/types/interfaces';
-import KanbanBoardSkeleton from '@/core/components/common/skeleton/KanbanBoardSkeleton';
+import KanbanBoardSkeleton from '@/core/components/common/skeleton/kanban-board-skeleton';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
+import { taskIssues } from '@/core/components/tasks/task-issue';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 const Kanban = () => {
 	// Get all required hooks and states

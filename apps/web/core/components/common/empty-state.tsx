@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import Image from 'next/image';
-import { Button } from './button2';
 import { cn } from '@/core/lib/helpers';
-import { AnimatedDataSvg } from './AnimatedDataSvg';
+import { Button } from '../duplicated-components/_button';
+import { AnimatedDataSvg } from './animated-data-svg';
 
 type EmptyStateType = 'default' | 'search' | 'filter' | 'data' | 'error' | 'tasks' | 'projects';
 

@@ -1,7 +1,7 @@
 'use client';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
-import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from '@/core/components';
+import { AlertPopup, Container, NoData } from '@/core/components';
 import { checkPastDate } from '@/core/lib/helpers';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -31,7 +31,7 @@ import { fullWidthState } from '@/core/stores/fullWidth';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 
@@ -51,6 +51,8 @@ import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import DailyPlanTasksTableView from '../tasks/daily-plan/table-view';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
+import { HorizontalSeparator, VerticalSeparator } from '../duplicated-components/separator';
+import { ProgressBar } from '../duplicated-components/_progress-bar';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';

@@ -2,12 +2,14 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { IOrganizationTeamList } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
-import { Avatar, DropdownItem, Tooltip } from '@/core/components';
+import { DropdownItem } from '@/core/components';
 import { SettingOutlineIcon } from 'assets/svg';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { readableColor } from 'polished';
 import stc from 'string-to-color';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { Avatar } from '../duplicated-components/avatar';
 
 export type TeamItem = DropdownItem<IOrganizationTeamList>;
 

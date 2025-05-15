@@ -20,7 +20,6 @@ import {
 	DialogTrigger
 } from '@/core/components/common/dialog';
 import { useJitsu } from '@jitsu/jitsu-react';
-import { Avatar } from '@/core/components';
 import { Button } from '@/core/components/common/button';
 import { Check } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
@@ -29,6 +28,7 @@ import { useTranslations } from 'next-intl';
 import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { JitsuAnalytics } from '../analytics/jitsu-analytics';
+import { Avatar } from '../duplicated-components/avatar';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();

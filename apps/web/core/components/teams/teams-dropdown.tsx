@@ -4,13 +4,14 @@ import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@
 import { clsxm } from '@/core/lib/utils';
 import { useToast } from '@/core/hooks/common/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Dropdown, Tooltip } from '@/core/components';
+import { Button, Dropdown } from '@/core/components';
 import { useCallback, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();

@@ -2,7 +2,7 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { Avatar, Button } from '@/core/components';
+import { Button } from '@/core/components';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { readableColor } from 'polished';
@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
+import { Avatar } from '../duplicated-components/avatar';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {
 	const t = useTranslations();

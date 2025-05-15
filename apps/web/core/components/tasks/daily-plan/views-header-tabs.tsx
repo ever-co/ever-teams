@@ -2,9 +2,9 @@ import { IssuesView } from '@/core/constants/config/constants';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
-import { Tooltip } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
+import { Tooltip } from '../../duplicated-components/tooltip';
 
 export default function ViewsHeaderTabs() {
 	const t = useTranslations();

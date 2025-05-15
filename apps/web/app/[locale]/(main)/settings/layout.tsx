@@ -1,11 +1,10 @@
 'use client';
 import { userState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import SettingsPersonalSkeleton from '@/core/components/common/skeleton/SettingsPersonalSkeleton';
-import { Breadcrumb, Container } from '@/core/components';
+import SettingsPersonalSkeleton from '@/core/components/common/skeleton/settings-personal-skeleton';
+import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { LeftSideSettingMenu } from '@/core/components/settings';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAtom, useAtomValue } from 'jotai';
@@ -14,6 +13,8 @@ import { usePathname } from 'next/navigation';
 import { useOrganizationTeams } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { ReactNode } from 'react';
+import { LeftSideSettingMenu } from '@/core/components/pages/settings/left-side-setting-menu';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const { isTrackingEnabled } = useOrganizationTeams();

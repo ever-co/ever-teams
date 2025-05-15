@@ -4,9 +4,9 @@ import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
 import { IKanban } from '@/core/types/interfaces/IKanban';
-import { TStatusItem } from '@/core/components/features';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
+import { TStatusItem } from '@/core/components/tasks/task-status';
 
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);

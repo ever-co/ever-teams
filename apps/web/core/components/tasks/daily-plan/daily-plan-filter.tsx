@@ -4,8 +4,9 @@ import { clsxm } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { CircleIcon } from 'assets/svg';
-import { Card, Tooltip } from '@/core/components';
 import { PropsWithChildren, useEffect, useState } from 'react';
+import { Tooltip } from '../../duplicated-components/tooltip';
+import { Card } from '../../duplicated-components/card';
 
 export function DailyPlanDropDownItem({
 	children,

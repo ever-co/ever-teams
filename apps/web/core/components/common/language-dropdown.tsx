@@ -1,8 +1,8 @@
 import { useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Dropdown } from '@/core/components';
-import { mapLanguageItems, LanguageItem } from '@/core/components/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { LanguageItem, mapLanguageItems } from './language-item';
 
 export const LanguageDropDown = ({
 	currentLanguage,

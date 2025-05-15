@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { SpinnerLoader, Text, Tooltip } from '@/core/components';
+import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@/core/hooks';
@@ -15,6 +15,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();

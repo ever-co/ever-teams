@@ -1,8 +1,9 @@
 import { useOrganizationProjects } from '@/core/hooks';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
+import { Card } from '../duplicated-components/card';
 
 interface IRestoreProjectModalProps {
 	open: boolean;

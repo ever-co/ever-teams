@@ -1,7 +1,7 @@
 import { useHasMounted } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { createPortal } from 'react-dom';
-import { Card } from './card1';
+import { Card } from '../duplicated-components/card';
 
 export function SpinnerLoader({
 	size = 31,

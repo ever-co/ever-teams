@@ -1,9 +1,11 @@
 import { useAuthenticateUser, useEmailReset } from '@/core/hooks';
-import { Button, Card, InputField, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { AuthCodeInputField } from '../auth/auth-code-input';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
 

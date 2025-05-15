@@ -2,12 +2,11 @@
 
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Paginate } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
-import { MembersSelect } from '@/core/components/reports/members-select';
-import { GroupBySelect, TGroupByOption } from '@/core/components/reports/group-by-select';
+import { MembersSelect } from '@/core/components/pages/reports/weekly-limit/members-select';
+import { GroupBySelect, TGroupByOption } from '@/core/components/pages/reports/weekly-limit/group-by-select';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
 import { DateRange } from 'react-day-picker';
@@ -18,12 +17,14 @@ import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { IOrganization } from '@/core/types/interfaces';
 import { useTranslations } from 'next-intl';
+import { WeeklyLimitExportMenu } from '@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu';
 import {
 	groupDataByEmployee,
 	TimeReportTable,
 	TimeReportTableByMember
-} from '@/core/components/reports/time-report-table';
-import { WeeklyLimitExportMenu } from '@/core/components/reports/weekly-limit-report-export-menu';
+} from '@/core/components/pages/reports/weekly-limit/time-report-table';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { Paginate } from '@/core/components/duplicated-components/_pagination';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();

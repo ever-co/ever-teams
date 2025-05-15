@@ -6,7 +6,7 @@ import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces';
 import { publicState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from '@/core/components';
+import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
 
 import {
 	DevicesIcon,
@@ -33,7 +33,10 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Globe2Icon } from 'lucide-react';
 import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
-import { signOutFunction } from '@/core/components/auth/social-logins';
+import { signOutFunction } from '@/core/lib/helpers/social-logins';
+import { Avatar } from '../duplicated-components/avatar';
+import { Card } from '../duplicated-components/card';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();

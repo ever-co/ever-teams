@@ -3,12 +3,13 @@
 import { useModal, useTeamInvitations } from '@/core/hooks';
 import { MyInvitationActionEnum } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
 import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { Card } from '../duplicated-components/card';
 
 interface IProps {
 	className?: string;

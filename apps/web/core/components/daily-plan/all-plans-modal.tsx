@@ -1,11 +1,11 @@
-import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from '@/core/components';
+import { Modal, NoData, SpinnerLoader } from '@/core/components';
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../tasks/add-task-estimation-hours-modal';
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
-import { Button } from '@/core/components/common/button2';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { DailyPlanStatusEnum, IDailyPlan } from '@/core/types/interfaces';
 import moment from 'moment';
@@ -13,6 +13,9 @@ import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { ActiveModifiers } from 'react-day-picker';
+import { Card } from '../duplicated-components/card';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { VerticalSeparator } from '../duplicated-components/separator';
 
 interface IAllPlansModal {
 	closeModal: () => void;

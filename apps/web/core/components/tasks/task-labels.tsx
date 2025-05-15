@@ -2,12 +2,13 @@
 
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
 import { ITeamTask, Nullable } from '@/core/types/interfaces';
-import { Button, Card, Modal } from '@/core/components';
-import { TaskLabelForm } from '@/core/components/settings';
+import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
+import { TaskLabelForm } from './task-labels-form';
+import { Card } from '../duplicated-components/card';
 
 type Props = {
 	task: Nullable<ITeamTask>;

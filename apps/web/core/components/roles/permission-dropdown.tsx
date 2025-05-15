@@ -2,13 +2,15 @@ import { IRole } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Card, InputField } from '@/core/components';
+import { Button } from '@/core/components';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
 import { useRoles } from '@/core/hooks/roles';
 import { PermissonItem } from './permission-item';
+import { Card } from '../duplicated-components/card';
+import { InputField } from '../duplicated-components/_input';
 
 export const PermissionDropDown = ({
 	selectedRole,

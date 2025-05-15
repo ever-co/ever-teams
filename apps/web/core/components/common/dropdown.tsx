@@ -3,10 +3,10 @@ import { clsxm } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
-import { Card } from './card1';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
+import { Card } from '../duplicated-components/card';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;

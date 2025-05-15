@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ITeamTask, ITimerStatus } from '@/core/types/interfaces';
 import Skeleton from 'react-loading-skeleton';
-import { Tooltip } from './tooltip1';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal } from '@/core/hooks';
 import { Modal, Divider } from '@/core/components';
@@ -12,12 +11,13 @@ import { useOrganizationTeams } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
-import { TaskAvatars } from '@/core/components/features';
 import TeamMember from '@/core/components/teams/team-member';
 import { IEmployee } from '@/core/types/interfaces';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { cn } from '../../lib/helpers';
+import { TaskAvatars } from '../tasks/task-items';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export interface ImageOverlapperProps {
 	id: string;

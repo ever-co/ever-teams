@@ -2,13 +2,13 @@
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { IDailyPlan, IEmployee, IUser } from '@/core/types/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { Tooltip } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { estimatedTotalTime } from '../tasks/daily-plan';
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import moment from 'moment';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;

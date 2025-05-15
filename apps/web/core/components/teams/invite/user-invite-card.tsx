@@ -3,20 +3,15 @@ import { IClassName, IInvitation } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import {
-	Avatar,
-	Button,
-	Card,
-	ConfirmDropdown,
-	SpinnerLoader,
-	Text,
-	TimeInputField,
-	Tooltip,
-	VerticalSeparator
-} from '@/core/components';
+import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg';
 import { TimerStatus } from '@/core/components/timer/timer-status';
+import { Card } from '../../duplicated-components/card';
+import { Avatar } from '../../duplicated-components/avatar';
+import { VerticalSeparator } from '../../duplicated-components/separator';
+import { TimeInputField } from '../../duplicated-components/_input';
+import { Tooltip } from '../../duplicated-components/tooltip';
 
 type Props = IClassName & { invitation: IInvitation };
 

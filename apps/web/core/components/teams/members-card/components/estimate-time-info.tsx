@@ -4,9 +4,9 @@ import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
 import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
-import { MC_EditableValues } from '../types';
 import { EstimationProgress } from './estimation-progress';
 import { useTranslations } from 'next-intl';
+import { MC_EditableValues } from '@/core/types/interfaces';
 
 type Props = {
 	memberTask: ITeamTask | null;

@@ -2,7 +2,7 @@
 
 import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Container } from '@/core/components';
+import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
@@ -11,7 +11,8 @@ import { useTranslations } from 'next-intl';
 
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { useAtomValue } from 'jotai';
-import { TaskDetailsComponent } from '@/core/components/tasks/task-details';
+import { TaskDetailsComponent } from '@/core/components/pages/task/task-details';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();

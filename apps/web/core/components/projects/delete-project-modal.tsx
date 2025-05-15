@@ -1,7 +1,8 @@
 import { useOrganizationProjects } from '@/core/hooks';
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { Card } from '../duplicated-components/card';
 
 interface IDeleteProjectModalProps {
 	open: boolean;
