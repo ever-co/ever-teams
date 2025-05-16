@@ -1,8 +1,8 @@
 import { cn } from '@/core/lib/helpers';
-import { ScrollArea, ScrollBar } from '@ever-teams/ui';
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
+import { ScrollArea, ScrollBar } from '../ui/scroll-bar';
 
 interface IProps<TItem> {
 	placeholder: string;
@@ -50,7 +50,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 				{searchEnabled && (
 					<Search size={15} className="absolute z-10 -translate-y-1/2  text-slate-400 top-1/2 left-3" />
 				)}
-				<Popover.Button
+				<PopoverButton
 					className={cn(
 						'border relative grow rounded-lg w-full bg-transparent text-xs px-3 py-2',
 						searchEnabled && ' pl-9'
@@ -67,10 +67,10 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 								as: 'button',
 								children: <div className="w-full text-xs text-left text-slate-400">{placeholder}</div>
 							})}
-				></Popover.Button>
+				></PopoverButton>
 				<ChevronDown size={20} className="absolute -translate-y-1/2  text-slate-400 top-1/2 right-3" />
 			</div>
-			<Popover.Panel className={'absolute w-full mt-1 z-20 bg-white dark:bg-gray-800 rounded-md shadow-md'}>
+			<PopoverPanel className={'absolute w-full mt-1 z-20 bg-white dark:bg-gray-800 rounded-md shadow-md'}>
 				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
 					<ScrollArea>
 						{filteredOptions?.map((option) => {
@@ -101,7 +101,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 						<ScrollBar />
 					</ScrollArea>
 				</ul>
-			</Popover.Panel>
+			</PopoverPanel>
 		</Popover>
 	);
 }

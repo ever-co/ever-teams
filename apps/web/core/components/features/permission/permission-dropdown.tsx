@@ -1,6 +1,6 @@
 import { IRole } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from '@/core/components';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
@@ -116,10 +116,10 @@ export const PermissionDropDown = ({
 	return (
 		<>
 			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
-				<Popover.Button className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
 					<ChevronDownIcon />
-				</Popover.Button>
+				</PopoverButton>
 
 				<Transition
 					as="div"
@@ -130,7 +130,7 @@ export const PermissionDropDown = ({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Popover.Panel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+					<PopoverPanel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 						{({ close }) => (
 							<Card
 								shadow="custom"
@@ -211,7 +211,7 @@ export const PermissionDropDown = ({
 								</Button>
 							</Card>
 						)}
-					</Popover.Panel>
+					</PopoverPanel>
 				</Transition>
 			</Popover>
 		</>
