@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container, Divider } from '@/core/components';
-import TaskCardSkeleton from './TaskCardSkeleton';
+import TaskCardSkeleton from './task-card-skeleton';
 
 const TaskPageSkeleton = () => {
 	const taskCards = Array.from({ length: 3 }, (_, index) => {
