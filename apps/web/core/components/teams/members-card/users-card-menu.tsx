@@ -6,7 +6,16 @@ import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
 import { CreateTaskOption } from '@/core/components/tasks/task-list';
 import { TaskItem } from '@/core/components/tasks/task-item';
-import { Combobox, Popover, Transition } from '@headlessui/react';
+import {
+	Combobox,
+	ComboboxButton,
+	ComboboxInput,
+	ComboboxOptions,
+	Popover,
+	PopoverButton,
+	PopoverPanel,
+	Transition
+} from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
@@ -73,12 +82,12 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<Popover.Button className="no-underline border-none outline-none active:border-none">
+					<PopoverButton className="no-underline border-none outline-none active:border-none">
 						<EllipsisVerticalIcon
 							className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
 							aria-hidden="true"
 						/>
-					</Popover.Button>
+					</PopoverButton>
 					<Transition
 						as="div"
 						enter="transition ease-out duration-200"
@@ -88,7 +97,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[150px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl drop-shadow-[0px_3px_15px_#3E1DAD1A]">
+						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[150px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl drop-shadow-[0px_3px_15px_#3E1DAD1A]">
 							<div className="bg-white shadow dark:bg-[#18181B] rounded-[10px] text-[14px] font-light">
 								{options.map((option) =>
 									!option.extramenu ? (
@@ -104,13 +113,13 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 										<Popover key={option.name} className="relative no-underline border-none">
 											{() => (
 												<>
-													<Popover.Button
+													<PopoverButton
 														onClick={option.handleClick}
 														ref={setReferenceElement}
 														className="outline-none  hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
 													>
 														{option.name}{' '}
-													</Popover.Button>
+													</PopoverButton>
 													<Transition
 														as="div"
 														enter="transition ease-out duration-200"
@@ -120,14 +129,14 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 														leaveFrom="opacity-100 translate-y-0"
 														leaveTo="opacity-0 translate-y-1"
 													>
-														<Popover.Panel
+														<PopoverPanel
 															ref={setPopperElement}
 															style={styles.popper}
 															{...attributes.popper}
 															className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
 														>
 															{children}
-														</Popover.Panel>
+														</PopoverPanel>
 													</Transition>
 												</>
 											)}
@@ -135,7 +144,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 									)
 								)}
 							</div>
-						</Popover.Panel>
+						</PopoverPanel>
 					</Transition>
 				</>
 			)}
@@ -176,7 +185,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 					<Combobox>
 						<div className="relative mt-1">
 							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
-								<Combobox.Input
+								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
 									displayValue={(task: ITeamTask) => {
@@ -192,9 +201,9 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 									placeholder={t('form.TASK_INPUT_PLACEHOLDER')}
 									readOnly={tasksFetching}
 								/>
-								<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+								<ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
 									{tasksFetching || createLoading || updateLoading ? <Spinner dark={false} /> : <></>}
-								</Combobox.Button>
+								</ComboboxButton>
 							</div>
 							<Transition
 								as="div"
@@ -206,14 +215,14 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 									setFilter('open');
 								}}
 							>
-								<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
 											onClick={() => handleTaskCreation({ autoActiveTask: false })}
 											loading={createLoading}
 										/>
 									)}
-								</Combobox.Options>
+								</ComboboxOptions>
 							</Transition>
 						</div>
 					</Combobox>

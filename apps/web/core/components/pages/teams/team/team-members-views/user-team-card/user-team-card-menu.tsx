@@ -2,7 +2,7 @@ import { mergeRefs } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
 import { IClassName, ITeamTask } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-assign-popover';
 import { useCallback } from 'react';
@@ -103,7 +103,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				])}
 			>
 				{!loading && (
-					<Popover.Button
+					<PopoverButton
 						disabled={menu.length === 0}
 						className={clsxm(
 							'flex items-center outline-none border-none',
@@ -111,7 +111,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 						)}
 					>
 						<ThreeCircleOutlineVerticalIcon className="w-6 dark:text-[#B1AEBC]" strokeWidth="1.4" />
-					</Popover.Button>
+					</PopoverButton>
 				)}
 				{loading && <SpinnerLoader size={20} />}
 
@@ -125,7 +125,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					leaveTo="transform scale-95 opacity-0"
 					className="absolute z-30 -right-5 top-8 min-w-[13.125rem]"
 				>
-					<Popover.Panel>
+					<PopoverPanel>
 						{({ close }) => {
 							return (
 								<Card
@@ -217,7 +217,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 								</Card>
 							);
 						}}
-					</Popover.Panel>
+					</PopoverPanel>
 				</Transition>
 			</Popover>
 			<AllPlansModal isOpen={isAllPlansModalOpen} closeModal={closeAllPlansModal} />

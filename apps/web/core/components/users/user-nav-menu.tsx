@@ -5,7 +5,7 @@ import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hook
 import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces';
 import { publicState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
 
 import {
@@ -55,7 +55,7 @@ export function UserNavAvatar() {
 
 	return (
 		<Popover className="relative z-[60] flex items-center">
-			<Popover.Button className="outline-none">
+			<PopoverButton className="outline-none">
 				<div
 					className={clsxm(
 						'w-[3rem] h-[3rem]',
@@ -95,7 +95,7 @@ export function UserNavAvatar() {
 						''
 					)}
 				</div>
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -106,10 +106,10 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute right-0 z-[60] top-12 xl:-right-5">
+				<PopoverPanel className="absolute right-0 z-[60] top-12 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);
@@ -349,10 +349,10 @@ function ThemeDropdown() {
 
 	return (
 		<Popover className="relative z-30 flex items-center h-full">
-			<Popover.Button className="flex items-center h-full text-sm font-light">
+			<PopoverButton className="flex items-center h-full text-sm font-light">
 				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
 				<ChevronDown className="w-4 h-4 ml-2 opacity-50" />
-			</Popover.Button>
+			</PopoverButton>
 			<Transition
 				as="div"
 				enter="transition duration-100 ease-out"
@@ -362,7 +362,7 @@ function ThemeDropdown() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
+				<PopoverPanel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
 					<Card
 						shadow="bigger"
 						className="flex flex-col !px-5 !py-3 !overflow-auto h-[15.5rem] 3xl:h-auto gap-4"
@@ -380,7 +380,7 @@ function ThemeDropdown() {
 							/>
 						))}
 					</Card>
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

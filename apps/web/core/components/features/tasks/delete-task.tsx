@@ -1,6 +1,6 @@
 import { IInviteProps } from '@/core/types/interfaces/hooks';
 import { Spinner } from '@/core/components/common/spinner';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { useTeamTasks } from '@/core/hooks/organizations';
@@ -29,7 +29,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" onClick={(e: any) => e.stopPropagation()} className="relative z-10" onClose={onClose}>
 				<div className="fixed inset-0 blur-xl bg-black/30" aria-hidden="true" />
-				<Transition.Child
+				<TransitionChild
 					as="div"
 					enter="ease-out duration-300"
 					enterFrom="opacity-0"
@@ -39,11 +39,11 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 					leaveTo="opacity-0"
 				>
 					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
-				</Transition.Child>
+				</TransitionChild>
 
 				<div className="fixed inset-0 overflow-y-auto">
 					<div className="flex items-center justify-center min-h-full p-4 text-center">
-						<Transition.Child
+						<TransitionChild
 							as="div"
 							enter="ease-out duration-300"
 							enterFrom="opacity-0 scale-95"
@@ -52,7 +52,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95"
 						>
-							<Dialog.Panel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-[#202023] text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
+							<DialogPanel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-[#202023] text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
 								<div className="text-primary text-[18px] dark:text-white text-center mb-4 mt-[30px]">
 									{t('task.CONFIRM_CLOSE_TASK')} :{' '}
 									{task?.taskNumber && <span>#{task?.taskNumber} </span>}
@@ -81,8 +81,8 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 										{t('common.CANCEL')}
 									</button>
 								</div>
-							</Dialog.Panel>
-						</Transition.Child>
+							</DialogPanel>
+						</TransitionChild>
 					</div>
 				</div>
 			</Dialog>

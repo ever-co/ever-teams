@@ -2,7 +2,15 @@
 import { Button } from '@/core/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@/core/components/common/calendar';
-import { Listbox, Popover } from '@headlessui/react';
+import {
+	Listbox,
+	ListboxButton,
+	ListboxOption,
+	ListboxOptions,
+	Popover,
+	PopoverButton,
+	PopoverPanel
+} from '@headlessui/react';
 import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
@@ -448,7 +456,7 @@ export function DatePicker(props: IDatePickerProps) {
 
 	return (
 		<Popover className={cn('relative w-full border rounded-lg p-2')}>
-			<Popover.Button
+			<PopoverButton
 				className={cn(
 					'w-full flex items-center justify-between text-left',
 					!value && 'text-muted-foreground',
@@ -458,10 +466,9 @@ export function DatePicker(props: IDatePickerProps) {
 			>
 				{value ? format(value, 'PPP') : <span className="text-xs">{placeholder}</span>}
 				<CalendarIcon size={15} />
-			</Popover.Button>
-			<Popover.Panel className="absolute right-0 z-50 w-auto p-0 bg-white border rounded-lg shadow-md dark:bg-dark--theme top-11">
+			</PopoverButton>
+			<PopoverPanel className="absolute right-0 z-50 w-auto p-0 bg-white border rounded-lg shadow-md dark:bg-dark--theme top-11">
 				<Calendar
-					// @ts-ignore
 					id={id}
 					required={required}
 					disabled={disabled || disabledDays}
@@ -471,7 +478,7 @@ export function DatePicker(props: IDatePickerProps) {
 					initialFocus
 					fromDate={isStartDate ? today : minDate}
 				/>
-			</Popover.Panel>
+			</PopoverPanel>
 		</Popover>
 	);
 }
@@ -540,7 +547,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 	return (
 		<div className="relative">
 			<Listbox multiple={isMulti} value={selected} onChange={onChange}>
-				<Listbox.Button
+				<ListboxButton
 					className={cn(
 						'w-full border rounded-lg flex items-center justify-between text-left px-2 py-1 text-xs h-[2.2rem]',
 						className
@@ -555,8 +562,8 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 					)}
 
 					<ChevronDown size={15} className="text-gray-400 " />
-				</Listbox.Button>
-				<Listbox.Options
+				</ListboxButton>
+				<ListboxOptions
 					className={cn(
 						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white dark:bg-dark--theme rounded-md p-1 shadow-md'
 					)}
@@ -578,11 +585,11 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 
 					<ScrollArea style={{ height: listHeight }}>
 						{items?.map((item) => (
-							<Listbox.Option key={item?.id} value={item?.id} as="div">
-								{({ active, selected: isSelected }) => (
+							<ListboxOption key={item?.id} value={item?.id} as="div">
+								{({ focus, selected: isSelected }) => (
 									<li className={cn('text-xs cursor-pointer rounded ')}>
 										{renderItem ? (
-											renderItem(item, isSelected, active)
+											renderItem(item, isSelected, focus)
 										) : isMulti ? (
 											// Default multi-select render
 											<div className="flex items-center w-full h-full gap-2 p-1 px-2">
@@ -613,7 +620,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 										)}
 									</li>
 								)}
-							</Listbox.Option>
+							</ListboxOption>
 						))}
 						<ScrollBar className="-pl-7" />
 					</ScrollArea>
@@ -630,7 +637,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 							</Button>
 						</div>
 					)}
-				</Listbox.Options>
+				</ListboxOptions>
 			</Listbox>
 		</div>
 	);

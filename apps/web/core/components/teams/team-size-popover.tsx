@@ -1,4 +1,4 @@
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -91,7 +91,7 @@ const TeamSize = ({
 		<Popover className="relative w-full no-underline border-none">
 			{() => (
 				<>
-					<Popover.Button
+					<PopoverButton
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
 						disabled={disableButton}
@@ -118,7 +118,7 @@ const TeamSize = ({
 								</button>
 							)}
 						</div>
-					</Popover.Button>
+					</PopoverButton>
 					<Transition
 						as="div"
 						enter="transition ease-out duration-200"
@@ -129,7 +129,7 @@ const TeamSize = ({
 						leaveTo="opacity-0 translate-y-1"
 						show={!disabled}
 					>
-						<Popover.Panel
+						<PopoverPanel
 							ref={panelRef}
 							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow outline-none"
 						>
@@ -186,7 +186,7 @@ const TeamSize = ({
 									</Button>
 								</div>
 							</div>
-						</Popover.Panel>
+						</PopoverPanel>
 					</Transition>
 				</>
 			)}

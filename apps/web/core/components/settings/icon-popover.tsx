@@ -1,6 +1,6 @@
 import { IIcon } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Divider } from '@/core/components';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
@@ -39,7 +39,7 @@ const IconPopover = ({
 		<Popover className="relative border-none no-underline w-[auto]" onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
 				<>
-					<Popover.Button className="w-full outline-none" ref={buttonRef}>
+					<PopoverButton className="w-full outline-none" ref={buttonRef}>
 						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between bg-white dark:bg-[#1B1D22]">
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px] text-gray-900 dark:text-gray-100">
 								<IconItem
@@ -57,7 +57,7 @@ const IconPopover = ({
 								/>
 							</div>
 						</div>
-					</Popover.Button>
+					</PopoverButton>
 					<Transition
 						as="div"
 						enter="transition ease-out duration-200"
@@ -67,7 +67,7 @@ const IconPopover = ({
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
+						<PopoverPanel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
 							<div className="bg-white shadow dark:bg-[#1B1D22] rounded-[10px] text-[14px] p-[16px]">
 								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-[#34353D]">
 									<InputField
@@ -141,7 +141,7 @@ const IconPopover = ({
 									</div>
 								</div>
 							</div>
-						</Popover.Panel>
+						</PopoverPanel>
 					</Transition>
 				</>
 			)}

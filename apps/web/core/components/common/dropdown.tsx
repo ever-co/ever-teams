@@ -1,6 +1,15 @@
 import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, Transition } from '@headlessui/react';
+import {
+	Listbox,
+	ListboxButton,
+	ListboxOption,
+	ListboxOptions,
+	Popover,
+	PopoverButton,
+	PopoverPanel,
+	Transition
+} from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { SpinnerLoader } from './loader';
@@ -171,7 +180,7 @@ export function ConfirmDropdown({
 }: PropsWithChildren<{ onConfirm?: () => void; confirmText?: string } & IClassName>) {
 	return (
 		<Popover className="relative">
-			<Popover.Button>{children}</Popover.Button>
+			<PopoverButton>{children}</PopoverButton>
 			<Transition
 				as="div"
 				enter="transition duration-100 ease-out"
@@ -182,20 +191,20 @@ export function ConfirmDropdown({
 				leaveTo="transform scale-95 opacity-0"
 				className={clsxm('absolute z-10 right-0', className)}
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
 						<ul className="flex flex-col">
 							<li className="w-full mb-2 font-medium text-primary dark:text-white">
-								<Popover.Button className="w-full" onClick={onConfirm}>
+								<PopoverButton className="w-full" onClick={onConfirm}>
 									{confirmText}
-								</Popover.Button>
+								</PopoverButton>
 							</li>
 							<li className="w-full text-sm">
-								<Popover.Button>Cancel</Popover.Button>
+								<PopoverButton>Cancel</PopoverButton>
 							</li>
 						</ul>
 					</Card>
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

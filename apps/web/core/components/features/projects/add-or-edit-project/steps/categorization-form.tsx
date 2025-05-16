@@ -1,6 +1,6 @@
 import { Button } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
@@ -107,7 +107,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 					</label>
 					<div className="w-full">
 						<Popover className={cn('relative w-full')}>
-							<Popover.Button className={cn('w-full')}>
+							<PopoverButton className={cn('w-full')}>
 								<div className="flex w-full items-center gap-1 dark:bg-dark--theme-light rounded-lg cursor-pointer h-[2.2rem]">
 									<div className="h-full border w-[2.2rem] p-1 rounded-lg">
 										<div
@@ -119,11 +119,11 @@ export default function CategorizationForm(props: IStepElementProps) {
 										{colorCode}
 									</span>
 								</div>
-							</Popover.Button>
-							<Popover.Panel className="absolute border rounded-md shadow-md w-fit top-11 dark:bg-dark--theme-light input-border">
+							</PopoverButton>
+							<PopoverPanel className="absolute border rounded-md shadow-md w-fit top-11 dark:bg-dark--theme-light input-border">
 								{/* @ts-ignore */}
 								<HexColorPicker defaultValue={colorCode} onChange={(color) => setColorCode(color)} />
-							</Popover.Panel>
+							</PopoverPanel>
 						</Popover>
 					</div>
 				</div>
