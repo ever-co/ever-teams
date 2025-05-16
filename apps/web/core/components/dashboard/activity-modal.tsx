@@ -43,7 +43,7 @@ const LegendItem = ({
 	time: string;
 	percentage: number;
 }) => (
-	<div className="flex justify-between items-center text-[14px] text-[#60646C]">
+	<div className="flex gap-16 w-full justify-between items-center text-[14px] text-[#60646C]">
 		<div className="flex items-center space-x-2">
 			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
 			<span className="text-gray-700 dark:text-gray-300 text-[14px]">{label}</span>
@@ -92,11 +92,11 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			className="bg-light--theme-light dark:bg-dark--theme-light rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
+			className="bg-light--theme-light dark:bg-dark--theme-light rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start flex flex-col items-center h-[auto]"
 			titleClass="font-bold flex justify-start w-full"
 		>
-			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4">
-				<div className="flex justify-between items-center mb-2">
+			<div className="flex flex-col w-full items-center gap-4 justify-start min-w-fit md:w-[32rem] p-4">
+				<div className="flex items-center justify-between w-full mb-2">
 					<div className="flex items-center space-x-3">
 						<Avatar
 							size={30}
@@ -110,7 +110,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 					</div>
 				</div>
 
-				<div className="flex p-1 space-x-2 bg-gray-100 dark:bg-[#1B1D22] rounded-lg">
+				<div className="flex p-1 min-w-full max-w-fit space-x-2 w-full bg-gray-100 dark:bg-[#1B1D22] rounded-lg">
 					{(['tracked', 'activity'] as const).map((tab) => (
 						<button
 							key={tab}
@@ -118,7 +118,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 							aria-selected={activeTab === tab}
 							aria-label={tab === 'tracked' ? 'Show tracked vs manual time' : 'Show activity breakdown'}
 							onClick={() => setActiveTab(tab)}
-							className={`flex-1 px-4 py-2 rounded-md transition-all duration-200 ${
+							className={`flex-1 px-4 py-2 rounded-md transition-all duration-200 text-nowrap ${
 								activeTab === tab
 									? 'bg-white shadow-sm dark:bg-dark--theme-light text-primary dark:text-primary-light font-normal'
 									: 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
@@ -132,14 +132,14 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 				<div className="relative mt-8">
 					{activeTab === 'tracked' ? (
 						<div className="transition-opacity duration-200 ease-in-out">
-							<div className="relative mx-auto mb-8 w-48 h-48">
+							<div className="relative w-48 h-48 mx-auto mb-8">
 								<svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
 									<Circle color="#2563EB" dashArray="188.49556" />
 									<Circle color="#9333EA" dashArray="62.83185" dashOffset="-188.49556" />
 								</svg>
 							</div>
 
-							<div className="space-y-4">
+							<div className="flex gap-4 space-y-4">
 								<LegendItem
 									color="#2563EB"
 									label="Tracked Time"
@@ -156,7 +156,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 						</div>
 					) : (
 						<div className="transition-opacity duration-200 ease-in-out">
-							<div className="relative mx-auto mb-8 w-48 h-48">
+							<div className="relative w-48 h-48 mx-auto mb-8">
 								<svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
 									<Circle color="#2563EB" dashArray="143.25639" />
 									<Circle color="#F59E0B" dashArray="32.67251" dashOffset="-143.25639" />
