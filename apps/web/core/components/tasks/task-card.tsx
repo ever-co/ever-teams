@@ -168,7 +168,7 @@ export function TaskCard(props: Props) {
 
 				<div className="flex-1 min-w-[12rem] max-w-[22rem] flex flex-row justify-between">
 					{/* Task information */}
-					<TaskInfo2
+					<TaskInfo
 						task={task}
 						className="w-full px-4"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
@@ -269,7 +269,7 @@ export function TaskCard(props: Props) {
 					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo2 task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
+					<TaskInfo task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end py-4 mx-auto space-x-2">
@@ -462,7 +462,7 @@ function TimerButtonCall({
 
 //* Task Estimate info *
 //* Task Info FC *
-export function TaskInfo2({
+export function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,

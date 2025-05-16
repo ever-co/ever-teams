@@ -9,12 +9,12 @@ import { useTranslations } from 'next-intl';
 import { useToast } from '@/core/hooks/common/use-toast';
 import Input from '../../duplicated-components/input';
 
-const initalValues: IInvite = {
+const initialValues: IInvite = {
 	email: '',
 	name: ''
 };
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
-	const [formData, setFormData] = useState<IInvite>(initalValues);
+	const [formData, setFormData] = useState<IInvite>(initialValues);
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
 
@@ -55,7 +55,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
 		inviteUser(formData.email, formData.name)
 			.then(() => {
-				setFormData(initalValues);
+				setFormData(initialValues);
 				closeModal();
 				toast({
 					variant: 'default',

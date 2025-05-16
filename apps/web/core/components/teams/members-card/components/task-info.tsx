@@ -14,7 +14,7 @@ type Props = {
 	loading: boolean;
 };
 
-export const TaskInfo1 = forwardRef<HTMLInputElement, Props>(
+export const TaskInfo = forwardRef<HTMLInputElement, Props>(
 	({ memberTask, editMode, hasEditMode, editable, onSubmitName, onChangeName, setEditMode, loading }, ref) => {
 		return (
 			<div className={`w-[334px]  h-[48px] font-light text-normal hover:rounded-[8px] hover:cursor-text`}>
@@ -44,4 +44,4 @@ export const TaskInfo1 = forwardRef<HTMLInputElement, Props>(
 	}
 );
 
-TaskInfo1.displayName = 'TaskInfo';
+TaskInfo.displayName = 'TaskInfo';

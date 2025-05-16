@@ -5,7 +5,7 @@ import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import { TaskInfo3 } from '../user-team-card/task-info';
+import { TaskInfo } from '../user-team-card/task-info';
 import { UserInfo } from '../user-team-card/user-info';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
@@ -19,7 +19,7 @@ export function TaskCell({ row }: { row: any }) {
 	const fullWidth = useAtomValue(fullWidthState);
 
 	return (
-		<TaskInfo3
+		<TaskInfo
 			edition={taskEdition}
 			memberInfo={memberInfo}
 			className={clsxm(

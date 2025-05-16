@@ -14,7 +14,7 @@ type Props = IClassName & {
 	tab?: 'default' | 'unassign' | 'dailyplan';
 };
 
-export function TaskInfo3({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
 			{!edition.task && <div className="self-center justify-center w-full text-center">--</div>}
