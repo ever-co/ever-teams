@@ -117,7 +117,6 @@ export function Dropdown<T extends DropdownItem>({
 					show={open}
 				>
 					<ListboxOptions
-						static
 						className={clsxm(
 							'shadow-2xl outline-none min-w-full mt-3 h-fit',
 							'overflow-hidden rounded-xl outline-none',
@@ -149,9 +148,9 @@ export function Dropdown<T extends DropdownItem>({
 											value={Item}
 											disabled={!!Item.disabled}
 										>
-											{({ active, selected }) => {
+											{({ focus, selected }) => {
 												return Item.Label ? (
-													<Item.Label active={active} selected={selected} />
+													<Item.Label active={focus} selected={selected} />
 												) : (
 													<div></div>
 												);
@@ -162,7 +161,7 @@ export function Dropdown<T extends DropdownItem>({
 								{/* <ScrollBar className="mr-20" /> */}
 							</ScrollArea>
 							{/* Additional content */}
-							{closeOnChildrenClick && <ListboxButton as="div">{children}</ListboxButton>}
+							{closeOnChildrenClick && <div className="mt-2">{children}</div>}
 							{!closeOnChildrenClick && children}
 						</Card>
 					</ListboxOptions>
