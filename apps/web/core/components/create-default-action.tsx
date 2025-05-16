@@ -1,5 +1,5 @@
 'use client';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/common/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -8,16 +8,16 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuShortcut,
 	DropdownMenuTrigger
-} from '@/core/components/ui/dropdown-menu';
+} from '@/core/components/common/dropdown-menu';
 
 import { useState } from 'react';
-import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from '../icons';
-import { CreateTeamModal } from './team/create-team-modal';
+import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from './icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
-import CreateTaskModal from '../pages/kanban/create-task-modal';
-import { Modal } from '../modal';
 import { useTranslations } from 'next-intl';
-import { InviteFormModal } from './team/invite/invite-form-modal';
+import { Modal } from './common/modal';
+import CreateTaskModal from './pages/kanban/create-task-modal';
+import { CreateTeamModal } from './teams/create-team-modal';
+import { InviteFormModal } from './teams/invite/invite-form-modal';
 export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const t = useTranslations();

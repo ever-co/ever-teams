@@ -5,15 +5,18 @@ import { IClassName } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { RequestToJoinModal } from '@/core/components/layouts/default-layout/header/request-to-join-modal';
-import Collaborate from '@/core/components/shared/collaborate';
 import { Button, Container } from '@/core/components';
-import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
-import { DefaultCreateAction, MinTimerFrame, TeamsDropDown, UserNavAvatar } from '@/core/components/features';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
 import { useAtom } from 'jotai';
+import { DefaultCreateAction } from '../../create-default-action';
+import { MinTimerFrame } from '../../timer/timer';
+import Collaborate from '../../collaborate';
+import { TeamsDropDown } from '../../teams/teams-dropdown';
+import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
+import { UserNavAvatar } from '../../users/user-nav-menu';
 
 const HeaderSkeleton = () => {
 	return (
