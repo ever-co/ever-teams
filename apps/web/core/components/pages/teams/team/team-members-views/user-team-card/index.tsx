@@ -17,7 +17,7 @@ import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
-import { TaskInfo3 } from './task-info';
+import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { useCallback, useState } from 'react';
@@ -199,7 +199,7 @@ export function UserTeamCard({
 
 					{/* Task information */}
 					<div className="flex justify-between items-start flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
-						<TaskInfo3
+						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
 							className="flex-1 px-2 overflow-y-hidden lg:px-4"
@@ -311,7 +311,7 @@ export function UserTeamCard({
 				</div>
 
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo3
+					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
 						className="px-4"

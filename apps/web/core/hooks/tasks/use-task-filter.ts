@@ -182,7 +182,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	/**
 	 * Apply filter status filter
 	 */
-	const applyStatusFilder = useCallback(() => {
+	const applyStatusFilter = useCallback(() => {
 		setAppliedStatusFilter(statusFilter);
 	}, [statusFilter]);
 
@@ -222,7 +222,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		statusFilter,
 		onChangeStatusFilter,
 		onResetStatusFilter,
-		applyStatusFilder,
+		applyStatusFilder: applyStatusFilter,
 		tasksGrouped: profile.tasksGrouped,
 		outclickFilterCard,
 		profileDailyPlans

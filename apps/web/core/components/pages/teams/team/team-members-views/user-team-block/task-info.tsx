@@ -16,7 +16,7 @@ type Props = IClassName & {
 	dayPlanTab?: FilterTabs;
 };
 
-export function TaskInfo4({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}

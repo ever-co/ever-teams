@@ -2,7 +2,7 @@ import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { useEffect, useState } from 'react';
-import { TaskInfo3 } from '../../../team/team-members-views/user-team-card/task-info';
+import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
 
 export default function UserTeamActiveTaskInfo({
 	member,
@@ -25,7 +25,7 @@ export default function UserTeamActiveTaskInfo({
 	return (
 		<>
 			{activeTask?.id ? (
-				<TaskInfo3
+				<TaskInfo
 					edition={{ ...taskEdition, task: activeTask }}
 					memberInfo={memberInfo}
 					className={cn('flex-1 lg:px-4 px-2 overflow-y-hidden w-full max-w-fit', className)}

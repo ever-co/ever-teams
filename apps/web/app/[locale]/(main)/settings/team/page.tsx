@@ -7,7 +7,7 @@ import { fetchingTeamInvitationsState, userState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
-import { Accordian } from '@/core/components/common//accordian';
+import { Accordian } from '@/core/components/common/accordian';
 import { IntegrationSetting } from '@/core/components/pages/settings/team/integration-setting';
 import { InvitationSetting } from '@/core/components/pages/settings/team/invitation-setting';
 import { IssuesSettings } from '@/core/components/pages/settings/team/issues-settings';

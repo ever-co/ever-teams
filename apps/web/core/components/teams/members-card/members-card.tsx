@@ -7,7 +7,7 @@ import Separator from '@/core/components/common/separator';
 import { WorkedOnTask } from './components/worked-on-task';
 import { Worked24Hours } from './components/worked-24-hours';
 import { MemberInfo } from './components/member-info';
-import { TaskInfo1 } from './components/task-info';
+import { TaskInfo } from './components/task-info';
 import { EstimateTimeInfo } from './components/estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
@@ -171,7 +171,7 @@ const Card = ({ member }: { member: IMember }) => {
 			<Separator />
 
 			{/* Task info */}
-			<TaskInfo1
+			<TaskInfo
 				memberTask={memberTask}
 				editMode={taskEditMode}
 				setEditMode={setTaskEditMode}
