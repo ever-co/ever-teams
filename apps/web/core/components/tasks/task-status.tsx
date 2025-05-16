@@ -12,7 +12,7 @@ import {
 	Tag,
 	TaskStatusEnum
 } from '@/core/types/interfaces';
-import { Queue, clsxm } from '@/core/lib/utils';
+import { Queue } from '@/core/lib/utils';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
@@ -35,8 +35,8 @@ import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@/core/lib/helpers/index';
-import { cn } from '@/core/lib/helpers';
 import {
+	cn,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
@@ -530,7 +530,7 @@ export function TaskPriorityStatus({
 			{...taskPrioritiesValues[task?.priority]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
-			className={clsxm('px-2 text-white rounded-md', className)}
+			className={cn('px-2 text-white rounded-md', className)}
 			bordered={false}
 		/>
 	) : (
@@ -762,7 +762,7 @@ export function TaskStatus({
 
 	return (
 		<div
-			className={clsxm(
+			className={cn(
 				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded-[8px]`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
@@ -898,7 +898,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
 			sidebarUI={sidebarUI}
-			className={clsxm(
+			className={cn(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
 				!forDetails && 'w-full max-w-[190px]',
 				'flex items-center gap-x-1.5',
@@ -913,7 +913,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				isVersion && 'dark:text-white',
 				'h-full transition-colors duration-200'
 			)}
-			titleClassName={clsxm(
+			titleClassName={cn(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis overflow-hidden'],
 				!value && 'dark:text-white'
 			)}
@@ -923,7 +923,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
 				<ChevronDownIcon
-					className={clsxm(
+					className={cn(
 						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
 						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
 						hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
@@ -937,7 +937,7 @@ export function StatusDropdown<T extends TStatusItem>({
 
 	const dropdown = (
 		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={clsxm('relative', className)}>
+			<div className={cn('relative', className)}>
 				<Listbox
 					value={value?.value || value?.name || (multiple ? [] : null)}
 					onChange={onChange}
@@ -948,7 +948,7 @@ export function StatusDropdown<T extends TStatusItem>({
 							<div>
 								<ListboxButton
 									as="div"
-									className={clsxm(
+									className={cn(
 										!forDetails && 'w-full max-w-[190px]',
 										'cursor-pointer outline-none h-full'
 									)}
@@ -970,7 +970,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											active={true}
 											forDetails={forDetails}
 											sidebarUI={sidebarUI}
-											className={clsxm(
+											className={cn(
 												'justify-between w-full capitalize h-full',
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
@@ -985,9 +985,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											}
 											isEpic={isEpic}
 										>
-											<ChevronDownIcon
-												className={clsxm('w-5 h-5 text-default dark:text-white')}
-											/>
+											<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
 										</TaskStatus>
 									)}
 								</ListboxButton>
@@ -1001,7 +999,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									leaveFrom="transform scale-100 opacity-100"
 									leaveTo="transform scale-95 opacity-0"
 									as="div"
-									className={clsxm(
+									className={cn(
 										'absolute right-0 left-0 z-40 min-w-min outline-none',
 										issueType === 'issue' && 'left-auto right-auto',
 										isEpic && '-left-100 right-10'
@@ -1024,7 +1022,7 @@ export function StatusDropdown<T extends TStatusItem>({
 																checked={
 																	item?.value ? values.includes(item?.value) : false
 																}
-																className={clsxm(
+																className={cn(
 																	'!w-full',
 																	issueType === 'issue' && [
 																		'rounded-md px-2 text-white'
@@ -1141,11 +1139,11 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 
 	const dropdown = (
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={clsxm('relative', className)}>
+			<div className={cn('relative', className)}>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<div
-							className={clsxm(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+							className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 							style={{
 								width: largerWidth ? '160px' : ''
 							}}
@@ -1155,14 +1153,14 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 								active={true}
 								forDetails={forDetails}
 								sidebarUI={sidebarUI}
-								className={clsxm(
+								className={cn(
 									'justify-between w-full capitalize',
 									sidebarUI && ['text-xs'],
 									' dark:text-white dark:bg-dark--theme-light',
 									forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 									taskStatusClassName
 								)}
-								titleClassName={clsxm(
+								titleClassName={cn(
 									values.length > 0 && '!text-dark dark:!text-white',
 									!value && 'dark:text-white text-slate-500'
 								)}
@@ -1172,7 +1170,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 										: defaultValue.name
 								}
 							>
-								<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
+								<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
 							</TaskStatus>
 						</div>
 					</DropdownMenuTrigger>
@@ -1184,10 +1182,10 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					>
 						<DropdownMenuGroup>
 							{items.map((item, i) => {
-								const item_value = item?.value || item?.name;
-
+								const item_value = item?.value || item.name;
 								return (
 									<DropdownMenuItem
+										className=""
 										key={i}
 										disabled={disabled}
 										onClick={() => {
@@ -1196,7 +1194,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 												const newValues = values.filter((v) => v !== item_value);
 												onChange(newValues);
 											} else {
-												onChange([...(values || []), item_value || '']);
+												onChange([...values, item_value || '']);
 											}
 										}}
 									>
@@ -1204,7 +1202,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 											showIcon={showIcon}
 											{...item}
 											cheched={item.value ? values.includes(item.value) : false}
-											className={clsxm(
+											className={cn(
 												'!w-full',
 												issueType === 'issue' && ['rounded-md px-2 text-white'],
 												`${sidebarUI ? 'rounded-[8px]' : ''}`,
