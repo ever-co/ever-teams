@@ -1182,7 +1182,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					>
 						<DropdownMenuGroup>
 							{items.map((item, i) => {
-								const item_value = item?.value || item.name;
+								const item_value = item.value || item.name;
 								return (
 									<DropdownMenuItem
 										className=""
