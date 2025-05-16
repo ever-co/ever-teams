@@ -7277,6 +7277,7 @@
   resolved "https://registry.yarnpkg.com/@radix-ui/react-context/-/react-context-1.1.2.tgz#61628ef269a433382c364f6f1e3788a6dc213a36"
   integrity sha512-jCi/QKUM2r1Ju5a3J64TH2A5SpKAgh0LpknyqdQ4m6DCV0xJ2HG1xARRwNGPQfi1SLdLWZ1OJz6F4OMBBNiGJA==
 
+<<<<<<< HEAD
 "@radix-ui/react-dialog@1.1.11", "@radix-ui/react-dialog@^1.1.1", "@radix-ui/react-dialog@^1.1.11", "@radix-ui/react-dialog@^1.1.6":
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-dialog/-/react-dialog-1.1.11.tgz#1144609cbc9f8b36bcc288beb880f6b72cbd85ee"
@@ -7298,6 +7299,9 @@
     react-remove-scroll "^2.6.3"
 
 "@radix-ui/react-dialog@^1.1.13":
+=======
+"@radix-ui/react-dialog@1.1.13", "@radix-ui/react-dialog@^1.1.1", "@radix-ui/react-dialog@^1.1.13", "@radix-ui/react-dialog@^1.1.6":
+>>>>>>> 6d48c6c85 (refactor: implement multiple status dropdown with Shadcn UI)
   version "1.1.13"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-dialog/-/react-dialog-1.1.13.tgz#8c868a97ec70765efb125fd48708c9993c7ae683"
   integrity sha512-ARFmqUyhIVS3+riWzwGTe7JLjqwqgnODBUZdqpWar/z1WFs9z76fuOs/2BOWCR+YboRn4/WN9aoaGVwqNRr8VA==
