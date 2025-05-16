@@ -135,7 +135,7 @@ export function MainLayout({
 			if (prev !== shouldActivateTimer) {
 				return shouldActivateTimer;
 			}
-			return !shouldActivateTimer;
+			return prev;
 		});
 		setShouldRenderTimer(true);
 	}, [path, headerHeight]);
