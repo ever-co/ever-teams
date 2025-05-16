@@ -39,7 +39,7 @@ class RegisterService extends APIService {
 			...this.registerDefaultValue,
 			appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
 		};
-
+		console.log(`Register User Body: ${JSON.stringify(body)}`, 'CONFIG==>', this.getConfig());
 		return this.post<IUser>('/auth/register', body).then(({ data }) => data);
 	};
 

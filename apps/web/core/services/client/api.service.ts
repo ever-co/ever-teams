@@ -98,7 +98,9 @@ export class APIService {
 		this.setupRequestInterceptors();
 		this.setupResponseInterceptors();
 	}
-
+	getConfig() {
+		return this.config;
+	}
 	getInstance() {
 		if (!this.apiInstance) {
 			this.apiInstance = axios.create({
@@ -331,8 +333,9 @@ export class APIService {
 		}
 
 		baseURL = baseURL ? `${baseURL}/api` : undefined;
-
-		this.axiosInstance.defaults.baseURL = baseURL;
+		if (this.config.directAPI) {
+			this.axiosInstance.defaults.baseURL = baseURL;
+		}
 
 		const headers = {
 			...(config?.tenantId ? { 'tenant-id': config?.tenantId } : {}),
