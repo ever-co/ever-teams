@@ -88,8 +88,8 @@ Please list related issues, tasks or discussions:
 
 Example:
 >
-> - Closes #1234
-> - Related to #5678
+> - Closes #12343434344
+> - Related to #567834232
 
 ## Type of Change
 
