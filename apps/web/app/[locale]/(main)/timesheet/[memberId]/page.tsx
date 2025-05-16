@@ -42,7 +42,7 @@ import TimesheetPagination from '@/core/components/timesheet/timesheet-paginatio
 import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { IconsSearch } from '@/core/components/icons';
-import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toogle-view';
+import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
