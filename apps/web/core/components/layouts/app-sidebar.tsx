@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-import { NavMain } from '@/core/components/nav-main';
 import {
 	Sidebar,
 	SidebarContent,
@@ -21,20 +20,22 @@ import {
 	SidebarMenuSubButton,
 	SidebarFooter,
 	SidebarSeparator
-} from '@/core/components/ui/sidebar';
+} from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
 import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { CreateTeamModal, TaskIssueStatus } from '@/core/components/features';
 import { useTranslations } from 'next-intl';
-import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useMemo } from 'react';
-import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from './icons';
-import { NavHome } from './nav-home';
-import { SidebarCommandModal } from './sidebar-command-modal';
+import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
+import { TaskIssueStatus } from '../tasks/task-issue';
+import { WorkspacesSwitcher } from '../common/workspace-switcher';
+import { SidebarCommandModal } from '../sidebar-command-modal';
+import { NavHome } from '../nav-home';
+import { NavMain } from './nav-main';
+import { CreateTeamModal } from '../teams/create-team-modal';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();

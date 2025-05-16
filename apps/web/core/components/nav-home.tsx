@@ -9,7 +9,7 @@ import {
 	SidebarMenuItem,
 	SidebarTriggerButton,
 	useSidebar
-} from '@/core/components/ui/sidebar';
+} from '@/core/components/common/sidebar';
 import { useTranslations } from 'next-intl';
 import { FC, SVGProps, useState } from 'react';
 import { cn } from '../lib/helpers';

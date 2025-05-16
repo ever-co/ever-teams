@@ -11,9 +11,9 @@ import {
 	CommandItem,
 	CommandList,
 	CommandShortcut
-} from '@/core/components/ui/command';
+} from '@/core/components/common/command';
 import { SidebarCommandForm } from './sidebar-command-form';
-import { Badge } from './ui/badge';
+import { Badge } from './common/badge';
 import {
 	AddIcon,
 	AddTaskIcon,
@@ -27,18 +27,19 @@ import {
 	TeamIcon,
 	UserCircleIcon
 } from './icons';
-import { CreateTeamModal } from './features';
 import { useAuthenticateUser } from '../hooks/auth';
 import { useModal } from '../hooks';
 import { useTranslations } from 'next-intl';
-import { Modal } from './modal';
+import { Modal } from './common/modal';
 import CreateTaskModal from './pages/kanban/create-task-modal';
-import { InviteFormModal } from './features/team/invite/invite-form-modal';
-import { CreateProjectModal } from './features/project/create-project-modal';
+
 import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
+import { CreateTeamModal } from './teams/create-team-modal';
+import { InviteFormModal } from './teams/invite/invite-form-modal';
+import { CreateProjectModal } from './projects/create-project-modal';
 
 // Definition of types to improve readability and security
 type ShortcutAction = () => void;

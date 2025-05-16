@@ -3,16 +3,17 @@ import { cn } from '@/core/lib/helpers';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/ui/resizable';
-import { SidebarProvider, SidebarInset } from '@/core/components/ui/sidebar';
-import MainSidebarTrigger from './MainSidebarTrigger';
-import AppContainer from './AppContainer';
-import GlobalHeader from './GlobalHeader';
-import GlobalFooter from './GlobalFooter';
-import { AppSidebar } from '@/core/components/app-sidebar';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
+import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar';
+
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
+import AppContainer from './app-container';
+import { AppSidebar } from '../app-sidebar';
+import GlobalHeader from './global-header';
+import MainSidebarTrigger from './main-sidebar-trigger';
+import GlobalFooter from './global-footer';
 
 /**
  * Props interface for the MainLayout component

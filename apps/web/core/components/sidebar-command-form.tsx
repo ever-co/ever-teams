@@ -1,7 +1,7 @@
 import type React from 'react';
 
-import { Label } from '@/core/components/ui/label';
-import { SidebarGroup, SidebarGroupContent, SidebarInput } from '@/core/components/ui/sidebar';
+import { Label } from '@/core/components/common/label';
+import { SidebarGroup, SidebarGroupContent, SidebarInput } from '@/core/components/common/sidebar';
 import { CommandIcon } from './icons';
 
 export function SidebarCommandForm({ ...props }: React.ComponentProps<'form'>) {
