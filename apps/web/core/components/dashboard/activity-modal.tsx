@@ -139,7 +139,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 								</svg>
 							</div>
 
-							<div className="flex gap-4 space-y-4">
+							<div className="flex gap-4">
 								<LegendItem
 									color="#2563EB"
 									label="Tracked Time"
