@@ -3346,7 +3346,7 @@
     "@tanstack/react-virtual" "^3.0.0-beta.60"
     client-only "^0.0.1"
 
-"@headlessui/react@^2.2.2":
+"@headlessui/react@^2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-2.2.3.tgz#d947844665ce223f55d79aa23e9bb4ce28846133"
   integrity sha512-hgOJGXPifPlOczIeSwX8OjLWRJ5XdYApZFf7DeCbCrO1PXHkPhNTRrA9ZwJsgAG7SON1i2JcvIreF/kbgtJeaQ==
