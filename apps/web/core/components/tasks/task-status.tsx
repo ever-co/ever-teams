@@ -1022,7 +1022,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					return (
 						<CustomListboxDropdown
 							value={value?.value || value?.name}
-							values={values.map(String)}
+							values={values}
 							onChange={handleChange}
 							disabled={disabled}
 							enabled={enabled}
@@ -1198,7 +1198,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 			<div className={cn('relative', className)}>
 				<CustomListboxDropdown
 					value={value?.value || value?.name}
-					values={values.map(String)}
+					values={values}
 					onChange={handleChange}
 					disabled={disabled}
 					enabled={enabled}
