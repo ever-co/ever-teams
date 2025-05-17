@@ -25,12 +25,12 @@ export function CustomListboxDropdown<T>({
 }: {
 	value?: T;
 	values?: T[];
-	onChange?: (value: any) => void;
+	onChange?: (value: T | T[]) => void;
 	disabled?: boolean;
 	enabled?: boolean;
 	trigger: ReactNode;
-	items: any[];
-	renderItem: (item: any, isSelected: boolean) => ReactNode;
+	items: Array<{ value?: T; name?: string; [key: string]: any }>;
+	renderItem: (item: { value?: T; name?: string; [key: string]: any }, isSelected: boolean) => ReactNode;
 	multiple?: boolean;
 	className?: string;
 	dropdownClassName?: string;
@@ -42,7 +42,7 @@ export function CustomListboxDropdown<T>({
 		if (!onChange) return;
 		if (multiple) {
 			const stringItemValue = String(itemValue);
-			const isAlreadySelected = values.includes(itemValue);
+			const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
 			if (isAlreadySelected) {
 				const newValues = values.filter((v) => String(v) !== stringItemValue);
 				onChange(newValues);
@@ -76,11 +76,11 @@ export function CustomListboxDropdown<T>({
 				>
 					<DropdownMenuGroup>
 						{items.map((item, i) => {
-							const itemValue = item.value || item.name;
+							// Use a safe type for itemValue that handles undefined cases
+							const itemValue = item.value !== undefined ? item.value : (item.name as unknown as T);
 							const isSelected = multiple
 								? values.some((v) => String(v) === String(itemValue))
-								: String(value) === String(itemValue);
-
+								: value !== undefined && String(value) === String(itemValue);
 							return (
 								<DropdownMenuItem key={i} disabled={disabled} onClick={() => handleSelect(itemValue)}>
 									{renderItem(item, isSelected)}
