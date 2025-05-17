@@ -53,8 +53,8 @@ const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutActi
 		const handleClick = React.useCallback(
 			(event: React.MouseEvent<HTMLDivElement>) => {
 				// Prevent propagation and default behavior
-				event.preventDefault();
 				event.stopPropagation();
+				event.preventDefault();
 
 				// Execute the action
 				if (typeof action === 'function') {
@@ -68,7 +68,6 @@ const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutActi
 			// outer div to reliably capture clicks
 			<div onClick={handleClick} className="w-full cursor-pointer">
 				<CommandItem
-					ref={ref as React.RefObject<HTMLDivElement>}
 					onSelect={() => {
 						// CommandItem can also use onSelect
 						if (typeof action === 'function') {
