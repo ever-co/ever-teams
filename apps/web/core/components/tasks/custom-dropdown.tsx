@@ -41,29 +41,22 @@ export function CustomListboxDropdown<T>({
 	const handleSelect = (itemValue: T) => {
 		if (!onChange) return;
 		if (multiple) {
-			// Vérifier si l'élément est déjà sélectionné en utilisant une comparaison stricte de chaînes
 			const stringItemValue = String(itemValue);
 			const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
 
 			if (isAlreadySelected) {
-				// Si déjà sélectionné, le retirer
 				const newValues = values.filter((v) => String(v) !== stringItemValue);
 				onChange(newValues);
 			} else {
-				// Sinon, l'ajouter en s'assurant qu'il n'y a pas de doublons
-				// Convertir toutes les valeurs en chaînes
 				const stringValues = values.map((v) => String(v));
 
-				// Vérifier à nouveau pour éviter les doublons
 				if (!stringValues.includes(stringItemValue)) {
 					onChange([...values, itemValue]);
 				} else {
-					// Ne rien faire si la valeur existe déjà (double vérification)
-					console.log('Valeur déjà sélectionnée, ignorée:', stringItemValue);
+					console.log('Value already selected, ignored:', stringItemValue);
 				}
 			}
 		} else {
-			// Pour la sélection simple, remplacer la valeur actuelle
 			onChange(itemValue);
 			setOpen(false);
 		}
