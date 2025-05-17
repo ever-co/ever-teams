@@ -1003,7 +1003,7 @@ export function StatusDropdown<T extends TStatusItem>({
 												const newValues = values.filter((v) => v !== item_value);
 												onChange(newValues.join(','));
 											}
-											onRemoveSelected && onRemoveSelected();
+											onRemoveSelected?.();
 										}}
 										className="absolute top-2.5 right-2.5 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
 									>
@@ -1110,7 +1110,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	sidebarUI?: boolean;
 	disabledReason?: string;
 	isVersion?: boolean;
-	onRemoveSelected?: () => null;
+	onRemoveSelected?: () => void;
 }>) {
 	const valueToAdd = value?.value || value?.name;
 	if (valueToAdd && !values.includes(valueToAdd)) {
@@ -1184,7 +1184,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 								onChange(newValues);
 							}
 
-							onRemoveSelected && onRemoveSelected();
+							onRemoveSelected?.();
 						}}
 						className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
 					>
