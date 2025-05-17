@@ -867,12 +867,10 @@ export function StatusDropdown<T extends TStatusItem>({
 	isEpic?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
-	let processedValues = [...new Set(values.map((v) => String(v)))];
-
+	const processedValues = [...new Set(values)];
 	if (multiple && value) {
-		const valueToAdd = String(value.value || value.name);
-
-		if (valueToAdd && !processedValues.includes(valueToAdd)) {
+		const valueToAdd = value.value || value.name;
+		if (valueToAdd && !processedValues.some((v) => v === valueToAdd)) {
 			processedValues.push(valueToAdd);
 		}
 	}
@@ -995,9 +993,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										onClick={(e) => {
 											e.stopPropagation();
 											if (onChange && multiple && item_value) {
-												const newValues = values.filter(
-													(v) => String(v) !== String(item_value)
-												);
+												const newValues = values.filter((v) => v !== item_value);
 												onChange(newValues.join(','));
 											}
 											onRemoveSelected && onRemoveSelected();
@@ -1016,15 +1012,7 @@ export function StatusDropdown<T extends TStatusItem>({
 
 						if (multiple) {
 							const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
-
-							const stringValues = valueArray.map(String);
-
-							const uniqueValues = [...new Set(stringValues)];
-
-							if (uniqueValues.length !== stringValues.length) {
-								console.log('Duplicates detected and eliminated in selected values');
-							}
-
+							const uniqueValues = [...new Set(valueArray)];
 							onChange(uniqueValues.join(','));
 						} else {
 							onChange(selectedValue);
@@ -1049,7 +1037,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								</div>
 							}
 							items={items}
-							renderItem={renderItem}
+							renderItem={renderItem as any}
 							multiple={multiple}
 							dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
 						/>
@@ -1216,7 +1204,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					enabled={enabled}
 					trigger={triggerButton}
 					items={items}
-					renderItem={renderItem}
+					renderItem={renderItem as any}
 					multiple={true}
 					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
 				>

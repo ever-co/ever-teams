@@ -48,40 +48,42 @@ interface CommandGroupConfig {
 	heading: string;
 	commands: CommandShortcutConfig[];
 }
-const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutAction }> = React.forwardRef(
-	({ children, action, ...props }, ref) => {
-		const handleClick = React.useCallback(
-			(event: React.MouseEvent<HTMLDivElement>) => {
-				// Prevent propagation and default behavior
-				event.stopPropagation();
-				event.preventDefault();
+const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutAction }> = ({
+	children,
+	action,
+	...props
+}) => {
+	const handleClick = React.useCallback(
+		(event: React.MouseEvent<HTMLDivElement>) => {
+			// Prevent propagation and default behavior
+			event.stopPropagation();
+			event.preventDefault();
 
-				// Execute the action
-				if (typeof action === 'function') {
-					action();
-				}
-			},
-			[action]
-		);
+			// Execute the action
+			if (typeof action === 'function') {
+				action();
+			}
+		},
+		[action]
+	);
 
-		return (
-			// outer div to reliably capture clicks
-			<div onClick={handleClick} className="w-full cursor-pointer">
-				<CommandItem
-					onSelect={() => {
-						// CommandItem can also use onSelect
-						if (typeof action === 'function') {
-							action();
-						}
-					}}
-					{...props}
-				>
-					{children}
-				</CommandItem>
-			</div>
-		);
-	}
-);
+	return (
+		// outer div to reliably capture clicks
+		<div onClick={handleClick} className="w-full cursor-pointer">
+			<CommandItem
+				onSelect={() => {
+					// CommandItem can also use onSelect
+					if (typeof action === 'function') {
+						action();
+					}
+				}}
+				{...props}
+			>
+				{children}
+			</CommandItem>
+		</div>
+	);
+};
 export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam }) => {
 	const [open, setOpen] = useState(false);
 
