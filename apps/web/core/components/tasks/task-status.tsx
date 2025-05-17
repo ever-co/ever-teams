@@ -13,7 +13,6 @@ import {
 	TaskStatusEnum
 } from '@/core/types/interfaces';
 import { Queue } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, { PropsWithChildren, RefObject, useMemo } from 'react';
@@ -29,22 +28,15 @@ import {
 	useTeamTasks
 } from '@/core/hooks';
 import Image from 'next/legacy/image';
-import capitalize from 'lodash/capitalize';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@/core/lib/helpers/index';
-import {
-	cn,
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuTrigger
-} from '@ever-teams/ui';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { Card } from '../duplicated-components/card';
+import { CustomListboxDropdown } from './custom-dropdown';
+import { capitalize } from 'lodash';
+import { cn } from '@/core/lib/helpers';
 
 export type TStatusItem = {
 	id?: string;
@@ -875,6 +867,17 @@ export function StatusDropdown<T extends TStatusItem>({
 	isEpic?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
+	let processedValues = [...new Set(values.map((v) => String(v)))];
+
+	if (multiple && value) {
+		const valueToAdd = String(value.value || value.name);
+
+		if (valueToAdd && !processedValues.includes(valueToAdd)) {
+			processedValues.push(valueToAdd);
+		}
+	}
+
+	values = processedValues;
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: (
@@ -938,148 +941,138 @@ export function StatusDropdown<T extends TStatusItem>({
 	const dropdown = (
 		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={cn('relative', className)}>
-				<Listbox
-					value={value?.value || value?.name || (multiple ? [] : null)}
-					onChange={onChange}
-					disabled={disabled}
-				>
-					{({ open, value: current_value }) => {
+				{(() => {
+					const triggerContent = !multiple ? (
+						<Tooltip
+							enabled={hasBtnIcon && (value?.name || '').length > 10}
+							label={capitalize(value?.name) || ''}
+							className="h-full"
+						>
+							{button}
+						</Tooltip>
+					) : (
+						<TaskStatus
+							{...defaultValue}
+							active={true}
+							forDetails={forDetails}
+							sidebarUI={sidebarUI}
+							className={cn(
+								'justify-between w-full capitalize h-full',
+								sidebarUI && ['text-xs'],
+								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+								taskStatusClassName
+							)}
+							name={
+								values.length > 0
+									? `Item${values.length === 1 ? '' : 's'} (${values.length})`
+									: defaultValue.name
+							}
+							isEpic={isEpic}
+						>
+							<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+						</TaskStatus>
+					);
+
+					const renderItem = (item: T, isSelected: boolean) => {
+						// Obtenir la valeur de l'item pour la comparaison et les opérations de sélection
+						const item_value = item.value || item.name;
 						return (
-							<div>
-								<ListboxButton
-									as="div"
+							<div className="relative outline-none cursor-pointer w-full">
+								<TaskStatus
+									showIcon={showIcon}
+									{...item}
+									checked={isSelected}
 									className={cn(
-										!forDetails && 'w-full max-w-[190px]',
-										'cursor-pointer outline-none h-full'
+										'!w-full',
+										issueType === 'issue' && ['rounded-md px-2 text-white'],
+										sidebarUI && 'rounded-[8px]',
+										bordered && 'input-border',
+										(isVersion || isEpic) && 'dark:text-white',
+										item?.className
 									)}
+								/>
+								{isSelected && issueType !== 'issue' && (
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											if (onChange && multiple && item_value) {
+												const newValues = values.filter(
+													(v) => String(v) !== String(item_value)
+												);
+												onChange(newValues.join(','));
+											}
+											onRemoveSelected && onRemoveSelected();
+										}}
+										className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+									>
+										<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
+									</button>
+								)}
+							</div>
+						);
+					};
+
+					const handleChange = (selectedValue: any) => {
+						if (!onChange) return;
+
+						if (multiple) {
+							// S'assurer que selectedValue est un tableau
+							const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
+
+							// Convertir toutes les valeurs en chaînes
+							const stringValues = valueArray.map(String);
+
+							// Utiliser un Set pour garantir l'unicité des valeurs
+							const uniqueValues = [...new Set(stringValues)];
+
+							// Vérification supplémentaire pour s'assurer qu'il n'y a pas de doublons
+							if (uniqueValues.length !== stringValues.length) {
+								console.log('Doublons détectés et éliminés dans les valeurs sélectionnées');
+							}
+
+							// Passer la chaîne jointe au onChange
+							onChange(uniqueValues.join(','));
+						} else {
+							// Pour la sélection simple, passer directement la valeur
+							onChange(selectedValue);
+						}
+					};
+
+					return (
+						<CustomListboxDropdown
+							value={value?.value || value?.name}
+							// Convertir explicitement toutes les valeurs en chaînes pour éviter les problèmes de comparaison
+							values={values.map(String)}
+							onChange={handleChange}
+							disabled={disabled}
+							enabled={enabled}
+							trigger={
+								<div
+									className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 									style={{
 										width: largerWidth ? '160px' : ''
 									}}
 								>
-									{!multiple ? (
-										<Tooltip
-											enabled={hasBtnIcon && (value?.name || '').length > 10}
-											label={capitalize(value?.name) || ''}
-											className="h-full"
-										>
-											{button}
-										</Tooltip>
-									) : (
-										<TaskStatus
-											{...defaultValue}
-											active={true}
-											forDetails={forDetails}
-											sidebarUI={sidebarUI}
-											className={cn(
-												'justify-between w-full capitalize h-full',
-												sidebarUI && ['text-xs'],
-												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-												forDetails &&
-													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-												taskStatusClassName
-											)}
-											name={
-												values.length > 0
-													? `Item${values.length === 1 ? '' : 's'} (${values.length})`
-													: defaultValue.name
-											}
-											isEpic={isEpic}
-										>
-											<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
-										</TaskStatus>
-									)}
-								</ListboxButton>
-
-								<Transition
-									show={open && enabled}
-									enter="transition duration-100 ease-out"
-									enterFrom="transform scale-95 opacity-0"
-									enterTo="transform scale-100 opacity-100"
-									leave="transition duration-75 ease-out"
-									leaveFrom="transform scale-100 opacity-100"
-									leaveTo="transform scale-95 opacity-0"
-									as="div"
-									className={cn(
-										'absolute right-0 left-0 z-40 min-w-min outline-none',
-										issueType === 'issue' && 'left-auto right-auto',
-										isEpic && '-left-100 right-10'
-									)}
-								>
-									<ListboxOptions className="outline-none">
-										<Card
-											shadow="bigger"
-											className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
-										>
-											{items.map((item, i) => {
-												const item_value = item?.value || item?.name;
-
-												return (
-													<ListboxOption key={i} value={item_value} disabled={disabled}>
-														<div className="relative outline-none cursor-pointer">
-															<TaskStatus
-																showIcon={showIcon}
-																{...item}
-																checked={
-																	item?.value ? values.includes(item?.value) : false
-																}
-																className={cn(
-																	'!w-full',
-																	issueType === 'issue' && [
-																		'rounded-md px-2 text-white'
-																	],
-																	sidebarUI && 'rounded-[8px]',
-																	bordered && 'input-border',
-																	(isVersion || isEpic) && 'dark:text-white',
-																	item?.className
-																)}
-															/>
-
-															{open &&
-																current_value === item_value &&
-																issueType !== 'issue' && (
-																	<button
-																		type="button"
-																		onClick={(e: any) => {
-																			e.stopPropagation();
-																			onRemoveSelected && onRemoveSelected();
-																			onChange && onChange(null as any);
-																		}}
-																		className="absolute top-2.5 right-2 h-4 w-4 bg-light--theme-light dark:bg-dark--theme-light"
-																	>
-																		<XMarkIcon
-																			className="text-dark dark:text-white"
-																			height={16}
-																			width={16}
-																			aria-hidden="true"
-																		/>
-																	</button>
-																)}
-														</div>
-													</ListboxOption>
-												);
-											})}
-											{children && (
-												<button type="button" className="mt-2">
-													{children}
-												</button>
-											)}
-										</Card>
-									</ListboxOptions>
-								</Transition>
-							</div>
-						);
-					}}
-				</Listbox>
+									{triggerContent}
+								</div>
+							}
+							items={items}
+							renderItem={renderItem}
+							multiple={multiple}
+							dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+						/>
+					);
+				})()}
 			</div>
 		</Tooltip>
 	);
 
-	// return showButtonOnly ? button : dropdown; // To disable dropdown when showButton is true
 	return dropdown;
 }
 
 /**
- * Fc Status drop down
+ * Multiple Status Dropdown Component
  */
 export function MultipleStatusDropdown<T extends TStatusItem>({
 	value,
@@ -1127,6 +1120,11 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	isVersion?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
+	// Si value existe mais n'est pas dans values, l'ajouter à values
+	const valueToAdd = value?.value || value?.name;
+	if (valueToAdd && !values.includes(valueToAdd)) {
+		values = [...values, valueToAdd];
+	}
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: (
@@ -1137,108 +1135,102 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		name: defaultItem
 	};
 
+	const triggerButton = (
+		<div
+			className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+			style={{
+				width: largerWidth ? '160px' : ''
+			}}
+		>
+			<TaskStatus
+				{...defaultValue}
+				active={true}
+				forDetails={forDetails}
+				sidebarUI={sidebarUI}
+				className={cn(
+					'justify-between w-full capitalize',
+					sidebarUI && ['text-xs'],
+					' dark:text-white dark:bg-dark--theme-light',
+					forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+					taskStatusClassName
+				)}
+				titleClassName={cn(
+					values.length > 0 && '!text-dark dark:!text-white',
+					!value && 'dark:text-white text-slate-500'
+				)}
+				name={
+					values.length > 0 ? `Item${values.length === 1 ? '' : 's'} (${values.length})` : defaultValue.name
+				}
+			>
+				<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+			</TaskStatus>
+		</div>
+	);
+
+	// Function to render each item in the dropdown
+	const renderItem = (item: T, isSelected: boolean) => {
+		const item_value = item.value || item.name;
+		return (
+			<div className="relative outline-none cursor-pointer w-full">
+				<TaskStatus
+					showIcon={showIcon}
+					{...item}
+					checked={isSelected}
+					className={cn(
+						'!w-full',
+						issueType === 'issue' && ['rounded-md px-2 text-white'],
+						sidebarUI && 'rounded-[8px]',
+						bordered && 'input-border',
+						isVersion && 'dark:text-white'
+					)}
+				/>
+				{isSelected && issueType !== 'issue' && (
+					<button
+						onClick={(e: any) => {
+							e.stopPropagation();
+
+							if (onChange && item_value) {
+								// Utiliser une comparaison de chaînes pour une suppression plus robuste
+								const stringItemValue = String(item_value);
+								const newValues = values.filter((v) => String(v) !== stringItemValue);
+								onChange(newValues);
+							}
+
+							onRemoveSelected && onRemoveSelected();
+						}}
+						className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+					>
+						<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
+					</button>
+				)}
+			</div>
+		);
+	};
+
+	// Handle item selection
+	const handleChange = (selectedValue: any) => {
+		if (!onChange) return;
+		onChange(selectedValue);
+	};
+
 	const dropdown = (
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={cn('relative', className)}>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<div
-							className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
-							style={{
-								width: largerWidth ? '160px' : ''
-							}}
-						>
-							<TaskStatus
-								{...defaultValue}
-								active={true}
-								forDetails={forDetails}
-								sidebarUI={sidebarUI}
-								className={cn(
-									'justify-between w-full capitalize',
-									sidebarUI && ['text-xs'],
-									' dark:text-white dark:bg-dark--theme-light',
-									forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-									taskStatusClassName
-								)}
-								titleClassName={cn(
-									values.length > 0 && '!text-dark dark:!text-white',
-									!value && 'dark:text-white text-slate-500'
-								)}
-								name={
-									values.length > 0
-										? `Item${values.length === 1 ? '' : 's'} (${values.length})`
-										: defaultValue.name
-								}
-							>
-								<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
-							</TaskStatus>
-						</div>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
-						data-values={values.join(',')}
-						data-multiple="true"
-						data-disabled={disabled ? 'true' : 'false'}
-					>
-						<DropdownMenuGroup>
-							{items.map((item, i) => {
-								const item_value = item.value || item.name;
-								return (
-									<DropdownMenuItem
-										className=""
-										key={i}
-										disabled={disabled}
-										onClick={() => {
-											if (!onChange) return;
-											if (values.includes(item_value || '')) {
-												const newValues = values.filter((v) => v !== item_value);
-												onChange(newValues);
-											} else {
-												onChange([...values, item_value || '']);
-											}
-										}}
-									>
-										<TaskStatus
-											showIcon={showIcon}
-											{...item}
-											cheched={item.value ? values.includes(item.value) : false}
-											className={cn(
-												'!w-full',
-												issueType === 'issue' && ['rounded-md px-2 text-white'],
-												`${sidebarUI ? 'rounded-[8px]' : ''}`,
-												`${bordered ? 'input-border' : ''}`,
-												isVersion && 'dark:text-white'
-											)}
-										/>
-										{value === item_value && issueType !== 'issue' && (
-											<button
-												onClick={(e: any) => {
-													e.stopPropagation();
-
-													if (onChange && item_value) {
-														const newValues = values.filter((v) => v !== item_value);
-														onChange(newValues);
-													}
-
-													onRemoveSelected && onRemoveSelected();
-												}}
-												className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-											>
-												<XMarkIcon
-													className="text-dark"
-													height={16}
-													width={16}
-													aria-hidden="true"
-												/>
-											</button>
-										)}
-									</DropdownMenuItem>
-								);
-							})}
-							{children && <div className="mt-2">{children}</div>}
-						</DropdownMenuGroup>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<CustomListboxDropdown
+					value={value?.value || value?.name}
+					// Convertir explicitement toutes les valeurs en chaînes pour éviter les problèmes de comparaison
+					values={values.map(String)}
+					onChange={handleChange}
+					disabled={disabled}
+					enabled={enabled}
+					trigger={triggerButton}
+					items={items}
+					renderItem={renderItem}
+					multiple={true}
+					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+				>
+					{children && <div className="mt-2">{children}</div>}
+				</CustomListboxDropdown>
 			</div>
 		</Tooltip>
 	);

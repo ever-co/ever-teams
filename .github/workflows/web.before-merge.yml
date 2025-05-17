@@ -43,7 +43,6 @@ jobs:
           yarn install --frozen-lockfile
 
       - name: Build Web
-        env:
-          NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: 'true'
+
         run: |
           yarn build:web
