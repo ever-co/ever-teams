@@ -43,7 +43,7 @@
 		"@fullcalendar/timegrid": "^6.1.15",
 		"@google-recaptcha/react": "^2.1.1",
 		"@hcaptcha/react-hcaptcha": "^1.12.0",
-		"@headlessui/react": "^2.2.2",
+		"@headlessui/react": "^2.2.3",
 		"@hello-pangea/dnd": "^18.0.1",
 		"@heroicons/react": "^2.0.12",
 		"@hookform/resolvers": "^3.9.1",

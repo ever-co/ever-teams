@@ -32,5 +32,6 @@ export * from "./components/toggle-group";
 export * from "./components/tooltip";
 export * from "./components/textarea";
 export * from "./components/tooltip";
+export * from "./components/command";
 export * from "./lib/utils";
 export * from "./hooks/index";

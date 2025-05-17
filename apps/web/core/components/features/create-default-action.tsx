@@ -39,7 +39,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 						<svg
 							aria-hidden="true"
 							xmlns="http://www.w3.org/2000/svg"
-							className="transition-transform duration-500 w-5 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)] group-aria-expanded:rotate-[135deg] text-indigo-500"
+							className="transition-transform duration-500 w-5 ease-out group-aria-expanded:rotate-[135deg] text-indigo-500"
 							width={24}
 							height={24}
 							viewBox="0 0 24 24"

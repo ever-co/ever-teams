@@ -1,5 +1,5 @@
 import { useAuthenticateUser } from '@/core/hooks';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import capitalize from 'lodash/capitalize';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ const Profile = () => {
 		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<Popover.Button className="p-0 m-0 mt-1 outline-none">
+					<PopoverButton className="p-0 m-0 mt-1 outline-none">
 						<div className="cursor-pointer relative w-[48px] h-[48px]">
 							<Image
 								src={user?.imageUrl || ''}
@@ -42,7 +42,7 @@ const Profile = () => {
 								className="w-full h-full rounded-full"
 							/>
 						</div>
-					</Popover.Button>
+					</PopoverButton>
 					<Transition
 						as="div"
 						enter="transition ease-out duration-200"
@@ -52,7 +52,7 @@ const Profile = () => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[260px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl shandow">
+						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[260px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl shandow">
 							<div className="bg-white shadow dark:bg-[#202023] rounded-[10px] text-[14px] font-light px-[39px] pb-[10px]">
 								<div className="">
 									<div className="flex pt-[13px] justify-center items-center">
@@ -116,8 +116,8 @@ const Profile = () => {
 										</button>
 									</div>
 								</div>
-							</div>{' '}
-						</Popover.Panel>
+							</div>
+						</PopoverPanel>
 					</Transition>
 				</>
 			)}
