@@ -21,7 +21,8 @@ export function CustomListboxDropdown<T>({
 	multiple = false,
 	className,
 	dropdownClassName,
-	children
+	children,
+	isMultiple = true
 }: {
 	value?: T;
 	values?: T[];
@@ -35,12 +36,13 @@ export function CustomListboxDropdown<T>({
 	className?: string;
 	dropdownClassName?: string;
 	children?: ReactNode;
+	isMultiple?: boolean;
 }) {
 	const [open, setOpen] = useState(false);
 
 	const handleSelect = (itemValue: T) => {
 		if (!onChange) return;
-		if (multiple) {
+		if (isMultiple && multiple) {
 			const stringItemValue = String(itemValue);
 			const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
 			if (isAlreadySelected) {
@@ -76,7 +78,6 @@ export function CustomListboxDropdown<T>({
 				>
 					<DropdownMenuGroup>
 						{items.map((item, i) => {
-							// Use a safe type for itemValue that handles undefined cases
 							const itemValue = item.value !== undefined ? item.value : (item.name as unknown as T);
 							const isSelected = multiple
 								? values.some((v) => String(v) === String(itemValue))

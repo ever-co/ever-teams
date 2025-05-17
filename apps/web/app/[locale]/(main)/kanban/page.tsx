@@ -326,6 +326,7 @@ const Kanban = () => {
 									/>
 
 									<TaskPropertiesDropdown
+										isMultiple={false}
 										onValueChange={(_, values) => setPriority(values || [])}
 										className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center"
 										multiple

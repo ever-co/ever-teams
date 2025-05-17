@@ -69,6 +69,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		taskStatusClassName?: string;
 		latestLabels?: RefObject<string[]>;
 		dropdownContentClassName?: string;
+		isMultiple?: boolean;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -458,6 +459,7 @@ export function TaskPropertiesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
+	isMultiple = false,
 	children
 }: TTaskStatusesDropdown<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
@@ -479,6 +481,7 @@ export function TaskPropertiesDropdown({
 			defaultItem={!item ? 'priority' : undefined}
 			onChange={onChange}
 			multiple={multiple}
+			isMultiple={isMultiple}
 			values={values}
 			largerWidth={largerWidth}
 		>
@@ -550,7 +553,8 @@ export function TaskSizesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
-	children
+	children,
+	isMultiple = false
 }: TTaskStatusesDropdown<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
 
@@ -563,6 +567,7 @@ export function TaskSizesDropdown({
 
 	return (
 		<StatusDropdown
+			isMultiple={isMultiple}
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
@@ -842,7 +847,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	disabledReason = '',
 	isVersion = false,
 	isEpic = false,
-	onRemoveSelected
+	onRemoveSelected,
+	isMultiple = true
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -866,6 +872,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	isVersion?: boolean;
 	isEpic?: boolean;
 	onRemoveSelected?: () => null;
+	isMultiple?: boolean;
 }>) {
 	const processedValues = [...new Set(values)];
 	if (multiple && value) {
@@ -974,7 +981,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="relative outline-none cursor-pointer w-full">
+							<div className="outline-none cursor-pointer w-full">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -998,9 +1005,14 @@ export function StatusDropdown<T extends TStatusItem>({
 											}
 											onRemoveSelected && onRemoveSelected();
 										}}
-										className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+										className="absolute top-2.5 right-2.5 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
 									>
-										<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
+										<XMarkIcon
+											className="text-dark dark:text-white"
+											height={16}
+											width={16}
+											aria-hidden="true"
+										/>
 									</button>
 								)}
 							</div>
@@ -1021,6 +1033,7 @@ export function StatusDropdown<T extends TStatusItem>({
 
 					return (
 						<CustomListboxDropdown
+							isMultiple={isMultiple}
 							value={value?.value || value?.name}
 							values={values}
 							onChange={handleChange}
