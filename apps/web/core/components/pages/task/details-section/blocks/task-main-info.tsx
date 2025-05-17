@@ -6,16 +6,16 @@ import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { ActiveTaskIssuesDropdown } from '@/core/components/features';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
-import { DatePicker } from '@/core/components/ui/DatePicker';
+import { DatePicker } from '@/core/components/common/date-picker';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
+import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);

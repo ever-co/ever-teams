@@ -1,6 +1,7 @@
-import { Button, Card, Modal, Text } from '@/core/components';
+import { Button, Modal, Text } from '@/core/components';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Card } from '../duplicated-components/card';
 
 export const RemoveModal = ({
 	open,

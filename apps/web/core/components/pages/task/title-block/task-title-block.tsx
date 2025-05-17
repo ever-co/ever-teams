@@ -1,23 +1,23 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/ui/hover-card';
-import { useToast } from '@/core/components/ui/use-toast';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
+import { useToast } from '@/core/hooks/common/use-toast';
 import { Button, CopyTooltip } from '@/core/components';
-import { ActiveTaskIssuesDropdown } from '@/core/components/features';
 import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
 
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
-import CreateParentTask from '../ParentTask';
+import CreateParentTask from '../parent-task';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
+import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();

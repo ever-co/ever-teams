@@ -1,5 +1,5 @@
 'use client';
-import GlobalSkeleton from '@/core/components/ui/global-skeleton';
+import GlobalSkeleton from '@/core/components/common/global-skeleton';
 
 const loading = () => {
 	return <GlobalSkeleton />;

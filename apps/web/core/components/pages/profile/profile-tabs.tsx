@@ -1,4 +1,4 @@
-import StatusDropdown from '@/core/components/shared/tasks/status-dropdown';
+import StatusDropdown from '@/core/components/tasks/status-dropdown';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
 

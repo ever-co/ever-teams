@@ -9,21 +9,22 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
-import { Breadcrumb, Container } from '@/core/components';
-import { DashboardHeader } from '@/core/components/dashboard/dashboard-header';
+import { Container } from '@/core/components';
+import { DashboardHeader } from '@/core/components/pages/dashboard/dashboard-header';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
-import { Card } from '@/core/components/ui/card';
-import {
-	ProductivityApplicationTable,
-	ProductivityEmployeeTable,
-	ProductivityProjectTable,
-	ProductivityHeader,
-	ProductivityChart,
-	ProductivityStats,
-	ProductivityTable
-} from '@/core/components/dashboard';
+import { Card } from '@/core/components/common/card';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
+import {
+	ProductivityApplicationTable,
+	ProductivityChart,
+	ProductivityEmployeeTable,
+	ProductivityHeader,
+	ProductivityProjectTable,
+	ProductivityStats,
+	ProductivityTable
+} from '@/core/components/pages/dashboard/app-url';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 interface ProductivityData {
 	date: string;

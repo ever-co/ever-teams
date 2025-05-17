@@ -1,7 +1,8 @@
-import { Button, InputField } from '@/core/components';
+import { Button } from '@/core/components';
 import { useState, useEffect, useRef } from 'react';
 import { SearchNormalIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
+import { InputField } from '../../duplicated-components/_input';
 
 const KanbanSearch = ({
 	setSearchTasks,

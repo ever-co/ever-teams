@@ -1,25 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
 import { Modal, statusColor } from '@/core/components';
-import { DatePickerFilter } from './timesheet-filter-date';
+import { DatePickerFilter } from '../pages/timesheet/timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/core/lib/utils';
-import {
-	Item,
-	ManageOrMemberComponent,
-	getNestedValue
-} from '@/core/components/features/manual-time/manage-member-component';
+import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
-import { CustomSelect, TaskNameInfoDisplay } from '@/core/components/features';
 import { statusTable } from './timesheet-action';
 import { TimesheetLog } from '@/core/types/interfaces';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { toast } from '@/core/components/ui/use-toast';
-import { ToastAction } from '@/core/components/ui/toast';
+import { toast } from '@/core/hooks/common/use-toast';
+import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock7 } from 'lucide-react';
+import { CustomSelect } from '../common/multiple-select';
+import { TaskNameInfoDisplay } from '../tasks/task-displays';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;

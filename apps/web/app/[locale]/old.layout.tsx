@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { Provider } from 'jotai';
 import { AppState } from '@/core/components/layouts/app/init-state';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
-import { JitsuRoot } from '@/core/components/settings/JitsuRoot';
+import { JitsuRoot } from '@/core/components/collaborate/jitsu-root';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
@@ -15,8 +15,8 @@ import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigati
 import { PropsWithChildren, useEffect, use } from 'react';
 
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
-import GlobalSkeleton from '@/core/components/ui/global-skeleton';
-import OfflineWrapper from '@/core/components/offline-wrapper';
+import GlobalSkeleton from '@/core/components/common/global-skeleton';
+import OfflineWrapper from '@/core/components/common/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';

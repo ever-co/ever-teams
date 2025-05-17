@@ -1,12 +1,14 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { DangerZone, PersonalSettingForm, ProfileAvatar } from '@/core/components/settings';
-import { Accordian } from '@/core/components/accordian';
+import { Accordian } from '@/core/components/common/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { SyncZone } from '@/core/components/settings/sync.zone';
-import { WorkingHours } from '@/core/components/settings/working-hours';
+import { SyncZone } from '@/core/components/pages/settings/personal/sync.zone';
+import { WorkingHours } from '@/core/components/pages/settings/personal/working-hours';
+import { PersonalSettingForm } from '@/core/components/pages/settings/personal/personal-setting-form';
+import { DangerZone } from '@/core/components/pages/settings/personal/danger-zone-personal';
+import { ProfileAvatar } from '@/core/components/users/profile-avatar';
 
 const Personal = () => {
 	const t = useTranslations();
