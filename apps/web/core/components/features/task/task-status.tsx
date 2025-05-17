@@ -1079,7 +1079,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										sidebarUI && 'rounded-[8px]',
 										bordered && 'input-border',
 										(isVersion || isEpic) && 'dark:text-white',
-										item?.className
+										item.className
 									)}
 								/>
 								{isSelected && issueType !== 'issue' && (
