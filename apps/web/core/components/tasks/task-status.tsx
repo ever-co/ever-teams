@@ -923,7 +923,6 @@ export function StatusDropdown<T extends TStatusItem>({
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
-			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
 				<ChevronDownIcon
 					className={cn(
@@ -975,7 +974,6 @@ export function StatusDropdown<T extends TStatusItem>({
 					);
 
 					const renderItem = (item: T, isSelected: boolean) => {
-						// Obtenir la valeur de l'item pour la comparaison et les opérations de sélection
 						const item_value = item.value || item.name;
 						return (
 							<div className="relative outline-none cursor-pointer w-full">
@@ -1017,24 +1015,18 @@ export function StatusDropdown<T extends TStatusItem>({
 						if (!onChange) return;
 
 						if (multiple) {
-							// S'assurer que selectedValue est un tableau
 							const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
 
-							// Convertir toutes les valeurs en chaînes
 							const stringValues = valueArray.map(String);
 
-							// Utiliser un Set pour garantir l'unicité des valeurs
 							const uniqueValues = [...new Set(stringValues)];
 
-							// Vérification supplémentaire pour s'assurer qu'il n'y a pas de doublons
 							if (uniqueValues.length !== stringValues.length) {
-								console.log('Doublons détectés et éliminés dans les valeurs sélectionnées');
+								console.log('Duplicates detected and eliminated in selected values');
 							}
 
-							// Passer la chaîne jointe au onChange
 							onChange(uniqueValues.join(','));
 						} else {
-							// Pour la sélection simple, passer directement la valeur
 							onChange(selectedValue);
 						}
 					};
@@ -1042,7 +1034,6 @@ export function StatusDropdown<T extends TStatusItem>({
 					return (
 						<CustomListboxDropdown
 							value={value?.value || value?.name}
-							// Convertir explicitement toutes les valeurs en chaînes pour éviter les problèmes de comparaison
 							values={values.map(String)}
 							onChange={handleChange}
 							disabled={disabled}
