@@ -1111,7 +1111,6 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	isVersion?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
-	// Si value existe mais n'est pas dans values, l'ajouter à values
 	const valueToAdd = value?.value || value?.name;
 	if (valueToAdd && !values.includes(valueToAdd)) {
 		values = [...values, valueToAdd];
@@ -1158,7 +1157,6 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		</div>
 	);
 
-	// Function to render each item in the dropdown
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
@@ -1181,9 +1179,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 							e.stopPropagation();
 
 							if (onChange && item_value) {
-								// Utiliser une comparaison de chaînes pour une suppression plus robuste
-								const stringItemValue = String(item_value);
-								const newValues = values.filter((v) => String(v) !== stringItemValue);
+								const newValues = values.filter((v) => String(v) !== String(item_value));
 								onChange(newValues);
 							}
 
@@ -1198,7 +1194,6 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		);
 	};
 
-	// Handle item selection
 	const handleChange = (selectedValue: any) => {
 		if (!onChange) return;
 		onChange(selectedValue);
@@ -1209,7 +1204,6 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 			<div className={cn('relative', className)}>
 				<CustomListboxDropdown
 					value={value?.value || value?.name}
-					// Convertir explicitement toutes les valeurs en chaînes pour éviter les problèmes de comparaison
 					values={values.map(String)}
 					onChange={handleChange}
 					disabled={disabled}
