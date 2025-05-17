@@ -1290,7 +1290,13 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 
 	const handleChange = (selectedValue: any) => {
 		if (!onChange) return;
-		onChange(selectedValue);
+		if (Array.isArray(selectedValue)) {
+			onChange(selectedValue);
+		} else if (selectedValue) {
+			onChange([selectedValue]);
+		} else {
+			onChange([]);
+		}
 	};
 
 	const dropdown = (
