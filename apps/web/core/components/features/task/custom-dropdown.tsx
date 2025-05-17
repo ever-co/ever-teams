@@ -42,8 +42,7 @@ export function CustomListboxDropdown<T>({
 		if (!onChange) return;
 		if (multiple) {
 			const stringItemValue = String(itemValue);
-			const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
-
+			const isAlreadySelected = values.includes(itemValue);
 			if (isAlreadySelected) {
 				const newValues = values.filter((v) => String(v) !== stringItemValue);
 				onChange(newValues);
