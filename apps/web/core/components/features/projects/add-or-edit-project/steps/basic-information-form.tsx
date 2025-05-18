@@ -1,18 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button } from '@/core/components';
+// import { InputField } from '@/core/components';
 import RichTextEditor from '../text-editor';
-import { Calendar } from '@/core/components/common/calendar';
-import {
-	Listbox,
-	ListboxButton,
-	ListboxOption,
-	ListboxOptions,
-	Popover,
-	PopoverButton,
-	PopoverPanel
-} from '@headlessui/react';
+// import { Calendar } from '@/core/components/ui/calendar';
 import { cn } from '@/core/lib/helpers';
-import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
+import { CalendarIcon, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { IStepElementProps } from '../container';
@@ -24,8 +15,28 @@ import { ScrollBar } from '@/core/components/common/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
-import { InputField } from '@/core/components/duplicated-components/_input';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/core/components/common/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { ChevronDown } from 'lucide-react';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
+import { InputField } from '@/core/components/duplicated-components/_input';
+import { Button as ShadcnButton } from '@/core/components/duplicated-components/_button';
+import { Calendar } from '@/core/components/common/calendar';
+import { Checkbox } from '@/core/components/common/checkbox';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+	loading?: boolean;
+	variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+}
+
+const Button = ({ children, loading, className, ...props }: ButtonProps) => {
+	return (
+		<ShadcnButton className={cn('relative', className)} disabled={loading} {...props}>
+			{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+			{children}
+		</ShadcnButton>
+	);
+};
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 
@@ -256,9 +267,10 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							onChange={(date) => {
 								if (date) {
 									setStartDate(date);
-									if (endDate < date) {
-										setEndDate(date);
-									}
+									// Set end date to start date + 1 day
+									const nextDay = new Date(date);
+									nextDay.setDate(nextDay.getDate() + 1);
+									setEndDate(nextDay);
 								}
 							}}
 							required
@@ -455,19 +467,22 @@ export function DatePicker(props: IDatePickerProps) {
 	}, [isStartDate, minDate]);
 
 	return (
-		<Popover className={cn('relative w-full border rounded-lg p-2')}>
-			<PopoverButton
-				className={cn(
-					'w-full flex items-center justify-between text-left',
-					!value && 'text-muted-foreground',
-					className
-				)}
-				disabled={disabled}
-			>
-				{value ? format(value, 'PPP') : <span className="text-xs">{placeholder}</span>}
-				<CalendarIcon size={15} />
-			</PopoverButton>
-			<PopoverPanel className="absolute right-0 z-50 w-auto p-0 bg-white border rounded-lg shadow-md dark:bg-dark--theme top-11">
+		<Popover>
+			<PopoverTrigger asChild>
+				<Button
+					variant="outline"
+					className={cn(
+						'w-full flex items-center justify-between text-left dark:bg-dark--theme-light',
+						!value && 'text-muted-foreground border dark:border-white ',
+						className
+					)}
+					disabled={disabled}
+				>
+					{value ? format(value, 'PPP') : <span className="text-xs">{placeholder}</span>}
+					<CalendarIcon size={15} />
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent className="w-auto p-0 dark:bg-dark--theme-light" align="start">
 				<Calendar
 					id={id}
 					required={required}
@@ -478,10 +493,11 @@ export function DatePicker(props: IDatePickerProps) {
 					initialFocus
 					fromDate={isStartDate ? today : minDate}
 				/>
-			</PopoverPanel>
+			</PopoverContent>
 		</Popover>
 	);
 }
+
 /**
  * Select (mono / multi)
  * With:
@@ -545,100 +561,99 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 	const listHeight = items?.length > maxVisibleItems ? '12rem' : `${items?.length * itemHeight}rem`;
 
 	return (
-		<div className="relative">
-			<Listbox multiple={isMulti} value={selected} onChange={onChange}>
-				<ListboxButton
-					className={cn(
-						'w-full border rounded-lg flex items-center justify-between text-left px-2 py-1 text-xs h-[2.2rem]',
-						className
-					)}
+		<div className="relative dark:bg-dark--theme-light">
+			<Popover>
+				<PopoverTrigger asChild>
+					<Button
+						variant="outline"
+						role="combobox"
+						className={cn(
+							'w-full border rounded-lg flex items-center justify-between text-left px-3 py-2 text-sm h-10 dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
+							className
+						)}
+					>
+						{renderValue ? (
+							renderValue(selected)
+						) : (
+							<span className={cn('capitalize', !selected?.length && 'text-gray-400 dark:text-gray-500')}>
+								{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
+							</span>
+						)}
+						<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50 dark:text-white" />
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent
+					className="w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20"
+					align="center"
 				>
-					{renderValue ? (
-						renderValue(selected)
-					) : (
-						<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
-							{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
-						</span>
-					)}
-
-					<ChevronDown size={15} className="text-gray-400 " />
-				</ListboxButton>
-				<ListboxOptions
-					className={cn(
-						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white dark:bg-dark--theme rounded-md p-1 shadow-md'
-					)}
-				>
-					{searchEnabled && (
-						<div className="w-full flex border dark:border-white rounded-md   h-[2rem] items-center px-1">
-							<Search size={15} className=" text-slate-300" />
-							<InputField
-								value={searchTerm}
-								onChange={(e) => {
-									setSearchTerm(e.target.value);
-								}}
+					<Command className="w-full dark:bg-dark--theme-light">
+						{searchEnabled && (
+							<CommandInput
 								placeholder={items?.length == 0 ? 'Type new ...' : 'Search ...'}
-								className="h-full text-xs bg-transparent border-none dark:bg-transparent"
-								noWrapper
+								value={searchTerm}
+								onValueChange={setSearchTerm}
+								className="h-9 text-sm dark:bg-dark--theme-light dark:text-white dark:placeholder:text-gray-500"
 							/>
-						</div>
-					)}
-
-					<ScrollArea style={{ height: listHeight }}>
-						{items?.map((item) => (
-							<ListboxOption key={item?.id} value={item?.id} as="div">
-								{({ focus, selected: isSelected }) => (
-									<li className={cn('text-xs cursor-pointer rounded ')}>
-										{renderItem ? (
-											renderItem(item, isSelected, focus)
-										) : isMulti ? (
-											// Default multi-select render
-											<div className="flex items-center w-full h-full gap-2 p-1 px-2">
-												<span
-													className={cn(
-														'h-4 w-4 rounded border border-primary flex items-center justify-center',
-														isSelected &&
-															'bg-primary text-primary-foreground dark:text-white'
-													)}
-												>
-													{isSelected && <CheckIcon className=" dark:text-white" size={10} />}
-												</span>
-												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
-											</div>
-										) : (
-											// Default single-select render
-											<div
-												className={cn(
-													'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-													isSelected && 'bg-primary text-primary-foreground dark:text-white'
-												)}
-											>
-												{isSelected && <CheckIcon size={10} />}
-												<span className={cn(' capitalize', selected && !isSelected && 'pl-5')}>
-													{item?.value ?? '-'}
-												</span>
-											</div>
+						)}
+						<CommandEmpty>
+							{searchEnabled && items?.length == 0 && onCreate && (
+								<Button
+									type="button"
+									loading={createLoading}
+									onClick={() => onCreate?.(searchTerm)}
+									variant="outline"
+									className="w-full h-9 text-sm dark:border-white/20 dark:text-white hover:dark:bg-dark--theme"
+								>
+									Add new
+								</Button>
+							)}
+						</CommandEmpty>
+						<CommandGroup className="dark:bg-dark--theme-light">
+							<ScrollArea style={{ height: listHeight }}>
+								{items?.map((item) => (
+									<CommandItem
+										key={item?.id}
+										value={item?.id}
+										onSelect={() => {
+											if (isMulti) {
+												const newSelected = selected ? [...selected] : [];
+												const index = newSelected.indexOf(item.id);
+												if (index === -1) {
+													newSelected.push(item.id);
+												} else {
+													newSelected.splice(index, 1);
+												}
+												onChange?.(newSelected);
+											} else {
+												onChange?.(item.id);
+											}
+										}}
+										className={cn(
+											'text-sm cursor-pointer rounded px-2 py-1.5 dark:text-white dark:hover:bg-dark--theme',
+											isMulti && 'flex items-center gap-2'
 										)}
-									</li>
-								)}
-							</ListboxOption>
-						))}
-						<ScrollBar className="-pl-7" />
-					</ScrollArea>
-					{searchEnabled && items?.length == 0 && onCreate && (
-						<div className="flex items-center justify-center w-full h-[2.2rem] px-1 py-2">
-							<Button
-								type="button"
-								loading={createLoading}
-								onClick={() => onCreate?.(searchTerm)}
-								variant="outline"
-								className="w-full h-full text-xs"
-							>
-								Add new
-							</Button>
-						</div>
-					)}
-				</ListboxOptions>
-			</Listbox>
+									>
+										{renderItem ? (
+											renderItem(item, selected ? selected.includes(item.id) : false, false)
+										) : isMulti ? (
+											<>
+												<Checkbox
+													checked={selected?.includes(item.id)}
+													className="h-4 w-4 dark:border-white/20"
+												/>
+												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
+											</>
+										) : (
+											<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
+										)}
+									</CommandItem>
+								))}
+								<ScrollBar className="-pl-7 dark:bg-dark--theme" />
+							</ScrollArea>
+						</CommandGroup>
+					</Command>
+				</PopoverContent>
+			</Popover>
 		</div>
 	);
 }
