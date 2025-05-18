@@ -64,6 +64,10 @@ export function Dropdown<T extends DropdownItem>({
 		setOpen(false);
 	};
 
+	const selectedItem = items.find((item) => item.key === Value?.key);
+	const otherItems = items.filter((item) => item.key !== Value?.key);
+	const orderedItems = selectedItem ? [selectedItem, ...otherItems] : items;
+
 	return (
 		<div className={clsxm('rounded-xl relative', className)}>
 			{/* Backdrop for clicking outside */}
@@ -132,7 +136,7 @@ export function Dropdown<T extends DropdownItem>({
 						{/* Items list */}
 						<ScrollArea>
 							<section className="max-h-96 min-w-[100px]">
-								{items.map((Item, index) => (
+								{orderedItems.map((Item, index) => (
 									<div
 										key={Item.key ? Item.key : index}
 										className={cn(
