@@ -23,7 +23,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 					placement="auto"
 					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
 				>
-					<div className="flex items-center justify-between w-full my-1">
+					<div className="flex items-center justify-between w-full my-1 gap-x-2">
 						<div className="max-w-[90%] flex items-center">
 							<TeamItem
 								title={team.name}
