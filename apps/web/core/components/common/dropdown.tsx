@@ -1,7 +1,7 @@
 import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
 import { SpinnerLoader } from './loader';
@@ -54,7 +54,7 @@ export function Dropdown<T extends DropdownItem>({
 
 	// Handle search text updates
 	useEffect(() => {
-		if (setSearchText && searchValue) {
+		if (setSearchText) {
 			setSearchText(searchValue);
 		}
 	}, [searchValue, setSearchText]);
@@ -184,8 +184,11 @@ export function ConfirmDropdown({
 								{confirmText}
 							</button>
 						</li>
+						+
 						<li className="w-full text-sm">
-							<button className="w-full text-left">Cancel</button>
+							<PopoverClose asChild>
+								+ <button className="w-full text-left">Cancel</button>
+							</PopoverClose>
 						</li>
 					</ul>
 				</Card>

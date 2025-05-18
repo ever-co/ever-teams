@@ -267,10 +267,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							onChange={(date) => {
 								if (date) {
 									setStartDate(date);
-									// Set end date to start date + 1 day
-									const nextDay = new Date(date);
-									nextDay.setDate(nextDay.getDate() + 1);
-									setEndDate(nextDay);
+									if (!endDate || moment(date).isSameOrAfter(endDate)) {
+										const nextDay = new Date(date);
+										nextDay.setDate(nextDay.getDate() + 1);
+										setEndDate(nextDay);
+									}
 								}
 							}}
 							required
