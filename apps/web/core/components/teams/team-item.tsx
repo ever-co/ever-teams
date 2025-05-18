@@ -23,8 +23,8 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 					placement="auto"
 					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
 				>
-					<div className="flex justify-between w-full">
-						<div className="max-w-[90%]">
+					<div className="flex items-center justify-between w-full my-1">
+						<div className="max-w-[90%] flex items-center">
 							<TeamItem
 								title={team.name}
 								count={team.members?.length}
@@ -35,6 +35,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 						</div>
 
 						<Link
+							className="flex items-center justify-center"
 							onClick={(e) => {
 								onChangeActiveTeam({
 									data: team
@@ -109,7 +110,7 @@ export function TeamItem({
 		<div
 			className={clsxm(
 				'flex items-center justify-start space-x-2 text-sm',
-				'cursor-pointer mb-4 max-w-full',
+				'cursor-pointer max-w-full',
 				className
 			)}
 		>
