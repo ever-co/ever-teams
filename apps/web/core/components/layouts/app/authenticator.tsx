@@ -2,13 +2,13 @@ import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/h
 import { useOrganizationTeams } from '@/core/hooks';
 import { useQuery } from '@/core/hooks/common/use-query';
 import { userState } from '@/core/stores';
-import { CreateTeamModal } from '@/core/components/features';
-import { JoinTeamModal } from '@/core/components/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { userService } from '@/core/services/client/api';
+import { JoinTeamModal } from '../../features/teams/join-team-modal';
+import { CreateTeamModal } from '../../features/teams/create-team-modal';
 
 type Params = {
 	displayName: string;

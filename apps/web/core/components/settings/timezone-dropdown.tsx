@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
-import { InputField } from '@/core/components';
 import { useTimezoneSettings } from '@/core/hooks';
 import moment from 'moment-timezone';
 import _debounce from 'lodash/debounce';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { cn } from '@/core/lib/helpers';
 import { CheckIcon, ChevronDown, Search } from 'lucide-react';
-import { ScrollArea } from '@/core/components/ui/scroll-area';
-import { ScrollBar } from '@/core/components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/common/scroll-area';
+import { ScrollBar } from '@/core/components/common/scroll-bar';
+import { InputField } from '../duplicated-components/_input';
 
 const allTimezonesNames = moment.tz.names();
 

@@ -2,7 +2,7 @@
 
 import { Provider as JotaiProvider } from 'jotai';
 import NextAuthSessionProvider from '@/core/components/layouts/default-layout/next-auth-provider';
-import { JitsuRoot } from '@/core/components/settings/JitsuRoot';
+import { JitsuRoot } from '@/core/components/collaborate/jitsu-root';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
@@ -10,7 +10,7 @@ import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigati
 import { PropsWithChildren, useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
-import OfflineWrapper from '@/core/components/offline-wrapper';
+import OfflineWrapper from '@/core/components/common/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';

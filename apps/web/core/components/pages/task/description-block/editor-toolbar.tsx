@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import BlockButton from './editor-components/BlockButton';
-import MarkButton from './editor-components/MarkButton';
-import { insertLink } from './editor-components/TextEditorService';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { Button, InputField } from '@/core/components';
+import BlockButton from './editor-components/block-button';
+import MarkButton from './editor-components/mark-button';
+import { insertLink } from '../../../../lib/helpers/text-editor-service';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { Button } from '@/core/components';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { useTranslations } from 'next-intl';
@@ -31,6 +31,7 @@ import { clsxm } from '@/core/lib/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { IconsCloseRounded, IconsEmojiEmotions } from '@/core/components/icons';
+import { InputField } from '@/core/components/duplicated-components/_input';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;

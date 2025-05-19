@@ -1,28 +1,32 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
-import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from '@/core/components';
-import { Button } from '@/core/components/ui/button';
+import { Modal, SpinnerLoader, Text } from '@/core/components';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
-import { TaskNameInfoDisplay } from '../task/task-displays';
-import { TaskEstimate } from '../task/task-estimate';
+import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { TaskEstimate } from '../../tasks/task-estimate';
 import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { estimatedTotalTime } from '../task/daily-plan';
+import { estimatedTotalTime } from '../../tasks/daily-plan';
 import { clsxm } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
-import { TaskDetailsModal } from './task-details-modal';
+import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
-import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
-import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
 import { IconsErrorWarningFill } from '@/core/components/icons';
+import { InputField } from '../../duplicated-components/_input';
+import { Tooltip } from '../../duplicated-components/tooltip';
+import { Card } from '../../duplicated-components/card';
+import { VerticalSeparator } from '../../duplicated-components/separator';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.

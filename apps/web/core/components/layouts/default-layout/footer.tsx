@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { Text, ThemeToggler } from '@/core/components';
-import { LanguageDropDownWithFlags } from '@/core/components/settings/language-dropdown-flags';
+import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 

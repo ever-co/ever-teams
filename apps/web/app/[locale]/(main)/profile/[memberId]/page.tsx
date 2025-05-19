@@ -9,9 +9,8 @@ import {
 	useUserProfilePage
 } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Button, Container, Text, VerticalSeparator } from '@/core/components';
+import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { TaskFilter, Timer, UserProfileTask, useTaskFilter } from '@/core/components/features';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -19,13 +18,18 @@ import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
-import { ScreenshootTab } from '@/core/components/features/activity/screenshoots';
-import { AppsTab } from '@/core/components/features/activity/apps';
-import { VisitedSitesTab } from '@/core/components/features/activity/visited-sites';
+import { AppsTab } from '@/core/components/pages/profile/apps';
+import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { activityTypeState } from '@/core/stores/activity-type';
-import { UserProfileDetail } from '@/core/components/profile/user-profile-detail';
+import { UserProfileDetail } from '@/core/components/pages/profile/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
-// import { ActivityCalendar } from '@/core/components/features/activity/calendar';
+import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
+import { Timer } from '@/core/components/timer/timer';
+import { TaskFilter } from '@/core/components/pages/profile/task-filters';
+import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 

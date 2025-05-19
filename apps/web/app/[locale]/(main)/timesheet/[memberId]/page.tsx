@@ -2,10 +2,10 @@
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import moment from 'moment';
-import { useTranslations, TranslationHooks } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Breadcrumb, Container } from '@/core/components';
+import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 
 import {
@@ -15,7 +15,6 @@ import {
 	useOrganizationProjects,
 	useOrganizationTeams
 } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
 import { fullWidthState } from '@/core/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
@@ -37,22 +36,17 @@ import type { IconBaseProps } from 'react-icons';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import TimesheetDetailModal from '@/core/components/timesheet/timesheet-detail-modal';
+import TimesheetDetailModal from '@/core/components/pages/timesheet/timesheet-detail-modal';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import TimesheetPagination from '@/core/components/timesheet/timesheet-pagination';
 import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { IconsSearch } from '@/core/components/icons';
+import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
-type ViewToggleButtonProps = {
-	mode: TimesheetViewMode;
-	active: boolean;
-	icon: React.ReactNode;
-	onClick: () => void;
-	t: TranslationHooks;
-};
 
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
@@ -365,18 +359,3 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 });
 
 export default withAuthentication(TimeSheet, { displayName: 'TimeSheet', showPageSkeleton: true });
-
-const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon, onClick, t }) => (
-	<button
-		onClick={onClick}
-		className={clsxm(
-			'box-border text-[#7E7991]  font-medium w-[191px] h-[76px] flex items-center gap-x-4 text-[14px] px-2 py-6',
-			active &&
-				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-medium'
-		)}
-	>
-		{icon}
-		<span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>
-	</button>
-);
-ViewToggleButton.displayName = 'ViewToggleButton';
