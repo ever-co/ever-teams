@@ -32,10 +32,10 @@ import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-import { SidebarCommandModal } from '../sidebar-command-modal';
+import { SidebarCommandModal } from './default-layout/header/sidebar-command-modal';
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
-import { CreateTeamModal } from '../teams/create-team-modal';
+import { CreateTeamModal } from '../features/teams/create-team-modal';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();

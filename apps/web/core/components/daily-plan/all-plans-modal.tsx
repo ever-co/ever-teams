@@ -3,7 +3,7 @@ import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState 
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
-import { AddTasksEstimationHoursModal } from '../tasks/add-task-estimation-hours-modal';
+import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';

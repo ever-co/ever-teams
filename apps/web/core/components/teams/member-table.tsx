@@ -14,7 +14,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from '../settings/table-action-popover';
-import { EditUserRoleDropdown } from '../roles/edit-role-dropdown';
+import { EditUserRoleDropdown } from '../features/roles/edit-role-dropdown';
 import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';

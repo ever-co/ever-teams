@@ -6,9 +6,9 @@ import { Button, Text } from '@/core/components';
 import React, { PropsWithChildren } from 'react';
 import noTeamImg from '@/public/assets/svg/no-team.svg';
 import { useTranslations } from 'next-intl';
-import { CreateTeamModal } from '../teams/create-team-modal';
 import { Avatar } from '../duplicated-components/avatar';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { CreateTeamModal } from '../features/teams/create-team-modal';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {

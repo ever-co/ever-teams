@@ -2,7 +2,7 @@ import { useTaskInput } from '@/core/hooks';
 import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { Spinner } from '@/core/components/common/spinner';
-import DeleteTask from '@/core/components/tasks/delete-task';
+import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
 import { CreateTaskOption } from '@/core/components/tasks/task-list';
 import { TaskItem } from '@/core/components/tasks/task-item';

@@ -30,11 +30,11 @@ import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'luc
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/core/constants/config/constants';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/core/components/projects/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];

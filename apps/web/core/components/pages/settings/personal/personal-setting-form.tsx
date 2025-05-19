@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 import validator from 'validator';
-import { EmailResetModal } from '../../../users/email-reset-modal';
+import { EmailResetModal } from '../../../features/users/email-reset-modal';
 import { LanguageDropDown } from '../../../common/language-dropdown';
 import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
 import { useRouter } from 'next/navigation';

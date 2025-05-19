@@ -7,10 +7,10 @@ import {
 } from '../../timesheet';
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
-import { AddTaskModal } from '../../timesheet/add-mask-modal';
 import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
+import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
 
 interface ITimesheetFilter {
 	isOpen: boolean;

@@ -12,7 +12,7 @@ import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/i
 import Separator from '@/core/components/common/separator';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/teams/invite/invite-form-modal';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { userTimezone } from '@/core/lib/helpers/index';
 import KanbanSearch from '@/core/components/pages/kanban/search-bar';
 import {

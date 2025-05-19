@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { SearchNormalIcon, TimerPlayIcon } from 'assets/svg';
 import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/teams/invite/invite-form-modal';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';

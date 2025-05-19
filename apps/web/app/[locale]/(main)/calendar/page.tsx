@@ -13,9 +13,9 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { HeadCalendar } from '../../../../core/components/pages/calendar/page-component';
-import { AddManualTimeModal } from '@/core/components/manual-time/add-manual-time-modal';
 import { SetupFullCalendar, SetupTimeSheet, timesheetCalendar } from '@/core/components/integration/calendar';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { AddManualTimeModal } from '@/core/components/features/manual-time/add-manual-time-modal';
 
 const CalendarPage = () => {
 	const t = useTranslations();

@@ -8,8 +8,8 @@ import moment from 'moment';
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { RestoreProjectModal } from '@/core/components/projects/restore-project-modal';
 import { ProjectItemActions, ProjectViewDataType } from '..';
+import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
 
 interface IGridItemProps {
 	data: ProjectViewDataType;

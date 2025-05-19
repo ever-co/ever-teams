@@ -5,7 +5,7 @@ import { OT_Member } from '@/core/types/interfaces';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
-import { InviteFormModal } from '../../../../../teams/invite/invite-form-modal';
+import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
 import { ActionMenuCell, TaskCell, TaskEstimateInfoCell, UserInfoCell, WorkedOnTaskCell } from './team-member-cells';
 

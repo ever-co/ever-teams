@@ -4,7 +4,7 @@ import { IClassName, ITeamTask } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
-import { TaskUnOrAssignPopover } from '@/core/components/tasks/task-assign-popover';
+import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-assign-popover';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';

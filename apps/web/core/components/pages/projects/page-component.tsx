@@ -33,9 +33,8 @@ import { ProjectExportMenu } from './project-export-menu';
 import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@/core/components/common/checkbox';
-import { BulkArchiveProjectsModal } from '@/core/components/pages/projects/bulk-actions/bulk-archive-projects-modal';
-import { BulkRestoreProjectsModal } from '@/core/components/pages/projects/bulk-actions/bulk-restore-projects-modal';
-import { CreateProjectModal } from '@/core/components/projects/create-project-modal';
+import { BulkArchiveProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal';
+import { BulkRestoreProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/fullWidth';
@@ -43,6 +42,7 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
+import { CreateProjectModal } from '../../features/projects/create-project-modal';
 
 type TViewMode = 'GRID' | 'LIST';
 

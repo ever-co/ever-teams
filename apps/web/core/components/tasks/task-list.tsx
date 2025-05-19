@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTaskInput } from '@/core/hooks';
 import { ITeamTask } from '@/core/types/interfaces/ITask';
 import { Spinner } from '@/core/components/common/spinner';
-import DeleteTask from './delete-task';
+import DeleteTask from '../features/tasks/delete-task';
 import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';
 import { useTranslations } from 'next-intl';

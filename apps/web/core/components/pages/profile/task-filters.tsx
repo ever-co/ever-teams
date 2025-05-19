@@ -8,7 +8,7 @@ import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { useEffect, useState } from 'react';
-import { TaskUnOrAssignPopover } from '../../tasks/task-assign-popover';
+import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
 import {
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
@@ -24,11 +24,11 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
-import { AddManualTimeModal } from '../../manual-time/add-manual-time-modal';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
+import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 

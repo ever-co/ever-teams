@@ -21,12 +21,12 @@ import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 
 import { useModal } from '@/core/hooks';
 import { Modal } from '../common/modal';
-import CreateTaskModal from '@/core/components/pages/kanban/create-task-modal';
 import Image from 'next/image';
-import EditStatusModal from '@/core/components/pages/kanban/edit-status-modal';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
 import { useKanban } from '../../hooks/tasks/use-kanban';
+import CreateTaskModal from '../features/tasks/create-task-modal';
+import EditStatusModal from '../features/tasks/edit-status-modal';
 
 const grid = 8;
 

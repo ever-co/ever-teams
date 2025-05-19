@@ -1,6 +1,6 @@
 import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import { InviteFormModal } from '../../../../teams/invite/invite-form-modal';
+import { InviteFormModal } from '../../../../features/teams/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from '../../../../teams/invite/user-invite-card';
 import { OT_Member } from '@/core/types/interfaces';
 import React, { useCallback, useEffect } from 'react';

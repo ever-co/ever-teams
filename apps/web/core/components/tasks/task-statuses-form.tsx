@@ -14,7 +14,7 @@ import { generateIconList } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
-import { DeleteTaskStatusConfirmationModal } from '@/core/components/tasks/delete-status-confirmation-modal';
+import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
 import { StandardTaskStatusDropDown } from './task-status';
 import { InputField } from '../duplicated-components/_input';
 

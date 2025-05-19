@@ -1,4 +1,4 @@
-import InviteModal from '@/core/components/teams/invite/invite-modal';
+import InviteModal from '@/core/components/features/teams/invite-modal';
 import Separator from '@/core/components/common/separator';
 import { Fragment, useState } from 'react';
 import { useTranslations } from 'next-intl';

@@ -1,7 +1,7 @@
 import { useAuthenticateUser, useModal, useRequestToJoinTeam, useTeamInvitations } from '@/core/hooks';
 import { Button, NoData } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/teams/invite/invite-form-modal';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InvitationTable } from '../../../teams/invite/invitation-table';

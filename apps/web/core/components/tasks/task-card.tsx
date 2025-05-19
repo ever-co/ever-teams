@@ -45,8 +45,7 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
-import { AddTaskToPlan } from './add-task-to-plan';
+import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
@@ -56,6 +55,7 @@ import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 
 type Props = {
 	active?: boolean;

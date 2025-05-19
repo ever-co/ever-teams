@@ -15,7 +15,6 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } fro
 import { clsxm } from '@/core/lib/utils';
 import { organizationProjectsState } from '@/core/stores/organization-projects';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import { QuickCreateProjectModal } from '@/core/components/projects/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import {
@@ -33,6 +32,7 @@ import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form
 import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Card } from '@/core/components/duplicated-components/card';
+import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 

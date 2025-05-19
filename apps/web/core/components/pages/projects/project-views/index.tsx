@@ -1,12 +1,13 @@
 import { useModal } from '@/core/hooks';
 import { IProject } from '@/core/types/interfaces';
-import { ArchiveProjectModal } from '@/core/components/projects/archive-project-modal';
-import { DeleteProjectConfirmModal } from '@/core/components/projects/delete-project-modal';
-import { EditProjectModal } from '@/core/components/projects/edit-project-modal';
+
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { DeleteProjectConfirmModal } from '@/core/components/features/projects/delete-project-modal';
+import { EditProjectModal } from '@/core/components/features/projects/edit-project-modal';
+import { ArchiveProjectModal } from '@/core/components/features/projects/archive-project-modal';
 
 export type ProjectViewDataType = {
 	project: {
