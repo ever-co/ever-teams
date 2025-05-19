@@ -4,7 +4,7 @@
 import { avatarState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import Image from 'next/legacy/image';
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import hasOwn from 'lodash/has';
 
@@ -29,36 +29,24 @@ export function Avatar({
 	backgroundColor
 }: Props) {
 	const [avatar, setAvatar] = useAtom(avatarState);
-	const [hasError, setHasError] = useState(false);
 
-	const imagePathName = imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
+	const imagePathName =
+		imageUrl && isValidUrl(imageUrl) ? `${new URL(imageUrl).host}${new URL(imageUrl).pathname}` : '';
 
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
-		if (hasError) return null;
 		if (avatarPresent) {
 			return avatar[imagePathName];
 		} else {
 			return imageUrl;
 		}
-	}, [imagePathName, avatarPresent, hasError, imageUrl]);
+		/* eslint-disable react-hooks/exhaustive-deps */
+	}, [imagePathName, avatarPresent]);
 
 	useEffect(() => {
-		if (imageUrl && !hasError) {
-			setAvatar((avatar: any) => ({ ...avatar, [imagePathName]: imageUrl }));
-		}
-	}, [imageUrl, imagePathName, hasError]);
-
-	const handleImageError = () => {
-		setHasError(true);
-		// Remove the failed URL from cache
-		setAvatar((avatar: any) => {
-			const newAvatar = { ...avatar };
-			delete newAvatar[imagePathName];
-			return newAvatar;
-		});
-	};
+		setAvatar((avatar: any) => ({ ...avatar, [imagePathName]: imageUrl }));
+	}, [imageUrl, imagePathName]);
 
 	return (
 		<div
@@ -66,7 +54,7 @@ export function Avatar({
 				'bg-slate-400 relative',
 				shape === 'circle' && ['rounded-full'],
 				shape === 'square' && ['rounded-md'],
-				(imageTitle || hasError) && !imgUrl && ['flex justify-center items-center'],
+				imageTitle && !imgUrl && ['flex justify-center items-center'],
 				className
 			)}
 			style={{
@@ -79,9 +67,7 @@ export function Avatar({
 					: {})
 			}}
 		>
-			{(imageTitle || hasError) && !imgUrl && (
-				<span className="uppercase font-normal text-lg">{imageTitle?.[0] || alt?.[0] || ''}</span>
-			)}
+			{imageTitle && !imgUrl && <span className="uppercase font-normal text-lg">{imageTitle[0] || ''}</span>}
 
 			{imgUrl && (
 				<Image
@@ -94,8 +80,6 @@ export function Avatar({
 					)}
 					alt={alt}
 					objectFit="cover"
-					onError={handleImageError}
-					unoptimized={true} // Add this to bypass Next.js image optimization for external URLs
 				/>
 			)}
 			{children}

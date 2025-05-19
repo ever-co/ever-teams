@@ -617,7 +617,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 										value={item?.id}
 										onSelect={() => {
 											if (isMulti) {
-												const newSelected = selected ? [...selected] : [];
+												const newSelected = Array.isArray(selected) ? [...selected] : [];
 												const index = newSelected.indexOf(item.id);
 												if (index === -1) {
 													newSelected.push(item.id);

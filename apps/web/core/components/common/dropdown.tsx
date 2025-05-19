@@ -1,13 +1,14 @@
 import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { Card } from '../duplicated-components/card';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { PopoverClose } from '@radix-ui/react-popover';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
@@ -187,7 +188,7 @@ export function ConfirmDropdown({
 						+
 						<li className="w-full text-sm">
 							<PopoverClose asChild>
-								+ <button className="w-full text-left">Cancel</button>
+								<button className="w-full text-left">Cancel</button>
 							</PopoverClose>
 						</li>
 					</ul>
