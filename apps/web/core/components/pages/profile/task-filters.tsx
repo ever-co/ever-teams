@@ -269,11 +269,11 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				)}
 				<VerticalSeparator />
 
-				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9" onClick={hook.applyStatusFilder}>
+				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7" onClick={hook.applyStatusFilder}>
 					{t('common.APPLY')}
 				</Button>
 				<Button
-					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7"
 					variant="grey"
 					onClick={() => {
 						setKey((k) => k + 1);
@@ -283,7 +283,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					{t('common.RESET')}
 				</Button>
 				<Button
-					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7"
 					variant="outline-danger"
 					onClick={() => {
 						hook.toggleFilterType('status');
