@@ -4,11 +4,11 @@
 import { DateRangePicker } from '../../common/date-range-picker';
 import { DateRange } from 'react-day-picker';
 
-import { TeamDashboardFilter } from '../../dashboard/team-dashboard-filter';
+import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
-import { ExportMenu } from '@/core/components/dashboard/export-menu';
-import { TeamStatsPDF } from '../../dashboard/pdf';
-import { ExportDialog } from '@/core/components/dashboard/export-dialog';
+import { ExportMenu } from '@/core/components/pages/dashboard/export-menu';
+import { TeamStatsPDF } from './pdf';
+import { ExportDialog } from '@/core/components/pages/dashboard/export-dialog';
 import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-activity/group-by-select-time-activity';
 
 const formatDate = (date: Date | undefined): string => {

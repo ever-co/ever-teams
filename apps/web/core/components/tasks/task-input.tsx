@@ -44,7 +44,7 @@ import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Card } from '../duplicated-components/card';
 import { OutlineBadge } from '../duplicated-components/badge';
-import { ObserverComponent } from '../observer';
+import { ObserverComponent } from './observer';
 
 type Props = {
 	task?: Nullable<ITeamTask>;

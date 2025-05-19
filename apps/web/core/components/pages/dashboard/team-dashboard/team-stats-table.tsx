@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';
 import { ChartIcon } from '../../../common/team-icon';
-import { ActivityModal } from '../../../dashboard/activity-modal';
+import { ActivityModal } from '../activity-modal';
 import { useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/common/use-sortable-data';

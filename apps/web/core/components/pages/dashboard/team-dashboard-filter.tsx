@@ -6,7 +6,7 @@ import { SettingFilterIcon } from '@/assets/svg';
 import { cn } from '@/core/lib/helpers';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { MultiSelect } from '../common/multi-select';
+import { MultiSelect } from '../../common/multi-select';
 interface TeamDashboardFilterProps {
 	isManage?: boolean;
 }
