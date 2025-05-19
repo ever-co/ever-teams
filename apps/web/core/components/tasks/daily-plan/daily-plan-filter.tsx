@@ -2,7 +2,6 @@ import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { useDailyPlan } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
-// import { Tooltip } from '@/core/components';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Tooltip } from '../../duplicated-components/tooltip';

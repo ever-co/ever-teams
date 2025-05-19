@@ -2,7 +2,7 @@ import { cn } from '@/core/lib/helpers';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
-import { ScrollArea, ScrollBar } from '../ui/scroll-bar';
+import { ScrollArea, ScrollBar } from './scroll-bar';
 
 interface IProps<TItem> {
 	placeholder: string;
