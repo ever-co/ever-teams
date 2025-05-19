@@ -105,9 +105,7 @@ export function Dropdown<T extends DropdownItem>({
 					) : (
 						<ChevronDown className="ml-2 h-5 w-5 dark:text-white transition-transform duration-150 ease-in-out" />
 					)
-				) : (
-					<></>
-				)}
+				) : null}
 			</button>
 
 			{/* Dropdown content */}
@@ -152,9 +150,7 @@ export function Dropdown<T extends DropdownItem>({
 													active={Value?.key === Item.key}
 													selected={Value?.key === Item.key}
 												/>
-											) : (
-												<div></div>
-											)}
+											) : null}
 										</div>
 									</div>
 								))}
