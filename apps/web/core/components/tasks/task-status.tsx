@@ -194,7 +194,8 @@ export function TaskStatusDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
-	largerWidth
+	largerWidth,
+	isMultiple = true
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
@@ -217,6 +218,7 @@ export function TaskStatusDropdown({
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
+			isMultiple={isMultiple}
 			largerWidth={largerWidth}
 		>
 			{children}
