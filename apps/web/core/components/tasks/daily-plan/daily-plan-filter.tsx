@@ -1,12 +1,14 @@
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { useDailyPlan } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
+// import { Tooltip } from '@/core/components';
 import { PropsWithChildren, useEffect, useState } from 'react';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Tooltip } from '../../duplicated-components/tooltip';
-import { Card } from '../../duplicated-components/card';
+import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
+import { Button } from '../../common/button';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -24,25 +26,13 @@ export function DailyPlanDropDownItem({
 }>) {
 	return (
 		<div
-			className={clsxm(
+			className={cn(
 				'bg-gray-200 dark:bg-dark--theme-light rounded-xl px-3 py-1 flex items-center justify-between w-full min-w-[170px]'
 			)}
 		>
-			<div className={clsxm('flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white')}>
-				{checked ? (
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="20px"
-						height="20px"
-						className={`dark:fill-white`}
-					>
-						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
-					</svg>
-				) : (
-					<>{showIcon && active && icon}</>
-				)}
-				<div className={`capitalize text-ellipsis`}>{label}</div>
+			<div className={cn('flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white')}>
+				{checked ? <Check className="h-4 w-4 dark:text-white" /> : <>{showIcon && active && icon}</>}
+				<div className="capitalize text-ellipsis">{label}</div>
 			</div>
 			{children}
 		</div>
@@ -53,6 +43,7 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 	const { employeePlans, getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan();
 	const filteredPlans = employeePlans;
+	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		if (selectedPlans.length === 0) {
@@ -74,60 +65,72 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 		});
 	}, [employeePlans, selectedPlans, setProfileDailyPlans]);
 
+	const togglePlanSelection = (planDate: string) => {
+		setSelectedPlans((current) => {
+			if (current.includes(planDate)) {
+				return current.filter((date) => date !== planDate);
+			} else {
+				return [...current, planDate];
+			}
+		});
+	};
+
 	return (
 		<Tooltip label="Select plan to filter" placement="auto" enabled={false}>
 			<div className="relative">
-				<Listbox value={selectedPlans} onChange={setSelectedPlans} multiple>
-					{({ open }) => {
-						return (
-							<div>
-								<ListboxButton as="div" className="w-full max-w-[190px] cursor-pointer outline-none">
-									<DailyPlanDropDownItem
-										label={selectedPlans.length > 0 ? `Items(${selectedPlans.length})` : 'Plans'}
-										icon={
-											<span>
-												<CircleIcon className="h-4 w-4" />
-											</span>
-										}
-										active={true}
-									>
-										<ChevronDownIcon className={clsxm('h-5 w-5 text-default dark:text-white')} />
-									</DailyPlanDropDownItem>
-								</ListboxButton>
-
-								<Transition
-									as="div"
-									show={open}
-									enter="transition duration-100 ease-out"
-									enterFrom="transform scale-95 opacity-0"
-									enterTo="transform scale-100 opacity-100"
-									leave="transition duration-75 ease-out"
-									leaveFrom="transform scale-100 opacity-100"
-									leaveTo="transform scale-95 opacity-0"
-									className={clsxm('absolute right-0 left-0 z-40 min-w-min outline-none')}
-								>
-									<ListboxOptions className="outline-none ">
-										<Card
-											shadow="bigger"
-											className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
+				<Popover open={open} onOpenChange={setOpen}>
+					<PopoverTrigger asChild>
+						<Button
+							variant="ghost"
+							className="p-0 h-auto w-full max-w-[190px] outline-none hover:bg-transparent focus:bg-transparent"
+						>
+							<DailyPlanDropDownItem
+								label={selectedPlans.length > 0 ? `Items(${selectedPlans.length})` : 'Plans'}
+								icon={
+									<span>
+										<CircleIcon className="h-4 w-4" />
+									</span>
+								}
+								active={true}
+							>
+								{open ? (
+									<ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+								) : (
+									<ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+								)}
+							</DailyPlanDropDownItem>
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent
+						className="p-0 min-w-[220px] border-none shadow-md dark:shadow-lg dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+						align="center"
+						sideOffset={5}
+					>
+						<Command className="rounded-lg overflow-hidden dark:bg-[#1B1D22]">
+							<CommandList className="max-h-[300px] overflow-auto dark:bg-[#1B1D22]">
+								<CommandEmpty className="dark:text-gray-300">No plans found.</CommandEmpty>
+								<CommandGroup className="dark:text-white">
+									{filteredPlans.map((item) => (
+										<CommandItem
+											key={item.id}
+											onSelect={() => togglePlanSelection(item.date.toString())}
+											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-gray-800 dark:text-white whitespace-nowrap text-ellipsis"
 										>
-											{filteredPlans.map((item) => (
-												<ListboxOption key={item.id} value={item.date.toString()} as="div">
-													<li className="cursor-pointer outline-none relative list-none">
-														<DailyPlanDropDownItem
-															label={formatDayPlanDate(item.date.toString())}
-															checked={selectedPlans?.includes(item.date.toString())}
-														/>
-													</li>
-												</ListboxOption>
-											))}
-										</Card>
-									</ListboxOptions>
-								</Transition>
-							</div>
-						);
-					}}
-				</Listbox>
+											<div className="flex-1 flex items-center whitespace-nowrap text-ellipsis">
+												{selectedPlans?.includes(item.date.toString()) && (
+													<Check className="mr-2 h-4 w-4 text-primary dark:text-white" />
+												)}
+												<span className="text-sm text-gray-600 dark:text-gray-300">
+													{formatDayPlanDate(item.date.toString())}
+												</span>
+											</div>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
 			</div>
 		</Tooltip>
 	);
