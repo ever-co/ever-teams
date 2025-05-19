@@ -231,6 +231,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
 					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
+					isMultiple={false}
 				/>
 
 				<TaskPropertiesDropdown
@@ -238,6 +239,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
 					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
+					isMultiple={false}
 				/>
 
 				<TaskSizesDropdown
@@ -245,13 +247,15 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
 					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
+					isMultiple={false}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0 bg-[#F2F2F2] rounded-xl"
 					multiple={true}
+					isMultiple={false}
 				/>
 
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}

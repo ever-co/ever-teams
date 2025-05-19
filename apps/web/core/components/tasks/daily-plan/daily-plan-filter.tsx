@@ -27,12 +27,20 @@ export function DailyPlanDropDownItem({
 	return (
 		<div
 			className={cn(
-				'bg-gray-200 dark:bg-dark--theme-light rounded-xl px-3 py-1 flex items-center justify-between w-full min-w-[170px]'
+				'bg-[#F2F2F2] dark:bg-dark--theme-light rounded-xl text-xs px-3 py-1 flex items-center justify-between w-full min-w-[190px]'
 			)}
 		>
-			<div className={cn('flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white')}>
-				{checked ? <Check className="h-4 w-4 dark:text-white" /> : <>{showIcon && active && icon}</>}
-				<div className="capitalize text-ellipsis">{label}</div>
+			<div
+				className={cn(
+					'flex items-center space-x-2 whitespace-nowrap text-ellipsis text-gray-700 dark:text-gray-200'
+				)}
+			>
+				{checked ? (
+					<Check className="h-4 w-4 text-gray-700 dark:text-white" />
+				) : (
+					<>{showIcon && active && icon}</>
+				)}
+				<div className="text-sm text-gray-400 dark:text-gray-300 font-normal">{label}</div>
 			</div>
 			{children}
 		</div>
