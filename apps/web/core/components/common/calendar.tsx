@@ -32,7 +32,7 @@ const generateYears = (): number[] => {
 
 // Custom SelectItem without checkmark
 const CustomSelectItem = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Item>,
+	React.ComponentRef<typeof SelectPrimitive.Item>,
 	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
 	<SelectPrimitive.Item
