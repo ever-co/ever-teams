@@ -88,7 +88,7 @@ export function CustomListboxDropdown<T>({
 								</DropdownMenuItem>
 							);
 						})}
-						{children}
+						<div className="mt-2">{children}</div>
 					</DropdownMenuGroup>
 				</DropdownMenuContent>
 			</DropdownMenu>

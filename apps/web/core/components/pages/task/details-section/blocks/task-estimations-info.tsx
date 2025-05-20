@@ -1,5 +1,5 @@
 import { detailedTaskState } from '@/core/stores';
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useAtom } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
@@ -25,7 +25,7 @@ const TaskEstimationsInfo = () => {
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.125rem]">
-							<Disclosure.Button className="flex items-center justify-between w-full">
+							<DisclosureButton className="flex items-center justify-between w-full">
 								<TaskEstimate
 									_task={task}
 									className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white"
@@ -37,8 +37,8 @@ const TaskEstimationsInfo = () => {
 								) : (
 									<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								)}
-							</Disclosure.Button>
-							<Disclosure.Panel>
+							</DisclosureButton>
+							<DisclosurePanel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
 									{task?.members?.map((member) => {
 										// TODO
@@ -71,7 +71,7 @@ const TaskEstimationsInfo = () => {
 									<AddIcon className="dark:stroke-white" />
 									Add new member
 								</button> */}
-							</Disclosure.Panel>
+							</DisclosurePanel>
 						</div>
 					)}
 				</Disclosure>

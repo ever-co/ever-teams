@@ -1035,6 +1035,7 @@ export function StatusDropdown<T extends TStatusItem>({
 
 					return (
 						<CustomListboxDropdown
+							children={children}
 							isMultiple={isMultiple}
 							value={value?.value || value?.name}
 							values={values}
