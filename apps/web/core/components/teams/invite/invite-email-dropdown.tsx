@@ -27,10 +27,13 @@ export const InviteEmailDropdown = ({
 	const [emailItem, setEmailItem] = useState<InviteEmailItem | null>(null);
 
 	const onChangeActive = useCallback(
-		(item: InviteEmailItem) => {
-			if (item.data) {
+		(item: InviteEmailItem | null) => {
+			if (item && item.data) {
 				setEmailItem(item);
 				setSelectedEmail(item.data);
+			} else if (item === null) {
+				setEmailItem(null);
+				setSelectedEmail(undefined);
 			}
 		},
 		[setEmailItem, setSelectedEmail]
