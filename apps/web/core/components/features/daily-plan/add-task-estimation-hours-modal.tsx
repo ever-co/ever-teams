@@ -651,24 +651,21 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
-					<Card shadow="custom" className="h-[25rem] border shadow-lg !p-3">
-						<ScrollArea className="w-full h-full">
-							<ul className="flex flex-col w-full h-full gap-2">
-								{tasks.map((task, index) => (
-									<li key={index}>
-										<TaskCard
-											viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
-											task={task}
-											plan={selectedPlan}
-											setDefaultTask={setDefaultTask}
-											isDefaultTask={task.id == defaultTask?.id}
-											selectedDate={selectedDate}
-										/>
-									</li>
-								))}
-							</ul>
-							<ScrollBar className="-pr-20" />
-						</ScrollArea>
+					<Card shadow="custom" className="border shadow-lg !p-3">
+						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
+							{tasks.map((task, index) => (
+								<li key={index}>
+									<TaskCard
+										viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
+										task={task}
+										plan={selectedPlan}
+										setDefaultTask={setDefaultTask}
+										isDefaultTask={task.id == defaultTask?.id}
+										selectedDate={selectedDate}
+									/>
+								</li>
+							))}
+						</ul>
 					</Card>
 				) : (
 					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
@@ -785,7 +782,7 @@ function TaskCard(props: ITaskCardProps) {
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
 					}
 				}}
-				className="min-w-[48%] flex items-center h-full max-w-[50%]"
+				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
