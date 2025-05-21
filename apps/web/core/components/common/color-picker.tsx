@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallbackRef } from '@/core/hooks';
-import { Transition, Popover } from '@headlessui/react';
+import { Transition, Popover, PopoverButton } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
@@ -73,7 +73,7 @@ export const ColorPicker = ({
 		>
 			{() => (
 				<>
-					<Popover.Button
+					<PopoverButton
 						className={'outline-none mb-[15px] w-full'}
 						ref={buttonRef}
 						disabled={disableButton}
@@ -118,7 +118,7 @@ export const ColorPicker = ({
 								</div>
 							)}
 						</div>
-					</Popover.Button>
+					</PopoverButton>
 					<Transition
 						as="div"
 						enter="transition ease-out duration-200"

@@ -16,7 +16,7 @@ import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index'
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
@@ -619,7 +619,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 			<div className="flex flex-col items-start w-full gap-2">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
-					<Popover.Button
+					<PopoverButton
 						placeholder={'Select or create task for the plan'}
 						className={clsxm(
 							'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
@@ -649,7 +649,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				</div>
 			</div>
 
-			<Popover.Panel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
+			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
 					<Card shadow="custom" className="h-[25rem] border shadow-lg !p-3">
 						<ScrollArea className="w-full h-full">
@@ -681,7 +681,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						</Button>
 					</Card>
 				)}
-			</Popover.Panel>
+			</PopoverPanel>
 		</Popover>
 	);
 }
@@ -928,9 +928,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 	return (
 		<Popover>
-			<Popover.Button className="flex items-center justify-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -942,7 +942,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{({ close }) => {
 						return (
 							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
@@ -993,7 +993,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);
@@ -1089,9 +1089,9 @@ function UnplanTask(props: IUnplanTaskProps) {
 
 	return (
 		<Popover>
-			<Popover.Button>
+			<PopoverButton>
 				<span className={clsxm(' text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -1103,7 +1103,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{({ close }) => {
 						return (
 							<Card
@@ -1146,7 +1146,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

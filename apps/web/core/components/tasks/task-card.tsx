@@ -31,7 +31,7 @@ import {
 } from '@/core/types/interfaces';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -570,10 +570,10 @@ export function TaskCardMenu({
 
 	return (
 		<Popover>
-			<Popover.Button className="flex items-center border-none outline-none">
+			<PopoverButton className="flex items-center border-none outline-none">
 				{!loading && <ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />}
 				{loading && <SpinnerLoader size={20} />}
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -585,7 +585,7 @@ export function TaskCardMenu({
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{() => {
 						return (
 							<Card shadow="custom" className="shadow-xl card !py-3 !px-7">
@@ -712,7 +712,7 @@ export function TaskCardMenu({
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

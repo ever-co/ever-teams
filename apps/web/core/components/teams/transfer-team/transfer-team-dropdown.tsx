@@ -13,18 +13,21 @@ export const TransferTeamDropdown = ({
 }: {
 	active?: IColor | null;
 	members: any;
-	setSelectedMember: any;
+	setSelectedMember: (member: IOrganizationTeamMember | undefined) => void;
 	selectedMember: IOrganizationTeamMember | undefined;
 }) => {
 	const items: any = useMemo(() => mapTeamMemberItems(members), [members]);
 
-	const [memberItem, setMemberItem] = useState<TeamMemberItem | null>();
+	const [memberItem, setMemberItem] = useState<TeamMemberItem | null>(null);
 
 	const onChangeActiveTeam = useCallback(
-		(item: TeamMemberItem) => {
-			if (item.data) {
+		(item: TeamMemberItem | null) => {
+			if (item && item.data) {
 				setMemberItem(item);
 				setSelectedMember(item.data);
+			} else if (item === null) {
+				setMemberItem(null);
+				setSelectedMember(undefined);
 			}
 		},
 		[setMemberItem, setSelectedMember]

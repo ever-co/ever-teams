@@ -1,6 +1,6 @@
 import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
 import { Spinner } from '@/core/components/common/spinner';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../types/interfaces/hooks';
@@ -82,7 +82,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
 				<div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-sm" aria-hidden="true" />
-				<Transition.Child
+				<TransitionChild
 					as="div"
 					enter="ease-out duration-300"
 					enterFrom="opacity-0"
@@ -92,11 +92,11 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 					leaveTo="opacity-0"
 				>
 					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
-				</Transition.Child>
+				</TransitionChild>
 
 				<div className="fixed inset-0 overflow-y-auto">
 					<div className="flex items-center justify-center min-h-full p-4 text-center">
-						<Transition.Child
+						<TransitionChild
 							as="div"
 							enter="ease-out duration-300"
 							enterFrom="opacity-0 scale-95"
@@ -105,7 +105,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95"
 						>
-							<Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
+							<DialogPanel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
 								<div className="flex items-center justify-center w-full">
 									<UserOutlineIcon className="w-6" />
 								</div>
@@ -158,8 +158,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										<div />
 									</div>
 								</form>
-							</Dialog.Panel>
-						</Transition.Child>
+							</DialogPanel>
+						</TransitionChild>
 					</div>
 				</div>
 			</Dialog>

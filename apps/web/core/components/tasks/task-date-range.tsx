@@ -60,7 +60,6 @@ export function TaskDatePickerWithRange({ className, date, onSelect, label, data
 				</PopoverTrigger>
 				<PopoverContent className="p-0 w-auto" align="center">
 					<Calendar
-						//@ts-ignore
 						className="dark:bg-dark--theme"
 						initialFocus
 						mode={'range'}

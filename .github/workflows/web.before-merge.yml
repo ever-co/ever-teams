@@ -43,5 +43,6 @@ jobs:
           yarn install --frozen-lockfile
 
       - name: Build Web
+
         run: |
           yarn build:web

@@ -1,12 +1,14 @@
 import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
+import { cn } from '@/core/lib/helpers';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { Card } from '../duplicated-components/card';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { PopoverClose } from '@radix-ui/react-popover';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
@@ -48,117 +50,120 @@ export function Dropdown<T extends DropdownItem>({
 	setSearchText
 }: Props<T>) {
 	const t = useTranslations();
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState('');
+
+	// Handle search text updates
+	useEffect(() => {
+		if (setSearchText) {
+			setSearchText(searchValue);
+		}
+	}, [searchValue, setSearchText]);
+
+	const handleSelect = (item: T) => {
+		if (onChange) onChange(item);
+		setOpen(false);
+	};
+
+	const selectedItem = items.find((item) => item.key === Value?.key);
+	const otherItems = items.filter((item) => item.key !== Value?.key);
+	const orderedItems = selectedItem ? [selectedItem, ...otherItems] : items;
+
 	return (
-		<div className={clsxm('rounded-xl', className)}>
+		<div className={clsxm('rounded-xl relative', className)}>
+			{/* Backdrop for clicking outside */}
 			{open && (
 				<div
 					onClick={() => setOpen(false)}
-					className="h-screen w-screen absolute bg-transparent top-0 left-0 z-30"
+					className="h-screen w-screen fixed bg-transparent top-0 left-0 z-30"
 				></div>
 			)}
-			<Listbox
-				value={Value}
-				onChange={(e: T) => {
-					if (onChange) onChange(e);
-					setOpen(false);
-				}}
+
+			{/* Custom trigger button */}
+			<button
+				type="button"
+				className={clsxm(
+					'input-border',
+					'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
+					'font-normal outline-none',
+					buttonClassName
+				)}
+				onClick={() => !publicTeam && setOpen(!open)}
+				style={buttonStyle}
 				disabled={publicTeam}
 			>
-				<ListboxButton
-					className={clsxm(
-						'input-border',
-						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
-						'font-normal outline-none',
-						buttonClassName
-					)}
-					onClick={() => setOpen(!open)}
-					style={buttonStyle}
-				>
-					<div title={Value?.itemTitle} className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-						{Value?.selectedLabel || (Value?.Label && <Value.Label />)}
+				<div title={Value?.itemTitle} className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
+					{Value?.selectedLabel || (Value?.Label && <Value.Label />)}
+				</div>
+
+				{loading ? (
+					<div className="h-5 w-5">
+						<SpinnerLoader size={20} variant="primary" className="w-full h-full" />
 					</div>
-
-					{loading ? (
-						<div className="h-5 w-5">
-							<SpinnerLoader size={20} variant="primary" className="w-full h-full" />
-						</div>
-					) : !publicTeam ? (
-						<ChevronDownIcon
-							className={clsxm(
-								'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80',
-								open && 'transform rotate-180'
-							)}
-							aria-hidden="true"
-						/>
+				) : !publicTeam ? (
+					open ? (
+						<ChevronUp className="ml-2 h-5 w-5 dark:text-white transition-transform duration-150 ease-in-out" />
 					) : (
-						<></>
-					)}
-				</ListboxButton>
+						<ChevronDown className="ml-2 h-5 w-5 dark:text-white transition-transform duration-150 ease-in-out" />
+					)
+				) : null}
+			</button>
 
-				<Transition
-					as="div"
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0"
-					className={clsxm('absolute z-40')}
-					show={open}
-				>
-					<ListboxOptions
-						static
+			{/* Dropdown content */}
+			{open && (
+				<div className={clsxm('absolute z-40 min-w-full mt-2', optionsClassName)}>
+					<Card
+						shadow="custom"
 						className={clsxm(
-							'shadow-2xl outline-none min-w-full mt-3 h-fit',
-							'overflow-hidden rounded-xl outline-none',
-							optionsClassName
+							'md:px-4 py-2 rounded-xl dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+							searchBar && 'w-96'
 						)}
+						style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 					>
-						<Card
-							shadow="custom"
-							className={clsxm(
-								'md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
-								searchBar && 'w-96'
-							)}
-							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
-						>
-							{searchBar && (
-								<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
-									<input
-										placeholder={t('pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER')}
-										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
-										onChange={setSearchText && ((e) => setSearchText(e.target.value))}
-									/>
-								</div>
-							)}
-							<ScrollArea>
-								<section className={'max-h-96 min-w-[100px]'}>
-									{items.map((Item, index) => (
-										<ListboxOption
-											key={Item.key ? Item.key : index}
-											value={Item}
-											disabled={!!Item.disabled}
-										>
-											{({ active, selected }) => {
-												return Item.Label ? (
-													<Item.Label active={active} selected={selected} />
-												) : (
-													<div></div>
-												);
-											}}
-										</ListboxOption>
-									))}
-								</section>
-								{/* <ScrollBar className="mr-20" /> */}
-							</ScrollArea>
-							{/* Additional content */}
-							{closeOnChildrenClick && <ListboxButton as="div">{children}</ListboxButton>}
-							{!closeOnChildrenClick && children}
-						</Card>
-					</ListboxOptions>
-				</Transition>
-			</Listbox>
+						{/* Search input */}
+						{searchBar && (
+							<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
+								<input
+									placeholder={t('pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER')}
+									className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
+									value={searchValue}
+									onChange={(e) => setSearchValue(e.target.value)}
+								/>
+							</div>
+						)}
+
+						{/* Items list */}
+						<ScrollArea>
+							<section className="max-h-96 min-w-[100px]">
+								{orderedItems.map((Item, index) => (
+									<div
+										key={Item.key ? Item.key : index}
+										className={cn(
+											'relative flex items-center  py-1 rounded-md cursor-pointer',
+											Value?.key === Item.key && 'bg-accent text-accent-foreground',
+											Item.disabled && 'opacity-50 cursor-not-allowed'
+										)}
+										onClick={() => !Item.disabled && handleSelect(Item)}
+									>
+										<div className="w-full px-1">
+											{Item.Label ? (
+												<Item.Label
+													active={Value?.key === Item.key}
+													selected={Value?.key === Item.key}
+												/>
+											) : null}
+										</div>
+									</div>
+								))}
+							</section>
+						</ScrollArea>
+
+						{/* Additional content */}
+						{closeOnChildrenClick && <div className="mt-2">{children}</div>}
+						{!closeOnChildrenClick && children}
+					</Card>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -170,33 +175,25 @@ export function ConfirmDropdown({
 	className
 }: PropsWithChildren<{ onConfirm?: () => void; confirmText?: string } & IClassName>) {
 	return (
-		<Popover className="relative">
-			<Popover.Button>{children}</Popover.Button>
-			<Transition
-				as="div"
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
-				className={clsxm('absolute z-10 right-0', className)}
-			>
-				<Popover.Panel>
-					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
-						<ul className="flex flex-col">
-							<li className="w-full mb-2 font-medium text-primary dark:text-white">
-								<Popover.Button className="w-full" onClick={onConfirm}>
-									{confirmText}
-								</Popover.Button>
-							</li>
-							<li className="w-full text-sm">
-								<Popover.Button>Cancel</Popover.Button>
-							</li>
-						</ul>
-					</Card>
-				</Popover.Panel>
-			</Transition>
+		<Popover>
+			<PopoverTrigger asChild>{children}</PopoverTrigger>
+			<PopoverContent className={clsxm('z-10 p-0 border-none shadow-none', className)} sideOffset={5} align="end">
+				<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
+					<ul className="flex flex-col">
+						<li className="w-full mb-2 font-medium text-primary dark:text-white">
+							<button className="w-full text-left" onClick={onConfirm}>
+								{confirmText}
+							</button>
+						</li>
+						+
+						<li className="w-full text-sm">
+							<PopoverClose asChild>
+								<button className="w-full text-left">Cancel</button>
+							</PopoverClose>
+						</li>
+					</ul>
+				</Card>
+			</PopoverContent>
 		</Popover>
 	);
 }

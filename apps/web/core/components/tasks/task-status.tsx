@@ -12,8 +12,7 @@ import {
 	Tag,
 	TaskStatusEnum
 } from '@/core/types/interfaces';
-import { Queue, clsxm } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
+import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, { PropsWithChildren, RefObject, useMemo } from 'react';
@@ -29,15 +28,15 @@ import {
 	useTeamTasks
 } from '@/core/hooks';
 import Image from 'next/legacy/image';
-import capitalize from 'lodash/capitalize';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 import { getTextColor } from '@/core/lib/helpers/index';
-import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { Card } from '../duplicated-components/card';
+import { CustomListboxDropdown } from './custom-dropdown';
+import { capitalize } from 'lodash';
+import { cn } from '@/core/lib/helpers';
 
 export type TStatusItem = {
 	id?: string;
@@ -70,6 +69,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		taskStatusClassName?: string;
 		latestLabels?: RefObject<string[]>;
 		dropdownContentClassName?: string;
+		isMultiple?: boolean;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -194,7 +194,8 @@ export function TaskStatusDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
-	largerWidth
+	largerWidth,
+	isMultiple = true
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
@@ -217,6 +218,7 @@ export function TaskStatusDropdown({
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
+			isMultiple={isMultiple}
 			largerWidth={largerWidth}
 		>
 			{children}
@@ -459,6 +461,7 @@ export function TaskPropertiesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
+	isMultiple = false,
 	children
 }: TTaskStatusesDropdown<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
@@ -480,6 +483,7 @@ export function TaskPropertiesDropdown({
 			defaultItem={!item ? 'priority' : undefined}
 			onChange={onChange}
 			multiple={multiple}
+			isMultiple={isMultiple}
 			values={values}
 			largerWidth={largerWidth}
 		>
@@ -523,7 +527,7 @@ export function TaskPriorityStatus({
 			{...taskPrioritiesValues[task?.priority]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
-			className={clsxm('px-2 text-white rounded-md', className)}
+			className={cn('px-2 text-white rounded-md', className)}
 			bordered={false}
 		/>
 	) : (
@@ -551,7 +555,8 @@ export function TaskSizesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
-	children
+	children,
+	isMultiple = false
 }: TTaskStatusesDropdown<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
 
@@ -564,6 +569,7 @@ export function TaskSizesDropdown({
 
 	return (
 		<StatusDropdown
+			isMultiple={isMultiple}
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
@@ -755,7 +761,7 @@ export function TaskStatus({
 
 	return (
 		<div
-			className={clsxm(
+			className={cn(
 				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded-[8px]`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
@@ -843,7 +849,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	disabledReason = '',
 	isVersion = false,
 	isEpic = false,
-	onRemoveSelected
+	onRemoveSelected,
+	isMultiple = true
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -867,7 +874,17 @@ export function StatusDropdown<T extends TStatusItem>({
 	isVersion?: boolean;
 	isEpic?: boolean;
 	onRemoveSelected?: () => null;
+	isMultiple?: boolean;
 }>) {
+	const processedValues = [...new Set(values)];
+	if (multiple && value) {
+		const valueToAdd = value.value || value.name;
+		if (valueToAdd && !processedValues.some((v) => v === valueToAdd)) {
+			processedValues.push(valueToAdd);
+		}
+	}
+
+	values = processedValues;
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: (
@@ -891,7 +908,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
 			sidebarUI={sidebarUI}
-			className={clsxm(
+			className={cn(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
 				!forDetails && 'w-full max-w-[190px]',
 				'flex items-center gap-x-1.5',
@@ -906,17 +923,16 @@ export function StatusDropdown<T extends TStatusItem>({
 				isVersion && 'dark:text-white',
 				'h-full transition-colors duration-200'
 			)}
-			titleClassName={clsxm(
+			titleClassName={cn(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis overflow-hidden'],
 				!value && 'dark:text-white'
 			)}
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
-			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
 				<ChevronDownIcon
-					className={clsxm(
+					className={cn(
 						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
 						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
 						hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
@@ -930,147 +946,128 @@ export function StatusDropdown<T extends TStatusItem>({
 
 	const dropdown = (
 		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={clsxm('relative', className)}>
-				<Listbox
-					value={value?.value || value?.name || (multiple ? [] : null)}
-					onChange={onChange}
-					disabled={disabled}
-				>
-					{({ open, value: current_value }) => {
+			<div className={cn('relative', className)}>
+				{(() => {
+					const triggerContent = !multiple ? (
+						<Tooltip
+							enabled={hasBtnIcon && (value?.name || '').length > 10}
+							label={capitalize(value?.name) || ''}
+							className="h-full"
+						>
+							{button}
+						</Tooltip>
+					) : (
+						<TaskStatus
+							{...defaultValue}
+							active={true}
+							forDetails={forDetails}
+							sidebarUI={sidebarUI}
+							className={cn(
+								'justify-between w-full capitalize h-full',
+								sidebarUI && ['text-xs'],
+								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+								taskStatusClassName
+							)}
+							name={
+								values.length > 0
+									? `Item${values.length === 1 ? '' : 's'} (${values.length})`
+									: defaultValue.name
+							}
+							isEpic={isEpic}
+						>
+							<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+						</TaskStatus>
+					);
+
+					const renderItem = (item: T, isSelected: boolean) => {
+						const item_value = item.value || item.name;
 						return (
-							<div>
-								<ListboxButton
-									as="div"
-									className={clsxm(
-										!forDetails && 'w-full max-w-[190px]',
-										'cursor-pointer outline-none h-full'
+							<div className="outline-none cursor-pointer w-full">
+								<TaskStatus
+									showIcon={showIcon}
+									{...item}
+									checked={isSelected}
+									className={cn(
+										'!w-full',
+										issueType === 'issue' && ['rounded-md px-2 text-white'],
+										sidebarUI && 'rounded-[8px]',
+										bordered && 'input-border',
+										(isVersion || isEpic) && 'dark:text-white',
+										item.className
 									)}
+								/>
+								{isSelected && issueType !== 'issue' && (
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											if (onChange && multiple && item_value) {
+												const newValues = values.filter((v) => v !== item_value);
+												onChange(newValues.join(','));
+											}
+											onRemoveSelected?.();
+										}}
+										className="absolute top-2.5 right-2.5 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
+									>
+										<XMarkIcon
+											className="text-dark dark:text-white"
+											height={16}
+											width={16}
+											aria-hidden="true"
+										/>
+									</button>
+								)}
+							</div>
+						);
+					};
+
+					const handleChange = (selectedValue: any) => {
+						if (!onChange) return;
+
+						if (multiple) {
+							const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
+							const uniqueValues = [...new Set(valueArray)];
+							onChange(uniqueValues.join(','));
+						} else {
+							onChange(selectedValue);
+						}
+					};
+
+					return (
+						<CustomListboxDropdown
+							children={children}
+							isMultiple={isMultiple}
+							value={value?.value || value?.name}
+							values={values}
+							onChange={handleChange}
+							disabled={disabled}
+							enabled={enabled}
+							trigger={
+								<div
+									className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 									style={{
 										width: largerWidth ? '160px' : ''
 									}}
 								>
-									{!multiple ? (
-										<Tooltip
-											enabled={hasBtnIcon && (value?.name || '').length > 10}
-											label={capitalize(value?.name) || ''}
-											className="h-full"
-										>
-											{button}
-										</Tooltip>
-									) : (
-										<TaskStatus
-											{...defaultValue}
-											active={true}
-											forDetails={forDetails}
-											sidebarUI={sidebarUI}
-											className={clsxm(
-												'justify-between w-full capitalize h-full',
-												sidebarUI && ['text-xs'],
-												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-												forDetails &&
-													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-												taskStatusClassName
-											)}
-											name={
-												values.length > 0
-													? `Item${values.length === 1 ? '' : 's'} (${values.length})`
-													: defaultValue.name
-											}
-											isEpic={isEpic}
-										>
-											<ChevronDownIcon
-												className={clsxm('w-5 h-5 text-default dark:text-white')}
-											/>
-										</TaskStatus>
-									)}
-								</ListboxButton>
-
-								<Transition
-									show={open && enabled}
-									enter="transition duration-100 ease-out"
-									enterFrom="transform scale-95 opacity-0"
-									enterTo="transform scale-100 opacity-100"
-									leave="transition duration-75 ease-out"
-									leaveFrom="transform scale-100 opacity-100"
-									leaveTo="transform scale-95 opacity-0"
-									as="div"
-									className={clsxm(
-										'absolute right-0 left-0 z-40 min-w-min outline-none',
-										issueType === 'issue' && 'left-auto right-auto',
-										isEpic && '-left-100 right-10'
-									)}
-								>
-									<ListboxOptions className="outline-none">
-										<Card
-											shadow="bigger"
-											className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
-										>
-											{items.map((item, i) => {
-												const item_value = item?.value || item?.name;
-
-												return (
-													<ListboxOption key={i} value={item_value} disabled={disabled}>
-														<div className="relative outline-none cursor-pointer">
-															<TaskStatus
-																showIcon={showIcon}
-																{...item}
-																checked={
-																	item?.value ? values.includes(item?.value) : false
-																}
-																className={clsxm(
-																	'!w-full',
-																	issueType === 'issue' && [
-																		'rounded-md px-2 text-white'
-																	],
-																	sidebarUI && 'rounded-[8px]',
-																	bordered && 'input-border',
-																	(isVersion || isEpic) && 'dark:text-white',
-																	item?.className
-																)}
-															/>
-
-															{open &&
-																current_value === item_value &&
-																issueType !== 'issue' && (
-																	<button
-																		type="button"
-																		onClick={(e: any) => {
-																			e.stopPropagation();
-																			onRemoveSelected && onRemoveSelected();
-																			onChange && onChange(null as any);
-																		}}
-																		className="absolute top-2.5 right-2 h-4 w-4 bg-light--theme-light dark:bg-dark--theme-light"
-																	>
-																		<XMarkIcon
-																			className="text-dark dark:text-white"
-																			height={16}
-																			width={16}
-																			aria-hidden="true"
-																		/>
-																	</button>
-																)}
-														</div>
-													</ListboxOption>
-												);
-											})}
-											{children && <ListboxButton as="div">{children}</ListboxButton>}
-										</Card>
-									</ListboxOptions>
-								</Transition>
-							</div>
-						);
-					}}
-				</Listbox>
+									{triggerContent}
+								</div>
+							}
+							items={items}
+							renderItem={renderItem as any}
+							multiple={multiple}
+							dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+						/>
+					);
+				})()}
 			</div>
 		</Tooltip>
 	);
 
-	// return showButtonOnly ? button : dropdown; // To disable dropdown when showButton is true
 	return dropdown;
 }
 
 /**
- * Fc Status drop down
+ * Multiple Status Dropdown Component
  */
 export function MultipleStatusDropdown<T extends TStatusItem>({
 	value,
@@ -1116,8 +1113,12 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	sidebarUI?: boolean;
 	disabledReason?: string;
 	isVersion?: boolean;
-	onRemoveSelected?: () => null;
+	onRemoveSelected?: () => void;
 }>) {
+	const valueToAdd = value?.value || value?.name;
+	if (valueToAdd && !values.includes(valueToAdd)) {
+		values = [...values, valueToAdd];
+	}
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: (
@@ -1128,113 +1129,105 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		name: defaultItem
 	};
 
+	const triggerButton = (
+		<div
+			className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+			style={{
+				width: largerWidth ? '160px' : ''
+			}}
+		>
+			<TaskStatus
+				{...defaultValue}
+				active={true}
+				forDetails={forDetails}
+				sidebarUI={sidebarUI}
+				className={cn(
+					'justify-between w-full capitalize',
+					sidebarUI && ['text-xs'],
+					' dark:text-white dark:bg-dark--theme-light',
+					forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+					taskStatusClassName
+				)}
+				titleClassName={cn(
+					values.length > 0 && '!text-dark dark:!text-white',
+					!value && 'dark:text-white text-slate-500'
+				)}
+				name={
+					values.length > 0 ? `Item${values.length === 1 ? '' : 's'} (${values.length})` : defaultValue.name
+				}
+			>
+				<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+			</TaskStatus>
+		</div>
+	);
+
+	const renderItem = (item: T, isSelected: boolean) => {
+		const item_value = item.value || item.name;
+		return (
+			<div className="relative outline-none cursor-pointer w-full">
+				<TaskStatus
+					showIcon={showIcon}
+					{...item}
+					checked={isSelected}
+					className={cn(
+						'!w-full',
+						issueType === 'issue' && ['rounded-md px-2 text-white'],
+						sidebarUI && 'rounded-[8px]',
+						bordered && 'input-border',
+						isVersion && 'dark:text-white'
+					)}
+				/>
+				{isSelected && issueType !== 'issue' && (
+					<button
+						onClick={(e: any) => {
+							e.stopPropagation();
+
+							if (onChange && item_value) {
+								const newValues = values.filter((v) => String(v) !== String(item_value));
+								onChange(newValues);
+							}
+
+							onRemoveSelected?.();
+						}}
+						className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+					>
+						<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
+					</button>
+				)}
+			</div>
+		);
+	};
+
+	const handleChange = (selectedValue: any) => {
+		if (!onChange) return;
+		if (Array.isArray(selectedValue)) {
+			onChange(selectedValue);
+		} else if (selectedValue) {
+			onChange([selectedValue]);
+		} else {
+			onChange([]);
+		}
+	};
+
 	const dropdown = (
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={clsxm('relative', className)}>
-				<Listbox value={values} onChange={onChange} disabled={disabled} multiple>
-					<ListboxButton
-						as="div"
-						className={clsxm(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
-						style={{
-							width: largerWidth ? '160px' : ''
-						}}
-					>
-						<TaskStatus
-							{...defaultValue}
-							active={true}
-							forDetails={forDetails}
-							sidebarUI={sidebarUI}
-							className={clsxm(
-								'justify-between w-full capitalize',
-								sidebarUI && ['text-xs'],
-								' dark:text-white dark:bg-dark--theme-light',
-								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-								taskStatusClassName
-							)}
-							titleClassName={clsxm(
-								values.length > 0 && '!text-dark dark:!text-white',
-								!value && 'dark:text-white text-slate-500'
-							)}
-							name={
-								values.length > 0
-									? `Item${values.length === 1 ? '' : 's'} (${values.length})`
-									: defaultValue.name
-							}
-						>
-							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
-						</TaskStatus>
-					</ListboxButton>
-
-					<Transition
-						enter="transition duration-100 ease-out"
-						enterFrom="transform scale-95 opacity-0"
-						enterTo="transform scale-100 opacity-100"
-						leave="transition duration-75 ease-out"
-						leaveFrom="transform scale-100 opacity-100"
-						leaveTo="transform scale-95 opacity-0"
-						as="div"
-						className={clsxm(
-							'absolute right-0 left-0 z-[999] min-w-min outline-none',
-							issueType === 'issue' && ['left-auto right-auto'],
-							dropdownContentClassName
-						)}
-					>
-						<ListboxOptions static className="outline-none">
-							<Card
-								shadow="bigger"
-								className="p-4 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-fit overflow-x-auto"
-							>
-								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
-									{items.map((item, i) => {
-										const item_value = item.value || item.name;
-										return (
-											<ListboxOption key={i} value={item_value} as="div" disabled={disabled}>
-												<li className="relative list-none outline-none cursor-pointer">
-													<TaskStatus
-														showIcon={showIcon}
-														{...item}
-														cheched={item.value ? values.includes(item.value) : false}
-														className={clsxm(
-															'!w-full',
-															issueType === 'issue' && ['rounded-md px-2 text-white'],
-															`${sidebarUI ? 'rounded-[8px]' : ''}`,
-															`${bordered ? 'input-border' : ''}`,
-															isVersion && 'dark:text-white'
-														)}
-													/>
-
-													{value === item_value && issueType !== 'issue' && (
-														<ListboxButton
-															as="button"
-															onClick={(e: any) => {
-																e.stopPropagation();
-																onRemoveSelected && onRemoveSelected();
-																onChange && onChange(null as any);
-															}}
-															className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-														>
-															<XMarkIcon
-																className="text-dark"
-																height={16}
-																width={16}
-																aria-hidden="true"
-															/>
-														</ListboxButton>
-													)}
-												</li>
-											</ListboxOption>
-										);
-									})}
-								</div>
-								{children && <ListboxButton as="div">{children}</ListboxButton>}
-							</Card>
-						</ListboxOptions>
-					</Transition>
-				</Listbox>
+			<div className={cn('relative', className)}>
+				<CustomListboxDropdown
+					value={value?.value || value?.name}
+					values={values}
+					onChange={handleChange}
+					disabled={disabled}
+					enabled={enabled}
+					trigger={triggerButton}
+					items={items}
+					renderItem={renderItem as any}
+					multiple={true}
+					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+				>
+					{children && <div className="mt-2">{children}</div>}
+				</CustomListboxDropdown>
 			</div>
 		</Tooltip>
 	);
-
-	// return showButtonOnly ? button : dropdown; // To disable dropdown when showButton is true
 	return dropdown;
 }

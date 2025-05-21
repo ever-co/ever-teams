@@ -1,12 +1,11 @@
 import { ITeamsMembersFilter } from '@/core/types/interfaces';
 import { filterValue } from '@/core/stores/all-teams';
 import { clsxm } from '@/core/lib/utils';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
-import { ChevronDownIcon, CircleIcon } from 'assets/svg';
-import { Fragment, PropsWithChildren } from 'react';
+import { CircleIcon } from 'assets/svg';
+import { PropsWithChildren } from 'react';
 import { useAtom } from 'jotai';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { Card } from '@/core/components/duplicated-components/card';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
 
 export function MemberFilterOption({
 	children,
@@ -62,67 +61,71 @@ export function MemberFilter() {
 	];
 	const [value, setValue] = useAtom(filterValue);
 
+	const handleValueChange = (newValue: string) => {
+		const selectedOption = options.find((option) => option.value === newValue);
+		if (selectedOption) {
+			setValue(selectedOption);
+		}
+	};
+
 	return (
 		<Tooltip label="Filter" placement="auto" enabled={true}>
 			<div className="relative">
-				<Listbox value={value} onChange={(v) => setValue(v)}>
-					{({ open }) => {
-						return (
-							<div>
-								<ListboxButton
-									as="div"
-									className="cursor-pointer border rounded-lg dark:border-dark-lighter"
-								>
-									<MemberFilterOption
-										label={value.label}
-										icon={
-											<span>
-												<CircleIcon className="h-4 w-4" />
-											</span>
-										}
-										bg={value.bg}
-									>
-										<ChevronDownIcon className={clsxm('h-5 w-5 text-default dark:text-white')} />
-									</MemberFilterOption>
-								</ListboxButton>
-								<Transition
-									as="div"
-									show={open}
-									enter="transition duration-100 ease-out"
-									enterFrom="transform scale-95 opacity-0"
-									enterTo="transform scale-100 opacity-100"
-									leave="transition duration-75 ease-out"
-									leaveFrom="transform scale-100 opacity-100"
-									leaveTo="transform scale-95 opacity-0"
-									className={clsxm('absolute right-0 -left-12 z-40 min-w-min outline-none mt-1')}
-								>
-									<ListboxOptions className="outline-none ">
-										<Card
-											shadow="bigger"
-											className="p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
-										>
-											{options.map((item) => (
-												<ListboxOption key={item.value} value={item} as={Fragment}>
-													<li className="cursor-pointer outline-none relative list-none">
-														<MemberFilterOption
-															label={item.label}
-															bg={item.bg}
-															icon={
-																<span>
-																	<CircleIcon className="h-4 w-4" />
-																</span>
-															}
-														/>
-													</li>
-												</ListboxOption>
-											))}
-										</Card>
-									</ListboxOptions>
-								</Transition>
+				<Select value={value.value} onValueChange={handleValueChange}>
+					<SelectTrigger
+						className="border rounded-lg dark:border-dark-lighter min-w-[170px] p-0 h-auto"
+						style={{ backgroundColor: value.bg }}
+					>
+						<div className="flex items-center justify-between w-full px-3 py-1">
+							<div className="flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white">
+								<span>
+									<CircleIcon className="h-4 w-4" />
+								</span>
+								<div className="capitalize text-ellipsis">{value.label}</div>
 							</div>
-						);
-					}}
-				</Listbox>
+						</div>
+					</SelectTrigger>
+					<SelectContent
+						className="p-0 border-none shadow-xl dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] min-w-[200px]"
+						position="popper"
+						sideOffset={5}
+						align="start"
+					>
+						<div className="p-2 flex flex-col gap-1 min-w-[170px]">
+							{options.map((item) => (
+								<SelectItem
+									key={item.value}
+									value={item.value}
+									className="p-0 focus:bg-transparent focus:text-foreground data-[state=checked]:bg-transparent"
+								>
+									<div
+										className="rounded-xl px-3 py-1 flex items-center justify-between cursor-pointer"
+										style={{ backgroundColor: item.bg }}
+									>
+										<div className="flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white  min-w-[170px]">
+											{value.value === item.value ? (
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 24 24"
+													width="20px"
+													height="20px"
+													className="dark:fill-white"
+												>
+													<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
+												</svg>
+											) : (
+												<span>
+													<CircleIcon className="h-4 w-4" />
+												</span>
+											)}
+											<div className="capitalize text-ellipsis">{item.label}</div>
+										</div>
+									</div>
+								</SelectItem>
+							))}
+						</div>
+					</SelectContent>
+				</Select>
 			</div>
 		</Tooltip>
 	);

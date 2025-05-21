@@ -1,7 +1,7 @@
 import { useTeamInvitations } from '@/core/hooks';
 import { IClassName, IInvitation } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -145,9 +145,9 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 	return (
 		<Popover className="relative">
 			{!loading && (
-				<Popover.Button className="outline-none">
+				<PopoverButton className="outline-none">
 					<ThreeCircleOutlineVerticalIcon className="w-6" strokeWidth="1.4" />
-				</Popover.Button>
+				</PopoverButton>
 			)}
 			{loading && <SpinnerLoader size={20} />}
 
@@ -161,18 +161,18 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[210px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{({ close }) => {
 						return (
 							<Card shadow="custom" className="shadow-xl card !py-3 !px-4">
 								<ul>
 									<li>
-										<Popover.Button
+										<PopoverButton
 											onClick={() => resendTeamInvitation(invitation.id)}
 											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
 										>
 											{t('common.RESEND_INVITATION')}
-										</Popover.Button>
+										</PopoverButton>
 									</li>
 									<li>
 										<ConfirmDropdown
@@ -195,7 +195,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

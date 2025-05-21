@@ -221,7 +221,6 @@ const Kanban = () => {
 										onClick={openModal}
 										className="p-2 rounded-full relative z-10 border-2 border-[#0000001a] dark:border-white"
 									>
-										{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
 										<AddIcon className="w-6 h-6 text-foreground" />
 									</button>
 								</div>
@@ -326,6 +325,7 @@ const Kanban = () => {
 									/>
 
 									<TaskPropertiesDropdown
+										isMultiple={false}
 										onValueChange={(_, values) => setPriority(values || [])}
 										className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center"
 										multiple

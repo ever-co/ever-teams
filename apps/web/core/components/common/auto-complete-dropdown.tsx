@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
-import { Transition, Combobox } from '@headlessui/react';
+import { Transition, Combobox, ComboboxOption, ComboboxOptions, ComboboxInput } from '@headlessui/react';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from './typography';
 import { IInviteEmail } from '@/core/types/interfaces';
@@ -18,7 +18,7 @@ type DropdownItem<D = { [x: string]: any }> = {
 type Props<T extends DropdownItem> = {
 	className?: string;
 	value?: T | null;
-	onChange?: Dispatch<SetStateAction<T | undefined>> | ((item: T) => void);
+	onChange?: (value: T | null) => void;
 	buttonClassName?: string;
 	optionsClassName?: string;
 	items: T[];
@@ -73,8 +73,8 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 
 	return (
 		<div className={clsxm('', className)}>
-			<Combobox nullable value={Value} onChange={onChange} disabled={disabled}>
-				<Combobox.Input
+			<Combobox value={Value} onChange={onChange} disabled={disabled}>
+				<ComboboxInput
 					placeholder={placeholder}
 					onChange={(event) => {
 						setQuery(event.target.value);
@@ -102,7 +102,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Combobox.Options
+					<ComboboxOptions
 						className={clsxm(
 							'mt-3 min-w-full max-h-64',
 							'overflow-hidden overflow-y-auto',
@@ -112,7 +112,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 						<div className="flex flex-col justify-center py-2 rounded shadow-md md:px-4 bg-slate-50 card">
 							{/* This should only show when New item needs to be created */}
 							{query && handleAddNew && (
-								<Combobox.Option
+								<ComboboxOption
 									key={'new'}
 									value={query}
 									onClick={() => {
@@ -121,28 +121,24 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									className="flex items-center self-stretch h-full font-medium text-gray-900 cursor-pointer"
 								>
 									<div className="flex justify-between">{`${query}`}</div>
-								</Combobox.Option>
+								</ComboboxOption>
 							)}
 							{filteredItem.map((Item, index) => (
-								<Combobox.Option
-									key={Item.key ? Item.key : index}
-									value={Item}
-									disabled={Item.disabled}
-								>
-									{({ active, selected }) => {
+								<ComboboxOption key={Item.key ? Item.key : index} value={Item} disabled={Item.disabled}>
+									{({ focus, selected }) => {
 										return Item.Label ? (
-											<Item.Label active={active} selected={selected} />
+											<Item.Label active={focus} selected={selected} />
 										) : (
 											<div></div>
 										);
 									}}
-								</Combobox.Option>
+								</ComboboxOption>
 							))}
 
 							{/* Additional content */}
-							<Combobox.Button as="div">{children}</Combobox.Button>
+							<div className="mt-2">{children}</div>
 						</div>
-					</Combobox.Options>
+					</ComboboxOptions>
 				</Transition>
 			</Combobox>
 			{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}

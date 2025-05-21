@@ -25,7 +25,7 @@ import {
 } from '@/core/types/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Combobox, Popover, Transition } from '@headlessui/react';
+import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Divider, SpinnerLoader } from '@/core/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
@@ -438,12 +438,12 @@ export function TaskInput(props: Props) {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel
+				<PopoverPanel
 					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
 					ref={ignoreElementRef}
 				>
 					{taskCard}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

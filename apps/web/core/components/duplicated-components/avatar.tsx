@@ -30,7 +30,8 @@ export function Avatar({
 }: Props) {
 	const [avatar, setAvatar] = useAtom(avatarState);
 
-	const imagePathName = imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
+	const imagePathName =
+		imageUrl && isValidUrl(imageUrl) ? `${new URL(imageUrl).host}${new URL(imageUrl).pathname}` : '';
 
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
