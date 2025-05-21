@@ -17,7 +17,6 @@ import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
 import moment from 'moment';
@@ -446,21 +445,18 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											) : null}
 										</div>
 									</div>
-									<div className="h-80">
-										<ScrollArea className="w-full h-full">
-											<ul className="flex flex-col gap-2 ">
-												{sortedTasks.map((task, index) => (
-													<TaskCard
-														plan={plan}
-														key={index}
-														task={task}
-														setDefaultTask={setDefaultTask}
-														isDefaultTask={task.id == defaultTask?.id}
-													/>
-												))}
-											</ul>
-											<ScrollBar className="-pr-20" />
-										</ScrollArea>
+									<div className="w-full h-full">
+										<ul className="flex flex-col gap-2 overflow-y-auto h-80 ">
+											{sortedTasks.map((task, index) => (
+												<TaskCard
+													plan={plan}
+													key={index}
+													task={task}
+													setDefaultTask={setDefaultTask}
+													isDefaultTask={task.id == defaultTask?.id}
+												/>
+											))}
+										</ul>
 									</div>
 								</div>
 								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
@@ -797,7 +793,7 @@ function TaskCard(props: ITaskCardProps) {
 						<div className="flex items-center w-full h-full gap-1">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex items-center justify-center h-6 w-28"
+									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor: status.taskStatuses.filter((s) => s.value === task.status)[0]
 											.color
@@ -806,7 +802,7 @@ function TaskCard(props: ITaskCardProps) {
 									{task.status}
 								</span>
 							) : (
-								<span>{t('dailyPlan.ESTIMATED')} :</span>
+								<span className="text-nowrap whitespace-nowrap">{t('dailyPlan.ESTIMATED')} :</span>
 							)}
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
