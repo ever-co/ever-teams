@@ -23,14 +23,15 @@ jobs:
           node-version: '20.11.1'
 
       - name: Run Knip
-        run: cd apps/web && npx knip --cache --no-exit-code > reported-files.txt
+        working-directory: apps/web
+        run: npx knip --cache --no-exit-code > reported-files.txt
 
       - name: Get list of changed files
         id: changed
         run: |
           {
             echo "CHANGED_FILES<<EOF"
-            git diff --name-only origin/develop | grep '^apps/web/'
+            git diff --name-only origin/develop | grep '^apps/web/' || true
             echo "EOF"
           } >> $GITHUB_ENV
 
@@ -41,16 +42,21 @@ jobs:
           FILES_WITH_UNUSED_CODE=""
 
           # Use a loop that runs in the same shell
+
           while read -r file; do
-            if grep -q "$REL_FILE" apps/web/reported-files.txt; then
+            REL_FILE="${file#apps/web/}"
+            echo "$REL_FILE"
+            if grep -qF "$REL_FILE" apps/web/reported-files.txt; then
               echo "❌ Found unused code in: $file"
               FILES_WITH_UNUSED_CODE+="$file"$'\n'
               FAIL=1
             fi
           done <<< "$CHANGED_FILES"
 
-          echo "::set-output name=fail::$FAIL"
-          echo "::set-output name=reported_files::$FILES_WITH_UNUSED_CODE"
+          echo "fail=$FAIL" >> $GITHUB_OUTPUT
+          echo "reported_files<<EOF" >> $GITHUB_OUTPUT
+          printf "%s\n" "$FILES_WITH_UNUSED_CODE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
           if [ "$FAIL" -eq 1 ]; then
             echo "🛑 Unused code detected in changed files:"
@@ -73,6 +79,6 @@ jobs:
             exit 1
           fi
 
-          COMMENT_BODY="⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code."
+          echo -e "⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code." > comment.md
 
-          echo -e "$COMMENT_BODY" | gh pr comment "3830" --body-file -
+          echo -e "$COMMENT_BODY" | gh pr comment "$PR_NUMBER" --body-file comment.md
