@@ -7,6 +7,10 @@ on:
     paths:
       - 'apps/web/**'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   knip-review:
     runs-on: ubuntu-latest
@@ -42,10 +46,13 @@ jobs:
           FILES_WITH_UNUSED_CODE=""
 
           # Use a loop that runs in the same shell
-
           while read -r file; do
             REL_FILE="${file#apps/web/}"
-            echo "$REL_FILE"
+
+            if [ -z "$file" ]; then
+             continue
+            fi
+
             if grep -qF "$REL_FILE" apps/web/reported-files.txt; then
               echo "❌ Found unused code in: $file"
               FILES_WITH_UNUSED_CODE+="$file"$'\n'
@@ -72,7 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORTED_FILES: ${{ steps.check_unused.outputs.reported_files }}
         run: |
-          PR_NUMBER=$(gh pr list --state open --search "$(git rev-parse --short HEAD)" --json number --jq '.[0].number')
+          PR_NUMBER=${{ github.event.pull_request.number }}
 
           if [ -z "$PR_NUMBER" ]; then
             echo "❌ Could not find the pull request for this commit."
