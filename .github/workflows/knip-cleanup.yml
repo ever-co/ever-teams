@@ -81,4 +81,4 @@ jobs:
 
           echo -e "⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code." > comment.md
 
-          echo -e "$COMMENT_BODY" | gh pr comment "$PR_NUMBER" --body-file comment.md
+          gh pr comment "$PR_NUMBER" --body-file comment.md
