@@ -17,7 +17,6 @@ import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
 import moment from 'moment';
@@ -446,21 +445,18 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											) : null}
 										</div>
 									</div>
-									<div className="h-80">
-										<ScrollArea className="w-full h-full">
-											<ul className="flex flex-col gap-2 ">
-												{sortedTasks.map((task, index) => (
-													<TaskCard
-														plan={plan}
-														key={index}
-														task={task}
-														setDefaultTask={setDefaultTask}
-														isDefaultTask={task.id == defaultTask?.id}
-													/>
-												))}
-											</ul>
-											<ScrollBar className="-pr-20" />
-										</ScrollArea>
+									<div className="w-full h-full">
+										<ul className="flex flex-col gap-2 overflow-y-auto h-80 ">
+											{sortedTasks.map((task, index) => (
+												<TaskCard
+													plan={plan}
+													key={index}
+													task={task}
+													setDefaultTask={setDefaultTask}
+													isDefaultTask={task.id == defaultTask?.id}
+												/>
+											))}
+										</ul>
 									</div>
 								</div>
 								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
@@ -651,24 +647,21 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
-					<Card shadow="custom" className="h-[25rem] border shadow-lg !p-3">
-						<ScrollArea className="w-full h-full">
-							<ul className="flex flex-col w-full h-full gap-2">
-								{tasks.map((task, index) => (
-									<li key={index}>
-										<TaskCard
-											viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
-											task={task}
-											plan={selectedPlan}
-											setDefaultTask={setDefaultTask}
-											isDefaultTask={task.id == defaultTask?.id}
-											selectedDate={selectedDate}
-										/>
-									</li>
-								))}
-							</ul>
-							<ScrollBar className="-pr-20" />
-						</ScrollArea>
+					<Card shadow="custom" className="border shadow-lg !p-3">
+						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
+							{tasks.map((task, index) => (
+								<li key={index}>
+									<TaskCard
+										viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
+										task={task}
+										plan={selectedPlan}
+										setDefaultTask={setDefaultTask}
+										isDefaultTask={task.id == defaultTask?.id}
+										selectedDate={selectedDate}
+									/>
+								</li>
+							))}
+						</ul>
 					</Card>
 				) : (
 					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
@@ -785,7 +778,7 @@ function TaskCard(props: ITaskCardProps) {
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
 					}
 				}}
-				className="min-w-[48%] flex items-center h-full max-w-[50%]"
+				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
@@ -800,7 +793,7 @@ function TaskCard(props: ITaskCardProps) {
 						<div className="flex items-center w-full h-full gap-1">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex items-center justify-center h-6 w-28"
+									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor: status.taskStatuses.filter((s) => s.value === task.status)[0]
 											.color
@@ -809,7 +802,7 @@ function TaskCard(props: ITaskCardProps) {
 									{task.status}
 								</span>
 							) : (
-								<span>{t('dailyPlan.ESTIMATED')} :</span>
+								<span className="text-nowrap whitespace-nowrap">{t('dailyPlan.ESTIMATED')} :</span>
 							)}
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />

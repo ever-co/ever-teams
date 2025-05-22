@@ -110,11 +110,11 @@ export function TaskAllStatusTypes({
 									: taskId
 										? 'bg-[#e32929] text-[#f9fbff]'
 										: 'bg-[#D9EBD7] text-[#4D6194]',
-								'rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 font-medium'
+								'px-4 !py-4 rounded-lg flex items-center gap-2 font-medium'
 							)}
 						>
 							<CalendarIcon />
-							<span className="text-[10px]">
+							<span className="text-[10px] text-nowrap whitespace-nowrap">
 								{planBadgeContent(dailyPlan.items, task?.id ?? '', tab)}
 							</span>
 						</div>
