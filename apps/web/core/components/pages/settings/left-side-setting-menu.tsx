@@ -12,7 +12,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import Link from 'next/link';
 import { clsxm } from '@/core/lib/utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import { activeSettingTeamTab } from '@/core/stores/setting';
+import { activeSettingTeamTab } from '@/core/stores/common/setting';
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();

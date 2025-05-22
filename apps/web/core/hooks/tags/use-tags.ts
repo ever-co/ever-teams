@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import cloneDeep from 'lodash/cloneDeep';
-import { tagsState } from '@/core/stores/tags';
+import { tagsState } from '@/core/stores/tags/tags';
 import { tagService } from '@/core/services/client/api';
 
 export const useTags = () => {

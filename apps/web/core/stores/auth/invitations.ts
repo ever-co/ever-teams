@@ -1,6 +1,6 @@
 import { IInvitation, IMyInvitations } from '@/core/types/interfaces/IInvite';
 import { atom } from 'jotai';
-import { activeTeamState } from './organization-team';
+import { activeTeamState } from '../teams/organization-team';
 
 export const teamInvitationsState = atom<IInvitation[]>([]);
 

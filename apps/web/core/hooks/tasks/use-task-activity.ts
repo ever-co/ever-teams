@@ -3,8 +3,8 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../common/use-query';
 import { useAtom, useAtomValue } from 'jotai';
-import { activityTypeState } from '@/core/stores/activity-type';
-import { taskTimesheetState } from '@/core/stores/task-timesheet';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
+import { taskTimesheetState } from '@/core/stores/tasks/task-timesheet';
 import { activityService } from '@/core/services/client/api/activities';
 import { useAuthenticateUser } from '../auth';
 import { useUserProfilePage } from '../users';

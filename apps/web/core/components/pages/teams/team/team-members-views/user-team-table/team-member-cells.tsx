@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { TaskInfo } from '../user-team-card/task-info';
 import { UserInfo } from '../user-team-card/user-info';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';

@@ -15,10 +15,10 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
 import { useAtom } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@/core/components/common/header-tabs';
-import { headerTabs } from '@/core/stores/header-tabs';
+import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from '@/core/components/teams/team-member-header';

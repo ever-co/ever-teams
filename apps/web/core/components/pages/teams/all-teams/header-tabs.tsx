@@ -2,7 +2,7 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 import { QueueListIcon, Squares2X2Icon } from '@heroicons/react/20/solid';
 import { IssuesView } from '@/core/constants/config/constants';
-import { allTeamsHeaderTabs } from '@/core/stores/header-tabs';
+import { allTeamsHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 

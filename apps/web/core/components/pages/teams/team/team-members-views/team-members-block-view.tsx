@@ -2,7 +2,7 @@ import * as React from 'react';
 import { OT_Member } from '@/core/types/interfaces';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
-import { taskBlockFilterState } from '@/core/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { UserTeamCardSkeleton } from './team-members-header';
 import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';

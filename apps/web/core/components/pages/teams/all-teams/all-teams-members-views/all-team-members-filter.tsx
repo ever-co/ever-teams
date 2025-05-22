@@ -1,5 +1,5 @@
 import { ITeamsMembersFilter } from '@/core/types/interfaces';
-import { filterValue } from '@/core/stores/all-teams';
+import { filterValue } from '@/core/stores/teams/all-teams';
 import { clsxm } from '@/core/lib/utils';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren } from 'react';

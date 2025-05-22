@@ -1,4 +1,4 @@
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';

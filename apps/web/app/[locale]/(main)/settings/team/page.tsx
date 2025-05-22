@@ -12,7 +12,7 @@ import { IntegrationSetting } from '@/core/components/pages/settings/team/integr
 import { InvitationSetting } from '@/core/components/pages/settings/team/invitation-setting';
 import { IssuesSettings } from '@/core/components/pages/settings/team/issues-settings';
 import { MemberSetting } from '@/core/components/pages/settings/team/member-setting';
-import { activeSettingTeamTab } from '@/core/stores/setting';
+import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 import NoTeam from '@/core/components/common/no-team';
 import { TeamAvatar } from '@/core/components/teams/team-avatar';

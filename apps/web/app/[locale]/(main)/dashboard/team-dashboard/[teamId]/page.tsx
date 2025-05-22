@@ -10,7 +10,7 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';

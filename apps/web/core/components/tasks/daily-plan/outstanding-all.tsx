@@ -3,7 +3,7 @@ import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';

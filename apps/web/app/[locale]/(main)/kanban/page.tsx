@@ -24,7 +24,7 @@ import {
 	TaskSizesDropdown
 } from '@/core/components/tasks/task-status';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
 import { ITeamTask } from '@/core/types/interfaces';

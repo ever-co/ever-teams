@@ -1,4 +1,4 @@
-import { dataSyncModeState, isDataSyncState } from '@/core/stores/data-sync';
+import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
 import { Button, DataSyncModeToggler, DataSyncToggler, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';

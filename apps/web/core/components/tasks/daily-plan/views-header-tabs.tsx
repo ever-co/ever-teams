@@ -1,5 +1,5 @@
 import { IssuesView } from '@/core/constants/config/constants';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';

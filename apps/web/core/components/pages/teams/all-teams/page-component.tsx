@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -12,7 +12,7 @@ import { useTranslations } from 'next-intl';
 import TeamMemberHeader from '@/core/components/teams/team-member-header';
 import { IssuesView } from '@/core/constants/config/constants';
 import { HeaderTabs } from '@/core/components/pages/teams/all-teams/header-tabs';
-import { allTeamsHeaderTabs } from '@/core/stores/header-tabs';
+import { allTeamsHeaderTabs } from '@/core/stores/common/header-tabs';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { MemberFilter } from './all-teams-members-views/all-team-members-filter';
 import AllTeamsMembers from './all-teams-members-views/all-teams-members';

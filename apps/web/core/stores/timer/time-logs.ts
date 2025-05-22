@@ -11,8 +11,8 @@ import {
 	TimesheetFilterByDays,
 	TimesheetLog,
 	UpdateTimesheetStatus
-} from '../types/interfaces';
-import { IActivityReport } from '../types/interfaces/activity/IActivityReport';
+} from '../../types/interfaces';
+import { IActivityReport } from '../../types/interfaces/activity/IActivityReport';
 
 interface IFilterOption {
 	value: string;

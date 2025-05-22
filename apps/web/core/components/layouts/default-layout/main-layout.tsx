@@ -2,7 +2,7 @@
 import { cn } from '@/core/lib/helpers';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
 import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar';
 

@@ -9,7 +9,7 @@ import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';

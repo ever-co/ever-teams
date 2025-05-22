@@ -4,7 +4,7 @@ import { EmptyPlans, FilterTabs, PlanHeader } from '@/core/components/users/user
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';

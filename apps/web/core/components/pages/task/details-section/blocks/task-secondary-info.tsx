@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/organization-projects';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
