@@ -2,7 +2,7 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ITimerDailyLog } from '@/core/types/interfaces/timer/ITimerLog';
+import { ITimerDailyLog } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useState, useMemo } from 'react';
 import { Spinner } from '@/core/components/common/spinner';
 import { format, startOfWeek, startOfMonth } from 'date-fns';

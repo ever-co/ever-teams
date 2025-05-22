@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../common/use-query';
-import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
+import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/-timer/ITimerLogs';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';

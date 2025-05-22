@@ -10,58 +10,6 @@ export interface ITeamProps {
 	recaptcha?: string;
 }
 
-export interface IUser {
-	lastName: string;
-	email: string;
-	imageUrl: string;
-	tenantId: string | null;
-	thirdPartyId: string | null;
-	firstName: string | null;
-	username: string | null;
-	preferredLanguage: string;
-	preferredComponentLayout: string;
-	isActive: boolean;
-	roleId: string | null;
-	id: string;
-	isEmailVerified: boolean;
-	employee: IEmployee;
-	role: Role;
-	tenant: Tenant;
-	defaultTeam?: IOrganizationTeam;
-	defaultTeamId?: IOrganizationTeam['id'];
-	lastTeam?: IOrganizationTeam;
-	lastTeamId?: IOrganizationTeam['id'];
-	defaultOrganization?: IOrganization;
-	defaultOrganizationId?: IOrganization['id'];
-	lastOrganization?: IOrganization;
-	lastOrganizationId?: IOrganization['id'];
-	lastLoginAt?: Date;
-	createdAt: string;
-	updatedAt: string;
-	timeZone?: string;
-	name?: string | null | undefined;
-	phoneNumber: string | null;
-	imageId?: string | null;
-	image?: IImageAssets | null;
-}
-
-interface Role {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	tenantId: string;
-	name: string;
-	isSystem: boolean;
-}
-
-interface Tenant {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	name: string;
-	logo: string;
-}
-
 export interface ITokens {
 	token: string;
 }

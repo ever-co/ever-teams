@@ -1,4 +1,4 @@
-import { IActivityItem } from '@/core/types/interfaces/activity/IActivityReport';
+import { IActivityItem } from '@/core/types/interfaces/-activity/IActivityReport';
 
 export interface Employee {
 	id: string;

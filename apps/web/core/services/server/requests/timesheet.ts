@@ -8,9 +8,9 @@ import {
 	TimesheetLog,
 	UpdateTimesheet,
 	UpdateTimesheetStatus
-} from '@/core/types/interfaces/timer/ITimerLog';
+} from '@/core/types/interfaces/-timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/core/types/interfaces';
-import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;

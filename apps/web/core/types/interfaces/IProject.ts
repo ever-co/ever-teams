@@ -4,7 +4,7 @@ import { IOrganizationTeam, IOrganizationTeamList, OT_Member } from './IOrganiza
 import { ITeamTask } from './ITask';
 import { TaskStatusEnum } from './ITaskStatus';
 import { ITenant } from './ITenant';
-import { ITimeLog } from './timer/ITimerLogs';
+import { ITimeLog } from './-timer/ITimerLogs';
 
 export interface IProjectRepository {
 	id: string;

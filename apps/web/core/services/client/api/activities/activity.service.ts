@@ -2,7 +2,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { ITaskTimesheet, ITimerApps, TimeLogType } from '@/core/types/interfaces';
-import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 
 class ActivityService extends APIService {

@@ -6,7 +6,7 @@ import {
 	ITimeLog,
 	ITimerLogsDailyReport,
 	ITimerLogsDailyReportRequest
-} from '@/core/types/interfaces/timer/ITimerLogs';
+} from '@/core/types/interfaces/-timer/ITimerLogs';
 import {
 	ITaskTimesheetParams,
 	ITimeLogReportDailyChartProps,
