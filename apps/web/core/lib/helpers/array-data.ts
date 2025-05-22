@@ -1,6 +1,6 @@
-import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
+import { ITimerSlot } from '@/core/types/interfaces/-timer/ITimerSlot';
 import { pad } from './number';
-import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
+import { ITimerApps } from '@/core/types/interfaces/-timer/ITimerApp';
 import { ITaskTimesheet } from '@/core/types/interfaces';
 export function groupDataByHour(data: ITimerSlot[]) {
 	const groupedData: { startedAt: string; stoppedAt: string; items: ITimerSlot[] }[] = [];

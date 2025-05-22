@@ -1,0 +1,25 @@
+export enum TimesheetStatus {
+	DRAFT = 'DRAFT',
+	PENDING = 'PENDING',
+	IN_REVIEW = 'IN REVIEW',
+	DENIED = 'DENIED',
+	APPROVED = 'APPROVED'
+}
+
+export enum TimeLogType {
+	TRACKED = 'TRACKED',
+	MANUAL = 'MANUAL',
+	IDLE = 'IDLE',
+	RESUMED = 'RESUMED'
+}
+
+export enum TimeLogSourceEnum {
+	MOBILE = 'MOBILE',
+	WEB_TIMER = 'BROWSER',
+	DESKTOP = 'DESKTOP',
+	BROWSER_EXTENSION = 'BROWSER_EXTENSION',
+	HUBSTAFF = 'HUBSTAFF',
+	UPWORK = 'UPWORK',
+	TEAMS = 'TEAMS',
+	CLOC = 'CLOC'
+}

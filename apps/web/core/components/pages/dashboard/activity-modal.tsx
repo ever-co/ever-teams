@@ -1,7 +1,7 @@
 'use client';
 
 import { Modal } from '@/core/components';
-import { ITimerEmployeeLog } from '@/core/types/interfaces/timer/ITimerLog';
+import { ITimerEmployeeLog } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useState, useMemo } from 'react';
 import { Avatar } from '../../duplicated-components/avatar';
 
