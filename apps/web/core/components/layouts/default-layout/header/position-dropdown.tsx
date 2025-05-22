@@ -1,4 +1,4 @@
-import { IPosition } from '@/core/types/interfaces';
+import { IPosition } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AutoCompleteDropdown } from '@/core/components/common/auto-complete-dropdown';

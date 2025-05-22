@@ -2,12 +2,12 @@ import React from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { ITaskTimesheet } from '@/core/types/interfaces';
+import { IActivity } from '@/core/types/interfaces/to-review';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';
 
-export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) => {
+export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 	const [hidden, setHidden] = React.useState(true);
 	// TODO: fetch Apps et Sites Visited
 	return (

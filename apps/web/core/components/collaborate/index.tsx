@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/to-review';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import {
 	Command,

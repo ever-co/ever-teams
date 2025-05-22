@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@/core/lib/utils';
-import { IInviteEmail } from '@/core/types/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces/to-review';
 import { useSyncRef } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { AutoCompleteDropdown } from '../../common/auto-complete-dropdown';

@@ -1,6 +1,6 @@
 'use client';
 
-import { IUser, OT_Member, RoleNameEnum } from '@/core/types/interfaces';
+import { IUser, OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';

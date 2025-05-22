@@ -7,7 +7,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { statusTable } from '../../timesheet/timesheet-action';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces/to-review';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toast } from '@/core/hooks/common/use-toast';

@@ -1,4 +1,4 @@
-import { TimesheetFilterByDays, TimesheetStatus } from '@/core/types/interfaces';
+import { TimesheetFilterByDays, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';

@@ -1,4 +1,4 @@
-import { ThemesPopup as IThemesPopup } from '@/core/types/interfaces';
+import { ThemesPopup as IThemesPopup } from '@/core/types/interfaces/to-review';
 import { Switch } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';

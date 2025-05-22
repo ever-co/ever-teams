@@ -2,7 +2,7 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useModal } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';

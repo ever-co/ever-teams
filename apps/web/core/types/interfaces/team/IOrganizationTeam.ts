@@ -1,7 +1,7 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IOrganizationProject } from '../project/IOrganizationProject';
-import { ITask } from '../tasks/ITask';
+import { ITask } from '../task/ITask';
 import { IOrganizationTeamEmployee } from './IOrganizationTeamEmployee';
 
 // Base interface for common properties

@@ -7,7 +7,7 @@ import {
 	IRemoveTaskFromManyPlans,
 	IUpdateDailyPlan,
 	PaginationResponse
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';

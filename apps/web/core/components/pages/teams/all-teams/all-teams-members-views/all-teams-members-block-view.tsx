@@ -1,4 +1,4 @@
-import { IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
+import { IOrganizationTeamList, OT_Member } from '@/core/types/interfaces/to-review';
 import UserTeamBlockCard from './users-teams-block/member-block';
 
 interface Employee extends OT_Member {

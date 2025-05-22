@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskLabelsCreate } from '@/core/types/interfaces';
+import { ITagCreate } from '@/core/types/interfaces/to-review';
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -51,7 +51,7 @@ export function useTaskLabels() {
 	}, [user, activeTeamId, setTaskLabels, taskLabels, getTaskLabelsQueryCall]);
 
 	const createTaskLabels = useCallback(
-		(data: ITaskLabelsCreate) => {
+		(data: ITagCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(
 					{
@@ -99,7 +99,7 @@ export function useTaskLabels() {
 	);
 
 	const editTaskLabels = useCallback(
-		(id: string, data: ITaskLabelsCreate) => {
+		(id: string, data: ITagCreate) => {
 			if (user?.tenantId) {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					getTaskLabelsQueryCall(

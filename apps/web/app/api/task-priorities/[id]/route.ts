@@ -1,4 +1,4 @@
-import { INextParams, ITaskPrioritiesCreate } from '@/core/types/interfaces';
+import { INextParams, ITaskPrioritiesCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskPrioritiesRequest, editTaskPrioritiesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

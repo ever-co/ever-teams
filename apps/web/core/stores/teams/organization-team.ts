@@ -1,4 +1,4 @@
-import { IOrganizationTeamList, OT_Member, RoleNameEnum } from '@/core/types/interfaces/IOrganizationTeam';
+import { IOrganizationTeamList, OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import { atom } from 'jotai';
 
 export const organizationTeamsState = atom<IOrganizationTeamList[]>([]);

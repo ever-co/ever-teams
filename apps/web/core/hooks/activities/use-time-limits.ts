@@ -2,7 +2,7 @@ import { timeLimitsAtom } from '@/core/stores/timer/time-limits';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { useCallback } from 'react';
-import { IGetTimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
+import { IGetTimeLimitReport } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 
 export function useTimeLimits() {

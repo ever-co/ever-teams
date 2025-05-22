@@ -13,9 +13,9 @@ import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { ITimeLimitReport } from '@/core/types/interfaces/ITimeLimits';
+import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
-import { IOrganization } from '@/core/types/interfaces';
+import { IOrganization } from '@/core/types/interfaces/to-review';
 import { useTranslations } from 'next-intl';
 import { WeeklyLimitExportMenu } from '@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu';
 import {

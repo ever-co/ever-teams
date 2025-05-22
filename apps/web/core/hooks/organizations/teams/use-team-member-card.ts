@@ -1,7 +1,7 @@
 'use client';
 
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { IOrganizationTeamList, ITeamTask, Nullable } from '@/core/types/interfaces';
+import { IOrganizationTeamList, ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';

@@ -1,4 +1,4 @@
-import { ISuccessResponse } from '@/core/types/interfaces';
+import { ISuccessResponse } from '@/core/types/interfaces/to-review';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
 

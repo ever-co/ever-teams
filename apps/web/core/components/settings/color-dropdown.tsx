@@ -3,7 +3,7 @@ import { Dropdown } from '@/core/components';
 import { mapColorItems, IColorItem } from './color-items';
 
 import { clsxm } from '@/core/lib/utils';
-import { IColor } from '@/core/types/interfaces';
+import { IColor } from '@/core/types/interfaces/to-review';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 
 export const ColorDropdown = ({

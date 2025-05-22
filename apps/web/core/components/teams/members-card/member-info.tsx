@@ -1,5 +1,5 @@
-import { MC_EditableValues } from '@/core/types/interfaces';
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { MC_EditableValues } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { ChangeEventHandler } from 'react';

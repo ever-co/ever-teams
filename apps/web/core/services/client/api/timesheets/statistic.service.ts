@@ -2,13 +2,13 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
-	ITasksTimesheet,
 	ITimeLogReportDailyProps,
 	ITimerSlotDataRequest,
 	ITimesheetStatisticsData
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 class StatisticsService extends APIService {
 	getTimerLogsRequest = async ({
@@ -50,7 +50,7 @@ class StatisticsService extends APIService {
 	getStatisticsForTasks = async (queries: Record<string, string>, tenantId: string) => {
 		const query = qs.stringify(queries);
 
-		return await this.post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${query}`, {
+		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
 			tenantId
 		});
 	};
@@ -101,7 +101,7 @@ class StatisticsService extends APIService {
 					}
 				};
 			} else {
-				return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
 					`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
 				);
 			}
@@ -140,12 +140,12 @@ class StatisticsService extends APIService {
 					...commonParams,
 					defaultRange: 'false'
 				});
-				const globalData = await this.post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+				const globalData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
 					tenantId
 				});
 
 				const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-				const todayData = await this.post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+				const todayData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
 					tenantId
 				});
 
@@ -157,7 +157,7 @@ class StatisticsService extends APIService {
 				};
 			} else {
 				const api = await getFallbackAPI();
-				return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
 					`/timer/timesheet/statistics-tasks?activeTask=true`
 				);
 			}
@@ -191,11 +191,11 @@ class StatisticsService extends APIService {
 				)
 			});
 
-			return this.post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+			return this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
 		}
 
 		const api = await getFallbackAPI();
-		return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
+		return api.get<ITasksStatistics[]>(`/timer/timesheet/all-statistics-tasks`);
 	};
 
 	/**

@@ -2,7 +2,7 @@ import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
-import { ITaskVersionCreate, ITaskVersionItemList } from '@/core/types/interfaces';
+import { ITaskVersionCreate, ITaskVersion } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -27,7 +27,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskVersionItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskVersion | null>(null);
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
 
 	const {

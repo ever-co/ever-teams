@@ -1,7 +1,7 @@
 import { InviteStatusEnum } from '../../enums/invite';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../base-interfaces';
 import { IOrganizationProject } from '../project/IOrganizationProject';
-import { IRelationalRole } from '../role/role';
+import { IRelationalRole } from '../role/IRole';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { IRelationalUser, IUser } from './IUser';
 

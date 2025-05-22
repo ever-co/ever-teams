@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

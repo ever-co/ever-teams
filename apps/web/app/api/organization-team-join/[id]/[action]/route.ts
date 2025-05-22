@@ -1,4 +1,4 @@
-import { IRequestToJoinActionEnum } from '@/core/types/interfaces';
+import { IRequestToJoinActionEnum } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { acceptRejectRequestToJoinRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

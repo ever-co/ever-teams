@@ -1,5 +1,5 @@
 'use client';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces/to-review';
 import React from 'react';
 
 export function useScrollListener() {

@@ -1,4 +1,4 @@
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';

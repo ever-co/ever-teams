@@ -5,7 +5,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
-import { ITimerEmployeeLog, ITimerLogGrouped } from '@/core/types/interfaces';
+import { ITimerEmployeeLog, ITimerLogGrouped } from '@/core/types/interfaces/to-review';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';

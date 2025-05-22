@@ -1,4 +1,4 @@
-import { IActivityFilter } from '@/core/types/interfaces/IActivityFilter';
+import { IActivityFilter } from '@/core/types/interfaces/to-review/IActivityFilter';
 import { atom } from 'jotai';
 
 export const activityTypeState = atom<IActivityFilter>({

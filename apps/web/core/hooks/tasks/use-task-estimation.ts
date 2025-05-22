@@ -1,7 +1,7 @@
 'use client';
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
+import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useTeamTasks } from '../organizations';
 import { useOutsideClick } from '../common';

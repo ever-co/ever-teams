@@ -1,5 +1,5 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
-import { I_SMTPRequest } from '@/core/types/interfaces/ISmtp';
+import { I_SMTPRequest } from '@/core/types/interfaces/to-review/ISmtp';
 import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';

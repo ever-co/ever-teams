@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/common/separator';
@@ -12,7 +12,7 @@ import { EstimateTimeInfo } from './estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
-import { IMember, MC_EditableValues } from '@/core/types/interfaces';
+import { IMember, MC_EditableValues } from '@/core/types/interfaces/to-review';
 
 const Card = ({ member }: { member: IMember }) => {
 	const { isTeamManager, user } = useAuthenticateUser();

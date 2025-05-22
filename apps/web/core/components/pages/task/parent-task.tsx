@@ -1,5 +1,5 @@
 import { IHookModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';

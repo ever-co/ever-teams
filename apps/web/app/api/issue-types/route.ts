@@ -1,4 +1,4 @@
-import { IIssueTypesCreate } from '@/core/types/interfaces';
+import { IIssueTypesCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createIssueTypeRequest, getIssueTypesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

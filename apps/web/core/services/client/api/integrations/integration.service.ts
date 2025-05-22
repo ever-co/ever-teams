@@ -1,4 +1,4 @@
-import { IIntegration, IIntegrationType } from '@/core/types/interfaces';
+import { IIntegration, IIntegrationType } from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 

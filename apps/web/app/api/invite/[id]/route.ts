@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { MyInvitationActionEnum } from '@/core/types/interfaces';
+import { MyInvitationActionEnum } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getTeamInvitationsRequest,

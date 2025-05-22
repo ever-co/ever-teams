@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';

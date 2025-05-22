@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { publicactiveTeamState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';

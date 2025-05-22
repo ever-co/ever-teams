@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { ColumnDef } from '@tanstack/react-table';
 import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';

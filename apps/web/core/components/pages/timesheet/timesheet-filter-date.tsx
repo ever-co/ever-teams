@@ -10,7 +10,7 @@ import { TranslationHooks } from 'next-intl';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
 import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { TimesheetLog } from '@/core/types/interfaces/to-review';
 
 interface DatePickerInputProps {
 	date: Date | null;

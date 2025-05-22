@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
 import { useEffect, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
 

@@ -3,7 +3,7 @@
 import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan, ITeamTask } from '@/core/types/interfaces/to-review';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';

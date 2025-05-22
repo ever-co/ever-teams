@@ -1,4 +1,4 @@
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';

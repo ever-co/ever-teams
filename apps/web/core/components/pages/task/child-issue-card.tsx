@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';

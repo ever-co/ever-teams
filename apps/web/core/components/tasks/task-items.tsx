@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useTeamTasks } from '@/core/hooks';
-import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces';
+import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces/to-review';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';

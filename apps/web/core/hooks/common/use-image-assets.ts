@@ -3,7 +3,7 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
 import { post } from '@/core/services/client/axios';
-import { IImageAssets } from '@/core/types/interfaces';
+import { IImageAssets } from '@/core/types/interfaces/to-review';
 
 export function useImageAssets() {
 	const [loading, setLoading] = useState(false);

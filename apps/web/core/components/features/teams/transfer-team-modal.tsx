@@ -1,5 +1,5 @@
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
-import { IOrganizationTeamMember } from '@/core/types/interfaces';
+import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { activeTeamManagersState } from '@/core/stores';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useState } from 'react';

@@ -1,4 +1,4 @@
-import { ILanguageItemList } from '@/core/types/interfaces/IUserData';
+import { ILanguageItemList } from '../types/interfaces/language/ILanguage';
 import { atom } from 'jotai';
 
 export const languageListState = atom<ILanguageItemList[]>([]);

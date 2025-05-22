@@ -1,5 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IIcon } from '@/core/types/interfaces';
+import { IIcon } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';

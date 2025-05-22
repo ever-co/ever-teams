@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { ITimerStatus, IToggleTimerParams, IUser, TimerSource } from '@/core/types/interfaces';
+import { ITimerStatus, IToggleTimerStatusParams, IUser, TimerSource } from '@/core/types/interfaces/to-review';
 import {
 	getActiveTaskIdCookie,
 	getActiveTeamIdCookie,
@@ -17,7 +17,7 @@ class TimerService extends APIService {
 		return this.get<ITimerStatus>(endpoint);
 	};
 
-	toggleTimer = async (body: Pick<IToggleTimerParams, 'taskId'>) => {
+	toggleTimer = async (body: Pick<IToggleTimerStatusParams, 'taskId'>) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 

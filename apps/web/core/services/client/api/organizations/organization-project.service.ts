@@ -1,4 +1,9 @@
-import { ICreateProjectInput, IEditProjectInput, IProject, PaginationResponse } from '@/core/types/interfaces';
+import {
+	ICreateProjectInput,
+	IEditProjectInput,
+	IProject,
+	PaginationResponse
+} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';

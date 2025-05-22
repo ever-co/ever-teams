@@ -1,6 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';

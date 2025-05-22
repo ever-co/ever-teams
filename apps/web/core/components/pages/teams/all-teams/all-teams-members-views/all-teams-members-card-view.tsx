@@ -1,4 +1,4 @@
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
 import UserTeamCard from './users-teams-card/user-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';

@@ -5,7 +5,7 @@ import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { CustomFieldsObject } from '../organization/IOrganization';
-import { ITask } from '../tasks/ITask';
+import { ITask } from '../task/ITask';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { ITimeLog } from '../timelog/ITimeLog';
 import { IOrganizationProjectEmployee } from './IOrganizationProjectEmployee';

@@ -8,7 +8,7 @@ import {
 	ITimerProjectLog,
 	ITimerTaskLog,
 	ITimerTask
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 // import { ProjectCell } from './project-cell';
 // import { TrackedHoursCell } from './tracked-hours-cell';
 // import { EarningsCell } from './earnings-cell';

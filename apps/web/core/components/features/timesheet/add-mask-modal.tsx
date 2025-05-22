@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
-import { TimeLogType, TimerSource } from '@/core/types/interfaces';
+import { TimeLogType, TimerSource } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';

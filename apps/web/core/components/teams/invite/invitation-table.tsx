@@ -1,7 +1,7 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useRequestToJoinTeam } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@/core/types/interfaces';
+import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import moment from 'moment';

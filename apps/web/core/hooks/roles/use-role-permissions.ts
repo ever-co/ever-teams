@@ -1,4 +1,4 @@
-import { IRolePermissions } from '@/core/types/interfaces';
+import { IRolePermissions } from '@/core/types/interfaces/to-review';
 import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

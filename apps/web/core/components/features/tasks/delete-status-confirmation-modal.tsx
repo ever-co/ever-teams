@@ -1,4 +1,4 @@
-import { ITaskStatusItemList, TaskStatusEnum } from '@/core/types/interfaces';
+import { ITaskStatus, TaskStatusEnum } from '@/core/types/interfaces/to-review';
 import { useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -8,7 +8,7 @@ import { Card } from '../../duplicated-components/card';
 interface DeleteTaskStatusModalProps {
 	open: boolean;
 	closeModal: () => void;
-	status: ITaskStatusItemList;
+	status: ITaskStatus;
 	onCancel: () => void;
 }
 
@@ -18,7 +18,7 @@ interface DeleteTaskStatusModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITaskStatusItemList} props.status - The status object to be deleted
+ * @param {ITaskStatus} props.status - The status object to be deleted
  * @param {() => void} props.onCancel - Callback function when deletion is cancelled
  *
  * @returns {JSX.Element} The modal element

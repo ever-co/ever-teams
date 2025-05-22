@@ -7,7 +7,7 @@ import { ActivityFilters } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import UserWorkedTaskTab from '@/core/components/activities/user-worked-task';
 import { ScreenshootTeamTab } from '../pages/profile/screenshots/screenshoots';
 import { HorizontalSeparator } from '../duplicated-components/separator';

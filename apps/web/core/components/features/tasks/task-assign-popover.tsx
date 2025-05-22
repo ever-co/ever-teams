@@ -1,5 +1,5 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';

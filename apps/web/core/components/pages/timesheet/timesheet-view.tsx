@@ -1,5 +1,5 @@
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/to-review';
 import { DataTableTimeSheet } from '@/core/components/integration/calendar';
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';

@@ -1,5 +1,5 @@
 import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
+import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';

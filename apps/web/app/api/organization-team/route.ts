@@ -1,5 +1,5 @@
-import { IUserOrganization } from '@/core/types/interfaces/IOrganization';
-import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
+import { IUserOrganization } from '@/core/types/interfaces/to-review/IOrganization';
+import { IOrganizationTeamList } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,

@@ -7,7 +7,7 @@ import {
 } from '../../timesheet';
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';

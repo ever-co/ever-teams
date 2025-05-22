@@ -1,7 +1,7 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';

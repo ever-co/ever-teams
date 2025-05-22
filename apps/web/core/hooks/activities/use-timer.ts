@@ -1,8 +1,8 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
-import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/ITimer';
+import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/to-review/ITimer';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,

@@ -1,27 +1,26 @@
-import {
-	DeleteResponse,
-	ITaskRelatedIssueTypeCreate,
-	ITaskRelatedIssueTypeItemList,
-	PaginationResponse
-} from '@/core/types/interfaces';
+import { PaginationResponse } from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ITaskRelatedIssueType, ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/IRelatedIssueType';
 
 class TaskRelatedIssueTypeService extends APIService {
 	createTaskRelatedIssueType = async (data: ITaskRelatedIssueTypeCreate, tenantId?: string) => {
-		return this.post<ITaskRelatedIssueTypeCreate>('/task-related-issue-types', data, {
-			tenantId
-		});
+		// Not implemented in the API
+		// return this.post<ITaskRelatedIssueTypeCreate>('/task-related-issue-types', data, {
+		// 	tenantId
+		// });
 	};
 
 	editTaskRelatedIssueType = async (id: string, data: ITaskRelatedIssueTypeCreate, tenantId?: string) => {
-		return this.put<ITaskRelatedIssueTypeCreate>(`/task-related-issue-types/${id}`, data, {
-			tenantId
-		});
+		// Not implemented in the API
+		// return this.put<ITaskRelatedIssueTypeCreate>(`/task-related-issue-types/${id}`, data, {
+		// 	tenantId
+		// });
 	};
 
 	deleteTaskRelatedIssueType = async (id: string) => {
-		return this.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
+		// Not implemented in the API
+		// return this.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
 	};
 
 	getTaskRelatedIssueTypeList = async (
@@ -31,7 +30,7 @@ class TaskRelatedIssueTypeService extends APIService {
 	) => {
 		const endpoint = `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-		return this.get<PaginationResponse<ITaskRelatedIssueTypeItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, { tenantId });
 	};
 }
 

@@ -1,4 +1,4 @@
-import { ITag } from '@/core/types/interfaces';
+import { ITag } from '@/core/types/interfaces/to-review';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';

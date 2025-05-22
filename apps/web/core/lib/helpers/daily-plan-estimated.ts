@@ -1,4 +1,4 @@
-import { IDailyPlan } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/to-review';
 import { convertHourToSeconds } from './date-and-time';
 
 export interface IDailyPlanCompareEstimated {

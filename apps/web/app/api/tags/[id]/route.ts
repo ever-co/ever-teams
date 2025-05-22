@@ -1,4 +1,4 @@
-import { INextParams, ITaskLabelsCreate } from '@/core/types/interfaces';
+import { INextParams, ITagCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskLabelsRequest, editTaskLabelsRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -34,7 +34,7 @@ export async function PUT(req: Request, props: INextParams) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const body = (await req.json()) as unknown as ITaskLabelsCreate;
+	const body = (await req.json()) as unknown as ITagCreate;
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 

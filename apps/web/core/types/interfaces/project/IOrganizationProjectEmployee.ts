@@ -1,6 +1,6 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../base-interfaces';
 import { IEmployee, IManagerAssignable } from '../organization/employee/IEmployee';
-import { IRelationalRole } from '../role/role';
+import { IRelationalRole } from '../role/IRole';
 import { IOrganizationProject } from './IOrganizationProject';
 
 export interface IOrganizationProjectEmployee

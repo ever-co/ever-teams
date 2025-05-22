@@ -1,7 +1,7 @@
 import { IBaseEntityModel } from '../base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IOrganization } from '../organization/IOrganization';
-import { IRolePermission } from '../role/permission';
+import { IRolePermission } from '../role/IRolePermission';
 
 export interface ITenant extends IBaseEntityModel, IRelationalImageAsset {
 	name?: string;

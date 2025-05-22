@@ -1,4 +1,4 @@
-import { INextParams, ITaskStatusCreate } from '@/core/types/interfaces';
+import { INextParams, ITaskStatusCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskStatusRequest, editTaskStatusRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';

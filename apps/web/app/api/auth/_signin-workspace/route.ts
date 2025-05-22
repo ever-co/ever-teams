@@ -7,7 +7,7 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces';
+import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

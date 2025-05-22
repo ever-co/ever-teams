@@ -1,6 +1,6 @@
 'use client';
 
-import { IRole } from '@/core/types/interfaces';
+import { IRole } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';

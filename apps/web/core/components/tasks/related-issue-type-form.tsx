@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -19,7 +19,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskRelatedIssueTypeItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
 	const {
 		loading,

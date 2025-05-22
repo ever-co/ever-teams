@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import {

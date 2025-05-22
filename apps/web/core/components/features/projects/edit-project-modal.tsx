@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
-import { RolesEnum } from '@/core/types/interfaces/IRoles';
+import { RolesEnum } from '@/core/types/interfaces/to-review/IRoles';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 

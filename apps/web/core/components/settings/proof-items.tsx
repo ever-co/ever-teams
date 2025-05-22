@@ -1,4 +1,4 @@
-import { IProof } from '@/core/types/interfaces/IProof';
+import { IProof } from '@/core/types/interfaces/to-review/IProof';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 

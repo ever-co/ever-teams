@@ -1,7 +1,7 @@
 'use client';
 
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { ITimesheetStatisticsData } from '@/core/types/interfaces';
+import { ITimesheetStatisticsData } from '@/core/types/interfaces/to-review';
 import { Card } from '@/core/components/common/card';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';

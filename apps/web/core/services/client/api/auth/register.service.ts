@@ -18,7 +18,7 @@ import {
 	IRegisterDataAPI,
 	IRegisterDataRequest,
 	IUser
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';

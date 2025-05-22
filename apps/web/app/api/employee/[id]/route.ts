@@ -1,4 +1,4 @@
-import { IUpdateEmployee } from '@/core/types/interfaces';
+import { IUpdateEmployee } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateEmployees } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

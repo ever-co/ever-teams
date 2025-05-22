@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/to-review';
 import { userState, taskPrioritiesListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';

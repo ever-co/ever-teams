@@ -1,4 +1,4 @@
-import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
+import { OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';

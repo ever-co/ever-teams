@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
 import { useEffect, useState } from 'react';
 import { TaskBlockInfo } from '../../../team/team-members-views/user-team-block/task-info';
 

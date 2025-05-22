@@ -3,7 +3,7 @@ import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../b
 import { IOrganizationTeam } from '../../team/IOrganizationTeam';
 import { IUser } from '../../user/IUser';
 import { IOrganizationProject } from '../../project/IOrganizationProject';
-import { ITask } from '../../tasks/ITask';
+import { ITask } from '../../task/ITask';
 import { ITimesheet } from '../../timesheet/ITimesheet';
 import { ITimeSlot } from '../../time-slot/ITimeSlot';
 

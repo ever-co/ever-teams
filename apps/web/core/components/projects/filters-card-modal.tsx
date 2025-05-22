@@ -7,7 +7,7 @@ import { Button } from '@ever-teams/ui';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { OrganizationProjectBudgetTypeEnum } from '@/core/types/interfaces';
+import { OrganizationProjectBudgetTypeEnum } from '@/core/types/interfaces/to-review';
 import { Card } from '../duplicated-components/card';
 
 interface IFiltersCardModalProps {

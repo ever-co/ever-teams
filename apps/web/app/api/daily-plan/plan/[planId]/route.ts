@@ -1,4 +1,4 @@
-import { IDailyPlanTasksUpdate } from '@/core/types/interfaces';
+import { IDailyPlanTasksUpdate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { addTaskToDailyPlanRequest, removeTaskFromPlanRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

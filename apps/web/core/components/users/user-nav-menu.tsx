@@ -2,7 +2,7 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces';
+import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces/to-review';
 import { publicState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';

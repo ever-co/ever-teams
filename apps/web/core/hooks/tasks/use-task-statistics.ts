@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
+import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
 
 import {
 	activeTaskStatisticsState,
@@ -14,12 +14,12 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
-import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -153,7 +153,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksTimesheet>, _task: Nullable<ITeamTask>, addSeconds: number, estimate = 0) =>
+		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<ITeamTask>, addSeconds: number, estimate = 0) =>
 			Math.min(
 				Math.floor(
 					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
@@ -169,7 +169,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTeam?.members?.forEach((member) => {
 			const totalWorkedTasks = member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
-				totalWorkedTasksTimer += totalWorkedTasks.duration;
+				totalWorkedTasksTimer += totalWorkedTasks?.duration || 0;
 			}
 		});
 

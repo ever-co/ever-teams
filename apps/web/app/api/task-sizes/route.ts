@@ -1,4 +1,4 @@
-import { ITaskSizesCreate } from '@/core/types/interfaces';
+import { ITaskSizesCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createSizesRequest, getTaskSizesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

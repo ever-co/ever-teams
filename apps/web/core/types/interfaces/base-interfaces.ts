@@ -52,7 +52,7 @@ export interface ITaggable {
 	tags?: ITag[];
 }
 
-export interface IURLMetaData {
+export interface IUrlMetaData {
 	title?: string;
 	description?: string;
 	image?: string;

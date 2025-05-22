@@ -1,18 +1,15 @@
-import { ITimerLogsDailyReport } from '@/core/types/interfaces/-timer/ITimerLogs';
-import { atom } from 'jotai';
+import { IOrganizationTeamList } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import {
-	IOrganizationTeamList,
-	IProject,
-	ITeamTask,
 	ITimerDailyLog,
 	ITimerLogGrouped,
-	ITimesheetStatisticsData,
-	OT_Member,
-	TimesheetFilterByDays,
-	TimesheetLog,
 	UpdateTimesheetStatus
-} from '@/core/types/interfaces';
-import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
+} from '@/core/types/interfaces/to-review/timer/ITimerLog';
+import { ITimesheetStatisticsData } from '@/core/types/interfaces/to-review/timer/ITimerLog';
+import { OT_Member } from '@/core/types/interfaces/to-review/IOrganizationTeam';
+import { IProject, ITeamTask, TimesheetFilterByDays, TimesheetLog } from '@/core/types/interfaces/to-review';
+import { ITimerLogsDailyReport } from '@/core/types/interfaces/to-review/timer/ITimerLogs';
+import { atom } from 'jotai';
+import { IActivityReport } from '@/core/types/interfaces/to-review/activity-report/IActivityReport';
 
 interface IFilterOption {
 	value: string;

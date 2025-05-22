@@ -8,7 +8,7 @@ import {
 	IUser,
 	PaginationResponse,
 	TimerSource
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';

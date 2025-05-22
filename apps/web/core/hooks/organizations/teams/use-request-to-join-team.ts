@@ -1,4 +1,8 @@
-import { IRequestToJoinActionEnum, IRequestToJoinCreate, IValidateRequestToJoin } from '@/core/types/interfaces';
+import {
+	IRequestToJoinActionEnum,
+	IRequestToJoinCreate,
+	IValidateRequestToJoin
+} from '@/core/types/interfaces/to-review';
 import { requestToJoinState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

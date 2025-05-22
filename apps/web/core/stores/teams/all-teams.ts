@@ -1,4 +1,4 @@
-import { ITeamsMembersFilter } from '@/core/types/interfaces';
+import { ITeamsMembersFilter } from '@/core/types/interfaces/to-review';
 import { atom } from 'jotai';
 
 export const filterValue = atom<ITeamsMembersFilter>({

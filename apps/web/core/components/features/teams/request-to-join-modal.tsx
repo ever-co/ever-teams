@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
-import { IRequestToJoinCreate } from '@/core/types/interfaces';
+import { IRequestToJoinCreate } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';

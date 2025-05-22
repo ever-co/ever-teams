@@ -1,6 +1,11 @@
 'use client';
 
-import { ITaskStatusCreate, ITaskStatusField, ITaskStatusOrder, ITaskStatusStack } from '@/core/types/interfaces';
+import {
+	ITaskStatusCreate,
+	ITaskStatusField,
+	ITaskStatusOrder,
+	ITaskStatusStack
+} from '@/core/types/interfaces/to-review';
 import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';

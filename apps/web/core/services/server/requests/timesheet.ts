@@ -1,4 +1,4 @@
-import { ITasksTimesheet, TimeLogType } from '@/core/types/interfaces/ITimer';
+import { TimeLogType } from '@/core/types/interfaces/to-review/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import {
@@ -9,8 +9,9 @@ import {
 	UpdateTimesheet,
 	UpdateTimesheetStatus
 } from '@/core/types/interfaces/-timer/ITimerLog';
-import { IUpdateTimesheetStatus } from '@/core/types/interfaces';
+import { IUpdateTimesheetStatus } from '@/core/types/interfaces/to-review';
 import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -36,7 +37,7 @@ export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatistic
 		)
 	});
 
-	return serverFetch<ITasksTimesheet[]>({
+	return serverFetch<ITasksStatistics[]>({
 		path: `/timesheet/statistics/tasks?${queries}`,
 		method: 'POST',
 		bearer_token,
@@ -55,7 +56,7 @@ export type TTaskActivityParams = {
 export function taskActivityRequest(params: TTaskActivityParams, bearer_token: string) {
 	const queries = qs.stringify(params);
 
-	return serverFetch<ITasksTimesheet[]>({
+	return serverFetch<ITasksStatistics[]>({
 		path: `/timesheet/activity?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,

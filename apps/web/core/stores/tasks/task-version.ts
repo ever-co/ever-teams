@@ -1,13 +1,13 @@
-import { ITaskVersionItemList } from '@/core/types/interfaces';
+import { ITaskVersion } from '@/core/types/interfaces/to-review';
 import { atom } from 'jotai';
 
-export const taskVersionListState = atom<ITaskVersionItemList[]>([]);
+export const taskVersionListState = atom<ITaskVersion[]>([]);
 
 export const activeTaskVersionIdState = atom<string | null>(null);
 
 export const taskVersionFetchingState = atom<boolean>(false);
 
-export const activeTaskVersionState = atom<ITaskVersionItemList | null>((get) => {
+export const activeTaskVersionState = atom<ITaskVersion | null>((get) => {
 	const taskVersion = get(taskVersionListState);
 	const activeId = get(activeTaskVersionIdState);
 	return taskVersion.find((version) => version.id === activeId) || taskVersion[0] || null;

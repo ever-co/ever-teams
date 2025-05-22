@@ -7,7 +7,7 @@ import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-es
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
-import { DailyPlanStatusEnum, IDailyPlan } from '@/core/types/interfaces';
+import { DailyPlanStatusEnum, IDailyPlan } from '@/core/types/interfaces/to-review';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';

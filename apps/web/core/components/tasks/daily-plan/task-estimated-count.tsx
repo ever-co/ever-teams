@@ -1,5 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { IDailyPlan, IUser } from '@/core/types/interfaces';
+import { IDailyPlan, IUser } from '@/core/types/interfaces/to-review';
 import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 

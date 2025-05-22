@@ -1,4 +1,4 @@
-import { ITaskStatus } from '@/core/types/interfaces/ITask';
+import { ITaskStatus } from '@/core/types/interfaces/to-review/ITask';
 import React from 'react';
 import { ClosedTaskIcon } from '../svgs/closed-task';
 import { CompletedTaskIcon } from '../svgs/completed-task';

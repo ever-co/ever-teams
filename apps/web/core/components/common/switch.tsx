@@ -1,4 +1,4 @@
-import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
+import { OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { Switch } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Text } from './typography';

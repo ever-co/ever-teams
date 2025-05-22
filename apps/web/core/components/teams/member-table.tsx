@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces';
+import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces/to-review';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';

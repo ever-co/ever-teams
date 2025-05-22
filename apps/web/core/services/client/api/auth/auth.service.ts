@@ -6,7 +6,7 @@ import {
 	ISigninEmailConfirmResponse,
 	ISuccessResponse,
 	IUser
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { getRefreshTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	APP_LOGO_URL,

@@ -1,5 +1,5 @@
-import { INextParams } from '@/core/types/interfaces';
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { INextParams } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
 import { deleteUserRequest } from '@/core/services/server/requests/user';

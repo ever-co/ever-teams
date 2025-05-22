@@ -10,10 +10,10 @@ import {
 	OrganizationProjectBudgetTypeEnum,
 	ProjectBillingEnum,
 	TaskStatusEnum
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { RolesEnum } from '@/core/types/interfaces/IRoles';
+import { RolesEnum } from '@/core/types/interfaces/to-review/IRoles';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';

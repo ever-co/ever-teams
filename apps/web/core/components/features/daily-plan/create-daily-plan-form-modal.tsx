@@ -1,6 +1,11 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
+import {
+	DailyPlanStatusEnum,
+	IDailyPlanMode,
+	IOrganizationTeamList,
+	OT_Member
+} from '@/core/types/interfaces/to-review';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@/core/hooks';
 import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';

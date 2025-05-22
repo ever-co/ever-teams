@@ -2,7 +2,7 @@ import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 
-import { IUpdateEmployee } from '@/core/types/interfaces';
+import { IUpdateEmployee } from '@/core/types/interfaces/to-review';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useQuery } from '../../common';

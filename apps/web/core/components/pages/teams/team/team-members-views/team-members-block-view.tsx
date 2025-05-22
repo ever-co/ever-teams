@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';

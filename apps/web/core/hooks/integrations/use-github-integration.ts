@@ -2,7 +2,7 @@ import { integrationGithubMetadataState, integrationGithubRepositoriesState, use
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
-import { IProjectRepository } from '@/core/types/interfaces';
+import { IProjectRepository } from '@/core/types/interfaces/to-review';
 import { githubService } from '@/core/services/client/api';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 

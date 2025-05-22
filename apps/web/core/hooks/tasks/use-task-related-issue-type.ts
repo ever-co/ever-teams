@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/to-review';
 import {
 	userState,
 	taskRelatedIssueTypeFetchingState,

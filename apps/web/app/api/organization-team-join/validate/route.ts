@@ -1,4 +1,4 @@
-import { IValidateRequestToJoin } from '@/core/types/interfaces';
+import { IValidateRequestToJoin } from '@/core/types/interfaces/to-review';
 import { validateRequestToJoinRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 

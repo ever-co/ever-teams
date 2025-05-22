@@ -7,7 +7,7 @@ import {
 	IUpdateEmployee,
 	IWorkingEmployee,
 	PaginationResponse
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 
 class EmployeeService extends APIService {
 	getWorkingEmployees = async (tenantId: string, organizationId: string) => {

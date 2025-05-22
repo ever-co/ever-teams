@@ -9,7 +9,6 @@ import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from '../../timesheet/monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from '../../timesheet/weekly-timesheet-calendar';
-import { TimesheetLog } from '@/core/types/interfaces';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import TimesheetSkeleton from '../../activities/timesheet-skeleton';
@@ -19,6 +18,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
+import { TimesheetLog } from '@/core/types/interfaces/to-review';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];

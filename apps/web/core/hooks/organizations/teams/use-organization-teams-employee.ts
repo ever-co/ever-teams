@@ -1,4 +1,4 @@
-import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces';
+import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces/to-review';
 import { useCallback } from 'react';
 import { useOrganizationTeams } from './use-organization-teams';
 import { userState } from '@/core/stores';

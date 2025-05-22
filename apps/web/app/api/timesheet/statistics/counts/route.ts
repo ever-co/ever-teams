@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
 import { getTimesheetStatisticsCountsRequest } from '@/core/services/server/requests';
-import { TimeLogType } from '@/core/types/interfaces';
+import { TimeLogType } from '@/core/types/interfaces/to-review';
 
 const isValidLogType = (type: string): type is TimeLogType => {
 	return ['TRACKED', 'MANUAL', 'IDLE'].includes(type as TimeLogType);

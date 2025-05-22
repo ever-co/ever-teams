@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
-import { IDailyPlan, IUser } from '@/core/types/interfaces';
+import { IDailyPlan, IUser } from '@/core/types/interfaces/to-review';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 
 interface IOutstandingFilterDate {

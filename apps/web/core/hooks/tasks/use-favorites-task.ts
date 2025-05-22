@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { useAtom } from 'jotai';
 import { favoriteTasksStorageAtom } from '@/core/stores/teams/team-tasks';
 import { useCallback } from 'react';

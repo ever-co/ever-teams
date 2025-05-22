@@ -1,4 +1,4 @@
-import { IRequestToJoinCreate } from '@/core/types/interfaces';
+import { IRequestToJoinCreate } from '@/core/types/interfaces/to-review';
 import { resendCodeRequestToJoinRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 

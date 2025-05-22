@@ -1,12 +1,12 @@
-import { ILoginResponse } from '@/core/types/interfaces/IAuthentication';
-import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
+import { ILoginResponse } from '@/core/types/interfaces/to-review/IAuthentication';
+import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 import {
 	IInvitation,
 	IInviteCreate,
 	IInviteVerified,
 	IInviteVerifyCode,
 	MyInvitationActionEnum
-} from '@/core/types/interfaces/IInvite';
+} from '@/core/types/interfaces/to-review/IInvite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

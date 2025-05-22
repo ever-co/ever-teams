@@ -11,7 +11,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/-timer/ITimerLogs';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';

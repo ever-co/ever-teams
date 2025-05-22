@@ -7,7 +7,7 @@ import { useAtomValue } from 'jotai';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskPriorities } from '@/core/hooks';
-import { IIcon, ITaskPrioritiesItemList } from '@/core/types/interfaces';
+import { IIcon, ITaskPriority } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -25,7 +25,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 	const user = useAtomValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskPriority | null>(null);
 	const t = useTranslations();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [

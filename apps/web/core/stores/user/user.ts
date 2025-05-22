@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import { atom } from 'jotai';
 
 export const userState = atom<IUser | null>(null);

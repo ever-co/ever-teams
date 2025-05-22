@@ -1,4 +1,4 @@
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import { memo } from 'react';
 import { TaskCard } from '../tasks/task-card';
 import { Divider, Text } from '@/core/components';

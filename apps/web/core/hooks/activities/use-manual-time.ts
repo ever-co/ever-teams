@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../common/use-query';
-import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/-timer/ITimerLogs';
-import { TimeLogType, TimerSource } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { TimeLogType, TimerSource } from '@/core/types/interfaces/to-review';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/to-review/timer/ITimerLogs';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();

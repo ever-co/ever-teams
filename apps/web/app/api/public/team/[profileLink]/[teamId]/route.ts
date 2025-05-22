@@ -1,4 +1,4 @@
-import { INextParams } from '@/core/types/interfaces';
+import { INextParams } from '@/core/types/interfaces/to-review';
 import {
 	getPublicOrganizationTeamMiscDataRequest,
 	getPublicOrganizationTeamRequest

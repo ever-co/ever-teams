@@ -1,4 +1,4 @@
-import { IPagination } from '@/core/types/interfaces/IPagination';
+import { IPagination } from '@/core/types/interfaces/to-review/IPagination';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';

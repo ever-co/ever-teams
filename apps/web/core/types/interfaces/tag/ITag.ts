@@ -15,3 +15,13 @@ export interface ITag extends IBasePerTenantAndOrganizationEntityModel, IRelatio
 export interface ITagType extends IBasePerTenantAndOrganizationEntityModel, ITaggable {
 	type: string;
 }
+export interface ITagCreate {
+	name: string;
+	description?: string;
+	icon?: string;
+	color?: string;
+	projectId?: string;
+	organizationId?: string;
+	tenantId?: string | undefined | null;
+	organizationTeamId?: string;
+}

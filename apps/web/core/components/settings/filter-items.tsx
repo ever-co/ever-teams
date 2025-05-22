@@ -1,4 +1,4 @@
-import { IFilter } from '@/core/types/interfaces/IFilter';
+import { IFilter } from '@/core/types/interfaces/to-review/IFilter';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 

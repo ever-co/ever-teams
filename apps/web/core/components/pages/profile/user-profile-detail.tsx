@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
+import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces/to-review';
 import { isValidUrl } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';

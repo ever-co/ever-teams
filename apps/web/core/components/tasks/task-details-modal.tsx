@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useCallback } from 'react';
 import { clsxm } from '@/core/lib/utils';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { TaskDetailsComponent } from '../pages/task/task-details';
 import { Card } from '../duplicated-components/card';

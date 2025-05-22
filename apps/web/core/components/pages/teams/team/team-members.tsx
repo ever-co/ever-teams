@@ -5,8 +5,13 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
+<<<<<<< HEAD
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { OT_Member } from '@/core/types/interfaces';
+=======
+import { taskBlockFilterState } from '@/core/stores/task-filter';
+import { OT_Member } from '@/core/types/interfaces/to-review';
+>>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, useCallback } from 'react';

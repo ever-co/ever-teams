@@ -1,6 +1,6 @@
 'use client';
 import { VisibilityState } from '@tanstack/react-table';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { TasksDataTable } from './tasks-data-table';
 import { columns } from './columns';
 

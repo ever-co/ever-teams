@@ -1,4 +1,4 @@
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';

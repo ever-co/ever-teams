@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { IDailyPlan, PaginationResponse } from '@/core/types/interfaces';
+import { IDailyPlan, PaginationResponse } from '@/core/types/interfaces/to-review';
 import { DateRange } from 'react-day-picker';
 import { isTestDateRange } from '@/core/lib/helpers/index';
 

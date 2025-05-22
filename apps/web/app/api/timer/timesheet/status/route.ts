@@ -1,4 +1,4 @@
-import { ID } from '@/core/types/interfaces';
+import { ID } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateStatusTimesheetRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

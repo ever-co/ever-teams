@@ -1,6 +1,6 @@
 'use client';
 
-import { ITaskSizesCreate } from '@/core/types/interfaces';
+import { ITaskSizesCreate } from '@/core/types/interfaces/to-review';
 import { activeTeamIdState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';

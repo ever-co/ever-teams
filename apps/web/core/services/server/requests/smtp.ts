@@ -1,5 +1,5 @@
 import { smtpConfiguration } from '@/core/constants/config/constants';
-import { I_SMTP } from '@/core/types/interfaces/ISmtp';
+import { I_SMTP } from '@/core/types/interfaces/to-review/ISmtp';
 import { serverFetch } from '../fetch';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {

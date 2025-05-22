@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces';
+import { IRole } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 import { createRoleRequest, getRolesRequest } from '@/core/services/server/requests';

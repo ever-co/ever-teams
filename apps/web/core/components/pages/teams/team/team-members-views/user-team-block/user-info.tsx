@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
-import { IClassName, ITimerStatusEnum } from '@/core/types/interfaces';
+import { IClassName, ITimerStatusEnum } from '@/core/types/interfaces/to-review';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import Link from 'next/link';
 import { useMemo } from 'react';

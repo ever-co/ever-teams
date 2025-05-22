@@ -1,5 +1,5 @@
-import { INextParams } from '@/core/types/interfaces';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { INextParams } from '@/core/types/interfaces/to-review';
+import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

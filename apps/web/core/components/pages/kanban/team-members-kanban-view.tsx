@@ -1,6 +1,6 @@
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
-import { IKanban } from '@/core/types/interfaces/IKanban';
+import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
@@ -102,8 +102,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	};
 
-	const getHeaderBackground = (columns: ITaskStatusItemList[], column: string) => {
-		const selectState = columns.find((item: ITaskStatusItemList) => {
+	const getHeaderBackground = (columns: ITaskStatus[], column: string) => {
+		const selectState = columns.find((item: ITaskStatus) => {
 			return item.name === column;
 		});
 

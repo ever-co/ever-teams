@@ -2,7 +2,7 @@ import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInv
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from '../../../../features/teams/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from '../../../../teams/invite/user-invite-card';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import React, { useCallback, useEffect } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';

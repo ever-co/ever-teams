@@ -1,12 +1,12 @@
 import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@/core/constants/config/constants';
-import { ISuccessResponse } from '@/core/types/interfaces';
+import { ISuccessResponse } from '@/core/types/interfaces/to-review';
 import {
 	ILoginResponse,
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces/IAuthentication';
-import { IUser } from '@/core/types/interfaces/IUserData';
+} from '@/core/types/interfaces/to-review/IAuthentication';
+import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ProviderEnum } from './o-auth';
@@ -14,7 +14,7 @@ import {
 	ISocialAccount,
 	ISocialAccountExistUser,
 	ISocialAccountSendToken
-} from '@/core/types/interfaces/ISocialAccount';
+} from '@/core/types/interfaces/to-review/ISocialAccount';
 
 const registerDefaultValue = {
 	appName: APP_NAME,

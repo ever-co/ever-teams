@@ -8,7 +8,11 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
+import {
+	IOrganizationTeamList,
+	IOrganizationTeamUpdate,
+	IOrganizationTeamWithMStatus
+} from '@/core/types/interfaces/to-review';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,

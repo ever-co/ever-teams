@@ -1,5 +1,5 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';

@@ -1,15 +1,12 @@
-import {
-	ITimer,
-	ITimerStatusParams,
-	ITimerStatus,
-	ITimerParams,
-	ITimerTimeslotParams,
-	TimerSource
-} from '@/core/types/interfaces/ITimer';
+import { ITimer, ITimerStatus, ITimeSlot, TimerSource } from '@/core/types/interfaces/to-review/ITimer';
+import { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
+import { IGetTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 
-export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatusParams, bearer_token: string) {
+export function getTimerStatusRequest({ tenantId, organizationId }: IGetTimerStatusParams, bearer_token: string) {
 	const params = qs.stringify({ tenantId, organizationId });
 
 	return serverFetch<ITimerStatus>({
@@ -20,8 +17,8 @@ export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatus
 	});
 }
 
-export function startTimerRequest(params: ITimerParams, bearer_token: string) {
-	return serverFetch<ITimer>({
+export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
+	return serverFetch<ITimeLog>({
 		path: '/timesheet/timer/start',
 		method: 'POST',
 		bearer_token,
@@ -30,8 +27,8 @@ export function startTimerRequest(params: ITimerParams, bearer_token: string) {
 	});
 }
 
-export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
-	return serverFetch<ITimer>({
+export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
+	return serverFetch<ITimeLog | null>({
 		path: '/timesheet/timer/stop',
 		method: 'POST',
 		bearer_token,
@@ -41,10 +38,10 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{ source = TimerSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: ITimerParams,
+	{ source = TimerSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: IUpdateTimerStatusParams,
 	bearer_token: string
 ) {
-	return serverFetch<ITimer>({
+	return serverFetch<ITimeLog | null>({
 		path: '/timesheet/timer/toggle',
 		method: 'POST',
 		body: {
@@ -59,8 +56,8 @@ export function toggleTimerRequest(
 	});
 }
 
-export function syncTimeSlotRequest(params: ITimerTimeslotParams, bearer_token: string) {
-	return serverFetch<ITimer>({
+export function syncTimeSlotRequest(params: ITimeSlot, bearer_token: string) {
+	return serverFetch<ITimeSlot>({
 		path: '/timesheet/time-slot',
 		method: 'POST',
 		body: params,

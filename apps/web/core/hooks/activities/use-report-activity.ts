@@ -8,7 +8,7 @@ import {
 	timeLogsRapportDailyState,
 	timesheetStatisticsCountsState
 } from '@/core/stores';
-import { TimeLogType } from '@/core/types/interfaces';
+import { TimeLogType } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import { activityService } from '@/core/services/client/api/activities';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';

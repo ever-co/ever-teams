@@ -12,7 +12,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { IDailyPlan, IUser } from '@/core/types/interfaces';
+import { IDailyPlan, IUser } from '@/core/types/interfaces/to-review';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';

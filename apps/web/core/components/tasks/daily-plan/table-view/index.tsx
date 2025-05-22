@@ -1,7 +1,7 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan, ITeamTask } from '@/core/types/interfaces/to-review';
 import DailyPlanTaskEstimationCell from './cells/task-estimation-cell';
 import DailyPlanTaskInfoCell from './cells/task-info-cell';
 import DailyPlanTaskTimesCell from './cells/task-times-cell';

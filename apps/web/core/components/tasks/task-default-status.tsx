@@ -1,4 +1,4 @@
-import { ITaskLabel, ITaskPriority, ITaskSize, ITaskStatus } from '@/core/types/interfaces';
+import { ITaskLabel, ITaskPriority, ITaskSize, ITaskStatus } from '@/core/types/interfaces/to-review';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
 	XXLTextIcon as XlargeIcon,

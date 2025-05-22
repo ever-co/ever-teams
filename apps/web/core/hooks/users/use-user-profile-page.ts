@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';

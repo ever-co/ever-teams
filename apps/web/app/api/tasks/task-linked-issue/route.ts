@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue, LinkedTaskIssue } from '@/core/types/interfaces/ITask';
+import { ITaskLinkedIssue, LinkedTaskIssue } from '@/core/types/interfaces/to-review/ITask';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createTaskLinkedIssue, updateTaskLinkedIssue } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

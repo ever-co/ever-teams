@@ -1,4 +1,4 @@
-import { ILanguageItemList } from '@/core/types/interfaces';
+import { ILanguageItemList } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 

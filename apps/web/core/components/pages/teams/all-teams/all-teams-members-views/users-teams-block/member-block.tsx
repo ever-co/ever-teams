@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
+import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { useMemo } from 'react';

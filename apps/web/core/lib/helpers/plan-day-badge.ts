@@ -1,4 +1,4 @@
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan, ITeamTask } from '@/core/types/interfaces/to-review';
 import { formatDayPlanDate } from './date-and-time';
 
 export const planBadgeContent = (

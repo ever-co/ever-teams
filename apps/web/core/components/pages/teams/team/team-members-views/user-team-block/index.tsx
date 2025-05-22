@@ -1,7 +1,7 @@
 import React from 'react';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@/core/hooks';
-import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@/core/types/interfaces';
+import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';

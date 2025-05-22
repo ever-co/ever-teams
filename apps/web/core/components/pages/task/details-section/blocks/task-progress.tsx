@@ -6,10 +6,11 @@ import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
+import { ITime, OT_Member } from '@/core/types/interfaces/to-review';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -74,12 +75,12 @@ const TaskProgress = () => {
 			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
-		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
+		const usersTaskArray: ITasksStatistics[] | undefined = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
 			.filter((taskObj) => taskObj?.id === task?.id);
 
 		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
-			(totalDuration, item) => totalDuration + item.duration,
+			(totalDuration, item) => totalDuration + (item.duration ?? 0),
 			0
 		);
 

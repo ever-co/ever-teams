@@ -1,6 +1,6 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../base-interfaces';
 import { FileStorageProvider } from '../file-storage/IFileStorageProvider';
-import { ID } from '../IBaseModel';
+import { ID } from '../to-review/IBaseModel';
 
 export interface IImageAsset extends IBasePerTenantAndOrganizationEntityModel {
 	name: string;
@@ -19,4 +19,8 @@ export interface IImageAsset extends IBasePerTenantAndOrganizationEntityModel {
 export interface IRelationalImageAsset {
 	image?: IImageAsset | null;
 	imageId?: ID | null;
+}
+
+export interface ICreateImageAssets extends Pick<IImageAsset, 'tenantId' | 'organizationId'> {
+	file: File;
 }

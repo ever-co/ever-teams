@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces';
+import { IRole } from '@/core/types/interfaces/to-review';
 import { rolesState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

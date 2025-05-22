@@ -7,7 +7,7 @@ import {
 import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { DeleteResponse, ICreateTask, ITeamTask, PaginationResponse } from '@/core/types/interfaces';
+import { DeleteResponse, ICreateTask, ITeamTask, PaginationResponse } from '@/core/types/interfaces/to-review';
 
 class TaskService extends APIService {
 	getTasksById = async (taskId: string) => {

@@ -6,7 +6,7 @@ import {
 	IOrganizationTeamList,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { AxiosResponse } from 'axios';

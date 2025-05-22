@@ -8,7 +8,7 @@ import {
 	DateSummaryRowProps,
 	ProgressBarProps,
 	ProjectHeaderRowProps
-} from '@/core/types/interfaces/IProductivityProject';
+} from '@/core/types/interfaces/to-review/IProductivityProject';
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
 	<div className={cn('flex gap-2 items-center', className)}>

@@ -6,7 +6,7 @@ import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
-import { IProject, ITeamTask } from '@/core/types/interfaces';
+import { IProject, ITeamTask } from '@/core/types/interfaces/to-review';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';

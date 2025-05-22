@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
 import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
-import { IIcon, ITaskSizesItemList } from '@/core/types/interfaces';
+import { IIcon, ITaskSize } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -25,7 +25,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useAtomValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskSize | null>(null);
 
 	const t = useTranslations();
 

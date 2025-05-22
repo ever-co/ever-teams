@@ -1,6 +1,6 @@
 'use client';
 
-import { MyInvitationActionEnum } from '@/core/types/interfaces';
+import { MyInvitationActionEnum } from '@/core/types/interfaces/to-review';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,

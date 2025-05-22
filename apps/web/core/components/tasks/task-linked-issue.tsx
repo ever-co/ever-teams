@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@/core/hooks';
-import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
+import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';

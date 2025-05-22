@@ -1,11 +1,10 @@
 import { TimeFormatEnum } from '../../enums';
 import { IBasePerTenantEntityModel, ID } from '../base-interfaces';
-import { IRole } from '../role/role';
-import { ICandidate } from '../organization/ICandidate';
+import { IRole } from '../role/IRole';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { IOrganization } from '../organization/IOrganization';
 import { ITag } from '../tag/ITag';
-import { IInvite } from '..';
+import { IInvite } from '../to-review';
 import { ISocialAccount } from './ISocialAccount';
 import { IUserOrganization } from '../organization/IUserOrganization';
 import { IEmployee } from '../organization/employee/IEmployee';
@@ -27,7 +26,7 @@ export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset 
 	imageUrl?: string;
 	employee?: IEmployee;
 	employeeId?: ID;
-	candidate?: ICandidate;
+	// candidate?: ICandidate;
 	candidateId?: ID;
 	defaultTeam?: IOrganizationTeam;
 	defaultTeamId?: ID;
@@ -56,7 +55,7 @@ export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset 
 }
 
 /**
- * Enntities that have relation with the User entity will extends this
+ * Entities that have relation with the User entity will extends this
  */
 export interface IRelationalUser {
 	user?: IUser;

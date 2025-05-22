@@ -22,7 +22,7 @@ import { DatePicker } from '@/core/components/common/date-picker';
 import { cn } from '@/core/lib/helpers';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetFilterByDays } from '@/core/types/interfaces';
+import { TimesheetFilterByDays } from '@/core/types/interfaces/to-review';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
 
 interface DatePickerInputProps {

@@ -2,8 +2,8 @@ import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
-import { IKanban } from '@/core/types/interfaces/IKanban';
+import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
@@ -116,7 +116,7 @@ export function useKanban() {
 				});
 			};
 
-			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatusItemList) => {
+			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatus) => {
 				kanban = {
 					...kanban,
 					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
@@ -132,7 +132,7 @@ export function useKanban() {
 	 * collapse or show kanban column
 	 */
 	const toggleColumn = async (column: string, status: boolean) => {
-		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatusItemList) => {
+		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatus) => {
 			return taskStatus.name === column;
 		});
 
@@ -156,14 +156,14 @@ export function useKanban() {
 	};
 
 	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatusItemList) => {
+		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatus) => {
 			return taskStatus.name === column;
 		});
 
 		return columnData?.isCollapsed;
 	};
 	const isAllColumnCollapse = () => {
-		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatusItemList) => {
+		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatus) => {
 			return taskStatus.isCollapsed;
 		});
 	};

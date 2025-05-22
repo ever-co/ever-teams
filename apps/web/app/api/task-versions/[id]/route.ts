@@ -1,4 +1,4 @@
-import { INextParams, ITaskVersionCreate } from '@/core/types/interfaces';
+import { INextParams, ITaskVersionCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';

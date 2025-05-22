@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { serverFetch } from '../fetch';
-import { IProject, PaginationResponse } from '@/core/types/interfaces';
+import { IProject, PaginationResponse } from '@/core/types/interfaces/to-review';
 
 export function editOrganizationProjectsSettingsRequest({
 	id,

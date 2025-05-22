@@ -1,8 +1,8 @@
 import moment from 'moment';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
-import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
+import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { ITasksStatistics } from '../types/interfaces/task/ITask';
 
 export const teamTasksState = atom<ITeamTask[]>([]);
 
@@ -30,8 +30,8 @@ export const tasksByTeamState = atom<ITeamTask[]>((get) => {
 });
 
 export const tasksStatisticsState = atom<{
-	all: ITasksTimesheet[];
-	today: ITasksTimesheet[];
+	all: ITasksStatistics[];
+	today: ITasksStatistics[];
 }>({
 	all: [],
 	today: []
@@ -40,11 +40,11 @@ export const favoriteTasksAtom = atom<ITeamTask[]>([]);
 export const favoriteTasksStorageAtom = atomWithStorage<ITeamTask[]>('favoriteTasks', []);
 
 export const activeTaskStatisticsState = atom<{
-	total: ITasksTimesheet | null;
-	today: ITasksTimesheet | null;
+	total: ITasksStatistics | null;
+	today: ITasksStatistics | null;
 }>({
 	total: null,
 	today: null
 });
 
-export const allTaskStatisticsState = atom<ITasksTimesheet[]>([]);
+export const allTaskStatisticsState = atom<ITasksStatistics[]>([]);

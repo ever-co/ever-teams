@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import TimerCard from '@/core/components/timer/timer-card';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import capitalize from 'lodash/capitalize';

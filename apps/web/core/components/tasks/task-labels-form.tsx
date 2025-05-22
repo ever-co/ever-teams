@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useTaskLabels } from '@/core/hooks';
-import { IIcon, ITaskLabelsItemList } from '@/core/types/interfaces';
+import { IIcon, ITag } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -23,7 +23,7 @@ type StatusForm = {
 export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, watch } = useForm();
-	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
+	const [edit, setEdit] = useState<ITag | null>(null);
 	const [isCreating, setIsCreating] = useState(formOnly);
 	const t = useTranslations();
 	const initialRender = useRef(true);

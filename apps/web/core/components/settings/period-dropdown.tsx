@@ -1,7 +1,7 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IPeriod } from '@/core/types/interfaces';
+import { IPeriod } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { PeriodItem, mapPeriodItems } from './period-items';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ITimerLogGrouped } from '@/core/types/interfaces';
+import { ITimerLogGrouped } from '@/core/types/interfaces/to-review';
 
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 

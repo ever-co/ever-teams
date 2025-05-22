@@ -1,7 +1,7 @@
 'use client';
 
 import { IHookModal, useModal, useStatusValue, useTaskStatusValue } from '@/core/hooks';
-import { ITaskStatusField } from '@/core/types/interfaces';
+import { ITaskStatusField } from '@/core/types/interfaces/to-review';
 import { Button, Modal, Text } from '@/core/components';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';

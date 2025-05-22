@@ -1,5 +1,10 @@
-import { PaginationResponse } from '@/core/types/interfaces';
-import { ICreateEmployee, IEmployee, IUpdateEmployee, IWorkingEmployee } from '@/core/types/interfaces/IEmployee';
+import { PaginationResponse } from '@/core/types/interfaces/to-review';
+import {
+	ICreateEmployee,
+	IEmployee,
+	IUpdateEmployee,
+	IWorkingEmployee
+} from '@/core/types/interfaces/to-review/IEmployee';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

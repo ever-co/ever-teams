@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITeamTask } from '@/core/types/interfaces/to-review';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useLinkedTasks(task?: ITeamTask | null) {

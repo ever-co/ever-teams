@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@/core/hooks';
-import { IIcon, ITaskStatusItemList } from '@/core/types/interfaces';
+import { IIcon, ITaskStatus } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -27,7 +27,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskStatus | null>(null);
 	const t = useTranslations();
 	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 	const [randomColor, setRandomColor] = useState<string | undefined>(undefined);
@@ -138,7 +138,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		closeModal: closeDeleteConfirmationModal,
 		openModal: openDeleteConfirmationModal
 	} = useModal();
-	const [statusToDelete, setStatusToDelete] = useState<ITaskStatusItemList | null>(null);
+	const [statusToDelete, setStatusToDelete] = useState<ITaskStatus | null>(null);
 	const { tasks } = useTeamTasks();
 
 	/**

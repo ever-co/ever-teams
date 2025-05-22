@@ -1,7 +1,7 @@
 'use client';
 
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { ITimeLimitReportByEmployee } from '@/core/types/interfaces/ITimeLimits';
+import { ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
 import moment from 'moment';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import { IWeeklyLimitReportPDFDocumentProps, Table } from '.';

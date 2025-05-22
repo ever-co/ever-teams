@@ -50,7 +50,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
 

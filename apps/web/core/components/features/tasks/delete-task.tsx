@@ -1,4 +1,4 @@
-import { IInviteProps } from '@/core/types/interfaces/hooks';
+import { IInviteProps } from '@/core/types/interfaces/to-review/hooks';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';

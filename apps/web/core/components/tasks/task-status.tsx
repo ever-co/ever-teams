@@ -5,13 +5,13 @@
 import {
 	IClassName,
 	ITaskStatusField,
-	ITaskStatusItemList,
+	ITaskStatus,
 	ITaskStatusStack,
 	ITeamTask,
 	Nullable,
 	Tag,
 	TaskStatusEnum
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/to-review';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
@@ -90,7 +90,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropd
 	showIcon?: boolean;
 };
 
-export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[], bordered = false): TStatus<any> {
+export function useMapToTaskStatusValues<T extends ITaskStatus>(data: T[], bordered = false): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
+import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';

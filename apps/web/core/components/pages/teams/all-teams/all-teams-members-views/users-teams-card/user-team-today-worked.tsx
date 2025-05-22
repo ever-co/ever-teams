@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces';
+import { OT_Member } from '@/core/types/interfaces/to-review';
 import { TodayWorkedTime } from '@/core/components/tasks/task-times';
 
 export default function UserTeamActiveTaskTodayWorked({

@@ -3,7 +3,7 @@ import { timesheetRapportState } from '@/core/stores/timer/time-logs';
 import { useQuery } from '../common/use-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces';
+import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';

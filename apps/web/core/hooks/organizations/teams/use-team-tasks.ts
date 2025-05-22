@@ -7,7 +7,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces';
+import { ITag, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces/to-review';
 import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -303,7 +303,7 @@ export function useTeamTasks() {
 			taskStatusId: string;
 			priority?: string;
 			size?: string;
-			tags?: ITaskLabelsItemList[];
+			tags?: ITag[];
 			description?: string | null;
 			projectId?: string | null;
 			members?: { id: string }[];

@@ -1,5 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/img-title';
-import { IInvitation } from '@/core/types/interfaces/IInvite';
+import { IInvitation } from '@/core/types/interfaces/to-review/IInvite';
 import Separator from '@/core/components/common/separator';
 
 export function InvitedCard({ invitation }: { invitation: IInvitation }) {

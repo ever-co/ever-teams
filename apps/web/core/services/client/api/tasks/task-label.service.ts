@@ -1,18 +1,19 @@
-import { DeleteResponse, ITaskLabelsCreate, ITaskLabelsItemList, PaginationResponse } from '@/core/types/interfaces';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ITag, ITagCreate } from '@/core/types/interfaces/tag/ITag';
 
 class TaskLabelService extends APIService {
-	createTaskLabels = async (data: ITaskLabelsCreate, tenantId?: string) => {
-		return this.post<ITaskLabelsCreate>('/tags', data, {
+	createTaskLabels = async (data: ITagCreate, tenantId?: string) => {
+		return this.post<ITagCreate>('/tags', data, {
 			headers: {
 				'Tenant-Id': tenantId
 			}
 		});
 	};
 
-	editTaskLabels = async (id: string, data: ITaskLabelsCreate, tenantId?: string) => {
-		return this.put<ITaskLabelsCreate>(`/tags/${id}`, data, {
+	editTaskLabels = async (id: string, data: ITagCreate, tenantId?: string) => {
+		return this.put<ITagCreate>(`/tags/${id}`, data, {
 			tenantId
 		});
 	};
@@ -24,7 +25,7 @@ class TaskLabelService extends APIService {
 	getTaskLabelsList = async (tenantId: string, organizationId: string, organizationTeamId: string | null) => {
 		const endpoint = `/tags/level?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-		return this.get<PaginationResponse<ITaskLabelsItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITag>>(endpoint, { tenantId });
 	};
 }
 

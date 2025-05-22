@@ -1,6 +1,6 @@
 'use client';
 
-import { IIssueTypesCreate } from '@/core/types/interfaces';
+import { IIssueTypesCreate } from '@/core/types/interfaces/to-review';
 import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';

@@ -3,7 +3,7 @@ import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@/core/hooks';
-import { IIssueTypesItemList } from '@/core/types/interfaces';
+import { IIssueTypesItemList } from '@/core/types/interfaces/to-review';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';

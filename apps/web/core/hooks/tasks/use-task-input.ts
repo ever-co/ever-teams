@@ -1,7 +1,7 @@
 'use client';
 
-import { ITaskLabelsItemList, Nullable } from '@/core/types/interfaces';
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITag, Nullable } from '@/core/types/interfaces/to-review';
+import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review/ITask';
 import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -57,7 +57,7 @@ export function useTaskInput({
 	const taskPriority = useRef<null | string>(null);
 	const taskSize = useRef<null | string>(null);
 	const taskDescription = useRef<null | string>(null);
-	const taskLabels = useRef<[] | ITaskLabelsItemList[]>([]);
+	const taskLabels = useRef<[] | ITag[]>([]);
 	const taskProject = useRef<null | string>(null);
 	const taskAssignees = useRef<{ id: string }[]>([]);
 

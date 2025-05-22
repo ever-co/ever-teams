@@ -1,8 +1,8 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../base-interfaces';
-import { IRelationnalEmployee } from '../IEmployee';
+import { IRelationnalEmployee } from '../to-review/IEmployee';
 import { IManagerAssignable } from '../organization/employee/IEmployee';
-import { IRelationalRole } from '../role/role';
-import { ITask } from '../tasks/ITask';
+import { IRelationalRole } from '../role/IRole';
+import { ITask } from '../task/ITask';
 import { ITimerStatus } from '../timer/ITimer';
 import { IRelationalOrganizationTeam } from './IOrganizationTeam';
 

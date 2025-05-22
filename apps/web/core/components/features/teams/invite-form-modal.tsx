@@ -1,6 +1,6 @@
 'use client';
 
-import { IInviteEmail } from '@/core/types/interfaces';
+import { IInviteEmail } from '@/core/types/interfaces/to-review';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Modal, Text } from '@/core/components';

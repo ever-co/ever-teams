@@ -1,6 +1,6 @@
 // import { useOrganizationTeams } from '@app/hooks';
 import { useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';

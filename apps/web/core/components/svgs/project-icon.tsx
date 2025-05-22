@@ -1,4 +1,4 @@
-import { IIconProps } from '@/core/types/interfaces';
+import { IIconProps } from '@/core/types/interfaces/to-review';
 
 export default function ProjectIcon(props: Partial<IIconProps>) {
 	return (

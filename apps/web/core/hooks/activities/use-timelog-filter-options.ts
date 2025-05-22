@@ -1,4 +1,4 @@
-import { IUser, RoleNameEnum, TimesheetLog } from '@/core/types/interfaces';
+import { IUser, RoleNameEnum, TimesheetLog } from '@/core/types/interfaces/to-review';
 import {
 	timesheetDeleteState,
 	timesheetGroupByDayState,

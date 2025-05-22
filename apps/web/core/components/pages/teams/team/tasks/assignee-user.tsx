@@ -1,4 +1,4 @@
-import { IEmployee } from '@/core/types/interfaces';
+import { IEmployee } from '@/core/types/interfaces/to-review';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { FC } from 'react';
 

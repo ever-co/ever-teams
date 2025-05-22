@@ -1,6 +1,6 @@
 import { pad } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
-import { IClassName, TimerSource } from '@/core/types/interfaces';
+import { IClassName, TimerSource } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';

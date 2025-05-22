@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './use-timesheet';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { useLocalStorageState } from '../common/use-local-storage-state';
 
 export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {

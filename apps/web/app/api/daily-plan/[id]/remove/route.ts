@@ -1,4 +1,4 @@
-import { IRemoveTaskFromManyPlans } from '@/core/types/interfaces';
+import { IRemoveTaskFromManyPlans } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteDailyPlansManyRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

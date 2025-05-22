@@ -1,4 +1,4 @@
-import { IIconProps } from '../../types/interfaces/hooks';
+import { IIconProps } from '../../types/interfaces/to-review/hooks';
 
 export const PlayIcon = ({ width, height }: IIconProps) => {
 	return (
