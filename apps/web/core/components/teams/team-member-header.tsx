@@ -2,7 +2,7 @@ import { IssuesView } from '@/core/constants/config/constants';
 import { UserTeamCardHeader } from '../pages/teams/team/team-members-views/team-members-header';
 import { Container } from '@/core/components';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import UserTeamTableHeader from '../pages/teams/team/team-members-views/user-team-table/user-team-table-header';
 import { UserTeamBlockHeader } from '../pages/teams/team/team-members-views/user-team-block/user-team-block-header';
 

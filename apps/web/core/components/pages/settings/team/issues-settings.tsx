@@ -10,7 +10,7 @@ import { TaskSizesForm } from '../../../tasks/task-sizes-form';
 import { TaskStatusesForm } from '../../../tasks/task-statuses-form';
 import { DefaultIssueTypeForm } from '../../../tasks/default-issue-type-form';
 import { useSetAtom } from 'jotai';
-import { activeSettingTeamTab } from '@/core/stores/setting';
+import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 
 export const IssuesSettings = () => {

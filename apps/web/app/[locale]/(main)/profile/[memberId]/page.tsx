@@ -17,10 +17,10 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
-import { activityTypeState } from '@/core/stores/activity-type';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { UserProfileDetail } from '@/core/components/pages/profile/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';

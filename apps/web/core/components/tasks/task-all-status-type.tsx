@@ -11,7 +11,7 @@ import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../users/user-profile-plans';
 import ProjectIcon from '@/core/components/svgs/project-icon';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores/organization-projects';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 
 export function TaskAllStatusTypes({
 	task,

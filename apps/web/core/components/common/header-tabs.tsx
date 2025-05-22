@@ -4,7 +4,7 @@ import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/
 import KanbanIcon from '@/core/components/svgs/kanban';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtom } from 'jotai';
-import { headerTabs } from '@/core/stores/header-tabs';
+import { headerTabs } from '@/core/stores/common/header-tabs';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 

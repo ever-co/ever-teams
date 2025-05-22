@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorageState, useModal, useOrganizationTeams } from '@/core/hooks';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { PeoplesIcon } from 'assets/svg';

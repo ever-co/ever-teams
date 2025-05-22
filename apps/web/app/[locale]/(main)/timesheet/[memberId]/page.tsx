@@ -15,7 +15,7 @@ import {
 	useOrganizationProjects,
 	useOrganizationTeams
 } from '@/core/hooks';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';

@@ -9,7 +9,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 import { TaskDetailsComponent } from '@/core/components/pages/task/task-details';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';

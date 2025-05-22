@@ -1,6 +1,6 @@
 import { Button } from '@/core/components';
 import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
-import { taskBlockFilterState } from '@/core/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';

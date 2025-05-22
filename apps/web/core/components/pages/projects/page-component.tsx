@@ -37,7 +37,7 @@ import { BulkArchiveProjectsModal } from '@/core/components/features/projects/bu
 import { BulkRestoreProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useParams } from 'next/navigation';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';

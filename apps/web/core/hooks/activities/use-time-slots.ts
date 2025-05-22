@@ -3,9 +3,9 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../common/use-query';
 import { useAtom, useAtomValue } from 'jotai';
-import { timeSlotsState } from '@/core/stores/time-slot';
+import { timeSlotsState } from '@/core/stores/timer/time-slot';
 import moment from 'moment';
-import { activityTypeState } from '@/core/stores/activity-type';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot.service';
 import { useAuthenticateUser } from '../auth';

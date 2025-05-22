@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useCallbackRef } from './use-callback-ref';
 import { useAtom } from 'jotai';
-import { dataSyncModeState, isDataSyncState } from '@/core/stores/data-sync';
+import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
 
 export function useRefreshInterval(callback: any, delay: number, ...params: any[]) {
 	// Remember the latest callback.

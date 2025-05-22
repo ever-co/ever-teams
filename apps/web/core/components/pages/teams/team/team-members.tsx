@@ -5,10 +5,10 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
-import { taskBlockFilterState } from '@/core/stores/task-filter';
+import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { OT_Member } from '@/core/types/interfaces';
 import { Container } from '@/core/components';
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';

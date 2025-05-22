@@ -6,7 +6,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { AlertPopup } from '@/core/components';
