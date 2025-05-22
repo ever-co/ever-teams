@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { ChildIssueCard } from '@/core/components/pages/task/child-issue-card';
 import RichTextEditor from '@/core/components/pages/task/description-block/task-description-editor';
 import { RelatedIssueCard } from '@/core/components/pages/task/issue-card';
@@ -8,14 +8,14 @@ import TaskTitleBlock from '@/core/components/pages/task/title-block/task-title-
 import { TaskActivity } from '@/core/components/pages/task/task-activity';
 
 interface ITaskDetailsComponentProps {
-	task: ITeamTask;
+	task: ITask;
 }
 
 /**
  * Task details component
  *
  * @param {object} props - The props object
- * @param {ITeamTask} props.task - The task to show details about
+ * @param {ITask} props.task - The task to show details about
  *
  * @returns {JSX.Element} The Task details component
  */

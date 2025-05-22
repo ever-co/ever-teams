@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 import React, { JSX, ReactNode } from 'react';
-import { ITaskStatus } from '@/core/types/interfaces/to-review';
+import { ITaskStatusNameEnum } from '@/core/types/interfaces/to-review';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -90,7 +90,7 @@ export function isJSXElement(node: any | ReactNode): node is JSX.Element | JSX.E
 	return false;
 }
 
-export function getStatusColor(status: ITaskStatus) {
+export function getStatusColor(status: ITaskStatusNameEnum) {
 	switch (status) {
 		case 'in-review':
 			return 'bg-[#f3d8b0]';

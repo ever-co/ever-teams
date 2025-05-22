@@ -12,7 +12,7 @@ import {
 } from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { TaskStatus } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -67,7 +67,7 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
  * @param param0
  * @returns
  */
-function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dropSnapshot: DroppableStateSnapshot }) {
+function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSnapshot: DroppableStateSnapshot }) {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 
@@ -76,7 +76,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 			<section className="relative flex flex-col items-center pb-2">
 				{Array.isArray(items) &&
 					items.length > 0 &&
-					items.map((item: ITeamTask, index: number) => (
+					items.map((item: ITask, index: number) => (
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 								<Item
@@ -128,7 +128,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
  */
 function InnerList(props: {
 	title: string;
-	items: ITeamTask[];
+	items: ITask[];
 	dropProvided: DroppableProvided;
 	dropSnapshot: DroppableStateSnapshot;
 }) {
@@ -191,7 +191,7 @@ export const KanbanDroppable = ({
 	isLoading: boolean;
 	droppableId: string;
 	type: string;
-	content: ITeamTask[];
+	content: ITask[];
 }) => {
 	return (
 		<>
@@ -230,7 +230,7 @@ export const EmptyKanbanDroppable = ({
 	status: any;
 	setColumn: any;
 	backgroundColor: any;
-	items: ITeamTask[];
+	items: ITask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
 	const t = useTranslations();
@@ -471,9 +471,9 @@ const KanbanDraggable = ({
 	icon: string;
 	isLoading: boolean;
 	backgroundColor: any;
-	items: ITeamTask[];
+	items: ITask[];
 	containerRef?: RefObject<HTMLDivElement>;
-	addNewTask: (value: ITeamTask, status: string) => void;
+	addNewTask: (value: ITask, status: string) => void;
 }) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();

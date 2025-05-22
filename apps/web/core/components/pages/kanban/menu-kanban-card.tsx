@@ -6,13 +6,13 @@ import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 
-export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
+export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
@@ -194,7 +194,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	task: ITeamTask;
+	task: ITask;
 	key?: string;
 }
 
@@ -203,7 +203,7 @@ interface ITeamMemberSelectProps {
  *
  * @param {object} props - The props object
  * @param {OT_Member[]} props.teamMembers - Members of the current team
- * @param {ITeamTask} props.task - The task
+ * @param {ITask} props.task - The task
  *
  * @return {ReactNode} The multi select component
  */
@@ -264,7 +264,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 interface ITeamMemberOptionProps {
 	isAssignee: boolean;
 	member: OT_Member;
-	task: ITeamTask;
+	task: ITask;
 	key?: string;
 }
 

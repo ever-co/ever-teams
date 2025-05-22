@@ -9,12 +9,12 @@ import {
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/core/hooks/common/use-toast';
 
-const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
+const DropdownMenuTask: FC<{ task: ITask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();

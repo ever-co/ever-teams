@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { ColumnDef } from '@tanstack/react-table';
 import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';
@@ -8,7 +8,7 @@ import { ActiveTaskStatusDropdown } from '@/core/components/tasks/task-status';
 // Columns that can be hidden in the team tasks table
 export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];
 
-export const columns: ColumnDef<ITeamTask>[] = [
+export const columns: ColumnDef<ITask>[] = [
 	{
 		accessorKey: 'typeNumber',
 		header: 'Type + Number',

@@ -1,5 +1,5 @@
 import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
@@ -14,7 +14,7 @@ export function TaskProgressBar({
 }: // memberInfo,
 {
 	isAuthUser: boolean | undefined;
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	activeAuthTask: boolean;
 	showPercents?: boolean;
 	memberInfo?: I_TeamMemberCardHook;

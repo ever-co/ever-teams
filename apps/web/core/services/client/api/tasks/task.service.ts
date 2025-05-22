@@ -7,10 +7,10 @@ import {
 import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { DeleteResponse, ICreateTask, ITeamTask, PaginationResponse } from '@/core/types/interfaces/to-review';
+import { DeleteResponse, ICreateTask, ITask, PaginationResponse } from '@/core/types/interfaces/to-review';
 
 class TaskService extends APIService {
-	getTasksById = async (taskId: string) => {
+	getTaskById = async (taskId: string) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
@@ -44,10 +44,10 @@ class TaskService extends APIService {
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
-		return this.get<ITeamTask>(endpoint);
+		return this.get<ITask>(endpoint);
 	};
 
-	getTeamTasks = async (organizationId: string, tenantId: string, projectId: string, teamId: string) => {
+	getTasks = async (organizationId: string, tenantId: string, projectId: string, teamId: string) => {
 		const relations = [
 			'tags',
 			'teams',
@@ -78,14 +78,14 @@ class TaskService extends APIService {
 		const query = qs.stringify(obj);
 		const endpoint = `/tasks/team?${query}`;
 
-		return this.get<PaginationResponse<ITeamTask>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITask>>(endpoint, { tenantId });
 	};
 
 	deleteTask = async (taskId: string) => {
 		return this.delete<DeleteResponse>(`/tasks/${taskId}`);
 	};
 
-	updateTask = async (taskId: string, body: Partial<ITeamTask>) => {
+	updateTask = async (taskId: string, body: Partial<ITask>) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			const tenantId = getTenantIdCookie();
 			const organizationId = getOrganizationIdCookie();
@@ -98,13 +98,13 @@ class TaskService extends APIService {
 
 			await this.put(`/tasks/${taskId}`, nBody);
 
-			return this.getTeamTasks(organizationId, tenantId, projectId, teamId);
+			return this.getTasks(organizationId, tenantId, projectId, teamId);
 		}
 
-		return this.put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
+		return this.put<PaginationResponse<ITask>>(`/tasks/${taskId}`, body);
 	};
 
-	createTeamTask = async (body: Partial<ICreateTask> & { title: string }) => {
+	createTask = async (body: Partial<ICreateTask> & { title: string }) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			const organizationId = getOrganizationIdCookie();
 			const teamId = getActiveTeamIdCookie();
@@ -130,10 +130,10 @@ class TaskService extends APIService {
 
 			await this.post('/tasks', datas, { tenantId });
 
-			return this.getTeamTasks(organizationId, tenantId, projectId, teamId);
+			return this.getTasks(organizationId, tenantId, projectId, teamId);
 		}
 		const api = await getFallbackAPI();
-		return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
+		return api.post<PaginationResponse<ITask>>('/tasks/team', body);
 	};
 
 	deleteEmployeeFromTasks = async (employeeId: string, organizationTeamId: string) => {
@@ -141,7 +141,7 @@ class TaskService extends APIService {
 	};
 
 	getTasksByEmployeeId = async (employeeId: string, organizationTeamId: string) => {
-		return this.get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+		return this.get<ITask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 	};
 }
 

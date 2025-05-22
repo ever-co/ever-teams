@@ -1,6 +1,6 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
-import { IClassName, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IClassName, ITask } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
@@ -225,7 +225,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-type IAssignCall = (params: { task?: ITeamTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
+type IAssignCall = (params: { task?: ITask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
 
 export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(

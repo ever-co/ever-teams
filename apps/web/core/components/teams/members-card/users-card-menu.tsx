@@ -1,6 +1,6 @@
 import { useTaskInput } from '@/core/hooks';
 import { IOrganizationTeamList } from '@/core/types/interfaces/to-review/IOrganizationTeam';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
@@ -188,7 +188,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-									displayValue={(task: ITeamTask) => {
+									displayValue={(task: ITask) => {
 										return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 									}}
 									onChange={(event) => setQuery(event.target.value)}

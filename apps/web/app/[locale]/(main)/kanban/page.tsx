@@ -27,7 +27,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import KanbanBoardSkeleton from '@/core/components/common/skeleton/kanban-board-skeleton';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
@@ -115,7 +115,7 @@ const Kanban = () => {
 		const tomorrow = new Date(today);
 		tomorrow.setDate(tomorrow.getDate() + 1);
 
-		const filterByDate = (tasks: ITeamTask[], date: Date) => {
+		const filterByDate = (tasks: ITask[], date: Date) => {
 			const filtered = tasks.filter((task) => {
 				if (!task.createdAt) {
 					return false;
@@ -134,18 +134,18 @@ const Kanban = () => {
 			return filtered;
 		};
 
-		const board: Record<string, ITeamTask[]> = {};
+		const board: Record<string, ITask[]> = {};
 		Object.entries(data).forEach(([status, tasks]) => {
 			let filteredStatusTasks;
 			switch (activeTab) {
 				case KanbanTabs.TODAY:
-					filteredStatusTasks = filterByDate(tasks as ITeamTask[], today);
+					filteredStatusTasks = filterByDate(tasks as ITask[], today);
 					break;
 				case KanbanTabs.YESTERDAY:
-					filteredStatusTasks = filterByDate(tasks as ITeamTask[], yesterday);
+					filteredStatusTasks = filterByDate(tasks as ITask[], yesterday);
 					break;
 				case KanbanTabs.TOMORROW:
-					filteredStatusTasks = filterByDate(tasks as ITeamTask[], tomorrow);
+					filteredStatusTasks = filterByDate(tasks as ITask[], tomorrow);
 					break;
 				default:
 					filteredStatusTasks = tasks;

@@ -1,4 +1,4 @@
-import { TaskPriorityEnum, TaskSizeEnum, TaskStatusEnum, TaskTypeEnum } from '../../enums/task';
+import { TaskPriorityEnum, TaskSizeEnum, ITaskStatusNameEnum, TaskTypeEnum } from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
@@ -6,7 +6,7 @@ import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { IIssueType } from './IIssueType';
 import { ITaskPriority } from './ITaskPriority';
 import { ITaskSize } from './ITaskSize';
-import { ITaskStatus } from './ITaskStatus';
+import { ITaskStatus } from './task-status/ITaskStatus';
 
 export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntityModel {
 	title: string;
@@ -14,7 +14,7 @@ export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntity
 	public?: boolean;
 	prefix?: string;
 	description?: string;
-	status?: TaskStatusEnum;
+	status?: ITaskStatusNameEnum;
 	priority?: TaskPriorityEnum;
 	size?: TaskSizeEnum;
 	issueType?: TaskTypeEnum;
@@ -55,4 +55,24 @@ export interface ITask extends IBaseTaskProperties, ITaskAssociations {
 export interface ITasksStatistics extends ITask {
 	duration?: number;
 	durationPercentage?: number;
+}
+export interface ICreateTask {
+	title: string;
+	status?: string;
+	size?: string;
+	priority?: string;
+	taskStatusId?: string;
+	issueType?: string;
+	members?: { id: string; [x: string]: any }[];
+	estimateDays?: number;
+	estimateHours?: string;
+	estimateMinutes?: string;
+	dueDate?: string;
+	description: string;
+	tags: { id: string }[];
+	teams: { id: string }[];
+	estimate: number;
+	organizationId: string;
+	tenantId: string;
+	projectId?: string | null;
 }

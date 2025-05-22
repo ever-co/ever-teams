@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { useAtom } from 'jotai';
 import { favoriteTasksStorageAtom } from '@/core/stores/teams/team-tasks';
 import { useCallback } from 'react';
@@ -19,7 +19,7 @@ export const useFavoritesTask = () => {
 	const { tasks } = useTeamTasks();
 	const [favoriteTasks, setFavoriteTasks] = useAtom(favoriteTasksStorageAtom);
 
-	const toggleFavorite = useCallback((task: ITeamTask) => {
+	const toggleFavorite = useCallback((task: ITask) => {
 		if (!task?.id) {
 			console.warn('Invalid task provided to toggleFavorite');
 			return;
@@ -29,9 +29,9 @@ export const useFavoritesTask = () => {
 		);
 	}, []);
 
-	const isFavorite = useCallback((task: ITeamTask) => favoriteTasks.some((t) => t.id === task.id), [favoriteTasks]);
+	const isFavorite = useCallback((task: ITask) => favoriteTasks.some((t) => t.id === task.id), [favoriteTasks]);
 
-	const addFavorite = useCallback((task: ITeamTask) => {
+	const addFavorite = useCallback((task: ITask) => {
 		if (!isFavorite(task)) {
 			setFavoriteTasks((prev) => [...prev, task]);
 		}

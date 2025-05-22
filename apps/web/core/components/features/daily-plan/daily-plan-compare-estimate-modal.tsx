@@ -3,7 +3,7 @@
 import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IDailyPlan, ITask } from '@/core/types/interfaces/to-review';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
@@ -110,7 +110,7 @@ export function DailyPlanCompareEstimatedModal({
 	);
 }
 
-export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: any }) {
+export function DailyPlanTask({ task, profile }: { task?: ITask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
 	const member = task?.selectedTeam?.members.find((member) => {
 		return member?.employee?.user?.id === profile?.userProfile?.id;

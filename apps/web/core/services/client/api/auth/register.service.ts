@@ -9,7 +9,7 @@ import {
 } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import {
-	I_SMTP,
+	ICustomSmtp,
 	IEmployee,
 	ILoginResponse,
 	IOrganization,
@@ -52,7 +52,7 @@ class RegisterService extends APIService {
 
 		console.log(`SMTP Config: ${JSON.stringify(config)}`);
 
-		return this.post<I_SMTP>('/smtp', config, {
+		return this.post<ICustomSmtp>('/smtp', config, {
 			tenantId,
 			headers: { Authorization: `Bearer ${access_token}` }
 		});

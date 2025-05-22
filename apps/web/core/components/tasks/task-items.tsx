@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useTeamTasks } from '@/core/hooks';
-import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IClassName, ITaskStatusNameEnum, IEmployee, ITask } from '@/core/types/interfaces/to-review';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
@@ -17,8 +17,8 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
 
 type Props = {
-	task?: ITeamTask;
-	onClick?: (task: ITeamTask) => void;
+	task?: ITask;
+	onClick?: (task: ITask) => void;
 	selected?: boolean;
 } & IClassName;
 
@@ -27,7 +27,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	const t = useTranslations();
 
 	const handleChange = useCallback(
-		(status: ITaskStatus) => {
+		(status: ITaskStatusNameEnum) => {
 			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
@@ -124,7 +124,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-type PartialITeamTask = Partial<ITeamTask> & { members: IEmployee[] };
+type PartialITeamTask = Partial<ITask> & { members: IEmployee[] };
 
 export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task.members;

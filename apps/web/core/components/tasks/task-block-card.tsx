@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -21,7 +21,7 @@ import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 
 interface TaskItemProps {
-	task: ITeamTask;
+	task: ITask;
 }
 
 export default function TaskBlockCard(props: TaskItemProps) {

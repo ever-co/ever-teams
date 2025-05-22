@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import React from 'react';
-import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamList, IProject, ITask } from '@/core/types/interfaces/to-review';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-activity/group-by-select-time-activity';
@@ -13,7 +13,7 @@ export interface TimeActivityHeaderProps {
 	onViewOptionsChange?: (options: ViewOption[]) => void;
 	userManagedTeams?: IOrganizationTeamList[];
 	projects?: IProject[];
-	tasks?: ITeamTask[];
+	tasks?: ITask[];
 	activeTeam?: IOrganizationTeamList | null;
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onGroupByChange?: (value: GroupByType) => void;

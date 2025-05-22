@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -214,7 +214,7 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) => {
+const ManageMembersPopover = (memberList: OT_Member[], task: ITask | null) => {
 	const t = useTranslations();
 	const [member, setMember] = useState<OT_Member>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);

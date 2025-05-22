@@ -1,8 +1,8 @@
-import { ITaskStatusCreate, ITaskStatus } from '@/core/types/interfaces/to-review';
+import { ITaskStatusCreate, ITaskStatusNameEnum } from '@/core/types/interfaces/to-review';
 import { serverFetch } from '../fetch';
 
 export function createStatusRequest(datas: ITaskStatusCreate, bearer_token: string, tenantId?: any) {
-	return serverFetch<ITaskStatus>({
+	return serverFetch<ITaskStatusNameEnum>({
 		path: '/task-statuses',
 		method: 'POST',
 		body: datas,
@@ -22,7 +22,7 @@ export function editTaskStatusRequest({
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskStatus>({
+	return serverFetch<ITaskStatusNameEnum>({
 		path: `/task-statuses/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -40,7 +40,7 @@ export function deleteTaskStatusRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskStatus>({
+	return serverFetch<ITaskStatusNameEnum>({
 		path: `/task-statuses/${id}`,
 		method: 'DELETE',
 		bearer_token,

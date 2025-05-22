@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
@@ -6,7 +6,7 @@ import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/co
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
 
-export default function TaskActionMenuCell(props: CellContext<ITeamTask, unknown>) {
+export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const [loading, setLoading] = useState(false);
 	const { activeTeam } = useOrganizationTeams();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);

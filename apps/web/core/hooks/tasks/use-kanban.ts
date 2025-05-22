@@ -2,7 +2,7 @@ import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITaskStatusNameEnum, ITask } from '@/core/types/interfaces/to-review';
 import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
@@ -28,49 +28,49 @@ export function useKanban() {
 
 	// Memoized filter functions for better performance
 	const filterBySearch = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return task.title.toLowerCase().includes(searchTasks.toLowerCase());
 		},
 		[searchTasks]
 	);
 
 	const filterByPriority = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return priority.length ? priority.includes(task.priority) : true;
 		},
 		[priority]
 	);
 
 	const filterByIssue = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return issues.value ? task.issueType === issues.value : true;
 		},
 		[issues.value]
 	);
 
 	const filterBySize = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return sizes.length ? sizes.includes(task.size) : true;
 		},
 		[sizes]
 	);
 
 	const filterByLabels = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return labels.length ? labels.some((label) => task.tags.some((tag) => tag.name === label)) : true;
 		},
 		[labels]
 	);
 
 	const filterByEpics = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			return epics.length ? epics.includes(task.id) : true;
 		},
 		[epics]
 	);
 
 	const filterByEmployee = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (employee) {
 				return task.members.map((el) => el.fullName).includes(employee as string);
 			}
@@ -111,12 +111,12 @@ export function useKanban() {
 			setLoading(true);
 			let kanban = {};
 			const getTasksByStatus = (status: string | undefined) => {
-				return filteredTasks.filter((task: ITeamTask) => {
+				return filteredTasks.filter((task: ITask) => {
 					return task.taskStatusId === status;
 				});
 			};
 
-			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatus) => {
+			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatusNameEnum) => {
 				kanban = {
 					...kanban,
 					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
@@ -132,7 +132,7 @@ export function useKanban() {
 	 * collapse or show kanban column
 	 */
 	const toggleColumn = async (column: string, status: boolean) => {
-		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatus) => {
+		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatusNameEnum) => {
 			return taskStatus.name === column;
 		});
 
@@ -156,14 +156,14 @@ export function useKanban() {
 	};
 
 	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatus) => {
+		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatusNameEnum) => {
 			return taskStatus.name === column;
 		});
 
 		return columnData?.isCollapsed;
 	};
 	const isAllColumnCollapse = () => {
-		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatus) => {
+		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatusNameEnum) => {
 			return taskStatus.isCollapsed;
 		});
 	};
@@ -191,7 +191,7 @@ export function useKanban() {
 			}
 		}
 	};
-	const addNewTask = (task: ITeamTask, status: string) => {
+	const addNewTask = (task: ITask, status: string) => {
 		const updatedBoard = {
 			...kanbanBoard,
 			[status]: [...kanbanBoard[status], task]

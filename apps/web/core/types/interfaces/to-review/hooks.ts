@@ -1,6 +1,6 @@
 import { ChangeEventHandler, ReactNode } from 'react';
 import { IRegisterDataAPI } from './IAuthentication';
-import { ITeamTask } from '../ITask';
+import { ITask } from '../ITask';
 //Dropdown props interface
 export interface IDropDownProps {
 	data: string[];
@@ -43,7 +43,7 @@ export interface IInviteProps {
 	isOpen: boolean;
 	Fragment?: any;
 	closeModal: any;
-	task: ITeamTask | null;
+	task: ITask | null;
 }
 
 //Invite interface

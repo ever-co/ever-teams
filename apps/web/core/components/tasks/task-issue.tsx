@@ -1,5 +1,5 @@
 import { useModal, useStatusValue } from '@/core/hooks';
-import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { IClassName, IssueType, ITaskIssueTypeEnum, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -19,7 +19,7 @@ import { Card } from '../duplicated-components/card';
 import { InputField } from '../duplicated-components/_input';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
-export const taskIssues: TStatus<ITaskIssue> = {
+export const taskIssues: TStatus<ITaskIssueTypeEnum> = {
 	Bug: {
 		icon: <BugIcon className={cn(defaultTaskClasses)} />,
 		name: 'Bug',
@@ -163,7 +163,7 @@ export function TaskIssueStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
 			{...taskIssues[task?.issueType || 'Task']}

@@ -1,6 +1,6 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { ITaskPriority, ITeamTask, Tag } from '@/core/types/interfaces/to-review';
+import { ITaskPriority, ITask, Tag } from '@/core/types/interfaces/to-review';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
@@ -117,7 +117,7 @@ export function Priority({ level }: { level: ITaskPriority }) {
 	);
 }
 type ItemProps = {
-	item: ITeamTask;
+	item: ITask;
 	isDragging: boolean;
 	isGroupedOver: boolean;
 	provided: DraggableProvided;

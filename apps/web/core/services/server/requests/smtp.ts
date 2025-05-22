@@ -1,5 +1,5 @@
 import { smtpConfiguration } from '@/core/constants/config/constants';
-import { I_SMTP } from '@/core/types/interfaces/to-review/ISmtp';
+import { ICustomSmtp } from '@/core/types/interfaces/to-review/ISmtp';
 import { serverFetch } from '../fetch';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
@@ -7,7 +7,7 @@ export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: 
 
 	console.log(`SMTP Config: ${JSON.stringify(config)}`);
 
-	return serverFetch<I_SMTP>({
+	return serverFetch<ICustomSmtp>({
 		path: '/smtp',
 		method: 'POST',
 		body: config,
@@ -17,7 +17,7 @@ export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: 
 }
 
 export function countTenantTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
-	return serverFetch<{ items: I_SMTP[]; total: number }>({
+	return serverFetch<{ items: ICustomSmtp[]; total: number }>({
 		path: '/smtp',
 		method: 'GET',
 		bearer_token: access_token,

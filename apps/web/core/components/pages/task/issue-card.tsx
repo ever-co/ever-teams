@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
+import { ITask, ITaskLinkedIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
@@ -38,7 +38,7 @@ export const RelatedIssueCard = () => {
 
 				return acc;
 			},
-			[] as { issue: LinkedTaskIssue; task: ITeamTask }[]
+			[] as { issue: ITaskLinkedIssue; task: ITask }[]
 		);
 
 		return issues || [];
@@ -105,7 +105,7 @@ export const RelatedIssueCard = () => {
 	);
 };
 
-function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
+function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -113,7 +113,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITeamTask | undefined) => {
+		async (childTask: ITask | undefined) => {
 			if (!childTask) return;
 			setLoading(true);
 			const parentTask = task;

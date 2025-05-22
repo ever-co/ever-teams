@@ -15,11 +15,11 @@ import {
 } from '@/core/hooks';
 import {
 	IIssueTypesItemList,
-	ITaskIssue,
+	ITaskIssueTypeEnum,
 	ITaskPriority,
-	ITaskSize,
-	ITaskStatus,
-	ITeamTask,
+	ITaskSizeNameEnum,
+	ITaskStatusNameEnum,
+	ITask,
 	Nullable,
 	OT_Member
 } from '@/core/types/interfaces/to-review';
@@ -47,13 +47,13 @@ import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 
 type Props = {
-	task?: Nullable<ITeamTask>;
-	tasks?: ITeamTask[];
-	onTaskClick?: (task: ITeamTask) => void;
+	task?: Nullable<ITask>;
+	tasks?: ITask[];
+	onTaskClick?: (task: ITask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITeamTask) => void;
+	onEnterKey?: (taskName: string, task: ITask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -69,7 +69,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITeamTask | undefined) => void;
+	onTaskCreated?: (task: ITask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
@@ -110,12 +110,12 @@ export function TaskInput(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITeamTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
 		[$onTaskCreated]
 	);
 
 	const onTaskClick = useCallback(
-		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
+		(task: ITask) => $onTaskClick.current && $onTaskClick.current(task),
 		[$onTaskClick]
 	);
 
@@ -158,7 +158,7 @@ export function TaskInput(props: Props) {
 	 * set the active task for the authenticated user
 	 */
 	const setAuthActiveTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
 
@@ -184,7 +184,7 @@ export function TaskInput(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITeamTask, title: string) => {
+		(task: ITask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -233,7 +233,7 @@ export function TaskInput(props: Props) {
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITeamTask[] = [];
+		let updatedTaskList: ITask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
@@ -387,7 +387,7 @@ export function TaskInput(props: Props) {
 							defaultValue={
 								defaultIssueType
 									? defaultIssueType.name
-									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+									: (localStorage.getItem('lastTaskIssue') as ITaskIssueTypeEnum) || null
 							}
 						/>
 					)}
@@ -465,14 +465,14 @@ function TaskCard({
 	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
-	onItemClick?: (task: ITeamTask) => void;
+	onItemClick?: (task: ITask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
-	updatedTaskList?: ITeamTask[];
+	updatedTaskList?: ITask[];
 	assignTaskPopup?: boolean;
 }) {
 	const [, setCount] = useState(0);
@@ -532,7 +532,7 @@ function TaskCard({
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskStatus?.current as ITaskStatus}
+										defaultValue={taskStatus?.current as ITaskStatusNameEnum}
 										task={null}
 									/>
 
@@ -558,7 +558,7 @@ function TaskCard({
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskSize?.current as ITaskSize}
+										defaultValue={taskSize?.current as ITaskSizeNameEnum}
 										task={null}
 									/>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
 import { TaskStatus, useTaskLabelsValue, useTaskPrioritiesValue, useTaskSizesValue } from './task-status';
@@ -23,7 +23,7 @@ export function TaskAllStatusTypes({
 }: {
 	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	showStatus?: boolean;
 	toBlockCard?: boolean;
 	className?: string;

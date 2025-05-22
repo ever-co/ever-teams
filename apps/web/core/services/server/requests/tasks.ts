@@ -1,5 +1,6 @@
 import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces/to-review';
-import { ICreateTask, ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ICreateTask } from '@/core/types/interfaces/task/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@/core/types/interfaces/to-review';
 import qs from 'qs';
@@ -46,7 +47,7 @@ export function getTeamTasksRequest({
 
 	const query = qs.stringify(obj);
 
-	return serverFetch<PaginationResponse<ITeamTask>>({
+	return serverFetch<PaginationResponse<ITask>>({
 		path: `/tasks/team?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -63,7 +64,7 @@ export function getTeamTasksIRequest({
 	bearer_token: string;
 	query: string;
 }) {
-	return serverFetch<PaginationResponse<ITeamTask>>({
+	return serverFetch<PaginationResponse<ITask>>({
 		path: `/tasks/team?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -110,7 +111,7 @@ export function getTaskByIdRequest({
 
 	const query = qs.stringify(obj);
 
-	return serverFetch<ITeamTask>({
+	return serverFetch<ITask>({
 		path: `/tasks/${taskId}?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -152,7 +153,7 @@ export function createTaskRequest({ data, bearer_token }: { data: ICreateTask; b
 	});
 }
 
-export function updateTaskRequest<ITeamTask>({ data, id }: { data: ITeamTask; id: string }, bearer_token: string) {
+export function updateTaskRequest<ITask>({ data, id }: { data: ITask; id: string }, bearer_token: string) {
 	return serverFetch({
 		path: `/tasks/${id}`,
 		method: 'PUT',
@@ -191,7 +192,7 @@ export function getEmployeeTasksRequest({
 	organizationTeamId: string;
 	bearer_token: string;
 }) {
-	return serverFetch<ITeamTask[]>({
+	return serverFetch<ITask[]>({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: 'GET',
 		bearer_token,

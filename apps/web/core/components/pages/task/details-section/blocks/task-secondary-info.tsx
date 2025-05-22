@@ -1,5 +1,5 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { IProject, ITaskVersionCreate, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IProject, ITaskVersionCreate, ITask } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
@@ -65,7 +65,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITeamTask | undefined) => {
+		async (parentTask: ITask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 
@@ -118,7 +118,7 @@ const TaskSecondaryInfo = () => {
 						onValueChange={(d) => {
 							onTaskSelect({
 								id: d
-							} as ITeamTask);
+							} as ITask);
 						}}
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
@@ -237,7 +237,7 @@ const TaskSecondaryInfo = () => {
 	);
 };
 
-const EpicParent = ({ task }: { task: ITeamTask }) => {
+const EpicParent = ({ task }: { task: ITask }) => {
 	const t = useTranslations();
 
 	if (task?.issueType === 'Story') {
@@ -263,7 +263,7 @@ const EpicParent = ({ task }: { task: ITeamTask }) => {
 };
 
 interface ITaskProjectDropdownProps {
-	task?: ITeamTask;
+	task?: ITask;
 	controlled?: boolean;
 	onChange?: (project: IProject) => void;
 	styles?: {
@@ -279,7 +279,7 @@ export default TaskSecondaryInfo;
  * TaskProject dropdown
  *
  * @param {Object} props - The props object
- * @param {ITeamTask} props.task - The ITeamTask object which
+ * @param {ITask} props.task - The ITask object which
  * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
  * @param {(project: IProject) => void} props.onChange - The function called when user selects a value (external handler)
  *

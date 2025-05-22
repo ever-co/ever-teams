@@ -1,5 +1,5 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IDailyPlan, ITask } from '@/core/types/interfaces/to-review';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { Card } from '../../duplicated-components/card';
@@ -7,7 +7,7 @@ import { Card } from '../../duplicated-components/card';
 interface UnplanActiveTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
-	task: ITeamTask;
+	task: ITask;
 	plan: IDailyPlan;
 }
 
@@ -17,7 +17,7 @@ interface UnplanActiveTaskModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITeamTask} props.task - The task to unplan
+ * @param {ITask} props.task - The task to unplan
  * @param {IDailyPlan} props.plan - The today's plan
  *
  * @returns {JSX.Element} The modal element

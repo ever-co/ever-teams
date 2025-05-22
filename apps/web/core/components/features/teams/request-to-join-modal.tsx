@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
-import { IRequestToJoinCreate } from '@/core/types/interfaces/to-review';
+import { IJoinTeamRequest } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -147,7 +147,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 };
 const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 	const [joinButtonAction, setJoinButtonAction] = useState<'JOIN' | 'CONFIRM'>('JOIN');
-	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IRequestToJoinCreate | null>(null);
+	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IJoinTeamRequest | null>(null);
 	const [position, setPosition] = useState<string>('');
 
 	const t = useTranslations();
@@ -172,7 +172,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 			const form = new FormData(e.currentTarget);
 
-			const payload: IRequestToJoinCreate = {
+			const payload: IJoinTeamRequest = {
 				fullName: form.get('fullName') as string,
 				email: form.get('email') as string,
 				linkAddress: form.get('linkAddress') as string,

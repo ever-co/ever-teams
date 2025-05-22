@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { useCallback } from 'react';
 import { useAuthTeamTasks, useOrganizationTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
@@ -34,7 +34,7 @@ export function useUserSelectedPage(id?: string) {
 	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (!matchUser?.employeeId) {
 				return Promise.resolve();
 			}

@@ -1,4 +1,5 @@
-import { ITeamTask, TimesheetStatus } from '../ITask';
+import { ITask } from '../ITask';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
 import { TimeLogType, TimerSource } from '../ITimer';
 
 interface BaseEntity {
@@ -51,7 +52,7 @@ export interface TaskStatus extends BaseEntity {
 	fullIconUrl: string;
 }
 
-export interface Task extends ITeamTask {
+export interface Task extends ITask {
 	taskStatus: TaskStatus | null;
 	number: number;
 	description: string;

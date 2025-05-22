@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { UserTaskActivity } from '../../tasks/user-task-activity';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { useTaskTimeSheets } from '@/core/hooks/tasks/use-task-activity';
 import { groupByTime } from '@/core/lib/helpers/array-data';
 
@@ -10,7 +10,7 @@ import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 
-export function TaskActivity({ task }: { task: ITeamTask }) {
+export function TaskActivity({ task }: { task: ITask }) {
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
 	const [hidden, setHidden] = React.useState(true);
 

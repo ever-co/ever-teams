@@ -1,5 +1,5 @@
 import { pad } from '@/core/lib/helpers/number';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
 import Image from 'next/legacy/image';
@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { MC_EditableValues } from '@/core/types/interfaces/to-review';
 
 type Props = {
-	memberTask: ITeamTask | null;
+	memberTask: ITask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
 	editable: MC_EditableValues;

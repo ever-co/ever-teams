@@ -1,5 +1,5 @@
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITaskStatusNameEnum, ITask } from '@/core/types/interfaces/to-review';
 import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
@@ -38,7 +38,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { taskStatuses } = useTaskStatus();
-	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
+	const reorderTask = (list: ITask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
 		tasks.splice(endIndex, 0, removedTask);
@@ -102,8 +102,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	};
 
-	const getHeaderBackground = (columns: ITaskStatus[], column: string) => {
-		const selectState = columns.find((item: ITaskStatus) => {
+	const getHeaderBackground = (columns: ITaskStatusNameEnum[], column: string) => {
+		const selectState = columns.find((item: ITaskStatusNameEnum) => {
 			return item.name === column;
 		});
 

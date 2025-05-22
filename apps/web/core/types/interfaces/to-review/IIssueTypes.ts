@@ -1,7 +1,7 @@
-import { ITaskIssue } from './ITask';
+import { ITaskIssueTypeEnum } from '../../enums/task';
 
 export interface IIssueTypesCreate {
-	name: ITaskIssue;
+	name: ITaskIssueTypeEnum;
 	description?: string;
 	icon?: string;
 	color?: string;

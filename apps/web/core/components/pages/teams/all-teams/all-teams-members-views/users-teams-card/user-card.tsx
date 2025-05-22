@@ -1,4 +1,4 @@
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -81,7 +81,7 @@ export default function UserTeamCard({
 
 function UserActiveTaskMenu({ member }: { member: OT_Member }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();

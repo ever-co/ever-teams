@@ -1,7 +1,7 @@
 'use client';
 
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { IOrganizationTeamList, ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamList, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -41,10 +41,10 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 	const isAuthUser = member?.employee.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const memberTaskRef = useRef<Nullable<ITeamTask>>(null);
+	const memberTaskRef = useRef<Nullable<ITask>>(null);
 
 	const setActiveUserTaskCookieCb = useCallback(
-		(task: ITeamTask | null) => {
+		(task: ITask | null) => {
 			if (task?.id && authUser?.id) {
 				setActiveUserTaskCookie({
 					taskId: task.id,
@@ -164,7 +164,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 	 * Assign task to the member
 	 */
 	const assignTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
@@ -183,7 +183,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 	);
 
 	const unassignTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
@@ -221,7 +221,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 	};
 }
 
-export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
+export function useTMCardTaskEdit(task: Nullable<ITask>) {
 	const [editMode, setEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 	const [loading, setLoading] = useState(false);

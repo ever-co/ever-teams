@@ -1,5 +1,5 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { useToast } from '@/core/hooks/common/use-toast';
@@ -255,7 +255,7 @@ const TaskTitleBlock = () => {
 
 export default TaskTitleBlock;
 
-const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
+const ParentTaskBadge = ({ task }: { task: ITask | null }) => {
 	return task?.parentId && task?.parent ? (
 		<HoverCard>
 			<HoverCardTrigger asChild>
@@ -308,7 +308,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 		<></>
 	);
 };
-const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
+const ParentTaskInput = ({ task }: { task: ITask | null }) => {
 	const modal = useModal();
 	const t = useTranslations();
 

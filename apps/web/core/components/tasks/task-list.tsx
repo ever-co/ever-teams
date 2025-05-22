@@ -4,7 +4,7 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useTaskInput } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '../features/tasks/delete-task';
 import TaskFilter from './task-filter';
@@ -28,7 +28,7 @@ export function CreateTaskOption({ onClick, loading }: { onClick: () => void; lo
 	);
 }
 
-export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => void }) {
+export function TasksList({ onClickTask }: { onClickTask?: (task: ITask) => void }) {
 	const {
 		inputTask,
 		setActiveTask,
@@ -72,7 +72,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 						<Combobox.Input
 							key={`${editMode}`}
 							className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-							displayValue={(task: ITeamTask) => {
+							displayValue={(task: ITask) => {
 								return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 							}}
 							onFocus={() => setEditMode(true)}
@@ -186,7 +186,7 @@ function InputTaskItem({
 	onReopen
 }: {
 	selected: boolean;
-	item: ITeamTask;
+	item: ITask;
 	active: boolean;
 	onDelete: () => void;
 	onReopen: () => Promise<any>;

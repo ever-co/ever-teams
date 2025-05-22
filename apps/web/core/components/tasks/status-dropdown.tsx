@@ -1,4 +1,5 @@
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -7,7 +8,7 @@ import { StatusIcon, statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
 import { useTeamTasks } from '@/core/hooks/organizations';
 
-const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
+const statusKeys = Object.keys(statusIcons) as ITaskStatusNameEnum[];
 
 const StatusDropdown = () => {
 	const { activeTeamTask } = useTeamTasks();
@@ -15,10 +16,10 @@ const StatusDropdown = () => {
 	return <RawStatusDropdown task={activeTeamTask} />;
 };
 
-export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
+export function RawStatusDropdown({ task }: { task: ITask | null }) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
-	const [selected, setSelected] = useState<ITaskStatus | null>(task?.status || null);
+	const [selected, setSelected] = useState<ITaskStatusNameEnum | null>(task?.status || null);
 
 	useEffect(() => {
 		setSelected(task?.status || null);
@@ -29,7 +30,7 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 	}, [task]);
 
 	const handleChange = useCallback(
-		(status: ITaskStatus) => {
+		(status: ITaskStatusNameEnum) => {
 			setSelected(status);
 
 			if (task && status !== task.status) {
@@ -61,7 +62,7 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 							className={`h-[30px] ${
 								task ? 'bg-[#F0ECFD]' : 'bg-white'
 							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1`}
-							displayValue={(status: ITaskStatus) => status}
+							displayValue={(status: ITaskStatusNameEnum) => status}
 							onChange={() => {
 								//
 							}}

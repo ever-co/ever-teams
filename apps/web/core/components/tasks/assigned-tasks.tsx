@@ -1,5 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
@@ -12,7 +12,7 @@ import { useTranslations } from 'next-intl';
 
 interface ITaskDetailCard {
 	now?: boolean;
-	task: ITeamTask | null;
+	task: ITask | null;
 	current: string;
 }
 const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {

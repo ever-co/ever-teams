@@ -1,7 +1,8 @@
 'use client';
 
 import { ITag, Nullable } from '@/core/types/interfaces/to-review';
-import { ITaskStatus, ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -10,7 +11,7 @@ import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 
-export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
+export const h_filter = (status: ITaskStatusNameEnum, filters: 'closed' | 'open') => {
 	switch (filters) {
 		case 'open':
 			return status !== 'closed';
@@ -32,12 +33,12 @@ export function useTaskInput({
 	initEditMode,
 	tasks: customTasks
 }: {
-	tasks?: ITeamTask[];
-	task?: Nullable<ITeamTask>;
+	tasks?: ITask[];
+	task?: Nullable<ITask>;
 	initEditMode?: boolean;
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
-	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null);
+	const [closeableTask, setCloseableTaskTask] = useState<ITask | null>(null);
 	const { taskStatuses: taskStatusList } = useTaskStatus();
 	const {
 		tasks: teamTasks,
@@ -75,7 +76,7 @@ export function useTaskInput({
 	const [editMode, setEditMode] = useState(initEditMode || false);
 
 	const handleOpenModal = useCallback(
-		(concernedTask: ITeamTask) => {
+		(concernedTask: ITask) => {
 			setCloseableTaskTask(concernedTask);
 			openModal();
 		},
@@ -83,7 +84,7 @@ export function useTaskInput({
 	);
 
 	const handleReopenTask = useCallback(
-		async (concernedTask: ITeamTask) => {
+		async (concernedTask: ITask) => {
 			return updateTask({
 				...concernedTask,
 				status: 'open'
@@ -165,7 +166,7 @@ export function useTaskInput({
 	};
 
 	const updateTaskTitleHandler = useCallback(
-		(itask: ITeamTask, title: string) => {
+		(itask: ITask, title: string) => {
 			if (!userRef.current?.isEmailVerified) return;
 
 			return updateTask({

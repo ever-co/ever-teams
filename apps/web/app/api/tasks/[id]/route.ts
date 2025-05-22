@@ -1,5 +1,5 @@
 import { INextParams } from '@/core/types/interfaces/to-review';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -39,7 +39,7 @@ export async function PUT(req: Request, props: INextParams) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as ITeamTask;
+	const body = (await req.json()) as ITask;
 
 	delete body.selectedTeam;
 	delete body.rootEpic;

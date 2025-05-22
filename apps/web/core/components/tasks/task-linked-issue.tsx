@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@/core/hooks';
-import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
+import { ITask, ITaskLinkedIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
@@ -18,10 +18,10 @@ export function TaskLinkedIssue({
 	relatedTaskDropdown,
 	issue
 }: {
-	task: ITeamTask;
+	task: ITask;
 	className?: string;
 	relatedTaskDropdown?: boolean;
-	issue?: LinkedTaskIssue;
+	issue?: ITaskLinkedIssue;
 }) {
 	const { actionType, actionTypeItems, onChange } = useActionType(
 		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO,
@@ -97,7 +97,7 @@ function mapToActionType(items: ActionType[] = []) {
 	});
 }
 
-function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: LinkedTaskIssue | undefined) {
+function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: ITaskLinkedIssue | undefined) {
 	const t = useTranslations();
 
 	const { queryCall } = useQuery(taskLinkedIssueService.updateTaskLinkedIssue);

@@ -1,4 +1,4 @@
-import { IRequestToJoinCreate } from '@/core/types/interfaces/to-review';
+import { IJoinTeamRequest } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getRequestToJoinRequest, requestToJoinRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as IRequestToJoinCreate;
+	const body = (await req.json()) as IJoinTeamRequest;
 
 	const response = await requestToJoinRequest(body);
 

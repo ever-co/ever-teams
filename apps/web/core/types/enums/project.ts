@@ -22,3 +22,9 @@ export enum OrganizationProjectBudgetTypeEnum {
 	HOURS = 'hours',
 	COST = 'cost'
 }
+
+export enum ProjectRelationEnum {
+	RelatedTo = 'related to',
+	BlockedBy = 'blocked by',
+	Blocking = 'blocking'
+}

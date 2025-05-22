@@ -25,7 +25,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { IDailyPlan, ITeamTask, IUser } from '@/core/types/interfaces/to-review';
+import { IDailyPlan, ITask, IUser } from '@/core/types/interfaces/to-review';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
@@ -493,7 +493,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
-	const sumTimes = useCallback((tasks: ITeamTask[], key: any) => {
+	const sumTimes = useCallback((tasks: ITask[], key: any) => {
 		return (
 			tasks
 				?.map((task: any) => task[key])

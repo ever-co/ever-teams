@@ -3,14 +3,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamList, IProject, ITask } from '@/core/types/interfaces/to-review';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: IOrganizationTeamList[];
 	projects?: IProject[];
-	tasks?: ITeamTask[];
+	tasks?: ITask[];
 	activeTeam?: IOrganizationTeamList | null;
 }
 

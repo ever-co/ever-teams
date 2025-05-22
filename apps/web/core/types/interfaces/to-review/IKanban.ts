@@ -1,5 +1,5 @@
-import { ITeamTask } from './ITask';
+import { ITask } from './ITask';
 
 export interface IKanban {
-	[key: string]: ITeamTask[];
+	[key: string]: ITask[];
 }

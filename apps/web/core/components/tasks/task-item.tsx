@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import Image from 'next/image';
 import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -13,7 +13,7 @@ export function TaskItem({
 	updateLoading
 }: {
 	selected: boolean;
-	item: ITeamTask;
+	item: ITask;
 	active?: boolean;
 	onDelete: () => void;
 	onReopen: () => Promise<any>;

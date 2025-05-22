@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -43,7 +43,7 @@ export function useUserProfilePage() {
 	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (!matchUser?.employeeId) {
 				return Promise.resolve();
 			}

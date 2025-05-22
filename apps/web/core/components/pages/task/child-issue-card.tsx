@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -27,7 +27,7 @@ export const ChildIssueCard = () => {
 				acc.push($item);
 			}
 			return acc;
-		}, [] as ITeamTask[]);
+		}, [] as ITask[]);
 
 		return children || [];
 	}, [task, tasks]);
@@ -69,7 +69,7 @@ export const ChildIssueCard = () => {
 	);
 };
 
-function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
+function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const { trans } = useTranslation();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -78,7 +78,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITeamTask | undefined) => {
+		async (childTask: ITask | undefined) => {
 			if (!childTask) return;
 
 			setLoading(true);

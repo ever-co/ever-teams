@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useCallback } from 'react';
 import { clsxm } from '@/core/lib/utils';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { TaskDetailsComponent } from '../pages/task/task-details';
 import { Card } from '../duplicated-components/card';
@@ -9,7 +9,7 @@ import { Card } from '../duplicated-components/card';
 interface ITaskDetailsModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
-	task: ITeamTask;
+	task: ITask;
 }
 
 /**
@@ -18,7 +18,7 @@ interface ITaskDetailsModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITeamTask} props.task - The task to show details about
+ * @param {ITask} props.task - The task to show details about
  *
  * @returns {JSX.Element} The modal element
  */

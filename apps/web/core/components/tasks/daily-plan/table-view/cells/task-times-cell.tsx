@@ -1,11 +1,11 @@
 import { CellContext } from '@tanstack/react-table';
 import { TaskTimes } from '../../../task-times';
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
 import get from 'lodash/get';
 import { useMemo } from 'react';
 
-export default function DailyPlanTaskTimesCell(props: CellContext<ITeamTask, unknown>) {
+export default function DailyPlanTaskTimesCell(props: CellContext<ITask, unknown>) {
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 	const { activeTeam } = useOrganizationTeams();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);

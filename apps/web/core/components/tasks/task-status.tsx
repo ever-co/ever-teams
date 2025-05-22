@@ -2,16 +2,7 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	IClassName,
-	ITaskStatusField,
-	ITaskStatus,
-	ITaskStatusStack,
-	ITeamTask,
-	Nullable,
-	Tag,
-	TaskStatusEnum
-} from '@/core/types/interfaces/to-review';
+import { IClassName, ITaskStatusField, ITaskStatusStack, Nullable } from '@/core/types/interfaces/to-review';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
@@ -37,6 +28,9 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 export type TStatusItem = {
 	id?: string;
@@ -50,7 +44,7 @@ export type TStatusItem = {
 	className?: string;
 };
 
-export type TStatus<T extends string> = {
+export type TStatus<T extends string = string> = {
 	[k in T]: TStatusItem;
 };
 
@@ -80,7 +74,7 @@ export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
 	onChangeLoading?: (loading: boolean) => void;
 } & {
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	showIssueLabels?: boolean;
 	forDetails?: boolean;
 	sidebarUI?: boolean;
@@ -150,7 +144,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		let taskStatusId: string | undefined;
 
 		if (field === 'label' && task) {
-			const currentTag = taskLabels.find((label) => label.name === status) as Tag;
+			const currentTag = taskLabels.find((label) => label.name === status) as ITag;
 			updatedField = 'tags';
 			status = [currentTag];
 		}
@@ -246,7 +240,8 @@ export function StandardTaskStatusDropDown({
 	});
 
 	const standardStatuses = useMemo(
-		() => items.filter((status) => Object.values(TaskStatusEnum).includes(status.value as TaskStatusEnum)),
+		() =>
+			items.filter((status) => Object.values(ITaskStatusNameEnum).includes(status.value as ITaskStatusNameEnum)),
 		[items]
 	);
 	return (
@@ -519,7 +514,7 @@ export function TaskPriorityStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
 	return task?.priority ? (

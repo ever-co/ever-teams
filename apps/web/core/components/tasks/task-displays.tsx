@@ -1,4 +1,4 @@
-import { ITeamTask, Nullable, TimesheetLog } from '@/core/types/interfaces/to-review';
+import { ITask, Nullable, TimesheetLog } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { TaskIssueStatus } from './task-issue';
 import { differenceBetweenHours, formatDate, secondsToTime } from '@/core/lib/helpers/index';
@@ -9,7 +9,7 @@ import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	className?: string;
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;

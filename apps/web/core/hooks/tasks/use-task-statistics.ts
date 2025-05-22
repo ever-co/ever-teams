@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITask, Nullable } from '@/core/types/interfaces/to-review';
 
 import {
 	activeTaskStatisticsState,
@@ -69,7 +69,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get task timesheet statistics
 	 */
 	const getTaskStat = useCallback(
-		(task: Nullable<ITeamTask>) => {
+		(task: Nullable<ITask>) => {
 			const stats = statTasksRef.current;
 			return {
 				taskTotalStat: stats.all.find((t) => t.id === task?.id),
@@ -153,7 +153,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<ITeamTask>, addSeconds: number, estimate = 0) =>
+		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<ITask>, addSeconds: number, estimate = 0) =>
 			Math.min(
 				Math.floor(
 					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /

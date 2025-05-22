@@ -1,6 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
-import { IClassName, ITeamTask, Nullable, OT_Member } from '@/core/types/interfaces/to-review';
+import { IClassName, ITask, Nullable, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	memberInfo?: I_TeamMemberCardHook | OT_Member | any;
@@ -89,7 +89,7 @@ function TimeInfo({
 	showDaily?: boolean;
 	showTotal?: boolean;
 	currentUser: OT_Member | undefined;
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
 
@@ -148,7 +148,7 @@ function TimeBlockInfo({
 	showDaily?: boolean;
 	showTotal?: boolean;
 	currentUser: OT_Member | undefined;
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
 	return (

@@ -6,7 +6,7 @@ import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
-import { IProject, ITeamTask } from '@/core/types/interfaces/to-review';
+import { IProject, ITask } from '@/core/types/interfaces/to-review';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
@@ -40,7 +40,7 @@ const ScreenshotDetailsModal = ({
 `;
 
 	const [project, setProject] = useState<IProject | null>(null);
-	const [task, setTask] = useState<ITeamTask | null>(null);
+	const [task, setTask] = useState<ITask | null>(null);
 
 	const { getOrganizationProject } = useOrganizationProjects();
 	const { getTaskById } = useTeamTasks();

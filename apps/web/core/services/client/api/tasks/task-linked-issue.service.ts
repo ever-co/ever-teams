@@ -1,16 +1,16 @@
-import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@/core/types/interfaces/to-review';
-import { APIService } from '../../api.service';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { APIService } from '../../api.service';
 
 class TaskLinkedIssueService extends APIService {
 	createTaskLinkedIssue = async (data: ITaskLinkedIssue) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/task-linked-issue' : '/tasks/task-linked-issue';
-		return this.post<ITaskLinkedIssueResponse>(endpoint, data);
+		return this.post<ITaskLinkedIssue>(endpoint, data);
 	};
 
-	updateTaskLinkedIssue = async (data: LinkedTaskIssue) => {
+	updateTaskLinkedIssue = async (data: ITaskLinkedIssue) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/task-linked-issue/${data.id}` : '/tasks/task-linked-issue';
-		return this.put<any>(endpoint, data);
+		return this.put<ITaskLinkedIssue>(endpoint, data);
 	};
 }
 

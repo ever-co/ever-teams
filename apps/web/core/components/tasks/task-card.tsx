@@ -25,7 +25,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IOrganizationTeamList,
 	IRemoveTaskFromManyPlans,
-	ITeamTask,
+	ITask,
 	Nullable,
 	OT_Member
 } from '@/core/types/interfaces/to-review';
@@ -59,7 +59,7 @@ import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 
 type Props = {
 	active?: boolean;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';
@@ -312,7 +312,7 @@ export function TaskCard(props: Props) {
 	);
 }
 
-function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & IClassName) {
+function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & IClassName) {
 	const t = useTranslations();
 	const members = useMemo(() => task?.members || [], [task?.members]);
 
@@ -345,7 +345,7 @@ function TimerButtonCall({
 	activeTeam,
 	className
 }: {
-	task: ITeamTask;
+	task: ITask;
 	currentMember: OT_Member | undefined;
 	activeTeam: IOrganizationTeamList | null;
 	className?: string;
@@ -472,7 +472,7 @@ export function TaskInfo({
 }: IClassName & {
 	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
 }) {
@@ -518,7 +518,7 @@ export function TaskCardMenu({
 	plan,
 	planMode
 }: {
-	task: ITeamTask;
+	task: ITask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
@@ -730,8 +730,8 @@ export function PlanTask({
 	planMode: IDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
-	taskPlannedToday?: ITeamTask;
-	taskPlannedForTomorrow?: ITeamTask;
+	taskPlannedToday?: ITask;
+	taskPlannedForTomorrow?: ITask;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -811,7 +811,7 @@ export function PlanTask({
 	);
 }
 
-export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: OT_Member }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
@@ -828,7 +828,7 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 	);
 }
 
-export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+export function RemoveTaskFromPlan({ task, plan, member }: { task: ITask; member?: OT_Member; plan?: IDailyPlan }) {
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
@@ -851,7 +851,7 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: OT_Member }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
 	const data: IRemoveTaskFromManyPlans = {

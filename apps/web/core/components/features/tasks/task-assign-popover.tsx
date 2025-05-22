@@ -1,5 +1,5 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
@@ -15,10 +15,10 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo,
 	userProfile
 }: PropsWithChildren<{
-	tasks?: ITeamTask[];
-	onTaskClick?: (task: ITeamTask, close: () => void) => void;
+	tasks?: ITask[];
+	onTaskClick?: (task: ITask, close: () => void) => void;
 	buttonClassName?: string;
-	onTaskCreated?: (task: ITeamTask | undefined, close: () => void) => void;
+	onTaskCreated?: (task: ITask | undefined, close: () => void) => void;
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];

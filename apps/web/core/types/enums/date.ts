@@ -13,3 +13,12 @@ export enum DefaultValueDateTypeEnum {
 	END_OF_MONTH = 'END_OF_MONTH',
 	START_OF_MONTH = 'START_OF_MONTH'
 }
+export enum TimeFrequency {
+	DAILY = 'Daily',
+	WEEKLY = 'Weekly',
+	MONTHLY = 'Monthly'
+}
+export enum TimeFormatEnum {
+	FORMAT_12_HOURS = 12,
+	FORMAT_24_HOURS = 24
+}

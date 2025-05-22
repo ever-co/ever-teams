@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/to-review/ITimer';
 import {
 	localTimerStatusState,
@@ -35,12 +35,12 @@ const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
  *
  * The function is used in the `Timer` component
  * @param {ITimerStatus | null} timerStatus - ITimerStatus | null,
- * @param {ITeamTask | null} activeTeamTask - ITeamTask | null - the current active task
+ * @param {ITask | null} activeTeamTask - ITask | null - the current active task
  * @param {boolean} firstLoad - boolean - this is a flag that indicates that the component is loaded
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITeamTask | null, firstLoad: boolean) {
+function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITask | null, firstLoad: boolean) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 

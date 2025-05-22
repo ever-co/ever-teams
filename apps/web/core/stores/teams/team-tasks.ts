@@ -1,25 +1,25 @@
 import moment from 'moment';
-import { ITeamTask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { ITasksStatistics } from '../types/interfaces/task/ITask';
 
-export const teamTasksState = atom<ITeamTask[]>([]);
+export const teamTasksState = atom<ITask[]>([]);
 
-export const activeTeamTaskState = atom<ITeamTask | null>(null);
+export const activeTeamTaskState = atom<ITask | null>(null);
 export const activeTeamTaskId = atom<{ id: string }>({
 	id: ''
 });
 export const tasksFetchingState = atom<boolean>(false);
 
-export const detailedTaskState = atom<ITeamTask | null>(null);
+export const detailedTaskState = atom<ITask | null>(null);
 
-// export const employeeTasksState = atom<ITeamTask[] | null>({
+// export const employeeTasksState = atom<ITask[] | null>({
 // 	key: 'employeeTasksState',
 // 	default: null
 // });
 
-export const tasksByTeamState = atom<ITeamTask[]>((get) => {
+export const tasksByTeamState = atom<ITask[]>((get) => {
 	const tasks = get(teamTasksState);
 
 	return tasks
@@ -36,8 +36,8 @@ export const tasksStatisticsState = atom<{
 	all: [],
 	today: []
 });
-export const favoriteTasksAtom = atom<ITeamTask[]>([]);
-export const favoriteTasksStorageAtom = atomWithStorage<ITeamTask[]>('favoriteTasks', []);
+export const favoriteTasksAtom = atom<ITask[]>([]);
+export const favoriteTasksStorageAtom = atomWithStorage<ITask[]>('favoriteTasks', []);
 
 export const activeTaskStatisticsState = atom<{
 	total: ITasksStatistics | null;

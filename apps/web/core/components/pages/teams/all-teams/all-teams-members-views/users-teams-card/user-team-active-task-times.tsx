@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
 
@@ -9,7 +9,7 @@ export default function UserTeamActiveTaskTimes({ member, className }: { member:
 
 	const { getTaskById } = useTeamTasks();
 
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 
 	useEffect(() => {
 		getTaskById(member.activeTaskId || '')

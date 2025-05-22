@@ -1,6 +1,6 @@
 import { IEmployee } from '../IEmployee';
 import { IOrganization } from '../IOrganization';
-import { ITeamTask } from '../ITask';
+import { ITask } from '../ITask';
 import { TimeLogType, TimerSource } from '../ITimer';
 import { ITimerSlot } from './ITimerSlot';
 
@@ -41,7 +41,7 @@ export interface ITimeLog {
 	employee?: IEmployee;
 	employeeId: string;
 	timesheetId?: string;
-	task?: ITeamTask;
+	task?: ITask;
 	taskId?: string;
 	timeSlots?: ITimerSlot[];
 	projectId?: string;

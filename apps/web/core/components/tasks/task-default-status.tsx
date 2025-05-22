@@ -1,4 +1,4 @@
-import { ITaskLabel, ITaskPriority, ITaskSize, ITaskStatus } from '@/core/types/interfaces/to-review';
+import { ITaskSizeNameEnum, ITaskStatusNameEnum } from '@/core/types/interfaces/to-review';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
 	XXLTextIcon as XlargeIcon,
@@ -19,7 +19,7 @@ import {
 } from 'assets/svg';
 import { TStatus } from './task-status';
 
-export const taskStatus: TStatus<ITaskStatus> = {
+export const taskStatus: TStatus<ITaskStatusNameEnum> = {
 	todo: {
 		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#D6E4F9'
@@ -71,7 +71,7 @@ export const taskStatus: TStatus<ITaskStatus> = {
 	custom: {}
 };
 
-export const taskPriorities: TStatus<ITaskPriority> = {
+export const taskPriorities: TStatus = {
 	Highest: {
 		icon: <ChevronUpDoubleIcon className="w-full max-w-[16px] text-[#EE6C4D]" strokeWidth="1.8" />,
 		bgColor: 'transparent',
@@ -99,7 +99,7 @@ export const taskPriorities: TStatus<ITaskPriority> = {
 	}
 };
 
-export const taskSizes: TStatus<ITaskSize> = {
+export const taskSizes: TStatus<ITaskSizeNameEnum> = {
 	'X-Large': {
 		icon: <XlargeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
@@ -127,7 +127,7 @@ export const taskSizes: TStatus<ITaskSize> = {
 	}
 };
 
-export const taskLabels: TStatus<ITaskLabel> = {
+export const taskLabels: TStatus = {
 	'UI/UX': {
 		icon: <ClockIcon />,
 		bgColor: '#c2b1c6'

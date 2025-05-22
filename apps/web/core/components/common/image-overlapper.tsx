@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ITeamTask, ITimerStatus } from '@/core/types/interfaces/to-review';
+import { ITask, ITimerStatus } from '@/core/types/interfaces/to-review';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal } from '@/core/hooks';
@@ -28,7 +28,7 @@ export interface ImageOverlapperProps {
 interface ArrowDataProps {
 	activeTaskStatus: ITimerStatus | null | undefined;
 	disabled: boolean;
-	task: ITeamTask;
+	task: ITask;
 	className: string | undefined;
 	iconClassName: string | undefined;
 }

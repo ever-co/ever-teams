@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/to-review';
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { clsxm } from '@/core/lib/utils';
@@ -15,7 +15,7 @@ import { Card } from '../../duplicated-components/card';
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITeamTask} props.defaultPlannedTask - The default task from the Today's plan
+ * @param {ITask} props.defaultPlannedTask - The default task from the Today's plan
  *
  * @returns {JSX.Element} The modal element
  */
@@ -26,7 +26,7 @@ export function ActiveTaskHandlerModal({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	defaultPlannedTask: ITeamTask;
+	defaultPlannedTask: ITask;
 }) {
 	const t = useTranslations();
 	const { startTimer, hasPlan: todayPlan } = useTimerView();

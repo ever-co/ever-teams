@@ -2,7 +2,7 @@ import { ITasksStatistics } from '../task/ITask';
 import { IEmployee } from './IEmployee';
 import { IImageAssets } from './IImageAssets';
 import { IProject } from './IProject';
-import { ITeamTask } from './ITask';
+import { ITask } from './ITask';
 import { IUser } from './IUserData';
 
 export interface IOrganizationTeamCreate {
@@ -93,7 +93,7 @@ export interface OT_Member {
 	roleId?: string;
 	role?: OT_Role;
 	employee: IEmployee;
-	lastWorkedTask?: ITeamTask;
+	lastWorkedTask?: ITask;
 	running?: boolean;
 	duration?: number;
 	isTrackingEnabled?: boolean;

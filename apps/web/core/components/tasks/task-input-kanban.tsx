@@ -10,7 +10,7 @@ import {
 	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITaskPriority, ITaskSizeNameEnum, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -26,14 +26,14 @@ import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 
 type Props = {
-	task?: Nullable<ITeamTask>;
-	tasks?: ITeamTask[];
+	task?: Nullable<ITask>;
+	tasks?: ITask[];
 	kanbanTitle?: string;
-	onTaskClick?: (task: ITeamTask) => void;
+	onTaskClick?: (task: ITask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITeamTask) => void;
+	onEnterKey?: (taskName: string, task: ITask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -48,7 +48,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITeamTask | undefined) => void;
+	onTaskCreated?: (task: ITask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	onClose: any;
 
@@ -83,7 +83,7 @@ export function TaskInputKanban(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITeamTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
 		[$onTaskCreated]
 	);
 
@@ -125,7 +125,7 @@ export function TaskInputKanban(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITeamTask, title: string) => {
+		(task: ITask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -175,7 +175,7 @@ export function TaskInputKanban(props: Props) {
 	}, [datas, props, onTaskCreated]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITeamTask[] = [];
+		let updatedTaskList: ITask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
@@ -328,7 +328,7 @@ function TaskCard({
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
-	updatedTaskList?: ITeamTask[];
+	updatedTaskList?: ITask[];
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
@@ -392,7 +392,7 @@ function TaskCard({
 												taskSize.current = v;
 											}
 										}}
-										defaultValue={taskSize?.current as ITaskSize}
+										defaultValue={taskSize?.current as ITaskSizeNameEnum}
 										task={null}
 									/>
 									<TaskLabels

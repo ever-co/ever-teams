@@ -1,4 +1,4 @@
-import { TimeFormatEnum } from '../../enums';
+import { TimeFormatEnum } from '../../enums/date';
 import { DefaultValueDateTypeEnum, WeekDaysEnum } from '../../enums/date';
 import { IBasePerTenantEntityModel, ITaggable } from '../base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';

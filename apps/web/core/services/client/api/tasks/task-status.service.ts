@@ -1,7 +1,7 @@
 import {
 	DeleteResponse,
 	ITaskStatusCreate,
-	ITaskStatus,
+	ITaskStatusNameEnum,
 	ITaskStatusOrder,
 	PaginationResponse
 } from '@/core/types/interfaces/to-review';
@@ -41,7 +41,7 @@ class TaskStatusService extends APIService {
 
 		const endpoint = `/task-statuses?${query}`;
 
-		return this.get<PaginationResponse<ITaskStatus>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskStatusNameEnum>>(endpoint, { tenantId });
 	};
 }
 

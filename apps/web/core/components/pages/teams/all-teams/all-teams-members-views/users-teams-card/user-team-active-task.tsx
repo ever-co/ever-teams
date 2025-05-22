@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
 import { useEffect, useState } from 'react';
 import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
 
@@ -9,7 +9,7 @@ export default function UserTeamActiveTaskInfo({
 	className
 }: Readonly<{ member: OT_Member; className?: string }>) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();
