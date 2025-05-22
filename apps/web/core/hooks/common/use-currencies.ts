@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { currenciesState } from '@/core/stores/currencies';
+import { currenciesState } from '@/core/stores/common/currencies';
 import { currencyService } from '@/core/services/client/api/currencies/currency.service';
 import { useQuery } from './use-query';
 

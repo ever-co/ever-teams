@@ -1,9 +1,8 @@
-import LiveKitPage from './component'
-import React from 'react'
+import LiveKitPage from '@/core/components/pages/meet/livekit/page-component';
+import React from 'react';
 
 function Page() {
-    return <LiveKitPage />
-
+	return <LiveKitPage />;
 }
 
-export default Page
+export default Page;

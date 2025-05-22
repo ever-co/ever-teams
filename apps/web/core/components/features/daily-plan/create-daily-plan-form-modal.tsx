@@ -2,12 +2,12 @@ import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from '
 import { useForm } from 'react-hook-form';
 import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@/core/hooks';
-import { Avatar, Card, Modal, Text } from '@/core/components';
+import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { Calendar } from '@/core/components/ui/calendar';
-import { Button } from '@/core/components/ui/button';
+import { Calendar } from '@/core/components/common/calendar';
+import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	Command,
 	CommandEmpty,
@@ -15,14 +15,16 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList
-} from '@/core/components/ui/command';
-import { ScrollArea } from '@/core/components/ui/scroll-bar';
+} from '@/core/components/common/command';
+import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import stc from 'string-to-color';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
+import { Card } from '../../duplicated-components/card';
+import { Avatar } from '../../duplicated-components/avatar';
 
 export function CreateDailyPlanFormModal({
 	open,

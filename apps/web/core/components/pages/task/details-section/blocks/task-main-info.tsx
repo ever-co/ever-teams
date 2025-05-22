@@ -4,18 +4,18 @@ import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } fro
 import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { ActiveTaskIssuesDropdown } from '@/core/components/features';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
-import { DatePicker } from '@/core/components/ui/DatePicker';
+import { DatePicker } from '@/core/components/common/date-picker';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
+import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -279,7 +279,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel
+						<PopoverPanel
 							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[9.5rem] flex flex-col px-4 py-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
@@ -321,16 +321,16 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 									))}
 								</div>
 							)}
-						</Popover.Panel>
+						</PopoverPanel>
 					</Transition>
 
-					<Popover.Button className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
+					<PopoverButton className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
 						<div className="flex items-center justify-center w-full px-2 py-0 text-black border border-gray-200 rounded-full cursor-pointer dark:text-white">
 							<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
 								{t('pages.settingsTeam.MANAGE_ASSIGNEES')}
 							</p>
 						</div>
-					</Popover.Button>
+					</PopoverButton>
 				</Popover>
 			) : (
 				<></>

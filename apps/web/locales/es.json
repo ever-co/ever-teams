@@ -2,6 +2,9 @@
 	"TITLE": "Equipos Siempre",
 	"sidebar": {
 		"DASHBOARD": "Tablero",
+		"FORYOU": "General",
+		"HOME": "Inicio",
+		"INBOX": "Bandeja de entrada",
 		"PROJECTS": "Proyectos",
 		"FAVORITES": "Favoritos",
 		"TASKS": "Tareas",

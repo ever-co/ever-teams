@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { filterValue } from '@/core/stores/all-teams';
+import { filterValue } from '@/core/stores/teams/all-teams';
 import { useMemo } from 'react';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useAuthenticateUser } from '../../auth';

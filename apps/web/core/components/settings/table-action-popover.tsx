@@ -1,6 +1,5 @@
 import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
-import { Popover, Transition } from '@headlessui/react';
-import { useDropdownAction } from '@/core/components/features/team/user-team-card/user-team-card-menu';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
@@ -13,6 +12,7 @@ import {
 } from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
+import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 
 type Props = {
 	member: OT_Member;
@@ -57,7 +57,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel
+						<PopoverPanel
 							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xl card dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}
 						>
 							{/* TODO Dynamic */}
@@ -157,16 +157,16 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 									</span>
 								</div>
 							)}
-						</Popover.Panel>
+						</PopoverPanel>
 					</Transition>
 					{(status === 'settings' ||
 						(status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
-						<Popover.Button className="w-full mt-2 outline-none">
+						<PopoverButton className="w-full mt-2 outline-none">
 							<ThreeCircleOutlineHorizontalIcon
 								className="w-6 text-[#292D32] relative dark:text-white"
 								strokeWidth="2.5"
 							/>
-						</Popover.Button>
+						</PopoverButton>
 					)}
 					<ConfirmationModal
 						open={isOpen}
@@ -195,7 +195,7 @@ const RolePopover = () => {
 				leaveFrom="opacity-100 translate-y-0"
 				leaveTo="opacity-0 translate-y-1"
 			>
-				<Popover.Panel
+				<PopoverPanel
 					className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
 					style={{ boxShadow: ' rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 				>
@@ -204,7 +204,7 @@ const RolePopover = () => {
 							<span className="text-[#282048] text-xs font-semibold dark:text-white">{role.name}</span>
 						</div>
 					))}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 			{/* <Popover.Button className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
 				<span className="text-[#282048] text-xs font-semibold dark:text-white">

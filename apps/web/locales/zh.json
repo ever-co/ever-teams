@@ -2,6 +2,9 @@
 	"TITLE": "永恒团队",
 	"sidebar": {
 		"DASHBOARD": "仪表板",
+		"FORYOU": "常规",
+		"HOME": "主页",
+		"INBOX": "收件箱",
 		"PROJECTS": "项目",
 		"FAVORITES": "收藏夹",
 		"TASKS": "任务",

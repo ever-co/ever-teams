@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { timesheetRapportState } from '@/core/stores/time-logs';
+import { timesheetRapportState } from '@/core/stores/timer/time-logs';
 import { useQuery } from '../common/use-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import moment from 'moment';

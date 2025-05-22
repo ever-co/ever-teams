@@ -1,8 +1,8 @@
 import { IPosition } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
-import { AutoCompleteDropdown } from '@/core/components';
-import { mapPositionItems, PositionItem } from '@/core/components/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AutoCompleteDropdown } from '@/core/components/common/auto-complete-dropdown';
+import { mapPositionItems, PositionItem } from '@/core/components/layouts/position-item';
 
 export const PositionDropDown = ({
 	currentPosition,

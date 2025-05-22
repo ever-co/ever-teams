@@ -2,6 +2,9 @@
 	"TITLE": "Ever Teams",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
+		"FORYOU": "General",
+		"HOME": "Home",
+		"INBOX": "Inbox",
 		"PROJECTS": "Projects",
 		"FAVORITES": "Favorites",
 		"TASKS": "Tasks",
@@ -534,7 +537,8 @@
 			"GO_TO_HOME": "Go to Home"
 		},
 		"kanban": {
-			"KANBAN_BOARD": "Kanban Board"		},
+			"KANBAN_BOARD": "Kanban Board"
+		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
 			"DESCRIPTION": "Descriptions",

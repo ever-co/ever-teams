@@ -1,28 +1,31 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
-import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from '@/core/components';
-import { Button } from '@/core/components/ui/button';
+import { Modal, SpinnerLoader, Text } from '@/core/components';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
-import { TaskNameInfoDisplay } from '../task/task-displays';
-import { TaskEstimate } from '../task/task-estimate';
+import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { TaskEstimate } from '../../tasks/task-estimate';
 import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { estimatedTotalTime } from '../task/daily-plan';
+import { estimatedTotalTime } from '../../tasks/daily-plan';
 import { clsxm } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
-import { TaskDetailsModal } from './task-details-modal';
-import { Popover, Transition } from '@headlessui/react';
-import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
+import { TaskDetailsModal } from '../../tasks/task-details-modal';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
-import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import moment from 'moment';
 import { IconsErrorWarningFill } from '@/core/components/icons';
+import { InputField } from '../../duplicated-components/_input';
+import { Tooltip } from '../../duplicated-components/tooltip';
+import { Card } from '../../duplicated-components/card';
+import { VerticalSeparator } from '../../duplicated-components/separator';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -442,21 +445,18 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											) : null}
 										</div>
 									</div>
-									<div className="h-80">
-										<ScrollArea className="w-full h-full">
-											<ul className="flex flex-col gap-2 ">
-												{sortedTasks.map((task, index) => (
-													<TaskCard
-														plan={plan}
-														key={index}
-														task={task}
-														setDefaultTask={setDefaultTask}
-														isDefaultTask={task.id == defaultTask?.id}
-													/>
-												))}
-											</ul>
-											<ScrollBar className="-pr-20" />
-										</ScrollArea>
+									<div className="w-full h-full">
+										<ul className="flex flex-col gap-2 overflow-y-auto h-80 ">
+											{sortedTasks.map((task, index) => (
+												<TaskCard
+													plan={plan}
+													key={index}
+													task={task}
+													setDefaultTask={setDefaultTask}
+													isDefaultTask={task.id == defaultTask?.id}
+												/>
+											))}
+										</ul>
 									</div>
 								</div>
 								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
@@ -615,7 +615,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 			<div className="flex flex-col items-start w-full gap-2">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
-					<Popover.Button
+					<PopoverButton
 						placeholder={'Select or create task for the plan'}
 						className={clsxm(
 							'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
@@ -645,26 +645,23 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				</div>
 			</div>
 
-			<Popover.Panel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
+			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
-					<Card shadow="custom" className="h-[25rem] border shadow-lg !p-3">
-						<ScrollArea className="w-full h-full">
-							<ul className="flex flex-col w-full h-full gap-2">
-								{tasks.map((task, index) => (
-									<li key={index}>
-										<TaskCard
-											viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
-											task={task}
-											plan={selectedPlan}
-											setDefaultTask={setDefaultTask}
-											isDefaultTask={task.id == defaultTask?.id}
-											selectedDate={selectedDate}
-										/>
-									</li>
-								))}
-							</ul>
-							<ScrollBar className="-pr-20" />
-						</ScrollArea>
+					<Card shadow="custom" className="border shadow-lg !p-3">
+						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
+							{tasks.map((task, index) => (
+								<li key={index}>
+									<TaskCard
+										viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
+										task={task}
+										plan={selectedPlan}
+										setDefaultTask={setDefaultTask}
+										isDefaultTask={task.id == defaultTask?.id}
+										selectedDate={selectedDate}
+									/>
+								</li>
+							))}
+						</ul>
 					</Card>
 				) : (
 					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
@@ -677,7 +674,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						</Button>
 					</Card>
 				)}
-			</Popover.Panel>
+			</PopoverPanel>
 		</Popover>
 	);
 }
@@ -781,7 +778,7 @@ function TaskCard(props: ITaskCardProps) {
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
 					}
 				}}
-				className="min-w-[48%] flex items-center h-full max-w-[50%]"
+				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
@@ -796,7 +793,7 @@ function TaskCard(props: ITaskCardProps) {
 						<div className="flex items-center w-full h-full gap-1">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex items-center justify-center h-6 w-28"
+									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor: status.taskStatuses.filter((s) => s.value === task.status)[0]
 											.color
@@ -805,7 +802,7 @@ function TaskCard(props: ITaskCardProps) {
 									{task.status}
 								</span>
 							) : (
-								<span>{t('dailyPlan.ESTIMATED')} :</span>
+								<span className="text-nowrap whitespace-nowrap">{t('dailyPlan.ESTIMATED')} :</span>
 							)}
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
@@ -924,9 +921,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 	return (
 		<Popover>
-			<Popover.Button className="flex items-center justify-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -938,7 +935,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{({ close }) => {
 						return (
 							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
@@ -989,7 +986,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);
@@ -1085,9 +1082,9 @@ function UnplanTask(props: IUnplanTaskProps) {
 
 	return (
 		<Popover>
-			<Popover.Button>
+			<PopoverButton>
 				<span className={clsxm(' text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
-			</Popover.Button>
+			</PopoverButton>
 
 			<Transition
 				as="div"
@@ -1099,7 +1096,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<Popover.Panel>
+				<PopoverPanel>
 					{({ close }) => {
 						return (
 							<Card
@@ -1142,7 +1139,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 							</Card>
 						);
 					}}
-				</Popover.Panel>
+				</PopoverPanel>
 			</Transition>
 		</Popover>
 	);

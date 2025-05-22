@@ -116,3 +116,6 @@ megalinter-reports/
 /.deploy/redis/data/*.rdb
 /.deploy/redis/jitsu_users_recognition/data/*.rdb
 /.deploy/jitsu/server/data/logs/events
+
+.cursor\rules\nx-rules.mdc
+.github\instructions\nx.instructions.md

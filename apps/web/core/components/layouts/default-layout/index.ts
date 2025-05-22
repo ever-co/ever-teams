@@ -1,5 +1,5 @@
-export * from './AppLayout';
-export * from './Meta';
+export * from './app-layout';
+export * from './meta';
 export * from './footer';
 export * from './auth-layout';
 export * from './main-layout';

@@ -3,9 +3,9 @@ import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
-import { TotalDurationByDate } from '@/core/components/features';
 import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
+import { TotalDurationByDate } from '../tasks/task-displays';
 
 type MonthlyCalendarDataViewProps = {
 	t: TranslationHooks;

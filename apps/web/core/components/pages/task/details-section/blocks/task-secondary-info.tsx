@@ -2,19 +2,8 @@ import { useModal, useTeamTasks } from '@/core/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, Card, Modal, SpinnerLoader, Tooltip } from '@/core/components';
-import {
-	ActiveTaskPropertiesDropdown,
-	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown,
-	ActiveTaskVersionDropdown,
-	EpicPropertiesDropdown as TaskEpicDropdown,
-	TaskLabels,
-	TaskStatus,
-	useTaskLabelsValue
-} from '@/core/components/features';
-import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from '@/core/components/settings';
-import { VersionForm } from '@/core/components/settings/version-form';
+import { Button, Modal, SpinnerLoader } from '@/core/components';
+import { VersionForm } from '@/core/components/tasks/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -24,11 +13,26 @@ import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/organization-projects';
-import { ScrollArea, ScrollBar } from '@/core/components/ui/scroll-bar';
-import { QuickCreateProjectModal } from '@/core/components/features/project/quick-create-project-modal';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
+import {
+	ActiveTaskPropertiesDropdown,
+	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown,
+	ActiveTaskVersionDropdown,
+	EpicPropertiesDropdown as TaskEpicDropdown,
+	TaskStatus,
+	useTaskLabelsValue
+} from '@/core/components/tasks/task-status';
+import { TaskLabels } from '@/core/components/tasks/task-labels';
+import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
+import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
+import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
+import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { Card } from '@/core/components/duplicated-components/card';
+import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 

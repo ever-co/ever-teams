@@ -6,7 +6,9 @@
 	--tw-color-dark--theme: #1e2025;
 	--tooltipBackground: #000;
 }
-
+html {
+	background: lch(96.667% 0 282.863 / 1);
+}
 html.dark {
 	--tooltipBackground: #000;
 }
@@ -75,6 +77,10 @@ html.dark {
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 
+	html,
+	body {
+		overflow-x: hidden;
+	}
 	.dark {
 		--background: 222.2 84% 4.9%;
 		--foreground: 210 40% 98%;
@@ -124,9 +130,6 @@ html.dark {
 	* {
 		@apply border-border;
 	}
-	html {
-		font-family: 'Poppins', sans-serif;
-	}
 
 	body {
 		font-family:
@@ -134,10 +137,12 @@ html.dark {
 			sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
 		font-style: normal;
 		font-weight: 400;
-		line-height: 150%;
+		line-height: 1.5;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 		text-rendering: optimizeLegibility;
+		-webkit-tap-highlight-color: transparent;
+		-webkit-touch-callout: none;
 		@apply text-default dark:text-white bg-[rgb(242,242,242)] dark:bg-background text-foreground text-sm;
 	}
 
