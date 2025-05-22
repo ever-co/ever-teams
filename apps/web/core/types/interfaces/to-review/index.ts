@@ -21,7 +21,7 @@ export * from './hooks';
 export * from './IIcon';
 export * from './IProof';
 export * from './IPeriod';
-export * from './IRequestToJoin';
+export * from '../team/IRequestToJoin';
 export * from './IPosition';
 export * from './IIssueTypes';
 export * from './IChoose';

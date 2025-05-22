@@ -16,8 +16,3 @@ export interface IJoinTeamResponse extends IJoinTeamRequest {
 	updatedAt: string;
 	status: string;
 }
-
-export enum RequestStatusEnum {
-	ACCEPTED = 'ACCEPTED',
-	REJECTED = 'REJECTED'
-}

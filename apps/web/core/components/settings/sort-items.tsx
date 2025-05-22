@@ -1,8 +1,11 @@
-import { ISort } from '@/core/types/interfaces/to-review/ISort';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type SortItem = DropdownItem<ISort>;
+
+export interface ISort {
+	title: string;
+}
 
 export function mapSortItems(sortList: ISort[]) {
 	const items = sortList.map<SortItem>((sort) => {
