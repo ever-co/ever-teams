@@ -1,4 +1,4 @@
-import { ITimerLogsDailyReport } from '@/core/types/interfaces/timer/ITimerLogs';
+import { ITimerLogsDailyReport } from '@/core/types/interfaces/-timer/ITimerLogs';
 import { atom } from 'jotai';
 import {
 	IOrganizationTeamList,
@@ -11,8 +11,8 @@ import {
 	TimesheetFilterByDays,
 	TimesheetLog,
 	UpdateTimesheetStatus
-} from '../../types/interfaces';
-import { IActivityReport } from '../../types/interfaces/activity/IActivityReport';
+} from '@/core/types/interfaces';
+import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
 
 interface IFilterOption {
 	value: string;

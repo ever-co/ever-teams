@@ -1,4 +1,4 @@
-import { IActivityReportGroupByDate } from '@/core/types/interfaces/activity/IActivityReport';
+import { IActivityReportGroupByDate } from '@/core/types/interfaces/-activity/IActivityReport';
 
 export interface TableColumn {
 	key: string;

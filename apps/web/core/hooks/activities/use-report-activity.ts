@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/timer/ITimerLog';
+import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useQuery } from '../common/use-query';
 import { useAtom } from 'jotai';
 import {

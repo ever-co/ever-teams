@@ -1,7 +1,7 @@
 import { IEmployee } from './IEmployee';
 import { IProject } from './IProject';
 import { ITeamTask } from './ITask';
-import { ITimerSlot } from './timer/ITimerSlot';
+import { ITimerSlot } from './-timer/ITimerSlot';
 
 export interface ITaskTimesheet {
 	id: string;

@@ -8,3 +8,12 @@ export enum RolesEnum {
 	VIEWER = 'VIEWER',
 	INTERVIEWER = 'INTERVIEWER'
 }
+
+export interface Role {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	tenantId: string;
+	name: string;
+	isSystem: boolean;
+}

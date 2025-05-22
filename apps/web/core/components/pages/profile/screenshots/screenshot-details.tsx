@@ -1,7 +1,7 @@
 'use client';
 
 import { Modal } from '@/core/components';
-import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
+import { ITimerSlot } from '@/core/types/interfaces/-timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
