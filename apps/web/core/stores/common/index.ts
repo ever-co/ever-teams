@@ -1,7 +1,6 @@
 export * from './full-width';
 export * from './currencies';
 export * from './languages';
-export * from './timezones';
 export * from './setting';
 export * from './header-tabs';
 export * from './public';
