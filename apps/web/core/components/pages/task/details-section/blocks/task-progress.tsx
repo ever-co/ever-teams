@@ -1,8 +1,7 @@
 import { detailedTaskState } from '@/core/stores';
-import { TaskProgressBar } from '@/core/components/features';
 import { useAtom } from 'jotai';
 import TaskRow from '../components/task-row';
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
@@ -10,6 +9,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
+import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -131,7 +131,7 @@ const TaskProgress = () => {
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.1875rem]">
 							{task?.members && task?.members.length > 1 ? (
-								<Disclosure.Button className="flex items-center justify-between w-full">
+								<DisclosureButton className="flex items-center justify-between w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 									</div>
@@ -141,14 +141,14 @@ const TaskProgress = () => {
 									) : (
 										<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 									)}
-								</Disclosure.Button>
+								</DisclosureButton>
 							) : (
 								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 								</div>
 							)}
 							{task?.members && task?.members.length > 0 && (
-								<Disclosure.Panel>
+								<DisclosurePanel>
 									<IndividualMembersTotalTime numMembersToShow={numMembersToShow} />
 									{task?.members?.length > 0 && task?.members?.length - 1 >= numMembersToShow && (
 										<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
@@ -160,7 +160,7 @@ const TaskProgress = () => {
 											</button>
 										</div>
 									)}
-								</Disclosure.Panel>
+								</DisclosurePanel>
 							)}
 						</div>
 					)}

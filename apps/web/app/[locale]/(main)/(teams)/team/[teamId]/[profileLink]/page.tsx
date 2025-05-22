@@ -2,19 +2,22 @@
 
 import { getActiveUserIdCookie } from '@/core/lib/helpers/index';
 
-import { publicState } from '@/core/stores/public';
-import { Breadcrumb, Container } from '@/core/components';
-import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from '@/core/components/features';
+import { publicState } from '@/core/stores/common/public';
+import { Container } from '@/core/components';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { fullWidthState } from '@/core/stores/fullWidth';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { IssuesView } from '@/core/constants/config/constants';
 import { usePublicOrganizationTeams } from '@/core/hooks/organizations';
 import { useRefreshIntervalV2 } from '@/core/hooks/common';
+import { UserTeamCardHeader } from '@/core/components/pages/teams/team/team-members-views/team-members-header';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { UnverifiedEmail } from '@/core/components/common/unverified-email';
+import { TeamMembersView } from '@/core/components/pages/teams/team/team-members';
 
 const Team = () => {
 	const router = useRouter();

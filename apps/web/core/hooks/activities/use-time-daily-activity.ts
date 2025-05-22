@@ -4,8 +4,8 @@ import { useAtom, useAtomValue } from 'jotai';
 import moment from 'moment';
 import { useCallback, useEffect } from 'react';
 
-import { activityTypeState } from '@/core/stores/activity-type';
-import { timeAppsState, timeVisitedSitesState } from '@/core/stores/time-slot';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
+import { timeAppsState, timeVisitedSitesState } from '@/core/stores/timer/time-slot';
 
 import { useQuery } from '../common/use-query';
 import { activityService } from '@/core/services/client/api/activities';

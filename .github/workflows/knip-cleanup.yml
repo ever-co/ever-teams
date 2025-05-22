@@ -1,0 +1,91 @@
+name: Knip Review - Cleanup Unused Code - WEB
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'apps/web/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  knip-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+
+      - name: Run Knip
+        working-directory: apps/web
+        run: npx knip --cache --no-exit-code > reported-files.txt
+
+      - name: Get list of changed files
+        id: changed
+        run: |
+          {
+            echo "CHANGED_FILES<<EOF"
+            git diff --name-only origin/develop | grep '^apps/web/' || true
+            echo "EOF"
+          } >> $GITHUB_ENV
+
+      - name: Check if changed files are in Knip report
+        id: check_unused
+        run: |
+          FAIL=0
+          FILES_WITH_UNUSED_CODE=""
+
+          # Use a loop that runs in the same shell
+          while read -r file; do
+            REL_FILE="${file#apps/web/}"
+
+            if [ -z "$file" ]; then
+             continue
+            fi
+
+            if grep -qF "$REL_FILE" apps/web/reported-files.txt; then
+              echo "❌ Found unused code in: $file"
+              FILES_WITH_UNUSED_CODE+="$file"$'\n'
+              FAIL=1
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo "fail=$FAIL" >> $GITHUB_OUTPUT
+          echo "reported_files<<EOF" >> $GITHUB_OUTPUT
+          printf "%s\n" "$FILES_WITH_UNUSED_CODE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          if [ "$FAIL" -eq 1 ]; then
+            echo "🛑 Unused code detected in changed files:"
+            echo "$FILES_WITH_UNUSED_CODE"
+            exit 1
+          else
+            echo "✅ No unused code detected in changed files."
+          fi
+
+      - name: Comment on PR with unused code files
+        if: failure() && steps.check_unused.outputs.fail == '1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORTED_FILES: ${{ steps.check_unused.outputs.reported_files }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "❌ Could not find the pull request for this commit."
+            exit 1
+          fi
+
+          echo -e "⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code." > comment.md
+
+          gh pr comment "$PR_NUMBER" --body-file comment.md

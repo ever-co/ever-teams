@@ -5,42 +5,22 @@
 		"experimentalDecorators": true,
 		"jsx": "react-native",
 		"module": "es2015",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"noImplicitAny": false,
-		"noImplicitReturns": true,
+		"noImplicitReturns": false,
 		"noImplicitThis": true,
 		"noUnusedLocals": false,
 		"sourceMap": true,
-		"importHelpers": true,
 		"target": "esnext",
-		"lib": [
-			"esnext",
-			"dom"
-		],
+		"lib": ["esnext", "dom"],
 		"skipLibCheck": true,
 		"resolveJsonModule": true,
-		"types": [
-			"@hapi/shot",
-			"jest"
-		],
+		"types": ["@hapi/shot", "jest"],
 		"paths": {
-			"react": [
-				"./node_modules/react"
-			],
-			"@env": [
-				"./node_modules/react-native-dotenv"
-			]
+			"@env": ["./node_modules/react-native-dotenv"]
 		}
 	},
-	"exclude": [
-		"node_modules"
-	],
-	"include": [
-		"index.js",
-		"App.js",
-		"app",
-		"test",
-		"assets/images/LoginScreen.tsx"
-	],
+	"exclude": ["node_modules"],
+	"include": ["index.js", "App.js", "app", "assets", "test", "*.js", "*.ts", "app.config.ts"],
 	"extends": "expo/tsconfig.base"
 }

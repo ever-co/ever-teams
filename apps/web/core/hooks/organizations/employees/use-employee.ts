@@ -1,4 +1,4 @@
-import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores/employee';
+import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores/user/employee';
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 

@@ -1,23 +1,24 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Card } from '@/core/components';
-
-import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from '@/core/components/settings';
 
 import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { fetchingTeamInvitationsState, userState } from '@/core/stores';
-import NoTeam from '@/core/components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
-import { Accordian } from '@/core/components/accordian';
-import { IntegrationSetting } from '@/core/components/settings/integration-setting';
-import { InvitationSetting } from '@/core/components/settings/invitation-setting';
-import { IssuesSettings } from '@/core/components/settings/issues-settings';
-import { MemberSetting } from '@/core/components/settings/member-setting';
-import { activeSettingTeamTab } from '@/core/stores/setting';
-import { InteractionObserverVisible } from '@/core/components/pages/setting/interaction-observer';
+import { Accordian } from '@/core/components/common/accordian';
+import { IntegrationSetting } from '@/core/components/pages/settings/team/integration-setting';
+import { InvitationSetting } from '@/core/components/pages/settings/team/invitation-setting';
+import { IssuesSettings } from '@/core/components/pages/settings/team/issues-settings';
+import { MemberSetting } from '@/core/components/pages/settings/team/member-setting';
+import { activeSettingTeamTab } from '@/core/stores/common/setting';
+import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
+import NoTeam from '@/core/components/common/no-team';
+import { TeamAvatar } from '@/core/components/teams/team-avatar';
+import { DangerZoneTeam } from '@/core/components/pages/settings/team/danger-zone-team';
+import { TeamSettingForm } from '@/core/components/pages/settings/team/team-setting-form';
+import { Card } from '@/core/components/duplicated-components/card';
 
 const Team = () => {
 	const t = useTranslations();

@@ -358,6 +358,9 @@
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
+		"FORYOU": "عام",
+		"HOME": "الصفحة الرئيسية",
+		"INBOX": "الوارد",
 		"PROJECTS": "المشاريع",
 		"FAVORITES": "المفضلات",
 		"TASKS": "المهام",

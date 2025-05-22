@@ -2,7 +2,7 @@
 
 import { ITaskSizesCreate } from '@/core/types/interfaces';
 import { activeTeamIdState } from '@/core/stores';
-import { taskSizesListState } from '@/core/stores/task-sizes';
+import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';

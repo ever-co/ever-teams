@@ -1,4 +1,4 @@
-import { timeLimitsAtom } from '@/core/stores/time-limits';
+import { timeLimitsAtom } from '@/core/stores/timer/time-limits';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { useCallback } from 'react';

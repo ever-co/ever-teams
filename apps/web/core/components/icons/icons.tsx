@@ -1,4 +1,4 @@
-import { SVGProps } from 'react';
+import { FC, SVGProps } from 'react';
 
 export function IconsFacebook(props: SVGProps<SVGSVGElement>) {
 	return (
@@ -230,3 +230,407 @@ export function IconsSearch(props: SVGProps<SVGSVGElement>) {
 		</svg>
 	);
 }
+
+export const TaskIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
+	return (
+		<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+			<path
+				d="M9.31006 14.7L10.8101 16.2L14.8101 12.2"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M16 4.02002C19.33 4.20002 21 5.43002 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44002 4.67 4.20002 8 4.02002"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export const SidebarTaskIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
+	return (
+		<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+			<path
+				d="M8 2V5"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M16 2V5"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7 11H15"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7 15H12"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15 22H9C4 22 3 19.94 3 15.82V9.65C3 4.95 4.67 3.69 8 3.5H16C19.33 3.68 21 4.95 21 9.65V16"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M21 16L15 22V19C15 17 16 16 18 16H21Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export const ProjectIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
+	return (
+		<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+			<path
+				d="M12 19a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="m10.44 15 .65.65c.19.19.5.2.69.01l1.78-1.64"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M9 22h6c4.02 0 4.74-1.61 4.95-3.57l.75-6C20.97 9.99 20.27 8 16 8H8c-4.27 0-4.97 1.99-4.7 4.43l.75 6C4.26 20.39 4.98 22 9 22ZM7.5 7.67V6.7c0-2.25 1.81-4.46 4.06-4.67a4.5 4.5 0 0 1 4.94 4.48v1.38"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export const TeamIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
+	return (
+		<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+			<g clipPath="url(#clip0_3111_32738)">
+				<path
+					d="M18.0001 7.16C17.9401 7.15 17.8701 7.15 17.8101 7.16C16.4301 7.11 15.3301 5.98 15.3301 4.58C15.3301 3.15 16.4801 2 17.9101 2C19.3401 2 20.4901 3.16 20.4901 4.58C20.4801 5.98 19.3801 7.11 18.0001 7.16Z"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M16.9699 14.4402C18.3399 14.6702 19.8499 14.4302 20.9099 13.7202C22.3199 12.7802 22.3199 11.2402 20.9099 10.3002C19.8399 9.59016 18.3099 9.35016 16.9399 9.59016"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M5.96998 7.16C6.02998 7.15 6.09998 7.15 6.15998 7.16C7.53998 7.11 8.63998 5.98 8.63998 4.58C8.63998 3.15 7.48998 2 6.05998 2C4.62998 2 3.47998 3.16 3.47998 4.58C3.48998 5.98 4.58998 7.11 5.96998 7.16Z"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M6.99994 14.4402C5.62994 14.6702 4.11994 14.4302 3.05994 13.7202C1.64994 12.7802 1.64994 11.2402 3.05994 10.3002C4.12994 9.59016 5.65994 9.35016 7.02994 9.59016"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M12.0001 14.6297C11.9401 14.6197 11.8701 14.6197 11.8101 14.6297C10.4301 14.5797 9.33008 13.4497 9.33008 12.0497C9.33008 10.6197 10.4801 9.46973 11.9101 9.46973C13.3401 9.46973 14.4901 10.6297 14.4901 12.0497C14.4801 13.4497 13.3801 14.5897 12.0001 14.6297Z"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M9.09021 17.7794C7.68021 18.7194 7.68021 20.2594 9.09021 21.1994C10.6902 22.2694 13.3102 22.2694 14.9102 21.1994C16.3202 20.2594 16.3202 18.7194 14.9102 17.7794C13.3202 16.7194 10.6902 16.7194 9.09021 17.7794Z"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</g>
+			<defs>
+				<clipPath id="clip0_3111_32738">
+					<rect width="24" height="24" fill="none" />
+				</clipPath>
+			</defs>
+		</svg>
+	);
+};
+
+export const AddUserIcon: FC<SVGProps<SVGSVGElement>> = (props) => {
+	return (
+		<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+			<path
+				d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3.41 22c0-3.87 3.85-7 8.59-7 .96 0 1.89.13 2.76.37"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M22 18c0 .32-.04.63-.12.93-.09.4-.25.79-.46 1.13A3.97 3.97 0 0 1 18 22a3.92 3.92 0 0 1-2.66-1.03c-.3-.26-.56-.57-.76-.91A3.92 3.92 0 0 1 14 18a3.995 3.995 0 0 1 4-4c1.18 0 2.25.51 2.97 1.33.64.71 1.03 1.65 1.03 2.67ZM19.49 17.98h-2.98M18 16.52v2.99"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeMiterlimit={10}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export const InboxIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M12 2v7l2-2M12 9l-2-2M1.98 13h4.41c.38 0 .72.21.89.55l1.17 2.34A2 2 0 0 0 10.24 17h3.53a2 2 0 0 0 1.79-1.11l1.17-2.34a1 1 0 0 1 .89-.55h4.36"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M7 4.13c-3.54.52-5 2.6-5 6.87v4c0 5 2 7 7 7h6c5 0 7-2 7-7v-4c0-4.27-1.46-6.35-5-6.87"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const FavoriteIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path
+			d="M18 18.86H17.24C16.44 18.86 15.68 19.17 15.12 19.73L13.41 21.42C12.63 22.19 11.36 22.19 10.58 21.42L8.87 19.73C8.31 19.17 7.54 18.86 6.75 18.86H6C4.34 18.86 3 17.53 3 15.89V4.97998C3 3.33998 4.34 2.01001 6 2.01001H18C19.66 2.01001 21 3.33998 21 4.97998V15.89C21 17.52 19.66 18.86 18 18.86Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M12.28 14.96C12.13 15.01 11.88 15.01 11.72 14.96C10.42 14.51 7.5 12.66 7.5 9.51001C7.5 8.12001 8.62 7 10 7C10.82 7 11.54 7.39 12 8C12.46 7.39 13.18 7 14 7C15.38 7 16.5 8.12001 16.5 9.51001C16.49 12.66 13.58 14.51 12.28 14.96Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const HomeIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="m9.02 2.84-5.39 4.2C2.73 7.74 2 9.23 2 10.36v7.41c0 2.32 1.89 4.22 4.21 4.22h11.58c2.32 0 4.21-1.9 4.21-4.21V10.5c0-1.21-.81-2.76-1.8-3.45l-6.18-4.33c-1.4-.98-3.65-.93-5 .12ZM12 17.99v-3"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const DashboardIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M17 10h2c2 0 3-1 3-3V5c0-2-1-3-3-3h-2c-2 0-3 1-3 3v2c0 2 1 3 3 3ZM5 22h2c2 0 3-1 3-3v-2c0-2-1-3-3-3H5c-2 0-3 1-3 3v2c0 2 1 3 3 3ZM6 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM18 22a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const CommandIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M14.4 9.6H9.6v4.8h4.8V9.6ZM7.8 18c.99 0 1.8-.81 1.8-1.8v-1.8H7.8c-.99 0-1.8.81-1.8 1.8S6.81 18 7.8 18ZM7.8 9.6h1.8V7.8c0-.99-.81-1.8-1.8-1.8S6 6.81 6 7.8s.81 1.8 1.8 1.8ZM14.4 9.6h1.8c.99 0 1.8-.81 1.8-1.8S17.19 6 16.2 6s-1.8.81-1.8 1.8v1.8ZM16.2 18c.99 0 1.8-.81 1.8-1.8s-.81-1.8-1.8-1.8h-1.8v1.8c0 .99.81 1.8 1.8 1.8Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M9 22h6c5 0 7-2 7-7V9c0-5-2-7-7-7H9C4 2 2 4 2 9v6c0 5 2 7 7 7Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const UserCircleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M18.14 21.62c-.88.26-1.92.38-3.14.38H9c-1.22 0-2.26-.12-3.14-.38.22-2.6 2.89-4.65 6.14-4.65 3.25 0 5.92 2.05 6.14 4.65Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15 2H9C4 2 2 4 2 9v6c0 3.78 1.14 5.85 3.86 6.62.22-2.6 2.89-4.65 6.14-4.65 3.25 0 5.92 2.05 6.14 4.65C20.86 20.85 22 18.78 22 15V9c0-5-2-7-7-7Zm-3 12.17c-1.98 0-3.58-1.61-3.58-3.59C8.42 8.6 10.02 7 12 7s3.58 1.6 3.58 3.58-1.6 3.59-3.58 3.59Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15.58 10.58c0 1.98-1.6 3.59-3.58 3.59s-3.58-1.61-3.58-3.59C8.42 8.6 10.02 7 12 7s3.58 1.6 3.58 3.58Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const AddTaskIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path
+			d="M10 12.5H15M12.5 15V10"
+			stroke="currentColor"
+			strokeWidth="0.75"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M10 6H14C16 6 16 5 16 4C16 2 15 2 14 2H10C9 2 8 2 8 4C8 6 9 6 10 6Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M16 4.02C19.33 4.2 21 5.43 21 10V16C21 20 20 22 15 22H9C4 22 3 20 3 16V10C3 5.44 4.67 4.2 8 4.02"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const TasksIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M12.37 8.88h5.25M6.38 8.88l.75.75 2.25-2.25M12.37 15.88h5.25M6.38 15.88l.75.75 2.25-2.25"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M9 22h6c5 0 7-2 7-7V9c0-5-2-7-7-7H9C4 2 2 4 2 9v6c0 5 2 7 7 7Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const AddIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M6 12h12M12 18V6"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const AddTeamIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={32} height={32} viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path
+			d="M583.333 400C684.586 400 766.667 482.081 766.667 583.333C766.667 684.586 684.586 766.667 583.333 766.667C482.081 766.667 400 684.586 400 583.333C400 482.081 482.081 400 583.333 400ZM583.333 466.641L580.337 466.91C573.534 468.144 568.17 473.509 566.935 480.312L566.667 483.308L566.655 566.641L483.255 566.667L480.259 566.935C473.456 568.17 468.092 573.534 466.857 580.337L466.588 583.333L466.857 586.329C468.092 593.132 473.456 598.497 480.259 599.731L483.255 600L566.688 599.974L566.704 683.449L566.972 686.445C568.207 693.248 573.571 698.613 580.374 699.848L583.37 700.116L586.366 699.848C593.169 698.613 598.534 693.248 599.768 686.445L600.037 683.449L600.022 599.974L683.486 600L686.481 599.731C693.284 598.497 698.649 593.132 699.884 586.329L700.152 583.333L699.884 580.337C698.649 573.534 693.284 568.17 686.481 566.935L683.486 566.667L599.988 566.641L600 483.308L599.731 480.312C598.497 473.509 593.132 468.144 586.329 466.91L583.333 466.641ZM475.134 333.333C502.952 333.333 527.233 348.478 540.181 370.973C522.399 374.561 505.437 380.32 489.55 387.96C485.495 385.032 480.513 383.333 475.134 383.333H325.064C311.257 383.333 300.064 394.526 300.064 408.333V549.965C300.064 596.995 332.519 636.446 376.254 647.14C382.015 665.993 390.325 683.76 400.753 700.04L400.099 700C317.237 700 250.064 632.827 250.064 549.965V408.333C250.064 366.912 283.643 333.333 325.064 333.333H475.134ZM246.882 333.342C233.726 347.055 224.142 364.221 219.627 383.345L141.667 383.333C127.86 383.333 116.667 394.526 116.667 408.333V499.959C116.667 546.005 153.995 583.333 200.041 583.333C206.708 583.333 213.191 582.551 219.405 581.073C222.229 597.87 227.385 613.891 234.496 628.801C223.526 631.768 211.966 633.333 200.041 633.333C126.381 633.333 66.6667 573.619 66.6667 499.959V408.333C66.6667 368.638 97.5054 336.145 136.532 333.506L141.667 333.333L246.882 333.342ZM658.333 333.333C699.755 333.333 733.333 366.912 733.333 408.333L733.361 427.012C694.428 389.638 641.563 366.667 583.333 366.667L575.16 366.818C570.033 354.305 562.556 342.972 553.317 333.342L658.333 333.333ZM616.667 133.333C662.69 133.333 700 170.643 700 216.667C700 262.69 662.69 300 616.667 300C570.643 300 533.333 262.69 533.333 216.667C533.333 170.643 570.643 133.333 616.667 133.333ZM400 100C455.228 100 500 144.772 500 200C500 255.228 455.228 300 400 300C344.772 300 300 255.228 300 200C300 144.772 344.772 100 400 100ZM183.333 133.333C229.357 133.333 266.667 170.643 266.667 216.667C266.667 262.69 229.357 300 183.333 300C137.31 300 100 262.69 100 216.667C100 170.643 137.31 133.333 183.333 133.333ZM616.667 183.333C598.257 183.333 583.333 198.257 583.333 216.667C583.333 235.076 598.257 250 616.667 250C635.076 250 650 235.076 650 216.667C650 198.257 635.076 183.333 616.667 183.333ZM400 150C372.386 150 350 172.386 350 200C350 227.614 372.386 250 400 250C427.614 250 450 227.614 450 200C450 172.386 427.614 150 400 150ZM183.333 183.333C164.924 183.333 150 198.257 150 216.667C150 235.076 164.924 250 183.333 250C201.743 250 216.667 235.076 216.667 216.667C216.667 198.257 201.743 183.333 183.333 183.333Z"
+			fill="currentColor"
+		/>
+	</svg>
+);
+
+export const ProfileIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M12.16 10.87c-.1-.01-.22-.01-.33 0a4.42 4.42 0 0 1-4.27-4.43C7.56 3.99 9.54 2 12 2a4.435 4.435 0 0 1 .16 8.87ZM7.16 14.56c-2.42 1.62-2.42 4.26 0 5.87 2.75 1.84 7.26 1.84 10.01 0 2.42-1.62 2.42-4.26 0-5.87-2.74-1.83-7.25-1.83-10.01 0Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+export const SettingsIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M9 22h6c5 0 7-2 7-7V9c0-5-2-7-7-7H9C4 2 2 4 2 9v6c0 5 2 7 7 7Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M15.57 18.5v-3.9M15.57 7.45V5.5M15.57 12.65a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2ZM8.43 18.5v-1.95M8.43 9.4V5.5M8.43 16.55a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeMiterlimit={10}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);
+
+export const MoonIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width={32} height={32} viewBox="0 0 24 24" fill="none" {...props}>
+		<path
+			d="M2.03 12.42c.36 5.15 4.73 9.34 9.96 9.57 3.69.16 6.99-1.56 8.97-4.27.82-1.11.38-1.85-.99-1.6-.67.12-1.36.17-2.08.14C13 16.06 9 11.97 8.98 7.14c-.01-1.3.26-2.53.75-3.65.54-1.24-.11-1.83-1.36-1.3C4.41 3.86 1.7 7.85 2.03 12.42Z"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+);

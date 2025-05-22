@@ -1,18 +1,20 @@
 'use client';
 
-import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from '@/core/components';
+import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
-import Separator from '@/core/components/ui/separator';
+import Separator from '@/core/components/common/separator';
 import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
-import { TaskNameInfoDisplay } from '../task/task-displays';
+import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
-import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { ScrollArea } from '@/core/components/ui/scroll-bar';
+import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { IconsErrorWarningFill } from '@/core/components/icons';
+import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
+import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
+import { Card } from '../../duplicated-components/card';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;

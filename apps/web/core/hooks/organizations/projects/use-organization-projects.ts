@@ -1,7 +1,7 @@
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { organizationProjectsState } from '@/core/stores/organization-projects';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces';
 import { organizationProjectService } from '@/core/services/client/api/organizations';

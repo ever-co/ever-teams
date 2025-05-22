@@ -3,7 +3,7 @@
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@/core/types/interfaces';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
-import { getPublicState } from '@/core/stores/public';
+import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';

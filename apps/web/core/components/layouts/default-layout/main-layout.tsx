@@ -1,15 +1,19 @@
 'use client';
 import { cn } from '@/core/lib/helpers';
-import { PropsWithChildren, useRef } from 'react';
+import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/fullWidth';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/ui/resizable';
-import { SidebarProvider, SidebarInset } from '@/core/components/ui/sidebar';
-import MainSidebarTrigger from './MainSidebarTrigger';
-import AppContainer from './AppContainer';
-import GlobalHeader from './GlobalHeader';
-import GlobalFooter from './GlobalFooter';
-import { AppSidebar } from '@/core/components/app-sidebar';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
+import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar';
+
+import { useElementHeight } from '@/core/hooks/common';
+import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
+import { usePathname } from 'next/navigation';
+import AppContainer from './app-container';
+import { AppSidebar } from '../app-sidebar';
+import GlobalHeader from './global-header';
+import MainSidebarTrigger from './main-sidebar-trigger';
+import GlobalFooter from './global-footer';
 
 /**
  * Props interface for the MainLayout component
@@ -103,7 +107,6 @@ type Props = PropsWithChildren<{
 export function MainLayout({
 	children,
 	title,
-	showTimer,
 	publicTeam,
 	notFound,
 	className,
@@ -116,9 +119,27 @@ export function MainLayout({
 	// Global state for full-width mode
 	const fullWidth = useAtomValue(fullWidthState);
 
+	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
+	const { activeTimer, setActiveTimer } = useActiveTimer();
+	const path = usePathname();
 	// Refs for dynamic height calculations
 	const headerRef = useRef<HTMLDivElement>(null);
 	const footerRef = useRef<HTMLDivElement>(null);
+	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
+	const footerHeight = useElementHeight<HTMLDivElement | null>(footerRef);
+	useEffect(() => {
+		if (!headerHeight) return;
+
+		const shouldActivateTimer = path !== '/' || headerHeight <= 100;
+
+		setActiveTimer((prev) => {
+			if (prev !== shouldActivateTimer) {
+				return shouldActivateTimer;
+			}
+			return prev;
+		});
+		setShouldRenderTimer(true);
+	}, [path, headerHeight]);
 
 	return (
 		<AppContainer title={title}>
@@ -131,7 +152,7 @@ export function MainLayout({
 						<GlobalHeader
 							ref={headerRef}
 							fullWidth={fullWidth}
-							showTimer={showTimer}
+							showTimer={shouldRenderTimer && activeTimer}
 							publicTeam={publicTeam || false}
 							notFound={notFound || false}
 							mainHeaderSlot={mainHeaderSlot}
@@ -161,14 +182,14 @@ export function MainLayout({
 									style={{
 										/*
 								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,*/
-										marginBottom: `${isFooterFixed ? (footerRef?.current?.offsetHeight ? footerRef.current.offsetHeight : 96) : 0}px`
+										marginBottom: `${isFooterFixed ? footerHeight : 0}px`
 									}}
 								>
-									{headerRef?.current?.offsetHeight && (
+									{headerHeight && (
 										<div
 											className="w-full"
 											style={{
-												height: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight + (mainHeaderSlot ? -30 : 0) : 95}px`
+												height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
 											}}
 										></div>
 									)}

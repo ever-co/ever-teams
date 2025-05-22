@@ -1,5 +1,5 @@
-import MainLogo from './mainLogo';
-import { TeamsDropDown } from '@/core/components/shared/teams/teams-dropdown';
+import MainLogo from './main-logo';
+import { TeamsDropDown } from '@/core/components/duplicated-components/teams-dropdown';
 import Profile from './profile';
 
 /**

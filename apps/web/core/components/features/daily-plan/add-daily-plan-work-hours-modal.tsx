@@ -1,10 +1,12 @@
-import { Card, InputField, Modal, SpinnerLoader, Text } from '@/core/components';
-import { Button } from '@/core/components/ui/button';
+import { Modal, SpinnerLoader, Text } from '@/core/components';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { IDailyPlan } from '@/core/types/interfaces';
 import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
+import { Card } from '../../duplicated-components/card';
+import { InputField } from '../../duplicated-components/_input';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;

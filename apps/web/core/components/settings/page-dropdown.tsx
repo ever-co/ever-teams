@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import { IPagination } from '@/core/types/interfaces/IPagination';
 import { clsxm } from '@/core/lib/utils';
 import { PaginationItems, mappaginationItems } from './page-items';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ChevronDownIcon } from 'lucide-react';
 
 export const PaginationDropdown = ({

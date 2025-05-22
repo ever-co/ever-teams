@@ -1,4 +1,4 @@
-import PageComponent from '@/core/components/projects/page-component';
+import PageComponent from '@/core/components/pages/projects/page-component';
 
 export default function Page() {
 	return <PageComponent />;

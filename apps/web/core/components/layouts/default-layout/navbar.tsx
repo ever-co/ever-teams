@@ -4,20 +4,23 @@ import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
-import { RequestToJoinModal } from '@/core/components/layouts/default-layout/header/request-to-join-modal';
-import Collaborate from '@/core/components/shared/collaborate';
 import { Button, Container } from '@/core/components';
-import { KeyboardShortcuts } from '@/core/components/keyboard-shortcuts';
-import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from '@/core/components/features';
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
 import { useAtom } from 'jotai';
+import { DefaultCreateAction } from '../../features/layouts/header/create-default-action';
+import { MinTimerFrame } from '../../timer/timer';
+import Collaborate from '../../collaborate';
+import { TeamsDropDown } from '../../teams/teams-dropdown';
+import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
+import { UserNavAvatar } from '../../users/user-nav-menu';
+import { RequestToJoinModal } from '../../features/teams/request-to-join-modal';
 
 const HeaderSkeleton = () => {
 	return (
-		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[100]">
+		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
 			<Container>
 				<div className="w-full flex justify-between items-center min-h-[70px]">
 					<Skeleton height={45} width={200} borderRadius={20} className="dark:bg-[#272930]" />
@@ -62,9 +65,11 @@ export function Navbar({
 	return !user && !notFound && !publicTeam ? (
 		<HeaderSkeleton />
 	) : (
-		<nav className={cn(className)}>
+		<nav className={cn('flex gap-3 items-center', className)}>
+			<DefaultCreateAction publicTeam={publicTeam} />
+
 			{!notFound && (
-				<div className="flex ml-auto items-center gap-10 min-h-[90px]">
+				<div className="flex ml-auto items-center gap-8 min-h-[90px]">
 					{publicTeam && (
 						<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
 							{t('common.JOIN_REQUEST')}
@@ -72,7 +77,7 @@ export function Navbar({
 					)}
 					{showTimer && <MinTimerFrame />}
 
-					<div className="items-center hidden gap-4 md:flex">
+					<div className="items-center hidden gap-3.5 md:flex">
 						{!publicTeam && <Collaborate />}
 
 						{isTeamMember && isTeamDropdownAllowed ? (
