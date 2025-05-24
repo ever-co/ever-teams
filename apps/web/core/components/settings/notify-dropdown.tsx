@@ -1,10 +1,13 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { INotify } from '@/core/types/interfaces/to-review/INotify';
 import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { NotifyItem, mapNotifyItems } from './notify-item';
+
+export interface INotify {
+	title: string;
+}
 
 export const NotifyDropdown = ({
 	setValue,

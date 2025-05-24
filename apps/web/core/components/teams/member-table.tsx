@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces/to-review';
+import { IRole, IOrganizationTeamMember, IRole } from '@/core/types/interfaces/to-review';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -20,10 +20,10 @@ import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
 
-export const MemberTable = ({ members }: { members: OT_Member[] }) => {
+export const MemberTable = ({ members }: { members: IOrganizationTeamMember[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
-		usePagination<OT_Member>(members, 5);
+		usePagination<IOrganizationTeamMember>(members, 5);
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
@@ -31,10 +31,10 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
-	const editMemberRef = useRef<OT_Member | null>(null);
+	const editMemberRef = useRef<IOrganizationTeamMember | null>(null);
 
 	const updateTeamMember = useCallback(
-		(updatedMember: OT_Member) => {
+		(updatedMember: IOrganizationTeamMember) => {
 			const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 			if (teamIndex === -1) return;
 
@@ -49,7 +49,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		[activeTeamId, organizationTeams, setOrganizationTeams]
 	);
 
-	const handleEdit = useCallback((member: OT_Member) => {
+	const handleEdit = useCallback((member: IOrganizationTeamMember) => {
 		editMemberRef.current = member;
 	}, []);
 
@@ -60,8 +60,8 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					.filter((member: OT_Member) => member.role?.name === 'MANAGER')
-					.map((manager: OT_Member) => manager.employee.id) || [];
+					.filter((member: IOrganizationTeamMember) => member.role?.name === 'MANAGER')
+					.map((manager: IOrganizationTeamMember) => manager.employee.id) || [];
 
 			if (isPromotingToManager) {
 				// Add new manager
@@ -109,7 +109,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		}
 
 		const names = name.split(' ');
-		const tempMember: OT_Member | null = cloneDeep(editMemberRef.current);
+		const tempMember: IOrganizationTeamMember | null = cloneDeep(editMemberRef.current);
 
 		if (tempMember?.employee?.user) {
 			tempMember.employee.fullName = name;
@@ -315,6 +315,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	);
 };
 
-const getRoleString = (role: OT_Role | undefined) => {
+const getRoleString = (role: IRole | undefined) => {
 	return role?.name || 'MEMBER';
 };

@@ -3,7 +3,7 @@ import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
-import { IInvite, IInviteProps } from '../../../types/interfaces/to-review/hooks';
+import { IInvite } from '../../../types/interfaces/to-review/hooks';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/core/hooks/common/use-toast';
@@ -13,6 +13,13 @@ const initialValues: IInvite = {
 	email: '',
 	name: ''
 };
+
+export interface IInviteProps {
+	isOpen: boolean;
+	Fragment?: any;
+	closeModal: any;
+	task: ITask | null;
+}
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initialValues);
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =

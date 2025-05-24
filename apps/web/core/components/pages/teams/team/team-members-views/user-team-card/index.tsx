@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
-import { IClassName, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces/to-review';
+import { IClassName, IOrganizationTeam, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
@@ -42,9 +42,9 @@ import { Text } from '@/core/components';
 
 type IUserTeamCard = {
 	active?: boolean;
-	member?: IOrganizationTeamList['members'][number];
+	member?: IOrganizationTeam['members'][number];
 	publicTeam?: boolean;
-	members?: IOrganizationTeamList['members'];
+	members?: IOrganizationTeam['members'];
 	draggable: boolean;
 	onDragStart: () => any;
 	onDragEnter: () => any;
@@ -82,7 +82,7 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
+	const showActivityFilter = (type: 'DATE' | 'TICKET', member: IOrganizationTeamMember | null) => {
 		setShowActivity((prev) => !prev);
 		setUserDetailAccordion('');
 		setActivityFilter((prev) => ({

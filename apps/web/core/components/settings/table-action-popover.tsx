@@ -1,4 +1,4 @@
-import { OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamMember, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
@@ -15,8 +15,8 @@ import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 
 type Props = {
-	member: OT_Member;
-	handleEdit?: (member: OT_Member) => void;
+	member: IOrganizationTeamMember;
+	handleEdit?: (member: IOrganizationTeamMember) => void;
 	status?: 'settings' | 'profile';
 };
 /**

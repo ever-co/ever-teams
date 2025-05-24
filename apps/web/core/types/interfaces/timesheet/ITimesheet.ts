@@ -1,7 +1,7 @@
 import { TimesheetStatus } from '../../enums/timesheet';
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
-import { ITimeLog } from '../timelog/ITimeLog';
+import { ITimeLog } from '../time-log/ITimeLog';
 import { IUser } from '../user/IUser';
 
 export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
@@ -23,4 +23,19 @@ export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	isBilled?: boolean;
 	status: TimesheetStatus;
 	isEdited?: boolean;
+}
+export interface IUpdateTimesheetStatus {
+	ids: ID[] | ID;
+	organizationId?: ID;
+	status: ID;
+	tenantId?: ID;
+}
+
+export interface ITimesheetCountsStatistics {
+	employeesCount: number;
+	projectsCount: number;
+	weekActivities: number;
+	weekDuration: number;
+	todayActivities: number;
+	todayDuration: number;
 }

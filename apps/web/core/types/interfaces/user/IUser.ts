@@ -1,14 +1,14 @@
 import { TimeFormatEnum } from '../../enums/date';
-import { IBasePerTenantEntityModel, ID } from '../base-interfaces';
+import { IBasePerTenantEntityModel, ID } from '../global/base-interfaces';
 import { IRole } from '../role/IRole';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { IOrganization } from '../organization/IOrganization';
 import { ITag } from '../tag/ITag';
-import { IInvite } from '../to-review';
 import { ISocialAccount } from './ISocialAccount';
 import { IUserOrganization } from '../organization/IUserOrganization';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
+import { IInvite } from './IInvite';
 
 export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset {
 	thirdPartyId?: ID;

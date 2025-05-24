@@ -11,7 +11,7 @@ import { APIService } from '../../api.service';
 import {
 	ICustomSmtp,
 	IEmployee,
-	ILoginResponse,
+	IAuthResponse,
 	IOrganization,
 	IOrganizationCreate,
 	IOrganizationTeam,
@@ -44,7 +44,7 @@ class RegisterService extends APIService {
 	};
 
 	loginUser = async (email: string, password: string) => {
-		return this.post<ILoginResponse>('/auth/login', { email, password }).then(({ data }) => data);
+		return this.post<IAuthResponse>('/auth/login', { email, password }).then(({ data }) => data);
 	};
 
 	createTenantSmtp = async ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
@@ -158,7 +158,7 @@ class RegisterService extends APIService {
 			userId: user.id
 		});
 
-		const response: AxiosResponse<{ loginRes: ILoginResponse; team: IOrganizationTeam; employee: IEmployee }> = {
+		const response: AxiosResponse<{ loginRes: IAuthResponse; team: IOrganizationTeam; employee: IEmployee }> = {
 			data: { loginRes, team, employee },
 			status: 200,
 			statusText: '',

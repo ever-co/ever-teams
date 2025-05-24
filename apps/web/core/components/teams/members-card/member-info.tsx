@@ -1,4 +1,4 @@
-import { MC_EditableValues } from '@/core/types/interfaces/to-review';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
 import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ export function MemberInfo({
 }: {
 	member: IUser | undefined;
 	editMode: boolean;
-	editable: MC_EditableValues;
+	editable: MemberCard_EditableValues;
 	onSubmitName?: () => void;
 	onChangeName: ChangeEventHandler<HTMLInputElement>;
 }) {

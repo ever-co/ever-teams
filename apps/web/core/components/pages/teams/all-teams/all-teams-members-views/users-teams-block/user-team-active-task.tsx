@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { useEffect, useState } from 'react';
 import { TaskBlockInfo } from '../../../team/team-members-views/user-team-block/task-info';
 
@@ -7,7 +7,7 @@ export default function UserTeamActiveBlockTaskInfo({
 	member,
 	activeTaskId
 }: {
-	member: OT_Member;
+	member: IOrganizationTeamMember;
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);

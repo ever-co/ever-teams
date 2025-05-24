@@ -1,5 +1,5 @@
 import { CurrenciesEnum } from '@/core/types/enums/currency';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
 import { IOrganizationTeam } from '../../team/IOrganizationTeam';
 import { IUser } from '../../user/IUser';
 import { IOrganizationProject } from '../../project/IOrganizationProject';
@@ -95,7 +95,9 @@ export interface IManagerAssignable {
 	assignedAt?: Date; // Assigned At Manager for the entity
 }
 
-export interface IRelationalEmployeeEntity {
+export interface IRelationalEmployee {
 	employeeId?: ID; // ID of the employee, if available.
 	employee?: IEmployee;
 }
+export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
+export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;

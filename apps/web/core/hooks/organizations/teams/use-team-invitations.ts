@@ -1,6 +1,6 @@
 'use client';
 
-import { MyInvitationActionEnum } from '@/core/types/interfaces/to-review';
+import { InviteActionEnum } from '@/core/types/interfaces/to-review';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
@@ -127,13 +127,13 @@ export function useTeamInvitations() {
 		[myInvitationsList, setMyInvitationsList]
 	);
 	const acceptRejectMyInvitation = useCallback(
-		(id: string, action: MyInvitationActionEnum) => {
+		(id: string, action: InviteActionEnum) => {
 			return acceptRejectMyInvitationsQueryCall(id, action).then((res) => {
 				if (res.data.message) {
 					return res.data;
 				}
 
-				if (action === MyInvitationActionEnum.ACCEPTED) {
+				if (action === InviteActionEnum.ACCEPTED) {
 					refreshToken().then(() => {
 						window.location.reload();
 					});

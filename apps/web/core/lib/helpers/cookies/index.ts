@@ -13,7 +13,7 @@ import {
 	MEET_JWT_TOKEN_COOKIE_NAME,
 	ACTIVE_PROJECT_COOKIE_NAME
 } from '@/core/constants/config/constants';
-import { IDecodedRefreshToken } from '@/core/types/interfaces/to-review/IAuthentication';
+import { IDecodedRefreshToken } from '@/core/types/interfaces/to-review/auth/IAuth';
 import { deleteCookie, getCookie, setCookie } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
 

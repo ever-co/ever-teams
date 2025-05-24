@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces/to-review';
+import { IClassName, ITimerStatus, ITimerStatusEnum, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
@@ -50,7 +50,7 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 
 export function getTimerStatusValue(
 	timerStatus: ITimerStatus | null,
-	member: OT_Member | undefined,
+	member: IOrganizationTeamMember | undefined,
 	publicTeam?: boolean
 ): ITimerStatusEnum {
 	const isSuspended = () => !member?.employee?.isActive && !publicTeam;

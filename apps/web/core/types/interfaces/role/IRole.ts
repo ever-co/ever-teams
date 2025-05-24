@@ -1,4 +1,4 @@
-import { IBasePerTenantEntityModel } from '../base-interfaces';
+import { IBasePerTenantEntityModel } from '../global/base-interfaces';
 import { IRolePermission } from './IRolePermission';
 
 export interface IRole extends IBasePerTenantEntityModel {

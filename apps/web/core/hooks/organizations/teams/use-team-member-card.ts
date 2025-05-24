@@ -1,7 +1,7 @@
 'use client';
 
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { IOrganizationTeamList, ITask, Nullable } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -17,10 +17,10 @@ import { useOutsideClick } from '../../common';
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
  * manager, whether or not the user is the authenticated user, and the last task the user worked on
- * @param {IOrganizationTeamList['members'][number] | undefined} member -
+ * @param {IOrganizationTeam['members'][number] | undefined} member -
  * IOrganizationTeamList['members'][number] | undefined
  */
-export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
+export function useTeamMemberCard(member: IOrganizationTeam['members'][number] | undefined) {
 	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);

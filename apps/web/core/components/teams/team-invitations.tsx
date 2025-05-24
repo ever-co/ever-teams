@@ -1,7 +1,7 @@
 'use client';
 
 import { useModal, useTeamInvitations } from '@/core/hooks';
-import { MyInvitationActionEnum } from '@/core/types/interfaces/to-review';
+import { InviteActionEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
@@ -26,7 +26,7 @@ export function TeamInvitations(props: IProps) {
 		acceptRejectMyInvitationsLoading
 	} = useTeamInvitations();
 	const { isOpen, closeModal, openModal } = useModal();
-	const [action, setAction] = useState<MyInvitationActionEnum>();
+	const [action, setAction] = useState<InviteActionEnum>();
 	const [actionInvitationId, setActionInvitationId] = useState<string>();
 
 	const [removedInvitations, setRemovedInvitations] = useState<string[]>([]);
@@ -48,7 +48,7 @@ export function TeamInvitations(props: IProps) {
 			return acceptRejectMyInvitation(actionInvitationId, action);
 		}
 	}, [action, actionInvitationId, acceptRejectMyInvitation]);
-	const handleOpenModal = (invitationid: string, action: MyInvitationActionEnum) => {
+	const handleOpenModal = (invitationid: string, action: InviteActionEnum) => {
 		setAction(action);
 		setActionInvitationId(invitationid);
 		openModal();
@@ -89,7 +89,7 @@ export function TeamInvitations(props: IProps) {
 							<Button
 								className="pt-2 pb-2 rounded-xl"
 								onClick={() => {
-									handleOpenModal(invitation.id, MyInvitationActionEnum.ACCEPTED);
+									handleOpenModal(invitation.id, InviteActionEnum.ACCEPTED);
 								}}
 							>
 								<TickCircleIcon className="text-white w-full max-w-[17px]" />
@@ -99,7 +99,7 @@ export function TeamInvitations(props: IProps) {
 								className="pt-2 pb-2 rounded-xl text-primary dark:text-white"
 								variant="outline-dark"
 								onClick={() => {
-									handleOpenModal(invitation.id, MyInvitationActionEnum.REJECTED);
+									handleOpenModal(invitation.id, InviteActionEnum.REJECTED);
 								}}
 							>
 								<CloseCircleIcon className="text-primary dark:text-white w-[18px]" />
@@ -123,11 +123,11 @@ export function TeamInvitations(props: IProps) {
 				onAction={handleAcceptReject}
 				loading={acceptRejectMyInvitationsLoading}
 				title={
-					action === MyInvitationActionEnum.ACCEPTED
+					action === InviteActionEnum.ACCEPTED
 						? t('pages.home.CONFIRM_ACCEPT_INVITATION')
 						: t('pages.home.CONFIRM_REJECT_INVITATION')
 				}
-				action={action || MyInvitationActionEnum.ACCEPTED}
+				action={action || InviteActionEnum.ACCEPTED}
 			/>
 		</div>
 	);
@@ -146,7 +146,7 @@ export const ConfirmModal = ({
 	title: string;
 	onAction: () => any;
 	loading: boolean;
-	action: MyInvitationActionEnum;
+	action: InviteActionEnum;
 }) => {
 	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
@@ -182,7 +182,7 @@ export const ConfirmModal = ({
 							</Button>
 
 							<Button
-								variant={action === MyInvitationActionEnum.ACCEPTED ? 'primary' : 'danger'}
+								variant={action === InviteActionEnum.ACCEPTED ? 'primary' : 'danger'}
 								type="submit"
 								className="font-medium rounded-lg  md:min-w-[180px]"
 								disabled={loading}
@@ -192,7 +192,7 @@ export const ConfirmModal = ({
 										if (res?.message) {
 											setNotifyMessage(
 												res?.message ||
-													(MyInvitationActionEnum.ACCEPTED
+													(InviteActionEnum.ACCEPTED
 														? t('pages.invite.ERROR_WHILE_ACCEPTING_INVITATION')
 														: t('pages.invite.ERROR_WHILE_REJECTING_INVITATION'))
 											);

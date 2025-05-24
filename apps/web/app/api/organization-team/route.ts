@@ -1,5 +1,5 @@
-import { IUserOrganization } from '@/core/types/interfaces/to-review/IOrganization';
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review/IOrganizationTeam';
+import { IUserOrganization } from '@/core/types/interfaces/organization/IUserOrganization';
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,
@@ -75,7 +75,7 @@ export async function GET(req: Request) {
 					}
 					return acc;
 				},
-				{ items: [] as IOrganizationTeamList[], total: 0 }
+				{ items: [] as IOrganizationTeam[], total: 0 }
 			)
 		);
 

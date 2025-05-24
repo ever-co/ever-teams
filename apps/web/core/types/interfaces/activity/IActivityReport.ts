@@ -1,4 +1,8 @@
-import { IUser } from '../../user/IUser';
+import { IEmployee } from '../organization/employee/IEmployee';
+import { IOrganizationContact } from '../organization/IOrganizationContact';
+import { IOrganizationProject } from '../project/IOrganizationProject';
+import { ITask } from '../task/ITask';
+import { IUser } from '../user/IUser';
 
 /**
  * Base interface for entities with tenant and organization
@@ -146,4 +150,40 @@ export enum ActivityReportGroupByEnum {
 	EMPLOYEE = 'employee',
 	PROJECT = 'project',
 	CLIENT = 'client'
+}
+
+export interface ITimerValue {
+	TRACKED: number;
+	MANUAL: number;
+	IDLE: number;
+	RESUMED: number;
+}
+
+export interface ITimeLogReportDailyChart {
+	date: string;
+	value: ITimerValue;
+}
+
+export interface ITimeLogGroupedDailyReport {
+	date: string;
+	logs: ITimerProjectLog[];
+}
+
+export interface ITimerTaskLog {
+	task: ITask;
+	description: string;
+	duration: number;
+	client: IOrganizationContact;
+}
+
+export interface ITimerEmployeeLog {
+	employee: IEmployee;
+	sum: number;
+	tasks: ITimerTaskLog[];
+	activity: number;
+}
+
+export interface ITimerProjectLog {
+	project: IOrganizationProject;
+	employeeLogs: ITimerEmployeeLog[];
 }

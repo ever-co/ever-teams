@@ -1,11 +1,11 @@
-import { TimeLogSourceEnum, TimeLogType } from '../../enums/timesheet';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
-import { IEmployee } from '../to-review/IEmployee';
+import { IEmployee } from '../organization/employee/IEmployee';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
 import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
 import { ITimeSlot } from '../time-slot/ITimeSlot';
 import { ITimesheet } from '../timesheet/ITimesheet';
+import { TimeLogSourceEnum, TimeLogType } from '../../enums/timer';
 
 export interface ITimeLog
 	extends IBasePerTenantAndOrganizationEntityModel,

@@ -14,6 +14,11 @@ import Turnstile from 'react-turnstile';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 
+export interface IStepProps {
+	handleOnChange: any;
+	values: IRegisterDataAPI;
+}
+
 function AuthTeam() {
 	const {
 		handleSubmit,

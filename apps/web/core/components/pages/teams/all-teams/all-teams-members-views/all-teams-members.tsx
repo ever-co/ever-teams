@@ -1,10 +1,14 @@
 import { useAtomValue } from 'jotai';
 import { IssuesView } from '@/core/constants/config/constants';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { IOrganizationTeamList } from '@/core/types/interfaces';
 import { fullWidthState } from '@/core/stores/common/full-width';
 =======
 import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
+=======
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
+>>>>>>> cbd537495 (reorganize types by features)
 import { fullWidthState } from '@/core/stores/fullWidth';
 >>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
 import { Container } from '@/core/components';
@@ -18,7 +22,7 @@ export default function AllTeamsMembers({
 	teams,
 	view = IssuesView.CARDS
 }: {
-	teams: IOrganizationTeamList[];
+	teams: IOrganizationTeam[];
 	view: IssuesView;
 }) {
 	const fullWidth = useAtomValue(fullWidthState);

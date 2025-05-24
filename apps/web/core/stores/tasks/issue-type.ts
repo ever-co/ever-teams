@@ -1,13 +1,13 @@
-import { IIssueTypesItemList } from '@/core/types/interfaces/to-review/IIssueTypes';
+import { IIssueType } from '@/core/types/interfaces/to-review/IIssueTypes';
 import { atom } from 'jotai';
 
-export const issueTypesListState = atom<IIssueTypesItemList[]>([]);
+export const issueTypesListState = atom<IIssueType[]>([]);
 
 export const activeIssueTypesIdState = atom<string | null>(null);
 
 export const issueTypesFetchingState = atom<boolean>(false);
 
-export const activeIssueTypesState = atom<IIssueTypesItemList | null>((get) => {
+export const activeIssueTypesState = atom<IIssueType | null>((get) => {
 	const issueTypes = get(issueTypesListState);
 	const activeId = get(activeIssueTypesIdState);
 	return issueTypes.find((issueType) => issueType.id === activeId) || issueTypes[0] || null;

@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { FileStorageProvider } from '../file-storage/IFileStorageProvider';
 import { ITimeSlot } from '../time-slot/ITimeSlot';
 import { IRelationalUser } from '../user/IUser';

@@ -25,3 +25,11 @@ export enum TimeLogSourceEnum {
 	TEAMS = 'TEAMS',
 	CLOC = 'CLOC'
 }
+
+export enum TimerStatusEnum {
+	RUNNING = 'running',
+	IDLE = 'idle',
+	PAUSE = 'pause',
+	ONLINE = 'online',
+	SUSPENDED = 'suspended'
+}

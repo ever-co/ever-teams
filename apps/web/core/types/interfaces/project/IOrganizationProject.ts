@@ -6,14 +6,14 @@ import {
 	ProjectRelationEnum
 } from '../../enums/project';
 import { TaskListTypeEnum, ITaskStatusNameEnum } from '../../enums/task';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { CustomFieldsObject } from '../organization/IOrganization';
 import { ITask } from '../task/ITask';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { ITimeLog } from '../timelog/ITimeLog';
-import { IOrganizationTeamList } from '../to-review';
+import { IOrganizationTeam } from '../to-review';
 import {
 	ITag,
 	OrganizationProjectBudgetTypeEnum,
@@ -106,7 +106,7 @@ export interface ICreateProjectRequest {
 	currency?: string;
 	memberIds?: string[];
 	managerIds?: string[];
-	teams?: IOrganizationTeamList[];
+	teams?: IOrganizationTeam[];
 	status?: ITaskStatusNameEnum;
 	isActive?: boolean;
 	isArchived?: boolean;

@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
 

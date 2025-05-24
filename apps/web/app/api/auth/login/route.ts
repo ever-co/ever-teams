@@ -1,7 +1,8 @@
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ILoginDataAPI, ILoginResponse as ILoginResponse } from '@/core/types/interfaces/to-review/IAuthentication';
+import { ILoginDataAPI } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse as IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -14,7 +15,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const body = (await req.json()) as unknown as ILoginDataAPI;
-	let loginResponse: ILoginResponse | null = null;
+	let loginResponse: IAuthResponse | null = null;
 
 	const { errors, valid: formValid } = authFormValidate(['email', 'code'], body as any);
 

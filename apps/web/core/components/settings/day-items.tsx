@@ -1,8 +1,11 @@
-import { IDay } from '@/core/types/interfaces/to-review/IDay';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type DayItem = DropdownItem<IDay>;
+
+export interface IDay {
+	title: string;
+}
 
 export function mapDayItems(DayLIst: IDay[]) {
 	const items = DayLIst.map<DayItem>((Day) => {

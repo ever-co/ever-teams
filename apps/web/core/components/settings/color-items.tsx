@@ -1,8 +1,11 @@
-import { IColor } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type IColorItem = DropdownItem<IColor>;
+export interface IColor {
+	title: string;
+	color: string;
+}
 
 export function mapColorItems(colors: IColor[]) {
 	const items = colors.map<IColorItem>((color: IColor) => {

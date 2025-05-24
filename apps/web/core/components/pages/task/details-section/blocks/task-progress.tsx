@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { ITime, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITime, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
@@ -38,7 +38,7 @@ const TaskProgress = () => {
 
 	const members = activeTeam?.members || [];
 
-	const currentUser: OT_Member | undefined = members.find((m) => {
+	const currentUser: IOrganizationTeamMember | undefined = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
 
@@ -71,7 +71,7 @@ const TaskProgress = () => {
 	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
-		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
+		const matchingMembers: IOrganizationTeamMember[] | undefined = activeTeam?.members.filter((member) =>
 			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
@@ -182,11 +182,11 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 	const [task] = useAtom(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
-	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
+	const matchingMembers: IOrganizationTeamMember[] | undefined = activeTeam?.members.filter((member) =>
 		task?.members.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
-	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
+	const findUserTotalWorked = (user: IOrganizationTeamMember, id: string | undefined) => {
 		return user?.totalWorkedTasks?.find((task: any) => task?.id === id)?.duration || 0;
 	};
 

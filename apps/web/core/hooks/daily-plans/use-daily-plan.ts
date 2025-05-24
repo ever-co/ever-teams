@@ -14,7 +14,7 @@ import {
 import {
 	ICreateDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
+	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
 } from '@/core/types/interfaces/to-review';
 import { useFirstLoad } from '../common/use-first-load';
@@ -294,7 +294,7 @@ export function useDailyPlan() {
 	);
 
 	const removeManyTaskPlans = useCallback(
-		async (data: IRemoveTaskFromManyPlans, taskId: string) => {
+		async (data: IRemoveTaskFromManyPlansRequest, taskId: string) => {
 			const res = await removeManyTaskPlanQueryCall({ taskId, data });
 			const updatedProfileDailyPlans = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
 				.map((plan) => {

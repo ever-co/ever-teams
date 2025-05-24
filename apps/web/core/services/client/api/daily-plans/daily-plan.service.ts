@@ -4,7 +4,7 @@ import {
 	ID,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
+	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan,
 	PaginationResponse
 } from '@/core/types/interfaces/to-review';
@@ -117,7 +117,7 @@ class DailyPlanService extends APIService {
 		return this.put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 	};
 
-	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) => {
+	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlansRequest }) => {
 		const organizationId = getOrganizationIdCookie();
 		return this.put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 	};

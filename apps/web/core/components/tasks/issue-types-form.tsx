@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIssueType } from '@/core/hooks';
-import { IIcon, IIssueTypesItemList } from '@/core/types/interfaces/to-review';
+import { IIcon, IIssueType } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -19,7 +19,7 @@ export const IssueTypesForm = () => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
-	const [edit, setEdit] = useState<IIssueTypesItemList | null>(null);
+	const [edit, setEdit] = useState<IIssueType | null>(null);
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',

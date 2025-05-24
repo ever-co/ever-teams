@@ -1,8 +1,11 @@
-import { IPosition } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type PositionItem = DropdownItem<IPosition>;
+
+export interface IPosition {
+	title: string;
+}
 
 export function mapPositionItems(positions: IPosition[]) {
 	const items = positions.map((position: IPosition) => {

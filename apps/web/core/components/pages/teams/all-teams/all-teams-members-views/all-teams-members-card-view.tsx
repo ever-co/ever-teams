@@ -1,9 +1,9 @@
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import UserTeamCard from './users-teams-card/user-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 
-export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeamList[] }) {
+export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeam[] }) {
 	return (
 		<div className="flex flex-col gap-5 w-full">
 			<Accordion type="multiple" className="text-sm flex flex-col gap-5" defaultValue={teams.map((t) => t.name)}>

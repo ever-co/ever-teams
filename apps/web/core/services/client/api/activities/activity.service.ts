@@ -4,7 +4,7 @@ import qs from 'qs';
 import { IActivity, TimeLogType } from '@/core/types/interfaces/to-review';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivity } from '@/core/types/interfaces/activity/IActivity';
-import { IActivityReport } from '@/core/types/interfaces/to-review/activity-report/IActivityReport';
+import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
 
 class ActivityService extends APIService {
 	getActivities = async ({

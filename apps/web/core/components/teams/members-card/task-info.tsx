@@ -1,13 +1,13 @@
 import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
-import { MC_EditableValues } from '@/core/types/interfaces/to-review';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
 
 type Props = {
 	memberTask: ITask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
-	editable: MC_EditableValues;
+	editable: MemberCard_EditableValues;
 	onSubmitName: () => void;
 	onChangeName: ChangeEventHandler<HTMLInputElement>;
 	setEditMode: Dispatch<SetStateAction<boolean>>;

@@ -1,10 +1,6 @@
 import { PaginationResponse } from '@/core/types/interfaces/to-review';
-import {
-	ICreateEmployee,
-	IEmployee,
-	IUpdateEmployee,
-	IWorkingEmployee
-} from '@/core/types/interfaces/to-review/IEmployee';
+import { IEmployee, IEmployee } from '@/core/types/interfaces/to-review/IEmployee';
+import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 
@@ -27,7 +23,7 @@ export function getOrganizationEmployees(bearer_token: string, tenantId: string,
 
 	const query = qs.stringify(params);
 
-	return serverFetch<PaginationResponse<IWorkingEmployee>>({
+	return serverFetch<PaginationResponse<IEmployee>>({
 		path: `/employee/pagination?${query}`,
 		method: 'GET',
 		bearer_token,

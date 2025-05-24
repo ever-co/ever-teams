@@ -6,15 +6,15 @@ import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { EstimationProgress } from './estimation-progress';
 import { useTranslations } from 'next-intl';
-import { MC_EditableValues } from '@/core/types/interfaces/to-review';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
 
 type Props = {
 	memberTask: ITask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
-	editable: MC_EditableValues;
+	editable: MemberCard_EditableValues;
 	onSubmitEstimation: () => void;
-	onChangeEstimate: (c: keyof MC_EditableValues) => any;
+	onChangeEstimate: (c: keyof MemberCard_EditableValues) => any;
 	setEditMode: Dispatch<SetStateAction<boolean>>;
 	loading: boolean;
 	isAuthUser: boolean;

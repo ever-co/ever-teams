@@ -1,5 +1,5 @@
 import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
@@ -12,7 +12,7 @@ import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { InputField } from '@/core/components/duplicated-components/_input';
 
 export function TaskCell({ row }: { row: any }) {
-	const member = row.original as OT_Member;
+	const member = row.original as IOrganizationTeamMember;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const publicTeam = false;
@@ -33,7 +33,7 @@ export function TaskCell({ row }: { row: any }) {
 
 export function UserInfoCell({ cell }: Readonly<{ cell: any }>) {
 	const row = get(cell, 'row', {});
-	const member = row.original as OT_Member;
+	const member = row.original as IOrganizationTeamMember;
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
 
@@ -41,7 +41,7 @@ export function UserInfoCell({ cell }: Readonly<{ cell: any }>) {
 }
 
 export function WorkedOnTaskCell({ row }: { row: any }) {
-	const member = row.original as OT_Member;
+	const member = row.original as IOrganizationTeamMember;
 	const memberInfo = useTeamMemberCard(member);
 
 	return (
@@ -56,7 +56,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 }
 
 export function TaskEstimateInfoCell({ row }: { row: any }) {
-	const member = row.original as OT_Member;
+	const member = row.original as IOrganizationTeamMember;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
@@ -72,7 +72,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 
 export function ActionMenuCell({ cell }: { cell: any }) {
 	const row = get(cell, 'row', {});
-	const member = row.original as OT_Member;
+	const member = row.original as IOrganizationTeamMember;
 	const active = get(cell, 'column.columnDef.meta.active', false);
 	const memberInfo = useTeamMemberCard(member);
 

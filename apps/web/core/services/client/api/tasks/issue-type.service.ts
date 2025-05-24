@@ -1,9 +1,4 @@
-import {
-	DeleteResponse,
-	IIssueTypesCreate,
-	IIssueTypesItemList,
-	PaginationResponse
-} from '@/core/types/interfaces/to-review';
+import { DeleteResponse, IIssueTypesCreate, IIssueType, PaginationResponse } from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
@@ -27,7 +22,7 @@ class IssueTypeService extends APIService {
 	getIssueTypeList = async (tenantId: string, organizationId: string, activeTeamId: string | null) => {
 		const endpoint = `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
 
-		return this.get<PaginationResponse<IIssueTypesItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId });
 	};
 }
 

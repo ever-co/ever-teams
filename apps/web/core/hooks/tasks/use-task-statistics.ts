@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask, Nullable } from '@/core/types/interfaces/to-review';
+import { Nullable } from '@/core/types/interfaces/to-review';
 
 import {
 	activeTaskStatisticsState,
@@ -19,7 +19,7 @@ import { statisticsService } from '@/core/services/client/api/timesheets/statist
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();

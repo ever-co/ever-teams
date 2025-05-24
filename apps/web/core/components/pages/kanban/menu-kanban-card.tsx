@@ -6,7 +6,7 @@ import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
-import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
@@ -193,7 +193,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITask; me
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: OT_Member[];
+	teamMembers: IOrganizationTeamMember[];
 	task: ITask;
 	key?: string;
 }
@@ -202,7 +202,7 @@ interface ITeamMemberSelectProps {
  * A multi select component that allows to assign members to a task
  *
  * @param {object} props - The props object
- * @param {OT_Member[]} props.teamMembers - Members of the current team
+ * @param {IOrganizationTeamMember[]} props.teamMembers - Members of the current team
  * @param {ITask} props.task - The task
  *
  * @return {ReactNode} The multi select component
@@ -263,7 +263,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 
 interface ITeamMemberOptionProps {
 	isAssignee: boolean;
-	member: OT_Member;
+	member: IOrganizationTeamMember;
 	task: ITask;
 	key?: string;
 }

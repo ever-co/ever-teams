@@ -3,7 +3,7 @@ import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@/core/hooks';
-import { IIssueTypesItemList } from '@/core/types/interfaces/to-review';
+import { IIssueType } from '@/core/types/interfaces/to-review';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
@@ -20,7 +20,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
 	const { issueTypes, editIssueType, editIssueTypeLoading } = useIssueType();
-	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
+	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 
 	return (

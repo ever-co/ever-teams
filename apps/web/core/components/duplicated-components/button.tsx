@@ -1,4 +1,6 @@
-import { IButtonProps } from '@/core/types/interfaces/to-review/hooks';
+interface IButtonProps {
+	value: string;
+}
 
 const Button = ({ value }: IButtonProps) => {
 	return (

@@ -1,11 +1,11 @@
-import { IOrganizationTeamList, OT_Member } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import UserTeamBlockCard from './users-teams-block/member-block';
 
-interface Employee extends OT_Member {
-	teams: { team: IOrganizationTeamList; activeTaskId?: string | null }[];
+interface Employee extends IOrganizationTeamMember {
+	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
 }
 
-export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizationTeamList[] }) {
+export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizationTeam[] }) {
 	const employees: Employee[] = teams.flatMap((team) =>
 		team.members.map((member) => ({
 			...member,

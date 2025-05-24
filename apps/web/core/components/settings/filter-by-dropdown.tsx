@@ -4,7 +4,8 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import { IFilter } from '@/core/types/interfaces/to-review/IFilter';
 import { clsxm } from '@/core/lib/utils';
 import { FilterItem, mapFilterItems } from './filter-items';
-import { MemberSettingfilterByType } from '@/core/types/interfaces/to-review/IMemberSetting';
+
+type MemberSettingfilterByType = 'Name' | 'Title' | 'Roles' | 'Joined/Left' | 'Status';
 
 export const FilterDropdown = ({
 	setValue,

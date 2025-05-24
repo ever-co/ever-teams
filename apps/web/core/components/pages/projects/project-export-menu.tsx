@@ -6,11 +6,11 @@ import { useTranslations } from 'next-intl';
 import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
 
 interface IProps {
 	projects: ProjectViewDataType[];
-	activeTeam: IOrganizationTeamList | null;
+	activeTeam: IOrganizationTeam | null;
 }
 
 export function ProjectExportMenu(props: IProps) {

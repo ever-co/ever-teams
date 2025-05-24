@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { ITasksStatistics } from '../types/interfaces/task/ITask';

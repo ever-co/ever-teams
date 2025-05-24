@@ -1,8 +1,10 @@
-import { IFilter } from '@/core/types/interfaces/to-review/IFilter';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type FilterItem = DropdownItem<IFilter>;
+export interface IFilter {
+	title: string;
+}
 
 export function mapFilterItems(FilterLIst: IFilter[]) {
 	const items = FilterLIst.map<FilterItem>((filter) => {

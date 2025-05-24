@@ -1,5 +1,5 @@
 import { useTeamInvitations } from '@/core/hooks';
-import { IClassName, IInvitation } from '@/core/types/interfaces/to-review';
+import { IClassName, IInvite } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
@@ -13,7 +13,7 @@ import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
 
-type Props = IClassName & { invitation: IInvitation };
+type Props = IClassName & { invitation: IInvite };
 
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();

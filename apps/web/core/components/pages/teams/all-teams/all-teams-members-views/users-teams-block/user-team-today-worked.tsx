@@ -1,13 +1,13 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 
-export function BlockCardMemberTodayWorked({ member }: { member: OT_Member }) {
+export function BlockCardMemberTodayWorked({ member }: { member: IOrganizationTeamMember }) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 

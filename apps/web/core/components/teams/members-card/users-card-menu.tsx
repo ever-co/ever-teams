@@ -1,5 +1,5 @@
 import { useTaskInput } from '@/core/hooks';
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review/IOrganizationTeam';
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
@@ -27,7 +27,7 @@ interface IOption {
 	extramenu?: boolean;
 }
 
-type IMember = IOrganizationTeamList['members'][number];
+type IMember = IOrganizationTeam['members'][number];
 
 interface IDropdownUserProps {
 	setEdit: Dispatch<SetStateAction<boolean>>;

@@ -1,17 +1,15 @@
-import { TimeLogType } from '@/core/types/interfaces/to-review/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import {
-	ITimerDailyLog,
-	ITimerLogGrouped,
-	ITimesheetStatisticsCounts,
-	TimesheetLog,
-	UpdateTimesheet,
-	UpdateTimesheetStatus
-} from '@/core/types/interfaces/-timer/ITimerLog';
-import { IUpdateTimesheetStatus } from '@/core/types/interfaces/to-review';
-import { IActivityReport } from '@/core/types/interfaces/-activity/IActivityReport';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import {
+	ITimesheet,
+	ITimesheetCountsStatistics,
+	IUpdateTimesheetStatus
+} from '@/core/types/interfaces/timesheet/ITimesheet';
+import { TimeLogType } from '@/core/types/enums/timer';
+import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/IActivityReport';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -82,7 +80,7 @@ type ITimesheetProps = {
 
 export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: string) {
 	const queries = qs.stringify(params);
-	return serverFetch<TimesheetLog[]>({
+	return serverFetch<ITimeLog[]>({
 		path: `/timesheet/time-log?activityLevel?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
@@ -98,7 +96,7 @@ type IDeleteTimesheetProps = {
 
 export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
 	const { logIds = [] } = params;
-	return serverFetch<TimesheetLog[]>({
+	return serverFetch<ITimeLog[]>({
 		path: `/timesheet/time-log/${logIds.join(',')}`,
 		method: 'DELETE',
 		bearer_token,
@@ -107,7 +105,7 @@ export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer
 }
 
 export function updateStatusTimesheetRequest(params: IUpdateTimesheetStatus, bearer_token: string) {
-	return serverFetch<UpdateTimesheetStatus[]>({
+	return serverFetch<ITimesheet[]>({
 		path: '/timesheet/status',
 		method: 'PUT',
 		body: { ...params },
@@ -116,8 +114,8 @@ export function updateStatusTimesheetRequest(params: IUpdateTimesheetStatus, bea
 	});
 }
 
-export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
-	return serverFetch<TimesheetLog>({
+export function createTimesheetRequest(params: Partial<ITimesheet>, bearer_token: string) {
+	return serverFetch<ITimeLog>({
 		path: '/timesheet/time-log',
 		method: 'POST',
 		body: { ...params },
@@ -126,8 +124,8 @@ export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: st
 	});
 }
 
-export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
-	return serverFetch<TimesheetLog>({
+export function updateTimesheetRequest(params: Partial<ITimesheet>, bearer_token: string) {
+	return serverFetch<ITimeLog>({
 		path: `/timesheet/time-log/${params.id}`,
 		method: 'PUT',
 		body: { ...params },
@@ -200,14 +198,14 @@ export interface IActivityRequestParams extends ITimeLogRequestParams {
 export async function getTimesheetStatisticsCountsRequest(
 	{ tenantId, ...params }: ITimesheetStatisticsCountsProps,
 	bearer_token: string
-): Promise<{ data: ITimesheetStatisticsCounts }> {
+): Promise<{ data: ITimesheetCountsStatistics }> {
 	const queries = qs.stringify(params, {
 		arrayFormat: 'indices',
 		encode: true,
 		strictNullHandling: true
 	});
 
-	return serverFetch<ITimesheetStatisticsCounts>({
+	return serverFetch<ITimesheetCountsStatistics>({
 		path: `/timesheet/statistics/counts?${queries}`,
 		method: 'GET',
 		bearer_token,
@@ -249,7 +247,7 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 export async function getTimeLogReportDailyChartRequest(params: ITimeLogRequestParams, bearer_token?: string) {
 	const queries = buildTimeLogParams(params);
 
-	return serverFetch<ITimerDailyLog[]>({
+	return serverFetch<ITimeLogReportDailyChart[]>({
 		path: `/timesheet/time-log/report/daily-chart?${queries}`,
 		method: 'GET',
 		bearer_token,
@@ -260,7 +258,7 @@ export async function getTimeLogReportDailyChartRequest(params: ITimeLogRequestP
 export async function getTimeLogReportDailyRequest(params: ITimeLogRequestParams, bearer_token?: string) {
 	const queries = buildTimeLogParams(params);
 
-	return serverFetch<ITimerLogGrouped[]>({
+	return serverFetch<ITimeLogGroupedDailyReport[]>({
 		path: `/timesheet/time-log/report/daily?${queries}`,
 		method: 'GET',
 		bearer_token,

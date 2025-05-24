@@ -1,5 +1,5 @@
 import { IActivityReportGroupByDate } from '@/core/types/interfaces/-activity/IActivityReport';
-import { DailyReportData, DateGroup, ProjectGroups } from '@/core/types/interfaces/to-review/IProductivityProject';
+import { DailyReportData, DateGroup, ProjectGroups } from '@/core/types/interfaces/activity/IProductivityProject';
 
 export const groupActivitiesByProjectAndDate = (data: IActivityReportGroupByDate[]): ProjectGroups => {
 	const reportData: DailyReportData[] = data as any;

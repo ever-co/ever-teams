@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
-import { DailyPlanStatusEnum, IDailyPlan, ITask, OT_Member } from '@/core/types/interfaces/to-review';
+import { DailyPlanStatusEnum, IDailyPlan, ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import {
 	Command,
 	CommandEmpty,
@@ -31,7 +31,7 @@ export function AddTaskToPlan({
 	open: boolean;
 	closeModal: () => void;
 	task: ITask;
-	employee?: OT_Member;
+	employee?: IOrganizationTeamMember;
 }) {
 	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =
 		useDailyPlan();

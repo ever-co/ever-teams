@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { IOrganizationTeamList, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam, ITimerStatusEnum, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { useMemo } from 'react';
@@ -19,8 +19,8 @@ const cardColorType = {
 	suspended: ' border-[#DCD6D6]'
 };
 
-interface Member extends OT_Member {
-	teams: { team: IOrganizationTeamList; activeTaskId?: string | null }[];
+interface Member extends IOrganizationTeamMember {
+	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
 }
 
 export default function UserTeamBlockCard({ member }: { member: Member }) {

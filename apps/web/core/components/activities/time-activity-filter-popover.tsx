@@ -3,15 +3,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeamList, IProject, ITask } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam, IProject, ITask } from '@/core/types/interfaces/to-review';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 
 interface TimeActivityHeaderProps {
-	userManagedTeams?: IOrganizationTeamList[];
+	userManagedTeams?: IOrganizationTeam[];
 	projects?: IProject[];
 	tasks?: ITask[];
-	activeTeam?: IOrganizationTeamList | null;
+	activeTeam?: IOrganizationTeam | null;
 }
 
 const STORAGE_KEY = 'ever-teams-activity-filters';

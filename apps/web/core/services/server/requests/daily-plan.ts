@@ -3,9 +3,9 @@ import {
 	ICreateDailyPlan,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
+	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces/to-review/IDailyPlan';
+} from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { serverFetch } from '../fetch';
 import { DeleteResponse, ID } from '@/core/types/interfaces/to-review';
 
@@ -228,7 +228,7 @@ export function deleteDailyPlansManyRequest({
 }: {
 	bearer_token?: string;
 	taskId: string;
-	data: IRemoveTaskFromManyPlans;
+	data: IRemoveTaskFromManyPlansRequest;
 }) {
 	return serverFetch<IDailyPlan[]>({
 		method: 'PUT',

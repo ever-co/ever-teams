@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OT_Member } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
@@ -8,9 +8,9 @@ import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';
 
 interface Props {
-	teamMembers: OT_Member[];
+	teamMembers: IOrganizationTeamMember[];
 	publicTeam: boolean;
-	currentUser: OT_Member | undefined;
+	currentUser: IOrganizationTeamMember | undefined;
 	teamsFetching: boolean;
 }
 

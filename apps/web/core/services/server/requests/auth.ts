@@ -1,11 +1,11 @@
 import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@/core/constants/config/constants';
 import { ISuccessResponse } from '@/core/types/interfaces/to-review';
 import {
-	ILoginResponse,
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces/to-review/IAuthentication';
+} from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 import { IUser } from '@/core/types/interfaces/to-review/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
@@ -79,7 +79,7 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 };
 
 export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/signin.workspace',
 		method: 'POST',
 		body: input,
@@ -88,7 +88,7 @@ export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
 }
 
 export function verifyAuthCodeRequest(email: string, code: string) {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
 		body: { email, code }
@@ -96,7 +96,7 @@ export function verifyAuthCodeRequest(email: string, code: string) {
 }
 
 export const loginUserRequest = (email: string, password: string) => {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/login',
 		method: 'POST',
 		body: {

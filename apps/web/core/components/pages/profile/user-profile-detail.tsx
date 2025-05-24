@@ -1,5 +1,5 @@
 import { useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITimerStatusEnum, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { isValidUrl } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';
@@ -10,7 +10,7 @@ import { TableActionPopover } from '@/core/components/settings/table-action-popo
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
 
-export function UserProfileDetail({ member }: { member?: OT_Member }) {
+export function UserProfileDetail({ member }: { member?: IOrganizationTeamMember }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
 
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;

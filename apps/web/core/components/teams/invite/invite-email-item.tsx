@@ -1,8 +1,11 @@
-import { IInviteEmail } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type InviteEmailItem = DropdownItem<IInviteEmail>;
+export interface IInviteEmail {
+	title: string;
+	name: string;
+}
 
 export function mapTeamMemberItems(members: IInviteEmail[]) {
 	const items: InviteEmailItem[] = members.map((member: IInviteEmail) => {

@@ -11,7 +11,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/-timer/ITimerLogs';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -46,7 +46,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [endTime, setEndTime] = useState<string>('');
 	const [date, setDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState<string>('');
-	const [team, setTeam] = useState<IOrganizationTeamList>();
+	const [team, setTeam] = useState<IOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();

@@ -1,6 +1,6 @@
 'use client';
 
-import { IUser, OT_Member, RoleNameEnum } from '@/core/types/interfaces/to-review';
+import { IUser, IOrganizationTeamMember, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -8,7 +8,7 @@ import { useAtomValue } from 'jotai';
 export function useIsMemberManager(user: IUser | undefined | null) {
 	const [isTeamManager, setTeamManager] = useState(false);
 	const [isTeamCreator, setTeamCreator] = useState(false);
-	const [activeManager, setActiveManager] = useState<OT_Member>();
+	const [activeManager, setActiveManager] = useState<IOrganizationTeamMember>();
 	const activeTeam = useAtomValue(activeTeamState);
 
 	useEffect(() => {

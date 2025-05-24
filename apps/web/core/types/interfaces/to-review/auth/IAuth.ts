@@ -1,18 +1,28 @@
-import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { IUser } from '../user/IUser';
+import { ID } from '../../global/base-interfaces';
+import { IOrganizationTeam } from '../../team/IOrganizationTeam';
+import { IUser } from '../../user/IUser';
 
+export interface IUserSigninWorkspaceResponse {
+	workspaces: IOrganizationTeam[];
+	confirmed_email: string;
+	show_popup: boolean;
+	total_workspaces: number;
+	defaultTeamId?: ID;
+	defaultOrganizationId?: ID;
+	lastTeamId?: ID;
+	lastOrganizationId?: ID;
+}
+export interface IAuthResponse {
+	team: IUser;
+	user: IUser;
+	token: string;
+	refresh_token: string;
+}
 export interface ITeamProps {
 	email: string;
 	name: string;
 	team: string;
 	recaptcha?: string;
-}
-
-export interface ILoginResponse {
-	team: IUser;
-	user: IUser;
-	token: string;
-	refresh_token: string;
 }
 
 export interface ISigninWorkspaceInput {

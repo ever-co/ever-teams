@@ -12,9 +12,16 @@ import { EstimateTimeInfo } from './estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
-import { IMember, MC_EditableValues } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamEmploye } from '@/core/types/interfaces/to-review';
 
-const Card = ({ member }: { member: IMember }) => {
+export type MembersCard_EditableValues = {
+	memberName: string;
+	memberTask: string;
+	estimateHours: number;
+	estimateMinutes: number;
+};
+
+const Card = ({ member }: { member: IOrganizationTeamEmployee }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
 	const isAuthUser = member.employee.userId === user?.id;

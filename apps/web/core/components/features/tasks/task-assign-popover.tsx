@@ -1,5 +1,5 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
-import { ITask, OT_Member } from '@/core/types/interfaces/to-review';
+import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
@@ -22,7 +22,7 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];
-	userProfile: OT_Member | undefined;
+	userProfile: IOrganizationTeamMember | undefined;
 }>) {
 	const t = useTranslations();
 	const { isOpen, openModal, closeModal } = useModal();

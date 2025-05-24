@@ -14,14 +14,14 @@ import {
 	useTaskLabels
 } from '@/core/hooks';
 import {
-	IIssueTypesItemList,
+	IIssueType,
 	ITaskIssueTypeEnum,
 	ITaskPriority,
 	ITaskSizeNameEnum,
 	ITaskStatusNameEnum,
 	ITask,
 	Nullable,
-	OT_Member
+	IOrganizationTeamMember
 } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
@@ -85,7 +85,7 @@ type Props = {
 export function TaskInput(props: Props) {
 	const t = useTranslations();
 	const { issueTypes } = useIssueType();
-	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
+	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -722,7 +722,7 @@ function TaskCard({
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: OT_Member[];
+	teamMembers: IOrganizationTeamMember[];
 	assignees?: RefObject<
 		{
 			id: string;

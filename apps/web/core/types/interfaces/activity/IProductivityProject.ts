@@ -1,15 +1,8 @@
-import { IActivityItem } from '@/core/types/interfaces/-activity/IActivityReport';
-
-export interface Employee {
-	id: string;
-	fullName: string;
-	user?: {
-		imageUrl?: string;
-	};
-}
+import { IEmployee } from '../organization/employee/IEmployee';
+import { IActivityItem } from './IActivityReport';
 
 export interface ActivityData {
-	employee: Employee;
+	employee: IEmployee;
 	activity: IActivityItem;
 }
 
@@ -40,18 +33,13 @@ export interface DateHeaderRowProps {
 }
 
 export interface ActivityRowProps {
-	employee: Employee;
+	employee: IEmployee;
 	activity: IActivityItem;
 }
 
 export interface ProgressBarProps {
 	percentage: number;
 	className?: string;
-}
-
-export interface EmployeeWithProjects {
-	employee: Employee;
-	projects: string[];
 }
 
 // Interface for the daily report data structure
@@ -63,7 +51,7 @@ export interface DailyReportData {
 export interface DateGroup {
 	date: string;
 	employees: Array<{
-		employee: Employee;
+		employee: IEmployee;
 		activity: IActivityItem | IActivityItem[];
 	}>;
 }

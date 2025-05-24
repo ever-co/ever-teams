@@ -7,7 +7,7 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
+import { IAuthResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 			defaultTeamId?: IOrganizationTeam['id'];
 			lastTeamId?: IOrganizationTeam['id'];
 		};
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 

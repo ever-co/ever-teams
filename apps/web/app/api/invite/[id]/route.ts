@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { MyInvitationActionEnum } from '@/core/types/interfaces/to-review';
+import { InviteActionEnum } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getTeamInvitationsRequest,
@@ -78,7 +78,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
 		tenantId,
 		access_token,
 		invitationId,
-		action as MyInvitationActionEnum
+		action as InviteActionEnum
 	);
 
 	return $res(response.data);

@@ -1,9 +1,9 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import {
-	ILoginResponse,
+	IAuthResponse,
 	IOrganizationTeam,
-	IOrganizationTeamList,
+	IOrganizationTeam,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
 } from '@/core/types/interfaces/to-review';
@@ -27,7 +27,7 @@ class SigninService extends APIService {
 	};
 
 	signInEmailCodeConfirmGauzy = async (email: string, code: string) => {
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		const { errors, valid: formValid } = authFormValidate(['email', 'code'], { email, code } as any);
 
@@ -109,7 +109,7 @@ class SigninService extends APIService {
 				userId
 			});
 
-			const response: AxiosResponse<{ loginResponse: ILoginResponse; team: IOrganizationTeamList }> = {
+			const response: AxiosResponse<{ loginResponse: IAuthResponse; team: IOrganizationTeam }> = {
 				data: { team, loginResponse },
 				status: 200,
 				statusText: '',
@@ -124,7 +124,7 @@ class SigninService extends APIService {
 	};
 
 	signInWorkspace = async (input: ISigninWorkspaceInput) => {
-		const res = await this.post<ILoginResponse>('/auth/signin.workspace', input);
+		const res = await this.post<IAuthResponse>('/auth/signin.workspace', input);
 		return res.data;
 	};
 
@@ -224,7 +224,7 @@ class SigninService extends APIService {
 			userId
 		});
 
-		const response: AxiosResponse<{ loginResponse: ILoginResponse }> = {
+		const response: AxiosResponse<{ loginResponse: IAuthResponse }> = {
 			data: { loginResponse: data },
 			status: 200,
 			statusText: '',

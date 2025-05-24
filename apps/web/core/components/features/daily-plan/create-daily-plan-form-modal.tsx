@@ -2,9 +2,9 @@ import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from '
 import { useForm } from 'react-hook-form';
 import {
 	DailyPlanStatusEnum,
-	IDailyPlanMode,
-	IOrganizationTeamList,
-	OT_Member
+	IDailyPlanModeEnum,
+	IOrganizationTeam,
+	IOrganizationTeamMember
 } from '@/core/types/interfaces/to-review';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@/core/hooks';
 import { Modal, Text } from '@/core/components';
@@ -42,7 +42,7 @@ export function CreateDailyPlanFormModal({
 	open: boolean;
 	closeModal: () => void;
 	taskId: string;
-	planMode: IDailyPlanMode;
+	planMode: IDailyPlanModeEnum;
 	employeeId?: string;
 	chooseMember?: boolean;
 }) {
@@ -72,10 +72,12 @@ export function CreateDailyPlanFormModal({
 	);
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
-	const [selectedEmployee, setSelectedEmployee] = useState<OT_Member | undefined>(isManagerConnectedUser);
+	const [selectedEmployee, setSelectedEmployee] = useState<IOrganizationTeamMember | undefined>(
+		isManagerConnectedUser
+	);
 	const [isOpen, setIsOpen] = useState(false);
 
-	const handleMemberClick = useCallback((member: OT_Member) => {
+	const handleMemberClick = useCallback((member: IOrganizationTeamMember) => {
 		setSelectedEmployee(member);
 	}, []);
 
@@ -282,9 +284,9 @@ function MembersList({
 	handleMemberClick,
 	selectedMember
 }: {
-	activeTeam: IOrganizationTeamList | null;
-	selectedMember?: OT_Member;
-	handleMemberClick: (member: OT_Member) => void;
+	activeTeam: IOrganizationTeam | null;
+	selectedMember?: IOrganizationTeamMember;
+	handleMemberClick: (member: IOrganizationTeamMember) => void;
 }) {
 	return (
 		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@/core/hooks';
-import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@/core/types/interfaces/to-review';
+import { IClassName, IOrganizationTeam, ITimerStatusEnum } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -19,9 +19,9 @@ import { HorizontalSeparator } from '@/core/components/duplicated-components/sep
 
 type IUserTeamBlock = {
 	active?: boolean;
-	member?: IOrganizationTeamList['members'][number];
+	member?: IOrganizationTeam['members'][number];
 	publicTeam?: boolean;
-	members?: IOrganizationTeamList['members'];
+	members?: IOrganizationTeam['members'];
 } & IClassName;
 
 const cardColorType = {

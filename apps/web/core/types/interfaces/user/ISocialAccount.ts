@@ -1,5 +1,5 @@
 import { ProviderEnum } from '../../enums/social-accounts';
-import { IBasePerTenantEntityModel } from '../base-interfaces';
+import { IBasePerTenantEntityModel } from '../global/base-interfaces';
 import { ID } from '../to-review/IBaseModel';
 import { IRelationalUser } from './IUser';
 

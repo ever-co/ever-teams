@@ -8,11 +8,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import {
-	IOrganizationTeamList,
-	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus
-} from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam, IOrganizationTeamUpdate, IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -43,7 +39,7 @@ function useTeamsState() {
 	const teamsRef = useSyncRef(teams);
 
 	const setTeamsUpdate = useCallback(
-		(team: IOrganizationTeamWithMStatus) => {
+		(team: IOrganizationTeam) => {
 			// Update active teams fields with from team Status API
 			setTeams((tms) => {
 				return [...tms.filter((t) => t.id != team.id), team];
@@ -124,7 +120,7 @@ function useUpdateOrganizationTeam() {
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
-		(team: IOrganizationTeamList, data: Partial<IOrganizationTeamUpdate> = {}) => {
+		(team: IOrganizationTeam, data: Partial<IOrganizationTeamUpdate> = {}) => {
 			const members = team.members;
 
 			const body: Partial<IOrganizationTeamUpdate> = {

@@ -4,7 +4,7 @@ import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 import { TimeLogType, TimerSource } from '@/core/types/interfaces/to-review';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/to-review/timer/ITimerLogs';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();

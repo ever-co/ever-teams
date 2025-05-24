@@ -3,10 +3,13 @@ import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ITaskStatusNameEnum, ITask } from '@/core/types/interfaces/to-review';
-import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
+
+export interface IKanban {
+	[key: string]: ITask[];
+}
 
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);

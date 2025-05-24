@@ -1,5 +1,5 @@
 import { TaskPriorityEnum, TaskSizeEnum, ITaskStatusNameEnum, TaskTypeEnum } from '../../enums/task';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';

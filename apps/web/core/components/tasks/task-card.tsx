@@ -21,13 +21,13 @@ import {
 	DailyPlanStatusEnum,
 	IClassName,
 	IDailyPlan,
-	IDailyPlanMode,
+	IDailyPlanModeEnum,
 	IDailyPlanTasksUpdate,
-	IOrganizationTeamList,
-	IRemoveTaskFromManyPlans,
+	IOrganizationTeam,
+	IRemoveTaskFromManyPlansRequest,
 	ITask,
 	Nullable,
-	OT_Member
+	IOrganizationTeamMember
 } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
@@ -346,8 +346,8 @@ function TimerButtonCall({
 	className
 }: {
 	task: ITask;
-	currentMember: OT_Member | undefined;
-	activeTeam: IOrganizationTeamList | null;
+	currentMember: IOrganizationTeamMember | undefined;
+	activeTeam: IOrganizationTeam | null;
 	className?: string;
 }) {
 	const [loading, setLoading] = useState(false);
@@ -727,7 +727,7 @@ export function PlanTask({
 	taskPlannedForTomorrow
 }: {
 	taskId: string;
-	planMode: IDailyPlanMode;
+	planMode: IDailyPlanModeEnum;
 	employeeId?: string;
 	chooseMember?: boolean;
 	taskPlannedToday?: ITask;
@@ -811,7 +811,7 @@ export function PlanTask({
 	);
 }
 
-export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: OT_Member }) {
+export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: IOrganizationTeamMember }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
@@ -828,7 +828,15 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employ
 	);
 }
 
-export function RemoveTaskFromPlan({ task, plan, member }: { task: ITask; member?: OT_Member; plan?: IDailyPlan }) {
+export function RemoveTaskFromPlan({
+	task,
+	plan,
+	member
+}: {
+	task: ITask;
+	member?: IOrganizationTeamMember;
+	plan?: IDailyPlan;
+}) {
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
@@ -851,10 +859,10 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITask; member
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: OT_Member }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: IOrganizationTeamMember }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
-	const data: IRemoveTaskFromManyPlans = {
+	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
 		employeeId: member?.employeeId
 	};

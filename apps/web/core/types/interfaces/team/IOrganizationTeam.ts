@@ -1,7 +1,9 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
+import { ID } from '../to-review';
+import { IOrganizationTeamCreate } from './IOrganizationTeam';
 import { IOrganizationTeamEmployee } from './IOrganizationTeamEmployee';
 
 // Base interface for common properties
@@ -31,6 +33,34 @@ interface ITeamAssociations {
 // Main Organization Team interface
 export interface IOrganizationTeam extends IBaseTeamProperties, ITeamAssociations {}
 
+export interface IRelationalOrganizationTeam {
+	organizationTeam?: IOrganizationTeam;
+	organizationTeamId?: ID;
+}
+export interface IOrganizationTeamCreate {
+	name: string;
+	color?: string;
+	emoji?: string;
+	teamSize?: string;
+	memberIds?: string[];
+	managerIds?: string[];
+	tags?: any[];
+	organizationId: string;
+	tenantId: string;
+	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
+	public?: boolean;
+	imageId?: string | null;
+	image?: IImageAssets | null;
+	projects?: IProject[];
+}
+export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
+
+export type ITeamRequestParams = {
+	organizationId: string;
+	tenantId: string;
+	relations?: string[];
+};
 export interface IRelationalOrganizationTeam {
 	organizationTeam?: IOrganizationTeam;
 	organizationTeamId?: ID;

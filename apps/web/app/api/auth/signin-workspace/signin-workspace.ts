@@ -8,7 +8,7 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
+import { IAuthResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			return;
 		}
 
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		/**
 		 * Verify first if match with invite code

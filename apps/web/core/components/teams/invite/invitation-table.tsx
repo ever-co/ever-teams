@@ -1,7 +1,7 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useRequestToJoinTeam } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IInvitation, IJoinTeamResponse, RequestStatusEnum } from '@/core/types/interfaces/to-review';
+import { IInvite, IJoinTeamResponse, RequestStatusEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import moment from 'moment';
@@ -10,9 +10,9 @@ import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
 
-export const InvitationTable = ({ invitations }: { invitations: (IInvitation | IJoinTeamResponse)[] }) => {
+export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
-		IInvitation | IJoinTeamResponse
+		IInvite | IJoinTeamResponse
 	>(invitations);
 	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();

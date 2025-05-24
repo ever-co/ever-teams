@@ -1,6 +1,6 @@
 import { TimeFormatEnum } from '../../enums/date';
 import { DefaultValueDateTypeEnum, WeekDaysEnum } from '../../enums/date';
-import { IBasePerTenantEntityModel, ITaggable } from '../base-interfaces';
+import { IBasePerTenantEntityModel, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IEmployee } from './employee/IEmployee';
 import { IOrganizationLanguage } from './IOrganizationLanguage';
@@ -101,4 +101,10 @@ export interface IOrganizationTimerSetting {
 
 export interface CustomFieldsObject<T = any> {
 	[key: string]: T;
+}
+export interface IOrganizationCreate {
+	name: string;
+	currency: string;
+	tenantId: string;
+	invitesAllowed: true;
 }

@@ -5,7 +5,7 @@ import {
 	ICreateEmployee,
 	IEmployee,
 	IUpdateEmployee,
-	IWorkingEmployee,
+	IEmployee,
 	PaginationResponse
 } from '@/core/types/interfaces/to-review';
 
@@ -20,7 +20,7 @@ class EmployeeService extends APIService {
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query}` : '/employee/working';
 
-		return this.get<PaginationResponse<IWorkingEmployee>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IEmployee>>(endpoint, { tenantId });
 	};
 
 	updateEmployee = async ({ id, data }: { id: string; data: IUpdateEmployee }) => {

@@ -3,9 +3,9 @@ import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataRespo
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
-	IOrganizationTeamList,
+	IOrganizationTeam,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus,
+	IOrganizationTeam,
 	ITeamRequestParams
 } from '@/core/types/interfaces/to-review';
 import moment from 'moment';
@@ -113,7 +113,7 @@ export function getOrganizationTeamRequest(
 	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
 	// Fetch and return team details
-	return serverFetch<IOrganizationTeamWithMStatus>({
+	return serverFetch<IOrganizationTeam>({
 		path: `/organization-team/${teamId}?${queryString}`,
 		method: 'GET',
 		bearer_token,
@@ -157,7 +157,7 @@ export function getAllOrganizationTeamRequest(
 	const query = qs.stringify(params, { arrayFormat: 'brackets' });
 
 	// Construct and return the server fetch request
-	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
+	return serverFetch<PaginationResponse<IOrganizationTeam>>({
 		path: `/organization-team?${query}`,
 		method: 'GET',
 		bearer_token,
