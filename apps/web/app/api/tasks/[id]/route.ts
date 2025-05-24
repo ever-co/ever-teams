@@ -1,5 +1,5 @@
-import { INextParams } from '@/core/types/interfaces/to-review';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -17,9 +17,9 @@ export async function GET(req: Request, props: INextParams) {
 
 	const response = await getTaskByIdRequest({
 		taskId: params.id,
-		tenantId,
-		organizationId,
-		bearer_token: access_token
+		tenantId: tenantId || '',
+		organizationId: organizationId || '',
+		bearer_token: access_token || ''
 	});
 
 	return $res(response.data);
@@ -41,7 +41,7 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const body = (await req.json()) as ITask;
 
-	delete body.selectedTeam;
+	// delete body.selectedTeam;
 	delete body.rootEpic;
 
 	await updateTaskRequest(
@@ -49,15 +49,15 @@ export async function PUT(req: Request, props: INextParams) {
 			data: body,
 			id: params.id
 		},
-		access_token
+		access_token || ''
 	);
 
 	const { data: tasks } = await getTeamTasksRequest({
-		tenantId,
-		organizationId,
-		projectId,
-		teamId,
-		bearer_token: access_token
+		tenantId: tenantId || '',
+		organizationId: organizationId || '',
+		projectId: projectId || '',
+		teamId: teamId || '',
+		bearer_token: access_token || ''
 	});
 
 	return $res(tasks);

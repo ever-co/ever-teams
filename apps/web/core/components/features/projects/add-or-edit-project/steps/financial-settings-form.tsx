@@ -2,7 +2,7 @@ import { Button } from '@/core/components';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
-import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/types/interfaces/to-review';
+import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/types/enums/project';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';

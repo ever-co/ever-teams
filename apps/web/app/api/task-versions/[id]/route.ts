@@ -1,7 +1,8 @@
-import { INextParams, ITaskVersionCreate } from '@/core/types/interfaces/to-review';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -19,7 +20,7 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const response = await editTaskVersionRequest({
 		id: params.id,
-		bearer_token: access_token,
+		bearer_token: access_token || '',
 		datas,
 		tenantId
 	});

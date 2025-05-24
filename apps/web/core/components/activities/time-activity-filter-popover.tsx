@@ -3,13 +3,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeam, IProject, ITask } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: IOrganizationTeam[];
-	projects?: IProject[];
+	projects?: IOrganizationProject[];
 	tasks?: ITask[];
 	activeTeam?: IOrganizationTeam | null;
 }
@@ -177,7 +179,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-member"
 									removeItems={shouldRemoveItems}
 									items={activeTeam?.members || []}
-									itemToString={(member) => member?.employee.fullName || ''}
+									itemToString={(member) => member?.employee?.fullName || ''}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
 									multiSelect={true}

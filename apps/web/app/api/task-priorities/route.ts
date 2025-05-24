@@ -1,4 +1,4 @@
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces/to-review';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createPrioritiesRequest, getTaskPrioritiesListRequest } from '@/core/services/server/requests/task-priorities';
 import { NextResponse } from 'next/server';
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskPrioritiesCreate;
 
-	const response = await createPrioritiesRequest(body, access_token, body?.tenantId);
+	const response = await createPrioritiesRequest(body, access_token || '', body?.tenantId);
 
 	return $res(response.data);
 }

@@ -1,11 +1,5 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-	DailyPlanStatusEnum,
-	IDailyPlanModeEnum,
-	IOrganizationTeam,
-	IOrganizationTeamMember
-} from '@/core/types/interfaces/to-review';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@/core/hooks';
 import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
@@ -30,6 +24,11 @@ import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/co
 import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { Avatar } from '../../duplicated-components/avatar';
+import { DailyPlanStatusEnum, IDailyPlanModeEnum } from '@/core/types/enums/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -55,14 +54,14 @@ export function CreateDailyPlanFormModal({
 	) as 'Select' | 'Select & Close';
 	const t = useTranslations();
 	const existingPlanDates = useMemo(
-		() => profileDailyPlans?.items?.map((plan) => new Date(plan.date)),
+		() => profileDailyPlans?.items?.map((plan: IDailyPlan) => new Date(plan.date)),
 		[profileDailyPlans.items]
 	);
 	const existingTaskPlanDates = useMemo(
 		() =>
 			profileDailyPlans?.items
-				?.filter((plan) => plan.tasks?.some((task) => task.id === taskId))
-				.map((plan) => new Date(plan.date)),
+				?.filter((plan: IDailyPlan) => plan.tasks?.some((task: ITask) => task.id === taskId))
+				.map((plan: IDailyPlan) => new Date(plan.date)),
 		[profileDailyPlans.items, taskId]
 	);
 
@@ -72,12 +71,12 @@ export function CreateDailyPlanFormModal({
 	);
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
-	const [selectedEmployee, setSelectedEmployee] = useState<IOrganizationTeamMember | undefined>(
+	const [selectedEmployee, setSelectedEmployee] = useState<IOrganizationTeamEmployee | undefined>(
 		isManagerConnectedUser
 	);
 	const [isOpen, setIsOpen] = useState(false);
 
-	const handleMemberClick = useCallback((member: IOrganizationTeamMember) => {
+	const handleMemberClick = useCallback((member: IOrganizationTeamEmployee) => {
 		setSelectedEmployee(member);
 	}, []);
 
@@ -285,8 +284,8 @@ function MembersList({
 	selectedMember
 }: {
 	activeTeam: IOrganizationTeam | null;
-	selectedMember?: IOrganizationTeamMember;
-	handleMemberClick: (member: IOrganizationTeamMember) => void;
+	selectedMember?: IOrganizationTeamEmployee;
+	handleMemberClick: (member: IOrganizationTeamEmployee) => void;
 }) {
 	return (
 		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
@@ -295,7 +294,7 @@ function MembersList({
 				<CommandEmpty>No member founded</CommandEmpty>
 				<ScrollArea className="h-[15rem]">
 					<CommandGroup className="p-2">
-						{activeTeam?.members.map((member) => (
+						{activeTeam?.members?.map((member: IOrganizationTeamEmployee) => (
 							<CommandItem
 								key={member?.id}
 								className="flex items-center px-2 cursor-pointer"
@@ -311,7 +310,7 @@ function MembersList({
 										'shadow-md text-lg font-normal'
 									)}
 									style={{
-										backgroundColor: `${stc(member?.employee.fullName || '')}80`
+										backgroundColor: `${stc(member?.employee?.fullName || '')}80`
 									}}
 								>
 									{(member?.employee?.user?.image?.thumbUrl ||
@@ -334,16 +333,16 @@ function MembersList({
 											alt="Team Avatar"
 											imageTitle={member?.employee.fullName || ''}
 										></Avatar>
-									) : member?.employee.fullName ? (
-										imgTitle(member?.employee.fullName || ' ').charAt(0)
+									) : member?.employee?.fullName ? (
+										imgTitle(member?.employee?.fullName || ' ').charAt(0)
 									) : (
 										''
 									)}
 								</div>
 
 								<div className="ml-2">
-									<p className="text-sm font-medium leading-none">{member?.employee.fullName}</p>
-									<p className="text-xs text-muted-foreground">{member?.employee.user?.email}</p>
+									<p className="text-sm font-medium leading-none">{member?.employee?.fullName}</p>
+									<p className="text-xs text-muted-foreground">{member?.employee?.user?.email}</p>
 								</div>
 								{selectedMember?.id == member?.id && (
 									<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />

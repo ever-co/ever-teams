@@ -1,8 +1,8 @@
-import { INextParams } from '@/core/types/interfaces/to-review';
 import {
 	getPublicOrganizationTeamMiscDataRequest,
 	getPublicOrganizationTeamRequest
 } from '@/core/services/server/requests/public-organization-team';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: INextParams) {

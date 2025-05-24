@@ -3,20 +3,18 @@ import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
-import {
-	ICreateProjectInput,
-	IProjectRelation,
-	ITag,
-	OrganizationProjectBudgetTypeEnum,
-	ProjectBillingEnum,
-	TaskStatusEnum
-} from '@/core/types/interfaces/to-review';
+
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { RolesEnum } from '@/core/types/interfaces/to-review/IRoles';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { RoleNameEnum } from '@/core/types/enums/role';
+import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { OrganizationProjectBudgetTypeEnum } from '@/core/types/enums/project';
+import { ProjectBillingEnum } from '@/core/types/enums/project';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -31,10 +29,10 @@ export default function FinalReview(props: IStepElementProps) {
 	const { activeTeam } = useOrganizationTeams();
 	const { roles } = useRoles();
 
-	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
+	const simpleMemberRole = roles?.find((role) => role.name == RoleNameEnum.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == RoleNameEnum.MANAGER);
 
-	const newProject: Partial<ICreateProjectInput> = {
+	const newProject: Partial<ICreateProjectRequest> = {
 		name: finalData?.name,
 		startDate: finalData?.startDate,
 		endDate: finalData?.endDate,
@@ -56,7 +54,7 @@ export default function FinalReview(props: IStepElementProps) {
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
 		teams: [...(activeTeam ? [activeTeam] : [])],
-		status: TaskStatusEnum.OPEN,
+		status: ITaskStatusNameEnum.OPEN,
 		isActive: true,
 		isArchived: false,
 		isTasksAutoSync: true,

@@ -25,12 +25,12 @@ import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { ITimerLogGrouped } from '@/core/types/interfaces/to-review';
+import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
 
 interface DateRangePickerProps {
 	className?: string;
 	onDateRangeChange?: (range: DateRange | undefined) => void;
-	data?: ITimerLogGrouped[];
+	data?: ITimeLogGroupedDailyReport[];
 }
 
 export function DateRangePicker({ className, onDateRangeChange, data }: DateRangePickerProps) {

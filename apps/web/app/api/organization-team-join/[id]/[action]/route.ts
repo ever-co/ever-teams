@@ -1,6 +1,6 @@
-import { RequestStatusEnum } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { acceptRejectRequestToJoinRequest } from '@/core/services/server/requests';
+import { RequestStatusEnum } from '@/core/types/enums';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string; action: string }> }) {

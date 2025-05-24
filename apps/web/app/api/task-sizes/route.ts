@@ -1,4 +1,4 @@
-import { ITaskSizesCreate } from '@/core/types/interfaces/to-review';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createSizesRequest, getTaskSizesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskSizesCreate;
 
-	const response = await createSizesRequest(body, access_token, body?.tenantId);
+	const response = await createSizesRequest(body, access_token || '', body?.tenantId);
 
 	return $res(response.data);
 }

@@ -1,7 +1,6 @@
 import { IOrganization } from '../organization/IOrganization';
 import { ITag } from '../tag/ITag';
 import { ITenant } from '../tenant/ITenant';
-import { IBaseEntity } from '../to-review/IBaseModel';
 import { IUser } from '../user/IUser';
 import { IOrganization } from './IOrganization';
 import { ITenant } from './ITenant';
@@ -25,8 +24,8 @@ export interface IBaseSoftDeleteEntityModel {
 }
 
 // Common properties for entities
-export interface IBaseEntityModel extends IBaseEntityActionByUserModel, IBaseSoftDeleteEntityModel {
-	id?: ID;
+export interface IBaseEntity extends IBaseEntityActionByUserModel, IBaseSoftDeleteEntityModel {
+	id: ID;
 
 	readonly createdAt?: Date;
 	readonly updatedAt?: Date;
@@ -37,7 +36,7 @@ export interface IBaseEntityModel extends IBaseEntityActionByUserModel, IBaseSof
 }
 
 // Common properties for entities associated with a tenant
-export interface IBasePerTenantEntityModel extends IBaseEntityModel {
+export interface IBasePerTenantEntityModel extends IBaseEntity {
 	tenantId?: ID; // Identifier of the associated tenant
 	tenant?: ITenant; // Reference to the associated tenant
 }

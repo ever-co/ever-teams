@@ -1,5 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
-import { IDailyPlan, ITask } from '@/core/types/interfaces/to-review';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { Card } from '../../duplicated-components/card';

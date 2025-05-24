@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
-import { DailyPlanStatusEnum, IDailyPlan, ITask } from '@/core/types/interfaces/to-review';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../../tasks/daily-plan';
@@ -26,6 +27,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Card } from '../../duplicated-components/card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import { DailyPlanStatusEnum } from '@/core/types/enums/daily-plan';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -71,7 +73,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const totalWorkedTime = useMemo(
 		() =>
 			plan && plan.tasks
-				? plan.tasks.reduce((acc, cur) => {
+				? plan.tasks.reduce((acc: number, cur) => {
 						const totalWorkedTime = cur.totalWorkedTime ?? 0;
 
 						return acc + totalWorkedTime;
@@ -241,9 +243,19 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const sortedTasks = useMemo(
 		() =>
 			[...tasks].sort((t1, t2) => {
-				if ((t1.estimate === null || t1.estimate <= 0) && t2.estimate !== null && t2.estimate > 0) {
+				if (
+					(t1.estimate === null || (t1.estimate && t1.estimate <= 0)) &&
+					t2.estimate !== null &&
+					t2.estimate &&
+					t2.estimate > 0
+				) {
 					return -1;
-				} else if (t1.estimate !== null && t1.estimate > 0 && (t2.estimate === null || t2.estimate <= 0)) {
+				} else if (
+					t1.estimate !== null &&
+					t1.estimate &&
+					t1.estimate > 0 &&
+					(t2.estimate === null || (t2.estimate && t2.estimate <= 0))
+				) {
 					return 1;
 				} else {
 					return 0;
@@ -256,7 +268,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	useEffect(() => {
 		if (!sortedTasks.find((task) => task.id == activeTeamTask?.id)) {
 			[...sortedTasks].forEach((task) => {
-				if (task.estimate !== null && task.estimate > 0) {
+				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
@@ -867,7 +879,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			[...futurePlans, ...todayPlan]
 				// Remove selected plan
 				.filter((plan) => plan.id! !== selectedPlan.id)
-				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
+				.filter((plan) => plan.tasks && plan.tasks.find((_task: ITask) => _task.id == task.id))
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
@@ -1038,7 +1050,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { activeTeamTask } = useTeamTasks();
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
-		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
+		() => todayPlan[0].tasks?.find((task: ITask) => task.id === activeTeamTask?.id),
 		[activeTeamTask?.id, todayPlan]
 	);
 

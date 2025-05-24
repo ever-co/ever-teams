@@ -1,7 +1,7 @@
-import { IRole } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 import { createRoleRequest, getRolesRequest } from '@/core/services/server/requests';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -10,8 +10,8 @@ export async function GET(req: Request) {
 	if (!user) return $res('unauthorized');
 
 	const response = await getRolesRequest({
-		bearer_token: access_token,
-		tenantId
+		bearer_token: access_token || '',
+		tenantId: tenantId || ''
 	});
 
 	return $res(response.data);
@@ -26,8 +26,8 @@ export async function POST(req: Request) {
 	if (!user) return $res('unauthorized');
 
 	const response = await createRoleRequest({
-		bearer_token: access_token,
-		tenantId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
 		data: {
 			...body,
 			tenantId

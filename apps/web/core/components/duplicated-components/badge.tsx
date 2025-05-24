@@ -1,4 +1,4 @@
-import { IClassName } from '@/core/types/interfaces/to-review';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
 import { clsxm } from '@/core/lib/utils';
 import { PropsWithChildren } from 'react';
 

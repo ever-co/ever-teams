@@ -8,7 +8,8 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { IAuthResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -124,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 					},
 					teamId: team?.id,
 					tenantId,
-					organizationId: organization?.organizationId,
+					organizationId: organization?.organizationId || '',
 					languageId: 'en', // TODO: not sure what should be here
 					noTeamPopup: true,
 					userId
@@ -175,7 +176,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			},
 			teamId: body.teamId,
 			tenantId,
-			organizationId: organization?.organizationId,
+			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
 			userId

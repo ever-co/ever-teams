@@ -39,3 +39,23 @@ export interface ITimesheetCountsStatistics {
 	todayActivities: number;
 	todayDuration: number;
 }
+
+export interface IUpdateTimesheetRequest
+	extends Pick<
+			Partial<ITimeLog>,
+			| 'id'
+			| 'reason'
+			| 'organizationContactId'
+			| 'description'
+			| 'organizationTeamId'
+			| 'projectId'
+			| 'taskId'
+			| 'employeeId'
+			| 'organizationId'
+			| 'tenantId'
+			| 'logType'
+			| 'source'
+		>,
+		Pick<ITimeLog, 'startedAt' | 'stoppedAt'> {
+	isBillable: boolean;
+}

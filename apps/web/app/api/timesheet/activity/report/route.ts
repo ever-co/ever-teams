@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
 import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
-import { TimeLogType } from '@/core/types/interfaces/to-review';
+import { TimeLogType } from '@/core/types/enums/timer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

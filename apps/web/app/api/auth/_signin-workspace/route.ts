@@ -7,8 +7,9 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { IAuthResponse, IOrganizationTeam } from '@/core/types/interfaces/to-review';
 import { NextResponse } from 'next/server';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 
 export async function POST(req: Request) {
 	try {
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
 					},
 					teamId: team?.id,
 					tenantId,
-					organizationId: organization?.organizationId,
+					organizationId: organization?.organizationId || '',
 					languageId: 'en', // TODO: not sure what should be here
 					noTeamPopup: true,
 					userId
@@ -169,7 +170,7 @@ export async function POST(req: Request) {
 				},
 				teamId: body.teamId,
 				tenantId,
-				organizationId: organization?.organizationId,
+				organizationId: organization?.organizationId || '',
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
 				userId

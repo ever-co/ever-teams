@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import {
 	Command,
@@ -29,6 +29,7 @@ import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { JitsuAnalytics } from '../analytics/jitsu-analytics';
 import { Avatar } from '../duplicated-components/avatar';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -41,7 +42,9 @@ const Collaborate = () => {
 	const members: IUser[] = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
-				? activeTeam.members.map((item) => item.employee.user as IUser).filter((item) => item.id !== user?.id)
+				? activeTeam.members
+						.map((item: IEmployee) => item.employee.user as IUser)
+						.filter((item: IUser) => item.id !== user?.id)
 				: [],
 		[activeTeam, user]
 	);
@@ -132,7 +135,8 @@ const Collaborate = () => {
 												isValidUrl(
 													member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
-														member?.imageUrl
+														member?.imageUrl ||
+														''
 												) ? (
 													<Avatar
 														size={36}

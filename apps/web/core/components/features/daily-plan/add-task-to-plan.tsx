@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
-import { DailyPlanStatusEnum, IDailyPlan, ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
+import { DailyPlanStatusEnum } from '@/core/types/enums/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import {
 	Command,
 	CommandEmpty,
@@ -21,6 +23,7 @@ import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export function AddTaskToPlan({
 	open,
@@ -31,7 +34,7 @@ export function AddTaskToPlan({
 	open: boolean;
 	closeModal: () => void;
 	task: ITask;
-	employee?: IOrganizationTeamMember;
+	employee?: IEmployee;
 }) {
 	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =
 		useDailyPlan();

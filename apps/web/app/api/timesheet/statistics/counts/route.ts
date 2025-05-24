@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
 import { getTimesheetStatisticsCountsRequest } from '@/core/services/server/requests';
-import { TimeLogType } from '@/core/types/interfaces/to-review';
+import { TimeLogType } from '@/core/types/enums/timer';
 
 const isValidLogType = (type: string): type is TimeLogType => {
 	return ['TRACKED', 'MANUAL', 'IDLE'].includes(type as TimeLogType);
@@ -63,7 +63,7 @@ export async function GET(req: Request) {
 				endDate,
 				timeZone: timeZone || 'Etc/UTC'
 			},
-			access_token
+			access_token || ''
 		);
 
 		return NextResponse.json(data);

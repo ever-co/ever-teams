@@ -50,6 +50,9 @@ export interface ITask extends IBaseTaskProperties, ITaskAssociations {
 	taskType?: IIssueType;
 	taskTypeId?: ID;
 	rootEpic?: ITask;
+	taskNumber?: string;
+	totalWorkedTime?: number;
+	selectedTeam?: IOrganizationTeam;
 }
 
 export interface ITasksStatistics extends ITask {

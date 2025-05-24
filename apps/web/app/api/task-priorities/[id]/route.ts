@@ -1,7 +1,8 @@
-import { INextParams, ITaskPrioritiesCreate } from '@/core/types/interfaces/to-review';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskPrioritiesRequest, editTaskPrioritiesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -19,7 +20,7 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const response = await editTaskPrioritiesRequest({
 		id: params.id,
-		bearer_token: access_token,
+		bearer_token: access_token || '',
 		datas,
 		tenantId
 	});

@@ -1,6 +1,6 @@
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IAuthResponse } from '@/core/types/interfaces/to-review';
+import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
 				},
 				teamId: team?.id,
 				tenantId,
-				organizationId: organization?.organizationId,
+				organizationId: organization?.organizationId || '',
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
 				userId

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@/core/services/server/requests';
-import { IUpdateDailyPlan } from '@/core/types/interfaces/to-review';
+import { IUpdateDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const id = (await params).id;
@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 	}
 
 	const response = await getDayPlansByEmployee({
-		bearer_token: access_token,
+		bearer_token: access_token || '',
 		employeeId: id,
 		organizationId,
 		tenantId,

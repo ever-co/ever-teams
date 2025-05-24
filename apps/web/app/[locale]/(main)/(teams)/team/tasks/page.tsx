@@ -8,8 +8,6 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { ITask } from '@/core/types/interfaces/to-review';
-
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/common/input';
@@ -22,6 +20,7 @@ import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -60,7 +59,7 @@ const TeamTask = () => {
 		state: {
 			columnVisibility: tableColumnsVisibility
 		},
-		getRowId: (row) => row.id,
+		getRowId: (row) => row.id.toString(),
 
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel()
@@ -85,7 +84,7 @@ const TeamTask = () => {
 												<StatusBadge
 													key={index}
 													color={getStatusColor(taskStatus)}
-													label={taskStatus.split('-').join(' ')}
+													label={taskStatus?.split('-').join(' ') || ''}
 													count={tasks.filter((item) => item.status === taskStatus).length}
 												/>
 											)

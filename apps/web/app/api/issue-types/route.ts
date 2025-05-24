@@ -1,6 +1,6 @@
-import { IIssueTypesCreate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createIssueTypeRequest, getIssueTypesListRequest } from '@/core/services/server/requests';
+import { IIssueTypesCreate } from '@/core/types/interfaces/task/IIssueType';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as IIssueTypesCreate;
 
-	const response = await createIssueTypeRequest(body, access_token, body?.tenantId || tenantId);
+	const response = await createIssueTypeRequest(body, access_token || '', body?.tenantId || tenantId || '');
 
 	return $res(response.data);
 }

@@ -15,7 +15,6 @@ import moment from 'moment';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
-import { IOrganization } from '@/core/types/interfaces/to-review';
 import { useTranslations } from 'next-intl';
 import { WeeklyLimitExportMenu } from '@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu';
 import {
@@ -25,6 +24,8 @@ import {
 } from '@/core/components/pages/reports/weekly-limit/time-report-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
+import { IOrganization } from '@/core/types/interfaces/organization/IOrganization';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -46,8 +47,8 @@ function WeeklyLimitReport() {
 	const organizationLimits = useMemo(
 		() =>
 			organization && {
-				date: organization.standardWorkHoursPerDay * 3600,
-				week: organization.standardWorkHoursPerDay * 3600 * 5
+				date: (organization.standardWorkHoursPerDay ?? 8) * 3600,
+				week: (organization.standardWorkHoursPerDay ?? 8) * 3600 * 5
 			},
 		[organization]
 	);
@@ -86,7 +87,9 @@ function WeeklyLimitReport() {
 		getTimeLimitsReport({
 			organizationId,
 			tenantId,
-			employeeIds: [...(member === 'all' ? (activeTeam?.members.map((m) => m.employeeId) ?? []) : [member])],
+			employeeIds: [
+				...(member === 'all' ? (activeTeam?.members.map((m: IEmployee) => m.employeeId) ?? []) : [member])
+			],
 			startDate: dateRange.from?.toISOString(),
 			endDate: dateRange.to?.toISOString(),
 			duration: duration == 'date' ? 'day' : duration,

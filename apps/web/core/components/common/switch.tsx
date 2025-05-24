@@ -1,12 +1,13 @@
-import { IOrganizationTeamMember, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { Switch } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Text } from './typography';
 import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { RoleNameEnum } from '@/core/types/enums/role';
 
-export default function TimeTrackingToggle({ activeManager }: { activeManager: IOrganizationTeamMember | undefined }) {
+export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
 	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
 
@@ -61,18 +62,18 @@ export function ShareProfileViewsToggle() {
 				...activeTeam,
 				shareProfileView: !enabled,
 				memberIds: activeTeam.members
-					.map((t) => t.employee.id)
-					.filter((value, index, array) => array.indexOf(value) === index),
+					.map((t: IEmployee) => t.employee.id)
+					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
 				managerIds: activeTeam.members
 					.filter(
-						(m) =>
+						(m: IEmployee) =>
 							m.role &&
 							(m.role.name === RoleNameEnum.MANAGER ||
 								m.role.name === RoleNameEnum.SUPER_ADMIN ||
 								m.role.name === RoleNameEnum.ADMIN)
 					)
-					.map((t) => t.employee.id)
-					.filter((value, index, array) => array.indexOf(value) === index)
+					.map((t: IEmployee) => t.employee.id)
+					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
 			});
 			setEnabled(!enabled);
 		}
@@ -115,18 +116,18 @@ export function RequireDailyPlanToTrack() {
 				...activeTeam,
 				requirePlanToTrack: !enabled,
 				memberIds: activeTeam.members
-					.map((t) => t.employee.id)
-					.filter((value, index, array) => array.indexOf(value) === index),
+					.map((t: IEmployee) => t.employee.id)
+					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
 				managerIds: activeTeam.members
 					.filter(
-						(m) =>
+						(m: IEmployee) =>
 							m.role &&
 							(m.role.name === RoleNameEnum.MANAGER ||
 								m.role.name === RoleNameEnum.SUPER_ADMIN ||
 								m.role.name === RoleNameEnum.ADMIN)
 					)
-					.map((t) => t.employee.id)
-					.filter((value, index, array) => array.indexOf(value) === index)
+					.map((t: IEmployee) => t.employee.id)
+					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
 			});
 			setEnabled(!enabled);
 			if (!enabled) {

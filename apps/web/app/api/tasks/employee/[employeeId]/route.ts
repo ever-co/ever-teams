@@ -1,4 +1,4 @@
-import { INextParams } from '@/core/types/interfaces/to-review';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteEmployeeFromTasksRequest, getEmployeeTasksRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -24,8 +24,8 @@ export async function GET(req: Request, props: INextParams) {
 	const response = await getEmployeeTasksRequest({
 		employeeId: params.employeeId,
 		organizationTeamId,
-		tenantId,
-		bearer_token
+		tenantId: tenantId || '',
+		bearer_token: bearer_token || ''
 	});
 
 	return $res(response.data);
@@ -52,8 +52,8 @@ export async function DELETE(req: Request, props: INextParams) {
 	const response = await deleteEmployeeFromTasksRequest({
 		employeeId: params.employeeId,
 		organizationTeamId,
-		tenantId,
-		bearer_token
+		tenantId: tenantId || '',
+		bearer_token: bearer_token || ''
 	});
 
 	return $res(response.data);

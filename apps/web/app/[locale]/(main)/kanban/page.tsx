@@ -27,11 +27,11 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
-import { ITask } from '@/core/types/interfaces/to-review';
 import KanbanBoardSkeleton from '@/core/components/common/skeleton/kanban-board-skeleton';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 
 const Kanban = () => {
 	// Get all required hooks and states

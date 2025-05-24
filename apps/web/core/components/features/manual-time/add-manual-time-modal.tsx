@@ -5,18 +5,18 @@ import { format } from 'date-fns';
 import { Button, Modal } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { CalendarDays, Clock7 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/-timer/ITimerLogs';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -392,7 +392,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="REASON"
 								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
-								options={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
+								options={manualTimeReasons.map((reason) =>
+									t(`manualTime.reasons.${reason}` as DottedLanguageObjectStringPaths)
+								)}
 								onChange={(value) => {
 									setReason(value);
 								}}

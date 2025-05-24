@@ -1,4 +1,4 @@
-import { ITagCreate } from '@/core/types/interfaces/to-review';
+import { ITagCreate } from '@/core/types/interfaces/tag/ITag';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createLabelsRequest, getTaskLabelsListRequest } from '@/core/services/server/requests/task-labels';
 import { NextResponse } from 'next/server';
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-	const response = await createLabelsRequest(body, access_token, body?.tenantId);
+	const response = await createLabelsRequest(body, access_token || '', body?.tenantId);
 
 	return $res(response.data);
 }

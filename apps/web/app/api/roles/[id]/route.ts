@@ -1,7 +1,8 @@
-import { INextParams, IRole } from '@/core/types/interfaces/to-review';
+import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteRoleRequest, updateRoleRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -17,8 +18,8 @@ export async function PUT(req: Request, props: INextParams) {
 	const body = (await req.json()) as IRole;
 
 	const response = await updateRoleRequest({
-		bearer_token: access_token,
-		tenantId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
 		data: body
 	});
 
@@ -39,8 +40,8 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	const response = await deleteRoleRequest({
 		id: params.id,
-		bearer_token: access_token,
-		tenantId
+		bearer_token: access_token || '',
+		tenantId: tenantId || ''
 	});
 
 	return $res(response.data);

@@ -1,4 +1,4 @@
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/to-review';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/IRelatedIssueType';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createRelatedIssueTypeRequest,
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskRelatedIssueTypeCreate;
 
-	const response = await createRelatedIssueTypeRequest(body, access_token, body?.tenantId);
+	const response = await createRelatedIssueTypeRequest(body, access_token || '', body?.tenantId);
 
 	return $res(response.data);
 }

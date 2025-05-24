@@ -1,4 +1,4 @@
-import { ITaskVersionCreate } from '@/core/types/interfaces/to-review';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createVersionRequest, getTaskVersionListRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskVersionCreate;
 
-	const response = await createVersionRequest(body, access_token, body?.tenantId);
+	const response = await createVersionRequest(body, access_token || '', body?.tenantId);
 
 	return $res(response.data);
 }

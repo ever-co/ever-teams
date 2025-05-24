@@ -1,4 +1,4 @@
-import { ITaskStatusCreate } from '@/core/types/interfaces/to-review';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createStatusRequest, getTaskStatusListRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 	try {
 		const body = (await req.json()) as unknown as ITaskStatusCreate;
 
-		const response = await createStatusRequest(body, access_token, body?.tenantId);
+		const response = await createStatusRequest(body, access_token || '', body?.tenantId);
 
 		return $res(response.data);
 	} catch (error) {

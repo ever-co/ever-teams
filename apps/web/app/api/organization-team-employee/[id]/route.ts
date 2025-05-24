@@ -1,9 +1,9 @@
-import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/to-review';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	deleteOrganizationTeamEmployeeRequest,
 	updateOrganizationTeamEmployeeRequest
 } from '@/core/services/server/requests';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -22,8 +22,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 	const response = await updateOrganizationTeamEmployeeRequest({
 		id: id,
-		bearer_token: access_token,
-		tenantId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
 		body: body
 	});
 
@@ -48,11 +48,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
 	const response = await deleteOrganizationTeamEmployeeRequest({
 		id: id,
-		bearer_token: access_token,
-		tenantId,
-		organizationId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
+		organizationId: organizationId || '',
 		employeeId: employeeId,
-		organizationTeamId: teamId
+		organizationTeamId: teamId || ''
 	});
 
 	return $res(response.data);

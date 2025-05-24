@@ -31,4 +31,4 @@ export interface IUpdateDailyPlan
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-		IBasePerTenantAndOrganizationEntity {}
+		Omit<IBasePerTenantAndOrganizationEntity, 'id'> {}

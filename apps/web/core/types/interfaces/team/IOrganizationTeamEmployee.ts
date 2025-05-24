@@ -22,7 +22,10 @@ export interface IOrganizationTeamEmployee
 		ITimerStatus {
 	activeTaskId?: ID; // Active Task of the team member
 	activeTask?: ITask;
+	isManager?: boolean;
+	isActive?: boolean;
 }
+
 export interface IOrganizationTeamEmployeeCreate {
 	name?: string;
 	organizationId?: string;
@@ -34,6 +37,7 @@ export interface IOrganizationTeamEmployeeCreate {
 	activeTaskId?: string;
 	order?: number;
 }
+
 export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmployeeCreate {
 	id: string;
 }
