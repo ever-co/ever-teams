@@ -234,15 +234,11 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 								form.setFormValues((v) => ({ ...v, code }));
 							}}
 							hintType={
-								form.errors['code'] || form.errors['email']
-									? 'error'
-									: form.authenticated
-										? 'success'
-										: undefined
+								form.status === 'error' ? 'error' : form.status === 'success' ? 'success' : undefined
 							}
 							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
-						{(form.errors['code'] || form.errors['email']) && (
+						{form.status === 'error' && (form.errors['code'] || form.errors['email']) && (
 							<Text.Error className="self-start justify-self-start">
 								{form.errors['code'] || form.errors['email']}
 							</Text.Error>
@@ -363,6 +359,12 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			}
 		}
 	}, [form.authScreen, router]);
+	useEffect(() => {
+		if (form.status === 'success') {
+			const timeout = setTimeout(() => form.setStatus('idle'), 1500);
+			return () => clearTimeout(timeout);
+		}
+	}, [form.status]);
 
 	const hasMultipleTeams = form.workspaces.some((workspace) => workspace.current_teams.length > 1);
 

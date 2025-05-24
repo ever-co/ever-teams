@@ -945,8 +945,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	);
 
 	const dropdown = (
-		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={cn('relative', className)}>
+		<div className={cn('relative', className)}>
+			<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
 				{(() => {
 					const triggerContent = !multiple ? (
 						<Tooltip
@@ -983,7 +983,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="outline-none cursor-pointer w-full">
+							<div className="w-full outline-none cursor-pointer">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -1059,8 +1059,8 @@ export function StatusDropdown<T extends TStatusItem>({
 						/>
 					);
 				})()}
-			</div>
-		</Tooltip>
+			</Tooltip>
+		</div>
 	);
 
 	return dropdown;
@@ -1164,7 +1164,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
-			<div className="relative outline-none cursor-pointer w-full">
+			<div className="relative w-full outline-none cursor-pointer">
 				<TaskStatus
 					showIcon={showIcon}
 					{...item}
@@ -1210,8 +1210,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	};
 
 	const dropdown = (
-		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={cn('relative', className)}>
+		<div className={cn('relative', className)}>
+			<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 				<CustomListboxDropdown
 					value={value?.value || value?.name}
 					values={values}
@@ -1226,8 +1226,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 				>
 					{children && <div className="mt-2">{children}</div>}
 				</CustomListboxDropdown>
-			</div>
-		</Tooltip>
+			</Tooltip>
+		</div>
 	);
 	return dropdown;
 }
