@@ -127,7 +127,7 @@ export function useAuthenticationPasscode() {
 				}
 			}
 
-			// Deuxième tentative : signInEmailConfirmQueryCall
+			// Second attempt: signInEmailConfirmQueryCall
 			try {
 				const response = await signInEmailConfirmQueryCall(email, code);
 

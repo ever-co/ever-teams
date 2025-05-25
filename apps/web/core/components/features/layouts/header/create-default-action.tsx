@@ -97,8 +97,10 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
 
 			<InviteFormModal open={inviteIsOpen && !!user?.isEmailVerified} closeModal={inviteCloseModal} />
-
-			<CreateProjectModal open={createProjectModal.isOpen} closeModal={createProjectModal.closeModal} />
+			<CreateProjectModal
+				open={createProjectModal.isOpen && !!user?.isEmailVerified}
+				closeModal={createProjectModal.closeModal}
+			/>
 		</div>
 	);
 };
