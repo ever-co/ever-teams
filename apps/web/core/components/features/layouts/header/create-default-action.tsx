@@ -18,6 +18,7 @@ import { Modal } from '../../../common/modal';
 import CreateTaskModal from '../../tasks/create-task-modal';
 import { InviteFormModal } from '../../teams/invite-form-modal';
 import { CreateTeamModal } from '../../teams/create-team-modal';
+import { CreateProjectModal } from '../../projects/create-project-modal';
 export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const t = useTranslations();
@@ -25,6 +26,8 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: inviteIsOpen, closeModal: inviteCloseModal, openModal: inviteOpenModal } = useModal();
 	const { isOpen: createTaskIsOpen, closeModal: createTaskCloseModal, openModal: createTaskOpenModal } = useModal();
+
+	const createProjectModal = useModal();
 	return (
 		<div>
 			<DropdownMenu>
@@ -68,7 +71,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 							<TeamIcon /> Team
 							<DropdownMenuShortcut>⌘CM</DropdownMenuShortcut>
 						</DropdownMenuItem>
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={createProjectModal.openModal}>
 							<ProjectIcon /> Project
 							<DropdownMenuShortcut>⌘CT</DropdownMenuShortcut>
 						</DropdownMenuItem>
@@ -94,6 +97,10 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
 
 			<InviteFormModal open={inviteIsOpen && !!user?.isEmailVerified} closeModal={inviteCloseModal} />
+			<CreateProjectModal
+				open={createProjectModal.isOpen && !!user?.isEmailVerified}
+				closeModal={createProjectModal.closeModal}
+			/>
 		</div>
 	);
 };

@@ -48,7 +48,7 @@ export const exportToBackend = async (
 
 		const response = await fetch(BOARD_BACKEND_POST_URL.value, {
 			method: 'POST',
-			body: payload.buffer
+			body: Buffer.from(payload.buffer)
 		});
 		const json = await response.json();
 		if (json.id) {

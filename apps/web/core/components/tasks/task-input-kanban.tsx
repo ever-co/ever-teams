@@ -285,7 +285,7 @@ export function TaskInputKanban(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className="flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
+				<div className="relative flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
