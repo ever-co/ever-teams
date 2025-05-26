@@ -29,6 +29,7 @@ import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/I
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { TimerSource } from '@/core/types/enums/timer';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -314,7 +315,7 @@ export function useTimer() {
 			updateTask({
 				...activeTeamTaskRef.current,
 				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,
-				status: 'in-progress'
+				status: ITaskStatusNameEnum.IN_PROGRESS
 			});
 		}
 

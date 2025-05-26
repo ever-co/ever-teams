@@ -1,4 +1,5 @@
-import { IDailyPlan, ITask } from '@/core/types/interfaces/to-review';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { DropResult } from '@hello-pangea/dnd';
 
 export const handleDragAndDrop = (

@@ -1,10 +1,10 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import qs from 'qs';
-import { IActivity, TimeLogType } from '@/core/types/interfaces/to-review';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivity } from '@/core/types/interfaces/activity/IActivity';
 import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { TimeLogType } from '@/core/types/enums/timer';
 
 class ActivityService extends APIService {
 	getActivities = async ({

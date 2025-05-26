@@ -1,12 +1,4 @@
 import { APIService, getFallbackAPI } from '../../api.service';
-import {
-	IAuthResponse,
-	IOrganizationTeam,
-	IRegisterDataAPI,
-	ISigninEmailConfirmResponse,
-	ISuccessResponse,
-	IUser
-} from '@/core/types/interfaces/to-review';
 import { getRefreshTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	APP_LOGO_URL,
@@ -20,6 +12,15 @@ import {
 import { ProviderEnum } from '@/core/services/server/requests/o-auth';
 import { signinService } from './signin.service';
 import { userService } from '../users';
+import {
+	IAuthResponse,
+	IRegisterDataAPI,
+	ISigninEmailConfirmResponse,
+	IUserSigninWorkspaceResponse
+} from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { ISuccessResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 
 class AuthService extends APIService {
 	refreshToken = async () => {

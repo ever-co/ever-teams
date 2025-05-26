@@ -1,12 +1,11 @@
-import { ITimerSlot } from '@/core/types/interfaces/-timer/ITimerSlot';
+import { IActivity } from '@/core/types/interfaces/activity/IActivity';
 import { pad } from './number';
-import { IActivity } from '@/core/types/interfaces/-timer/ITimerApp';
-import { IActivity } from '@/core/types/interfaces/to-review';
-export function groupDataByHour(data: ITimerSlot[]) {
-	const groupedData: { startedAt: string; stoppedAt: string; items: ITimerSlot[] }[] = [];
+import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
+export function groupDataByHour(data: ITimeSlot[]) {
+	const groupedData: { startedAt: string; stoppedAt: string; items: ITimeSlot[] }[] = [];
 
 	data.forEach((item) => {
-		const startHour = formatTime(item.startedAt, false);
+		const startHour = formatTime(String(item.startedAt), false);
 
 		const inInterval = groupedData.findIndex((el) => {
 			return el.startedAt == startHour;
@@ -16,8 +15,8 @@ export function groupDataByHour(data: ITimerSlot[]) {
 			groupedData[inInterval].items.push(item);
 		} else {
 			groupedData.push({
-				startedAt: formatTime(item.startedAt, false),
-				stoppedAt: formatTime(item.stoppedAt, true),
+				startedAt: formatTime(String(item.startedAt), false),
+				stoppedAt: formatTime(String(item.stoppedAt), true),
 				items: [item]
 			});
 		}
