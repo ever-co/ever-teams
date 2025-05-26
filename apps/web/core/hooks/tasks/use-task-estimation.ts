@@ -1,10 +1,11 @@
 'use client';
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
-import { ITask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useTeamTasks } from '../organizations';
 import { useOutsideClick } from '../common';
+import { Nullable } from '@/core/types/generics/utils';
 
 export function useTaskEstimation(task?: Nullable<ITask>) {
 	const { activeTeamTask, updateTask, updateLoading, activeTeamId } = useTeamTasks();

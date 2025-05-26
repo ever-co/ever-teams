@@ -1,4 +1,3 @@
-import { ITaskSizeNameEnum, ITaskStatusNameEnum } from '@/core/types/interfaces/to-review';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
 	XXLTextIcon as XlargeIcon,
@@ -18,6 +17,7 @@ import {
 	LoginIcon
 } from 'assets/svg';
 import { TStatus } from './task-status';
+import { ITaskStatusNameEnum, ITaskSizeNameEnum } from '@/core/types/enums/task';
 
 export const taskStatus: TStatus<ITaskStatusNameEnum> = {
 	todo: {

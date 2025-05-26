@@ -1,7 +1,6 @@
 'use client';
 
 import { useModal, useTeamInvitations } from '@/core/hooks';
-import { InviteActionEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
@@ -10,6 +9,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from '../duplicated-components/card';
+import { InviteActionEnum } from '@/core/types/enums/invite';
 
 interface IProps {
 	className?: string;

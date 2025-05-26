@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './use-timesheet';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 import { useLocalStorageState } from '../common/use-local-storage-state';
 
 export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
@@ -15,18 +16,18 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 				type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
 
 				const statusMap: Record<FilterStatusWithoutAll, TimesheetStatus> = {
-					Pending: 'PENDING',
-					Approved: 'APPROVED',
-					'In review': 'IN REVIEW',
-					Draft: 'DRAFT',
-					Rejected: 'DENIED'
+					Pending: TimesheetStatus.PENDING,
+					Approved: TimesheetStatus.APPROVED,
+					'In review': TimesheetStatus.IN_REVIEW,
+					Draft: TimesheetStatus.DRAFT,
+					Rejected: TimesheetStatus.DENIED
 				};
 
 				const filteredTasks = group.tasks.filter((task) => {
 					if (activeStatus === 'All Tasks') {
 						return true;
 					}
-					return task.timesheet.status === statusMap[activeStatus as FilterStatusWithoutAll];
+					return task.timesheet?.status === statusMap[activeStatus as FilterStatusWithoutAll];
 				});
 
 				return {
@@ -38,7 +39,7 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 	}, [data, activeStatus]);
 
 	const statusData = useMemo(() => {
-		const emptyStatusData: Record<TimesheetStatus, TimesheetLog[]> = {
+		const emptyStatusData: Record<TimesheetStatus, ITimeLog[]> = {
 			DRAFT: [],
 			PENDING: [],
 			'IN REVIEW': [],
@@ -51,7 +52,7 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 		const allTasks = data.flatMap((group) => group.tasks);
 		return allTasks.reduce(
 			(acc, task) => {
-				const status = task.timesheet.status as TimesheetStatus;
+				const status = task.timesheet?.status as TimesheetStatus;
 				acc[status].push(task);
 				return acc;
 			},

@@ -1,9 +1,9 @@
 'use client';
 
 import { Modal } from '@/core/components';
-import { ITimerEmployeeLog } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useState, useMemo } from 'react';
 import { Avatar } from '../../duplicated-components/avatar';
+import { ITimerEmployeeLog } from '@/core/types/interfaces/activity/IActivityReport';
 
 interface ActivityModalProps {
 	employeeLog: ITimerEmployeeLog;

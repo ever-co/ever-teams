@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -16,6 +15,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -81,7 +82,7 @@ function DueDates() {
 
 	const $dueDate = useSyncRef(dueDate || (task?.dueDate ? new Date(task.dueDate) : null));
 
-	const remainingDays = task ? calculateRemainingDays(new Date().toISOString(), task.dueDate) : undefined;
+	const remainingDays = task ? calculateRemainingDays(new Date().toISOString(), String(task.dueDate)) : undefined;
 
 	const handleResetDate = useCallback(
 		(date: 'startDate' | 'dueDate') => {
@@ -119,7 +120,7 @@ function DueDates() {
 							{startDate ? (
 								formatDateString(startDate.toISOString())
 							) : task?.startDate ? (
-								formatDateString(task?.startDate)
+								formatDateString(String(task?.startDate))
 							) : (
 								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
@@ -169,7 +170,7 @@ function DueDates() {
 							{dueDate ? (
 								formatDateString(dueDate.toISOString())
 							) : task?.dueDate ? (
-								formatDateString(task?.dueDate)
+								formatDateString(String(task?.dueDate))
 							) : (
 								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
@@ -214,9 +215,9 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (memberList: IOrganizationTeamMember[], task: ITask | null) => {
+const ManageMembersPopover = (memberList: IOrganizationTeamEmployee[], task: ITask | null) => {
 	const t = useTranslations();
-	const [member, setMember] = useState<IOrganizationTeamMember>();
+	const [member, setMember] = useState<IOrganizationTeamEmployee>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
 

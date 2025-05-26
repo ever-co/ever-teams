@@ -1,9 +1,7 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../image-asset/IImageAsset';
+import { IImageAsset, IRelationalImageAsset } from '../global/IImageAsset';
 import { IOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
-import { ID } from '../to-review';
-import { IOrganizationTeamCreate } from './IOrganizationTeam';
 import { IOrganizationTeamEmployee } from './IOrganizationTeamEmployee';
 
 // Base interface for common properties
@@ -51,8 +49,8 @@ export interface IOrganizationTeamCreate {
 	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
-	image?: IImageAssets | null;
-	projects?: IProject[];
+	image?: IImageAsset | null;
+	projects?: IOrganizationProject[];
 }
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
 

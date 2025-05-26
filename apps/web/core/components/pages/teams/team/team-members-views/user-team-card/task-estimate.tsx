@@ -2,7 +2,7 @@
 
 import { mergeRefs, secondsToTime } from '@/core/lib/helpers/index';
 import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@/core/hooks';
-import { IClassName, IDailyPlan } from '@/core/types/interfaces/to-review';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
 import { clsxm } from '@/core/lib/utils';
 import { SpinnerLoader, Text } from '@/core/components';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import { checkPastDate } from '@/core/lib/helpers';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;

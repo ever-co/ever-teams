@@ -2,7 +2,10 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName, ITaskStatusField, ITaskStatusStack, Nullable } from '@/core/types/interfaces/to-review';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
+import { Nullable } from '@/core/types/generics/utils';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
@@ -31,6 +34,7 @@ import { cn } from '@/core/lib/helpers';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 
 export type TStatusItem = {
 	id?: string;
@@ -163,7 +167,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: props.defaultValue ? props.defaultValue : task ? task[field] : undefined,
+		value: props.defaultValue ? props.defaultValue : task ? (task as any)[field] : undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});

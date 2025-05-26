@@ -1,10 +1,11 @@
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const planMode = get(props.column, 'columnDef.meta.planMode');
 	const currentMember = useMemo(
 		() =>
-			members.find((m) => {
+			members.find((m: IEmployee) => {
 				return m.employee.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
@@ -28,7 +29,7 @@ export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 			<div className="flex items-center justify-center ">
 				<ActiveTaskStatusDropdown
 					task={props.row.original}
-					onChangeLoading={(load) => setLoading(load)}
+					onChangeLoading={(load: boolean) => setLoading(load)}
 					className="min-w-[10.625rem] text-sm"
 				/>
 			</div>

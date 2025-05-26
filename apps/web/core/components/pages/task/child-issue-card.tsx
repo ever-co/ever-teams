@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -11,6 +11,7 @@ import { AddIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
+import { TaskTypeEnum } from '@/core/types/enums/task';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -97,18 +98,22 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === 'Epic';
-	const isTaskStory = task.issueType === 'Story';
+	const isTaskEpic = task.issueType === TaskTypeEnum.EPIC;
+	const isTaskStory = task.issueType === TaskTypeEnum.STORY;
 	const childTasks = task.children?.map((t) => t.id) || [];
 
 	const unchildTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== 'Epic';
+				return childTask.issueType !== TaskTypeEnum.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== 'Epic' && childTask.issueType !== 'Story';
+				return childTask.issueType !== TaskTypeEnum.EPIC && childTask.issueType !== TaskTypeEnum.STORY;
 			} else {
-				return childTask.issueType === 'Bug' || childTask.issueType === 'Task' || childTask.issueType === null;
+				return (
+					childTask.issueType === TaskTypeEnum.BUG ||
+					childTask.issueType === TaskTypeEnum.TASK ||
+					childTask.issueType === null
+				);
 			}
 		};
 

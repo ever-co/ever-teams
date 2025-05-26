@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useCallback } from 'react';
 import { useAuthTeamTasks, useOrganizationTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
@@ -16,7 +16,7 @@ export function useUserSelectedPage(id?: string) {
 
 	const members = activeTeam?.members || [];
 
-	const matchUser = members.find((m) => {
+	const matchUser = members.find((m: any) => {
 		return m.employee.userId === memberId;
 	});
 
@@ -41,7 +41,7 @@ export function useUserSelectedPage(id?: string) {
 
 			return updateTask({
 				...task,
-				members: [...task.members, (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
 			});
 		},
 		[updateTask, matchUser]

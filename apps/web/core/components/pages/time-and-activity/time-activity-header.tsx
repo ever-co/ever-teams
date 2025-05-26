@@ -1,18 +1,20 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import React from 'react';
-import { IOrganizationTeam, IProject, ITask } from '@/core/types/interfaces/to-review';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-activity/group-by-select-time-activity';
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
 	onViewOptionsChange?: (options: ViewOption[]) => void;
 	userManagedTeams?: IOrganizationTeam[];
-	projects?: IProject[];
+	projects?: IOrganizationProject[];
 	tasks?: ITask[];
 	activeTeam?: IOrganizationTeam | null;
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;

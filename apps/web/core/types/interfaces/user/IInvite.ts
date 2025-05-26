@@ -42,10 +42,6 @@ export interface IInviteCreate {
 	callbackUrl?: string;
 	startedWorkOn: string;
 }
-export type IInviteRequest = {
-	name: string;
-	email: string;
-};
 
 export type IInviteVerifyCode = {
 	email: string;

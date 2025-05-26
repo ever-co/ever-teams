@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { UserTeamCardSkeleton } from './team-members-header';
 import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';
+import { Member } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 interface Props {
-	teamMembers: IOrganizationTeamMember[];
+	teamMembers: Member[];
 	publicTeam: boolean;
-	currentUser: IOrganizationTeamMember | undefined;
+	currentUser: IOrganizationTeamEmployee | undefined;
 	teamsFetching: boolean;
 }
 

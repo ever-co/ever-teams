@@ -1,12 +1,10 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IFilter } from '@/core/types/interfaces/to-review/IFilter';
 import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
-import { FilterItem } from '../../settings/filter-items';
-import { IInvitationExpire } from '@/core/types/interfaces/to-review/IInvitation_Expire';
-import { mapInvitationExpireItems, InvitationExpireItem } from './invitation-expire-items';
+import { FilterItem, IFilter } from '../../settings/filter-items';
+import { mapInvitationExpireItems, InvitationExpireItem, IInvitationExpire } from './invitation-expire-items';
 
 export const InvitationExpireDropdown = ({
 	setValue,

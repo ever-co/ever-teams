@@ -1,6 +1,5 @@
 'use client';
 
-import { InviteActionEnum } from '@/core/types/interfaces/to-review';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
@@ -14,6 +13,7 @@ import { useFirstLoad } from '../../common/use-first-load';
 import { useQuery } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
+import { InviteActionEnum } from '@/core/types/enums/invite';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -58,7 +58,7 @@ export function useTeamInvitations() {
 				{
 					email,
 					name,
-					organizationId: user?.employee.organizationId as string,
+					organizationId: user?.employee?.organizationId as string,
 					teamId: activeTeamId as string
 				},
 				user?.tenantId as string
@@ -67,12 +67,12 @@ export function useTeamInvitations() {
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee.organizationId]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee?.organizationId]
 	);
 
 	useEffect(() => {
 		if (activeTeamId && firstLoad && isTeamManager && user?.tenantId) {
-			queryCall(user?.tenantId, user.employee.organizationId, 'EMPLOYEE', activeTeamId).then((res) => {
+			queryCall(user?.tenantId, user?.employee?.organizationId ?? '', 'EMPLOYEE', activeTeamId).then((res) => {
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
@@ -93,7 +93,7 @@ export function useTeamInvitations() {
 			removeInviteQueryCall(
 				invitationId,
 				user.tenantId,
-				user.employee.organizationId,
+				user?.employee?.organizationId ?? '',
 				'EMPLOYEE',
 				activeTeamId
 			).then((res) => {

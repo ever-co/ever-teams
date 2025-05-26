@@ -1,9 +1,12 @@
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import Image from 'next/image';
 import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 
 export function TaskItem({
 	selected,
@@ -27,17 +30,17 @@ export function TaskItem({
 						<span className="text-[#9490A0]">#{item.taskNumber}</span> {item.title}
 					</div>
 					<div className="flex items-center space-x-4">
-						<BadgedTaskStatus status={item.status} />
+						<BadgedTaskStatus status={item?.status || ITaskStatusNameEnum.TODO} />
 						<div className="flex items-center justify-center space-x-1">
 							{item.selectedTeam?.members &&
-								item.selectedTeam?.members.map((member, i) => (
+								item.selectedTeam?.members.map((member: IOrganizationTeamEmployee, i: number) => (
 									<div className="flex justify-center items-center" key={i}>
 										<Image
-											src={member.employee.user?.imageUrl || ''}
+											src={member.employee?.user?.imageUrl || ''}
 											alt={
-												(member.employee.user?.firstName || '') +
+												(member.employee?.user?.firstName || '') +
 												' ' +
-												(member.employee.user?.lastName || '')
+												(member.employee?.user?.lastName || '')
 											}
 											width={30}
 											height={30}

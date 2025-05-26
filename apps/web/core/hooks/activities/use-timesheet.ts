@@ -3,12 +3,14 @@ import { timesheetRapportState } from '@/core/stores/timer/time-logs';
 import { useQuery } from '../common/use-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { timeSheetService } from '@/core/services/client/api/timesheets/timesheet.service';
 import { useAuthenticateUser } from '../auth';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -19,10 +21,10 @@ interface TimesheetParams {
 
 export interface GroupedTimesheet {
 	date: string;
-	tasks: TimesheetLog[];
+	tasks: ITimeLog[];
 }
 
-const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
+const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 	if (!items?.length) return [];
 
 	// First, group by timesheetId
@@ -39,7 +41,7 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
 			acc[timesheetId].push(item);
 			return acc;
 		},
-		{} as Record<string, TimesheetLog[]>
+		{} as Record<string, ITimeLog[]>
 	);
 
 	// Then, for each timesheet group, group by date and merge all results
@@ -48,18 +50,18 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
 		const groupedByDate = timesheetLogs.reduce(
 			(acc, item) => {
 				try {
-					const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
+					const date = new Date(String(item.timesheet?.createdAt)).toISOString().split('T')[0];
 					if (!acc[date]) acc[date] = [];
 					acc[date].push(item);
 				} catch (error) {
-					console.error(`Failed to process date for timesheet ${item.timesheet.id}:`, {
-						createdAt: item.timesheet.createdAt,
+					console.error(`Failed to process date for timesheet ${item.timesheet?.id}:`, {
+						createdAt: item.timesheet?.createdAt,
 						error
 					});
 				}
 				return acc;
 			},
-			{} as Record<string, TimesheetLog[]>
+			{} as Record<string, ITimeLog[]>
 		);
 
 		// Convert grouped dates to array format and add to results
@@ -99,7 +101,7 @@ type GroupingKeyFunction = (date: Date) => string;
 
 const createGroupingFunction =
 	(getKey: GroupingKeyFunction) =>
-	(items: TimesheetLog[]): GroupedTimesheet[] => {
+	(items: ITimeLog[]): GroupedTimesheet[] => {
 		if (!items?.length) return [];
 		const groupedByDate = items.reduce(
 			(acc, item) => {
@@ -133,7 +135,7 @@ const createGroupingFunction =
 				}
 				return acc;
 			},
-			{} as Record<string, { date: string; timesheets: Record<string, TimesheetLog[]> }>
+			{} as Record<string, { date: string; timesheets: Record<string, ITimeLog[]> }>
 		);
 
 		return Object.values(groupedByDate)
@@ -142,11 +144,11 @@ const createGroupingFunction =
 				tasks: Object.values(timesheets)
 					.flat()
 					.sort((a, b) => {
-						if (a.timesheet.id !== b.timesheet.id) {
-							return a.timesheet.id.localeCompare(b.timesheet.id);
+						if (a.timesheet?.id !== b.timesheet?.id) {
+							return a.timesheet?.id.localeCompare(String(b.timesheet?.id)) ?? 0;
 						}
-						const dateA = new Date(a.timesheet.createdAt);
-						const dateB = new Date(b.timesheet.createdAt);
+						const dateA = new Date(String(a.timesheet?.createdAt));
+						const dateB = new Date(String(b.timesheet?.createdAt));
 						return dateB.getTime() - dateA.getTime();
 					})
 			}))
@@ -282,7 +284,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
 				employeeIds: isManage
 					? employee?.map(({ employee: { id } }) => id).filter(Boolean)
-					: [user.employee.id],
+					: [user.employee?.id],
 				projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
 				taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
 				status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
@@ -304,7 +306,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	}, [startDate, endDate, getTaskTimesheet]);
 
 	const createTimesheet = useCallback(
-		async ({ ...timesheetParams }: UpdateTimesheet) => {
+		async ({ ...timesheetParams }: IUpdateTimesheetRequest) => {
 			if (!user) {
 				throw new Error('User not authenticated');
 			}
@@ -330,7 +332,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	);
 
 	const updateTimesheet = useCallback(
-		async (timesheet: UpdateTimesheet) => {
+		async (timesheet: IUpdateTimesheetRequest) => {
 			if (!user) {
 				console.warn('User not authenticated!');
 				return;
@@ -355,7 +357,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	);
 
 	const updateTimesheetStatus = useCallback(
-		async ({ status, ids }: { status: TimesheetStatus; ids: ID[] | ID }) => {
+		async ({ status, ids }: { status: TimesheetStatus; ids: string[] | string }) => {
 			if (!user) return;
 			const idsArray = Array.isArray(ids) ? ids : [ids];
 			try {
@@ -384,8 +386,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		[queryUpdateTimesheetStatus, setTimesheet, user]
 	);
 
-	const getStatusTimesheet = (items: TimesheetLog[] = []) => {
-		const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
+	const getStatusTimesheet = (items: ITimeLog[] = []) => {
+		const STATUS_MAP: Record<TimesheetStatus, ITimeLog[]> = {
 			PENDING: [],
 			APPROVED: [],
 			DENIED: [],
@@ -394,7 +396,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		};
 
 		return items.reduce((acc, item) => {
-			const status = item.timesheet.status;
+			const status = item.timesheet?.status;
 			if (isTimesheetStatus(status)) {
 				acc[status].push(item);
 			} else {
@@ -406,7 +408,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 
 	// Type guard
 	function isTimesheetStatus(status: unknown): status is TimesheetStatus {
-		const timesheetStatusValues: TimesheetStatus[] = ['DRAFT', 'PENDING', 'IN REVIEW', 'DENIED', 'APPROVED'];
+		const timesheetStatusValues = Object.values(TimesheetStatus);
 		return Object.values(timesheetStatusValues).includes(status as TimesheetStatus);
 	}
 
@@ -420,7 +422,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			}
 			try {
 				await queryDeleteTimesheet({
-					organizationId: user.employee.organizationId,
+					organizationId: user.employee?.organizationId || '',
 					tenantId: user.tenantId ?? '',
 					logIds
 				});
@@ -433,7 +435,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		[user, queryDeleteTimesheet, setTimesheet]
 	);
 
-	const groupedByTimesheetIds = ({ rows }: { rows: TimesheetLog[] }): Record<string, TimesheetLog[]> => {
+	const groupedByTimesheetIds = ({ rows }: { rows: ITimeLog[] }): Record<string, ITimeLog[]> => {
 		if (!rows) {
 			return {};
 		}
@@ -449,7 +451,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				acc[timesheetId].push(row);
 				return acc;
 			},
-			{} as Record<string, TimesheetLog[]>
+			{} as Record<string, ITimeLog[]>
 		);
 	};
 
@@ -507,13 +509,13 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		return reGroupByDate(groupByDate(filterDataTimesheet));
 	}, [timesheet, timesheetViewMode, filterDataTimesheet, timesheetGroupByDays]);
 
-	const rowsToObject = (rows: TimesheetLog[]): Record<string, { task: TimesheetLog; status: TimesheetStatus }> => {
+	const rowsToObject = (rows: ITimeLog[]): Record<string, { task: ITimeLog; status: TimesheetStatus }> => {
 		return rows.reduce(
 			(acc, row) => {
-				acc[row.timesheet.id] = { task: row, status: row.timesheet.status };
+				acc[row.timesheet?.id ?? ''] = { task: row, status: row.timesheet?.status ?? TimesheetStatus.DRAFT };
 				return acc;
 			},
-			{} as Record<string, { task: TimesheetLog; status: TimesheetStatus }>
+			{} as Record<string, { task: ITimeLog; status: TimesheetStatus }>
 		);
 	};
 

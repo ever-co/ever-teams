@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useTaskLabels } from '@/core/hooks';
-import { IIcon, ITag } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -10,10 +9,11 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 type StatusForm = {
 	formOnly?: boolean;

@@ -2,7 +2,6 @@ import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
-import { ITaskVersionCreate, ITaskVersion } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -14,6 +13,7 @@ import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
+import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -66,11 +66,11 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 					tenantId: user?.tenantId
 					// icon: values.icon,
 					// projectId: '',
-				})?.then(({ data }) => {
+				})?.then((res: any) => {
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
-					$onVersionCreated.current && $onVersionCreated.current(data);
+					$onVersionCreated.current && $onVersionCreated.current(res.data);
 					refetch();
 					reset();
 				});

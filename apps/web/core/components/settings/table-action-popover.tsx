@@ -1,4 +1,3 @@
-import { IOrganizationTeamMember, RoleNameEnum } from '@/core/types/interfaces/to-review';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
@@ -13,10 +12,12 @@ import {
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
+import { RoleNameEnum } from '@/core/types/enums/role';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 type Props = {
-	member: IOrganizationTeamMember;
-	handleEdit?: (member: IOrganizationTeamMember) => void;
+	member: IOrganizationTeamEmployee;
+	handleEdit?: (member: IOrganizationTeamEmployee) => void;
 	status?: 'settings' | 'profile';
 };
 /**
@@ -91,25 +92,26 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 										onClick={() => {
 											updateEmployee({
 												data: {
-													isTrackingEnabled: !member.employee.isTrackingEnabled,
-													id: member.employee.id,
-													organizationId: member.employee.organizationId,
-													isActive: member.employee.isActive,
-													tenantId: member.employee.tenantId
+													isTrackingEnabled: !member.employee?.isTrackingEnabled,
+													id: member.employee?.id,
+													organizationId: member.employee?.organizationId,
+													isActive: member.employee?.isActive,
+													tenantId: member.employee?.tenantId
 												},
-												id: member.employee.id
+												id: member.employee?.id ?? ''
 											});
 										}}
 										style={
-											member.employee.isTrackingEnabled
+											member.employee?.isTrackingEnabled
 												? { background: 'linear-gradient(to right, #ea31244d, #ea312479)' }
 												: { background: '#2ead805b' }
 										}
 									>
 										<div
-											className={` ${member.employee.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
+											className={` ${member.employee?.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee?.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
 										>
-											{!isLoading && renderTrackingIcon(member.employee.isTrackingEnabled)}
+											{!isLoading &&
+												renderTrackingIcon(member.employee?.isTrackingEnabled ?? false)}
 
 											{isLoading ? (
 												<svg

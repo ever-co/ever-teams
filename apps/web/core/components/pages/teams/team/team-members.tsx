@@ -5,23 +5,15 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
-<<<<<<< HEAD
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
-import { OT_Member } from '@/core/types/interfaces';
-=======
-import { taskBlockFilterState } from '@/core/stores/task-filter';
-<<<<<<< HEAD
-import { OT_Member } from '@/core/types/interfaces/to-review';
->>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
-=======
-import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
->>>>>>> cbd537495 (reorganize types by features)
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
+import { Member } from '../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -36,12 +28,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterValidMembers = useCallback((members: IOrganizationTeamMember[]) => {
+	const filterValidMembers = useCallback((members: Member[]) => {
 		return members.filter((member) => member.employee !== null);
 	}, []);
 
 	// Memoize the sort function
-	const sortMembers = useCallback((members: IOrganizationTeamMember[]) => {
+	const sortMembers = useCallback((members: Member[]) => {
 		return [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 	}, []);
 
@@ -53,7 +45,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	}, [activeTeam?.members, filterValidMembers, sortMembers]);
 
 	// Memoize the block view filter function
-	const filterBlockViewMembers = useCallback((members: IOrganizationTeamMember[], filter: string) => {
+	const filterBlockViewMembers = useCallback((members: Member[], filter: string) => {
 		if (filter === 'all') return members;
 		if (filter === 'idle') {
 			return members.filter((m) => m.timerStatus === undefined || m.timerStatus === 'idle');
@@ -89,11 +81,11 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 type TeamMembersViewProps = {
 	fullWidth?: boolean;
-	members: IOrganizationTeamMember[];
-	currentUser?: IOrganizationTeamMember;
+	members: Member[];
+	currentUser?: Member;
 	teamsFetching: boolean;
 	view: IssuesView;
-	blockViewMembers: IOrganizationTeamMember[];
+	blockViewMembers: Member[];
 	publicTeam: boolean;
 	isMemberActive?: boolean;
 };
@@ -111,15 +103,12 @@ export function TeamMembersView({
 	let teamMembersView;
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterOtherMembers = useCallback(
-		(members: IOrganizationTeamMember[], currentUser: IOrganizationTeamMember | undefined) => {
-			return members.filter((member) => member.id !== currentUser?.id);
-		},
-		[]
-	);
+	const filterOtherMembers = useCallback((members: Member[], currentUser: Member | undefined) => {
+		return members.filter((member) => member.id !== currentUser?.id);
+	}, []);
 
 	// Memoize the sort function
-	const sortOtherMembers = useCallback((members: IOrganizationTeamMember[]) => {
+	const sortOtherMembers = useCallback((members: Member[]) => {
 		return members.sort((a, b) => {
 			if (a.order && b.order) return a.order > b.order ? -1 : 1;
 			if (a.order) return -1;
@@ -218,12 +207,14 @@ export function TeamMembersView({
 	return teamMembersView;
 }
 
-const sortByWorkStatus = (user_a: IOrganizationTeamMember, user_b: IOrganizationTeamMember) => {
+const sortByWorkStatus = (user_a: Member, user_b: Member) => {
 	return (
-		user_a.timerStatus === 'running' ||
-		(user_a.timerStatus === 'online' && user_b.timerStatus !== 'running') ||
-		(user_a.timerStatus === 'pause' && user_b.timerStatus !== 'running' && user_b.timerStatus !== 'online') ||
-		(user_a.timerStatus === 'idle' && user_b.timerStatus === 'suspended') ||
-		(user_a.timerStatus === undefined && user_b.timerStatus === 'suspended')
+		user_a.timerStatus === TimerStatusEnum.RUNNING ||
+		(user_a.timerStatus === TimerStatusEnum.ONLINE && user_b.timerStatus !== TimerStatusEnum.RUNNING) ||
+		(user_a.timerStatus === TimerStatusEnum.PAUSE &&
+			user_b.timerStatus !== TimerStatusEnum.RUNNING &&
+			user_b.timerStatus !== TimerStatusEnum.ONLINE) ||
+		(user_a.timerStatus === TimerStatusEnum.IDLE && user_b.timerStatus === TimerStatusEnum.SUSPENDED) ||
+		(user_a.timerStatus === undefined && user_b.timerStatus === TimerStatusEnum.SUSPENDED)
 	);
 };

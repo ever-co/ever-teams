@@ -5,7 +5,6 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
-import { ITimerEmployeeLog, ITimerLogGrouped } from '@/core/types/interfaces/to-review';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';
@@ -17,6 +16,7 @@ import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -44,7 +44,7 @@ export function TeamStatsTable({
 	rapportDailyActivity,
 	isLoading
 }: {
-	rapportDailyActivity?: ITimerLogGrouped[];
+	rapportDailyActivity?: ITimeLogGroupedDailyReport[];
 	isLoading?: boolean;
 }) {
 	const t = useTranslations();
@@ -56,7 +56,7 @@ export function TeamStatsTable({
 	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
 
-	const getEmployeeLog = (data: ITimerLogGrouped): ITimerEmployeeLog | undefined => {
+	const getEmployeeLog = (data: ITimeLogGroupedDailyReport): ITimerEmployeeLog | undefined => {
 		return data?.logs?.[0]?.employeeLogs?.[0];
 	};
 
@@ -70,7 +70,7 @@ export function TeamStatsTable({
 		);
 	};
 
-	const getTotalTime = (data: ITimerLogGrouped): number => {
+	const getTotalTime = (data: ITimeLogGroupedDailyReport): number => {
 		if (!data?.logs) return 0;
 		return data.logs.reduce(
 			(sum, log) => sum + log.employeeLogs.reduce((empSum, empLog) => empSum + empLog.sum, 0),
@@ -80,7 +80,8 @@ export function TeamStatsTable({
 
 	const sortableColumns = {
 		member: {
-			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.employee?.fullName?.toLowerCase() || '',
+			getValue: (data: ITimeLogGroupedDailyReport) =>
+				getEmployeeLog(data)?.employee?.fullName?.toLowerCase() || '',
 			compare: (a: string, b: string) => a.localeCompare(b)
 		},
 		totalTime: {
@@ -88,28 +89,28 @@ export function TeamStatsTable({
 			compare: (a: number, b: number) => a - b
 		},
 		tracked: {
-			getValue: (data: ITimerLogGrouped) =>
+			getValue: (data: ITimeLogGroupedDailyReport) =>
 				getEmployeeLog(data)?.tasks.reduce((sum, task) => sum + task.duration, 0) || 0,
 			compare: (a: number, b: number) => a - b
 		},
 		manual: {
-			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'manual'),
+			getValue: (data: ITimeLogGroupedDailyReport) => getTaskDurationByType(getEmployeeLog(data), 'manual'),
 			compare: (a: number, b: number) => a - b
 		},
 		activeTime: {
-			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'active'),
+			getValue: (data: ITimeLogGroupedDailyReport) => getTaskDurationByType(getEmployeeLog(data), 'active'),
 			compare: (a: number, b: number) => a - b
 		},
 		idleTime: {
-			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'idle'),
+			getValue: (data: ITimeLogGroupedDailyReport) => getTaskDurationByType(getEmployeeLog(data), 'idle'),
 			compare: (a: number, b: number) => a - b
 		},
 		unknownActivity: {
-			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'unknown'),
+			getValue: (data: ITimeLogGroupedDailyReport) => getTaskDurationByType(getEmployeeLog(data), 'unknown'),
 			compare: (a: number, b: number) => a - b
 		},
 		activityLevel: {
-			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.activity || 0,
+			getValue: (data: ITimeLogGroupedDailyReport) => getEmployeeLog(data)?.activity || 0,
 			compare: (a: number, b: number) => a - b
 		}
 	};

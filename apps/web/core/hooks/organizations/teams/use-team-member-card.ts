@@ -1,7 +1,6 @@
 'use client';
 
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { IOrganizationTeam, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -13,6 +12,10 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
 import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { Nullable } from '@/core/types/generics/utils';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -20,7 +23,7 @@ import { useOutsideClick } from '../../common';
  * @param {IOrganizationTeam['members'][number] | undefined} member -
  * IOrganizationTeamList['members'][number] | undefined
  */
-export function useTeamMemberCard(member: IOrganizationTeam['members'][number] | undefined) {
+export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined) {
 	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
@@ -35,10 +38,10 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
-	const memberUser = member?.employee.user;
+	const memberUser = member?.employee?.user;
 
 	// const memberUserRef = useSyncRef(memberUser);
-	const isAuthUser = member?.employee.userId === authUser?.id;
+	const isAuthUser = member?.employee?.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
 	const memberTaskRef = useRef<Nullable<ITask>>(null);
@@ -70,10 +73,10 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 			find = cTask;
 		} else if (member.lastWorkedTask) {
 			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
-			find = cTask?.members.some((m) => m.id === member.employee.id);
+			find = cTask?.members?.some((m) => m.id === member.employee?.id);
 		} else {
-			cTask = tasks.find((t) => t.members.some((m) => m.userId === member.employee.userId));
-			find = cTask?.members.some((m) => m.id === member.employee.id);
+			cTask = tasks.find((t) => t.members?.some((m) => m.userId === member.employee?.userId));
+			find = cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 
 		if (isAuthUser && member.lastWorkedTask && !active_task_id) {
@@ -103,8 +106,8 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.map((r) => r.employee.id)
+				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
 				.concat(employeeId)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
@@ -120,10 +123,10 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id)
-				.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
+				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
+				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
+				?.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
@@ -139,13 +142,15 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
 		updateOrganizationTeam(activeTeamRef.current, {
 			// remove from members
-			memberIds: team.members.filter((r) => r.employee.id !== employeeId).map((r) => r.employee.id),
+			memberIds: team.members
+				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id),
 
 			// remove from managers
 			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id)
+				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
+				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 
@@ -156,7 +161,7 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 		if (!memberUser) return [];
 
 		return tasks.filter((task) => {
-			return !task.members.some((m) => m.userId === memberUser.id);
+			return !task.members?.some((m) => m.userId === memberUser.id);
 		});
 	}, [tasks, memberUser]);
 
@@ -171,7 +176,7 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 			setAssignTaskLoading(true);
 			return updateTask({
 				...task,
-				members: [...task.members, (member?.employeeId ? { id: member?.employeeId } : {}) as any]
+				members: [...(task.members || []), (member?.employeeId ? { id: member?.employeeId } : {}) as any]
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);
@@ -191,7 +196,7 @@ export function useTeamMemberCard(member: IOrganizationTeam['members'][number] |
 
 			return updateTask({
 				...task,
-				members: task.members.filter((m) => m.id !== member.employeeId)
+				members: task.members?.filter((m) => m.id !== member.employeeId)
 			}).finally(() => {
 				isAuthUser && unassignAuthActiveTask();
 				setUnAssignTaskLoading(false);

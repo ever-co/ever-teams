@@ -1,4 +1,3 @@
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { memo } from 'react';
 import { TaskCard } from '../tasks/task-card';
 import { Divider, Text } from '@/core/components';
@@ -6,8 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useUserSelectedPage } from '@/core/hooks/users';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
-const UserWorkedTaskTab = ({ member }: { member?: IEmployee }) => {
+const UserWorkedTaskTab = ({ member }: { member?: Member }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
 	const { user } = useAuthenticateUser();

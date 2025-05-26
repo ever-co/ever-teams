@@ -7,20 +7,13 @@ import {
 } from '../../enums/project';
 import { TaskListTypeEnum, ITaskStatusNameEnum } from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../image-asset/IImageAsset';
+import { IRelationalImageAsset } from '../global/IImageAsset';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { CustomFieldsObject } from '../organization/IOrganization';
+import { ITag } from '../tag/ITag';
 import { ITask } from '../task/ITask';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { ITimeLog } from '../timelog/ITimeLog';
-import { IOrganizationTeam } from '../to-review';
-import {
-	ITag,
-	OrganizationProjectBudgetTypeEnum,
-	ProjectBillingEnum,
-	IProject,
-	ProjectOwnerEnum
-} from '../to-review/IProject';
+import { ITimeLog } from '../time-log/ITimeLog';
 import { IOrganizationProjectEmployee } from './IOrganizationProjectEmployee';
 
 export interface IOrganizationProjectBase
@@ -118,3 +111,18 @@ export interface ICreateProjectRequest {
 }
 
 export type IEditProjectRequest = Partial<ICreateProjectRequest>;
+
+export interface IOrganizationProjectRepository {
+	id: string;
+	createdAt?: string;
+	updatedAt?: string;
+	isActive: boolean;
+	isArchived: boolean;
+	tenantId: string;
+	organizationId: string;
+	repositoryId: number;
+	name: string;
+	fullName: string;
+	owner: string;
+	integrationId: string;
+}

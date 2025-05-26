@@ -1,11 +1,10 @@
 import { Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IDay } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { DayItem, mapDayItems } from './day-items';
+import { DayItem, IDay, mapDayItems } from './day-items';
 
 export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<FieldValues>; active?: IDay | null }) => {
 	const t = useTranslations();

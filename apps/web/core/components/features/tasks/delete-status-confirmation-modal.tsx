@@ -1,14 +1,15 @@
-import { ITaskStatusNameEnum, TaskStatusEnum } from '@/core/types/interfaces/to-review';
 import { useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { Card } from '../../duplicated-components/card';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 
 interface DeleteTaskStatusModalProps {
 	open: boolean;
 	closeModal: () => void;
-	status: ITaskStatusNameEnum;
+	status: ITaskStatus;
 	onCancel: () => void;
 }
 
@@ -46,7 +47,9 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 
 		try {
 			// Update each task that uses the current status
-			const updatePromises = tasksUsingStatus.map((task) => updateTask({ ...task, status: TaskStatusEnum.OPEN }));
+			const updatePromises = tasksUsingStatus.map((task) =>
+				updateTask({ ...task, status: ITaskStatusNameEnum.OPEN })
+			);
 
 			await Promise.all(updatePromises);
 

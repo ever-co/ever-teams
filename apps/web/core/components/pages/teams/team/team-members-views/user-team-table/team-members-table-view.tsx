@@ -1,13 +1,13 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
 import { ActionMenuCell, TaskCell, TaskEstimateInfoCell, UserInfoCell, WorkedOnTaskCell } from './team-member-cells';
+import { Member } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 const TeamMembersTableView = ({
 	teamMembers,
@@ -15,14 +15,14 @@ const TeamMembersTableView = ({
 	publicTeam = false,
 	active = false
 }: {
-	teamMembers: IOrganizationTeamMember[];
-	currentUser: IOrganizationTeamMember | undefined;
+	teamMembers: Member[];
+	currentUser?: Member;
 	publicTeam?: boolean;
 	active?: boolean;
 }) => {
 	const t = useTranslations();
 
-	const columns = React.useMemo<ColumnDef<IOrganizationTeamMember>[]>(
+	const columns = React.useMemo<ColumnDef<Member>[]>(
 		() => [
 			{
 				id: 'name',
@@ -65,7 +65,7 @@ const TeamMembersTableView = ({
 		[]
 	);
 
-	const sortedTeamMembers: IOrganizationTeamMember[] = [];
+	const sortedTeamMembers: Member[] = [];
 	if (currentUser) {
 		sortedTeamMembers.push(currentUser);
 	}
@@ -75,7 +75,7 @@ const TeamMembersTableView = ({
 		<>
 			<DataTable
 				isHeader={false}
-				columns={columns as Column<IOrganizationTeamMember>[]}
+				columns={columns as Column<Member>[]}
 				data={sortedTeamMembers}
 				isScrollable
 				noResultsMessage={{

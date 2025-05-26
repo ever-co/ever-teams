@@ -1,16 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { IssuesView } from '@/core/constants/config/constants';
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { fullWidthState } from '@/core/stores/common/full-width';
-=======
-import { IOrganizationTeamList } from '@/core/types/interfaces/to-review';
-=======
-import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
->>>>>>> cbd537495 (reorganize types by features)
-import { fullWidthState } from '@/core/stores/fullWidth';
->>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';

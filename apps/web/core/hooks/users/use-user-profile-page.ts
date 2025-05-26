@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -24,7 +24,7 @@ export function useUserProfilePage() {
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam]);
 
 	const matchUser = useMemo(() => {
-		return members.find((m) => {
+		return members.find((m: any) => {
 			return m.employee.userId === memberId;
 		});
 	}, [members, memberId]);
@@ -50,7 +50,7 @@ export function useUserProfilePage() {
 
 			return updateTask({
 				...task,
-				members: [...task.members, (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
 			});
 		},
 		[updateTask, matchUser]

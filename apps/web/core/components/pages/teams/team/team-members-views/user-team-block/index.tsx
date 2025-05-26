@@ -1,7 +1,6 @@
 import React from 'react';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@/core/hooks';
-import { IClassName, IOrganizationTeam, ITimerStatusEnum } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -16,10 +15,16 @@ import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { Member } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type IUserTeamBlock = {
 	active?: boolean;
-	member?: IOrganizationTeam['members'][number];
+	member?: Member;
 	publicTeam?: boolean;
 	members?: IOrganizationTeam['members'];
 } & IClassName;
@@ -44,14 +49,14 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const { timerStatus } = useTimer();
 
-	const timerStatusValue: ITimerStatusEnum = React.useMemo(() => {
+	const timerStatusValue: TimerStatusEnum = React.useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
 	const { h, m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
-				(previousValue, currentValue) => previousValue + currentValue.duration,
+				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),
 				0
 			)) ||
 			activeTaskTotalStat?.duration ||

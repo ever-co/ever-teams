@@ -1,7 +1,7 @@
-import { IPagination } from '@/core/types/interfaces/to-review/IPagination';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';
+import { IPagination } from './page-dropdown';
 
 export type PaginationItems = DropdownItem<IPagination>;
 

@@ -1,12 +1,12 @@
 import { pad } from '@/core/lib/helpers/number';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
 import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { EstimationProgress } from './estimation-progress';
 import { useTranslations } from 'next-intl';
-import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 type Props = {
 	memberTask: ITask | null;

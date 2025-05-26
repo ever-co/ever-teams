@@ -1,6 +1,6 @@
-import { INotify } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
+import { INotify } from './notify-dropdown';
 
 export type NotifyItem = DropdownItem<INotify>;
 

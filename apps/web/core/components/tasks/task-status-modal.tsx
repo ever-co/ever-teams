@@ -1,7 +1,6 @@
 'use client';
 
 import { IHookModal, useModal, useStatusValue, useTaskStatusValue } from '@/core/hooks';
-import { ITaskStatusField } from '@/core/types/interfaces/to-review';
 import { Button, Modal, Text } from '@/core/components';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';
@@ -16,6 +15,7 @@ import {
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { Card } from '../duplicated-components/card';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
 	types,

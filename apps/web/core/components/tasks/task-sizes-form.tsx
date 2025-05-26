@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
 import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
-import { IIcon, ITaskSizeNameEnum } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -11,10 +10,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
+import { ITaskSize } from '@/core/types/interfaces/task/ITaskSize';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -25,7 +25,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useAtomValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskSizeNameEnum | null>(null);
+	const [edit, setEdit] = useState<ITaskSize | null>(null);
 
 	const t = useTranslations();
 

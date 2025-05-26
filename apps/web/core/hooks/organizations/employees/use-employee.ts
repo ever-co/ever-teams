@@ -2,10 +2,10 @@ import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 
-import { IUpdateEmployee } from '@/core/types/interfaces/to-review';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useQuery } from '../../common';
+import { IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
@@ -21,7 +21,7 @@ export const useEmployee = () => {
 		if (!user?.tenantId) {
 			return;
 		}
-		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee.organizationId).then(({ data }) => {
+		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee?.organizationId ?? '').then(({ data }) => {
 			if (data?.items && data?.items?.length) {
 				const items = data.items || [];
 

@@ -1,13 +1,14 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import { IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
-export function BlockCardMemberTodayWorked({ member }: { member: IOrganizationTeamMember }) {
+export function BlockCardMemberTodayWorked({ member }: { member: IEmployee }) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 
@@ -17,7 +18,7 @@ export function BlockCardMemberTodayWorked({ member }: { member: IOrganizationTe
 	const { h, m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
-				(previousValue, currentValue) => previousValue + currentValue.duration,
+				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),
 				0
 			)) ||
 			activeTaskTotalStat?.duration ||

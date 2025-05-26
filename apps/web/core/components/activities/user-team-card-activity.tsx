@@ -11,9 +11,9 @@ import UserWorkedTaskTab from '@/core/components/activities/user-worked-task';
 import { ScreenshootTeamTab } from '../pages/profile/screenshots/screenshoots';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
-const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: IEmployee }) => {
+const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: Member }) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 

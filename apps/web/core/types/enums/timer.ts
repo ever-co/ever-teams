@@ -33,3 +33,12 @@ export enum TimerStatusEnum {
 	ONLINE = 'online',
 	SUSPENDED = 'suspended'
 }
+
+export enum ManualTimeReasons {
+	LOST_ELECTRICITY = 'LOST_ELECTRICITY',
+	LOST_INTERNET = 'LOST_INTERNET',
+	FORGOT_TO_START_TIMER = 'FORGOT_TO_START_TIMER',
+	ERROR = 'ERROR',
+	UNPLANNED_WORK = 'UNPLANNED_WORK',
+	TESTED_TIMER = 'TESTED_TIMER'
+}

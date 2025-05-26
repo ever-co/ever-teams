@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScreenCalendar } from '../../activities/screen-calendar';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
-import { IUser } from '@/core/types/interfaces/to-review';
 import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 
 type Props = {
 	tabFiltered: I_TaskFilter;

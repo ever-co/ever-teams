@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useQuery } from '../common/use-query';
 import { useAtom } from 'jotai';
 import {
@@ -8,12 +7,13 @@ import {
 	timeLogsRapportDailyState,
 	timesheetStatisticsCountsState
 } from '@/core/stores';
-import { TimeLogType } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import { activityService } from '@/core/services/client/api/activities';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
+import { TimeLogType } from '@/core/types/enums/timer';
+import { ITimeLogReportDailyChartProps } from '@/core/services/server/requests/timesheet';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -112,7 +112,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	// Props merging logic
 	const getMergedProps = useMemo(() => {
-		if (!user?.employee.organizationId) {
+		if (!user?.employee?.organizationId) {
 			return null;
 		}
 
@@ -121,7 +121,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				...defaultProps,
 				...currentFilters,
 				...(customProps || {}),
-				organizationId: user.employee.organizationId,
+				organizationId: user.employee?.organizationId,
 				teamId: customProps?.teamId || currentFilters.teamId,
 				userId: customProps?.userId || currentFilters.userId,
 				tenantId: user.tenantId ?? '',
@@ -132,7 +132,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				projectIds: (customProps?.projectIds ||
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
-				employeeIds: isManage ? employeeIds : [user.employee.id],
+				employeeIds: isManage ? employeeIds : [user?.employee?.id],
 				teamIds: teamIds,
 				activityLevel: {
 					start:

@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 import React, { JSX, ReactNode } from 'react';
-import { ITaskStatusNameEnum } from '@/core/types/interfaces/to-review';
+import { ITaskStatusNameEnum } from '../types/enums/task';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }

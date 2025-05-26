@@ -231,7 +231,7 @@ export function TaskCard(props: Props) {
 					<div className="flex items-center justify-center ">
 						<ActiveTaskStatusDropdown
 							task={task}
-							onChangeLoading={(load) => setLoading(load)}
+							onChangeLoading={(load: boolean) => setLoading(load)}
 							className="min-w-[10.625rem] text-sm"
 						/>
 					</div>
@@ -813,7 +813,7 @@ export function PlanTask({
 	);
 }
 
-export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: IOrganizationTeamEmployee }) {
+export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: IEmployee }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (

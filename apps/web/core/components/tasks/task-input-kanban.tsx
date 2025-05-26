@@ -10,7 +10,7 @@ import {
 	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { ITaskPriority, ITaskSizeNameEnum, ITask, Nullable } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -24,6 +24,8 @@ import { TaskLabels } from './task-labels';
 import { InputField } from '../duplicated-components/_input';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { Nullable } from '@/core/types/generics/utils';
+import { ITaskSizeNameEnum, TaskPriorityEnum, TaskTypeEnum } from '@/core/types/enums/task';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -179,17 +181,17 @@ export function TaskInputKanban(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === 'Story'
+				props.task?.issueType === TaskTypeEnum.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === 'Task' ||
-				props.task?.issueType === 'Bug' ||
+				props.task?.issueType === TaskTypeEnum.TASK ||
+				props.task?.issueType === TaskTypeEnum.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === 'Epic' || item.issueType === 'Story'
+					(item) => item.issueType === TaskTypeEnum.EPIC || item.issueType === TaskTypeEnum.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -289,7 +291,7 @@ export function TaskInputKanban(props: Props) {
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
-						onValueChange={(v) => setTaskIssue(v)}
+						onValueChange={(v: any) => setTaskIssue(v)}
 					/>
 				</div>
 			}
@@ -375,19 +377,19 @@ function TaskCard({
 									<ActiveTaskPropertiesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskPriority) {
 												taskPriority.current = v;
 											}
 										}}
-										defaultValue={taskPriority?.current as ITaskPriority}
+										defaultValue={taskPriority?.current as TaskPriorityEnum}
 										task={null}
 									/>
 
 									<ActiveTaskSizesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskSize) {
 												taskSize.current = v;
 											}

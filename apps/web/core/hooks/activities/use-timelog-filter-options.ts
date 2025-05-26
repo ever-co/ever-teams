@@ -1,4 +1,6 @@
-import { IUser, RoleNameEnum, TimesheetLog } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { RoleNameEnum } from '@/core/types/enums/role';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 import {
 	timesheetDeleteState,
 	timesheetGroupByDayState,
@@ -34,7 +36,7 @@ export function useTimelogFilterOptions() {
 
 	const isUserAllowedToAccess = (user: IUser | null | undefined): boolean => {
 		const allowedRoles: RoleNameEnum[] = [RoleNameEnum.SUPER_ADMIN, RoleNameEnum.MANAGER, RoleNameEnum.ADMIN];
-		return user?.role.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
+		return user?.role?.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
 	};
 	const normalizeText = (text: string | undefined | null): string => {
 		if (!text) return '';
@@ -57,15 +59,15 @@ export function useTimelogFilterOptions() {
 		});
 	};
 
-	const handleSelectRowTimesheet = (items: TimesheetLog) => {
+	const handleSelectRowTimesheet = (items: ITimeLog) => {
 		setSelectTimesheetId((prev) =>
 			prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items]
 		);
 	};
 
-	const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
-		setSelectTimesheetId((prev: TimesheetLog[]) => {
-			const isLogIncluded = (log: TimesheetLog, list: TimesheetLog[]) => list.some((item) => item.id === log.id);
+	const handleSelectRowByStatusAndDate = (logs: ITimeLog[], isChecked: boolean) => {
+		setSelectTimesheetId((prev: ITimeLog[]) => {
+			const isLogIncluded = (log: ITimeLog, list: ITimeLog[]) => list.some((item) => item.id === log.id);
 
 			if (!isChecked) {
 				return prev.filter((prevLog) => !logs.some((log) => log.id === prevLog.id));

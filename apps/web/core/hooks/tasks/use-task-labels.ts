@@ -1,6 +1,5 @@
 'use client';
 
-import { ITagCreate } from '@/core/types/interfaces/to-review';
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -9,6 +8,7 @@ import { useQuery } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
+import { ITagCreate } from '@/core/types/interfaces/tag/ITag';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);

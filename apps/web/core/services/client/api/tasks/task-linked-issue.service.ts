@@ -3,7 +3,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 
 class TaskLinkedIssueService extends APIService {
-	createTaskLinkedIssue = async (data: ITaskLinkedIssue) => {
+	createTaskLinkedIssue = async (data: Omit<ITaskLinkedIssue, 'id'>) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/task-linked-issue' : '/tasks/task-linked-issue';
 		return this.post<ITaskLinkedIssue>(endpoint, data);
 	};

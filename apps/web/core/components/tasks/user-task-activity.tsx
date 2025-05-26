@@ -2,7 +2,7 @@ import React from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { IActivity } from '@/core/types/interfaces/to-review';
+import { IActivity } from '@/core/types/interfaces/activity/IActivity';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';
@@ -56,7 +56,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 								{timesheet.timeSlot?.screenshots?.map((screenshot, i) => (
 									<div key={i} className="w-1/3 min-w-[20rem] p-2">
 										<Tooltip
-											label={screenshot.description}
+											label={screenshot.description || ''}
 											placement="left-start"
 											type="VERTICAL"
 											labelContainerClassName="w-full"
@@ -64,8 +64,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 											<ScreenshotItem
 												idSlot={timesheet.timeSlot?.id ?? ''}
 												endTime={timesheet.timeSlot?.stoppedAt ?? ''}
-												startTime={screenshot.recordedAt}
-												imageUrl={screenshot.thumbUrl}
+												startTime={screenshot.recordedAt || ''}
+												imageUrl={screenshot.thumbUrl || ''}
 												percent={timesheet.timeSlot?.percentage ?? 0}
 												showProgress={false}
 												onShow={() => null}
@@ -77,14 +77,15 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 												<span className="rounded-lg px-1 mb-1 text-white bg-blue-600">
 													{timesheet.source}
 												</span>
-												{screenshot.apps?.map((app, i) => (
-													<span
-														key={i}
-														className="rounded-lg px-1 mb-1 text-white bg-blue-600"
-													>
-														{app}
-													</span>
-												))}
+												{Array.isArray(screenshot.apps) &&
+													screenshot.apps.map((app: string, i: number) => (
+														<span
+															key={i}
+															className="rounded-lg px-1 mb-1 text-white bg-blue-600"
+														>
+															{app}
+														</span>
+													))}
 											</div>
 										</div>
 									</div>

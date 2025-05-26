@@ -4,7 +4,7 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useTaskInput } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '../features/tasks/delete-task';
 import TaskFilter from './task-filter';

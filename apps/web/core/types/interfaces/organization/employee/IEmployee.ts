@@ -8,6 +8,7 @@ import { ITimesheet } from '../../timesheet/ITimesheet';
 import { ITimeSlot } from '../../time-slot/ITimeSlot';
 
 export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITaggable {
+	id: ID;
 	[x: string]: any;
 	endWork?: Date;
 	startedWorkOn?: Date;
@@ -101,3 +102,10 @@ export interface IRelationalEmployee {
 }
 export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
 export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
+
+export type MemberCard_EditableValues = {
+	memberName: string;
+	memberTask: string;
+	estimateHours: number;
+	estimateMinutes: number;
+};

@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/common/separator';
@@ -12,7 +12,8 @@ import { EstimateTimeInfo } from './estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
-import { IOrganizationTeamEmploye } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -24,9 +25,9 @@ export type MembersCard_EditableValues = {
 const Card = ({ member }: { member: IOrganizationTeamEmployee }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
-	const isAuthUser = member.employee.userId === user?.id;
+	const isAuthUser = member.employee?.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
-	const iuser = member.employee.user;
+	const iuser = member.employee?.user;
 
 	const [memberTask, setMemberTask] = useState<ITask | null>(null);
 
@@ -35,7 +36,7 @@ const Card = ({ member }: { member: IOrganizationTeamEmployee }) => {
 	const [taskEditMode, setTaskEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 
-	const [formValues, setFormValues] = useState<MC_EditableValues>({
+	const [formValues, setFormValues] = useState<MemberCard_EditableValues>({
 		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
 		memberTask: '',
 		estimateHours: 0,

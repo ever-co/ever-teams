@@ -7,7 +7,6 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { ITag, ITaskStatusField, ITaskStatusStack, ITask } from '@/core/types/interfaces/to-review';
 import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -30,6 +29,11 @@ import { useOrganizationEmployeeTeams } from './use-organization-teams-employee'
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useQuery, useSyncRef } from '../../common';
 import { useTaskStatus } from '../../tasks';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -179,7 +183,7 @@ export function useTeamTasks() {
 			if (deepCheck) {
 				const latestActiveTeamTasks = responseTasks
 					.filter((task) => {
-						return task.teams.some((tm) => {
+						return task.teams?.some((tm) => {
 							return tm.id === activeTeamRef.current?.id;
 						});
 					})
@@ -209,8 +213,8 @@ export function useTeamTasks() {
 			}
 
 			return queryCall(
-				user?.employee.organizationId,
-				user?.employee.tenantId,
+				user?.employee?.organizationId ?? '',
+				user?.employee?.tenantId ?? '',
 				activeTeamRef.current?.projects && activeTeamRef.current?.projects.length
 					? activeTeamRef.current?.projects[0].id
 					: '',
@@ -409,7 +413,7 @@ export function useTeamTasks() {
 			task?: ITask | null,
 			loader?: boolean
 		) => {
-			if (task && status !== task[field]) {
+			if (task && status !== (task as any)[field]) {
 				loader && setTasksFetching(true);
 
 				if (field === 'status' && status === 'closed') {
@@ -455,7 +459,7 @@ export function useTeamTasks() {
 				if (_task) {
 					updateTask({
 						..._task,
-						members: _task.members.filter((m) => m.id !== $user.current?.employee.id)
+						members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
 					});
 				}
 			}
@@ -466,8 +470,8 @@ export function useTeamTasks() {
 
 			if (task) {
 				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members.find(
-					(member) => member.employeeId === authUser.current?.employee?.id
+				const currentEmployeeDetails = activeTeam?.members?.find(
+					(member: IOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {

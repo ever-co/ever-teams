@@ -1,5 +1,5 @@
 import { useOrganizationProjects } from '@/core/hooks';
-import { IProject } from '@/core/types/interfaces/to-review';
+import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -9,7 +9,7 @@ import { Card } from '../../duplicated-components/card';
 interface IQuickCreateProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
-	onSuccess?: (project: IProject) => void;
+	onSuccess?: (project: IOrganizationProject) => void;
 }
 /**
  * A modal that allow to create a new project

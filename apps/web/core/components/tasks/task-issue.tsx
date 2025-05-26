@@ -1,5 +1,4 @@
 import { useModal, useStatusValue } from '@/core/hooks';
-import { IClassName, IssueType, ITaskIssueTypeEnum, ITask, Nullable } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -17,6 +16,10 @@ import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Card } from '../duplicated-components/card';
 import { InputField } from '../duplicated-components/_input';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { Nullable } from '@/core/types/generics/utils';
+import { IssueType, ITaskIssueTypeEnum, TaskTypeEnum } from '@/core/types/enums/task';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssueTypeEnum> = {
@@ -118,16 +121,16 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 	const updatedItemsBasedOnTaskIssueType = useMemo(() => {
 		let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 		if (props.task && props.task?.issueType && props.task.parent) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType as IssueType];
 
 			// If parent task is already Story then user can not assign current task as a Story
-			if (props.task.parent.issueType === 'Story') {
+			if (props.task.parent.issueType === TaskTypeEnum.STORY) {
 				updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter(
 					(it) => it.value !== 'Story'
 				);
 			}
 		} else if (props.task && props.task?.issueType) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType as IssueType];
 		} else {
 			// Default show types in Dropdown
 			updatedItemsBasedOnTaskIssueType = items;
@@ -166,7 +169,7 @@ export function TaskIssueStatus({
 }: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issueType || 'Task']}
+			{...taskIssues[task?.issueType || IssueType.BUG]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('px-2 text-white rounded-md', className)}

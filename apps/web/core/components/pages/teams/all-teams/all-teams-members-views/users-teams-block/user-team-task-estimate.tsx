@@ -1,13 +1,14 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useEffect, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 export default function UserTeamActiveTaskEstimateBlock({
 	member,
 	activeTaskId
 }: {
-	member: IOrganizationTeamMember;
+	member: IOrganizationTeamEmployee;
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);

@@ -1,9 +1,16 @@
-import { TaskPriorityEnum, TaskSizeEnum, ITaskStatusNameEnum, TaskTypeEnum } from '../../enums/task';
+import {
+	TaskPriorityEnum,
+	TaskSizeEnum,
+	ITaskStatusNameEnum,
+	TaskTypeEnum,
+	ITaskIssueTypeEnum
+} from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
 import { IIssueType } from './IIssueType';
+import { ITaskLinkedIssue } from './ITaskLinkedIssue';
 import { ITaskPriority } from './ITaskPriority';
 import { ITaskSize } from './ITaskSize';
 import { ITaskStatus } from './task-status/ITaskStatus';
@@ -17,7 +24,7 @@ export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntity
 	status?: ITaskStatusNameEnum;
 	priority?: TaskPriorityEnum;
 	size?: TaskSizeEnum;
-	issueType?: TaskTypeEnum;
+	issueType?: ITaskIssueTypeEnum;
 	startDate?: Date;
 	resolvedAt?: Date;
 	dueDate?: Date;
@@ -53,6 +60,10 @@ export interface ITask extends IBaseTaskProperties, ITaskAssociations {
 	taskNumber?: string;
 	totalWorkedTime?: number;
 	selectedTeam?: IOrganizationTeam;
+	linkedIssues?: ITaskLinkedIssue[];
+	label?: string;
+	estimateHours?: number;
+	estimateMinutes?: number;
 }
 
 export interface ITasksStatistics extends ITask {

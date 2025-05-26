@@ -7,10 +7,12 @@ import {
 } from '../../timesheet';
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 
 interface ITimesheetFilter {
 	isOpen: boolean;
@@ -20,7 +22,7 @@ interface ITimesheetFilter {
 	initDate?: Pick<TimesheetFilterDateProps, 'initialRange' | 'onChange' | 'maxDate' | 'minDate'>;
 	onChangeStatus?: (status: FilterStatus) => void;
 	filterStatus?: FilterStatus;
-	data?: Record<TimesheetStatus, TimesheetLog[]>;
+	data?: Record<TimesheetStatus, ITimeLog[]>;
 	user?: IUser | undefined;
 }
 

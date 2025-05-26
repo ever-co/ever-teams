@@ -25,7 +25,9 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { IDailyPlan, ITask, IUser } from '@/core/types/interfaces/to-review';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
@@ -187,7 +189,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 															outstandingPlans.map((plan) => {
 																const tasks = plan.tasks ?? [];
 																if (user) {
-																	return tasks.filter((task) =>
+																	return tasks.filter((task: ITask) =>
 																		task.members?.some(
 																			(member) => member.userId === user.id
 																		)
@@ -342,7 +344,9 @@ function AllPlans({
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+					tasks: plan.tasks?.filter((task: ITask) =>
+						task.members?.some((member) => member.userId === user.id)
+					)
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}

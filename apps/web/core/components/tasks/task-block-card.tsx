@@ -1,4 +1,4 @@
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -19,6 +19,7 @@ import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 interface TaskItemProps {
 	task: ITask;
@@ -33,11 +34,11 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => m.employee.userId === user?.id);
+	const currentUser = members.find((m: IEmployee) => m.employee.userId === user?.id);
 
 	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i) => i.id === task?.id) || null;
+	activeTeam?.members?.forEach((member: IEmployee) => {
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === task?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration;
 		}
@@ -45,24 +46,31 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
-	const taskAssignee: ImageOverlapperProps[] = task.members?.map((member: any) => {
-		return {
-			id: member.user?.id,
-			url: member.user?.imageUrl,
-			alt: member.user?.firstName
-		};
-	});
+	const taskAssignee: ImageOverlapperProps[] =
+		task.members?.map((member: any) => {
+			return {
+				id: member.user?.id,
+				url: member.user?.imageUrl,
+				alt: member.user?.firstName
+			};
+		}) ?? [];
 
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
 
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || task?.id);
+	const currentMember = activeTeam?.members.find(
+		(member: IEmployee) => member.id === memberInfo.member?.id || task?.id
+	);
 
 	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t) => t.id === task?.id)
-				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+				.filter((t: ITask) => t.id === task?.id)
+				.reduce(
+					(previousValue: number, currentValue: ITasksStatistics) =>
+						previousValue + (currentValue.duration || 0),
+					0
+				)) ||
 			0
 	);
 

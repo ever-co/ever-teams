@@ -13,16 +13,6 @@ import {
 	useTaskInput,
 	useTaskLabels
 } from '@/core/hooks';
-import {
-	IIssueType,
-	ITaskIssueTypeEnum,
-	ITaskPriority,
-	ITaskSizeNameEnum,
-	ITaskStatusNameEnum,
-	ITask,
-	Nullable,
-	IOrganizationTeamMember
-} from '@/core/types/interfaces/to-review';
 import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
@@ -45,6 +35,18 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { Card } from '../duplicated-components/card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
+import { Nullable } from '@/core/types/generics/utils';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import {
+	ITaskIssueTypeEnum,
+	ITaskSizeNameEnum,
+	ITaskStatusNameEnum,
+	TaskPriorityEnum,
+	TaskTypeEnum
+} from '@/core/types/enums/task';
+import { ITaskPriority } from '@/core/types/interfaces/task/ITaskPriority';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -164,7 +166,7 @@ export function TaskInput(props: Props) {
 
 				// Update Current user's active task to sync across multiple devices
 				const currentEmployeeDetails = activeTeam?.members.find(
-					(member) => member.employeeId === user?.employee?.id
+					(member: IEmployee) => member.employeeId === user?.employee?.id
 				);
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
 					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
@@ -237,17 +239,17 @@ export function TaskInput(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === 'Story'
+				props.task?.issueType === TaskTypeEnum.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === 'Task' ||
-				props.task?.issueType === 'Bug' ||
+				props.task?.issueType === TaskTypeEnum.TASK ||
+				props.task?.issueType === TaskTypeEnum.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === 'Epic' || item.issueType === 'Story'
+					(item) => item.issueType === TaskTypeEnum.EPIC || item.issueType === TaskTypeEnum.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -383,7 +385,7 @@ export function TaskInput(props: Props) {
 						<TaskIssuesDropdown
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
-							onValueChange={(v) => setTaskIssue(v)}
+							onValueChange={(v: any) => setTaskIssue(v)}
 							defaultValue={
 								defaultIssueType
 									? defaultIssueType.name
@@ -526,7 +528,7 @@ function TaskCard({
 									<ActiveTaskStatusDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskStatus) {
 												taskStatus.current = v;
 											}
@@ -539,20 +541,20 @@ function TaskCard({
 									<ActiveTaskPropertiesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskPriority) {
 												taskPriority.current = v;
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskPriority?.current as ITaskPriority}
+										defaultValue={taskPriority?.current as TaskPriorityEnum}
 										task={null}
 									/>
 
 									<ActiveTaskSizesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskSize) {
 												taskSize.current = v;
 											}
@@ -722,7 +724,7 @@ function TaskCard({
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: IOrganizationTeamMember[];
+	teamMembers: IEmployee[];
 	assignees?: RefObject<
 		{
 			id: string;

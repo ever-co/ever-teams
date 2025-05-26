@@ -1,6 +1,5 @@
 import { getOrganizationIdCookie } from '@/core/lib/helpers/index';
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatusNameEnum, ITaskStatusOrder } from '@/core/types/interfaces/to-review';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/common/spinner';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
@@ -8,8 +7,10 @@ import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/ITaskStatusOrder';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 
-const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusNameEnum[]; onClose: () => void }) => {
+const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatus[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);
 	const [saveLoader, setSaveLoader] = useState(false);
 	const [saveCheck, setSaveCheck] = useState(false);
@@ -44,7 +45,7 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusNameEnum[];
 				// Update task statuses state
 				setTaskStatuses((prev) => {
 					const statusesOrder = Object.fromEntries(
-						reOrderedStatuses.data.map((el) => {
+						reOrderedStatuses.data.map((el: ITaskStatus) => {
 							return [el.id, el.order];
 						})
 					);

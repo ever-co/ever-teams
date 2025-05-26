@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { IActivityReportGroupByDate, IActivityItem } from '@/core/types/interfaces/-activity/IActivityReport';
+import { IActivityReportGroupByDate, IActivityItem } from '@/core/types/interfaces/activity/IActivityReport';
 import {
 	SortableColumn,
 	TableColumn,

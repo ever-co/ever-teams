@@ -3,7 +3,7 @@
 
 import { userTimezone } from '@/core/lib/helpers/date-and-time';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IRegisterDataAPI } from '@/core/types/interfaces/to-review';
+import { IRegisterDataAPI } from '@/core/types/interfaces/to-review/auth/IAuth';
 import { AxiosError } from 'axios';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '../common/use-query';

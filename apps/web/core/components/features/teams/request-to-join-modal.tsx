@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
-import { IJoinTeamRequest } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -11,6 +10,7 @@ import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');

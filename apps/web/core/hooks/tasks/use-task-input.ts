@@ -1,7 +1,4 @@
 'use client';
-
-import { ITag, Nullable } from '@/core/types/interfaces/to-review';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
 import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,6 +7,9 @@ import { useModal, useSyncRef } from '../common';
 import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { Nullable } from '@/core/types/generics/utils';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 export const h_filter = (status: ITaskStatusNameEnum, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -87,7 +87,7 @@ export function useTaskInput({
 		async (concernedTask: ITask) => {
 			return updateTask({
 				...concernedTask,
-				status: 'open'
+				status: ITaskStatusNameEnum.OPEN
 			});
 		},
 		[updateTask]
@@ -97,7 +97,7 @@ export function useTaskInput({
 
 	const filteredTasks = useMemo(() => {
 		if (query.trim() === '') {
-			return tasks.filter((task) => h_filter(task.status, filter));
+			return tasks.filter((task) => h_filter(task.status as ITaskStatusNameEnum, filter));
 		}
 
 		return tasks.filter(
@@ -106,7 +106,8 @@ export function useTaskInput({
 					.trim()
 					.toLowerCase()
 					.replace(/\s+/g, '')
-					.startsWith(query.toLowerCase().replace(/\s+/g, '')) && h_filter(task.status, filter)
+					.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
+				h_filter(task.status as ITaskStatusNameEnum, filter)
 		);
 	}, [query, tasks, filter]);
 
@@ -150,7 +151,7 @@ export function useTaskInput({
 			description: taskDescription.current ?? '',
 			projectId: taskProject.current,
 			members: [
-				...(autoAssignTaskAuth && user?.employee.id ? [{ id: user?.employee.id }] : []),
+				...(autoAssignTaskAuth && user?.employee?.id ? [{ id: user?.employee.id }] : []),
 				...taskAssignees.current
 			]
 		}).then((res) => {
@@ -158,7 +159,7 @@ export function useTaskInput({
 			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
 			setTaskIssue('');
 			const items = res.data?.items || [];
-			const created = items.find((t) => t.title === query.trim());
+			const created = items.find((t: ITask) => t.title === query.trim());
 			if (created && autoActiveTask) setActiveTask(created);
 
 			return created;
@@ -179,13 +180,13 @@ export function useTaskInput({
 
 	const closedTaskCount = useMemo(() => {
 		return filteredTasks2.filter((f_task) => {
-			return f_task.status === 'closed';
+			return f_task.status === ITaskStatusNameEnum.CLOSED;
 		}).length;
 	}, [filteredTasks2]);
 
 	const openTaskCount = useMemo(() => {
 		return filteredTasks2.filter((f_task) => {
-			return f_task.status !== 'closed';
+			return f_task.status !== ITaskStatusNameEnum.CLOSED;
 		}).length;
 	}, [filteredTasks2]);
 

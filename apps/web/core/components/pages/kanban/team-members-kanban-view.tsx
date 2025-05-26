@@ -1,6 +1,4 @@
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatusNameEnum, ITask } from '@/core/types/interfaces/to-review';
-import { IKanban } from '@/core/types/interfaces/to-review/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
@@ -13,7 +11,9 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
-import { useKanban } from '@/core/hooks/tasks/use-kanban';
+import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -102,8 +102,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	};
 
-	const getHeaderBackground = (columns: ITaskStatusNameEnum[], column: string) => {
-		const selectState = columns.find((item: ITaskStatusNameEnum) => {
+	const getHeaderBackground = (columns: ITaskStatus[], column: string) => {
+		const selectState = columns.find((item: ITaskStatus) => {
 			return item.name === column;
 		});
 

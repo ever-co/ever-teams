@@ -1,5 +1,4 @@
 import { useTimer } from '@/core/hooks';
-import { IOrganizationTeam, ITimerStatusEnum, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { useMemo } from 'react';
@@ -10,6 +9,13 @@ import UserTeamActiveTaskTimesBlock from './user-team-active-task-times';
 import UserTeamActiveTaskEstimateBlock from './user-team-task-estimate';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ID } from '@/core/types/interfaces/global/base-interfaces';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 const cardColorType = {
 	running: ' border-green-300',
@@ -19,14 +25,17 @@ const cardColorType = {
 	suspended: ' border-[#DCD6D6]'
 };
 
-interface Member extends IOrganizationTeamMember {
+export interface Member extends IOrganizationTeamEmployee {
 	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
+	user?: IUser;
+	userId?: ID;
+	totalTodayTasks?: ITasksStatistics[];
 }
 
 export default function UserTeamBlockCard({ member }: { member: Member }) {
 	const { timerStatus } = useTimer();
 
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: TimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, true);
 	}, [timerStatus, member]);
 

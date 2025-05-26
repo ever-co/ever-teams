@@ -1,6 +1,5 @@
 'use client';
 
-import { IRole } from '@/core/types/interfaces/to-review';
 import { userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -14,6 +13,7 @@ import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizat
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { Card } from '../../duplicated-components/card';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 
 const Permissions = () => {
 	// Translations

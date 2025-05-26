@@ -2,10 +2,10 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ITimerDailyLog } from '@/core/types/interfaces/-timer/ITimerLog';
 import { useState, useMemo } from 'react';
 import { Spinner } from '@/core/components/common/spinner';
 import { format, startOfWeek, startOfMonth } from 'date-fns';
+import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/IActivityReport';
 
 type GroupBy = 'daily' | 'weekly' | 'monthly';
 
@@ -37,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 interface TeamStatsChartProps {
-	rapportChartActivity: ITimerDailyLog[];
+	rapportChartActivity: ITimeLogReportDailyChart[];
 	isLoading: boolean;
 }
 
@@ -76,7 +76,7 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 			hover: 'hover:bg-[#22C55E]/80'
 		}
 	};
-	const groupData = (data: ITimerDailyLog[], grouping: GroupBy) => {
+	const groupData = (data: ITimeLogReportDailyChart[], grouping: GroupBy) => {
 		if (grouping === 'daily') return data;
 
 		const groups: { [key: string]: any } = {};
@@ -120,7 +120,7 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 
 	const formattedData = useMemo(() => {
 		const rawData =
-			rapportChartActivity?.map((item: ITimerDailyLog) => ({
+			rapportChartActivity?.map((item: ITimeLogReportDailyChart) => ({
 				...item,
 				date: format(new Date(item.date), 'MMM. dd yyyy'),
 				tracked: item.value.TRACKED || 0,

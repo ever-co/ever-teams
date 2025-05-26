@@ -1,6 +1,6 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
 import { FileStorageProvider } from '../file-storage/IFileStorageProvider';
-import { ID } from '../to-review/IBaseModel';
+import { ID } from './base-interfaces';
 
 export interface IImageAsset extends IBasePerTenantAndOrganizationEntityModel {
 	name: string;

@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
-import { ITask, ITaskLinkedIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
@@ -13,6 +12,9 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { TaskRelatedIssuesRelationEnum, TaskTypeEnum } from '@/core/types/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -27,7 +29,7 @@ export const RelatedIssueCard = () => {
 	const linkedTasks = useMemo(() => {
 		const issues = task?.linkedIssues?.reduce(
 			(acc, item) => {
-				const $item = tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
+				const $item = tasks.find((ts) => ts.id === item.taskFrom?.id) || item.taskFrom;
 
 				if ($item /*&& item.action === actionType?.data?.value*/) {
 					acc.push({
@@ -134,18 +136,22 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, queryCall, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === 'Epic';
-	const isTaskStory = task.issueType === 'Story';
-	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
+	const isTaskEpic = task.issueType === TaskTypeEnum.EPIC;
+	const isTaskStory = task.issueType === TaskTypeEnum.STORY;
+	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom?.id) || [];
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== 'Epic';
+				return childTask.issueType !== TaskTypeEnum.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== 'Epic' && childTask.issueType !== 'Story';
+				return childTask.issueType !== TaskTypeEnum.EPIC && childTask.issueType !== TaskTypeEnum.STORY;
 			} else {
-				return childTask.issueType === 'Bug' || childTask.issueType === 'Task' || childTask.issueType === null;
+				return (
+					childTask.issueType === TaskTypeEnum.BUG ||
+					childTask.issueType === TaskTypeEnum.TASK ||
+					childTask.issueType === null
+				);
 			}
 		};
 

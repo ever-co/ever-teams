@@ -9,8 +9,11 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
-import { IDailyPlan, IUser } from '@/core/types/interfaces/to-review';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -29,7 +32,9 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			data = data
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+					tasks: plan.tasks?.filter((task: ITask) =>
+						task.members?.some((member: IEmployee) => member.userId === user.id)
+					)
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 

@@ -1,6 +1,5 @@
 import { useTaskInput } from '@/core/hooks';
-import { IOrganizationTeam } from '@/core/types/interfaces/to-review/IOrganizationTeam';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
@@ -20,6 +19,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 interface IOption {
 	name: string;
@@ -27,7 +27,7 @@ interface IOption {
 	extramenu?: boolean;
 }
 
-type IMember = IOrganizationTeam['members'][number];
+type IMember = IOrganizationTeamEmployee;
 
 interface IDropdownUserProps {
 	setEdit: Dispatch<SetStateAction<boolean>>;

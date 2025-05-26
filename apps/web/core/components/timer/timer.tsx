@@ -1,6 +1,5 @@
 import { pad } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
-import { IClassName, TimerSource } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -20,6 +19,8 @@ import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { TimerSource } from '@/core/types/enums/timer';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();

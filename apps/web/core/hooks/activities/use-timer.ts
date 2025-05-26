@@ -1,8 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
-import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/to-review/ITimer';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -26,6 +25,10 @@ import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
+import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { TimerSource } from '@/core/types/enums/timer';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -89,7 +92,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 				updateLocalTimerStatus({
 					runnedDateTime:
 						(timerStatus.running ? timerStatusDate || Date.now() : 0) || localStatus?.runnedDateTime || 0,
-					running: timerStatus.running,
+					running: timerStatus.running || false,
 					lastTaskId: timerStatus.lastLog?.taskId || null
 				});
 		}
@@ -180,7 +183,7 @@ export function useTimer() {
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
 	const hasPlan = myDailyPlans.items.find(
-		(plan) =>
+		(plan: IDailyPlan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
 			plan.tasks &&
 			plan.tasks?.length > 0
@@ -188,7 +191,7 @@ export function useTimer() {
 
 	const tomorrow = moment().add(1, 'days');
 	const hasPlanForTomorrow = myDailyPlans.items.find(
-		(plan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+		(plan: IDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
 	);
 
 	// Team setting that tells if each member must have a today plan for allowing tracking time
@@ -206,7 +209,7 @@ export function useTimer() {
 	const isPlanVerified = requirePlan
 		? hasPlan &&
 			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
+			!!hasPlan?.tasks?.every((task: ITask) => task.estimate && task.estimate > 0)
 		: true;
 
 	const canRunTimer =
@@ -227,9 +230,9 @@ export function useTimer() {
 			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall(user?.tenantId, user?.employee.organizationId).then((res) => {
+			return queryCall(user?.tenantId, user?.employee?.organizationId || '').then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
-					setTimerStatus((t) => {
+					setTimerStatus((t: ITimerStatus) => {
 						if (deepCheck) {
 							return res.data.running !== t?.running ? res.data : t;
 						}
@@ -318,7 +321,7 @@ export function useTimer() {
 		if (activeTeamTaskRef.current) {
 			// Update Current user's active task to sync across multiple devices
 			const currentEmployeeDetails = activeTeam?.members.find(
-				(member) => member.employeeId === user?.employee.id
+				(member: IEmployee) => member.employeeId === user?.employee?.id
 			);
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
@@ -349,7 +352,7 @@ export function useTimer() {
 		activeTeam?.members,
 		activeTeam?.id,
 		activeTeam?.tenantId,
-		user?.employee.id,
+		user?.employee?.id,
 		updateOrganizationTeamEmployeeActiveTask
 	]);
 

@@ -7,12 +7,12 @@ import { useAtomValue } from 'jotai';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskPriorities } from '@/core/hooks';
-import { IIcon, ITaskPriority } from '@/core/types/interfaces/to-review';
+import { ITaskPriority } from '@/core/types/interfaces/task/ITaskPriority';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTranslations } from 'next-intl';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { InputField } from '../duplicated-components/_input';
 

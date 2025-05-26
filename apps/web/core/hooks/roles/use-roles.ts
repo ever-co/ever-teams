@@ -1,9 +1,9 @@
-import { IRole } from '@/core/types/interfaces/to-review';
 import { rolesState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { useFirstLoad } from '../common/use-first-load';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 import { roleService } from '@/core/services/client/api/roles';
 
 export const useRoles = () => {

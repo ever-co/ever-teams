@@ -2,7 +2,6 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces/to-review';
 import { publicState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -37,6 +36,9 @@ import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ThemeInterface } from '@/core/types/interfaces/theme/ITheme';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -46,10 +48,10 @@ export function UserNavAvatar() {
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
+	const currentMember = members.find((m: IEmployee) => {
 		return m.employee.userId === user?.id;
 	});
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: TimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 
@@ -141,7 +143,7 @@ function UserNavMenu() {
 	const publicTeam = useAtomValue(publicState);
 
 	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
+	const currentMember = members.find((m: IEmployee) => {
 		return m.employee.userId === user?.id;
 	});
 
@@ -156,7 +158,7 @@ function UserNavMenu() {
 		return !notAllowedList.includes(pathname);
 	}, [pathname]);
 
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: TimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 

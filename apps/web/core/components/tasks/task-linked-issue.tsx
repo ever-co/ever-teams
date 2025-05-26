@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from '@/core/hooks';
-import { ITask, ITaskLinkedIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
@@ -11,6 +10,9 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 import { Card } from '../duplicated-components/card';
+import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { TaskRelatedIssuesRelationEnum } from '@/core/types/enums/task';
 
 export function TaskLinkedIssue({
 	task,

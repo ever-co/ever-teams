@@ -1,10 +1,11 @@
-import { RequestStatusEnum, IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/to-review';
 import { requestToJoinState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
 import { useQuery } from '../../common';
+import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
+import { RequestStatusEnum } from '@/core/types/enums';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);

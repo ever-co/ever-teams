@@ -1,7 +1,5 @@
 'use client';
 
-import { Nullable } from '@/core/types/interfaces/to-review';
-
 import {
 	activeTaskStatisticsState,
 	activeTeamTaskState,
@@ -20,6 +18,7 @@ import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
 import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { Nullable } from '@/core/types/generics/utils';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -45,11 +44,16 @@ export function useTaskStatistics(addSeconds = 0) {
 	 */
 	const getTasksStatsData = useCallback(
 		(employeeId?: string) => {
-			if (!user?.employee.tenantId) {
+			if (!user?.employee?.tenantId) {
 				return;
 			}
 			statisticsService
-				.tasksTimesheetStatistics(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
+				.tasksTimesheetStatistics(
+					user?.employee?.tenantId,
+					'',
+					user?.employee?.organizationId || '',
+					employeeId
+				)
 				.then(({ data }) => {
 					setStatTasks({
 						all: data.global || [],
@@ -57,7 +61,7 @@ export function useTaskStatistics(addSeconds = 0) {
 					});
 				});
 		},
-		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
+		[setStatTasks, user?.employee?.organizationId, user?.employee?.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		statisticsService.allTaskTimesheetStatistics().then(({ data }) => {
@@ -83,7 +87,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
-		if (!user?.employee.tenantId || !user?.employee.organizationId) {
+		if (!user?.employee?.tenantId || !user?.employee?.organizationId) {
 			return new Promise((resolve) => {
 				resolve(true);
 			});
@@ -92,9 +96,9 @@ export function useTaskStatistics(addSeconds = 0) {
 		setTasksFetching(true);
 
 		const promise = statisticsService.activeTaskTimesheetStatistics(
-			user?.employee.tenantId,
+			user?.employee?.tenantId,
 			'',
-			user?.employee.organizationId,
+			user?.employee?.organizationId || '',
 			''
 		);
 		promise.then(({ data }) => {
@@ -107,7 +111,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			setTasksFetching(false);
 		});
 		return promise;
-	}, [setStatActiveTask, setTasksFetching, user?.employee.organizationId, user?.employee.tenantId]);
+	}, [setStatActiveTask, setTasksFetching, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
@@ -121,7 +125,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				initialLoad.current = true;
 			});
 		}
-	}, [firstLoad, getActiveTaskStatData, user?.employee.organizationId, user?.employee.tenantId]);
+	}, [firstLoad, getActiveTaskStatData, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	/**
 	 * Get fresh statistic of the active task
@@ -166,8 +170,9 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const activeTaskEstimation = useMemo(() => {
 		let totalWorkedTasksTimer = 0;
-		activeTeam?.members?.forEach((member) => {
-			const totalWorkedTasks = member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null;
+		activeTeam?.members?.forEach((member: any) => {
+			const totalWorkedTasks =
+				member?.totalWorkedTasks?.find((item: ITask) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
 				totalWorkedTasksTimer += totalWorkedTasks?.duration || 0;
 			}

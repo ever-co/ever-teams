@@ -7,7 +7,7 @@ import {
 	IActivityReportGroupByDate,
 	IActivityItem,
 	IProjectWithActivity
-} from '@/core/types/interfaces/-activity/IActivityReport';
+} from '@/core/types/interfaces/activity/IActivityReport';
 import { formatDuration } from './productivity-application-table';
 
 Font.register({

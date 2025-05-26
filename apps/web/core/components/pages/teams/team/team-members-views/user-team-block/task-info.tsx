@@ -1,5 +1,4 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -7,6 +6,7 @@ import { TaskAllStatusTypes } from '@/core/components/tasks/task-all-status-type
 import { FilterTabs } from '@/core/components/users/user-profile-plans';
 import { TaskNameInfoDisplay } from '@/core/components/tasks/task-displays';
 import { TaskInput } from '@/core/components/tasks/task-input';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;

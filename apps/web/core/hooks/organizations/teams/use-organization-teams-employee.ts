@@ -1,10 +1,13 @@
-import { IOrganizationTeamEmployeeUpdate, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { useCallback } from 'react';
 import { useOrganizationTeams } from './use-organization-teams';
 import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
 import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams';
 import { useQuery } from '../../common';
+import {
+	IOrganizationTeamEmployee,
+	IOrganizationTeamEmployeeUpdate
+} from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
@@ -63,13 +66,13 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
-		(employee: IOrganizationTeamMember, order: number) => {
+		(employee: IOrganizationTeamEmployee, order: number) => {
 			updateOrderCall(
 				employee.id,
 				{
 					order,
-					organizationTeamId: employee.organizationTeamId,
-					organizationId: employee.organizationId
+					organizationTeamId: employee.organizationTeamId ?? '',
+					organizationId: employee.organizationId ?? ''
 				},
 				user?.tenantId || ''
 			).then((res) => {

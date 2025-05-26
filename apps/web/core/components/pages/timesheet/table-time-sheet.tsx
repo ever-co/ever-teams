@@ -50,9 +50,12 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
+import { TimeLogType } from '@/core/types/enums/timer';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
 	const accordionRef = React.useRef(null);
@@ -107,7 +110,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			case 'Approved':
 				if (selectTimesheetId.length > 0) {
 					updateTimesheetStatus({
-						status: 'APPROVED',
+						status: TimesheetStatus.APPROVED,
 						ids: selectTimesheetId
 							.map((select) => select.timesheetId)
 							.filter((timesheetId) => timesheetId !== undefined)
@@ -304,16 +307,21 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																</div>
 																<div className="flex-1">
 																	<Badge
-																		className={`${getBadgeColor(task.timesheet.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
+																		className={`${getBadgeColor(task.timesheet?.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
 																	>
-																		{task.timesheet.status === 'DENIED'
+																		{task.timesheet?.status ===
+																		TimesheetStatus.DENIED
 																			? 'REJECTED'
-																			: task.timesheet.status}
+																			: task.timesheet?.status}
 																	</Badge>
 																</div>
 																<DisplayTimeForTimesheet
 																	timesheetLog={task}
-																	logType={task.logType}
+																	logType={
+																		task.logType
+																			? TimeLogType[task.logType]
+																			: TimeLogType.TRACKED
+																	}
 																/>
 																<TaskActionMenu
 																	dataTimesheet={task}
@@ -394,7 +402,7 @@ const TaskActionMenu = ({
 	isManage,
 	user
 }: {
-	dataTimesheet: TimesheetLog;
+	dataTimesheet: ITimeLog;
 	isManage?: boolean;
 	user?: IUser | undefined;
 }) => {
@@ -463,7 +471,7 @@ const TaskActionMenu = ({
 	);
 };
 
-export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
+export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 	const t = useTranslations();
 	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
 	const handleUpdateTimesheet = async (isBillable: boolean) => {
@@ -497,7 +505,7 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 									try {
 										await updateTimesheetStatus({
 											status: status.label as TimesheetStatus,
-											ids: [timesheet.timesheet.id]
+											ids: [timesheet.timesheet?.id ?? '']
 										});
 									} catch (error) {
 										console.error('Failed to update timesheet status:');
@@ -614,10 +622,10 @@ const HeaderRow = ({
 }: {
 	status: string;
 	onSort: (key: string, order: SortOrder) => void;
-	data: TimesheetLog[];
+	data: ITimeLog[];
 	handleSelectRowByStatusAndDate: (status: string, date: string) => void;
 	date?: string;
-	selectedIds: TimesheetLog[];
+	selectedIds: ITimeLog[];
 }) => {
 	const { bg, bgOpacity } = statusColor(status);
 	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({

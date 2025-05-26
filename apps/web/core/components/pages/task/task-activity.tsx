@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { UserTaskActivity } from '../../tasks/user-task-activity';
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useTaskTimeSheets } from '@/core/hooks/tasks/use-task-activity';
 import { groupByTime } from '@/core/lib/helpers/array-data';
 

@@ -3,7 +3,6 @@ import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@/core/hooks';
-import { IIssueType } from '@/core/types/interfaces/to-review';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
@@ -16,6 +15,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();

@@ -1,6 +1,5 @@
 'use client';
 
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces/to-review';
 import { userState, taskPrioritiesListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -9,6 +8,7 @@ import { useQuery } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskPriorityService } from '@/core/services/client/api/tasks/task-priority.service';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
 
 export function useTaskPriorities() {
 	const [user] = useAtom(userState);

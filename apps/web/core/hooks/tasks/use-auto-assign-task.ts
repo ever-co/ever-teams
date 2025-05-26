@@ -3,7 +3,7 @@
 import { useAtomValue } from 'jotai';
 import { timerStatusState, userState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
 
@@ -25,13 +25,13 @@ export function useAutoAssignTask() {
 	 */
 	const autoAssignTask = useCallback(
 		(task: ITask, employeeId: string) => {
-			const exists = task.members.some((t) => t.id === employeeId);
+			const exists = task.members?.some((t) => t.id === employeeId);
 
 			if (exists || updateLoadingRef.current) return;
 
 			return updateTask({
 				...task,
-				members: [...task.members, (employeeId ? { id: employeeId } : {}) as any]
+				members: [...(task.members || []), (employeeId ? { id: employeeId } : {}) as any]
 			});
 		},
 		[updateTask, updateLoadingRef]

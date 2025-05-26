@@ -1,13 +1,16 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName, ITimerStatus, ITimerStatusEnum, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
 import { clsxm } from '@/core/lib/utils';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type Props = {
-	status: ITimerStatusEnum;
+	status: TimerStatusEnum;
 	showIcon?: boolean;
 	tooltipClassName?: string;
 	labelContainerClassName?: string;
@@ -50,9 +53,9 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 
 export function getTimerStatusValue(
 	timerStatus: ITimerStatus | null,
-	member: IOrganizationTeamMember | undefined,
+	member: Member | undefined,
 	publicTeam?: boolean
-): ITimerStatusEnum {
+): TimerStatusEnum {
 	const isSuspended = () => !member?.employee?.isActive && !publicTeam;
 	const isPaused = () => member?.timerStatus === 'pause';
 	const shouldPauseDueToTimerStatus = () => {
@@ -67,18 +70,18 @@ export function getTimerStatusValue(
 	const isOnline = () => member?.employee?.isOnline && member?.employee?.isTrackingTime;
 	const isIdle = () => !member?.totalTodayTasks?.length;
 
-	let status: ITimerStatusEnum;
+	let status: TimerStatusEnum;
 
 	if (isOnline()) {
-		status = 'online';
+		status = TimerStatusEnum.ONLINE;
 	} else if (isIdle()) {
-		status = 'idle';
+		status = TimerStatusEnum.IDLE;
 	} else if (isPaused() || shouldPauseDueToTimerStatus()) {
-		status = 'pause';
+		status = TimerStatusEnum.PAUSE;
 	} else if (isSuspended()) {
-		status = 'suspended';
+		status = TimerStatusEnum.SUSPENDED;
 	} else {
-		status = member?.timerStatus || 'idle';
+		status = member?.timerStatus || TimerStatusEnum.IDLE;
 	}
 
 	return status;

@@ -1,7 +1,8 @@
-import { ID, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces/to-review';
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { TimesheetStatus } from '@/core/types/enums/timesheet';
 
 type ActionButtonProps = {
 	label: string;
@@ -65,10 +66,10 @@ export const SelectionBar = ({
 };
 
 interface SelectedTimesheetProps {
-	selectTimesheetId: TimesheetLog[];
-	updateTimesheetStatus: ({ status, ids }: { status: TimesheetStatus; ids: ID[] | ID }) => Promise<void>;
+	selectTimesheetId: ITimeLog[];
+	updateTimesheetStatus: ({ status, ids }: { status: TimesheetStatus; ids: string[] | string }) => Promise<void>;
 	deleteTaskTimesheet: ({ logIds }: { logIds: string[] }) => Promise<void>;
-	setSelectTimesheetId: React.Dispatch<React.SetStateAction<TimesheetLog[]>>;
+	setSelectTimesheetId: React.Dispatch<React.SetStateAction<ITimeLog[]>>;
 	fullWidth: boolean;
 }
 
@@ -95,8 +96,8 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleApprove = useCallback(async () => {
 		try {
 			updateTimesheetStatus({
-				status: 'APPROVED',
-				ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+				status: TimesheetStatus.APPROVED,
+				ids: selectTimesheetId.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});
@@ -108,8 +109,8 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleReject = useCallback(async () => {
 		try {
 			updateTimesheetStatus({
-				status: 'DENIED',
-				ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+				status: TimesheetStatus.DENIED,
+				ids: selectTimesheetId.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});
@@ -121,7 +122,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleDelete = useCallback(async () => {
 		try {
 			deleteTaskTimesheet({
-				logIds: selectTimesheetId?.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+				logIds: selectTimesheetId?.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});

@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../common/use-query';
 import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
-import { TimeLogType, TimerSource } from '@/core/types/interfaces/to-review';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { TimerSource } from '@/core/types/enums/timer';
+import { TimeLogType } from '@/core/types/enums/timer';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
@@ -16,7 +17,7 @@ export function useManualTime() {
 		(data: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
 			queryAddManualTime({
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee.id ?? '',
+				employeeId: user?.employee?.id ?? '',
 				logType: TimeLogType.MANUAL,
 				source: TimerSource.BROWSER,
 				...data
@@ -28,7 +29,7 @@ export function useManualTime() {
 					console.log(error);
 				});
 		},
-		[queryAddManualTime, user?.employee.id, user?.tenantId]
+		[queryAddManualTime, user?.employee?.id, user?.tenantId]
 	);
 
 	return {

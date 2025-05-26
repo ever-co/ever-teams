@@ -1,4 +1,4 @@
-import { TimerSource } from '../../enums/timer';
+import { TimerSource, TimerStatusEnum } from '../../enums/timer';
 import { ITask } from '../task/ITask';
 import { ITimeLog } from '../time-log/ITimeLog';
 
@@ -7,7 +7,7 @@ export interface ITimerStatus {
 	running?: boolean;
 	lastLog?: ITimeLog;
 	lastWorkedTask?: ITask;
-	timerStatus?: 'running' | 'pause' | 'idle';
+	timerStatus?: TimerStatusEnum;
 }
 
 export type ILocalTimerStatus = {

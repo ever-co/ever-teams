@@ -4,12 +4,13 @@ import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
-import { IProjectRelation, ProjectRelationEnum } from '@/core/types/interfaces/to-review';
-import { RolesEnum } from '@/core/types/interfaces/to-review/IRoles';
+import { IProjectRelation } from '@/core/types/interfaces/project/IOrganizationProject';
 import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
+import { ProjectRelationEnum } from '@/core/types/enums/project';
+import { RoleNameEnum } from '@/core/types/enums/role';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -75,7 +76,9 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 											imgUrl: el.employee.user?.imageUrl
 										}))}
 									values={roles
-										?.filter((el) => el.name == RolesEnum.EMPLOYEE || el.name == RolesEnum.MANAGER)
+										?.filter(
+											(el) => el.name == RoleNameEnum.EMPLOYEE || el.name == RoleNameEnum.MANAGER
+										)
 										?.map((el) => ({
 											id: String(el.id),
 											value: el.name

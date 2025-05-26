@@ -18,7 +18,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { TimesheetLog } from '@/core/types/interfaces/to-review';
+import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];
@@ -362,9 +362,9 @@ export const CheckBoxTimesheet = ({
 	timesheet,
 	handleSelectRowTimesheet
 }: {
-	selectTimesheetId: TimesheetLog[];
-	timesheet: TimesheetLog;
-	handleSelectRowTimesheet: (items: TimesheetLog) => void;
+	selectTimesheetId: ITimeLog[];
+	timesheet: ITimeLog;
+	handleSelectRowTimesheet: (items: ITimeLog) => void;
 }) => {
 	return (
 		<Checkbox

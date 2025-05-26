@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { ICreateProjectInput, IEditProjectInput } from '@/core/types/interfaces/to-review';
+import { ICreateProjectRequest, IEditProjectRequest } from '@/core/types/interfaces/project/IOrganizationProject';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { useFirstLoad, useQuery } from '../../common';
 
@@ -55,7 +55,7 @@ export function useOrganizationProjects() {
 	);
 
 	const editOrganizationProject = useCallback(
-		async (id: string, data: IEditProjectInput) => {
+		async (id: string, data: IEditProjectRequest) => {
 			try {
 				const res = await editOrganizationProjectQueryCall(id, data);
 				return res;
@@ -90,7 +90,7 @@ export function useOrganizationProjects() {
 	);
 
 	const createOrganizationProject = useCallback(
-		async (data: Partial<ICreateProjectInput>) => {
+		async (data: Partial<ICreateProjectRequest>) => {
 			try {
 				const res = await createOrganizationProjectQueryCall({ ...data, organizationId, tenantId });
 

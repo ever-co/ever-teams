@@ -1,13 +1,14 @@
 import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITask, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 
 export default function UserTeamActiveTaskTimesBlock({
 	member,
 	activeTaskId
 }: {
-	member: IOrganizationTeamMember;
+	member: IOrganizationTeamEmployee;
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);

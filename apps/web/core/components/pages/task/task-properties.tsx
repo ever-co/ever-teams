@@ -1,4 +1,4 @@
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
 

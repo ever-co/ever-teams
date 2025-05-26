@@ -2,16 +2,6 @@
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-	ITimerEmployeeLog,
-	ITimerLogGrouped,
-	ITimerProjectLog,
-	ITimerTaskLog,
-	ITimerTask
-} from '@/core/types/interfaces/to-review';
-// import { ProjectCell } from './project-cell';
-// import { TrackedHoursCell } from './tracked-hours-cell';
-// import { EarningsCell } from './earnings-cell';
 import { ActivityLevelCell } from './activity-level-cell';
 import ActivityTableSkeleton from '../../activities/activity-table-skeleton';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
@@ -19,6 +9,13 @@ import { ProjectCell } from '../../projects/project-cell';
 import { TrackedHoursCell } from './tracked-hours-cell';
 import { EarningsCell } from './earnings-cell';
 import { Avatar } from '../../duplicated-components/avatar';
+import {
+	ITimeLogGroupedDailyReport,
+	ITimerEmployeeLog,
+	ITimerProjectLog,
+	ITimerTaskLog
+} from '@/core/types/interfaces/activity/IActivityReport';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 
 interface TimeSlot {
 	duration: number;
@@ -30,7 +27,7 @@ interface ITimerEmployeeLogExtended extends ITimerEmployeeLog {
 }
 
 interface TaskLog {
-	task: ITimerTask;
+	task: ITask;
 	duration: number;
 	description: string;
 	earnings?: number;
@@ -74,7 +71,7 @@ interface ViewOption {
 }
 
 interface ActivityTableProps {
-	rapportDailyActivity: ITimerLogGrouped[] | DailyLog[];
+	rapportDailyActivity: ITimeLogGroupedDailyReport[] | DailyLog[];
 	viewOptions: ViewOption[];
 	isLoading?: boolean;
 }
@@ -101,7 +98,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			return rapportDailyActivity as DailyLog[];
 		}
 
-		return (rapportDailyActivity as ITimerLogGrouped[]).map((dayData): DailyLog => {
+		return (rapportDailyActivity as ITimeLogGroupedDailyReport[]).map((dayData): DailyLog => {
 			const logs = dayData.logs.map(
 				(log: ITimerProjectLog): ProjectLog => ({
 					project: {
@@ -113,9 +110,9 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 						(empLog: ITimerEmployeeLogExtended): EmployeeLog => ({
 							employee: {
 								id: empLog.employee.id,
-								fullName: empLog.employee.fullName,
+								fullName: empLog.employee.fullName || '',
 								user: {
-									imageUrl: empLog.employee.user.imageUrl
+									imageUrl: empLog.employee.user.imageUrl || ''
 								}
 							},
 							sum:

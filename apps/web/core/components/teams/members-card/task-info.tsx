@@ -1,7 +1,7 @@
-import { ITask } from '@/core/types/interfaces/to-review/ITask';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Spinner } from '@/core/components/common/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
-import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 type Props = {
 	memberTask: ITask | null;

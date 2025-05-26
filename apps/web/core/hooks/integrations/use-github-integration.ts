@@ -2,9 +2,9 @@ import { integrationGithubMetadataState, integrationGithubRepositoriesState, use
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
-import { IProjectRepository } from '@/core/types/interfaces/to-review';
 import { githubService } from '@/core/services/client/api';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
+import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/IOrganizationProject';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);
@@ -72,7 +72,7 @@ export function useGitHubIntegration() {
 	const syncGitHubRepository = useCallback(
 		(
 			installationId: string,
-			repository: IProjectRepository,
+			repository: IOrganizationProjectRepository,
 			projectId: string,
 			tenantId: string,
 			organizationId: string

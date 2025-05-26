@@ -1,5 +1,5 @@
-import { MemberCard_EditableValues } from '@/core/types/interfaces/to-review';
-import { IUser } from '@/core/types/interfaces/to-review/IUserData';
+import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { ChangeEventHandler } from 'react';

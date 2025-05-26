@@ -1,5 +1,5 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
-import { RoleNameEnum } from '@/core/types/interfaces/to-review';
+import { RoleNameEnum } from '@/core/types/enums/role';
 import { userState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
@@ -15,6 +15,7 @@ import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
 import TeamSize from '@/core/components/teams/team-size-popover';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export const TeamSettingForm = () => {
 	const [user] = useAtom(userState);
@@ -103,18 +104,18 @@ export const TeamSettingForm = () => {
 					shareProfileView: activeTeam.shareProfileView,
 					teamSize: values.teamSize,
 					memberIds: activeTeam.members
-						.map((t) => t.employee.id)
-						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
+						.map((t: IEmployee) => t.id)
+						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index), // To make the array Unique list of ids
 					managerIds: activeTeam.members
 						.filter(
-							(m) =>
+							(m: IEmployee) =>
 								m.role &&
 								(m.role.name === RoleNameEnum.MANAGER ||
 									m.role.name === RoleNameEnum.SUPER_ADMIN ||
 									m.role.name === RoleNameEnum.ADMIN)
 						)
-						.map((t) => t.employee.id)
-						.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
+						.map((t: IEmployee) => t.id)
+						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 				});
 			}
 		},

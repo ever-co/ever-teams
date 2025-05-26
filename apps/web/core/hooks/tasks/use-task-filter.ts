@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '../auth';
 import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { ITask } from '@/core/types/interfaces/to-review';
+import { ITask } from '@/core/types/interfaces/task/ITask';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
@@ -203,9 +203,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 						return k === 'label'
 							? intersection(
 									statusFilters[k],
-									task['tags'].map((item) => item.name)
+									task['tags']?.map((item) => item.name)
 								).length === statusFilters[k].length
-							: statusFilters[k].includes(task[k]);
+							: statusFilters[k].includes(task[k] as string);
 					});
 			});
 	}, [tasks, taskName, appliedStatusFilter]);

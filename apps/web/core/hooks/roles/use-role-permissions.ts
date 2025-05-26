@@ -1,10 +1,10 @@
-import { IRolePermissions } from '@/core/types/interfaces/to-review';
 import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import cloneDeep from 'lodash/cloneDeep';
 import { rolePermissionService } from '@/core/services/client/api/roles/role-permission.service';
+import { IRolePermission } from '@/core/types/interfaces/role/IRolePermission';
 
 export const useRolePermissions = () => {
 	const [rolePermissions, setrolePermissions] = useAtom(rolePermissionsState);
@@ -20,9 +20,9 @@ export const useRolePermissions = () => {
 			return getRolePermissionsQueryCall(id).then((response) => {
 				if (response?.data?.items?.length) {
 					const tempRolePermissions = response.data.items;
-					const formatedItems: { [key: string]: IRolePermissions } = {};
+					const formatedItems: { [key: string]: IRolePermission } = {};
 
-					tempRolePermissions.forEach((item) => {
+					tempRolePermissions.forEach((item: IRolePermission) => {
 						formatedItems[item.permission] = item;
 					});
 					setRolePermissionsFormated(formatedItems);
@@ -35,7 +35,7 @@ export const useRolePermissions = () => {
 	);
 
 	const updateRolePermission = useCallback(
-		async (permission: IRolePermissions) => {
+		async (permission: IRolePermission) => {
 			return updateRoleQueryCall(permission).then(() => {
 				const index = rolePermissions.findIndex((item) => item.id === permission.id);
 				const tempRoles = cloneDeep(rolePermissions);

@@ -1,11 +1,5 @@
 'use client';
 
-import {
-	ITaskStatusCreate,
-	ITaskStatusField,
-	ITaskStatusOrder,
-	ITaskStatusStack
-} from '@/core/types/interfaces/to-review';
 import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -15,6 +9,10 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { useCallbackRef, useSyncRef } from '../common';
 import { TStatus, TStatusItem, useMapToTaskStatusValues } from '@/core/components/tasks/task-status';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/ITaskStatusOrder';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

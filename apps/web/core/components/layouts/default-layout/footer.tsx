@@ -5,14 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { APP_LINK, APP_NAME, CHATWOOT_API_KEY, COMPANY_LINK, COMPANY_NAME } from '@/core/constants/config/constants';
-<<<<<<< HEAD
-import { IClassName } from '@/core/types/interfaces';
 import { fullWidthState } from '@/core/stores/common/full-width';
-=======
-import { IClassName } from '@/core/types/interfaces/to-review';
-import { fullWidthState } from '@/core/stores/fullWidth';
->>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
 import { clsxm } from '@/core/lib/utils';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
 
 export function Footer({ className }: IClassName) {
 	const t = useTranslations();

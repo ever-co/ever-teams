@@ -1,6 +1,9 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
-import { IClassName, ITask, Nullable, IOrganizationTeamMember } from '@/core/types/interfaces/to-review';
+import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { Nullable } from '@/core/types/generics/utils';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -11,7 +14,7 @@ type Props = {
 	task: Nullable<ITask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	memberInfo?: I_TeamMemberCardHook | IOrganizationTeamMember | any;
+	memberInfo?: I_TeamMemberCardHook | IEmployee | any;
 	showDaily?: boolean;
 	showTotal?: boolean;
 	isBlock?: boolean;
@@ -21,7 +24,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = useMemo(
-		() => activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
+		() => activeTeam?.members.find((member: IEmployee) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
 
@@ -31,8 +34,12 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalWorkedTasks &&
 					currentMember?.totalWorkedTasks?.length &&
 					currentMember?.totalWorkedTasks
-						.filter((t) => t.id === task?.id)
-						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+						.filter((t: ITask) => t.id === task?.id)
+						.reduce(
+							(previousValue: number, currentValue: ITasksStatistics) =>
+								previousValue + (currentValue?.duration || 0),
+							0
+						)) ||
 					0
 			),
 		[currentMember?.totalWorkedTasks, task?.id]
@@ -44,8 +51,12 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalTodayTasks &&
 					currentMember?.totalTodayTasks.length &&
 					currentMember?.totalTodayTasks
-						.filter((t) => t.id === task?.id)
-						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+						.filter((t: ITask) => t.id === task?.id)
+						.reduce(
+							(previousValue: number, currentValue: ITasksStatistics) =>
+								previousValue + (currentValue?.duration || 0),
+							0
+						)) ||
 					0
 			),
 		[currentMember?.totalTodayTasks, task?.id]
@@ -88,7 +99,7 @@ function TimeInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IOrganizationTeamMember | undefined;
+	currentUser: IEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
@@ -147,7 +158,7 @@ function TimeBlockInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IOrganizationTeamMember | undefined;
+	currentUser: IEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
@@ -203,11 +214,12 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 
 	const t = useTranslations();
 
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id);
+	const currentMember = activeTeam?.members.find((member: IEmployee) => member.id === memberInfo?.member?.id);
 	const { h, m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
-				(previousValue, currentValue) => previousValue + currentValue.duration,
+				(previousValue: number, currentValue: ITasksStatistics) =>
+					previousValue + (currentValue?.duration || 0),
 				0
 			)) ||
 			0

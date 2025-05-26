@@ -1,7 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useRequestToJoinTeam } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IInvite, IJoinTeamResponse, RequestStatusEnum } from '@/core/types/interfaces/to-review';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import moment from 'moment';
@@ -9,6 +8,9 @@ import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
+import { IJoinTeamResponse } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IInvite } from '@/core/types/interfaces/user/IInvite';
+import { RequestStatusEnum } from '@/core/types/enums';
 
 export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
@@ -64,7 +66,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoin
 											backgroundColor: `${stc(invitation.fullName || '')}80`
 										}}
 									>
-										{imgTitle(invitation.fullName)}
+										{imgTitle(invitation.fullName || '')}
 									</div>
 									<div className="flex flex-col gap-1 pl-3">
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">

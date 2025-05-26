@@ -145,6 +145,8 @@ export interface ITimeLogReportDailyChartProps {
 	endDate: string;
 	timeZone?: string;
 	groupBy?: string;
+	teamId?: string;
+	userId?: string;
 }
 
 export interface ITimeLogRequestParams {

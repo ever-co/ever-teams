@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import { collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
@@ -44,7 +44,7 @@ export function useCollaborative(user?: IUser) {
 
 		teamName = teamName
 			.split(' ')
-			.map((t) => capitalize(t))
+			.map((t: string) => capitalize(t))
 			.join('');
 
 		const members = collaborativeMembers

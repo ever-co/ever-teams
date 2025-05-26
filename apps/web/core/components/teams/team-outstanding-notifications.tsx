@@ -1,6 +1,5 @@
 'use client';
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
-import { IDailyPlan, IEmployee, IUser } from '@/core/types/interfaces/to-review';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -9,6 +8,9 @@ import { estimatedTotalTime } from '../tasks/daily-plan';
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
