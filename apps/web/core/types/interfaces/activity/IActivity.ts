@@ -3,7 +3,7 @@ import { IRelationalEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
 import { ITimeSlot } from '../time-slot/ITimeSlot';
-import { IOrganizationTeamMember } from './IOrganizationTeam';
+import { IOrganizationTeamEmployee } from '../team/IOrganizationTeamEmployee';
 
 export interface IActivity
 	extends IBasePerTenantAndOrganizationEntityModel,
@@ -26,7 +26,7 @@ export interface IActivity
 }
 export interface IActivityFilter {
 	type: 'DATE' | 'TICKET';
-	member: IOrganizationTeamMember | null;
+	member: IOrganizationTeamEmployee | null;
 	taskId?: string;
 	dateStart?: Date;
 	dateStop?: Date;

@@ -1,5 +1,6 @@
-import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/to-review/ITimer';
 import { atom } from 'jotai';
+import { ILocalTimerStatus } from '../types/interfaces/timer/ITimerStatus';
+import { ITimerStatus } from '../types/interfaces/timer/ITimerStatus';
 
 export const timerStatusState = atom<ITimerStatus | null>(null);
 
