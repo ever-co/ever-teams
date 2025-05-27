@@ -1,4 +1,4 @@
-import { ITimerSlotDataRequest } from '@/core/types/interfaces/-timer/ITimerSlot';
+import { ITimerSlotDataRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
 import { serverFetch } from '../../fetch';
 import qs from 'qs';
 

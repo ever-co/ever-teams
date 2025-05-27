@@ -1,5 +1,5 @@
-import { IUpdateEmployee, IEmployee } from '@/core/types/interfaces/to-review';
 import { atom } from 'jotai';
+import { IEmployee, IUpdateEmployee } from '../types/interfaces/organization/employee/IEmployee';
 
 export const workingEmployeesState = atom<IEmployee[]>([]);
 

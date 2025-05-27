@@ -1,6 +1,8 @@
-import { IGithubMetadata, IGithubRepositories, IProjectRepository } from '@/core/types/interfaces/to-review';
+import { IGithubMetadata } from '@/core/types/interfaces/integrations/IGithubMetadata';
 import { serverFetch } from '../../fetch';
 import qs from 'qs';
+import { IGithubRepositories } from '@/core/types/interfaces/integrations/IGithubRepositories';
+import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/IOrganizationProject';
 
 export function installGitHubIntegration(
 	data: {
@@ -83,7 +85,7 @@ export function projectRepositorySyncRequest(
 		installationId: string;
 		organizationId: string;
 		tenantId: string;
-		repository: IProjectRepository;
+		repository: IOrganizationProjectRepository;
 	},
 	bearer_token: string
 ) {

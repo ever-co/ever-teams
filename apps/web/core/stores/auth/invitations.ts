@@ -1,4 +1,4 @@
-import { IInvite, IInvite } from '@/core/types/interfaces/to-review/IInvite';
+import { IInvite } from '@/core/types/interfaces/user/IInvite';
 import { atom } from 'jotai';
 import { activeTeamState } from '../teams/organization-team';
 
@@ -12,7 +12,7 @@ export const getTeamInvitationsState = atom<IInvite[]>((get) => {
 	const members = activeTeam?.members || [];
 
 	return invitations.filter((invite) => {
-		return !members.find((me) => me?.employee?.user?.email === invite?.email);
+		return !members.find((me: any) => me?.employee?.user?.email === invite?.email);
 	});
 });
 

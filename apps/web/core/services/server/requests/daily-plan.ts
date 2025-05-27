@@ -7,7 +7,8 @@ import {
 	IUpdateDailyPlan
 } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { serverFetch } from '../fetch';
-import { DeleteResponse, ID } from '@/core/types/interfaces/to-review';
+import { DeleteResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ID } from '@/core/types/interfaces/global/base-interfaces';
 
 export function getAllDayPlans({
 	organizationId,

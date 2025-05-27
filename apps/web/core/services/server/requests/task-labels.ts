@@ -1,4 +1,5 @@
-import { ITagCreate, ITag } from '@/core/types/interfaces/to-review';
+import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITagCreate } from '@/core/types/interfaces/tag/ITag';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

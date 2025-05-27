@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces/to-review/IEmployee';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 import { serverFetch } from '../fetch';
 
 export function getEmployeeRoleRequest({

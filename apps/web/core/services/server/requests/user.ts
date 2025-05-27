@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/to-review';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 import { serverFetch } from '../fetch';
 
 export function getUserByIdRequest({

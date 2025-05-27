@@ -1,6 +1,7 @@
-import { IOrganizationTeam, IOrganizationTeamMember } from '@/core/types/interfaces/to-review/IOrganizationTeam';
 import { RoleNameEnum } from '../types/enums/role';
 import { atom } from 'jotai';
+import { IOrganizationTeam } from '../types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeamEmployee } from '../types/interfaces/team/IOrganizationTeamEmployee';
 
 export const organizationTeamsState = atom<IOrganizationTeam[]>([]);
 
@@ -26,7 +27,7 @@ export const memberActiveTaskIdState = atom<string | null>(null);
 
 export const publicactiveTeamState = atom<IOrganizationTeam | undefined>(undefined);
 
-export const activeTeamManagersState = atom<IOrganizationTeamMember[]>((get) => {
+export const activeTeamManagersState = atom<IOrganizationTeamEmployee[]>((get) => {
 	const activeTeam = get(activeTeamState);
 	const members = activeTeam?.members;
 	return (

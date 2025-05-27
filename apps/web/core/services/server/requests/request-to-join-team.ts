@@ -1,14 +1,9 @@
-import {
-	IJoinTeamRequest,
-	IJoinTeamResponse,
-	IDataResponse,
-	PaginationResponse,
-	ISuccessResponse,
-	IValidateRequestToJoinTeam,
-	RequestStatusEnum
-} from '@/core/types/interfaces/to-review';
+import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { RequestStatusEnum } from '@/core/types/enums';
 
 /**
  * Request to Join Team request

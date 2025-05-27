@@ -1,4 +1,4 @@
-import { ITenant } from '@/core/types/interfaces/to-review/ITenant';
+import { ITenant } from '@/core/types/interfaces/tenant/ITenant';
 import { serverFetch } from '../fetch';
 
 export function createTenantRequest(name: string, bearer_token: string) {

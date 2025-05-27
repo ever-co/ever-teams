@@ -1,10 +1,10 @@
-import { ITimer, ITimerStatus, ITimeSlot, TimerSource } from '@/core/types/interfaces/to-review/ITimer';
-import { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
+import { ITimerStatus, IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
 import { IGetTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
 import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { TimerSource } from '@/core/types/enums/timer';
 
 export function getTimerStatusRequest({ tenantId, organizationId }: IGetTimerStatusParams, bearer_token: string) {
 	const params = qs.stringify({ tenantId, organizationId });

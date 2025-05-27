@@ -1,5 +1,6 @@
-import { ITaskSizesCreate, ITaskSizeNameEnum } from '@/core/types/interfaces/to-review';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
 import { serverFetch } from '../fetch';
+import { ITaskSizeNameEnum } from '@/core/types/enums/task';
 
 export function createSizesRequest(datas: ITaskSizesCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskSizeNameEnum>({

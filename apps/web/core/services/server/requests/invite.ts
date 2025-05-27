@@ -1,10 +1,10 @@
 import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
-import { IInvite, InviteActionEnum } from '@/core/types/interfaces/to-review/IInvite';
-import { IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
+import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
 import { IInviteCreate } from '@/core/types/interfaces/user/IInvite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { InviteActionEnum } from '@/core/types/enums/invite';
 
 /**
  * Invite user using email request

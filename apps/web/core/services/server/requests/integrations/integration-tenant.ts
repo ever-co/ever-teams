@@ -1,4 +1,4 @@
-import { IIntegrationTenant } from '@/core/types/interfaces/to-review';
+import { IIntegrationTenant } from '@/core/types/interfaces/integrations/IIntegrationTenant';
 import { serverFetch } from '../../fetch';
 import qs from 'qs';
 

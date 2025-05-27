@@ -1,4 +1,4 @@
-import { IRolePermissions } from '@/core/types/interfaces/to-review/IRolePermissions';
+import { IRolePermission } from '@/core/types/interfaces/role/IRolePermission';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 
@@ -22,7 +22,7 @@ export function getRolePermissionsRequest({
 
 	const query = qs.stringify(params);
 
-	return serverFetch<IRolePermissions>({
+	return serverFetch<IRolePermission>({
 		path: `/role-permissions?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -35,11 +35,11 @@ export function updateRolePermissionRequest({
 	tenantId,
 	data
 }: {
-	data: IRolePermissions;
+	data: IRolePermission;
 	bearer_token: string;
 	tenantId: string;
 }) {
-	return serverFetch<IRolePermissions>({
+	return serverFetch<IRolePermission>({
 		path: `/role-permissions/${data.id}`,
 		method: 'PUT',
 		bearer_token,

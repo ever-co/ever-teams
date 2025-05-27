@@ -1,4 +1,4 @@
-import { IOrganizationTeam } from '@/core/types/interfaces/to-review';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import qs from 'qs';

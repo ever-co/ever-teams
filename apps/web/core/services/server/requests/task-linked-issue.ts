@@ -1,8 +1,8 @@
-import { ITaskLinkedIssue, ITaskLinkedIssueResponse, ITaskLinkedIssue } from '@/core/types/interfaces/to-review';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
 import { serverFetch } from '../fetch';
 
 export function createTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {
-	return serverFetch<ITaskLinkedIssueResponse>({
+	return serverFetch<ITaskLinkedIssue>({
 		path: '/task-linked-issue',
 		method: 'POST',
 		body: data,

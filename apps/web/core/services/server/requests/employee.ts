@@ -1,8 +1,7 @@
-import { PaginationResponse } from '@/core/types/interfaces/to-review';
-import { IEmployee, IEmployee } from '@/core/types/interfaces/to-review/IEmployee';
-import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ICreateEmployee, IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 
 export function createEmployeeFromUser(data: ICreateEmployee, bearer_token: string) {
 	return serverFetch<IEmployee>({

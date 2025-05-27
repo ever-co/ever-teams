@@ -1,13 +1,11 @@
-import { TimerSource } from '@/core/types/interfaces/to-review';
+import { TimerSource } from '@/core/types/enums/timer';
 import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
-	IOrganizationTeam,
 	IOrganizationTeamUpdate,
-	IOrganizationTeam,
 	ITeamRequestParams
-} from '@/core/types/interfaces/to-review';
+} from '@/core/types/interfaces/team/IOrganizationTeam';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';
