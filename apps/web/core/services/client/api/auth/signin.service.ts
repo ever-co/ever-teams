@@ -87,7 +87,7 @@ class SigninService extends APIService {
 			}
 
 			const { data: teams } = await organizationTeamService.getAllOrganizationTeam(
-				{ tenantId, organizationId: organization.organizationId },
+				{ tenantId, organizationId: organization.organizationId || '' },
 				access_token
 			);
 
@@ -103,7 +103,7 @@ class SigninService extends APIService {
 				},
 				teamId: team?.id,
 				tenantId,
-				organizationId: organization?.organizationId,
+				organizationId: organization?.organizationId || '',
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
 				userId
@@ -218,7 +218,7 @@ class SigninService extends APIService {
 			},
 			teamId: params.teamId,
 			tenantId,
-			organizationId: organization?.organizationId,
+			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
 			userId

@@ -238,8 +238,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="flex items-center gap-x-1 ">
 						<span className="text-gray-400">for</span>
 						<CustomSelect
-							defaultValue={dataTimesheet.employee.fullName}
-							placeholder={dataTimesheet.employee.fullName}
+							defaultValue={dataTimesheet.employee?.fullName}
+							placeholder={dataTimesheet.employee?.fullName}
 							valueKey="employeeId"
 							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}

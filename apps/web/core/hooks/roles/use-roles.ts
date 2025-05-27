@@ -25,7 +25,7 @@ export const useRoles = () => {
 	}, [getRolesQueryCall]);
 
 	const createRole = useCallback(
-		async (role: IRole) => {
+		async (role: Omit<IRole, 'id'>) => {
 			try {
 				const res = await createRoleQueryCall(role);
 

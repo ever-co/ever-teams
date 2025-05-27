@@ -40,7 +40,6 @@ import { VerticalSeparator } from '@/core/components/duplicated-components/separ
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 type IUserTeamCard = {

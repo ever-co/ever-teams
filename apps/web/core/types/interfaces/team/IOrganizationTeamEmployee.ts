@@ -25,6 +25,7 @@ export interface IOrganizationTeamEmployee
 	isManager?: boolean;
 	isActive?: boolean;
 	totalWorkedTasks?: ITasksStatistics[];
+	totalTodayTasks?: ITasksStatistics[];
 }
 
 export interface IOrganizationTeamEmployeeCreate {

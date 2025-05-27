@@ -21,7 +21,7 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
-import { TimeLogType, TimerSource } from '@/core/types/enums/timer';
+import { TimeLogType, TimeLogSourceEnum } from '@/core/types/enums/timer';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -136,7 +136,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			description: formState.notes,
 			projectId: formState.projectId,
 			logType: TimeLogType.MANUAL as any,
-			source: TimerSource.BROWSER as any,
+			source: TimeLogSourceEnum.BROWSER as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
 			organizationTeamId: undefined

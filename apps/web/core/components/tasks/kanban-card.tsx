@@ -21,7 +21,6 @@ import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { TaskPriorityEnum } from '@/core/types/enums/task';
 
 function getStyle(provided: DraggableProvided, style: any) {
@@ -144,12 +143,12 @@ export default function Item(props: ItemProps) {
 	const { timerStatus } = useTimerView();
 
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m: IEmployee) => m.employee.userId === user?.id);
+	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member: IEmployee) => {
+	activeTeam?.members?.forEach((member) => {
 		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === item?.id) || null;
 		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration;
+			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
 	});
 
@@ -165,9 +164,7 @@ export default function Item(props: ItemProps) {
 		}) || [];
 
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
-	const currentMember = activeTeam?.members.find(
-		(member: IEmployee) => member.id === memberInfo.member?.id || item?.id
-	);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
 
 	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&

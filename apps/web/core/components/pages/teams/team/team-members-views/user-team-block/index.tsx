@@ -17,10 +17,8 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type IUserTeamBlock = {
 	active?: boolean;

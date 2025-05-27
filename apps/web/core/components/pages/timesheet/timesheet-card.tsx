@@ -181,9 +181,9 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, I
 															/>
 														</div>
 														<div className="flex items-center flex-1 gap-x-2">
-															<EmployeeAvatar imageUrl={task.employee.user.imageUrl!} />
+															<EmployeeAvatar imageUrl={task.employee?.user.imageUrl!} />
 															<span className="flex-1 font-medium text-[12px] overflow-hidden">
-																{task.employee.fullName}
+																{task.employee?.fullName}
 															</span>
 														</div>
 														<DisplayTimeForTimesheet timesheetLog={task} />

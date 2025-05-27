@@ -250,7 +250,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 										count={
 											Object.values(statusTimesheet)
 												.flat()
-												.map((entry) => entry.employee.id)
+												.map((entry) => entry.employee?.id)
 												.filter((id, index, array) => array.indexOf(id) === index).length
 										}
 										title={t('common.MEMBERS_WORKED')}

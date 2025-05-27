@@ -189,7 +189,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								</Text>
 								<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 									{loading && !taskLabels?.length && <Spinner dark={false} />}
-									{taskLabels?.map((label) => (
+									{taskLabels?.map((label: any) => (
 										<StatusesListCard
 											key={label.id}
 											statusTitle={label.name?.split('-').join(' ') || ''}

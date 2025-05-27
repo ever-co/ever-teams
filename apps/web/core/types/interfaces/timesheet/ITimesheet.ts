@@ -23,6 +23,7 @@ export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	isBilled?: boolean;
 	status: TimesheetStatus;
 	isEdited?: boolean;
+	version?: string;
 }
 export interface IUpdateTimesheetStatus {
 	ids: ID[] | ID;

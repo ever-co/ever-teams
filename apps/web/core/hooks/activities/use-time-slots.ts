@@ -24,10 +24,10 @@ export function useTimeSlots(hasFilter?: boolean) {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
-		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		if (activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				employeeId: employeeId ?? '',
 				todayEnd,
 				todayStart
@@ -44,7 +44,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 		(ids: string[]) => {
 			queryDeleteCall({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				ids: ids
 			}).then(() => {
 				setTimeSlots((timeSlots) => timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null)));

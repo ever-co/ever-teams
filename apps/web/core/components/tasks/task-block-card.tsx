@@ -19,7 +19,6 @@ import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 interface TaskItemProps {
 	task: ITask;
@@ -34,13 +33,13 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m: IEmployee) => m.employee.userId === user?.id);
+	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 
 	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member: IEmployee) => {
+	activeTeam?.members?.forEach((member) => {
 		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === task?.id) || null;
 		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration;
+			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
 	});
 
@@ -57,9 +56,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
 
-	const currentMember = activeTeam?.members.find(
-		(member: IEmployee) => member.id === memberInfo.member?.id || task?.id
-	);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || task?.id);
 
 	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&

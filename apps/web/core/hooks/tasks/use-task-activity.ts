@@ -17,10 +17,10 @@ export function useTaskTimeSheets(id: string) {
 
 	const { loading, queryCall } = useQuery(activityService.getActivities);
 	const getTaskTimesheets = useCallback(() => {
-		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		if (activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				taskId: id
 			}).then((response) => {
 				if (response.data) {

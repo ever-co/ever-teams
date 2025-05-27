@@ -41,13 +41,15 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 			if (teamIndex === -1) return;
 
 			const tempTeams = cloneDeep(organizationTeams);
-			const memberIndex = tempTeams[teamIndex].members.findIndex(
+			const memberIndex = tempTeams[teamIndex].members?.findIndex(
 				(member: IOrganizationTeamEmployee) => member.id === updatedMember.id
 			);
 
 			if (memberIndex === -1) return;
 
-			tempTeams[teamIndex].members[memberIndex] = updatedMember;
+			if (tempTeams[teamIndex].members && memberIndex !== undefined) {
+				tempTeams[teamIndex].members[memberIndex] = updatedMember;
+			}
 			setOrganizationTeams(tempTeams);
 		},
 		[activeTeamId, organizationTeams, setOrganizationTeams]
@@ -64,8 +66,8 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					.filter((member: IOrganizationTeamEmployee) => member.role?.name === 'MANAGER')
-					.map((manager: IOrganizationTeamEmployee) => manager.employee?.id) || [];
+					?.filter((member: IOrganizationTeamEmployee) => member.role?.name === 'MANAGER')
+					.map((manager: IOrganizationTeamEmployee) => manager.employee?.id || '') || [];
 
 			if (isPromotingToManager) {
 				// Add new manager

@@ -25,12 +25,12 @@ export function useTimeDailyActivity(type?: string) {
 			const todayEnd = moment().endOf('day').toDate();
 			const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
 			if (
-				activityFilter.member?.employeeId === user?.employee.id ||
+				activityFilter.member?.employeeId === user?.employee?.id ||
 				user?.role?.name?.toUpperCase() == 'MANAGER'
 			) {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
-					organizationId: user?.employee.organizationId ?? '',
+					organizationId: user?.employee?.organizationId ?? '',
 					employeeId: employeeId ?? '',
 					todayEnd,
 					type,

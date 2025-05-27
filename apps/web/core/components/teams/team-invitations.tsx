@@ -82,7 +82,7 @@ export function TeamInvitations(props: IProps) {
 					>
 						<Text className="mt-auto mb-auto">
 							{t('pages.home.INVITATIONS')}{' '}
-							<span className="font-semibold">{invitation.teams[0].name}</span>
+							<span className="font-semibold">{invitation.teams?.[0]?.name}</span>
 						</Text>
 
 						<div className="flex flex-row gap-3 ml-auto mr-5 justify-items-end">

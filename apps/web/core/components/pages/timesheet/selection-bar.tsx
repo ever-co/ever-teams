@@ -97,7 +97,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 		try {
 			updateTimesheetStatus({
 				status: TimesheetStatus.APPROVED,
-				ids: selectTimesheetId.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
+				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});
@@ -110,7 +110,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 		try {
 			updateTimesheetStatus({
 				status: TimesheetStatus.DENIED,
-				ids: selectTimesheetId.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
+				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});
@@ -122,7 +122,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleDelete = useCallback(async () => {
 		try {
 			deleteTaskTimesheet({
-				logIds: selectTimesheetId?.map((select) => select.timesheet?.id).filter((id) => id !== undefined)
+				logIds: selectTimesheetId?.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
 			});

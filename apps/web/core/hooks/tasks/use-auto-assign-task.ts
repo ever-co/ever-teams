@@ -39,7 +39,7 @@ export function useAutoAssignTask() {
 
 	useEffect(() => {
 		if (firstLoad && timerStatus?.running && activeTeamTask && authUser) {
-			autoAssignTask(activeTeamTask, authUser.employee.id);
+			autoAssignTask(activeTeamTask, authUser.employee?.id || '');
 		}
 	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad]);
 

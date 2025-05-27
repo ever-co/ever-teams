@@ -1,4 +1,4 @@
-import { TimeLogType, TimerSource } from '../../enums/timer';
+import { TimeLogType, TimeLogSourceEnum } from '../../enums/timer';
 import { IActivity } from '../activity/IActivity';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
@@ -47,7 +47,7 @@ export interface IAddManualTimeRequest {
 	organization?: Pick<IOrganization, 'id'>;
 	tenantId?: string;
 	logType: TimeLogType;
-	source: TimerSource.BROWSER;
+	source: TimeLogSourceEnum.BROWSER;
 }
 export interface ITimerSlotDataRequest {
 	id: string;

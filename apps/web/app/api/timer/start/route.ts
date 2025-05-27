@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, startTimerRequest } from '@/core/services/server/requests';
-import { TimerSource } from '@/core/types/enums/timer';
+import { TimeLogSourceEnum } from '@/core/types/enums/timer';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 			organizationId: organizationId || '',
 			taskId: taskId || '',
 			logType: 'TRACKED',
-			source: TimerSource.TEAMS,
+			source: TimeLogSourceEnum.TEAMS,
 			tags: [],
 			organizationTeamId
 		},

@@ -61,7 +61,7 @@ export function useTaskStatus() {
 		async (data: ITaskStatusCreate) => {
 			try {
 				if (tenantId) {
-					const requestData = { ...data, organizationTeamId: activeTeamId };
+					const requestData = { ...data, organizationTeamId: activeTeamId || '' };
 
 					const res = await createQueryCall(requestData, tenantId);
 

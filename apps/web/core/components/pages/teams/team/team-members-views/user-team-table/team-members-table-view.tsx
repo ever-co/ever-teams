@@ -7,7 +7,6 @@ import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
 import { ActionMenuCell, TaskCell, TaskEstimateInfoCell, UserInfoCell, WorkedOnTaskCell } from './team-member-cells';
-import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 const TeamMembersTableView = ({
 	teamMembers,

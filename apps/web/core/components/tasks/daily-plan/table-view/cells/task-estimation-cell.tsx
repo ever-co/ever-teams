@@ -4,7 +4,6 @@ import { ITask } from '@/core/types/interfaces/task/ITask';
 import { CellContext } from '@tanstack/react-table';
 import { get } from 'lodash';
 import { useMemo } from 'react';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export default function DailyPlanTaskEstimationCell(props: CellContext<ITask, unknown>) {
 	const plan = get(props.column, 'columnDef.meta.plan');
@@ -13,8 +12,8 @@ export default function DailyPlanTaskEstimationCell(props: CellContext<ITask, un
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentMember = useMemo(
 		() =>
-			members.find((m: IEmployee) => {
-				return m.employee.user?.id === profile?.userProfile?.id;
+			members.find((m) => {
+				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
 	);

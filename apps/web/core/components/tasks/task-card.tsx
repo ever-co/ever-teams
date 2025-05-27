@@ -753,7 +753,7 @@ export function PlanTask({
 					status: DailyPlanStatusEnum.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
-					organizationId: user?.employee.organizationId
+					organizationId: user?.employee?.organizationId
 				});
 			});
 		} else {
@@ -765,7 +765,7 @@ export function PlanTask({
 					status: DailyPlanStatusEnum.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
-					organizationId: user?.employee.organizationId
+					organizationId: user?.employee?.organizationId
 				});
 			});
 		}

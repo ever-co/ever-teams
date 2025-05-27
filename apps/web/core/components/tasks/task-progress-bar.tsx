@@ -5,7 +5,6 @@ import { timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export function TaskProgressBar({
 	isAuthUser,
@@ -31,10 +30,10 @@ export function TaskProgressBar({
 	// 	(member) => member.id === memberInfo?.member?.id
 	// );
 	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member: IEmployee) => {
+	activeTeam?.members?.forEach((member) => {
 		const totalWorkedTasks = member?.totalWorkedTasks?.find((item: ITask) => item.id === task?.id) || null;
 		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration;
+			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
 	});
 

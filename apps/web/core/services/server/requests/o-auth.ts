@@ -71,7 +71,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 			const { data: employee } = await createEmployeeFromUser(
 				{
 					organizationId: organization.id,
-					startedWorkOn: new Date().toISOString(),
+					startedWorkOn: new Date(),
 					tenantId: tenant.id,
 					userId: createdUser.data.id
 				},
@@ -121,7 +121,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 			const { provider, access_token: token } = account;
 			if (provider && token) {
 				return (await linkUserToSocialAccount({ provider: provider as ProviderEnum, token }))
-					.data as AdapterAccount;
+					.data as unknown as AdapterAccount;
 			}
 			return null;
 		},

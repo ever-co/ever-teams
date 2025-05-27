@@ -27,8 +27,7 @@ import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
-import { TimerSource } from '@/core/types/enums/timer';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { TimeLogSourceEnum } from '@/core/types/enums/timer';
 import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
@@ -217,7 +216,7 @@ export function useTimer() {
 		user?.isEmailVerified &&
 		((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
 			// If timer is running at some other source and user may or may not have selected the task
-			timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS);
+			timerStatusRef.current?.lastLog?.source !== TimeLogSourceEnum.TEAMS);
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
@@ -233,7 +232,7 @@ export function useTimer() {
 			}
 			return queryCall(user?.tenantId, user?.employee?.organizationId || '').then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
-					setTimerStatus((t: ITimerStatus) => {
+					setTimerStatus((t) => {
 						if (deepCheck) {
 							return res.data.running !== t?.running ? res.data : t;
 						}
@@ -264,9 +263,11 @@ export function useTimer() {
 		if (syncTimerLoading || syncTimerLoadingRef.current) {
 			return;
 		}
-		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS, $user.current).then((res) => {
-			return res;
-		});
+		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS, $user.current).then(
+			(res) => {
+				return res;
+			}
+		);
 	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef, $user]);
 
 	// Loading states
@@ -321,8 +322,8 @@ export function useTimer() {
 
 		if (activeTeamTaskRef.current) {
 			// Update Current user's active task to sync across multiple devices
-			const currentEmployeeDetails = activeTeam?.members.find(
-				(member: IEmployee) => member.employeeId === user?.employee?.id
+			const currentEmployeeDetails = activeTeam?.members?.find(
+				(member) => member.employeeId === user?.employee?.id
 			);
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
@@ -367,7 +368,7 @@ export function useTimer() {
 
 		syncTimer();
 
-		return stopTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS).then((res) => {
+		return stopTimerQueryCall(timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -395,7 +396,7 @@ export function useTimer() {
 		) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Team Change
-			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
+			if (timerStatusRef.current.lastLog?.source === TimeLogSourceEnum.TEAMS) {
 				stopTimer();
 			}
 		}
@@ -412,7 +413,7 @@ export function useTimer() {
 		if (canStop && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
-			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
+			if (timerStatusRef.current.lastLog?.source === TimeLogSourceEnum.TEAMS) {
 				stopTimer();
 			}
 		}

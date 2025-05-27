@@ -1,13 +1,3 @@
-export enum TimerSource {
-	'MOBILE' = 'MOBILE',
-	'BROWSER' = 'BROWSER',
-	'DESKTOP' = 'DESKTOP',
-	'BROWSER_EXTENSION' = 'BROWSER_EXTENSION',
-	'HUBSTAFF' = 'HUBSTAFF',
-	'UPWORK' = 'UPWORK',
-	'TEAMS' = 'TEAMS'
-}
-
 export enum TimeLogType {
 	TRACKED = 'TRACKED',
 	MANUAL = 'MANUAL',
@@ -23,7 +13,8 @@ export enum TimeLogSourceEnum {
 	HUBSTAFF = 'HUBSTAFF',
 	UPWORK = 'UPWORK',
 	TEAMS = 'TEAMS',
-	CLOC = 'CLOC'
+	CLOC = 'CLOC',
+	BROWSER = 'BROWSER'
 }
 
 export enum TimerStatusEnum {

@@ -40,8 +40,8 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 
 	const { isOpen, openModal, closeModal } = useModal();
 
-	const isCurrentUser = user?.employee.id === memberInfo.member?.employeeId;
-	const isManager = activeTeamManagers.findIndex((member) => member.employee.user?.id === user?.id);
+	const isCurrentUser = user?.employee?.id === memberInfo.member?.employeeId;
+	const isManager = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);
 	// };
@@ -93,7 +93,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 											updateEmployee({
 												data: {
 													isTrackingEnabled: !member.employee?.isTrackingEnabled,
-													id: member.employee?.id,
+													id: member.employee?.id || '',
 													organizationId: member.employee?.organizationId,
 													isActive: member.employee?.isActive,
 													tenantId: member.employee?.tenantId

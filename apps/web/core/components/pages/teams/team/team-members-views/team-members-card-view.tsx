@@ -6,7 +6,6 @@ import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganiz
 import React, { useCallback, useEffect } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
-import { any } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 interface Props {
 	teamMembers: any[];

@@ -19,7 +19,7 @@ import { InputField } from '../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Nullable } from '@/core/types/generics/utils';
-import { IssueType, ITaskIssueTypeEnum, TaskTypeEnum } from '@/core/types/enums/task';
+import { IssueType, ITaskIssueTypeEnum } from '@/core/types/enums/task';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssueTypeEnum> = {
@@ -121,16 +121,16 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 	const updatedItemsBasedOnTaskIssueType = useMemo(() => {
 		let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 		if (props.task && props.task?.issueType && props.task.parent) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType as IssueType];
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
 
 			// If parent task is already Story then user can not assign current task as a Story
-			if (props.task.parent.issueType === TaskTypeEnum.STORY) {
+			if (props.task.parent.issueType === ITaskIssueTypeEnum.STORY) {
 				updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter(
 					(it) => it.value !== 'Story'
 				);
 			}
 		} else if (props.task && props.task?.issueType) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType as IssueType];
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
 		} else {
 			// Default show types in Dropdown
 			updatedItemsBasedOnTaskIssueType = items;

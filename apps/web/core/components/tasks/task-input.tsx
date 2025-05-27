@@ -38,15 +38,8 @@ import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import {
-	ITaskIssueTypeEnum,
-	ITaskSizeNameEnum,
-	ITaskStatusNameEnum,
-	TaskPriorityEnum,
-	TaskTypeEnum
-} from '@/core/types/enums/task';
-import { ITaskPriority } from '@/core/types/interfaces/task/ITaskPriority';
+import { ITaskIssueTypeEnum, ITaskSizeNameEnum, ITaskStatusNameEnum, TaskPriorityEnum } from '@/core/types/enums/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -165,8 +158,8 @@ export function TaskInput(props: Props) {
 				datas.setActiveTask(task);
 
 				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members.find(
-					(member: IEmployee) => member.employeeId === user?.employee?.id
+				const currentEmployeeDetails = activeTeam?.members?.find(
+					(member) => member.employeeId === user?.employee?.id
 				);
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
 					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
@@ -239,17 +232,17 @@ export function TaskInput(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === TaskTypeEnum.STORY
+				props.task?.issueType === ITaskIssueTypeEnum.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === TaskTypeEnum.TASK ||
-				props.task?.issueType === TaskTypeEnum.BUG ||
+				props.task?.issueType === ITaskIssueTypeEnum.TASK ||
+				props.task?.issueType === ITaskIssueTypeEnum.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === TaskTypeEnum.EPIC || item.issueType === TaskTypeEnum.STORY
+					(item) => item.issueType === ITaskIssueTypeEnum.EPIC || item.issueType === ITaskIssueTypeEnum.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -724,7 +717,7 @@ function TaskCard({
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: IEmployee[];
+	teamMembers: IOrganizationTeamEmployee[];
 	assignees?: RefObject<
 		{
 			id: string;
@@ -746,7 +739,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const authMember = useMemo(
-		() => teamMembers.find((member) => member.employee.user?.id == user?.id),
+		() => teamMembers.find((member) => member.employee?.user?.id == user?.id),
 		[teamMembers, user?.id]
 	);
 
@@ -799,13 +792,13 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
 									<span className="text-xs text-nowrap whitespace-nowrap">
-										{authMember.employee.fullName}
+										{authMember.employee?.fullName}
 									</span>
 								</Combobox.Option>
 							)}
 
 							{teamMembers
-								.filter((member) => member.employee.user?.id != user?.id)
+								.filter((member) => member.employee?.user?.id != user?.id)
 								.map((member) => (
 									<Combobox.Option
 										key={member.id}
@@ -820,29 +813,29 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 											if (!assignees) return;
 											const isAssigned = assignees.current
 												?.map((el) => el.id)
-												.includes(member.employee.id);
+												.includes(member.employee?.id || '');
 
 											if (isAssigned) {
 												assignees.current = (assignees.current || []).filter(
-													(el) => el.id !== member.employee.id
+													(el) => el.id !== member.employee?.id
 												);
 											} else {
 												assignees.current = [
 													...(assignees.current || []),
-													{ id: member.employee.id }
+													{ id: member.employee?.id || '' }
 												];
 											}
 										}}
 										value={member}
 									>
-										{assignees?.current?.map((el) => el.id).includes(member.employee.id) && (
+										{assignees?.current?.map((el) => el.id).includes(member.employee?.id || '') && (
 											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>
 										)}
 
 										<span className="text-xs text-nowrap whitespace-nowrap">
-											{member.employee.fullName}
+											{member.employee?.fullName}
 										</span>
 									</Combobox.Option>
 								))}

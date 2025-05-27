@@ -4,7 +4,7 @@ import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
-import { TimerSource } from '@/core/types/enums/timer';
+import { TimeLogSourceEnum } from '@/core/types/enums/timer';
 import { TimeLogType } from '@/core/types/enums/timer';
 
 export function useManualTime() {
@@ -19,7 +19,7 @@ export function useManualTime() {
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id ?? '',
 				logType: TimeLogType.MANUAL,
-				source: TimerSource.BROWSER,
+				source: TimeLogSourceEnum.BROWSER,
 				...data
 			})
 				.then((response) => {

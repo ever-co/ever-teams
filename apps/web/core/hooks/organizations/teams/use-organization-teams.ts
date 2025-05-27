@@ -87,7 +87,7 @@ function useCreateOrganizationTeam() {
 				const created = dt.find((t: IOrganizationTeam) => t.name === $name);
 				if (created) {
 					setActiveTeamIdCookie(created.id);
-					setOrganizationIdCookie(created.organizationId);
+					setOrganizationIdCookie(created.organizationId || '');
 					// This must be called at the end (Update store)
 					setActiveTeamId(created.id);
 					if (!isTeamMember) {
@@ -343,7 +343,7 @@ export function useOrganizationTeams() {
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
 			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId);
+			setOrganizationIdCookie(team?.organizationId || '');
 			// This must be called at the end (Update store)
 			setActiveTeamId(team?.id);
 

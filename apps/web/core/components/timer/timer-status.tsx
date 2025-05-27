@@ -7,7 +7,6 @@ import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
-import { any } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type Props = {
 	status: TimerStatusEnum;

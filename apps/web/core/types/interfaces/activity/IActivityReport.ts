@@ -227,3 +227,10 @@ export interface ITimeLogReportDailyChartProps {
 	teamId?: string;
 	userId?: string;
 }
+
+
+export interface ITimeLogReportDaily {
+	activity: number;
+	date: string; // '2024-07-19'
+	sum: number; // in seconds
+}

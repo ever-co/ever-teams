@@ -8,7 +8,7 @@ class RoleService extends APIService {
 		return this.get<PaginationResponse<IRole>>('/roles');
 	};
 
-	createRole = async (data: IRole) => {
+	createRole = async (data: Omit<IRole, 'id'>) => {
 		return this.post<IRole>('/roles', data);
 	};
 

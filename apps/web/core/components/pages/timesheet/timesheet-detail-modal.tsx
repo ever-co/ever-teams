@@ -72,7 +72,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 export default TimesheetDetailModal;
 
 const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: TranslationHooks }) => {
-	const memberWork = groupBy(element, (items) => items.employeeId);
+	const memberWork = groupBy(element, (items) => items.employeeId || '');
 	const memberWorkItems = Object.entries(memberWork)
 		.map(([employeeId, element]) => ({ employeeId, element }))
 		.sort((a, b) => b.employeeId.localeCompare(a.employeeId));
@@ -108,9 +108,9 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 									<div className="flex items-center gap-2">
 										<EmployeeAvatar
 											className="w-10 h-10 border rounded-full shadow-md"
-											imageUrl={timesheet.element[0].employee.user?.imageUrl ?? ''}
+											imageUrl={timesheet.element[0].employee?.user?.imageUrl ?? ''}
 										/>
-										<span className="font-bold">{timesheet.element[0].employee.fullName}</span>
+										<span className="font-bold">{timesheet.element[0].employee?.fullName}</span>
 									</div>
 									<Badge
 										variant={'outline'}

@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const [loading, setLoading] = useState(false);
@@ -16,8 +15,8 @@ export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const planMode = get(props.column, 'columnDef.meta.planMode');
 	const currentMember = useMemo(
 		() =>
-			members.find((m: IEmployee) => {
-				return m.employee.user?.id === profile?.userProfile?.id;
+			members.find((m) => {
+				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
 	);

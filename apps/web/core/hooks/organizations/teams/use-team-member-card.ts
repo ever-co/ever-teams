@@ -12,7 +12,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
 import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Nullable } from '@/core/types/generics/utils';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
@@ -107,7 +106,7 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
 				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
 				.concat(employeeId)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
@@ -125,7 +124,7 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 			managerIds: team.members
 				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
 				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
 				?.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
@@ -144,13 +143,13 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 			// remove from members
 			memberIds: team.members
 				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id),
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || ''),
 
 			// remove from managers
 			managerIds: team.members
 				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
 				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id)
+				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 

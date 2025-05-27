@@ -23,7 +23,7 @@ export function useUserDetails(memberId: string) {
 
 	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
 
-	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
+	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 
 	const employeeId = isAuthUser ? auth?.employee?.id : matchUser?.employeeId;
 

@@ -10,7 +10,7 @@ import { timeSheetService } from '@/core/services/client/api/timesheets/timeshee
 import { useAuthenticateUser } from '../auth';
 import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
 import { TimesheetStatus } from '@/core/types/enums/timesheet';
-import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { ITimesheet, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -279,18 +279,18 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			queryTimesheet({
 				startDate: from,
 				endDate: to,
-				organizationId: user.employee?.organizationId,
+				organizationId: user.employee?.organizationId || '',
 				tenantId: user.tenantId ?? '',
 				timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
 				employeeIds: isManage
-					? employee?.map(({ employee: { id } }) => id).filter(Boolean)
-					: [user.employee?.id],
+					? employee?.map(({ employee }) => employee?.id || '').filter(Boolean)
+					: [user.employee?.id || ''],
 				projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
 				taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
 				status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
 			})
 				.then((response) => {
-					setTimesheet(response.data);
+					setTimesheet(response.data as unknown as ITimesheet[]);
 				})
 				.catch((error) => {
 					console.error('Error fetching timesheet:', error);
@@ -364,8 +364,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				const response = await queryUpdateTimesheetStatus({ ids: idsArray, status });
 				const responseMap = new Map(response.data.map((item) => [item.id, item]));
 				setTimesheet((prevTimesheet) =>
-					prevTimesheet.map((item) => {
-						const updatedItem = responseMap.get(item.timesheet.id);
+					prevTimesheet.map((item: any) => {
+						const updatedItem = responseMap.get(item.timesheet?.id);
 						if (updatedItem) {
 							return {
 								...item,
@@ -463,7 +463,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		if (searchTerms.length === 0) {
 			return timesheet;
 		}
-		return timesheet.filter((task) => {
+		return timesheet.filter((task: any) => {
 			const searchableContent = {
 				title: normalizeText(task.task?.title),
 				employee: normalizeText(task.employee?.fullName),
@@ -493,20 +493,20 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		}
 
 		if (timesheetViewMode === 'ListView') {
-			const groupedTimesheets = groupByDate(filterDataTimesheet);
+			const groupedTimesheets = groupByDate(filterDataTimesheet as any);
 			const reGroupedByDate = reGroupByDate(groupedTimesheets);
 			switch (timesheetGroupByDays) {
 				case 'Daily':
 					return reGroupedByDate;
 				case 'Weekly':
-					return groupByWeek(filterDataTimesheet);
+					return groupByWeek(filterDataTimesheet as any);
 				case 'Monthly':
-					return groupByMonth(filterDataTimesheet);
+					return groupByMonth(filterDataTimesheet as any);
 				default:
 					return reGroupedByDate;
 			}
 		}
-		return reGroupByDate(groupByDate(filterDataTimesheet));
+		return reGroupByDate(groupByDate(filterDataTimesheet as any));
 	}, [timesheet, timesheetViewMode, filterDataTimesheet, timesheetGroupByDays]);
 
 	const rowsToObject = (rows: ITimeLog[]): Record<string, { task: ITimeLog; status: TimesheetStatus }> => {
@@ -531,7 +531,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		deleteTaskTimesheet,
 		getStatusTimesheet,
 		timesheetGroupByDays,
-		statusTimesheet: getStatusTimesheet(filterDataTimesheet.flat()),
+		statusTimesheet: getStatusTimesheet(filterDataTimesheet.flat() as ITimeLog[]),
 		updateTimesheetStatus,
 		loadingUpdateTimesheetStatus,
 		puTimesheetStatus,

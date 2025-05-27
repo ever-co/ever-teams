@@ -8,9 +8,13 @@ import {
 import { ITimeLog } from '../types/interfaces/time-log/ITimeLog';
 import { IOrganizationTeam } from '../types/interfaces/team/IOrganizationTeam';
 import { IOrganizationProject } from '../types/interfaces/project/IOrganizationProject';
-import { ITask, ITasksStatistics } from '../types/interfaces/task/ITask';
+import { ITask } from '../types/interfaces/task/ITask';
 import { TimeFrequency } from '../types/enums/date';
-import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '../types/interfaces/timesheet/ITimesheet';
+import {
+	ITimesheet,
+	ITimesheetCountsStatistics,
+	IUpdateTimesheetRequest
+} from '../types/interfaces/timesheet/ITimesheet';
 import { IOrganizationTeamEmployee } from '../types/interfaces/team/IOrganizationTeamEmployee';
 
 interface IFilterOption {
@@ -20,7 +24,7 @@ interface IFilterOption {
 
 export const timerLogsDailyReportState = atom<ITimeLogReportDaily[]>([]);
 
-export const timesheetRapportState = atom<ITimeLog[]>([]);
+export const timesheetRapportState = atom<ITimesheet[]>([]);
 
 export const timesheetFilterEmployeeState = atom<IOrganizationTeamEmployee[]>([]);
 export const timesheetFilterProjectState = atom<IOrganizationProject[]>([]);

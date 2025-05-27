@@ -37,7 +37,6 @@ import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { ThemeInterface } from '@/core/types/interfaces/theme/ITheme';
 
 export function UserNavAvatar() {
@@ -48,8 +47,8 @@ export function UserNavAvatar() {
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
-	const currentMember = members.find((m: IEmployee) => {
-		return m.employee.userId === user?.id;
+	const currentMember = members.find((m) => {
+		return m.employee?.userId === user?.id;
 	});
 	const timerStatusValue: TimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
@@ -143,8 +142,8 @@ function UserNavMenu() {
 	const publicTeam = useAtomValue(publicState);
 
 	const members = activeTeam?.members || [];
-	const currentMember = members.find((m: IEmployee) => {
-		return m.employee.userId === user?.id;
+	const currentMember = members.find((m) => {
+		return m.employee?.userId === user?.id;
 	});
 
 	const pathname = usePathname();

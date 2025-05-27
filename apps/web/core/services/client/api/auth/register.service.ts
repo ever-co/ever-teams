@@ -20,7 +20,7 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTea
 import { IRegisterDataAPI } from '@/core/types/interfaces/to-review/auth/IAuth';
 import { IUser } from '@/core/types/interfaces/user/IUser';
 import { ICustomSmtp } from '@/core/types/interfaces/smpt/ICustomSmtp';
-import { IEmployee } from '@/core/components/pages/dashboard/app-url';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -154,7 +154,11 @@ class RegisterService extends APIService {
 			userId: user.id
 		});
 
-		const response: AxiosResponse<{ loginRes: IAuthResponse; team: IOrganizationTeam; employee: IEmployee }> = {
+		const response: AxiosResponse<{
+			loginRes: IAuthResponse;
+			team: IOrganizationTeam;
+			employee: IOrganizationTeamEmployee;
+		}> = {
 			data: { loginRes, team, employee },
 			status: 200,
 			statusText: '',

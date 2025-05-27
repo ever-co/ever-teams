@@ -4,7 +4,6 @@ import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 

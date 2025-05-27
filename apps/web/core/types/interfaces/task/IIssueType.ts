@@ -9,7 +9,7 @@ export interface IIssueType
 		IRelationalOrganizationTeam,
 		IRelationalOrganizationProject,
 		IRelationalImageAsset {
-	name: string;
+	name: ITaskIssueTypeEnum;
 	value: string;
 	description?: string;
 	icon?: string;

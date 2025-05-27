@@ -24,7 +24,7 @@ export function useTimeLogs() {
 		(startDate: Date = moment().startOf('year').toDate(), endDate: Date = moment().endOf('day').toDate()) => {
 			queryTimerLogsDailyReport({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				employeeIds: [profile.member?.employeeId ?? ''],
 				startDate,
 				endDate
@@ -42,7 +42,7 @@ export function useTimeLogs() {
 			profile.member?.employeeId,
 			queryTimerLogsDailyReport,
 			setTimerLogsDailyReport,
-			user?.employee.organizationId,
+			user?.employee?.organizationId,
 			user?.tenantId
 		]
 	);

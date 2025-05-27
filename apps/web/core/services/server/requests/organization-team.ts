@@ -1,4 +1,4 @@
-import { TimerSource } from '@/core/types/enums/timer';
+import { TimeLogSourceEnum } from '@/core/types/enums/timer';
 import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 import {
 	IOrganizationTeam,
@@ -146,7 +146,7 @@ export function getAllOrganizationTeamRequest(
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		source: TimerSource.TEAMS,
+		source: TimeLogSourceEnum.TEAMS,
 		withLastWorkedTask: 'true',
 		relations
 	};

@@ -6,7 +6,6 @@ import { ITask } from '@/core/types/interfaces/task/ITask';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 
 export interface IKanban {

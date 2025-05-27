@@ -2,31 +2,16 @@
 
 import * as React from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@/core/components/duplicated-components/_button';
 import {
-	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuPortal,
-	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger
+	DropdownMenuSub
 } from '@/core/components/common/dropdown-menu';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue
-} from '@/core/components/common/select';
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
+import { SelectContent } from '@/core/components/common/select';
+import { MdKeyboardArrowUp } from 'react-icons/md';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
 import { useModal, useTimelogFilterOptions } from '@/core/hooks';
-import { Checkbox } from '@/core/components/common/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
@@ -56,6 +41,23 @@ import { TimesheetStatus } from '@/core/types/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
 import { TimeLogType } from '@/core/types/enums/timer';
+import { Button } from '@/core/components/common/button';
+import { Checkbox } from '@/core/components/common/checkbox';
+import {
+	Select,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/common/select';
+import {
+	DropdownMenu,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+	DropdownMenuSeparator
+} from '@/core/components/common/dropdown-menu';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
 	const accordionRef = React.useRef(null);
@@ -112,7 +114,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 					updateTimesheetStatus({
 						status: TimesheetStatus.APPROVED,
 						ids: selectTimesheetId
-							.map((select) => select.timesheetId)
+							.map((select) => select.timesheetId || '')
 							.filter((timesheetId) => timesheetId !== undefined)
 					})
 						.then(() => setSelectTimesheetId([]))
@@ -143,7 +145,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			/>
 			<RejectSelectedModal
 				selectTimesheetId={selectTimesheetId
-					.map((select) => select.timesheetId)
+					.map((select) => select.timesheetId || '')
 					.filter((timesheetId) => timesheetId !== undefined)}
 				onReject={() => {
 					// Pending implementation
@@ -299,10 +301,10 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	<EmployeeAvatar
 																		className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
 																		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-																		imageUrl={task.employee.user.imageUrl!}
+																		imageUrl={task.employee?.user.imageUrl!}
 																	/>
 																	<span className="flex-1 font-medium">
-																		{task.employee.fullName}
+																		{task.employee?.fullName}
 																	</span>
 																</div>
 																<div className="flex-1">
@@ -409,7 +411,7 @@ const TaskActionMenu = ({
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
-	const canEdit = isManage || user?.id === dataTimesheet.employee.user.id;
+	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
 
 	const t = useTranslations();
 	const handleDeleteTask = () => {

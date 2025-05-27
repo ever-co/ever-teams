@@ -9,7 +9,6 @@ import { UserInfo } from '../user-team-card/user-info';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as any;

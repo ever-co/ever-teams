@@ -1,4 +1,4 @@
-import { IEmployee } from '../organization/employee/IEmployee';
+import { IRelationalEmployee } from '../organization/employee/IEmployee';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
@@ -11,9 +11,8 @@ export interface ITimeLog
 	extends IBasePerTenantAndOrganizationEntityModel,
 		IRelationalOrganizationProject,
 		IRelationalOrganizationTeam,
+		IRelationalEmployee,
 		ITaggable {
-	employee: IEmployee;
-	employeeId: ID;
 	timesheet?: ITimesheet;
 	timesheetId?: ID;
 	task?: ITask;

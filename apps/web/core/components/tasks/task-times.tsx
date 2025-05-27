@@ -9,6 +9,7 @@ import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 type Props = {
 	task: Nullable<ITask>;
@@ -24,7 +25,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = useMemo(
-		() => activeTeam?.members.find((member: IEmployee) => member.id === memberInfo?.member?.id || memberInfo?.id),
+		() => activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
 
@@ -99,7 +100,7 @@ function TimeInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IEmployee | undefined;
+	currentUser: IOrganizationTeamEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
@@ -109,7 +110,7 @@ function TimeInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
 						daily.m
 					}m`}
 				>
@@ -125,7 +126,7 @@ function TimeInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
 						total.m
 					}m`}
 				>
@@ -158,7 +159,7 @@ function TimeBlockInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IEmployee | undefined;
+	currentUser: IOrganizationTeamEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
@@ -167,7 +168,7 @@ function TimeBlockInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
 						daily.m
 					}m`}
 				>
@@ -185,7 +186,7 @@ function TimeBlockInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
 						total.m
 					}m`}
 				>
@@ -214,7 +215,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 
 	const t = useTranslations();
 
-	const currentMember = activeTeam?.members.find((member: IEmployee) => member.id === memberInfo?.member?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id);
 	const { h, m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
@@ -228,7 +229,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	return (
 		<div className={clsxm('font-normal text-center', className)}>
 			<Tooltip
-				label={`${currentMember?.employee.fullName} ${t(
+				label={`${currentMember?.employee?.fullName} ${t(
 					'task.WORKED_TODAY_ON_ALL_TOOLTIP'
 				)} ${activeTeam?.name} ${t('task.TASKS_FOR_TOOLTIP')} ${h}h : ${m}m`}
 			>

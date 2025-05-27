@@ -6,7 +6,6 @@ import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { UserTeamCardSkeleton } from './team-members-header';
 import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';
-import { any } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 interface Props {
 	teamMembers: any[];

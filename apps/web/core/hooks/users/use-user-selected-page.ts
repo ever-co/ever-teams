@@ -24,7 +24,7 @@ export function useUserSelectedPage(id?: string) {
 
 	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
 
-	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
+	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);

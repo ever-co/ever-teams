@@ -83,7 +83,7 @@ export function useAuthenticationSocialLogin() {
 						},
 						teamId: selectedTeam,
 						tenantId,
-						organizationId: organization?.organizationId,
+						organizationId: organization?.organizationId || '',
 						languageId: 'en',
 						noTeamPopup: undefined,
 						userId

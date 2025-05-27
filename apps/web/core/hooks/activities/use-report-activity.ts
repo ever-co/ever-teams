@@ -101,7 +101,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const employeeIds = useMemo(
 		() =>
 			isManage
-				? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+				? alluserState?.map(({ employee }) => employee?.id).filter(Boolean)
 				: user?.employee?.id
 					? [user.employee.id]
 					: [],
