@@ -3,7 +3,6 @@ import { IOrganizationTeam } from '../../team/IOrganizationTeam';
 import { IUser } from '../../user/IUser';
 
 export interface IUserSigninWorkspaceResponse {
-	workspaces: IOrganizationTeam[];
 	confirmed_email: string;
 	show_popup: boolean;
 	total_workspaces: number;
@@ -11,6 +10,8 @@ export interface IUserSigninWorkspaceResponse {
 	defaultOrganizationId?: ID;
 	lastTeamId?: ID;
 	lastOrganizationId?: ID;
+	workspaces: ISigninEmailConfirmWorkspaces[];
+	status?: number;
 }
 export interface IAuthResponse {
 	team: IUser;

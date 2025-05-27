@@ -1,3 +1,4 @@
+import { TimeLogType } from '../../enums/timer';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IOrganizationContact } from '../organization/IOrganizationContact';
 import { IOrganizationProject } from '../project/IOrganizationProject';
@@ -186,4 +187,43 @@ export interface ITimerEmployeeLog {
 export interface ITimerProjectLog {
 	project: IOrganizationProject;
 	employeeLogs: ITimerEmployeeLog[];
+}
+
+export interface ITimeLogReportDailyRequest {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	groupBy?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	teamIds?: string[];
+	logType?: TimeLogType[];
+	activityLevel?: {
+		start: number;
+		end: number;
+	};
+}
+
+export interface ITimeLogReportDailyChartProps {
+	activityLevel: {
+		start: number;
+		end: number;
+	};
+	start: number;
+	end: number;
+	organizationId: string;
+	tenantId: string;
+	startDate: string;
+	endDate: string;
+	timeZone?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	logType?: TimeLogType[];
+	teamIds?: string[];
+	groupBy?: string;
+	teamId?: string;
+	userId?: string;
 }

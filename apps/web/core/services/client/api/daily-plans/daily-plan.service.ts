@@ -1,17 +1,16 @@
-import {
-	DeleteResponse,
-	ICreateDailyPlan,
-	ID,
-	IDailyPlan,
-	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlansRequest,
-	IUpdateDailyPlan,
-	PaginationResponse
-} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ID } from '@/core/types/interfaces/global/base-interfaces';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import {
+	IDailyPlanTasksUpdate,
+	IDailyPlan,
+	ICreateDailyPlan,
+	IUpdateDailyPlan,
+	IRemoveTaskFromManyPlansRequest
+} from '@/core/types/interfaces/daily-plan/IDailyPlan';
 
 class DailyPlanService extends APIService {
 	getAllDayPlans = async (activeTeamId?: ID) => {

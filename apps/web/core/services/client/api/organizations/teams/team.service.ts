@@ -1,20 +1,18 @@
-import {
-	DeleteResponse,
-	IOrganizationTeam,
-	IOrganizationTeamCreate,
-	IOrganizationTeam,
-	IOrganizationTeamUpdate,
-	ITeamRequestParams,
-	IUser,
-	PaginationResponse,
-	TimerSource
-} from '@/core/types/interfaces/to-review';
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
+import { TimerSource } from '@/core/types/enums/timer';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import {
+	IOrganizationTeam,
+	IOrganizationTeamCreate,
+	IOrganizationTeamUpdate,
+	ITeamRequestParams
+} from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IUser } from '@/core/types/interfaces/user/IUser';
 
 class OrganizationTeamService extends APIService {
 	/**

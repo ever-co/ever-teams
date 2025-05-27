@@ -1,6 +1,7 @@
-import { DeleteResponse, IIssueTypesCreate, IIssueType, PaginationResponse } from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IIssueTypesCreate, IIssueType } from '@/core/types/interfaces/task/IIssueType';
 
 class IssueTypeService extends APIService {
 	createIssueType = async (data: IIssueTypesCreate, tenantId?: string) => {

@@ -1,12 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import {
-	IAuthResponse,
-	IOrganizationTeam,
-	IOrganizationTeam,
-	ISigninEmailConfirmResponse,
-	ISigninWorkspaceInput
-} from '@/core/types/interfaces/to-review';
+
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { AxiosResponse } from 'axios';
@@ -15,6 +9,12 @@ import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/coo
 import { inviteService } from '../organizations/teams/invites';
 import { userOrganizationService } from '../users/user-organization.service';
 import { organizationTeamService } from '../organizations/teams';
+import {
+	IAuthResponse,
+	ISigninEmailConfirmResponse,
+	ISigninWorkspaceInput
+} from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 
 class SigninService extends APIService {
 	signInEmailConfirm = async (data: { code: string; email: string }) => {

@@ -1,14 +1,11 @@
 import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import {
-	ITimeLogReportDailyProps,
-	ITimerSlotDataRequest,
-	ITimesheetStatisticsData
-} from '@/core/types/interfaces/to-review';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITimerSlotDataRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/IActivityReport';
 
 class StatisticsService extends APIService {
 	getTimerLogsRequest = async ({
@@ -230,7 +227,7 @@ class StatisticsService extends APIService {
 		startDate,
 		endDate,
 		timeZone = 'Etc/UTC'
-	}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> => {
+	}: ITimeLogReportDailyRequest): Promise<{ data: ITasksStatistics }> => {
 		const queryString = qs.stringify(
 			{
 				activityLevel,
@@ -246,7 +243,7 @@ class StatisticsService extends APIService {
 				strictNullHandling: true
 			}
 		);
-		return this.get<ITimesheetStatisticsData>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
+		return this.get<ITasksStatistics>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
 	};
 }
 

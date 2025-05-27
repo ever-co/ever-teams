@@ -1,14 +1,3 @@
-import {
-	IInviteRequest,
-	IInvite,
-	IInviteCreate,
-	IInviteVerified,
-	IInviteVerifyCode,
-	IAuthResponse,
-	IInvite,
-	InviteActionEnum,
-	PaginationResponse
-} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../../../api.service';
 import {
 	GAUZY_API_BASE_SERVER_URL,
@@ -18,6 +7,11 @@ import {
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';
+import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
+import { IInviteRequest } from '@/core/types/interfaces/user/IInvite';
+import { InviteActionEnum } from '@/core/types/enums/invite';
+import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IInviteRequest, tenantId: string) => {

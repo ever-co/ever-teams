@@ -8,23 +8,19 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import {
-	ICustomSmtp,
-	IEmployee,
-	IAuthResponse,
-	IOrganization,
-	IOrganizationCreate,
-	IOrganizationTeam,
-	IRegisterDataAPI,
-	IRegisterDataRequest,
-	IUser
-} from '@/core/types/interfaces/to-review';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
 import { tenantService } from '../tenants/tenant.service';
 import { employeeService, organizationTeamService } from '../organizations/teams';
+import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/IOrganization';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IRegisterDataAPI } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IUser } from '@/core/types/interfaces/user/IUser';
+import { ICustomSmtp } from '@/core/types/interfaces/smpt/ICustomSmtp';
+import { IEmployee } from '@/core/components/pages/dashboard/app-url';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -124,7 +120,7 @@ class RegisterService extends APIService {
 		const employee = await employeeService.createEmployeeFromUser(
 			{
 				organizationId: organization.id,
-				startedWorkOn: new Date().toISOString(),
+				startedWorkOn: new Date(),
 				tenantId: tenant.id,
 				userId: user.id
 			},

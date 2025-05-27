@@ -1,6 +1,7 @@
-import { IUserOrganization, PaginationResponse } from '@/core/types/interfaces/to-review';
+import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { IUserOrganization } from '@/core/types/interfaces/organization/IUserOrganization';
 
 class UserOrganizationService extends APIService {
 	/**

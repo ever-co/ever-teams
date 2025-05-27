@@ -1,13 +1,13 @@
-import {
-	ICreateProjectInput,
-	IEditProjectInput,
-	IProject,
-	PaginationResponse
-} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import {
+	ICreateProjectRequest,
+	IEditProjectRequest,
+	IOrganizationProject
+} from '@/core/types/interfaces/project/IOrganizationProject';
+import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 
 class OrganizationProjectService extends APIService {
 	editOrganizationProjectSetting = async (id: string, data: any, tenantId?: string) => {
@@ -16,19 +16,19 @@ class OrganizationProjectService extends APIService {
 		});
 	};
 
-	createOrganizationProject = async (data: Partial<ICreateProjectInput>) => {
-		return this.post<IProject>(`/organization-projects`, data);
+	createOrganizationProject = async (data: Partial<ICreateProjectRequest>) => {
+		return this.post<IOrganizationProject>(`/organization-projects`, data);
 	};
 
-	editOrganizationProject = async (id: string, data: IEditProjectInput) => {
+	editOrganizationProject = async (id: string, data: IEditProjectRequest) => {
 		const tenantId = getTenantIdCookie();
-		return this.put<IProject>(`/organization-projects/${id}`, data, {
+		return this.put<IOrganizationProject>(`/organization-projects/${id}`, data, {
 			tenantId
 		});
 	};
 
 	getOrganizationProject = async (id: string, tenantId?: string) => {
-		return this.get<IProject>(`/organization-projects/${id}`, {
+		return this.get<IOrganizationProject>(`/organization-projects/${id}`, {
 			tenantId
 		});
 	};
@@ -58,7 +58,7 @@ class OrganizationProjectService extends APIService {
 
 		const query = qs.stringify(obj);
 
-		return this.get<PaginationResponse<IProject>>(`/organization-projects?${query}`, {
+		return this.get<PaginationResponse<IOrganizationProject>>(`/organization-projects?${query}`, {
 			tenantId
 		});
 	};

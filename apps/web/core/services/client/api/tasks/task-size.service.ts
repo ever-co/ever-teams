@@ -1,12 +1,9 @@
-import {
-	DeleteResponse,
-	ITaskSizesCreate,
-	ITaskSizeNameEnum,
-	PaginationResponse
-} from '@/core/types/interfaces/to-review';
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ITaskSizeNameEnum } from '@/core/types/enums/task';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 
 class TaskSizeService extends APIService {
 	createTaskSize = async (data: ITaskSizesCreate) => {
