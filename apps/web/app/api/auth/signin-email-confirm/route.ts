@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 		}
 
 		const { data: teams } = await getAllOrganizationTeamRequest(
-			{ tenantId, organizationId: organization.organizationId },
+			{ tenantId, organizationId: organization.organizationId || '' },
 			access_token
 		);
 

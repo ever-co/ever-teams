@@ -7,7 +7,7 @@ import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
-import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type Props = {
 	status: TimerStatusEnum;
@@ -53,7 +53,7 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 
 export function getTimerStatusValue(
 	timerStatus: ITimerStatus | null,
-	member: Member | undefined,
+	member: any | undefined,
 	publicTeam?: boolean
 ): TimerStatusEnum {
 	const isSuspended = () => !member?.employee?.isActive && !publicTeam;

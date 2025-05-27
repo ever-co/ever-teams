@@ -6,12 +6,12 @@ import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganiz
 import React, { useCallback, useEffect } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
-import { Member } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 interface Props {
-	teamMembers: Member[];
+	teamMembers: any[];
 	publicTeam: boolean;
-	currentUser?: Member;
+	currentUser?: any;
 	teamsFetching: boolean;
 }
 
@@ -27,7 +27,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
 	// TODO: sort teamMembers by index
-	const [memberOrdereds, setMemberOrdereds] = React.useState<Member[]>(members);
+	const [memberOrdereds, setMemberOrdereds] = React.useState<any[]>(members);
 	const dragTeamMember = React.useRef<number>(0);
 	const draggedOverTeamMember = React.useRef<number>(0);
 

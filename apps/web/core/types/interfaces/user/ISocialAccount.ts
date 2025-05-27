@@ -1,6 +1,6 @@
 import { ProviderEnum } from '../../enums/social-accounts';
 import { IBasePerTenantEntityModel } from '../global/base-interfaces';
-import { ID } from '../to-review/IBaseModel';
+import { ID } from '../global/base-interfaces';
 import { IRelationalUser } from './IUser';
 
 export interface ISocialAccountBase {

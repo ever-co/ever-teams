@@ -366,11 +366,11 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="w-full flex wrap items-center gap-2">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
-							const member = members.find((el) => el.employeeId === managerId);
+							const member = members?.find((el) => el?.employeeId === managerId);
 
-							const memberImgUrl = member?.employee.user?.imageUrl;
+							const memberImgUrl = member?.employee?.user?.imageUrl;
 
-							const memberName = member?.employee.fullName;
+							const memberName = member?.employee?.fullName;
 
 							return <Item key={member?.id} name={memberName ?? '-'} imgUrl={memberImgUrl} />;
 						})

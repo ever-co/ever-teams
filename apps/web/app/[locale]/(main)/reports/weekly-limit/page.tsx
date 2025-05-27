@@ -25,7 +25,6 @@ import {
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { IOrganization } from '@/core/types/interfaces/organization/IOrganization';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -88,7 +87,7 @@ function WeeklyLimitReport() {
 			organizationId,
 			tenantId,
 			employeeIds: [
-				...(member === 'all' ? (activeTeam?.members.map((m: IEmployee) => m.employeeId) ?? []) : [member])
+				...(member === 'all' ? (activeTeam?.members?.map((m: any) => m.employeeId) ?? []) : [member])
 			],
 			startDate: dateRange.from?.toISOString(),
 			endDate: dateRange.to?.toISOString(),

@@ -123,7 +123,7 @@ export async function POST(req: Request) {
 	}
 
 	const { data: teams } = await getAllOrganizationTeamRequest(
-		{ tenantId, organizationId: organization.organizationId },
+		{ tenantId, organizationId: organization.organizationId || '' },
 		access_token
 	);
 
@@ -141,7 +141,7 @@ export async function POST(req: Request) {
 			},
 			teamId: team?.id,
 			tenantId,
-			organizationId: organization?.organizationId,
+			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
 			userId

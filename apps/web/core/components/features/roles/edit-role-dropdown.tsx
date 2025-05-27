@@ -1,6 +1,6 @@
 import { Dropdown } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
-import { IRole, IRoleList } from '@/core/types/interfaces/role/IRole';
+import { IRole } from '@/core/types/interfaces/role/IRole';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapRoleItems, RoleItem } from '@/core/components/roles/role-item';
@@ -16,7 +16,7 @@ export const EditUserRoleDropdown = ({
 	const { roles } = useRoles();
 
 	const items = useMemo(
-		() => mapRoleItems(roles.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name)) as IRoleList[]),
+		() => mapRoleItems(roles?.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name))),
 		[roles]
 	);
 
@@ -27,7 +27,7 @@ export const EditUserRoleDropdown = ({
 	}, [items, member?.roleId]);
 
 	const onChange = useCallback(
-		(item: RoleItem) => {
+		(item: any) => {
 			if (item.data) {
 				setRoleItem(item);
 			}

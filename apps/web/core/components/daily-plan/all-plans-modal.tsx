@@ -164,8 +164,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				date: new Date(moment(customDate).format('YYYY-MM-DD')),
 				status: DailyPlanStatusEnum.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee.id,
-				organizationId: user?.employee.organizationId
+				employeeId: user?.employee?.id,
+				organizationId: user?.employee?.organizationId
 			});
 
 			handleCalendarSelect();
@@ -176,8 +176,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		createDailyPlan,
 		customDate,
 		handleCalendarSelect,
-		user?.employee.id,
-		user?.employee.organizationId,
+		user?.employee?.id,
+		user?.employee?.organizationId,
 		user?.tenantId
 	]);
 

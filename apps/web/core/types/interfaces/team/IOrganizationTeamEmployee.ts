@@ -1,7 +1,7 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IManagerAssignable, IRelationalEmployee } from '../organization/employee/IEmployee';
 import { IRelationalRole } from '../role/IRole';
-import { ITask } from '../task/ITask';
+import { ITask, ITasksStatistics } from '../task/ITask';
 import { ITimerStatus } from '../timer/ITimerStatus';
 import { IRelationalOrganizationTeam } from './IOrganizationTeam';
 
@@ -24,6 +24,7 @@ export interface IOrganizationTeamEmployee
 	activeTask?: ITask;
 	isManager?: boolean;
 	isActive?: boolean;
+	totalWorkedTasks?: ITasksStatistics[];
 }
 
 export interface IOrganizationTeamEmployeeCreate {

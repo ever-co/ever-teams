@@ -6,7 +6,7 @@ import { isEmail } from 'class-validator';
 
 type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
-type Ks = { [x: string]: string };
+export type Ks = { [x: string]: string };
 
 export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegisterDataAPI) => {
 	const err = {} as Err;

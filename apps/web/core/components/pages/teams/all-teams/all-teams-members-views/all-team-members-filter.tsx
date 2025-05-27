@@ -14,10 +14,11 @@ import { PropsWithChildren } from 'react';
 import { useAtom } from 'jotai';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
 
 export interface ITeamsMembersFilter {
 	label: string;
-	value: ITimerStatusEnum | 'all' | 'invited';
+	value: TimerStatusEnum | 'all' | 'invited';
 	bg: string;
 }
 
@@ -68,9 +69,9 @@ export function MemberFilterOption({
 export function MemberFilter() {
 	const options: ITeamsMembersFilter[] = [
 		{ label: 'All', value: 'all', bg: 'transparent' },
-		{ label: 'Working now', value: 'running', bg: '#1f973d33' },
-		{ label: 'Paused', value: 'pause', bg: '#e58484' },
-		{ label: 'Off', value: 'suspended', bg: '#6b7280' },
+		{ label: 'Working now', value: TimerStatusEnum.RUNNING, bg: '#1f973d33' },
+		{ label: 'Paused', value: TimerStatusEnum.PAUSE, bg: '#e58484' },
+		{ label: 'Off', value: TimerStatusEnum.SUSPENDED, bg: '#6b7280' },
 		{ label: 'Invited', value: 'invited', bg: '#d1ad5b' }
 	];
 	const [value, setValue] = useAtom(filterValue);

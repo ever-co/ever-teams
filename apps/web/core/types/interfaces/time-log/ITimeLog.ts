@@ -33,4 +33,5 @@ export interface ITimeLog
 	isBillable?: boolean;
 	isRunning?: boolean;
 	isEdited?: boolean;
+	version: string;
 }

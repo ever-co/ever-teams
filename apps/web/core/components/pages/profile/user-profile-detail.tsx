@@ -8,10 +8,10 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { TimerStatusEnum } from '@/core/types/enums/timer';
 
-export function UserProfileDetail({ member }: { member?: IEmployee }) {
+export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmployee }) {
 	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
 
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
@@ -20,7 +20,7 @@ export function UserProfileDetail({ member }: { member?: IEmployee }) {
 	const size = 100;
 	const { timerStatus } = useTimer();
 	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
-	const timerStatusValue: ITimerStatus = useMemo(() => {
+	const timerStatusValue: TimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
 	}, [timerStatus, member]);
 	return (

@@ -1,5 +1,5 @@
 import { IBaseEntity } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../image-asset/IImageAsset';
+import { IRelationalImageAsset } from '../global/IImageAsset';
 import { IOrganization } from '../organization/IOrganization';
 import { IRolePermission } from '../role/IRolePermission';
 

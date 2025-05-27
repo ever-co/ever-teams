@@ -20,11 +20,11 @@ import { IClassName } from '@/core/types/interfaces/global/IClassName';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { Member } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 type IUserTeamBlock = {
 	active?: boolean;
-	member?: Member;
+	member?: any;
 	publicTeam?: boolean;
 	members?: IOrganizationTeam['members'];
 } & IClassName;

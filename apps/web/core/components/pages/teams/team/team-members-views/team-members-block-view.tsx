@@ -6,10 +6,10 @@ import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { UserTeamCardSkeleton } from './team-members-header';
 import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';
-import { Member } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 interface Props {
-	teamMembers: Member[];
+	teamMembers: any[];
 	publicTeam: boolean;
 	currentUser: IOrganizationTeamEmployee | undefined;
 	teamsFetching: boolean;

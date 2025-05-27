@@ -108,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				});
 			}
 			const { data: teams } = await getAllOrganizationTeamRequest(
-				{ tenantId, organizationId: organization.organizationId },
+				{ tenantId, organizationId: organization.organizationId || '' },
 				access_token
 			);
 

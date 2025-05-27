@@ -94,8 +94,9 @@ export default function ImageOverlapper({
 					return {
 						pathname: '/kanban',
 						query: {
-							employee: activeTeam?.members.find((el: IEmployee) => el.employee.userId === image.id)
-								?.employee.fullName
+							employee:
+								activeTeam?.members?.find((el) => el.employee?.userId === image.id)?.employee
+									?.fullName || ''
 						}
 					};
 				case 'profile':

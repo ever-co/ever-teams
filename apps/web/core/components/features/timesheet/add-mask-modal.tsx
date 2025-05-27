@@ -139,7 +139,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			source: TimerSource.BROWSER as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
-			organizationTeamId: null
+			organizationTeamId: undefined
 		};
 		try {
 			if (!formState.shifts || formState.shifts.length === 0) {

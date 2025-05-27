@@ -34,7 +34,7 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
-import { TaskTypeEnum } from '@/core/types/enums/task';
+import { ITaskIssueTypeEnum } from '@/core/types/enums/task';
 import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
@@ -115,7 +115,7 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			{task && task.issueType === TaskTypeEnum.STORY && (
+			{task && task.issueType === ITaskIssueTypeEnum.STORY && (
 				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 					<TaskEpicDropdown
 						onValueChange={(d: string) => {
@@ -243,11 +243,13 @@ const TaskSecondaryInfo = () => {
 const EpicParent = ({ task }: { task: ITask }) => {
 	const t = useTranslations();
 
-	if (task?.issueType === TaskTypeEnum.STORY) {
+	if (task?.issueType === ITaskIssueTypeEnum.STORY) {
 		return <></>;
 	}
 
-	return (!task?.issueType || task?.issueType === TaskTypeEnum.TASK || task?.issueType === TaskTypeEnum.BUG) &&
+	return (!task?.issueType ||
+		task?.issueType === ITaskIssueTypeEnum.TASK ||
+		task?.issueType === ITaskIssueTypeEnum.BUG) &&
 		task?.rootEpic ? (
 		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
@@ -329,7 +331,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const handleRemoveProject = useCallback(async () => {
 		try {
 			if (task) {
-				await updateTask({ ...task, projectId: null });
+				await updateTask({ ...task, projectId: undefined });
 				setSelected(null);
 			}
 		} catch (error) {

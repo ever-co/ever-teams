@@ -57,6 +57,7 @@ export interface IOrganizationProjectBase
 	defaultAssignee?: IEmployee;
 	// Will be implemented on the  API side much later :
 	relations?: IProjectRelation[]; // relationship
+	repository?: IOrganizationProjectRepository;
 }
 
 export interface IProjectRelation {

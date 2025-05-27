@@ -36,7 +36,7 @@ const Team = () => {
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
 
-		if (userId && publicTeamData && publicTeamData.members.find((member) => member.employee.userId === userId)) {
+		if (userId && publicTeamData && publicTeamData.members?.find((member) => member.employee?.userId === userId)) {
 			router.replace('/');
 		}
 	}, [publicTeamData, router]);

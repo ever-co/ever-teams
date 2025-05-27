@@ -480,10 +480,10 @@ export function TaskPropertiesDropdown({
 			items={items}
 			value={item}
 			defaultItem={!item ? 'priority' : undefined}
-			onChange={onChange}
+			onChange={onChange as any}
 			multiple={multiple}
 			isMultiple={isMultiple}
-			values={values}
+			values={values as any}
 			largerWidth={largerWidth}
 		>
 			{children}
@@ -502,7 +502,7 @@ export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priorit
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={props.onValueChange ? props.onValueChange : onChange}
+			onChange={props.onValueChange ? props.onValueChange : (onChange as any)}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -611,7 +611,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 
 export function useTaskLabelsValue() {
 	const { taskLabels } = useTaskLabels();
-	return useMapToTaskStatusValues(taskLabels, false);
+	return useMapToTaskStatusValues(taskLabels as any[], false);
 }
 
 export function TaskLabelsDropdown({

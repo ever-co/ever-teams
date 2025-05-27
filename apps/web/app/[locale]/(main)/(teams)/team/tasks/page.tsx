@@ -21,6 +21,7 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -83,7 +84,7 @@ const TeamTask = () => {
 											(taskStatus, index) => (
 												<StatusBadge
 													key={index}
-													color={getStatusColor(taskStatus)}
+													color={getStatusColor(taskStatus as ITaskStatusNameEnum)}
 													label={taskStatus?.split('-').join(' ') || ''}
 													count={tasks.filter((item) => item.status === taskStatus).length}
 												/>

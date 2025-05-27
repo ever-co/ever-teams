@@ -58,8 +58,6 @@ export enum ITaskSizeNameEnum {
 	TINY = 'Tiny'
 }
 
-export type ITaskLabel = string;
-
 export enum ITaskIssueTypeEnum {
 	BUG = 'Bug',
 	TASK = 'Task',

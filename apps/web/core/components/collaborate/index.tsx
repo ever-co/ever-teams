@@ -29,7 +29,6 @@ import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { JitsuAnalytics } from '../analytics/jitsu-analytics';
 import { Avatar } from '../duplicated-components/avatar';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -39,12 +38,10 @@ const Collaborate = () => {
 
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-	const members: IUser[] = useMemo(
+	const members = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
-				? activeTeam.members
-						.map((item: IEmployee) => item.employee.user as IUser)
-						.filter((item: IUser) => item.id !== user?.id)
+				? activeTeam.members.map((item) => item.employee?.user).filter((item) => item?.id !== user?.id)
 				: [],
 		[activeTeam, user]
 	);
@@ -60,7 +57,9 @@ const Collaborate = () => {
 				);
 			}
 
-			return setCollaborativeMembers([...members].filter((u) => [...collaborativeMembers, member].includes(u)));
+			return setCollaborativeMembers(
+				[...members].filter((u: any) => [...collaborativeMembers, member].includes(u)) as IUser[]
+			);
 		},
 		[collaborativeMembers, members, setCollaborativeMembers]
 	);
@@ -110,7 +109,7 @@ const Collaborate = () => {
 							<CommandEmpty>{t('common.USER_NOT_FOUND')}</CommandEmpty>
 							<ScrollArea className="h-[15rem]">
 								<CommandGroup className="p-2">
-									{members.map((member) => (
+									{members.map((member: any) => (
 										<CommandItem
 											key={member?.id}
 											className="flex items-center px-2 cursor-pointer"
@@ -187,7 +186,7 @@ const Collaborate = () => {
 									>
 										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
 										isValidUrl(
-											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
+											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl || ''
 										) ? (
 											<Avatar
 												size={32}

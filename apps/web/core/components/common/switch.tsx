@@ -62,17 +62,17 @@ export function ShareProfileViewsToggle() {
 				...activeTeam,
 				shareProfileView: !enabled,
 				memberIds: activeTeam.members
-					.map((t: IEmployee) => t.employee.id)
+					?.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
 				managerIds: activeTeam.members
-					.filter(
-						(m: IEmployee) =>
+					?.filter(
+						(m) =>
 							m.role &&
 							(m.role.name === RoleNameEnum.MANAGER ||
 								m.role.name === RoleNameEnum.SUPER_ADMIN ||
 								m.role.name === RoleNameEnum.ADMIN)
 					)
-					.map((t: IEmployee) => t.employee.id)
+					.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
 			});
 			setEnabled(!enabled);
@@ -116,17 +116,17 @@ export function RequireDailyPlanToTrack() {
 				...activeTeam,
 				requirePlanToTrack: !enabled,
 				memberIds: activeTeam.members
-					.map((t: IEmployee) => t.employee.id)
+					?.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
 				managerIds: activeTeam.members
-					.filter(
-						(m: IEmployee) =>
+					?.filter(
+						(m) =>
 							m.role &&
 							(m.role.name === RoleNameEnum.MANAGER ||
 								m.role.name === RoleNameEnum.SUPER_ADMIN ||
 								m.role.name === RoleNameEnum.ADMIN)
 					)
-					.map((t: IEmployee) => t.employee.id)
+					.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
 			});
 			setEnabled(!enabled);

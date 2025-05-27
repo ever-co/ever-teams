@@ -25,7 +25,7 @@ export function useUserProfilePage() {
 
 	const matchUser = useMemo(() => {
 		return members.find((m: any) => {
-			return m.employee.userId === memberId;
+			return m.employee?.userId === memberId;
 		});
 	}, [members, memberId]);
 
@@ -33,7 +33,7 @@ export function useUserProfilePage() {
 
 	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
 
-	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
+	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);

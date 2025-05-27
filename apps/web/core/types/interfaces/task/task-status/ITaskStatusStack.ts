@@ -1,11 +1,11 @@
-import { ITaskStatusNameEnum, ITaskSizeNameEnum, ITaskLabel, ITaskIssueTypeEnum } from '../../../enums/task';
+import { ITaskStatusNameEnum, ITaskSizeNameEnum, string, ITaskIssueTypeEnum } from '../../../enums/task';
 import { ITaskPriority } from '../ITaskPriority';
 
 export type ITaskStatusStack = {
 	status: ITaskStatusNameEnum;
 	size: ITaskSizeNameEnum;
-	label: ITaskLabel;
-	priority: ITaskPriority;
+	label: string;
+	priority: TaskPriorityEnum;
 	issueType: ITaskIssueTypeEnum;
 	version: string;
 	epic: string;

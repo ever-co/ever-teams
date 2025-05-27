@@ -7,7 +7,6 @@ import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 interface IProps {
 	projects: ProjectViewDataType[];
@@ -67,11 +66,9 @@ export function ProjectExportMenu(props: IProps) {
 															? moment(el.endDate).format('YYYY-MM-DD')
 															: '-',
 														members:
-															el.members?.map((el: IEmployee) => el.employee.fullName) ??
-															[],
+															el.members?.map((el) => el.employee?.fullName || '') ?? [],
 														managers:
-															el.managers?.map((el: IEmployee) => el.employee.fullName) ??
-															[],
+															el.managers?.map((el) => el.employee?.fullName || '') ?? [],
 														teams: el.teams?.map((el: IOrganizationTeam) => el.name) ?? []
 													};
 												})}

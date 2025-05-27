@@ -111,7 +111,7 @@ export function CreateDailyPlanFormModal({
 				status: DailyPlanStatusEnum.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: employeeId ?? selectedEmployee?.employeeId,
-				organizationId: user?.employee.organizationId
+				organizationId: user?.employee?.organizationId
 			}).then(() => {
 				reset();
 				setIsOpen(false);
@@ -123,7 +123,7 @@ export function CreateDailyPlanFormModal({
 			planMode,
 			date,
 			user?.tenantId,
-			user?.employee.organizationId,
+			user?.employee?.organizationId,
 			employeeId,
 			selectedEmployee?.employeeId,
 			reset

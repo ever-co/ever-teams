@@ -14,7 +14,7 @@ import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
-import { TaskRelatedIssuesRelationEnum, TaskTypeEnum } from '@/core/types/enums/task';
+import { ITaskIssueTypeEnum, TaskRelatedIssuesRelationEnum } from '@/core/types/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -136,20 +136,22 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, queryCall, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === TaskTypeEnum.EPIC;
-	const isTaskStory = task.issueType === TaskTypeEnum.STORY;
+	const isTaskEpic = task.issueType === ITaskIssueTypeEnum.EPIC;
+	const isTaskStory = task.issueType === ITaskIssueTypeEnum.STORY;
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom?.id) || [];
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== TaskTypeEnum.EPIC;
+				return childTask.issueType !== ITaskIssueTypeEnum.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== TaskTypeEnum.EPIC && childTask.issueType !== TaskTypeEnum.STORY;
+				return (
+					childTask.issueType !== ITaskIssueTypeEnum.EPIC && childTask.issueType !== ITaskIssueTypeEnum.STORY
+				);
 			} else {
 				return (
-					childTask.issueType === TaskTypeEnum.BUG ||
-					childTask.issueType === TaskTypeEnum.TASK ||
+					childTask.issueType === ITaskIssueTypeEnum.BUG ||
+					childTask.issueType === ITaskIssueTypeEnum.TASK ||
 					childTask.issueType === null
 				);
 			}

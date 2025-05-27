@@ -1,11 +1,12 @@
+import { TimeLogType, TimerSource } from '../../enums/timer';
 import { IActivity } from '../activity/IActivity';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
+import { IOrganization } from '../organization/IOrganization';
 import { IOrganizationProject } from '../project/IOrganizationProject';
 import { IScreenshot } from '../screenshot/IScreenShot';
 import { ITag } from '../tag/ITag';
-import { ITimeLog } from '../timelog/ITimeLog';
-import { ITimerSlot } from '../to-review/timer/ITimerSlot';
+import { ITimeLog } from '../time-log/ITimeLog';
 import { ITimeSlotMinute } from './ITimeSlotMinutes';
 
 export interface ITimeSlot extends IBasePerTenantAndOrganizationEntityModel {
@@ -55,5 +56,5 @@ export interface ITimerSlotDataRequest {
 		imageUrl: string;
 		name: string;
 	};
-	timeSlots: ITimerSlot[];
+	timeSlots: ITimeSlot[];
 }

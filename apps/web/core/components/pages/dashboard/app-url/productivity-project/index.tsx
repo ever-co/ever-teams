@@ -53,7 +53,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
 									{activities.map(({ employee, activity }, idx) => (
 										<ActivityRow
 											key={`${employee.id}-${idx}`}
-											employee={employee}
+											employee={employee as any}
 											activity={activity}
 										/>
 									))}

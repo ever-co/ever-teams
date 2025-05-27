@@ -71,9 +71,9 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									keys={teams
 										?.flatMap((el) => el.members)
 										?.map((el) => ({
-											id: el.employeeId,
-											value: el.employee.fullName,
-											imgUrl: el.employee.user?.imageUrl
+											id: el?.employeeId || '',
+											value: el?.employee?.fullName || '',
+											imgUrl: el?.employee?.user?.imageUrl
 										}))}
 									values={roles
 										?.filter(

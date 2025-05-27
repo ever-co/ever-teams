@@ -20,7 +20,7 @@ export interface IDailyPlan extends IDailyPlanBase, IRelationalEmployee, IRelati
 	tasks?: ITask[];
 }
 
-export interface ICreateDailyPlan extends IDailyPlanBase, IRelationalEmployee, IRelationalOrganizationTeam {
+export interface ICreateDailyPlan extends Omit<IDailyPlanBase, 'id'>, IRelationalEmployee, IRelationalOrganizationTeam {
 	taskId?: ID;
 }
 

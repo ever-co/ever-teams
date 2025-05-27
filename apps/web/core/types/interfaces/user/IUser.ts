@@ -7,8 +7,8 @@ import { ITag } from '../tag/ITag';
 import { ISocialAccount } from './ISocialAccount';
 import { IUserOrganization } from '../organization/IUserOrganization';
 import { IEmployee } from '../organization/employee/IEmployee';
-import { IRelationalImageAsset } from '../image-asset/IImageAsset';
 import { IInvite } from './IInvite';
+import { IRelationalImageAsset } from '../global/IImageAsset';
 
 export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset {
 	thirdPartyId?: ID;

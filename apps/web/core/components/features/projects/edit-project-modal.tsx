@@ -4,7 +4,6 @@ import AddOrEditProjectForm from './add-or-edit-project';
 import { RoleNameEnum } from '@/core/types/enums/role';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 interface IEditProjectModalProps {
@@ -36,7 +35,7 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 			? {
 					...project,
 					members:
-						project.members?.map((el: IEmployee) => ({
+						project.members?.map((el) => ({
 							id: `${el.id}-${String(el.role)}`,
 							memberId: el.employeeId,
 							roleId: el.isManager ? managerRole?.id : simpleMemberRole?.id

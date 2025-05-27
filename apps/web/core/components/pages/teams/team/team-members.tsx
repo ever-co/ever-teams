@@ -12,7 +12,7 @@ import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { Member } from '../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../all-teams/all-teams-members-views/users-teams-block/member-block';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
 
 type TeamMembersProps = {
@@ -28,12 +28,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterValidMembers = useCallback((members: Member[]) => {
+	const filterValidMembers = useCallback((members: any[]) => {
 		return members.filter((member) => member.employee !== null);
 	}, []);
 
 	// Memoize the sort function
-	const sortMembers = useCallback((members: Member[]) => {
+	const sortMembers = useCallback((members: any[]) => {
 		return [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 	}, []);
 
@@ -45,7 +45,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	}, [activeTeam?.members, filterValidMembers, sortMembers]);
 
 	// Memoize the block view filter function
-	const filterBlockViewMembers = useCallback((members: Member[], filter: string) => {
+	const filterBlockViewMembers = useCallback((members: any[], filter: string) => {
 		if (filter === 'all') return members;
 		if (filter === 'idle') {
 			return members.filter((m) => m.timerStatus === undefined || m.timerStatus === 'idle');
@@ -81,11 +81,11 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 type TeamMembersViewProps = {
 	fullWidth?: boolean;
-	members: Member[];
-	currentUser?: Member;
+	members: any[];
+	currentUser?: any;
 	teamsFetching: boolean;
 	view: IssuesView;
-	blockViewMembers: Member[];
+	blockViewMembers: any[];
 	publicTeam: boolean;
 	isMemberActive?: boolean;
 };
@@ -103,12 +103,12 @@ export function TeamMembersView({
 	let teamMembersView;
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterOtherMembers = useCallback((members: Member[], currentUser: Member | undefined) => {
+	const filterOtherMembers = useCallback((members: any[], currentUser: any | undefined) => {
 		return members.filter((member) => member.id !== currentUser?.id);
 	}, []);
 
 	// Memoize the sort function
-	const sortOtherMembers = useCallback((members: Member[]) => {
+	const sortOtherMembers = useCallback((members: any[]) => {
 		return members.sort((a, b) => {
 			if (a.order && b.order) return a.order > b.order ? -1 : 1;
 			if (a.order) return -1;
@@ -207,7 +207,7 @@ export function TeamMembersView({
 	return teamMembersView;
 }
 
-const sortByWorkStatus = (user_a: Member, user_b: Member) => {
+const sortByWorkStatus = (user_a: any, user_b: any) => {
 	return (
 		user_a.timerStatus === TimerStatusEnum.RUNNING ||
 		(user_a.timerStatus === TimerStatusEnum.ONLINE && user_b.timerStatus !== TimerStatusEnum.RUNNING) ||

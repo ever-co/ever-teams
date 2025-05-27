@@ -5,10 +5,10 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { any } from './member-block';
 
-export function BlockCardMemberTodayWorked({ member }: { member: IEmployee }) {
+export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 

@@ -43,8 +43,8 @@ export interface IOrganizationTeamCreate {
 	memberIds?: string[];
 	managerIds?: string[];
 	tags?: any[];
-	organizationId: string;
-	tenantId: string;
+	organizationId?: string;
+	tenantId?: string;
 	shareProfileView?: boolean;
 	requirePlanToTrack?: boolean;
 	public?: boolean;

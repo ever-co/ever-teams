@@ -20,7 +20,7 @@ const DropdownMenuTask: FC<{ task: ITask }> = ({ task }) => {
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const isAssigned = task?.members?.some((m: IEmployee) => m?.user?.id === user?.id);
-	const member = activeTeam?.members?.find((m: IEmployee) => m?.employee?.user?.id === user?.id);
+	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
 	const { toast } = useToast();

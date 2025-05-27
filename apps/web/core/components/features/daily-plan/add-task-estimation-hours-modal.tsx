@@ -754,8 +754,8 @@ function TaskCard(props: ITaskCardProps) {
 						date: new Date(moment(planDate).format('YYYY-MM-DD')),
 						status: DailyPlanStatusEnum.OPEN,
 						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee.id,
-						organizationId: user?.employee.organizationId
+						employeeId: user?.employee?.id,
+						organizationId: user?.employee?.organizationId
 					});
 				}
 			}
@@ -770,8 +770,8 @@ function TaskCard(props: ITaskCardProps) {
 		plan,
 		selectedDate,
 		task.id,
-		user?.employee.id,
-		user?.employee.organizationId,
+		user?.employee?.id,
+		user?.employee?.organizationId,
 		user?.tenantId
 	]);
 
@@ -902,14 +902,14 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					} else {
 						selectedPlan?.id &&
 							(await removeTaskFromPlan(
-								{ taskId: task.id, employeeId: user?.employee.id },
+								{ taskId: task.id, employeeId: user?.employee?.id },
 								selectedPlan?.id
 							));
 					}
 				} else {
 					selectedPlan?.id &&
 						(await removeTaskFromPlan(
-							{ taskId: task.id, employeeId: user?.employee.id },
+							{ taskId: task.id, employeeId: user?.employee?.id },
 							selectedPlan?.id
 						));
 				}
@@ -927,7 +927,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			selectedPlan.id,
 			task.id,
 			timerStatus?.running,
-			user?.employee.id
+			user?.employee?.id
 		]
 	);
 
@@ -1066,10 +1066,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
 					}
 				} else {
-					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
 				}
 
 				closePopover();
@@ -1088,7 +1088,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 			removeManyTaskPlans,
 			taskId,
 			timerStatus?.running,
-			user?.employee.id
+			user?.employee?.id
 		]
 	);
 

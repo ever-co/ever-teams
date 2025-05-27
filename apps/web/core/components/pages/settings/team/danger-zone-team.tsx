@@ -29,15 +29,17 @@ export const DangerZoneTeam = () => {
 
 	const handleQuiteTeam = useCallback(() => {
 		if (activeTeam && user) {
-			const currentEmployeeDetails = activeTeam.members.find((member) => member.employeeId === user.employee.id);
+			const currentEmployeeDetails = activeTeam.members?.find(
+				(member) => member.employeeId === user.employee?.id
+			);
 
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				// Remove from Team API call
 				return deleteOrganizationTeamEmployee({
 					id: currentEmployeeDetails.id,
-					employeeId: currentEmployeeDetails.employeeId,
-					organizationId: activeTeam.organizationId,
-					tenantId: activeTeam.tenantId
+					employeeId: currentEmployeeDetails.employeeId || '',
+					organizationId: activeTeam.organizationId || '',
+					tenantId: activeTeam.tenantId || ''
 				});
 			}
 		}
@@ -125,7 +127,7 @@ export const DangerZoneTeam = () => {
 											(isTeamManager && activeTeamManagers.length > 1) ||
 											(!isTeamManager &&
 												activeTeam?.members?.some(
-													(member) => member.employee.userId === user?.id
+													(member) => member.employee?.userId === user?.id
 												))
 										)
 									}

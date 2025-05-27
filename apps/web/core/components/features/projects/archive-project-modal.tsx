@@ -41,7 +41,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 			if (affectedTasks.length) {
 				await Promise.all(
 					affectedTasks.map(async (task) => {
-						await updateTask({ ...task, projectId: null });
+						await updateTask({ ...task, projectId: undefined });
 					})
 				);
 			}

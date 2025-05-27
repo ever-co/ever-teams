@@ -43,7 +43,7 @@ export const TimeReportTable = ({
 					const remaining = limit - item.duration;
 
 					return {
-						indexValue: item.employee.fullName,
+						indexValue: item.employee?.fullName || '',
 						limit,
 						percentageUsed,
 						timeSpent: item.duration,

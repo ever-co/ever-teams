@@ -11,13 +11,12 @@ import UserWorkedTaskTab from '@/core/components/activities/user-worked-task';
 import { ScreenshootTeamTab } from '../pages/profile/screenshots/screenshoots';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
-const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: Member }) => {
+const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: any }) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 
-	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
+	const activityPercent = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0) / timeSlots.length;
 
 	return (
 		<Transition

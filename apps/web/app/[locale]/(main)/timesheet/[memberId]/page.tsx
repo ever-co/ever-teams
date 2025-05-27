@@ -160,8 +160,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		.flat()
 		.map((entry) => {
 			return differenceBetweenHours(
-				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt),
-				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt)
+				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
+				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
 			);
 		})
 		.reduce((total, current) => total + current, 0);

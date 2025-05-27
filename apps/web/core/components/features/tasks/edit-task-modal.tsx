@@ -135,8 +135,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				organizationId: dataTimesheet.organizationId,
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
-				organizationTeamId: dataTimesheet.organizationTeamId ?? null,
-				organizationContactId: dataTimesheet.organizationContactId ?? null
+				organizationTeamId: dataTimesheet.organizationTeamId || undefined,
+				organizationContactId: dataTimesheet.organizationContactId || undefined
 			};
 			updateTimesheet({ ...payload })
 				.then(() => {

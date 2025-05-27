@@ -45,7 +45,7 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatus[]; onClose
 				// Update task statuses state
 				setTaskStatuses((prev) => {
 					const statusesOrder = Object.fromEntries(
-						reOrderedStatuses.data.map((el: ITaskStatus) => {
+						reOrderedStatuses.data.map((el: any) => {
 							return [el.id, el.order];
 						})
 					);

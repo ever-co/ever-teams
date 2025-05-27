@@ -7,7 +7,6 @@ import { useAtomValue } from 'jotai';
 import { Card } from '../../duplicated-components/card';
 import { TransferTeamDropdown } from '../../teams/transfer-team/transfer-team-dropdown';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 /**
  * Transfer team modal
@@ -29,11 +28,11 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 					id: activeTeam.id,
 					managerIds: [
 						...activeTeamManagers
-							.filter((manager) => manager.employee.userId !== user?.id)
-							.map((manager) => manager.employeeId),
-						selectedMember.id
+							.filter((manager) => manager.employee?.userId !== user?.id)
+							.map((manager) => manager.employeeId || ''),
+						selectedMember.id || ''
 					],
-					memberIds: activeTeam.members.map((member: IEmployee) => member.employeeId),
+					memberIds: activeTeam.members?.map((member) => member.employeeId || ''),
 					tenantId: activeTeam.tenantId,
 					organizationId: activeTeam.organizationId,
 					name: activeTeam.name
@@ -58,8 +57,8 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 							<TransferTeamDropdown
 								setSelectedMember={setSelectedMember}
 								members={activeTeam?.members
-									?.filter((member: IEmployee) => member.employee.userId !== user?.id)
-									?.map((member: IEmployee) => ({
+									?.filter((member) => member.employee?.userId !== user?.id)
+									?.map((member) => ({
 										id: member.employeeId,
 										name: member.employee?.user?.name || '',
 										title: member.employee?.user?.name || '',

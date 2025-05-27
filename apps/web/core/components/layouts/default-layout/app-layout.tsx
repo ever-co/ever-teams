@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import Footer from './footer/footer';
 import Header from './header/header';
 import Meta from './meta';

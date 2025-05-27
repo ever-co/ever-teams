@@ -40,12 +40,12 @@ import { VerticalSeparator } from '@/core/components/duplicated-components/separ
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { Member } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 type IUserTeamCard = {
 	active?: boolean;
-	member?: Member;
+	member?: any;
 	publicTeam?: boolean;
 	members?: IOrganizationTeam['members'];
 	draggable: boolean;
@@ -85,7 +85,7 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET', member: Member | null) => {
+	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
 		setShowActivity((prev) => !prev);
 		setUserDetailAccordion('');
 		setActivityFilter((prev) => ({

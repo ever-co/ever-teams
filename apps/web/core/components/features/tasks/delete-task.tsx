@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
+import { ITaskStatusNameEnum } from '@/core/types/enums/task';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();
@@ -12,7 +13,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 		if (task) {
 			await updateTask({
 				...task,
-				status: 'closed'
+				status: ITaskStatusNameEnum.CLOSED
 			});
 		}
 		closeModal();

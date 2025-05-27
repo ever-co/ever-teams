@@ -5,9 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useUserSelectedPage } from '@/core/hooks/users';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { Member } from '../pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block';
 
-const UserWorkedTaskTab = ({ member }: { member?: Member }) => {
+const UserWorkedTaskTab = ({ member }: { member?: any }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
 	const { user } = useAuthenticateUser();

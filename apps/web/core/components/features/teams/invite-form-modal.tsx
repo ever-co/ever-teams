@@ -11,7 +11,6 @@ import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/ho
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
@@ -34,7 +33,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 
 	useEffect(() => {
 		if (activeTeam?.members) {
-			const activeTeamMemberEmails = activeTeam?.members.map((member: IEmployee) => member.employee.user?.email);
+			const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee?.user?.email);
 
 			setCurrentOrgEmails(
 				workingEmployees

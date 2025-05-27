@@ -328,8 +328,8 @@ export const ProjectsTable = memo(
 						row.original?.members
 							?.filter((el) => !el.isManager)
 							?.map((el) => ({
-								imageUrl: el?.employee?.user?.imageUrl,
-								name: el?.employee?.fullName
+								imageUrl: el?.employee?.user?.imageUrl || '',
+								name: el?.employee?.fullName || ''
 							})) || [];
 
 					return members?.length > 0 ? <AvatarStack avatars={members} /> : null;
@@ -379,8 +379,8 @@ export const ProjectsTable = memo(
 						row.original?.managers
 							?.filter((el) => el.isManager)
 							?.map((el) => ({
-								imageUrl: el?.employee?.user?.imageUrl,
-								name: el?.employee?.fullName
+								imageUrl: el?.employee?.user?.imageUrl || '',
+								name: el?.employee?.fullName || ''
 							})) || [];
 
 					return managers?.length > 0 ? <AvatarStack avatars={managers} /> : null;

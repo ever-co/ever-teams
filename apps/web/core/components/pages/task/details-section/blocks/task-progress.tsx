@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 import { ITime } from '@/core/types/interfaces/time/ITime';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -39,8 +39,8 @@ const TaskProgress = () => {
 
 	const members = activeTeam?.members || [];
 
-	const currentUser: IEmployee | undefined = members.find((m: IEmployee) => {
-		return m.employee.user?.id === user?.id;
+	const currentUser: any = members.find((m) => {
+		return m.employee?.user?.id === user?.id;
 	});
 
 	// const memberInfo = useTeamMemberCard(currentUser);
@@ -72,13 +72,14 @@ const TaskProgress = () => {
 	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
-		const matchingMembers: IEmployee[] | undefined = activeTeam?.members.filter((member: IEmployee) =>
+		const matchingMembers: IOrganizationTeamEmployee[] | undefined = activeTeam?.members?.filter((member) =>
 			task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
-		const usersTaskArray: ITasksStatistics[] | undefined = matchingMembers
-			?.flatMap((obj) => obj.totalWorkedTasks)
-			.filter((taskObj) => taskObj?.id === task?.id);
+		const usersTaskArray: ITasksStatistics[] =
+			matchingMembers
+				?.flatMap((obj) => obj.totalWorkedTasks || [])
+				.filter((taskObj) => taskObj?.id === task?.id) || [];
 
 		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
 			(totalDuration, item) => totalDuration + (item.duration ?? 0),
@@ -183,11 +184,11 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 	const [task] = useAtom(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
-	const matchingMembers: IEmployee[] | undefined = activeTeam?.members.filter((member: IEmployee) =>
+	const matchingMembers = activeTeam?.members?.filter((member) =>
 		task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
-	const findUserTotalWorked = (user: IEmployee, id: string | undefined) => {
+	const findUserTotalWorked = (user: IOrganizationTeamEmployee, id: string | undefined) => {
 		return user?.totalWorkedTasks?.find((task: any) => task?.id === id)?.duration || 0;
 	};
 
@@ -204,10 +205,10 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 					<div key={member.id} className="mt-2">
 						<ProfileInfoWithTime
 							key={member.id}
-							profilePicSrc={member.employee.user?.imageUrl}
-							names={member.employee.fullName}
+							profilePicSrc={member.employee?.user?.imageUrl}
+							names={member.employee?.fullName}
 							time={time}
-							userId={member.employee.userId}
+							userId={member.employee?.userId || ''}
 						/>
 					</div>
 				);

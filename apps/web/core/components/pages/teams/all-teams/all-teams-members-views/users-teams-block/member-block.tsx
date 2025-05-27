@@ -9,13 +9,7 @@ import UserTeamActiveTaskTimesBlock from './user-team-active-task-times';
 import UserTeamActiveTaskEstimateBlock from './user-team-task-estimate';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { TimerStatusEnum } from '@/core/types/enums/timer';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { ID } from '@/core/types/interfaces/global/base-interfaces';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 const cardColorType = {
 	running: ' border-green-300',
@@ -25,14 +19,14 @@ const cardColorType = {
 	suspended: ' border-[#DCD6D6]'
 };
 
-export interface Member extends IOrganizationTeamEmployee {
-	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
-	user?: IUser;
-	userId?: ID;
-	totalTodayTasks?: ITasksStatistics[];
-}
+// export interface Member extends IOrganizationTeamEmployee {
+// 	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
+// 	user?: IUser;
+// 	userId?: ID;
+// 	totalTodayTasks?: ITasksStatistics[];
+// }
 
-export default function UserTeamBlockCard({ member }: { member: Member }) {
+export default function UserTeamBlockCard({ member }: { member: any }) {
 	const { timerStatus } = useTimer();
 
 	const timerStatusValue: TimerStatusEnum = useMemo(() => {
@@ -60,7 +54,7 @@ export default function UserTeamBlockCard({ member }: { member: Member }) {
 				<HorizontalSeparator />
 
 				<>
-					{member.teams.map((team) => (
+					{member.teams.map((team: any) => (
 						<div key={member.employeeId}>
 							<>
 								<div className="my-3 font-semibold">{team.team.name}</div>

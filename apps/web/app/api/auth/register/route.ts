@@ -111,7 +111,7 @@ export async function POST(req: Request) {
 	const { data: employee } = await createEmployeeFromUser(
 		{
 			organizationId: organization.id,
-			startedWorkOn: new Date().toISOString(),
+			startedWorkOn: new Date(),
 			tenantId: tenant.id,
 			userId: user.id
 		},

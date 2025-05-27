@@ -67,7 +67,7 @@ export async function GET(req: Request) {
 
 		const call_teams = filteredOrganization.map((item) =>
 			getAllOrganizationTeamRequest(
-				{ tenantId: tenantId || '', organizationId: item.organizationId },
+				{ tenantId: tenantId || '', organizationId: item.organizationId || '' },
 				access_token || ''
 			)
 		);

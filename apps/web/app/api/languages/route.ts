@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const par = {
-		is_system: user.role.isSystem as boolean,
+		is_system: user.role?.isSystem as boolean,
 		tenantId
 	};
 

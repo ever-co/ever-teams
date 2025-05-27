@@ -31,7 +31,7 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
-								itemToString={(members) => (members ? members.employee.fullName : '')}
+								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
@@ -45,7 +45,7 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
-								itemToString={(members) => (members ? members.employee.fullName : '')}
+								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
@@ -87,7 +87,7 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
-								itemToString={(members) => (members ? members.employee.fullName : '')}
+								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select

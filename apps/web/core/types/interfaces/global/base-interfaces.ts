@@ -2,8 +2,6 @@ import { IOrganization } from '../organization/IOrganization';
 import { ITag } from '../tag/ITag';
 import { ITenant } from '../tenant/ITenant';
 import { IUser } from '../user/IUser';
-import { IOrganization } from './IOrganization';
-import { ITenant } from './ITenant';
 
 export type ID = string;
 

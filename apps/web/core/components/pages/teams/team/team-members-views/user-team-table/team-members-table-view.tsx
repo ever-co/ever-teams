@@ -7,7 +7,7 @@ import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
 import { ActionMenuCell, TaskCell, TaskEstimateInfoCell, UserInfoCell, WorkedOnTaskCell } from './team-member-cells';
-import { Member } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
+import { any } from '../../../all-teams/all-teams-members-views/users-teams-block/member-block';
 
 const TeamMembersTableView = ({
 	teamMembers,
@@ -15,14 +15,14 @@ const TeamMembersTableView = ({
 	publicTeam = false,
 	active = false
 }: {
-	teamMembers: Member[];
-	currentUser?: Member;
+	teamMembers: any[];
+	currentUser?: any;
 	publicTeam?: boolean;
 	active?: boolean;
 }) => {
 	const t = useTranslations();
 
-	const columns = React.useMemo<ColumnDef<Member>[]>(
+	const columns = React.useMemo<ColumnDef<any>[]>(
 		() => [
 			{
 				id: 'name',
@@ -65,7 +65,7 @@ const TeamMembersTableView = ({
 		[]
 	);
 
-	const sortedTeamMembers: Member[] = [];
+	const sortedTeamMembers: any[] = [];
 	if (currentUser) {
 		sortedTeamMembers.push(currentUser);
 	}
@@ -75,7 +75,7 @@ const TeamMembersTableView = ({
 		<>
 			<DataTable
 				isHeader={false}
-				columns={columns as Column<Member>[]}
+				columns={columns as Column<any>[]}
 				data={sortedTeamMembers}
 				isScrollable
 				noResultsMessage={{

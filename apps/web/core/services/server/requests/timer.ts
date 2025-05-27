@@ -56,7 +56,7 @@ export function toggleTimerRequest(
 	});
 }
 
-export function syncTimeSlotRequest(params: ITimeSlot, bearer_token: string) {
+export function syncTimeSlotRequest(params: any, bearer_token: string) {
 	return serverFetch<ITimeSlot>({
 		path: '/timesheet/time-slot',
 		method: 'POST',

@@ -35,11 +35,11 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 
 	const handleUnplanTask = useCallback(async () => {
 		try {
-			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, plan.id));
+			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, plan.id));
 		} catch (error) {
 			console.log(error);
 		}
-	}, [plan.id, removeTaskFromPlan, task.id, user?.employee.id]);
+	}, [plan.id, removeTaskFromPlan, task.id, user?.employee?.id]);
 
 	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {

@@ -132,7 +132,7 @@ function DueDates() {
 							setStartDate(date);
 
 							if (task) {
-								updateTask({ ...task, startDate: date?.toISOString() });
+								updateTask({ ...task, startDate: date });
 							}
 						}
 					}}
@@ -184,7 +184,7 @@ function DueDates() {
 						) {
 							setDueDate(date);
 							if (task) {
-								updateTask({ ...task, dueDate: date?.toISOString() });
+								updateTask({ ...task, dueDate: date });
 							}
 						}
 					}}
