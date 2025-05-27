@@ -10,7 +10,7 @@ import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
 import { IJoinTeamResponse } from '@/core/types/interfaces/team/IRequestToJoin';
 import { IInvite } from '@/core/types/interfaces/user/IInvite';
-import { RequestStatusEnum } from '@/core/types/enums';
+import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
@@ -94,10 +94,10 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoin
 									<InvitationTableStatus
 										status={invitation.status}
 										acceptJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, RequestStatusEnum.ACCEPTED);
+											acceptRejectRequestToJoin(invitation.id, ERequestStatus.ACCEPTED);
 										}}
 										rejectJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, RequestStatusEnum.REJECTED);
+											acceptRejectRequestToJoin(invitation.id, ERequestStatus.REJECTED);
 										}}
 									/>
 								</td>

@@ -5,7 +5,7 @@ import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 export function useIsMemberManager(user: IUser | undefined | null) {
@@ -23,9 +23,9 @@ export function useIsMemberManager(user: IUser | undefined | null) {
 				return (
 					isUser &&
 					member.role &&
-					(member.role.name === RoleNameEnum.MANAGER ||
-						member.role.name === RoleNameEnum.SUPER_ADMIN ||
-						member.role.name === RoleNameEnum.ADMIN)
+					(member.role.name === ERoleName.MANAGER ||
+						member.role.name === ERoleName.SUPER_ADMIN ||
+						member.role.name === ERoleName.ADMIN)
 				);
 			});
 			setActiveManager(isM);

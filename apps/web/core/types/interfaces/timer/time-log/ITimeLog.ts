@@ -1,11 +1,11 @@
-import { IRelationalEmployee } from '../organization/employee/IEmployee';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
-import { ITask } from '../task/ITask';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
+import { IRelationalEmployee } from '../../organization/employee/IEmployee';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
+import { IRelationalOrganizationProject } from '../../project/IOrganizationProject';
+import { ITask } from '../../task/ITask';
+import { IRelationalOrganizationTeam } from '../../team/IOrganizationTeam';
 import { ITimeSlot } from '../time-slot/ITimeSlot';
-import { ITimesheet } from '../timesheet/ITimesheet';
-import { TimeLogSourceEnum, TimeLogType } from '../../enums/timer';
+import { ITimesheet } from '../../timesheet/ITimesheet';
+import { ETimeLogSource, ETimeLogType } from '../../enums/timer';
 
 export interface ITimeLog
 	extends IBasePerTenantAndOrganizationEntityModel,
@@ -21,11 +21,11 @@ export interface ITimeLog
 	projectId?: ID;
 	// organizationContact?: IOrganizationContact;
 	organizationContactId?: ID;
-	source?: TimeLogSourceEnum;
+	source?: ETimeLogSource;
 	startedAt?: Date;
 	stoppedAt?: Date;
 	editedAt?: Date;
-	logType?: TimeLogType;
+	logType?: ETimeLogType;
 	description?: string;
 	reason?: string;
 	duration: number;

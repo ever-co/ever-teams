@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getRolePermissionsRequest, updateRolePermissionRequest } from '@/core/services/server/requests';
-import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: INextParams) {

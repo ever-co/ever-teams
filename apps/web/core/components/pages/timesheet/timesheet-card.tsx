@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import {
@@ -18,7 +18,7 @@ import {
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
 import { Card } from '../../duplicated-components/card';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 
 interface ITimesheetCard {
 	title?: string;
@@ -84,7 +84,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	);
 }
 
-export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, ITimeLog[]> }) => {
+export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
 	const { getStatusTimesheet, groupByDate } = useTimesheet({});
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);

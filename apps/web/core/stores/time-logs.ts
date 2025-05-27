@@ -5,11 +5,11 @@ import {
 	ITimeLogReportDaily,
 	ITimeLogReportDailyChart
 } from '../types/interfaces/activity/IActivityReport';
-import { ITimeLog } from '../types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '../types/interfaces/timer/time-log/ITimeLog';
 import { IOrganizationTeam } from '../types/interfaces/team/IOrganizationTeam';
 import { IOrganizationProject } from '../types/interfaces/project/IOrganizationProject';
 import { ITask } from '../types/interfaces/task/ITask';
-import { TimeFrequency } from '../types/enums/date';
+import { ETimeFrequency } from '../types/interfaces/enums/date';
 import {
 	ITimesheet,
 	ITimesheetCountsStatistics,
@@ -32,7 +32,7 @@ export const timesheetFilterTaskState = atom<ITask[]>([]);
 
 export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([]);
-export const timesheetGroupByDayState = atom<TimeFrequency>(TimeFrequency.DAILY);
+export const timesheetGroupByDayState = atom<ETimeFrequency>(ETimeFrequency.DAILY);
 export const timesheetUpdateStatus = atom<IUpdateTimesheetRequest[]>([]);
 export const timesheetUpdateState = atom<ITimeLog | null>(null);
 export const selectTimesheetIdState = atom<ITimeLog[]>([]);

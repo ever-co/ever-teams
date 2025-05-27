@@ -1,7 +1,7 @@
 /**
  * Group by options for activity report
  */
-export enum ActivityReportGroupByEnum {
+export enum EActivityReportGroupBy {
 	DATE = 'date',
 	EMPLOYEE = 'employee',
 	PROJECT = 'project',

@@ -21,7 +21,7 @@ import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
-import { TaskPriorityEnum } from '@/core/types/enums/task';
+import { ETaskPriority } from '@/core/types/interfaces/enums/task';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -87,7 +87,7 @@ export function TagList({ tags }: { tags: ITag[] }) {
 	);
 }
 
-export function Priority({ level }: { level: TaskPriorityEnum }) {
+export function Priority({ level }: { level: ETaskPriority }) {
 	const levelSmallCase = level.toString().toLowerCase();
 	const levelIntoNumber =
 		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;

@@ -9,11 +9,7 @@ import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/coo
 import { inviteService } from '../organizations/teams/invites';
 import { userOrganizationService } from '../users/user-organization.service';
 import { organizationTeamService } from '../organizations/teams';
-import {
-	IAuthResponse,
-	ISigninEmailConfirmResponse,
-	ISigninWorkspaceInput
-} from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse, ISigninEmailConfirmResponse, ISigninWorkspaceInput } from '@/core/types/interfaces/auth/IAuth';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 
 class SigninService extends APIService {

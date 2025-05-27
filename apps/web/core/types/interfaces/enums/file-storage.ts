@@ -1,4 +1,4 @@
-export enum FileStorageProviderEnum {
+export enum EFileStorageProvider {
 	LOCAL = 'LOCAL',
 	S3 = 'S3',
 	WASABI = 'WASABI',

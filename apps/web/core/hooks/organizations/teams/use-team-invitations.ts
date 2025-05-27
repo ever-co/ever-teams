@@ -13,7 +13,7 @@ import { useFirstLoad } from '../../common/use-first-load';
 import { useQuery } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
-import { InviteActionEnum } from '@/core/types/enums/invite';
+import { EInviteAction } from '@/core/types/interfaces/enums/invite';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -127,13 +127,13 @@ export function useTeamInvitations() {
 		[myInvitationsList, setMyInvitationsList]
 	);
 	const acceptRejectMyInvitation = useCallback(
-		(id: string, action: InviteActionEnum) => {
+		(id: string, action: EInviteAction) => {
 			return acceptRejectMyInvitationsQueryCall(id, action).then((res) => {
 				if (res.data.message) {
 					return res.data;
 				}
 
-				if (action === InviteActionEnum.ACCEPTED) {
+				if (action === EInviteAction.ACCEPTED) {
 					refreshToken().then(() => {
 						window.location.reload();
 					});

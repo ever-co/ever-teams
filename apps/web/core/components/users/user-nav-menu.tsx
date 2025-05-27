@@ -36,8 +36,8 @@ import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
-import { ThemeInterface } from '@/core/types/interfaces/theme/ITheme';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ThemeInterface } from '@/core/types/interfaces/global/ITheme';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -50,7 +50,7 @@ export function UserNavAvatar() {
 	const currentMember = members.find((m) => {
 		return m.employee?.userId === user?.id;
 	});
-	const timerStatusValue: TimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 
@@ -157,7 +157,7 @@ function UserNavMenu() {
 		return !notAllowedList.includes(pathname);
 	}, [pathname]);
 
-	const timerStatusValue: TimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 

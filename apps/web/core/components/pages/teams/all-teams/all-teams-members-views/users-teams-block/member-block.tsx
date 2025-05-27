@@ -9,7 +9,7 @@ import UserTeamActiveTaskTimesBlock from './user-team-active-task-times';
 import UserTeamActiveTaskEstimateBlock from './user-team-task-estimate';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 const cardColorType = {
 	running: ' border-green-300',
@@ -29,7 +29,7 @@ const cardColorType = {
 export default function UserTeamBlockCard({ member }: { member: any }) {
 	const { timerStatus } = useTimer();
 
-	const timerStatusValue: TimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, true);
 	}, [timerStatus, member]);
 

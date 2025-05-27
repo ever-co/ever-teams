@@ -7,11 +7,11 @@ import {
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
 import { IInviteRequest } from '@/core/types/interfaces/user/IInvite';
-import { InviteActionEnum } from '@/core/types/enums/invite';
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IInviteRequest, tenantId: string) => {
@@ -109,7 +109,7 @@ class InviteService extends APIService {
 		return this.get<PaginationResponse<IInvite>>(endpoint, { tenantId });
 	};
 
-	acceptRejectMyInvitations = async (invitationId: string, action: InviteActionEnum) => {
+	acceptRejectMyInvitations = async (invitationId: string, action: EInviteAction) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? `/invite/${invitationId}/${action}`
 			: `/invite/${invitationId}?action=${action}`;

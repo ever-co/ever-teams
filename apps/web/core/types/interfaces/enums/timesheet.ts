@@ -1,4 +1,4 @@
-export enum TimesheetStatus {
+export enum ETimesheetStatus {
 	DRAFT = 'DRAFT',
 	PENDING = 'PENDING',
 	IN_REVIEW = 'IN REVIEW',

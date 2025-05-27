@@ -1,4 +1,4 @@
-import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';

@@ -12,7 +12,7 @@ import {
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 type Props = {
@@ -84,7 +84,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 								</span>
 							</div> */}
 							<RolePopover />
-							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER && (
+							{isManager !== -1 && member.role?.name !== ERoleName.MANAGER && (
 								<div className="flex items-center justify-between gap-x-2">
 									<span>Time tracking</span>
 									<div
@@ -162,7 +162,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						</PopoverPanel>
 					</Transition>
 					{(status === 'settings' ||
-						(status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
+						(status === 'profile' && isManager !== -1 && member.role?.name !== ERoleName.MANAGER)) && (
 						<PopoverButton className="w-full mt-2 outline-none">
 							<ThreeCircleOutlineHorizontalIcon
 								className="w-6 text-[#292D32] relative dark:text-white"

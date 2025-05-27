@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './use-timesheet';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import { useLocalStorageState } from '../common/use-local-storage-state';
 
 export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
@@ -15,12 +15,12 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 			.map((group) => {
 				type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
 
-				const statusMap: Record<FilterStatusWithoutAll, TimesheetStatus> = {
-					Pending: TimesheetStatus.PENDING,
-					Approved: TimesheetStatus.APPROVED,
-					'In review': TimesheetStatus.IN_REVIEW,
-					Draft: TimesheetStatus.DRAFT,
-					Rejected: TimesheetStatus.DENIED
+				const statusMap: Record<FilterStatusWithoutAll, ETimesheetStatus> = {
+					Pending: ETimesheetStatus.PENDING,
+					Approved: ETimesheetStatus.APPROVED,
+					'In review': ETimesheetStatus.IN_REVIEW,
+					Draft: ETimesheetStatus.DRAFT,
+					Rejected: ETimesheetStatus.DENIED
 				};
 
 				const filteredTasks = group.tasks.filter((task) => {
@@ -39,7 +39,7 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 	}, [data, activeStatus]);
 
 	const statusData = useMemo(() => {
-		const emptyStatusData: Record<TimesheetStatus, ITimeLog[]> = {
+		const emptyStatusData: Record<ETimesheetStatus, ITimeLog[]> = {
 			DRAFT: [],
 			PENDING: [],
 			'IN REVIEW': [],
@@ -52,7 +52,7 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 		const allTasks = data.flatMap((group) => group.tasks);
 		return allTasks.reduce(
 			(acc, task) => {
-				const status = task.timesheet?.status as TimesheetStatus;
+				const status = task.timesheet?.status as ETimesheetStatus;
 				acc[status].push(task);
 				return acc;
 			},

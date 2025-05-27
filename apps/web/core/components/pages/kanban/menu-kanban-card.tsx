@@ -13,7 +13,7 @@ import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { IDailyPlanModeEnum } from '@/core/types/enums/daily-plan';
+import { EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
 	const t = useTranslations();
@@ -175,13 +175,13 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITask; me
 				<HorizontalSeparator />
 				<ul className="list-none">
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode={IDailyPlanModeEnum.TODAY} taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.TODAY} taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode={IDailyPlanModeEnum.TOMORROW} taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.TOMORROW} taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode={IDailyPlanModeEnum.CUSTOM} taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.CUSTOM} taskId={task.id} chooseMember={true} />
 					</li>
 				</ul>
 			</PopoverContent>

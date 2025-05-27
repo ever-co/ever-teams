@@ -1,13 +1,13 @@
 import { IBasePerTenantAndOrganizationEntity, ID } from '../global/base-interfaces';
 import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
-import { DailyPlanStatusEnum } from '../../enums/daily-plan';
+import { EDailyPlanStatus } from '../enums/daily-plan';
 import { IRelationalEmployee } from '../organization/employee/IEmployee';
 import { ITask } from '../task/ITask';
 
 export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
 	date: Date;
 	workTimePlanned: number;
-	status: DailyPlanStatusEnum;
+	status: EDailyPlanStatus;
 }
 
 export interface IRemoveTaskFromManyPlansRequest {

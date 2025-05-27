@@ -8,7 +8,7 @@ import { useQuery } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
 
 type AuthCodeRef = {
 	focus: () => void;

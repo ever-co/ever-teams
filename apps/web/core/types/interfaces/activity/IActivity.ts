@@ -2,7 +2,7 @@ import { IBasePerTenantAndOrganizationEntityModel, ID, IUrlMetaData } from '../g
 import { IRelationalEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
 import { ITask } from '../task/ITask';
-import { ITimeSlot } from '../time-slot/ITimeSlot';
+import { ITimeSlot } from '../timer/time-slot/ITimeSlot';
 import { IOrganizationTeamEmployee } from '../team/IOrganizationTeamEmployee';
 
 export interface IActivity

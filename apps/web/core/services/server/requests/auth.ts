@@ -3,13 +3,13 @@ import {
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces/to-review/auth/IAuth';
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+} from '@/core/types/interfaces/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ProviderEnum } from './o-auth';
+import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ISuccessResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ISuccessResponse } from '@/core/types/interfaces/global/IDataResponse';
 import {
 	ISocialAccount,
 	ISocialAccountExistUser,
@@ -60,7 +60,7 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 	});
 }
 
-export function signWithSocialLoginsRequest(provider: ProviderEnum, token: string) {
+export function signWithSocialLoginsRequest(provider: EProvider, token: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.social',
 		method: 'POST',

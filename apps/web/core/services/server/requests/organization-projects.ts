@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { serverFetch } from '../fetch';
 import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 
 export function editOrganizationProjectsSettingsRequest({
 	id,

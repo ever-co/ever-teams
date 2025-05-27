@@ -1,7 +1,7 @@
 import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 
 class TaskVersionService extends APIService {
 	// TODO: Implement createTaskVersion method

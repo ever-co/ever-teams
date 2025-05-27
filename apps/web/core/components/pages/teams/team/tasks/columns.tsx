@@ -4,7 +4,7 @@ import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';
 import DropdownMenuTask from './dropdown-menu-task';
 import { ActiveTaskStatusDropdown } from '@/core/components/tasks/task-status';
-import { ITaskIssueTypeEnum } from '@/core/types/enums/task';
+import { ETaskIssueType } from '@/core/types/interfaces/enums/task';
 
 // Columns that can be hidden in the team tasks table
 export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];
@@ -20,16 +20,16 @@ export const columns: ColumnDef<ITask>[] = [
 					<>
 						<span
 							className={`w-5 h-5 rounded-full flex items-center justify-center ${
-								row.original.issueType === ITaskIssueTypeEnum.BUG
+								row.original.issueType === ETaskIssueType.BUG
 									? 'bg-red-500'
-									: row.original.issueType === ITaskIssueTypeEnum.STORY
+									: row.original.issueType === ETaskIssueType.STORY
 										? 'bg-orange-400'
 										: 'bg-green-400'
 							}`}
 						>
-							{row.original.issueType === ITaskIssueTypeEnum.BUG ? (
+							{row.original.issueType === ETaskIssueType.BUG ? (
 								<Bug className="w-3 h-3 text-white" />
-							) : row.original.issueType === ITaskIssueTypeEnum.STORY ? (
+							) : row.original.issueType === ETaskIssueType.STORY ? (
 								<svg
 									width={12}
 									height={12}

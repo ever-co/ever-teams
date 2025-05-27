@@ -20,7 +20,7 @@ import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { TimeLogSourceEnum } from '@/core/types/enums/timer';
+import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
@@ -93,7 +93,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
 								timerStatus?.running &&
 								timerStatus?.lastLog?.source &&
-								timerStatus?.lastLog?.source !== TimeLogSourceEnum.TEAMS
+								timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
 									? 'text-[#888] dark:text-[#888]'
 									: ''
 							} `}
@@ -108,16 +108,14 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						{timerStatus && timerStatus.running && (
 							<Tooltip
 								label={`The time tracker is already running in the ${(
-									timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS
+									timerStatus?.lastLog?.source || ETimeLogSource.TEAMS
 								)
 									.split('_')
 									.join(' ')
 									.toLowerCase()}`}
 								placement="bottom-start"
 							>
-								<TimerRunningSourceIcon
-									source={timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS}
-								/>
+								<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 							</Tooltip>
 						)}
 					</div>
@@ -140,8 +138,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 								running={timerStatus?.running}
 								disabled={
 									// If timer is running at some other source and user may or may not have selected the task
-									!canRunTimer ||
-									(disabled && timerStatus?.lastLog?.source !== TimeLogSourceEnum.TEAMS)
+									!canRunTimer || (disabled && timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS)
 								}
 							/>
 						</Tooltip>
@@ -217,14 +214,14 @@ export function MinTimerFrame({ className }: IClassName) {
 			{timerStatus && timerStatus.running && (
 				<Tooltip
 					label={`The time tracker is already running in the ${(
-						timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS
+						timerStatus?.lastLog?.source || ETimeLogSource.TEAMS
 					)
 						.split('_')
 						.join(' ')
 						.toLowerCase()}`}
 					placement="bottom-start"
 				>
-					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimeLogSourceEnum.TEAMS} />
+					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 				</Tooltip>
 			)}
 
@@ -285,19 +282,19 @@ export function MinTimerFrame({ className }: IClassName) {
 	);
 }
 
-export function TimerRunningSourceIcon({ source }: { source: TimeLogSourceEnum }) {
+export function TimerRunningSourceIcon({ source }: { source: ETimeLogSource }) {
 	switch (source) {
-		case TimeLogSourceEnum.MOBILE:
+		case ETimeLogSource.MOBILE:
 			return <DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />;
-		case TimeLogSourceEnum.BROWSER:
+		case ETimeLogSource.BROWSER:
 			return <GlobeAltIcon className="w-4 h-4 animate-pulse" />;
-		case TimeLogSourceEnum.BROWSER_EXTENSION:
+		case ETimeLogSource.BROWSER_EXTENSION:
 			return <GlobeAltIcon className="w-4 h-4 animate-pulse" color="#888" />;
-		case TimeLogSourceEnum.DESKTOP:
+		case ETimeLogSource.DESKTOP:
 			return <ComputerDesktopIcon className="w-4 h-4 animate-pulse" color="#888" />;
-		case TimeLogSourceEnum.UPWORK:
+		case ETimeLogSource.UPWORK:
 			return <ArrowUturnUpIcon className="w-4 h-4 animate-pulse" color="#888" />;
-		case TimeLogSourceEnum.HUBSTAFF:
+		case ETimeLogSource.HUBSTAFF:
 			return <LifebuoyIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		default:
 			return <></>;

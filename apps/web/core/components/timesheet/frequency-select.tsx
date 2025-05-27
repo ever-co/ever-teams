@@ -23,7 +23,7 @@ import { cn } from '@/core/lib/helpers';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
-import { TimeFrequency } from '@/core/types/enums/date';
+import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -33,7 +33,7 @@ interface DatePickerInputProps {
 export function FrequencySelect() {
 	const { setTimesheetGroupByDays, timesheetGroupByDays } = useTimelogFilterOptions();
 	const handleSelectChange = (value: string) => {
-		setTimesheetGroupByDays(value as TimeFrequency);
+		setTimesheetGroupByDays(value as ETimeFrequency);
 	};
 
 	return (

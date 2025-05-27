@@ -1,8 +1,8 @@
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 
 type ActionButtonProps = {
 	label: string;
@@ -67,7 +67,7 @@ export const SelectionBar = ({
 
 interface SelectedTimesheetProps {
 	selectTimesheetId: ITimeLog[];
-	updateTimesheetStatus: ({ status, ids }: { status: TimesheetStatus; ids: string[] | string }) => Promise<void>;
+	updateTimesheetStatus: ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => Promise<void>;
 	deleteTaskTimesheet: ({ logIds }: { logIds: string[] }) => Promise<void>;
 	setSelectTimesheetId: React.Dispatch<React.SetStateAction<ITimeLog[]>>;
 	fullWidth: boolean;
@@ -96,7 +96,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleApprove = useCallback(async () => {
 		try {
 			updateTimesheetStatus({
-				status: TimesheetStatus.APPROVED,
+				status: ETimesheetStatus.APPROVED,
 				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);
@@ -109,7 +109,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const handleReject = useCallback(async () => {
 		try {
 			updateTimesheetStatus({
-				status: TimesheetStatus.DENIED,
+				status: ETimesheetStatus.DENIED,
 				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
 			}).then(() => {
 				setSelectTimesheetId([]);

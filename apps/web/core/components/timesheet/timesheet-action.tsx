@@ -1,9 +1,9 @@
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
 import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
-import { TimeFrequency } from '@/core/types/enums/date';
+import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
 type ITimesheetButton = {
 	title?: string;
 	onClick?: () => void;
@@ -96,16 +96,16 @@ export const getTimesheetButtons = (
 	));
 };
 
-export const statusTable: { label: TimesheetStatus; description: string }[] = [
-	{ label: TimesheetStatus.PENDING, description: 'Awaiting approval or review' },
-	{ label: TimesheetStatus.IN_REVIEW, description: 'The item is being reviewed' },
-	{ label: TimesheetStatus.APPROVED, description: 'The item has been approved' },
-	{ label: TimesheetStatus.DRAFT, description: 'The item is saved as draft' },
-	{ label: TimesheetStatus.DENIED, description: 'The item has been rejected' }
+export const statusTable: { label: ETimesheetStatus; description: string }[] = [
+	{ label: ETimesheetStatus.PENDING, description: 'Awaiting approval or review' },
+	{ label: ETimesheetStatus.IN_REVIEW, description: 'The item is being reviewed' },
+	{ label: ETimesheetStatus.APPROVED, description: 'The item has been approved' },
+	{ label: ETimesheetStatus.DRAFT, description: 'The item is saved as draft' },
+	{ label: ETimesheetStatus.DENIED, description: 'The item has been rejected' }
 ];
 
-export const DailyTable: { label: TimeFrequency; description: string }[] = [
-	{ label: TimeFrequency.DAILY, description: 'Group by Daily' },
-	{ label: TimeFrequency.WEEKLY, description: 'Group by Weekly' },
-	{ label: TimeFrequency.MONTHLY, description: 'Group by Monthly' }
+export const DailyTable: { label: ETimeFrequency; description: string }[] = [
+	{ label: ETimeFrequency.DAILY, description: 'Group by Daily' },
+	{ label: ETimeFrequency.WEEKLY, description: 'Group by Weekly' },
+	{ label: ETimeFrequency.MONTHLY, description: 'Group by Monthly' }
 ];

@@ -14,7 +14,7 @@ import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
-import { ITaskIssueTypeEnum, TaskRelatedIssuesRelationEnum } from '@/core/types/enums/task';
+import { ETaskIssueType, ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -125,7 +125,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 				taskToId: parentTask.id,
 
 				organizationId: task.organizationId,
-				action: TaskRelatedIssuesRelationEnum.RELATES_TO
+				action: ERelatedIssuesRelation.RELATES_TO
 			}).catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {
@@ -136,22 +136,20 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, queryCall, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === ITaskIssueTypeEnum.EPIC;
-	const isTaskStory = task.issueType === ITaskIssueTypeEnum.STORY;
+	const isTaskEpic = task.issueType === ETaskIssueType.EPIC;
+	const isTaskStory = task.issueType === ETaskIssueType.STORY;
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom?.id) || [];
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== ITaskIssueTypeEnum.EPIC;
+				return childTask.issueType !== ETaskIssueType.EPIC;
 			} else if (isTaskStory) {
-				return (
-					childTask.issueType !== ITaskIssueTypeEnum.EPIC && childTask.issueType !== ITaskIssueTypeEnum.STORY
-				);
+				return childTask.issueType !== ETaskIssueType.EPIC && childTask.issueType !== ETaskIssueType.STORY;
 			} else {
 				return (
-					childTask.issueType === ITaskIssueTypeEnum.BUG ||
-					childTask.issueType === ITaskIssueTypeEnum.TASK ||
+					childTask.issueType === ETaskIssueType.BUG ||
+					childTask.issueType === ETaskIssueType.TASK ||
 					childTask.issueType === null
 				);
 			}

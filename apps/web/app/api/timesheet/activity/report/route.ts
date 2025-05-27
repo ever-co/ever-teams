@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
 import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
-import { TimeLogType } from '@/core/types/enums/timer';
+import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 		if (projectIds.length) params.projectIds = projectIds;
 		if (employeeIds.length) params.employeeIds = employeeIds;
 		if (sources.length) params.source = sources as any[];
-		if (logTypes.length) params.logType = logTypes as TimeLogType[];
+		if (logTypes.length) params.logType = logTypes as ETimeLogType[];
 
 		// Get activity level parameters
 		const activityLevelStart = searchParams.get('activityLevel[start]');

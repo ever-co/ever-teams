@@ -1,4 +1,4 @@
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
@@ -11,12 +11,12 @@ import { Badge } from '@/core/components/common/badge';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '../../tasks/task-displays';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
-	timesheet?: Record<TimesheetStatus, ITimeLog[]>;
+	timesheet?: Record<ETimesheetStatus, ITimeLog[]>;
 	timesheetDetailMode?: TimesheetDetailMode;
 }
 
@@ -284,7 +284,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 											)}
 										></div>
 										<span className="font-bold">
-											{timesheet.element[0].timesheet?.status === TimesheetStatus.DENIED
+											{timesheet.element[0].timesheet?.status === ETimesheetStatus.DENIED
 												? 'REJECTED'
 												: timesheet.element[0].timesheet?.status}
 										</span>

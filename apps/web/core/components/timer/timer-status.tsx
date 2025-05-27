@@ -6,10 +6,10 @@ import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 type Props = {
-	status: TimerStatusEnum;
+	status: ETimerStatus;
 	showIcon?: boolean;
 	tooltipClassName?: string;
 	labelContainerClassName?: string;
@@ -54,7 +54,7 @@ export function getTimerStatusValue(
 	timerStatus: ITimerStatus | null,
 	member: any | undefined,
 	publicTeam?: boolean
-): TimerStatusEnum {
+): ETimerStatus {
 	const isSuspended = () => !member?.employee?.isActive && !publicTeam;
 	const isPaused = () => member?.timerStatus === 'pause';
 	const shouldPauseDueToTimerStatus = () => {
@@ -69,18 +69,18 @@ export function getTimerStatusValue(
 	const isOnline = () => member?.employee?.isOnline && member?.employee?.isTrackingTime;
 	const isIdle = () => !member?.totalTodayTasks?.length;
 
-	let status: TimerStatusEnum;
+	let status: ETimerStatus;
 
 	if (isOnline()) {
-		status = TimerStatusEnum.ONLINE;
+		status = ETimerStatus.ONLINE;
 	} else if (isIdle()) {
-		status = TimerStatusEnum.IDLE;
+		status = ETimerStatus.IDLE;
 	} else if (isPaused() || shouldPauseDueToTimerStatus()) {
-		status = TimerStatusEnum.PAUSE;
+		status = ETimerStatus.PAUSE;
 	} else if (isSuspended()) {
-		status = TimerStatusEnum.SUSPENDED;
+		status = ETimerStatus.SUSPENDED;
 	} else {
-		status = member?.timerStatus || TimerStatusEnum.IDLE;
+		status = member?.timerStatus || ETimerStatus.IDLE;
 	}
 
 	return status;

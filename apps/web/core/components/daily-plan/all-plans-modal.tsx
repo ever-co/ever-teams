@@ -15,7 +15,7 @@ import { ActiveModifiers } from 'react-day-picker';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
-import { DailyPlanStatusEnum } from '@/core/types/enums/daily-plan';
+import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 
 interface IAllPlansModal {
@@ -162,7 +162,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			await createDailyPlan({
 				workTimePlanned: 0,
 				date: new Date(moment(customDate).format('YYYY-MM-DD')),
-				status: DailyPlanStatusEnum.OPEN,
+				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id,
 				organizationId: user?.employee?.organizationId

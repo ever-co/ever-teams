@@ -1,11 +1,11 @@
-import { CurrenciesEnum } from '@/core/types/enums/currency';
+import { ECurrencies } from '@/core/types/interfaces/enums/currency';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
 import { IOrganizationTeam } from '../../team/IOrganizationTeam';
 import { IUser } from '../../user/IUser';
 import { IOrganizationProject } from '../../project/IOrganizationProject';
 import { ITask } from '../../task/ITask';
 import { ITimesheet } from '../../timesheet/ITimesheet';
-import { ITimeSlot } from '../../time-slot/ITimeSlot';
+import { ITimeSlot } from '../../timer/time-slot/ITimeSlot';
 
 export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITaggable {
 	id: ID;
@@ -20,7 +20,7 @@ export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITa
 	teams?: IOrganizationTeam[];
 	// payPeriod?: PayPeriodEnum;
 	billRateValue?: number;
-	billRateCurrency?: CurrenciesEnum;
+	billRateCurrency?: ECurrencies;
 	minimumBillingRate?: number;
 	reWeeklyLimit?: number;
 	// organizationDepartments?: IOrganizationDepartment[];

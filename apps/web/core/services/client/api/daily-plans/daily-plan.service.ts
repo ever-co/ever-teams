@@ -3,7 +3,7 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ID } from '@/core/types/interfaces/global/base-interfaces';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import {
 	IDailyPlanTasksUpdate,
 	IDailyPlan,

@@ -11,7 +11,7 @@ import { AddIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ITaskIssueTypeEnum } from '@/core/types/enums/task';
+import { ETaskIssueType } from '@/core/types/interfaces/enums/task';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -98,22 +98,20 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === ITaskIssueTypeEnum.EPIC;
-	const isTaskStory = task.issueType === ITaskIssueTypeEnum.STORY;
+	const isTaskEpic = task.issueType === ETaskIssueType.EPIC;
+	const isTaskStory = task.issueType === ETaskIssueType.STORY;
 	const childTasks = task.children?.map((t) => t.id) || [];
 
 	const unchildTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== ITaskIssueTypeEnum.EPIC;
+				return childTask.issueType !== ETaskIssueType.EPIC;
 			} else if (isTaskStory) {
-				return (
-					childTask.issueType !== ITaskIssueTypeEnum.EPIC && childTask.issueType !== ITaskIssueTypeEnum.STORY
-				);
+				return childTask.issueType !== ETaskIssueType.EPIC && childTask.issueType !== ETaskIssueType.STORY;
 			} else {
 				return (
-					childTask.issueType === ITaskIssueTypeEnum.BUG ||
-					childTask.issueType === ITaskIssueTypeEnum.TASK ||
+					childTask.issueType === ETaskIssueType.BUG ||
+					childTask.issueType === ETaskIssueType.TASK ||
 					childTask.issueType === null
 				);
 			}

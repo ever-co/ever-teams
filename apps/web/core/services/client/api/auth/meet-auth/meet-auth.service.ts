@@ -1,7 +1,7 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
-import { IMeetAuthRequest } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IMeetAuthRequest } from '@/core/types/interfaces/auth/IAuth';
 
 class MeetAuthService extends APIService {
 	getMeetJwtAuthToken = async (params?: IMeetAuthRequest) => {

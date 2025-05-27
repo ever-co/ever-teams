@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { TimeLogSourceEnum } from '@/core/types/enums/timer';
+import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 import { IUser } from '@/core/types/interfaces/user/IUser';
 import {
 	getActiveTaskIdCookie,
@@ -25,7 +25,7 @@ class TimerService extends APIService {
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/toggle', {
-				source: TimeLogSourceEnum.TEAMS,
+				source: ETimeLogSource.TEAMS,
 				logType: 'TRACKED',
 				taskId: body.taskId,
 				tenantId,
@@ -33,7 +33,7 @@ class TimerService extends APIService {
 			});
 
 			await this.post('/timesheet/timer/stop', {
-				source: TimeLogSourceEnum.TEAMS,
+				source: ETimeLogSource.TEAMS,
 				logType: 'TRACKED',
 				taskId: body.taskId,
 				tenantId,
@@ -59,7 +59,7 @@ class TimerService extends APIService {
 				organizationId,
 				taskId,
 				logType: 'TRACKED',
-				source: TimeLogSourceEnum.TEAMS,
+				source: ETimeLogSource.TEAMS,
 				tags: [],
 				organizationTeamId: teamId
 			});
@@ -71,7 +71,7 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>('/timer/start');
 	};
 
-	stopTimer = async (source: TimeLogSourceEnum) => {
+	stopTimer = async (source: ETimeLogSource) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 		const taskId = getActiveTaskIdCookie();
@@ -94,7 +94,7 @@ class TimerService extends APIService {
 		});
 	};
 
-	syncTimer = async (source: TimeLogSourceEnum, user: IUser | undefined) => {
+	syncTimer = async (source: ETimeLogSource, user: IUser | undefined) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 

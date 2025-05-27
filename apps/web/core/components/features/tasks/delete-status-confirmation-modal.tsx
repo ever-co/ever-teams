@@ -3,7 +3,7 @@ import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { Card } from '../../duplicated-components/card';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 
 interface DeleteTaskStatusModalProps {
@@ -19,7 +19,7 @@ interface DeleteTaskStatusModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITaskStatusNameEnum} props.status - The status object to be deleted
+ * @param {ETaskStatusName} props.status - The status object to be deleted
  * @param {() => void} props.onCancel - Callback function when deletion is cancelled
  *
  * @returns {JSX.Element} The modal element
@@ -48,7 +48,7 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 		try {
 			// Update each task that uses the current status
 			const updatePromises = tasksUsingStatus.map((task) =>
-				updateTask({ ...task, status: ITaskStatusNameEnum.OPEN })
+				updateTask({ ...task, status: ETaskStatusName.OPEN })
 			);
 
 			await Promise.all(updatePromises);

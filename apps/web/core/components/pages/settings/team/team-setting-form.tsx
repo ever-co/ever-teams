@@ -1,5 +1,5 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { userState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
@@ -109,9 +109,9 @@ export const TeamSettingForm = () => {
 						?.filter(
 							(m) =>
 								m.role &&
-								(m.role.name === RoleNameEnum.MANAGER ||
-									m.role.name === RoleNameEnum.SUPER_ADMIN ||
-									m.role.name === RoleNameEnum.ADMIN)
+								(m.role.name === ERoleName.MANAGER ||
+									m.role.name === ERoleName.SUPER_ADMIN ||
+									m.role.name === ERoleName.ADMIN)
 						)
 						.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids

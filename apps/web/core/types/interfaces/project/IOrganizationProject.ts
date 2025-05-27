@@ -1,11 +1,6 @@
-import { CurrenciesEnum } from '../../enums/currency';
-import {
-	OrganizationProjectBudgetTypeEnum,
-	ProjectBillingEnum,
-	ProjectOwnerEnum,
-	ProjectRelationEnum
-} from '../../enums/project';
-import { TaskListTypeEnum, ITaskStatusNameEnum } from '../../enums/task';
+import { ECurrencies } from '../enums/currency';
+import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../enums/project';
+import { ETaskListType, ETaskStatusName } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../global/IImageAsset';
 import { IEmployee } from '../organization/employee/IEmployee';
@@ -13,7 +8,7 @@ import { CustomFieldsObject } from '../organization/IOrganization';
 import { ITag } from '../tag/ITag';
 import { ITask } from '../task/ITask';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { ITimeLog } from '../time-log/ITimeLog';
+import { ITimeLog } from '../timer/time-log/ITimeLog';
 import { IOrganizationProjectEmployee } from './IOrganizationProjectEmployee';
 
 export interface IOrganizationProjectBase
@@ -25,17 +20,17 @@ export interface IOrganizationProjectBase
 	name?: string;
 	startDate?: Date;
 	endDate?: Date;
-	billing?: ProjectBillingEnum;
-	currency?: CurrenciesEnum;
+	billing?: EProjectBilling;
+	currency?: ECurrencies;
 	members?: IOrganizationProjectEmployee[];
 	public?: boolean;
-	owner?: ProjectOwnerEnum;
+	owner?: EProjectOwner;
 	tasks?: ITask[];
 	teams?: IOrganizationTeam[];
 	timeLogs?: ITimeLog[];
 	// organizationSprints?: IOrganizationSprint[];
 	// modules?: IOrganizationProjectModule[];
-	taskListType?: TaskListTypeEnum;
+	taskListType?: ETaskListType;
 	// payments?: IPayment[];
 	code?: string;
 	description?: string;
@@ -46,10 +41,10 @@ export interface IOrganizationProjectBase
 	projectUrl?: string;
 	openSourceProjectUrl?: string;
 	budget?: number;
-	budgetType?: OrganizationProjectBudgetTypeEnum;
+	budgetType?: EProjectBudgetType;
 	membersCount?: number;
 	imageUrl?: string;
-	status?: ITaskStatusNameEnum;
+	status?: ETaskStatusName;
 	icon?: string;
 	archiveTasksIn?: number;
 	closeTasksIn?: number;
@@ -62,7 +57,7 @@ export interface IOrganizationProjectBase
 
 export interface IProjectRelation {
 	projectId: string;
-	relationType: ProjectRelationEnum | null;
+	relationType: EProjectRelation | null;
 }
 
 export interface IRelationalOrganizationProject {
@@ -92,21 +87,21 @@ export interface ICreateProjectRequest {
 	imageUrl?: string;
 	imageId?: string;
 	budget?: number;
-	budgetType?: OrganizationProjectBudgetTypeEnum;
+	budgetType?: EProjectBudgetType;
 	startDate: string;
 	endDate: string;
 	archivedAt: string | null;
-	billing?: ProjectBillingEnum;
+	billing?: EProjectBilling;
 	currency?: string;
 	memberIds?: string[];
 	managerIds?: string[];
 	teams?: IOrganizationTeam[];
-	status?: ITaskStatusNameEnum;
+	status?: ETaskStatusName;
 	isActive?: boolean;
 	isArchived?: boolean;
 	isTasksAutoSync?: boolean;
 	isTasksAutoSyncOnLabel?: boolean;
-	owner?: ProjectOwnerEnum;
+	owner?: EProjectOwner;
 	// Will be implemented on the  API side much later :
 	relations?: IProjectRelation[]; // relationship
 }

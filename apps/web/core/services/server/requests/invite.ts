@@ -1,10 +1,10 @@
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
 import { IInviteCreate } from '@/core/types/interfaces/user/IInvite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { InviteActionEnum } from '@/core/types/enums/invite';
+import { EInviteAction } from '@/core/types/interfaces/enums/invite';
 
 /**
  * Invite user using email request
@@ -167,7 +167,7 @@ export function acceptRejectMyInvitationsRequest(
 	tenantId: string,
 	bearer_token: string,
 	invitationId: string,
-	action: InviteActionEnum
+	action: EInviteAction
 ) {
 	return serverFetch<PaginationResponse<IInvite>>({
 		path: `/invite/${invitationId}/${action}`,

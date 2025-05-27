@@ -1,5 +1,5 @@
 'use client';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import React from 'react';
 
 export function useScrollListener() {

@@ -1,6 +1,6 @@
 import { IActivity } from '@/core/types/interfaces/activity/IActivity';
 import { pad } from './number';
-import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
 export function groupDataByHour(data: ITimeSlot[]) {
 	const groupedData: { startedAt: string; stoppedAt: string; items: ITimeSlot[] }[] = [];
 

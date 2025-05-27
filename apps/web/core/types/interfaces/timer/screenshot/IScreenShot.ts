@@ -1,7 +1,7 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { FileStorageProvider } from '../file-storage/IFileStorageProvider';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../global/base-interfaces';
+import { FileStorageProvider } from '../../file-storage/IFileStorageProvider';
 import { ITimeSlot } from '../time-slot/ITimeSlot';
-import { IRelationalUser } from '../user/IUser';
+import { IRelationalUser } from '../../user/IUser';
 
 export interface IScreenshot extends IBasePerTenantAndOrganizationEntityModel, IRelationalUser {
 	[x: string]: any;

@@ -24,7 +24,7 @@ import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/co
 import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { Avatar } from '../../duplicated-components/avatar';
-import { DailyPlanStatusEnum, IDailyPlanModeEnum } from '@/core/types/enums/daily-plan';
+import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
@@ -41,7 +41,7 @@ export function CreateDailyPlanFormModal({
 	open: boolean;
 	closeModal: () => void;
 	taskId: string;
-	planMode: IDailyPlanModeEnum;
+	planMode: EDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
 }) {
@@ -108,7 +108,7 @@ export function CreateDailyPlanFormModal({
 						: planMode == 'tomorrow'
 							? tomorrowDate
 							: new Date(moment(date).format('YYYY-MM-DD')),
-				status: DailyPlanStatusEnum.OPEN,
+				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: employeeId ?? selectedEmployee?.employeeId,
 				organizationId: user?.employee?.organizationId

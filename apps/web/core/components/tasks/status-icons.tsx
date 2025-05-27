@@ -1,4 +1,4 @@
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import React from 'react';
 import { ClosedTaskIcon } from '../svgs/closed-task';
 import { CompletedTaskIcon } from '../svgs/completed-task';
@@ -18,11 +18,11 @@ export const statusIcons: { [x: string]: React.ReactElement } = {
 	Unassigned: <UnassignedTaskIcon color="#5f5f5f" />
 };
 
-export function StatusIcon({ status }: { status: ITaskStatusNameEnum }) {
+export function StatusIcon({ status }: { status: ETaskStatusName }) {
 	return <>{statusIcons[status] || ''}</>;
 }
 
-export function BadgedTaskStatus({ status }: { status: ITaskStatusNameEnum }) {
+export function BadgedTaskStatus({ status }: { status: ETaskStatusName }) {
 	const node = statusIcons[status] as React.ReactElement<{ background?: string; color?: string }>;
 
 	return (

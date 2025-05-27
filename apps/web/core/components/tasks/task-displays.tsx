@@ -6,8 +6,8 @@ import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { TimeLogType } from '@/core/types/enums/timer';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import { Nullable } from '@/core/types/generics/utils';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 
@@ -97,7 +97,7 @@ export const DisplayTimeForTimesheet = ({
 	logType
 }: {
 	timesheetLog: ITimeLog;
-	logType?: TimeLogType;
+	logType?: ETimeLogType;
 }) => {
 	const seconds = differenceBetweenHours(
 		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(String(timesheetLog.startedAt)),

@@ -4,7 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { ITimerSlotDataRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimerSlotDataRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
 import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/IActivityReport';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/ITimesheet';
 

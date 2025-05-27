@@ -38,7 +38,7 @@ import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
-import { ITaskIssueTypeEnum, ITaskSizeNameEnum, ITaskStatusNameEnum, TaskPriorityEnum } from '@/core/types/enums/task';
+import { ETaskIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/interfaces/enums/task';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 type Props = {
@@ -232,17 +232,17 @@ export function TaskInput(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === ITaskIssueTypeEnum.STORY
+				props.task?.issueType === ETaskIssueType.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === ITaskIssueTypeEnum.TASK ||
-				props.task?.issueType === ITaskIssueTypeEnum.BUG ||
+				props.task?.issueType === ETaskIssueType.TASK ||
+				props.task?.issueType === ETaskIssueType.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === ITaskIssueTypeEnum.EPIC || item.issueType === ITaskIssueTypeEnum.STORY
+					(item) => item.issueType === ETaskIssueType.EPIC || item.issueType === ETaskIssueType.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -382,7 +382,7 @@ export function TaskInput(props: Props) {
 							defaultValue={
 								defaultIssueType
 									? defaultIssueType.name
-									: (localStorage.getItem('lastTaskIssue') as ITaskIssueTypeEnum) || null
+									: (localStorage.getItem('lastTaskIssue') as ETaskIssueType) || null
 							}
 						/>
 					)}
@@ -527,7 +527,7 @@ function TaskCard({
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskStatus?.current as ITaskStatusNameEnum}
+										defaultValue={taskStatus?.current as ETaskStatusName}
 										task={null}
 									/>
 
@@ -540,7 +540,7 @@ function TaskCard({
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskPriority?.current as TaskPriorityEnum}
+										defaultValue={taskPriority?.current as ETaskPriority}
 										task={null}
 									/>
 
@@ -553,7 +553,7 @@ function TaskCard({
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskSize?.current as ITaskSizeNameEnum}
+										defaultValue={taskSize?.current as ETaskSizeName}
 										task={null}
 									/>
 

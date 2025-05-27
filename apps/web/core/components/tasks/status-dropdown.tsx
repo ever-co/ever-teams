@@ -1,5 +1,5 @@
 import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,7 +8,7 @@ import { StatusIcon, statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
 import { useTeamTasks } from '@/core/hooks/organizations';
 
-const statusKeys = Object.keys(statusIcons) as ITaskStatusNameEnum[];
+const statusKeys = Object.keys(statusIcons) as ETaskStatusName[];
 
 const StatusDropdown = () => {
 	const { activeTeamTask } = useTeamTasks();
@@ -19,7 +19,7 @@ const StatusDropdown = () => {
 export function RawStatusDropdown({ task }: { task: ITask | null }) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
-	const [selected, setSelected] = useState<ITaskStatusNameEnum | null>(task?.status || null);
+	const [selected, setSelected] = useState<ETaskStatusName | null>(task?.status || null);
 
 	useEffect(() => {
 		setSelected(task?.status || null);
@@ -30,7 +30,7 @@ export function RawStatusDropdown({ task }: { task: ITask | null }) {
 	}, [task]);
 
 	const handleChange = useCallback(
-		(status: ITaskStatusNameEnum) => {
+		(status: ETaskStatusName) => {
 			setSelected(status);
 
 			if (task && status !== task.status) {
@@ -62,7 +62,7 @@ export function RawStatusDropdown({ task }: { task: ITask | null }) {
 							className={`h-[30px] ${
 								task ? 'bg-[#F0ECFD]' : 'bg-white'
 							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1`}
-							displayValue={(status: ITaskStatusNameEnum) => status}
+							displayValue={(status: ETaskStatusName) => status}
 							onChange={() => {
 								//
 							}}

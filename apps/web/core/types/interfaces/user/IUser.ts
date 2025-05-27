@@ -1,4 +1,4 @@
-import { TimeFormatEnum } from '../../enums/date';
+import { ETimeFormat } from '../enums/date';
 import { IBasePerTenantEntityModel, ID } from '../global/base-interfaces';
 import { IRole } from '../role/IRole';
 import { IOrganizationTeam } from '../team/IOrganizationTeam';
@@ -19,7 +19,7 @@ export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset 
 	phoneNumber?: string;
 	username?: string;
 	timeZone?: string;
-	timeFormat?: TimeFormatEnum;
+	timeFormat?: ETimeFormat;
 	role?: IRole;
 	roleId?: ID;
 	hash?: string;

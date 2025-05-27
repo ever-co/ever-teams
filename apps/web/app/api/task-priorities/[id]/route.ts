@@ -1,4 +1,4 @@
-import { INextParams } from '@/core/types/interfaces/to-review/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskPrioritiesRequest, editTaskPrioritiesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

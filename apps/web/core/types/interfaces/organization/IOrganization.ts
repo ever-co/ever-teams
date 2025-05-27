@@ -1,5 +1,5 @@
-import { TimeFormatEnum } from '../../enums/date';
-import { DefaultValueDateTypeEnum, WeekDaysEnum } from '../../enums/date';
+import { ETimeFormat } from '../enums/date';
+import { EDefaultValueDateType, EWeekDays } from '../enums/date';
 import { IBasePerTenantEntityModel, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../global/IImageAsset';
 import { IEmployee } from './employee/IEmployee';
@@ -32,13 +32,13 @@ export interface IOrganization
 	overview: string;
 	// skills: ISkill[];
 	currency: string;
-	defaultValueDateType: DefaultValueDateTypeEnum;
+	defaultValueDateType: EDefaultValueDateType;
 	defaultAlignmentType?: string;
 	dateFormat?: string;
 	brandColor?: string;
 	timeZone?: string;
 	officialName?: string;
-	startWeekOn?: WeekDaysEnum;
+	startWeekOn?: EWeekDays;
 	taxId?: string;
 	numberFormat?: string;
 	// bonusType?: BonusTypeEnum;
@@ -56,7 +56,7 @@ export interface IOrganization
 	requireProject?: boolean;
 	requireTask?: boolean;
 	requireClient?: boolean;
-	timeFormat?: TimeFormatEnum;
+	timeFormat?: ETimeFormat;
 	defaultStartTime?: string;
 	defaultEndTime?: string;
 	registrationDate?: Date;

@@ -9,7 +9,7 @@ import { TableActionPopover } from '@/core/components/settings/table-action-popo
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmployee }) {
 	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
@@ -20,7 +20,7 @@ export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmploy
 	const size = 100;
 	const { timerStatus } = useTimer();
 	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
-	const timerStatusValue: TimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
 	}, [timerStatus, member]);
 	return (

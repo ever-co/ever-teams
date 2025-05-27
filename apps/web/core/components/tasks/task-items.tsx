@@ -17,7 +17,7 @@ import { Avatar } from '../duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 type Props = {
 	task?: ITask;
@@ -30,7 +30,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	const t = useTranslations();
 
 	const handleChange = useCallback(
-		(status: ITaskStatusNameEnum) => {
+		(status: ETaskStatusName) => {
 			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
@@ -94,7 +94,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					{task?.status !== 'closed' && (
 						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
 							<ConfirmDropdown
-								onConfirm={() => handleChange(ITaskStatusNameEnum.CLOSED)}
+								onConfirm={() => handleChange(ETaskStatusName.CLOSED)}
 								confirmText={'Confirm'}
 								className="fixed z-50"
 							>
@@ -114,7 +114,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 									placement="left"
 									className="min-w-10"
 								>
-									<button onClick={() => handleChange(ITaskStatusNameEnum.TODO)}>
+									<button onClick={() => handleChange(ETaskStatusName.TODO)}>
 										<RefreshIcon className="w-6 text-[#7E7991]" />
 									</button>
 								</Tooltip>

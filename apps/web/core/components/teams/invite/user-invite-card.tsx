@@ -13,7 +13,7 @@ import { Avatar } from '../../duplicated-components/avatar';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 type Props = IClassName & { invitation: IInvite };
 
@@ -44,7 +44,7 @@ export function InvitedCard({ invitation, className }: Props) {
 						{' '}
 						<Avatar size={50} className="relative" imageTitle={invitation.fullName}>
 							<TimerStatus
-								status={TimerStatusEnum.IDLE}
+								status={ETimerStatus.IDLE}
 								className="absolute z-20 -mb-3 border bottom-3 -right-1"
 							/>
 						</Avatar>
@@ -101,7 +101,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<div className="flex items-center mb-4">
 					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
 						<TimerStatus
-							status={TimerStatusEnum.IDLE}
+							status={ETimerStatus.IDLE}
 							className="absolute z-20 -mb-3 border bottom-3 -right-1"
 						/>
 					</Avatar>

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
@@ -68,9 +68,9 @@ export function ShareProfileViewsToggle() {
 					?.filter(
 						(m) =>
 							m.role &&
-							(m.role.name === RoleNameEnum.MANAGER ||
-								m.role.name === RoleNameEnum.SUPER_ADMIN ||
-								m.role.name === RoleNameEnum.ADMIN)
+							(m.role.name === ERoleName.MANAGER ||
+								m.role.name === ERoleName.SUPER_ADMIN ||
+								m.role.name === ERoleName.ADMIN)
 					)
 					.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
@@ -122,9 +122,9 @@ export function RequireDailyPlanToTrack() {
 					?.filter(
 						(m) =>
 							m.role &&
-							(m.role.name === RoleNameEnum.MANAGER ||
-								m.role.name === RoleNameEnum.SUPER_ADMIN ||
-								m.role.name === RoleNameEnum.ADMIN)
+							(m.role.name === ERoleName.MANAGER ||
+								m.role.name === ERoleName.SUPER_ADMIN ||
+								m.role.name === ERoleName.ADMIN)
 					)
 					.map((t) => t.employee?.id || '')
 					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)

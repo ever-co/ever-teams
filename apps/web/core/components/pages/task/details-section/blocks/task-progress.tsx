@@ -10,7 +10,7 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { ITime } from '@/core/types/interfaces/time/ITime';
+import { ITime } from '@/core/types/interfaces/global/ITime';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 const TaskProgress = () => {

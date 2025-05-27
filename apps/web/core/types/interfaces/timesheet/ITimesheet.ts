@@ -1,7 +1,7 @@
-import { TimesheetStatus } from '../../enums/timesheet';
+import { ETimesheetStatus } from '../enums/timesheet';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
-import { ITimeLog } from '../time-log/ITimeLog';
+import { ITimeLog } from '../timer/time-log/ITimeLog';
 import { IUser } from '../user/IUser';
 
 export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
@@ -21,7 +21,7 @@ export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	lockedAt?: Date;
 	editedAt?: Date;
 	isBilled?: boolean;
-	status: TimesheetStatus;
+	status: ETimesheetStatus;
 	isEdited?: boolean;
 	version?: string;
 }

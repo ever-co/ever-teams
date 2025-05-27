@@ -1,9 +1,9 @@
 import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
-import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { RequestStatusEnum } from '@/core/types/enums';
+import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 /**
  * Request to Join Team request
@@ -91,7 +91,7 @@ export function acceptRejectRequestToJoinRequest({
 	bearer_token: string | undefined;
 	tenantId: string | undefined;
 	id: string;
-	action: RequestStatusEnum;
+	action: ERequestStatus;
 }) {
 	return serverFetch<IDataResponse<ISuccessResponse>>({
 		path: `/organization-team-join/${id}/${action}`,

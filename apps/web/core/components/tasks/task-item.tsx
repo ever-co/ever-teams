@@ -5,7 +5,7 @@ import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 export function TaskItem({
 	selected,
@@ -29,7 +29,7 @@ export function TaskItem({
 						<span className="text-[#9490A0]">#{item.taskNumber}</span> {item.title}
 					</div>
 					<div className="flex items-center space-x-4">
-						<BadgedTaskStatus status={item?.status || ITaskStatusNameEnum.TODO} />
+						<BadgedTaskStatus status={item?.status || ETaskStatusName.TODO} />
 						<div className="flex items-center justify-center space-x-1">
 							{item.selectedTeam?.members &&
 								item.selectedTeam?.members.map((member: IOrganizationTeamEmployee, i: number) => (

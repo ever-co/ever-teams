@@ -23,7 +23,7 @@ import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();

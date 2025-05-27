@@ -18,7 +18,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];

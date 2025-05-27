@@ -17,9 +17,9 @@ import {
 	LoginIcon
 } from 'assets/svg';
 import { TStatus } from './task-status';
-import { ITaskStatusNameEnum, ITaskSizeNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName, ETaskSizeName } from '@/core/types/interfaces/enums/task';
 
-export const taskStatus: TStatus<ITaskStatusNameEnum> = {
+export const taskStatus: TStatus<ETaskStatusName> = {
 	todo: {
 		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#D6E4F9'
@@ -99,7 +99,7 @@ export const taskPriorities: TStatus = {
 	}
 };
 
-export const taskSizes: TStatus<ITaskSizeNameEnum> = {
+export const taskSizes: TStatus<ETaskSizeName> = {
 	'X-Large': {
 		icon: <XlargeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',

@@ -11,7 +11,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -140,9 +140,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 					const isTodayOrBefore = moment(plan.date).isSameOrBefore(moment().endOf('day'));
 					if (!isTodayOrBefore) return false;
 
-					const hasIncompleteTasks = plan.tasks?.some(
-						(task) => task.status !== ITaskStatusNameEnum.COMPLETED
-					);
+					const hasIncompleteTasks = plan.tasks?.some((task) => task.status !== ETaskStatusName.COMPLETED);
 					return hasIncompleteTasks;
 				})
 				.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee })),

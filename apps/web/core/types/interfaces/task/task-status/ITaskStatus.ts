@@ -1,4 +1,4 @@
-import { ITaskStatusNameEnum } from '../../../enums/task';
+import { ETaskStatusName } from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../../global/base-interfaces';
 import { IRelationalOrganizationProject } from '../../project/IOrganizationProject';
 import { IRelationalOrganizationTeam } from '../../team/IOrganizationTeam';
@@ -19,7 +19,7 @@ export interface ITaskStatus
 	isCollapsed?: boolean;
 	isDefault?: boolean;
 	fullIconUrl?: string;
-	template?: ITaskStatusNameEnum;
+	template?: ETaskStatusName;
 }
 export interface ITaskStatusCreate
 	extends Partial<Omit<ITaskStatus, 'isSystem'>>,

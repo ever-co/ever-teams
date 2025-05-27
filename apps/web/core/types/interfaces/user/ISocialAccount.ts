@@ -1,10 +1,10 @@
-import { ProviderEnum } from '../../enums/social-accounts';
+import { EProvider } from '../enums/social-accounts';
 import { IBasePerTenantEntityModel } from '../global/base-interfaces';
 import { ID } from '../global/base-interfaces';
 import { IRelationalUser } from './IUser';
 
 export interface ISocialAccountBase {
-	provider: ProviderEnum;
+	provider: EProvider;
 	providerAccountId: ID;
 }
 

@@ -11,8 +11,8 @@ import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 
 interface ITimesheetFilter {
 	isOpen: boolean;
@@ -22,7 +22,7 @@ interface ITimesheetFilter {
 	initDate?: Pick<TimesheetFilterDateProps, 'initialRange' | 'onChange' | 'maxDate' | 'minDate'>;
 	onChangeStatus?: (status: FilterStatus) => void;
 	filterStatus?: FilterStatus;
-	data?: Record<TimesheetStatus, ITimeLog[]>;
+	data?: Record<ETimesheetStatus, ITimeLog[]>;
 	user?: IUser | undefined;
 }
 

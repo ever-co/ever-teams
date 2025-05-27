@@ -1,7 +1,7 @@
 'use client';
 
 import { validateForm } from '@/core/lib/helpers/index';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
 import { useCallback, useRef, useState } from 'react';
 import { useQuery } from '../common/use-query';
 import { AxiosError, isAxiosError } from 'axios';

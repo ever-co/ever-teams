@@ -8,8 +8,8 @@ import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { timeSheetService } from '@/core/services/client/api/timesheets/timesheet.service';
 import { useAuthenticateUser } from '../auth';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { ITimesheet, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
 
 interface TimesheetParams {
@@ -357,7 +357,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	);
 
 	const updateTimesheetStatus = useCallback(
-		async ({ status, ids }: { status: TimesheetStatus; ids: string[] | string }) => {
+		async ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => {
 			if (!user) return;
 			const idsArray = Array.isArray(ids) ? ids : [ids];
 			try {
@@ -387,7 +387,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	);
 
 	const getStatusTimesheet = (items: ITimeLog[] = []) => {
-		const STATUS_MAP: Record<TimesheetStatus, ITimeLog[]> = {
+		const STATUS_MAP: Record<ETimesheetStatus, ITimeLog[]> = {
 			PENDING: [],
 			APPROVED: [],
 			DENIED: [],
@@ -407,9 +407,9 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	};
 
 	// Type guard
-	function isTimesheetStatus(status: unknown): status is TimesheetStatus {
-		const timesheetStatusValues = Object.values(TimesheetStatus);
-		return Object.values(timesheetStatusValues).includes(status as TimesheetStatus);
+	function isTimesheetStatus(status: unknown): status is ETimesheetStatus {
+		const timesheetStatusValues = Object.values(ETimesheetStatus);
+		return Object.values(timesheetStatusValues).includes(status as ETimesheetStatus);
 	}
 
 	const deleteTaskTimesheet = useCallback(
@@ -509,13 +509,13 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		return reGroupByDate(groupByDate(filterDataTimesheet as any));
 	}, [timesheet, timesheetViewMode, filterDataTimesheet, timesheetGroupByDays]);
 
-	const rowsToObject = (rows: ITimeLog[]): Record<string, { task: ITimeLog; status: TimesheetStatus }> => {
+	const rowsToObject = (rows: ITimeLog[]): Record<string, { task: ITimeLog; status: ETimesheetStatus }> => {
 		return rows.reduce(
 			(acc, row) => {
-				acc[row.timesheet?.id ?? ''] = { task: row, status: row.timesheet?.status ?? TimesheetStatus.DRAFT };
+				acc[row.timesheet?.id ?? ''] = { task: row, status: row.timesheet?.status ?? ETimesheetStatus.DRAFT };
 				return acc;
 			},
-			{} as Record<string, { task: ITimeLog; status: TimesheetStatus }>
+			{} as Record<string, { task: ITimeLog; status: ETimesheetStatus }>
 		);
 	};
 

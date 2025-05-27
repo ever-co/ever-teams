@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
-import { DailyPlanStatusEnum } from '@/core/types/enums/daily-plan';
+import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import {
@@ -53,7 +53,7 @@ export function AddTaskToPlan({
 					workTimePlanned: workTimePlanned,
 					taskId: task.id,
 					date: new Date(moment(date).format('YYYY-MM-DD')),
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: employee?.tenantId,
 					employeeId: employee?.employeeId,
 					organizationId: employee?.organizationId

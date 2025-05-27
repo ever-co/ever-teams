@@ -34,7 +34,7 @@ import { cn } from '@/core/lib/helpers';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 export type TStatusItem = {
 	id?: string;
@@ -244,8 +244,7 @@ export function StandardTaskStatusDropDown({
 	});
 
 	const standardStatuses = useMemo(
-		() =>
-			items.filter((status) => Object.values(ITaskStatusNameEnum).includes(status.value as ITaskStatusNameEnum)),
+		() => items.filter((status) => Object.values(ETaskStatusName).includes(status.value as ETaskStatusName)),
 		[items]
 	);
 	return (

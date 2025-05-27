@@ -1,23 +1,23 @@
-export enum InviteStatusEnum {
+export enum EInviteStatus {
 	INVITED = 'INVITED',
 	ACCEPTED = 'ACCEPTED',
 	EXPIRED = 'EXPIRED',
 	REJECTED = 'REJECTED'
 }
 
-export enum InviteActionEnum {
+export enum EInviteAction {
 	ACCEPTED = 'ACCEPTED',
 	REJECTED = 'REJECTED'
 }
 
-export enum InvitationTypeEnum {
+export enum EInvitationType {
 	USER = 'USER',
 	EMPLOYEE = 'EMPLOYEE',
 	CANDIDATE = 'CANDIDATE',
 	TEAM = 'TEAM'
 }
 
-export enum InvitationExpirationEnum {
+export enum EInvitationExpiration {
 	DAY = 1,
 	WEEK = 7,
 	TWO_WEEK = 14,

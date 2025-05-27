@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { acceptRejectRequestToJoinRequest } from '@/core/services/server/requests';
-import { RequestStatusEnum } from '@/core/types/enums';
+import { ERequestStatus } from '@/core/types/interfaces/enums';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string; action: string }> }) {
@@ -19,7 +19,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		id: id,
 		bearer_token: access_token,
 		tenantId,
-		action: action as RequestStatusEnum
+		action: action as ERequestStatus
 	});
 
 	return $res(response.data);

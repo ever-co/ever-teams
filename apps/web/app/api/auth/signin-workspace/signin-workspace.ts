@@ -9,7 +9,7 @@ import {
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {

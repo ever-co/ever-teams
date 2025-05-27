@@ -4,8 +4,8 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
-import { TimeLogSourceEnum } from '@/core/types/enums/timer';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
@@ -36,7 +36,7 @@ class OrganizationTeamService extends APIService {
 		const queryParameters = {
 			'where[organizationId]': organizationId,
 			'where[tenantId]': tenantId,
-			source: TimeLogSourceEnum.TEAMS,
+			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			relations
 		};
@@ -188,7 +188,7 @@ class OrganizationTeamService extends APIService {
 		const queryParams = {
 			'where[organizationId]': params.organizationId,
 			'where[tenantId]': params.tenantId,
-			source: TimeLogSourceEnum.TEAMS,
+			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
 		};

@@ -2,7 +2,7 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { ICurrency } from '@/core/types/interfaces/currency/ICurrency';
 
 class CurrencyService extends APIService {

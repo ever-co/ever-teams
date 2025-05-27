@@ -16,7 +16,7 @@ import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.

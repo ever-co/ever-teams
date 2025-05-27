@@ -1,4 +1,4 @@
-import { InviteStatusEnum } from '../../enums/invite';
+import { EInviteStatus } from '../enums/invite';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
 import { IOrganizationProject } from '../project/IOrganizationProject';
 import { IRelationalRole } from '../role/IRole';
@@ -9,7 +9,7 @@ interface IInviteBase extends IBasePerTenantAndOrganizationEntityModel {
 	email: string;
 	token: string;
 	code?: string;
-	status: InviteStatusEnum;
+	status: EInviteStatus;
 	expireDate: Date;
 	actionDate?: Date;
 	fullName?: string;

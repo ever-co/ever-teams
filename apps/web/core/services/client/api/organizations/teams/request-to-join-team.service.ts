@@ -3,9 +3,9 @@ import { APIService } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
-import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
-import { RequestStatusEnum } from '@/core/types/enums';
+import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 class RequestToJoinTeamService extends APIService {
 	getRequestToJoin = async () => {
@@ -36,7 +36,7 @@ class RequestToJoinTeamService extends APIService {
 		return this.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
 	};
 
-	acceptRejectRequestToJoin = async (id: string, action: RequestStatusEnum) => {
+	acceptRejectRequestToJoin = async (id: string, action: ERequestStatus) => {
 		return this.put<PaginationResponse<IJoinTeamResponse>>(`/organization-team-join/${id}/${action}`);
 	};
 }

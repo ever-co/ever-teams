@@ -8,7 +8,7 @@ import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '../duplicated-components/card';
-import { OrganizationProjectBudgetTypeEnum } from '@/core/types/enums/project';
+import { EProjectBudgetType } from '@/core/types/interfaces/enums/project';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -31,16 +31,16 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 	const budgetTypes: {
 		value: string;
-		id: OrganizationProjectBudgetTypeEnum;
+		id: EProjectBudgetType;
 	}[] = useMemo(
 		() => [
 			{
 				value: t('common.COST_BASED'),
-				id: OrganizationProjectBudgetTypeEnum.COST
+				id: EProjectBudgetType.COST
 			},
 			{
 				value: t('common.HOURS_BASED'),
-				id: OrganizationProjectBudgetTypeEnum.HOURS
+				id: EProjectBudgetType.HOURS
 			}
 		],
 		[t]

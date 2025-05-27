@@ -1,13 +1,13 @@
-import { TimeLogSourceEnum, TimerStatusEnum } from '../../enums/timer';
+import { ETimeLogSource, ETimerStatus } from '../enums/timer';
 import { ITask } from '../task/ITask';
-import { ITimeLog } from '../time-log/ITimeLog';
+import { ITimeLog } from './time-log/ITimeLog';
 
 export interface ITimerStatus {
 	duration?: number;
 	running?: boolean;
 	lastLog?: ITimeLog;
 	lastWorkedTask?: ITask;
-	timerStatus?: TimerStatusEnum;
+	timerStatus?: ETimerStatus;
 }
 
 export type ILocalTimerStatus = {
@@ -16,7 +16,7 @@ export type ILocalTimerStatus = {
 	running: boolean;
 };
 export type IGetTimerStatusParams = {
-	source?: TimeLogSourceEnum;
+	source?: ETimeLogSource;
 	tenantId: string;
 	organizationId: string;
 };
@@ -25,7 +25,7 @@ export type IUpdateTimerStatusParams = {
 	tenantId: string;
 	taskId?: string;
 	logType: 'TRACKED';
-	source: TimeLogSourceEnum;
+	source: ETimeLogSource;
 	tags: any[];
 	organizationTeamId?: string;
 };

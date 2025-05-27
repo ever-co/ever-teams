@@ -1,15 +1,15 @@
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { ITaskSizeNameEnum } from '@/core/types/enums/task';
+import { ETaskSizeName } from '@/core/types/interfaces/enums/task';
 import { ITaskSize, ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 
 class TaskSizeService extends APIService {
 	createTaskSize = async (data: ITaskSizesCreate) => {
 		const tenantId = getTenantIdCookie();
 
-		return this.post<ITaskSizeNameEnum>('/task-sizes', data, {
+		return this.post<ETaskSizeName>('/task-sizes', data, {
 			tenantId
 		});
 	};

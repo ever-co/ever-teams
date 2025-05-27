@@ -25,7 +25,7 @@ import { InputField } from '../duplicated-components/_input';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITaskSizeNameEnum, TaskPriorityEnum, ITaskIssueTypeEnum } from '@/core/types/enums/task';
+import { ETaskSizeName, ETaskPriority, ETaskIssueType } from '@/core/types/interfaces/enums/task';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -181,17 +181,17 @@ export function TaskInputKanban(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === ITaskIssueTypeEnum.STORY
+				props.task?.issueType === ETaskIssueType.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === ITaskIssueTypeEnum.TASK ||
-				props.task?.issueType === ITaskIssueTypeEnum.BUG ||
+				props.task?.issueType === ETaskIssueType.TASK ||
+				props.task?.issueType === ETaskIssueType.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === ITaskIssueTypeEnum.EPIC || item.issueType === ITaskIssueTypeEnum.STORY
+					(item) => item.issueType === ETaskIssueType.EPIC || item.issueType === ETaskIssueType.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -382,7 +382,7 @@ function TaskCard({
 												taskPriority.current = v;
 											}
 										}}
-										defaultValue={taskPriority?.current as TaskPriorityEnum}
+										defaultValue={taskPriority?.current as ETaskPriority}
 										task={null}
 									/>
 
@@ -394,7 +394,7 @@ function TaskCard({
 												taskSize.current = v;
 											}
 										}}
-										defaultValue={taskSize?.current as ITaskSizeNameEnum}
+										defaultValue={taskSize?.current as ETaskSizeName}
 										task={null}
 									/>
 									<TaskLabels

@@ -1,6 +1,6 @@
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,

@@ -6,7 +6,7 @@ import {
 	getMyInvitationsRequest,
 	acceptRejectMyInvitationsRequest
 } from '@/core/services/server/requests';
-import { InviteActionEnum } from '@/core/types/enums/invite';
+import { EInviteAction } from '@/core/types/interfaces/enums/invite';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
@@ -78,7 +78,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
 		tenantId || '',
 		access_token || '',
 		invitationId,
-		action as InviteActionEnum
+		action as EInviteAction
 	);
 
 	return $res(response.data);

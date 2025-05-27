@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
 import { useQuery } from '../../common';
 import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
-import { RequestStatusEnum } from '@/core/types/enums';
+import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
@@ -60,7 +60,7 @@ export const useRequestToJoinTeam = () => {
 	);
 
 	const acceptRejectRequestToJoin = useCallback(
-		(id: string, action: RequestStatusEnum) => {
+		(id: string, action: ERequestStatus) => {
 			acceptRejectRequestToJoinQueryCall(id, action).then(() => {
 				getRequestToJoin();
 			});

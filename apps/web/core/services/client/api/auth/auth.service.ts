@@ -9,7 +9,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
-import { ProviderEnum } from '@/core/services/server/requests/o-auth';
+import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
 import { signinService } from './signin.service';
 import { userService } from '../users';
 import {
@@ -17,9 +17,9 @@ import {
 	IRegisterDataAPI,
 	ISigninEmailConfirmResponse,
 	IUserSigninWorkspaceResponse
-} from '@/core/types/interfaces/to-review/auth/IAuth';
+} from '@/core/types/interfaces/auth/IAuth';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ISuccessResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ISuccessResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 
 class AuthService extends APIService {
@@ -111,7 +111,7 @@ class AuthService extends APIService {
 		return this.post<IUserSigninWorkspaceResponse>(endpoint, { email, password, includeTeams: true });
 	};
 
-	signInEmailSocialLogin = async (provider: ProviderEnum, access_token: string) => {
+	signInEmailSocialLogin = async (provider: EProvider, access_token: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
 
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });

@@ -1,13 +1,13 @@
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import {
 	ITimesheet,
 	ITimesheetCountsStatistics,
 	IUpdateTimesheetStatus
 } from '@/core/types/interfaces/timesheet/ITimesheet';
-import { TimeLogType } from '@/core/types/enums/timer';
+import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
 import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
 import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/IActivityReport';
 
@@ -173,7 +173,7 @@ export interface ITimesheetStatisticsCountsProps {
 		start: number;
 		end: number;
 	};
-	logType: TimeLogType[];
+	logType: ETimeLogType[];
 	organizationId: string;
 	tenantId: string;
 	startDate: string;
@@ -188,7 +188,7 @@ export interface IActivityRequestParams extends ITimeLogRequestParams {
 	/** Activity sources to include */
 	source?: string[];
 	/** Types of logs to include */
-	logType?: TimeLogType[];
+	logType?: ETimeLogType[];
 }
 
 /**

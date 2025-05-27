@@ -17,7 +17,7 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
 
 type IUserTeamBlock = {
@@ -47,7 +47,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const { timerStatus } = useTimer();
 
-	const timerStatusValue: TimerStatusEnum = React.useMemo(() => {
+	const timerStatusValue: ETimerStatus = React.useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 

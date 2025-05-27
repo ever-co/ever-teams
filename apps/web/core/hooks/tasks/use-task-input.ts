@@ -1,5 +1,5 @@
 'use client';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -11,7 +11,7 @@ import { ITask } from '@/core/types/interfaces/task/ITask';
 import { Nullable } from '@/core/types/generics/utils';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
 
-export const h_filter = (status: ITaskStatusNameEnum, filters: 'closed' | 'open') => {
+export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {
 		case 'open':
 			return status !== 'closed';
@@ -87,7 +87,7 @@ export function useTaskInput({
 		async (concernedTask: ITask) => {
 			return updateTask({
 				...concernedTask,
-				status: ITaskStatusNameEnum.OPEN
+				status: ETaskStatusName.OPEN
 			});
 		},
 		[updateTask]
@@ -97,7 +97,7 @@ export function useTaskInput({
 
 	const filteredTasks = useMemo(() => {
 		if (query.trim() === '') {
-			return tasks.filter((task) => h_filter(task.status as ITaskStatusNameEnum, filter));
+			return tasks.filter((task) => h_filter(task.status as ETaskStatusName, filter));
 		}
 
 		return tasks.filter(
@@ -107,7 +107,7 @@ export function useTaskInput({
 					.toLowerCase()
 					.replace(/\s+/g, '')
 					.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
-				h_filter(task.status as ITaskStatusNameEnum, filter)
+				h_filter(task.status as ETaskStatusName, filter)
 		);
 	}, [query, tasks, filter]);
 
@@ -180,13 +180,13 @@ export function useTaskInput({
 
 	const closedTaskCount = useMemo(() => {
 		return filteredTasks2.filter((f_task) => {
-			return f_task.status === ITaskStatusNameEnum.CLOSED;
+			return f_task.status === ETaskStatusName.CLOSED;
 		}).length;
 	}, [filteredTasks2]);
 
 	const openTaskCount = useMemo(() => {
 		return filteredTasks2.filter((f_task) => {
-			return f_task.status !== ITaskStatusNameEnum.CLOSED;
+			return f_task.status !== ETaskStatusName.CLOSED;
 		}).length;
 	}, [filteredTasks2]);
 

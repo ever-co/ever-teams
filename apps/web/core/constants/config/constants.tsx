@@ -3,7 +3,7 @@ import { I_SMTPRequest } from '@/core/types/interfaces/smpt/ICustomSmtp';
 import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
-import { ManualTimeReasons } from '@/core/types/enums/timer';
+import { EManualTimeReasons } from '@/core/types/interfaces/enums/timer';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -426,13 +426,13 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Add manual timer reason
 
-export const manualTimeReasons: ManualTimeReasons[] = [
-	ManualTimeReasons.LOST_ELECTRICITY,
-	ManualTimeReasons.LOST_INTERNET,
-	ManualTimeReasons.FORGOT_TO_START_TIMER,
-	ManualTimeReasons.ERROR,
-	ManualTimeReasons.UNPLANNED_WORK,
-	ManualTimeReasons.TESTED_TIMER
+export const manualTimeReasons: EManualTimeReasons[] = [
+	EManualTimeReasons.LOST_ELECTRICITY,
+	EManualTimeReasons.LOST_INTERNET,
+	EManualTimeReasons.FORGOT_TO_START_TIMER,
+	EManualTimeReasons.ERROR,
+	EManualTimeReasons.UNPLANNED_WORK,
+	EManualTimeReasons.TESTED_TIMER
 ];
 
 export const statusOptions = [

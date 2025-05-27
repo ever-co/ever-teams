@@ -12,7 +12,7 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { Card } from '../duplicated-components/card';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
-import { TaskRelatedIssuesRelationEnum } from '@/core/types/enums/task';
+import { ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
 
 export function TaskLinkedIssue({
 	task,
@@ -26,7 +26,7 @@ export function TaskLinkedIssue({
 	issue?: ITaskLinkedIssue;
 }) {
 	const { actionType, actionTypeItems, onChange } = useActionType(
-		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO,
+		issue?.action || ERelatedIssuesRelation.RELATES_TO,
 		issue
 	);
 
@@ -74,7 +74,7 @@ export function TaskLinkedIssue({
 	);
 }
 
-type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum };
+type ActionType = { name: string; value: ERelatedIssuesRelation };
 type ActionTypeItem = DropdownItem<ActionType>;
 
 function mapToActionType(items: ActionType[] = []) {
@@ -99,7 +99,7 @@ function mapToActionType(items: ActionType[] = []) {
 	});
 }
 
-function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: ITaskLinkedIssue | undefined) {
+function useActionType(defaultValue: ERelatedIssuesRelation, issue: ITaskLinkedIssue | undefined) {
 	const t = useTranslations();
 
 	const { queryCall } = useQuery(taskLinkedIssueService.updateTaskLinkedIssue);
@@ -108,31 +108,31 @@ function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: ITask
 		() => [
 			{
 				name: t('common.BLOCKS'),
-				value: TaskRelatedIssuesRelationEnum.BLOCKS
+				value: ERelatedIssuesRelation.BLOCKS
 			},
 			{
 				name: t('common.CLONES'),
-				value: TaskRelatedIssuesRelationEnum.CLONES
+				value: ERelatedIssuesRelation.CLONES
 			},
 			{
 				name: t('common.DUPLICATES'),
-				value: TaskRelatedIssuesRelationEnum.DUPLICATES
+				value: ERelatedIssuesRelation.DUPLICATES
 			},
 			{
 				name: t('common.IS_BLOCKED_BY'),
-				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY
+				value: ERelatedIssuesRelation.IS_BLOCKED_BY
 			},
 			{
 				name: t('common.IS_CLONED_BY'),
-				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY
+				value: ERelatedIssuesRelation.IS_CLONED_BY
 			},
 			{
 				name: t('common.IS_DUPLICATED_BY'),
-				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY
+				value: ERelatedIssuesRelation.IS_DUPLICATED_BY
 			},
 			{
 				name: t('common.RELATES_TO'),
-				value: TaskRelatedIssuesRelationEnum.RELATES_TO
+				value: ERelatedIssuesRelation.RELATES_TO
 			}
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps

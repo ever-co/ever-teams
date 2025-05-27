@@ -2,9 +2,9 @@
 import React, { HTMLAttributes } from 'react';
 import { Button } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { useTranslations } from 'next-intl';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 
 export type FilterStatus = 'All Tasks' | 'Pending' | 'Approved' | 'In review' | 'Draft' | 'Rejected';
 export function FilterWithStatus({
@@ -14,7 +14,7 @@ export function FilterWithStatus({
 	data
 }: Readonly<{
 	activeStatus: FilterStatus;
-	data?: Record<TimesheetStatus, ITimeLog[]>;
+	data?: Record<ETimesheetStatus, ITimeLog[]>;
 
 	onToggle: (status: FilterStatus) => void;
 	className?: HTMLAttributes<HTMLDivElement>;

@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { serverFetch } from '../../fetch';
-import { ITimerSlotDataRequest } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimerSlotDataRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
 
 export function getEmployeeTimeSlotsRequest({
 	bearer_token,

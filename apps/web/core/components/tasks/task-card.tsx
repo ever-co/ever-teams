@@ -17,7 +17,7 @@ import {
 	useTimerView
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { DailyPlanStatusEnum, IDailyPlanModeEnum } from '@/core/types/enums/daily-plan';
+import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
 import {
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
@@ -638,7 +638,7 @@ export function TaskCardMenu({
 												{!taskPlannedToday && (
 													<li className="mb-2">
 														<PlanTask
-															planMode={IDailyPlanModeEnum['TODAY']}
+															planMode={EDailyPlanMode['TODAY']}
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
 															taskPlannedToday={taskPlannedToday}
@@ -648,7 +648,7 @@ export function TaskCardMenu({
 												{!taskPlannedTomorrow && (
 													<li className="mb-2">
 														<PlanTask
-															planMode={IDailyPlanModeEnum['TOMORROW']}
+															planMode={EDailyPlanMode['TOMORROW']}
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
 															taskPlannedForTomorrow={taskPlannedTomorrow}
@@ -657,7 +657,7 @@ export function TaskCardMenu({
 												)}
 												<li className="mb-2">
 													<PlanTask
-														planMode={IDailyPlanModeEnum['TOMORROW']}
+														planMode={EDailyPlanMode['TOMORROW']}
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
 													/>
@@ -729,7 +729,7 @@ export function PlanTask({
 	taskPlannedForTomorrow
 }: {
 	taskId: string;
-	planMode: IDailyPlanModeEnum;
+	planMode: EDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
 	taskPlannedToday?: ITask;
@@ -750,7 +750,7 @@ export function PlanTask({
 					workTimePlanned: 0,
 					taskId,
 					date: new Date(),
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
 					organizationId: user?.employee?.organizationId
@@ -762,7 +762,7 @@ export function PlanTask({
 					workTimePlanned: 0,
 					taskId,
 					date: tomorrowDate,
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
 					organizationId: user?.employee?.organizationId

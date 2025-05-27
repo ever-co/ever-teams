@@ -9,7 +9,7 @@ import {
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { NextResponse } from 'next/server';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 
 export async function POST(req: Request) {
 	try {

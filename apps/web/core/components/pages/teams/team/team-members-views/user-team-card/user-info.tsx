@@ -13,7 +13,7 @@ import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -29,7 +29,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
 
 	const { timerStatus } = useTimer();
-	const timerStatusValue: TimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 

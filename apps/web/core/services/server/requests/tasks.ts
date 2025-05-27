@@ -2,11 +2,7 @@ import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ICreateTask } from '@/core/types/interfaces/task/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import {
-	DeleteResponse,
-	PaginationResponse,
-	SingleDataResponse
-} from '@/core/types/interfaces/to-review/IDataResponse';
+import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces/global/IDataResponse';
 import qs from 'qs';
 
 export function getTeamTasksRequest({

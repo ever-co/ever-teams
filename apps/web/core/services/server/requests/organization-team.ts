@@ -1,5 +1,5 @@
-import { TimeLogSourceEnum } from '@/core/types/enums/timer';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
@@ -146,7 +146,7 @@ export function getAllOrganizationTeamRequest(
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		source: TimeLogSourceEnum.TEAMS,
+		source: ETimeLogSource.TEAMS,
 		withLastWorkedTask: 'true',
 		relations
 	};

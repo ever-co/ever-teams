@@ -8,7 +8,7 @@ import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
-import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
 import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
 import { ITask } from '@/core/types/interfaces/task/ITask';
 

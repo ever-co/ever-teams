@@ -1,11 +1,11 @@
-export enum TimeLogType {
+export enum ETimeLogType {
 	TRACKED = 'TRACKED',
 	MANUAL = 'MANUAL',
 	IDLE = 'IDLE',
 	RESUMED = 'RESUMED'
 }
 
-export enum TimeLogSourceEnum {
+export enum ETimeLogSource {
 	MOBILE = 'MOBILE',
 	WEB_TIMER = 'BROWSER',
 	DESKTOP = 'DESKTOP',
@@ -17,7 +17,7 @@ export enum TimeLogSourceEnum {
 	BROWSER = 'BROWSER'
 }
 
-export enum TimerStatusEnum {
+export enum ETimerStatus {
 	RUNNING = 'running',
 	IDLE = 'idle',
 	PAUSE = 'pause',
@@ -25,7 +25,7 @@ export enum TimerStatusEnum {
 	SUSPENDED = 'suspended'
 }
 
-export enum ManualTimeReasons {
+export enum EManualTimeReasons {
 	LOST_ELECTRICITY = 'LOST_ELECTRICITY',
 	LOST_INTERNET = 'LOST_INTERNET',
 	FORGOT_TO_START_TIMER = 'FORGOT_TO_START_TIMER',

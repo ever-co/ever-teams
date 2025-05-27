@@ -1,6 +1,6 @@
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { RoleNameEnum } from '@/core/types/enums/role';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import {
 	timesheetDeleteState,
 	timesheetGroupByDayState,
@@ -35,8 +35,8 @@ export function useTimelogFilterOptions() {
 	const task = taskState;
 
 	const isUserAllowedToAccess = (user: IUser | null | undefined): boolean => {
-		const allowedRoles: RoleNameEnum[] = [RoleNameEnum.SUPER_ADMIN, RoleNameEnum.MANAGER, RoleNameEnum.ADMIN];
-		return user?.role?.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
+		const allowedRoles: ERoleName[] = [ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN];
+		return user?.role?.name ? allowedRoles.includes(user.role.name as ERoleName) : false;
 	};
 	const normalizeText = (text: string | undefined | null): string => {
 		if (!text) return '';

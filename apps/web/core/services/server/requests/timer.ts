@@ -2,9 +2,9 @@ import { ITimerStatus, IUpdateTimerStatusParams } from '@/core/types/interfaces/
 import { IGetTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITimeSlot } from '@/core/types/interfaces/time-slot/ITimeSlot';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
-import { TimeLogSourceEnum } from '@/core/types/enums/timer';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 
 export function getTimerStatusRequest({ tenantId, organizationId }: IGetTimerStatusParams, bearer_token: string) {
 	const params = qs.stringify({ tenantId, organizationId });
@@ -38,13 +38,7 @@ export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token:
 }
 
 export function toggleTimerRequest(
-	{
-		source = TimeLogSourceEnum.TEAMS,
-		logType = 'TRACKED',
-		taskId,
-		tenantId,
-		organizationId
-	}: IUpdateTimerStatusParams,
+	{ source = ETimeLogSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: IUpdateTimerStatusParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimeLog | null>({

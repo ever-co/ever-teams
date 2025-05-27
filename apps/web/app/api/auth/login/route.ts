@@ -1,8 +1,8 @@
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ILoginDataAPI } from '@/core/types/interfaces/to-review/auth/IAuth';
-import { IAuthResponse as IAuthResponse } from '@/core/types/interfaces/to-review/auth/IAuth';
+import { ILoginDataAPI } from '@/core/types/interfaces/auth/IAuth';
+import { IAuthResponse as IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,

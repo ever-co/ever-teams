@@ -1,9 +1,9 @@
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
 import { serverFetch } from '../fetch';
-import { ITaskSizeNameEnum } from '@/core/types/enums/task';
+import { ETaskSizeName } from '@/core/types/interfaces/enums/task';
 
 export function createSizesRequest(datas: ITaskSizesCreate, bearer_token: string, tenantId?: any) {
-	return serverFetch<ITaskSizeNameEnum>({
+	return serverFetch<ETaskSizeName>({
 		path: '/task-sizes',
 		method: 'POST',
 		body: datas,
@@ -23,7 +23,7 @@ export function editTaskSizesRequest({
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskSizeNameEnum>({
+	return serverFetch<ETaskSizeName>({
 		path: `/task-sizes/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -41,7 +41,7 @@ export function deleteTaskSizesRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskSizeNameEnum>({
+	return serverFetch<ETaskSizeName>({
 		path: `/task-sizes/${id}`,
 		method: 'DELETE',
 		bearer_token,

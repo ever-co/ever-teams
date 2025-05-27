@@ -17,13 +17,7 @@ import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
-
-export enum ProviderEnum {
-	GITHUB = 'github',
-	GOOGLE = 'google',
-	FACEBOOK = 'facebook',
-	TWITTER = 'twitter'
-}
+import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
@@ -120,7 +114,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		linkAccount: async (account: AdapterAccount) => {
 			const { provider, access_token: token } = account;
 			if (provider && token) {
-				return (await linkUserToSocialAccount({ provider: provider as ProviderEnum, token }))
+				return (await linkUserToSocialAccount({ provider: provider as EProvider, token }))
 					.data as unknown as AdapterAccount;
 			}
 			return null;
@@ -146,7 +140,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 	};
 }
 
-async function signIn(provider: ProviderEnum, access_token: string) {
+async function signIn(provider: EProvider, access_token: string) {
 	try {
 		const gauzyUser = await signWithSocialLoginsRequest(provider, access_token);
 
@@ -187,7 +181,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 	}
 }
 
-export async function signInCallback(provider: ProviderEnum, access_token: string): Promise<boolean> {
+export async function signInCallback(provider: EProvider, access_token: string): Promise<boolean> {
 	try {
 		const { gauzyUser, organization } = await signIn(provider, access_token);
 		return !!gauzyUser && !!organization;
@@ -196,7 +190,7 @@ export async function signInCallback(provider: ProviderEnum, access_token: strin
 	}
 }
 
-export async function jwtCallback(provider: ProviderEnum, access_token: string) {
+export async function jwtCallback(provider: EProvider, access_token: string) {
 	try {
 		const { data, gauzyUser, organization, tenantId, token, userId } = await signIn(provider, access_token);
 		return {

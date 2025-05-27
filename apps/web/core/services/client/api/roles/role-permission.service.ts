@@ -2,7 +2,7 @@ import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
 import { IRolePermission } from '@/core/types/interfaces/role/IRolePermission';
 
 class RolePermissionService extends APIService {

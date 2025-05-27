@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
@@ -25,8 +25,8 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 	const { organizationProjects } = useOrganizationProjects();
 	const { roles } = useRoles();
 
-	const simpleMemberRole = roles?.find((role) => role.name == RoleNameEnum.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == RoleNameEnum.MANAGER);
+	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
 	const data = useMemo(() => {
 		const project = organizationProjects.find((project) => project.id === projectId);

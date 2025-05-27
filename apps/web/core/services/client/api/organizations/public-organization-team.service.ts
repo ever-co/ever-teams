@@ -2,7 +2,7 @@ import moment from 'moment';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IDataResponse } from '@/core/types/interfaces/to-review/IDataResponse';
+import { IDataResponse } from '@/core/types/interfaces/global/IDataResponse';
 
 class PublicOrganizationTeamService extends APIService {
 	getPublicOrganizationTeams = async (profile_link: string, team_id: string) => {

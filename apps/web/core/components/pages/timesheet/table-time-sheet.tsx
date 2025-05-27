@@ -36,11 +36,11 @@ import {
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ITimeLog } from '@/core/types/interfaces/time-log/ITimeLog';
-import { TimesheetStatus } from '@/core/types/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
-import { TimeLogType } from '@/core/types/enums/timer';
+import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import {
@@ -112,7 +112,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			case 'Approved':
 				if (selectTimesheetId.length > 0) {
 					updateTimesheetStatus({
-						status: TimesheetStatus.APPROVED,
+						status: ETimesheetStatus.APPROVED,
 						ids: selectTimesheetId
 							.map((select) => select.timesheetId || '')
 							.filter((timesheetId) => timesheetId !== undefined)
@@ -309,10 +309,10 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																</div>
 																<div className="flex-1">
 																	<Badge
-																		className={`${getBadgeColor(task.timesheet?.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
+																		className={`${getBadgeColor(task.timesheet?.status as ETimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
 																	>
 																		{task.timesheet?.status ===
-																		TimesheetStatus.DENIED
+																		ETimesheetStatus.DENIED
 																			? 'REJECTED'
 																			: task.timesheet?.status}
 																	</Badge>
@@ -321,8 +321,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	timesheetLog={task}
 																	logType={
 																		task.logType
-																			? TimeLogType[task.logType]
-																			: TimeLogType.TRACKED
+																			? ETimeLogType[task.logType]
+																			: ETimeLogType.TRACKED
 																	}
 																/>
 																<TaskActionMenu
@@ -506,7 +506,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 								onClick={async () => {
 									try {
 										await updateTimesheetStatus({
-											status: status.label as TimesheetStatus,
+											status: status.label as ETimesheetStatus,
 											ids: [timesheet.timesheet?.id ?? '']
 										});
 									} catch (error) {
@@ -561,7 +561,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 	);
 };
 
-export const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
+export const getBadgeColor = (timesheetStatus: ETimesheetStatus | null) => {
 	switch (timesheetStatus) {
 		case 'DRAFT':
 			return 'bg-gray-300';

@@ -9,8 +9,8 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
-import { ProjectRelationEnum } from '@/core/types/enums/project';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { EProjectRelation } from '@/core/types/interfaces/enums/project';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -21,7 +21,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
 	const { roles } = useRoles();
-	const relationsData = Object.values(ProjectRelationEnum);
+	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
 
 	const handleAddNewMember = () => {
@@ -76,9 +76,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 											imgUrl: el?.employee?.user?.imageUrl
 										}))}
 									values={roles
-										?.filter(
-											(el) => el.name == RoleNameEnum.EMPLOYEE || el.name == RoleNameEnum.MANAGER
-										)
+										?.filter((el) => el.name == ERoleName.EMPLOYEE || el.name == ERoleName.MANAGER)
 										?.map((el) => ({
 											id: String(el.id),
 											value: el.name
@@ -167,7 +165,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										setRelations((prev) =>
 											prev.map((el) => {
 												if (el.id === itemId) {
-													return { ...el, relationType: relationType as ProjectRelationEnum };
+													return { ...el, relationType: relationType as EProjectRelation };
 												}
 												return el;
 											})

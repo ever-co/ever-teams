@@ -1,4 +1,4 @@
-import { RoleNameEnum } from '../types/enums/role';
+import { ERoleName } from '../types/interfaces/enums/role';
 import { atom } from 'jotai';
 import { IOrganizationTeam } from '../types/interfaces/team/IOrganizationTeam';
 import { IOrganizationTeamEmployee } from '../types/interfaces/team/IOrganizationTeamEmployee';
@@ -33,9 +33,9 @@ export const activeTeamManagersState = atom<IOrganizationTeamEmployee[]>((get) =
 	return (
 		members?.filter(
 			(member) =>
-				member?.role?.name === RoleNameEnum.MANAGER ||
-				member?.role?.name === RoleNameEnum.SUPER_ADMIN ||
-				member?.role?.name === RoleNameEnum.ADMIN
+				member?.role?.name === ERoleName.MANAGER ||
+				member?.role?.name === ERoleName.SUPER_ADMIN ||
+				member?.role?.name === ERoleName.ADMIN
 		) || []
 	);
 });

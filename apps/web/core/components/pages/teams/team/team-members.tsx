@@ -12,7 +12,7 @@ import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { TimerStatusEnum } from '@/core/types/enums/timer';
+import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -208,12 +208,12 @@ export function TeamMembersView({
 
 const sortByWorkStatus = (user_a: any, user_b: any) => {
 	return (
-		user_a.timerStatus === TimerStatusEnum.RUNNING ||
-		(user_a.timerStatus === TimerStatusEnum.ONLINE && user_b.timerStatus !== TimerStatusEnum.RUNNING) ||
-		(user_a.timerStatus === TimerStatusEnum.PAUSE &&
-			user_b.timerStatus !== TimerStatusEnum.RUNNING &&
-			user_b.timerStatus !== TimerStatusEnum.ONLINE) ||
-		(user_a.timerStatus === TimerStatusEnum.IDLE && user_b.timerStatus === TimerStatusEnum.SUSPENDED) ||
-		(user_a.timerStatus === undefined && user_b.timerStatus === TimerStatusEnum.SUSPENDED)
+		user_a.timerStatus === ETimerStatus.RUNNING ||
+		(user_a.timerStatus === ETimerStatus.ONLINE && user_b.timerStatus !== ETimerStatus.RUNNING) ||
+		(user_a.timerStatus === ETimerStatus.PAUSE &&
+			user_b.timerStatus !== ETimerStatus.RUNNING &&
+			user_b.timerStatus !== ETimerStatus.ONLINE) ||
+		(user_a.timerStatus === ETimerStatus.IDLE && user_b.timerStatus === ETimerStatus.SUSPENDED) ||
+		(user_a.timerStatus === undefined && user_b.timerStatus === ETimerStatus.SUSPENDED)
 	);
 };

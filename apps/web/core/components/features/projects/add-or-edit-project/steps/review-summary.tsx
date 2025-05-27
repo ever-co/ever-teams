@@ -9,11 +9,11 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { RoleNameEnum } from '@/core/types/enums/role';
+import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/IOrganizationProject';
-import { ITaskStatusNameEnum } from '@/core/types/enums/task';
-import { OrganizationProjectBudgetTypeEnum } from '@/core/types/enums/project';
-import { ProjectBillingEnum } from '@/core/types/enums/project';
+import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { EProjectBudgetType } from '@/core/types/interfaces/enums/project';
+import { EProjectBilling } from '@/core/types/interfaces/enums/project';
 import { ITag } from '@/core/types/interfaces/tag/ITag';
 
 export default function FinalReview(props: IStepElementProps) {
@@ -29,8 +29,8 @@ export default function FinalReview(props: IStepElementProps) {
 	const { activeTeam } = useOrganizationTeams();
 	const { roles } = useRoles();
 
-	const simpleMemberRole = roles?.find((role) => role.name == RoleNameEnum.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == RoleNameEnum.MANAGER);
+	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
 	const newProject: Partial<ICreateProjectRequest> = {
 		name: finalData?.name,
@@ -54,7 +54,7 @@ export default function FinalReview(props: IStepElementProps) {
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
 		teams: [...(activeTeam ? [activeTeam] : [])],
-		status: ITaskStatusNameEnum.OPEN,
+		status: ETaskStatusName.OPEN,
 		isActive: true,
 		isArchived: false,
 		isTasksAutoSync: true,
@@ -241,10 +241,10 @@ function BasicInformation(props: IBasicInformationProps) {
  */
 
 interface FinancialSettingsProps {
-	budgetType?: OrganizationProjectBudgetTypeEnum;
+	budgetType?: EProjectBudgetType;
 	budgetAmount?: number;
 	budgetCurrency?: string;
-	billingType?: ProjectBillingEnum;
+	billingType?: EProjectBilling;
 }
 function FinancialSettings(props: FinancialSettingsProps) {
 	const { budgetType, budgetAmount, budgetCurrency, billingType } = props;
