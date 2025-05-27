@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useQuery } from '../../common';
-import { IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
@@ -25,7 +25,7 @@ export const useEmployee = () => {
 			if (data?.items && data?.items?.length) {
 				const items = data.items || [];
 
-				setWorkingEmployees(items);
+				setWorkingEmployees(items as unknown as IEmployee[]);
 				setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
 			}
 		});

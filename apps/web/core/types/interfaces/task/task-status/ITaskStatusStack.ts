@@ -1,5 +1,4 @@
-import { ITaskStatusNameEnum, ITaskSizeNameEnum, string, ITaskIssueTypeEnum } from '../../../enums/task';
-import { ITaskPriority } from '../ITaskPriority';
+import { ITaskStatusNameEnum, ITaskSizeNameEnum, ITaskIssueTypeEnum, TaskPriorityEnum } from '../../../enums/task';
 
 export type ITaskStatusStack = {
 	status: ITaskStatusNameEnum;

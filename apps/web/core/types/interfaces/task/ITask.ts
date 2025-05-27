@@ -1,10 +1,4 @@
-import {
-	TaskPriorityEnum,
-	TaskSizeEnum,
-	ITaskStatusNameEnum,
-	TaskTypeEnum,
-	ITaskIssueTypeEnum
-} from '../../enums/task';
+import { TaskPriorityEnum, TaskSizeEnum, ITaskStatusNameEnum, ITaskIssueTypeEnum } from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee/IEmployee';
 import { IRelationalOrganizationProject } from '../project/IOrganizationProject';

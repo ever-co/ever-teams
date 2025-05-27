@@ -47,8 +47,9 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 
 			if (memberIndex === -1) return;
 
-			if (tempTeams[teamIndex].members && memberIndex !== undefined) {
-				tempTeams[teamIndex].members[memberIndex] = updatedMember;
+			if (tempTeams && tempTeams[teamIndex] && tempTeams[teamIndex].members && memberIndex !== undefined) {
+				const members = tempTeams[teamIndex].members!;
+				members[memberIndex] = updatedMember;
 			}
 			setOrganizationTeams(tempTeams);
 		},

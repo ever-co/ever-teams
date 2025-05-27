@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IOrganizationTeamEmployee } from '@/core/components/pages/dashboard/app-url/productivity-employee/productivity-employee-table';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 import { PaginationResponse } from '@/core/types/interfaces/to-review/IDataResponse';
 import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
 
