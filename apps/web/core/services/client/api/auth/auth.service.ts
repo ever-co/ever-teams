@@ -19,7 +19,7 @@ import {
 	IUserSigninWorkspaceResponse
 } from '@/core/types/interfaces/auth/auth';
 import { IUser } from '@/core/types/interfaces/user/user';
-import { ISuccessResponse } from '@/core/types/interfaces/global/data-response';
+import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 class AuthService extends APIService {

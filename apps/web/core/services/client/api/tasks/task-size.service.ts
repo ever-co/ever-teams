@@ -2,7 +2,7 @@ import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ITaskSize, ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 class TaskSizeService extends APIService {
 	createTaskSize = async (data: ITaskSizesCreate) => {

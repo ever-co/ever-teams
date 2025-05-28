@@ -1,5 +1,5 @@
 import { useTeamInvitations } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/class-name';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { IInvite } from '@/core/types/interfaces/user/invite';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';

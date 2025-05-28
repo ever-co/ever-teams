@@ -25,7 +25,7 @@ import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';

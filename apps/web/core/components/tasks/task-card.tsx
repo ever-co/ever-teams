@@ -22,7 +22,7 @@ import {
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
-} from '@/core/types/interfaces/daily-plan/daily-plan';
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
@@ -54,7 +54,7 @@ import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IClassName } from '@/core/types/interfaces/global/class-name';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 type Props = {
 	active?: boolean;

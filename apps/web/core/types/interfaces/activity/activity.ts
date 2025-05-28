@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID, IUrlMetaData } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, IUrlMetaData } from '../common/base-interfaces';
 import { IRelationalEmployee } from '../organization/employee';
 import { IRelationalOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';

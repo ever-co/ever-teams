@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IManagerAssignable, IRelationalEmployee } from '../organization/employee';
 import { IRelationalRole } from '../role/role';
 import { ITask, ITasksStatistics } from '../task/task';

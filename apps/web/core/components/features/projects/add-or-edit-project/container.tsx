@@ -1,7 +1,7 @@
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 import { TModalMode } from '.';
 import { ICreateProjectRequest, IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
-import { IImageAsset } from '@/core/types/interfaces/global/image-asset';
+import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: (data: TStepData) => void;

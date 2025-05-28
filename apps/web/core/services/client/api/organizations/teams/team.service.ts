@@ -5,7 +5,7 @@ import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,

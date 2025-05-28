@@ -1,5 +1,5 @@
 import { ETaskStatusName } from '../../enums/task';
-import { IBasePerTenantAndOrganizationEntityModel } from '../../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel } from '../../common/base-interfaces';
 import { IRelationalOrganizationProject } from '../../project/organization-project';
 import { IRelationalOrganizationTeam } from '../../team/organization-team';
 import { TaskStatusWorkFlow } from './task-status-workflow';

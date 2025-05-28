@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
 
 export interface ICustomSmtp extends I_SMTPRequest, IBasePerTenantAndOrganizationEntityModel {
 	isValidate?: boolean;

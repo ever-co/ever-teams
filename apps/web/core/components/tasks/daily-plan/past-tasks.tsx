@@ -9,7 +9,7 @@ import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';

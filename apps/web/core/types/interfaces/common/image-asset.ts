@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
 import { FileStorageProvider } from '../file-storage/file-storage-provider';
 import { ID } from './base-interfaces';
 

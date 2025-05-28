@@ -5,10 +5,10 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces/daily-plan/daily-plan';
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { serverFetch } from '../fetch';
-import { DeleteResponse } from '@/core/types/interfaces/global/data-response';
-import { ID } from '@/core/types/interfaces/global/base-interfaces';
+import { DeleteResponse } from '@/core/types/interfaces/common/data-response';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
 
 export function getAllDayPlans({
 	organizationId,

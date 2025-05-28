@@ -1,5 +1,5 @@
 import { ETimeFormat } from '../enums/date';
-import { IBasePerTenantEntityModel, ID } from '../global/base-interfaces';
+import { IBasePerTenantEntityModel, ID } from '../common/base-interfaces';
 import { IRole } from '../role/role';
 import { IOrganizationTeam } from '../team/organization-team';
 import { IOrganization } from '../organization/organization';
@@ -8,7 +8,7 @@ import { ISocialAccount } from './social-account';
 import { IUserOrganization } from '../organization/user-organization';
 import { IEmployee } from '../organization/employee';
 import { IInvite } from './invite';
-import { IRelationalImageAsset } from '../global/image-asset';
+import { IRelationalImageAsset } from '../common/image-asset';
 
 export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset {
 	thirdPartyId?: ID;

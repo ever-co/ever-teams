@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
 import { deleteUserRequest } from '@/core/services/server/requests/user';
-import { INextParams } from '@/core/types/interfaces/global/data-response';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { NextResponse } from 'next/server';
 

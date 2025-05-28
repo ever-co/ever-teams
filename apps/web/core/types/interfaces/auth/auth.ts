@@ -1,4 +1,4 @@
-import { ID } from '../global/base-interfaces';
+import { ID } from '../common/base-interfaces';
 import { IOrganizationTeam } from '../team/organization-team';
 import { IUser } from '../user/user';
 

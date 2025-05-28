@@ -1,7 +1,7 @@
 import { ICreateEmployee, IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 export function createEmployeeFromUser(data: ICreateEmployee, bearer_token: string) {
 	return serverFetch<IEmployee>({

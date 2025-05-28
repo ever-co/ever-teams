@@ -2,7 +2,7 @@ import {
 	getPublicOrganizationTeamMiscDataRequest,
 	getPublicOrganizationTeamRequest
 } from '@/core/services/server/requests/public-organization-team';
-import { INextParams } from '@/core/types/interfaces/global/data-response';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: INextParams) {

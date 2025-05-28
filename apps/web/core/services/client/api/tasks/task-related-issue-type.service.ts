@@ -1,6 +1,6 @@
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITaskRelatedIssueType, ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 
 class TaskRelatedIssueTypeService extends APIService {

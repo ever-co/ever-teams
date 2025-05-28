@@ -2,7 +2,7 @@ import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ITaskStatus, ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 
 class TaskStatusService extends APIService {

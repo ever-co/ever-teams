@@ -26,7 +26,7 @@ import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 

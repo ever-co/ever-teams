@@ -1,4 +1,4 @@
-import { IBaseEntity } from '../global/base-interfaces';
+import { IBaseEntity } from '../common/base-interfaces';
 
 export interface ICurrency extends IBaseEntity {
 	isoCode: string;

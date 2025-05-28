@@ -8,7 +8,7 @@ import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ICreateTask } from '@/core/types/interfaces/task/task';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 
 class TaskService extends APIService {

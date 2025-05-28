@@ -1,6 +1,6 @@
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IIssueTypesCreate, IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 class IssueTypeService extends APIService {

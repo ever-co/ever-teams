@@ -1,5 +1,5 @@
 import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
-import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 import { serverFetch } from '../fetch';
 import qs from 'qs';

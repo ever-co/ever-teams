@@ -1,6 +1,6 @@
 import { ETimeLogType, ETimeLogSource } from '../../enums/timer';
 import { IActivity } from '../../activity/activity';
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../common/base-interfaces';
 import { IEmployee } from '../../organization/employee';
 import { IOrganization } from '../../organization/organization';
 import { IOrganizationProject } from '../../project/organization-project';

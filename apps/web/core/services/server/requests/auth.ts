@@ -9,7 +9,7 @@ import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
 import { IUser } from '@/core/types/interfaces/user/user';
-import { ISuccessResponse } from '@/core/types/interfaces/global/data-response';
+import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	ISocialAccount,
 	ISocialAccountExistUser,

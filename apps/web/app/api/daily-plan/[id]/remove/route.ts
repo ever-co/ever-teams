@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteDailyPlansManyRequest } from '@/core/services/server/requests';
-import { IRemoveTaskFromManyPlansRequest } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IRemoveTaskFromManyPlansRequest } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

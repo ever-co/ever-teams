@@ -1,4 +1,4 @@
-import { ICreateDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { ICreateDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createPlanRequest, getAllDayPlans } from '@/core/services/server/requests';
 import { NextRequest, NextResponse } from 'next/server';

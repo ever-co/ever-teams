@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateStatusTimesheetRequest } from '@/core/services/server/requests';
-import { ID } from '@/core/types/interfaces/global/base-interfaces';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request) {

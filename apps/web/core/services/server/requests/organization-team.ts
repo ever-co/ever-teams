@@ -1,5 +1,5 @@
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,

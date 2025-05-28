@@ -1,4 +1,4 @@
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';

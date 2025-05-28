@@ -1,5 +1,5 @@
 import { IIssueType, IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { serverFetch } from '../fetch';
 
 export function createIssueTypeRequest(datas: IIssueTypesCreate, bearer_token: string, tenantId?: any) {

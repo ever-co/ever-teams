@@ -9,7 +9,7 @@ import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 

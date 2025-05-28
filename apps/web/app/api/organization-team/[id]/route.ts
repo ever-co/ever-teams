@@ -5,7 +5,7 @@ import {
 	getOrganizationTeamRequest,
 	updateOrganizationTeamRequest
 } from '@/core/services/server/requests';
-import { INextParams } from '@/core/types/interfaces/global/data-response';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {

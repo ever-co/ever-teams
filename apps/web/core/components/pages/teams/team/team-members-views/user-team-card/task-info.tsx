@@ -1,5 +1,5 @@
 import { FilterTabs, I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/class-name';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { useRouter } from 'next/navigation';
 import { TaskInput } from '@/core/components/tasks/task-input';

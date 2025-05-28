@@ -1,7 +1,7 @@
 import { ETimeFormat } from '../enums/date';
 import { EDefaultValueDateType, EWeekDays } from '../enums/date';
-import { IBasePerTenantEntityModel, ITaggable } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../global/image-asset';
+import { IBasePerTenantEntityModel, ITaggable } from '../common/base-interfaces';
+import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from './employee';
 import { IOrganizationLanguage } from './organization-language';
 

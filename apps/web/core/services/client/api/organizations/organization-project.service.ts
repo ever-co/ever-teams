@@ -7,7 +7,7 @@ import {
 	IEditProjectRequest,
 	IOrganizationProject
 } from '@/core/types/interfaces/project/organization-project';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 class OrganizationProjectService extends APIService {
 	editOrganizationProjectSetting = async (id: string, data: any, tenantId?: string) => {

@@ -1,5 +1,5 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IImageAsset, IRelationalImageAsset } from '../global/image-asset';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
+import { IImageAsset, IRelationalImageAsset } from '../common/image-asset';
 import { IOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';
 import { IOrganizationTeamEmployee } from './organization-team-employee';

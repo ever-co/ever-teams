@@ -1,5 +1,5 @@
 import { ECurrencies } from '../enums/currency';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IOrganizationTeam } from '../team/organization-team';
 import { IUser } from '../user/user';
 import { IOrganizationProject } from '../project/organization-project';

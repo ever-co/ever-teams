@@ -7,7 +7,7 @@ import {
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
 import { EInviteAction } from '@/core/types/interfaces/enums/invite';

@@ -1,6 +1,6 @@
 import { EIssueType } from '../enums/task';
-import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../global/image-asset';
+import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
+import { IRelationalImageAsset } from '../common/image-asset';
 import { IRelationalOrganizationProject } from '../project/organization-project';
 import { IRelationalOrganizationTeam } from '../team/organization-team';
 

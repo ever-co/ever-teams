@@ -1,5 +1,5 @@
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
-import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';

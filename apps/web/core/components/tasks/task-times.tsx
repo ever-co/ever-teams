@@ -1,6 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/class-name';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';

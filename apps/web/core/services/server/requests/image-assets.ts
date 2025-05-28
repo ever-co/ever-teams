@@ -1,4 +1,4 @@
-import { IImageAsset } from '@/core/types/interfaces/global/image-asset';
+import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
 import { serverFetch } from '../fetch';
 
 type Params = {

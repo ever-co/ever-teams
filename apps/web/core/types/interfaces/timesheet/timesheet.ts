@@ -1,5 +1,5 @@
 import { ETimesheetStatus } from '../enums/timesheet';
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { ITimeLog } from '../timer/time-log/time-log';
 import { IUser } from '../user/user';

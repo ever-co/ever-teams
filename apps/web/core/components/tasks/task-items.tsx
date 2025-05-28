@@ -14,7 +14,7 @@ import { TaskStatusModal } from './task-status-modal';
 import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
-import { IClassName } from '@/core/types/interfaces/global/class-name';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';

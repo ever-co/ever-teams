@@ -1,5 +1,5 @@
 import { EInviteStatus } from '../enums/invite';
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IOrganizationProject } from '../project/organization-project';
 import { IRelationalRole } from '../role/role';
 import { IOrganizationTeam } from '../team/organization-team';

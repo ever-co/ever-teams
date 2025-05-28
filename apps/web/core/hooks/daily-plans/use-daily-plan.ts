@@ -16,7 +16,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces/daily-plan/daily-plan';
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { removeDuplicateItems } from '@/core/lib/utils/remove-duplicate-item';
 import { dailyPlanService } from '../../services/client/api';

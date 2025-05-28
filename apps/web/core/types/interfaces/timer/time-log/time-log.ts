@@ -1,5 +1,5 @@
 import { IRelationalEmployee } from '../../organization/employee';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../common/base-interfaces';
 import { IRelationalOrganizationProject } from '../../project/organization-project';
 import { ITask } from '../../task/task';
 import { IRelationalOrganizationTeam } from '../../team/organization-team';
