@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();

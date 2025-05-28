@@ -1,4 +1,4 @@
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import React from 'react';
 import { ClosedTaskIcon } from '../svgs/closed-task';
 import { CompletedTaskIcon } from '../svgs/completed-task';

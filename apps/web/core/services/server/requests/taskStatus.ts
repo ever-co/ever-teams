@@ -1,4 +1,4 @@
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { serverFetch } from '../fetch';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 

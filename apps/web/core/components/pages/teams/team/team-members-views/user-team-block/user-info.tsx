@@ -8,7 +8,7 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-status';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;

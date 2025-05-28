@@ -1,5 +1,5 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { userState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';

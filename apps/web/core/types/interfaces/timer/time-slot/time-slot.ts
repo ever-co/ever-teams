@@ -1,4 +1,4 @@
-import { ETimeLogType, ETimeLogSource } from '../../enums/timer';
+import { ETimeLogType, ETimeLogSource } from '../../../generics/enums/timer';
 import { IActivity } from '../../activity/activity';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../common/base-interfaces';
 import { IEmployee } from '../../organization/employee';

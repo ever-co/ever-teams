@@ -9,7 +9,7 @@ import { ITimeLog } from '../types/interfaces/timer/time-log/time-log';
 import { IOrganizationTeam } from '../types/interfaces/team/organization-team';
 import { IOrganizationProject } from '../types/interfaces/project/organization-project';
 import { ITask } from '../types/interfaces/task/task';
-import { ETimeFrequency } from '../types/interfaces/enums/date';
+import { ETimeFrequency } from '../types/generics/enums/date';
 import {
 	ITimesheet,
 	ITimesheetCountsStatistics,

@@ -15,7 +15,7 @@ import { ActiveModifiers } from 'react-day-picker';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
-import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 interface IAllPlansModal {

@@ -11,7 +11,7 @@ import { AddIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { EIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();

@@ -7,7 +7,7 @@ import {
 	ITimesheetCountsStatistics,
 	IUpdateTimesheetStatus
 } from '@/core/types/interfaces/timesheet/timesheet';
-import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
 

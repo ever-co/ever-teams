@@ -17,7 +17,7 @@ import {
 	LoginIcon
 } from 'assets/svg';
 import { TStatus } from './task-status';
-import { ETaskStatusName, ETaskSizeName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName, ETaskSizeName } from '@/core/types/generics/enums/task';
 
 export const taskStatus: TStatus<ETaskStatusName> = {
 	todo: {

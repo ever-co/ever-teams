@@ -2,7 +2,7 @@
 import React, { HTMLAttributes } from 'react';
 import { Button } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useTranslations } from 'next-intl';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 

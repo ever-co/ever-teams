@@ -1,4 +1,4 @@
-import { EProvider } from '../enums/social-accounts';
+import { EProvider } from '../../generics/enums/social-accounts';
 import { IBasePerTenantEntityModel } from '../common/base-interfaces';
 import { ID } from '../common/base-interfaces';
 import { IRelationalUser } from './user';

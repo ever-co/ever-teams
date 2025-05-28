@@ -4,8 +4,8 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
-import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();

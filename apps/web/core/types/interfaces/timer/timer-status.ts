@@ -1,4 +1,4 @@
-import { ETimeLogSource, ETimerStatus } from '../enums/timer';
+import { ETimeLogSource, ETimerStatus } from '../../generics/enums/timer';
 import { ITask } from '../task/task';
 import { ITimeLog } from './time-log/time-log';
 

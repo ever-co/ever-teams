@@ -4,7 +4,7 @@ import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';
 import DropdownMenuTask from './dropdown-menu-task';
 import { ActiveTaskStatusDropdown } from '@/core/components/tasks/task-status';
-import { EIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 // Columns that can be hidden in the team tasks table
 export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];

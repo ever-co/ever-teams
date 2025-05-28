@@ -12,7 +12,7 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { Card } from '../duplicated-components/card';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
-import { ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
+import { ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 
 export function TaskLinkedIssue({
 	task,

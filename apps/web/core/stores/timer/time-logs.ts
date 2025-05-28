@@ -11,7 +11,7 @@ import {
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 
 interface IFilterOption {
 	value: string;

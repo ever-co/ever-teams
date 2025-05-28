@@ -17,7 +17,7 @@ import {
 	useTimerView
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
 	IDailyPlan,
 	IDailyPlanTasksUpdate,

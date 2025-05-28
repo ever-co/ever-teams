@@ -10,7 +10,7 @@ import { AcceptInviteParams } from '@/core/services/server/requests';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
-import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 class InviteService extends APIService {

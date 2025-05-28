@@ -25,7 +25,7 @@ import { InputField } from '../duplicated-components/_input';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
-import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/interfaces/enums/task';
+import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/generics/enums/task';
 
 type Props = {
 	task?: Nullable<ITask>;

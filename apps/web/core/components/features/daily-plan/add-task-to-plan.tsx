@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
-import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import {

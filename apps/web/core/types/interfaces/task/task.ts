@@ -1,4 +1,4 @@
-import { ETaskPriority, ETaskSize, ETaskStatusName, EIssueType } from '../enums/task';
+import { ETaskPriority, ETaskSize, ETaskStatusName, EIssueType } from '../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { IRelationalOrganizationProject } from '../project/organization-project';

@@ -1,9 +1,9 @@
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
 import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
-import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 type ITimesheetButton = {
 	title?: string;
 	onClick?: () => void;

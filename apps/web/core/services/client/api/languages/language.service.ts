@@ -1,7 +1,7 @@
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { ILanguageItemList } from '@/core/types/interfaces/language/language';
+import { ILanguageItemList } from '@/core/types/interfaces/common/language';
 
 class LanguageService extends APIService {
 	getLanguages = async (is_system: boolean) => {

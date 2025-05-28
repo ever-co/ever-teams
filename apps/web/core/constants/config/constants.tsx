@@ -3,7 +3,7 @@ import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
 import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
-import { EManualTimeReasons } from '@/core/types/interfaces/enums/timer';
+import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 
 export const BREAKPOINTS = {
 	MOBILE: 768

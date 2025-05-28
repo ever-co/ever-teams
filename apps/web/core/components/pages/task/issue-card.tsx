@@ -14,7 +14,7 @@ import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
-import { EIssueType, ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
+import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();

@@ -23,7 +23,7 @@ import { cn } from '@/core/lib/helpers';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
-import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 
 interface DatePickerInputProps {
 	date: Date | null;

@@ -6,7 +6,7 @@ import {
 	getMyInvitationsRequest,
 	acceptRejectMyInvitationsRequest
 } from '@/core/services/server/requests';
-import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {

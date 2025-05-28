@@ -34,7 +34,7 @@ import { cn } from '@/core/lib/helpers';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 export type TStatusItem = {
 	id?: string;

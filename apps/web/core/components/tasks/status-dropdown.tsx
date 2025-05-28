@@ -1,5 +1,5 @@
 import { ITask } from '@/core/types/interfaces/task/task';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';

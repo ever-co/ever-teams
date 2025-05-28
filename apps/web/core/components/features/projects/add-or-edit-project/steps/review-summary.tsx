@@ -9,11 +9,11 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
-import { EProjectBudgetType } from '@/core/types/interfaces/enums/project';
-import { EProjectBilling } from '@/core/types/interfaces/enums/project';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 
 export default function FinalReview(props: IStepElementProps) {

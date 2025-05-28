@@ -9,8 +9,8 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
-import { EProjectRelation } from '@/core/types/interfaces/enums/project';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { EProjectRelation } from '@/core/types/generics/enums/project';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;

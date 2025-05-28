@@ -1,4 +1,4 @@
-import { ETaskStatusName } from '../../enums/task';
+import { ETaskStatusName } from '../../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../../common/base-interfaces';
 import { IRelationalOrganizationProject } from '../../project/organization-project';
 import { IRelationalOrganizationTeam } from '../../team/organization-team';

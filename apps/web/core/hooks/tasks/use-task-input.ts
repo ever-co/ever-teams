@@ -1,5 +1,5 @@
 'use client';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';

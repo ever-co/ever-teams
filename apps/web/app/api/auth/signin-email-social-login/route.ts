@@ -1,5 +1,5 @@
 import { signWithSocialLoginsRequest } from '@/core/services/server/requests';
-import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
 
 import { NextResponse } from 'next/server';
 

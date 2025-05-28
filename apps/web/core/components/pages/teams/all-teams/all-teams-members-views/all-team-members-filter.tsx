@@ -5,7 +5,7 @@ import { PropsWithChildren } from 'react';
 import { useAtom } from 'jotai';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 export interface ITeamsMembersFilter {
 	label: string;

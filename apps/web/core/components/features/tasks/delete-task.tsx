@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();

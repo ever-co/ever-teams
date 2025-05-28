@@ -27,8 +27,8 @@ import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 

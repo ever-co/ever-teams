@@ -8,7 +8,7 @@ import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '../duplicated-components/card';
-import { EProjectBudgetType } from '@/core/types/interfaces/enums/project';
+import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 
 interface IFiltersCardModalProps {
 	open: boolean;

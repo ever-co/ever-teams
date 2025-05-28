@@ -18,7 +18,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
-import { EIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();

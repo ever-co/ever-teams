@@ -3,7 +3,7 @@ import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/type
 import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ERequestStatus } from '@/core/types/interfaces/enums';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
 /**
  * Request to Join Team request

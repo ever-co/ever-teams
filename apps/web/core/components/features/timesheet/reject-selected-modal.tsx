@@ -4,7 +4,7 @@ import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 export interface IRejectSelectedModalProps {
 	isOpen: boolean;
 	closeModal: () => void;

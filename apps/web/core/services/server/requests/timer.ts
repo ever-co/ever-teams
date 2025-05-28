@@ -4,7 +4,7 @@ import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 export function getTimerStatusRequest({ tenantId, organizationId }: IGetTimerStatusParams, bearer_token: string) {
 	const params = qs.stringify({ tenantId, organizationId });

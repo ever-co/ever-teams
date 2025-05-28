@@ -1,4 +1,4 @@
-import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel } from './base-interfaces';
 
 export interface ILanguage extends IBasePerTenantAndOrganizationEntityModel {
 	name?: string;

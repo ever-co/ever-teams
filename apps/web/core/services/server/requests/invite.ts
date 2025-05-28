@@ -4,7 +4,7 @@ import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interf
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 
 /**
  * Invite user using email request

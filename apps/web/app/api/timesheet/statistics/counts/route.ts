@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
 import { getTimesheetStatisticsCountsRequest } from '@/core/services/server/requests';
-import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 const isValidLogType = (type: string): type is ETimeLogType => {
 	return ['TRACKED', 'MANUAL', 'IDLE'].includes(type as ETimeLogType);

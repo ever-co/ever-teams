@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import {

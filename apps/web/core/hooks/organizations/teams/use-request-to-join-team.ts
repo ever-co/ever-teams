@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
 import { useQuery } from '../../common';
 import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
-import { ERequestStatus } from '@/core/types/interfaces/enums';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);

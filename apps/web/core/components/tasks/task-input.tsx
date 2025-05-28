@@ -38,7 +38,7 @@ import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/interfaces/enums/task';
+import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {

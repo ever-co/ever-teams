@@ -17,7 +17,7 @@ import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
-import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {

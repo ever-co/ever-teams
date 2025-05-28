@@ -1,4 +1,4 @@
-import { ETimeFormat } from '../enums/date';
+import { ETimeFormat } from '../../generics/enums/date';
 import { IBasePerTenantEntityModel, ID } from '../common/base-interfaces';
 import { IRole } from '../role/role';
 import { IOrganizationTeam } from '../team/organization-team';

@@ -12,7 +12,7 @@ import { activityService } from '@/core/services/client/api/activities';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
-import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ITimeLogReportDailyChartProps } from '@/core/services/server/requests/timesheet';
 
 export interface UseReportActivityProps

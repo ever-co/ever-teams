@@ -36,7 +36,7 @@ import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ThemeInterface } from '@/core/types/interfaces/common/theme';
 
 export function UserNavAvatar() {

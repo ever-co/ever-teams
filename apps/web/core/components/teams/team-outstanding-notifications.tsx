@@ -11,7 +11,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { IUser } from '@/core/types/interfaces/user/user';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;

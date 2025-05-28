@@ -20,7 +20,7 @@ import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ColumnDef } from '@tanstack/react-table';
 

@@ -7,7 +7,7 @@ import {
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {

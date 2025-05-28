@@ -3,7 +3,7 @@ import { filteredProviders } from '@/core/lib/utils/check-provider-env-vars';
 import { GauzyAdapter, jwtCallback, signInCallback } from '@/core/services/server/requests/o-auth';
 import { NextRequest } from 'next/server';
 import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
-import { EProvider } from './core/types/interfaces/enums/social-accounts';
+import { EProvider } from './core/types/generics/enums/social-accounts';
 
 declare module 'next-auth' {
 	interface Session extends DefaultSession {

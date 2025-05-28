@@ -1,4 +1,4 @@
-import { EIssueType } from '../enums/task';
+import { EIssueType } from '../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IRelationalOrganizationProject } from '../project/organization-project';

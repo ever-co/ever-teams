@@ -9,7 +9,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from '../duplicated-components/card';
-import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 
 interface IProps {
 	className?: string;

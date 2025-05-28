@@ -5,7 +5,7 @@ import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 export function TaskItem({
 	selected,

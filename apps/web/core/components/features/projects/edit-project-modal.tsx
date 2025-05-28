@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { ITag } from '@/core/types/interfaces/tag/tag';

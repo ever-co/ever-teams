@@ -27,7 +27,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Card } from '../../duplicated-components/card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
-import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.

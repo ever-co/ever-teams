@@ -12,7 +12,7 @@ import {
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {

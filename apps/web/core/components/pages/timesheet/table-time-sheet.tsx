@@ -37,10 +37,10 @@ import {
 } from '../../tasks/task-displays';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
-import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import {

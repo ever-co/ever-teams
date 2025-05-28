@@ -12,7 +12,7 @@ import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;

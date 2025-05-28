@@ -1,4 +1,4 @@
-import { ETimesheetStatus } from '../enums/timesheet';
+import { ETimesheetStatus } from '../../generics/enums/timesheet';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { ITimeLog } from '../timer/time-log/time-log';

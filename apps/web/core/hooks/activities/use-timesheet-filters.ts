@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './use-timesheet';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useLocalStorageState } from '../common/use-local-storage-state';
 

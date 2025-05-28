@@ -1,4 +1,4 @@
-import { ECurrencies } from '../enums/currency';
+import { ECurrencies } from '../../generics/enums/currency';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IOrganizationTeam } from '../team/organization-team';
 import { IUser } from '../user/user';

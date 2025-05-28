@@ -24,7 +24,7 @@ import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/co
 import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { Avatar } from '../../duplicated-components/avatar';
-import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';

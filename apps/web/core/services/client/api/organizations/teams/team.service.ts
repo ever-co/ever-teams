@@ -4,7 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
-import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	IOrganizationTeam,

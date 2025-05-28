@@ -1,6 +1,6 @@
-import { IBasePerTenantAndOrganizationEntityModel, ID } from '@/core/types/interfaces/common/base-interfaces';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../common/base-interfaces';
 import { IRelationalOrganizationTeam } from '../../team/organization-team';
-import { EDailyPlanStatus } from '../../enums/daily-plan';
+import { EDailyPlanStatus } from '../../../generics/enums/daily-plan';
 import { IRelationalEmployee } from '../../organization/employee';
 import { ITask } from '../task';
 

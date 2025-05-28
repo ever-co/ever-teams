@@ -1,4 +1,4 @@
-import { EInviteStatus } from '../enums/invite';
+import { EInviteStatus } from '../../generics/enums/invite';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IOrganizationProject } from '../project/organization-project';
 import { IRelationalRole } from '../role/role';

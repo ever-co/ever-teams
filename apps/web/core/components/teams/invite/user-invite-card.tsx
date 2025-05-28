@@ -13,7 +13,7 @@ import { Avatar } from '../../duplicated-components/avatar';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type Props = IClassName & { invitation: IInvite };
 

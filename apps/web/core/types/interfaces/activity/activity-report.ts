@@ -1,4 +1,4 @@
-import { ETimeLogType } from '../enums/timer';
+import { ETimeLogType } from '../../generics/enums/timer';
 import { IEmployee } from '../organization/employee';
 import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';

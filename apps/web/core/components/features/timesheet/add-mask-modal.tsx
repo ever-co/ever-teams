@@ -21,7 +21,7 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
-import { ETimeLogType, ETimeLogSource } from '@/core/types/interfaces/enums/timer';
+import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;

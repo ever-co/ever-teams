@@ -21,7 +21,7 @@ import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ETaskPriority } from '@/core/types/interfaces/enums/task';
+import { ETaskPriority } from '@/core/types/generics/enums/task';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {

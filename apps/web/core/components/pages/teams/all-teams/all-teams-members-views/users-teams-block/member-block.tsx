@@ -9,7 +9,7 @@ import UserTeamActiveTaskTimesBlock from './user-team-active-task-times';
 import UserTeamActiveTaskEstimateBlock from './user-team-task-estimate';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 const cardColorType = {
 	running: ' border-green-300',

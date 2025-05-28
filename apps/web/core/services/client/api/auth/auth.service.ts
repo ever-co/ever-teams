@@ -9,7 +9,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
-import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { signinService } from './signin.service';
 import { userService } from '../users';
 import {

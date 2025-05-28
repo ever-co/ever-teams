@@ -1,5 +1,5 @@
-import { ETimeFormat } from '../enums/date';
-import { EDefaultValueDateType, EWeekDays } from '../enums/date';
+import { ETimeFormat } from '../../generics/enums/date';
+import { EDefaultValueDateType, EWeekDays } from '../../generics/enums/date';
 import { IBasePerTenantEntityModel, ITaggable } from '../common/base-interfaces';
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from './employee';

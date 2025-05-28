@@ -5,7 +5,7 @@ import { ITask } from '../../task/task';
 import { IRelationalOrganizationTeam } from '../../team/organization-team';
 import { ITimeSlot } from '../time-slot/time-slot';
 import { ITimesheet } from '../../timesheet/timesheet';
-import { ETimeLogSource, ETimeLogType } from '../../enums/timer';
+import { ETimeLogSource, ETimeLogType } from '../../../generics/enums/timer';
 
 export interface ITimeLog
 	extends IBasePerTenantAndOrganizationEntityModel,

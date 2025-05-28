@@ -1,6 +1,6 @@
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
-import { ILanguageItemList as ILanguage } from '@/core/types/interfaces/language/language';
+import { ILanguageItemList as ILanguage } from '@/core/types/interfaces/common/language';
 
 export type LanguageItem = DropdownItem<ILanguage>;
 

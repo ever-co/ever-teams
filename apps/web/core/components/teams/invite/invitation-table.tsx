@@ -10,7 +10,7 @@ import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
 import { IJoinTeamResponse } from '@/core/types/interfaces/team/request-to-join';
 import { IInvite } from '@/core/types/interfaces/user/invite';
-import { ERequestStatus } from '@/core/types/interfaces/enums';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
 export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<

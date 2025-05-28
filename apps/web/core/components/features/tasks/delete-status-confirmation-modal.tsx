@@ -3,7 +3,7 @@ import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { Card } from '../../duplicated-components/card';
-import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 interface DeleteTaskStatusModalProps {

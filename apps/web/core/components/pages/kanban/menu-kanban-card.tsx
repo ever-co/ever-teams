@@ -13,7 +13,7 @@ import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
+import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
 	const t = useTranslations();

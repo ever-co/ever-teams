@@ -5,7 +5,7 @@ import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { ERoleName } from '@/core/types/interfaces/enums/role';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export function useIsMemberManager(user: IUser | undefined | null) {

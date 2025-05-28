@@ -13,7 +13,7 @@ import { useFirstLoad } from '../../common/use-first-load';
 import { useQuery } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
-import { EInviteAction } from '@/core/types/interfaces/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);

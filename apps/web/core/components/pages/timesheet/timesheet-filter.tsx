@@ -11,7 +11,7 @@ import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
 import { IUser } from '@/core/types/interfaces/user/user';
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface ITimesheetFilter {

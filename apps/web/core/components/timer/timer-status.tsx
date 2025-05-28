@@ -6,7 +6,7 @@ import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type Props = {
 	status: ETimerStatus;

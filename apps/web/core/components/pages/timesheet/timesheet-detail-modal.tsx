@@ -1,4 +1,4 @@
-import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';

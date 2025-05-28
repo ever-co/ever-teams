@@ -34,7 +34,7 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
-import { EIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/generics/enums/task';
 import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';

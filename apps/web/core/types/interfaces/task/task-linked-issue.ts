@@ -1,4 +1,4 @@
-import { ERelatedIssuesRelation } from '../enums/task';
+import { ERelatedIssuesRelation } from '../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { ITask } from './task';
 

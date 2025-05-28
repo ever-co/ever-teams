@@ -1,6 +1,6 @@
-import { ECurrencies } from '../enums/currency';
-import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../enums/project';
-import { ETaskListType, ETaskStatusName } from '../enums/task';
+import { ECurrencies } from '../../generics/enums/currency';
+import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../../generics/enums/project';
+import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from '../organization/employee';
