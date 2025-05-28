@@ -72,7 +72,7 @@ export function CustomListboxDropdown<T>({
 				<DropdownMenuContent
 					className={cn(
 						'animate-in fade-in-80 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-						'max-h-[320px] overflow-auto scrollbar-hide',
+						'max-h-[320px] overflow-auto scrollbar-hide z-[10000]',
 						dropdownClassName
 					)}
 				>
