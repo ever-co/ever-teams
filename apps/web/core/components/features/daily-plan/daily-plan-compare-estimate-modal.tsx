@@ -14,9 +14,9 @@ import { IconsErrorWarningFill } from '@/core/components/icons';
 import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
 import { Card } from '../../duplicated-components/card';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;

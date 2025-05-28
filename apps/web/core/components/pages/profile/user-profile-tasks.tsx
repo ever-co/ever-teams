@@ -8,7 +8,7 @@ import { ScreenCalendar } from '../../activities/screen-calendar';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 
 type Props = {
 	tabFiltered: I_TaskFilter;

@@ -1,6 +1,6 @@
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IRegisterDataAPI } from '@/core/types/interfaces/auth/IAuth';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import {
 	createEmployeeFromUser,
 	createOrganizationRequest,

@@ -18,9 +18,9 @@ import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
-import { IRole } from '@/core/types/interfaces/role/IRole';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IRole } from '@/core/types/interfaces/role/role';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 	const t = useTranslations();

@@ -9,11 +9,11 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 interface IOutstandingFilterDate {
 	profile: any;

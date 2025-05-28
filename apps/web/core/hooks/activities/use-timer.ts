@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -25,8 +25,8 @@ import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
-import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 

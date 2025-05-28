@@ -1,6 +1,6 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { SettingOutlineIcon } from 'assets/svg';

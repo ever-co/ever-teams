@@ -2,7 +2,7 @@
 import { VisibilityState } from '@tanstack/react-table';
 import { TasksDataTable } from './tasks-data-table';
 import { columns } from './columns';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export function TaskTable({
 	currentItems,

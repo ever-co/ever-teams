@@ -1,5 +1,5 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { IUser } from '../user/IUser';
+import { IUser } from '../user/user';
 
 export interface IBaseUserOrganization extends IBasePerTenantAndOrganizationEntityModel {
 	userId?: ID;

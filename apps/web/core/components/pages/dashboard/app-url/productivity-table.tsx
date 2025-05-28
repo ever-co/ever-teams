@@ -9,7 +9,7 @@ import {
 	IActivityReport,
 	IActivityReportGroupByDate,
 	IActivityItem
-} from '@/core/types/interfaces/activity/IActivityReport';
+} from '@/core/types/interfaces/activity/activity-report';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/common/use-sortable-data';

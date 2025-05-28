@@ -1,12 +1,12 @@
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useDailyPlan } from '../../daily-plans/use-daily-plan';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
 	const tasks = useAtomValue(tasksByTeamState);

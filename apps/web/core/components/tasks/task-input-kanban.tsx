@@ -10,7 +10,7 @@ import {
 	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -25,7 +25,7 @@ import { InputField } from '../duplicated-components/_input';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
-import { ETaskSizeName, ETaskPriority, ETaskIssueType } from '@/core/types/interfaces/enums/task';
+import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/interfaces/enums/task';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -181,17 +181,17 @@ export function TaskInputKanban(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === ETaskIssueType.STORY
+				props.task?.issueType === EIssueType.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === ETaskIssueType.TASK ||
-				props.task?.issueType === ETaskIssueType.BUG ||
+				props.task?.issueType === EIssueType.TASK ||
+				props.task?.issueType === EIssueType.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === ETaskIssueType.EPIC || item.issueType === ETaskIssueType.STORY
+					(item) => item.issueType === EIssueType.EPIC || item.issueType === EIssueType.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;

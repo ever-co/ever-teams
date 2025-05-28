@@ -17,7 +17,7 @@ import { statisticsService } from '@/core/services/client/api/timesheets/statist
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 
 export function useTaskStatistics(addSeconds = 0) {

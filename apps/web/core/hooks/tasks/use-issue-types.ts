@@ -6,7 +6,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
 import { useQuery } from '../common/use-query';
 import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
-import { IIssueTypesCreate } from '@/core/types/interfaces/task/IIssueType';
+import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 
 export function useIssueType() {
 	const [user] = useAtom(userState);

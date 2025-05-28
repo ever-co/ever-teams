@@ -22,10 +22,10 @@ import {
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
-} from '@/core/types/interfaces/daily-plan/IDailyPlan';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+} from '@/core/types/interfaces/daily-plan/daily-plan';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -53,8 +53,8 @@ import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-te
 import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 
 type Props = {
 	active?: boolean;
@@ -657,7 +657,7 @@ export function TaskCardMenu({
 												)}
 												<li className="mb-2">
 													<PlanTask
-														planMode={EDailyPlanMode['TOMORROW']}
+														planMode={EDailyPlanMode['CUSTOM']}
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
 													/>

@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';

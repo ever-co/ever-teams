@@ -7,7 +7,7 @@ import { useQuery } from '../../common';
 import {
 	IOrganizationTeamEmployee,
 	IOrganizationTeamEmployeeUpdate
-} from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+} from '@/core/types/interfaces/team/organization-team-employee';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();

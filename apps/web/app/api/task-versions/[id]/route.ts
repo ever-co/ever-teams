@@ -1,8 +1,8 @@
-import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;

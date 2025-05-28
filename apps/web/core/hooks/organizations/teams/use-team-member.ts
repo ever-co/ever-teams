@@ -1,12 +1,12 @@
 'use client';
 
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { ERoleName } from '@/core/types/interfaces/enums/role';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export function useIsMemberManager(user: IUser | undefined | null) {
 	const [isTeamManager, setTeamManager] = useState(false);

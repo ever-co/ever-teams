@@ -10,7 +10,7 @@ import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
-import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');

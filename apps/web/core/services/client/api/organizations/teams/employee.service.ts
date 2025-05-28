@@ -1,9 +1,9 @@
 import qs from 'qs';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 
 class EmployeeService extends APIService {
 	getWorkingEmployees = async (tenantId: string, organizationId: string) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useCallback } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
 import { useOrganizationTeams, useTeamTasks } from '../organizations';

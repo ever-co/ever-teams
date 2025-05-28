@@ -16,13 +16,13 @@ import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Card } from '../duplicated-components/card';
 import { InputField } from '../duplicated-components/_input';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IClassName } from '@/core/types/interfaces/global/classname';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { EIssueType, ETaskIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/interfaces/enums/task';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
-export const taskIssues: TStatus<ETaskIssueType> = {
+export const taskIssues: TStatus<EIssueType> = {
 	Bug: {
 		icon: <BugIcon className={cn(defaultTaskClasses)} />,
 		name: 'Bug',
@@ -128,9 +128,9 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
 
 			// If parent task is already Story then user can not assign current task as a Story
-			if (props.task.parent.issueType === ETaskIssueType.STORY) {
+			if (props.task.parent.issueType === EIssueType.STORY) {
 				updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter(
-					(it) => it.value !== 'Story'
+					(it) => it.value !== EIssueType.STORY
 				);
 			}
 		} else if (props.task && props.task?.issueType) {
@@ -173,7 +173,7 @@ export function TaskIssueStatus({
 }: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issueType || EIssueType.BUG]}
+			{...taskIssues[task?.issueType || EIssueType.TASK]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('px-2 text-white rounded-md', className)}

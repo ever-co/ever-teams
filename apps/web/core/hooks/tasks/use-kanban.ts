@@ -2,11 +2,11 @@ import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 export interface IKanban {
 	[key: string]: ITask[];

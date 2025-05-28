@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { IRole } from '@/core/types/interfaces/role/IRole';
+import { IRole } from '@/core/types/interfaces/role/role';
 import { roleService } from '@/core/services/client/api/roles';
 
 export const useRoles = () => {

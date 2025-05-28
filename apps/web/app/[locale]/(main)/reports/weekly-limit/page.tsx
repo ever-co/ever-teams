@@ -13,7 +13,7 @@ import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
+import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { useTranslations } from 'next-intl';
 import { WeeklyLimitExportMenu } from '@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu';
@@ -24,7 +24,7 @@ import {
 } from '@/core/components/pages/reports/weekly-limit/time-report-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
-import { IOrganization } from '@/core/types/interfaces/organization/IOrganization';
+import { IOrganization } from '@/core/types/interfaces/organization/organization';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();

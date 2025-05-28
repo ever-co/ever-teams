@@ -8,8 +8,8 @@ import {
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { NextResponse } from 'next/server';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 export async function POST(req: Request) {
 	try {

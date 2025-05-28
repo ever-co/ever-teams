@@ -1,4 +1,4 @@
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';

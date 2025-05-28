@@ -1,5 +1,5 @@
 import { resendCodeRequestToJoinRequest } from '@/core/services/server/requests';
-import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

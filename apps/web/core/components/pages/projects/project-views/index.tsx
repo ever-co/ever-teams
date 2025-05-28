@@ -1,5 +1,5 @@
 import { useModal } from '@/core/hooks';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';

@@ -4,7 +4,7 @@ import AddOrEditProjectForm from './add-or-edit-project';
 import { ERoleName } from '@/core/types/interfaces/enums/role';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 interface IEditProjectModalProps {
 	open: boolean;

@@ -4,7 +4,7 @@ import { Text } from './typography';
 import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ERoleName } from '@/core/types/interfaces/enums/role';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {

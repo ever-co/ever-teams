@@ -16,7 +16,7 @@ import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
-import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';

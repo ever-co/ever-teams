@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces/role/IRole';
+import { IRole } from '@/core/types/interfaces/role/role';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import React, { HTMLAttributes } from 'react';

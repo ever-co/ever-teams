@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -11,7 +11,7 @@ import { AddIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ETaskIssueType } from '@/core/types/interfaces/enums/task';
+import { EIssueType } from '@/core/types/interfaces/enums/task';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -98,20 +98,20 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === ETaskIssueType.EPIC;
-	const isTaskStory = task.issueType === ETaskIssueType.STORY;
+	const isTaskEpic = task.issueType === EIssueType.EPIC;
+	const isTaskStory = task.issueType === EIssueType.STORY;
 	const childTasks = task.children?.map((t) => t.id) || [];
 
 	const unchildTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== ETaskIssueType.EPIC;
+				return childTask.issueType !== EIssueType.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== ETaskIssueType.EPIC && childTask.issueType !== ETaskIssueType.STORY;
+				return childTask.issueType !== EIssueType.EPIC && childTask.issueType !== EIssueType.STORY;
 			} else {
 				return (
-					childTask.issueType === ETaskIssueType.BUG ||
-					childTask.issueType === ETaskIssueType.TASK ||
+					childTask.issueType === EIssueType.BUG ||
+					childTask.issueType === EIssueType.TASK ||
 					childTask.issueType === null
 				);
 			}

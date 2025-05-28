@@ -1,6 +1,6 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
@@ -20,7 +20,7 @@ import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/interfaces/enums/task';
 
 function getStyle(provided: DraggableProvided, style: any) {

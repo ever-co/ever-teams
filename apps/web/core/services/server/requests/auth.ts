@@ -3,18 +3,18 @@ import {
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces/auth/IAuth';
-import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
+} from '@/core/types/interfaces/auth/auth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EProvider } from '@/core/types/interfaces/enums/social-accounts';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ISuccessResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ISuccessResponse } from '@/core/types/interfaces/global/data-response';
 import {
 	ISocialAccount,
 	ISocialAccountExistUser,
 	ISocialAccountSendToken
-} from '@/core/types/interfaces/user/ISocialAccount';
+} from '@/core/types/interfaces/user/social-account';
 
 const registerDefaultValue = {
 	appName: APP_NAME,

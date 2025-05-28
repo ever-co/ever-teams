@@ -4,7 +4,7 @@ import { ETaskListType, ETaskStatusName } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../global/image-asset';
 import { IEmployee } from '../organization/employee';
-import { CustomFieldsObject } from '../organization/organization';
+import { ICustomFieldsObject } from '../organization/organization';
 import { ITag } from '../tag/tag';
 import { ITask } from '../task/task';
 import { IOrganizationTeam } from '../team/organization-team';
@@ -67,7 +67,7 @@ export interface IRelationalOrganizationProject {
 
 // Base interface with optional properties of organization project setting
 export interface IOrganizationProjectSetting extends IBasePerTenantAndOrganizationEntityModel {
-	customFields?: CustomFieldsObject;
+	customFields?: ICustomFieldsObject;
 	isTasksAutoSync?: boolean;
 	isTasksAutoSyncOnLabel?: boolean;
 	syncTag?: string;

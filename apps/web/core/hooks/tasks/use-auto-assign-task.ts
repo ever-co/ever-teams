@@ -3,7 +3,7 @@
 import { useAtomValue } from 'jotai';
 import { timerStatusState, userState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
 

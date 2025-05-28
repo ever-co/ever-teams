@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '../auth';
 import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';

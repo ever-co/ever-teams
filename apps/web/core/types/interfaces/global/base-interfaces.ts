@@ -1,7 +1,7 @@
-import { IOrganization } from '../organization/IOrganization';
-import { ITag } from '../tag/ITag';
-import { ITenant } from '../tenant/ITenant';
-import { IUser } from '../user/IUser';
+import { IUser } from '../user/user';
+import { IOrganization } from '../organization/organization';
+import { ITag } from '../tag/tag';
+import { ITenant } from '../tenant/tenant';
 
 export type ID = string;
 
@@ -39,12 +39,6 @@ export interface IBasePerTenantEntityModel extends IBaseEntity {
 	tenant?: ITenant; // Reference to the associated tenant
 }
 
-// Common properties for entities associated with both tenant and organization
-export interface IBasePerTenantAndOrganizationEntityModel extends IBasePerTenantEntityModel {
-	organizationId?: ID; // Identifier of the associated organization
-	organization?: IOrganization; // Reference to the associated organization
-}
-
 /**
  * Interface for entities that can have tags.
  */
@@ -58,22 +52,18 @@ export interface IUrlMetaData {
 	image?: string;
 	[x: string]: any;
 }
-export interface IBasePerTenant extends IBaseEntity {
-	tenantId?: ITenant['id'];
-	tenant?: ITenant;
-}
 
-export interface IBasePerTenantEntityMutationInput extends Pick<IBasePerTenant, 'tenantId'>, IBaseEntity {
+export interface IBasePerTenantEntityMutationInput extends Pick<IBasePerTenantEntityModel, 'tenantId'>, IBaseEntity {
 	tenant?: Pick<ITenant, 'id'>;
 }
 
-export interface IBasePerTenantAndOrganizationEntity extends IBasePerTenant {
+export interface IBasePerTenantAndOrganizationEntityModel extends IBasePerTenantEntityModel {
 	organizationId?: IOrganization['id'];
 	organization?: IOrganization;
 }
 
 export interface IBasePerTenantAndOrganizationEntityMutationInput
-	extends Pick<IBasePerTenantAndOrganizationEntity, 'organizationId'>,
+	extends Pick<IBasePerTenantAndOrganizationEntityModel, 'organizationId'>,
 		Partial<IBasePerTenantEntityMutationInput> {
 	organization?: Pick<IOrganization, 'id'>;
 }

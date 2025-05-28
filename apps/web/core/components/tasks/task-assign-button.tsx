@@ -2,7 +2,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
 import { ArrowRightIcon } from 'assets/svg';
 import { MouseEventHandler } from 'react';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 
 type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;

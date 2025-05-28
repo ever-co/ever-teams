@@ -1,4 +1,4 @@
-import { ETaskPriority, ETaskSize, ETaskStatusName, ETaskIssueType } from '../enums/task';
+import { ETaskPriority, ETaskSize, ETaskStatusName, EIssueType } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { IRelationalOrganizationProject } from '../project/organization-project';
@@ -18,7 +18,7 @@ export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntity
 	status?: ETaskStatusName;
 	priority?: ETaskPriority;
 	size?: ETaskSize;
-	issueType?: ETaskIssueType;
+	issueType?: EIssueType;
 	startDate?: Date;
 	resolvedAt?: Date;
 	dueDate?: Date;

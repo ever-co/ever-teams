@@ -6,7 +6,7 @@ import { TaskAllStatusTypes } from '@/core/components/tasks/task-all-status-type
 import { FilterTabs } from '@/core/components/users/user-profile-plans';
 import { TaskNameInfoDisplay } from '@/core/components/tasks/task-displays';
 import { TaskInput } from '@/core/components/tasks/task-input';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;

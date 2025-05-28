@@ -1,11 +1,11 @@
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
 	IOrganizationTeamUpdate,
 	ITeamRequestParams
-} from '@/core/types/interfaces/team/IOrganizationTeam';
+} from '@/core/types/interfaces/team/organization-team';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';

@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createTaskLinkedIssue, updateTaskLinkedIssue } from '@/core/services/server/requests';
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

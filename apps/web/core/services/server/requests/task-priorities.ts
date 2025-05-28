@@ -1,4 +1,4 @@
-import { ITaskPriority, ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
+import { ITaskPriority, ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 import { serverFetch } from '../fetch';
 
 export function createPrioritiesRequest(datas: ITaskPrioritiesCreate, bearer_token: string, tenantId?: any) {

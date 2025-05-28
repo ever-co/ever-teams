@@ -1,4 +1,4 @@
-import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createStatusRequest, getTaskStatusListRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';

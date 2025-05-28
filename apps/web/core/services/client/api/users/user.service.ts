@@ -1,8 +1,8 @@
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { DeleteResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { DeleteResponse } from '@/core/types/interfaces/global/data-response';
 
 class UserService extends APIService {
 	deleteUser = async (id: string) => {

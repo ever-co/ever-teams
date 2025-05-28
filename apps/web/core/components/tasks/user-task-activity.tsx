@@ -2,7 +2,7 @@ import React from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { IActivity } from '@/core/types/interfaces/activity/IActivity';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';

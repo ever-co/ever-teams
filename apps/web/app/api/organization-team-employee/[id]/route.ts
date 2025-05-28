@@ -3,7 +3,7 @@ import {
 	deleteOrganizationTeamEmployeeRequest,
 	updateOrganizationTeamEmployeeRequest
 } from '@/core/services/server/requests';
-import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/organization-team-employee';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -1,7 +1,7 @@
-import { ITaskPrioritiesCreate, ITaskPriority } from '@/core/types/interfaces/task/ITaskPriority';
+import { ITaskPrioritiesCreate, ITaskPriority } from '@/core/types/interfaces/task/task-priority';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
 
 class TaskPriorityService extends APIService {
 	createTaskPriority = async (data: ITaskPrioritiesCreate, tenantId?: string) => {

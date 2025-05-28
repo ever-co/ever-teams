@@ -1,6 +1,6 @@
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { ERoleName } from '@/core/types/interfaces/enums/role';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	timesheetDeleteState,
 	timesheetGroupByDayState,

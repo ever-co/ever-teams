@@ -5,7 +5,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const t = useTranslations();

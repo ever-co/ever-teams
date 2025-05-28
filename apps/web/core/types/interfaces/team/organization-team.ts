@@ -59,7 +59,3 @@ export type ITeamRequestParams = {
 	tenantId: string;
 	relations?: string[];
 };
-export interface IRelationalOrganizationTeam {
-	organizationTeam?: IOrganizationTeam;
-	organizationTeamId?: ID;
-}

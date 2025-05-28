@@ -7,9 +7,9 @@ import { useModal, useSyncRef } from '../common';
 import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {

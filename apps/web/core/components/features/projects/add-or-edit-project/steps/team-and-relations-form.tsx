@@ -4,7 +4,7 @@ import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
-import { IProjectRelation } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';

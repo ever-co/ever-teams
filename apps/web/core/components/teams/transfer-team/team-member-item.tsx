@@ -1,6 +1,6 @@
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export type TeamMemberItem = DropdownItem<IOrganizationTeamEmployee & { name: string }>;
 

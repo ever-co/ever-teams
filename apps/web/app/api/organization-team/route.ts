@@ -1,4 +1,4 @@
-import { IUserOrganization } from '@/core/types/interfaces/organization/IUserOrganization';
+import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,
@@ -6,7 +6,7 @@ import {
 	getUserOrganizationsRequest
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();

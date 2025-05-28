@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, BackdropLoader, Button, SpinnerLoader, Text } from '@/core/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
@@ -23,7 +23,7 @@ import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();

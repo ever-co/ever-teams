@@ -1,5 +1,5 @@
 import { useOrganizationProjects } from '@/core/hooks';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';

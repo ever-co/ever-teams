@@ -17,10 +17,10 @@ import {
 	IRegisterDataAPI,
 	ISigninEmailConfirmResponse,
 	IUserSigninWorkspaceResponse
-} from '@/core/types/interfaces/auth/IAuth';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ISuccessResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+} from '@/core/types/interfaces/auth/auth';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ISuccessResponse } from '@/core/types/interfaces/global/data-response';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 class AuthService extends APIService {
 	refreshToken = async () => {

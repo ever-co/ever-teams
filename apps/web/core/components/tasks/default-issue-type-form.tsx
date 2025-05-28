@@ -15,7 +15,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();

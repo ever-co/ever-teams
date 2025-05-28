@@ -1,4 +1,4 @@
-import { IIntegrationType } from '@/core/types/interfaces/integrations/IIntegrationType';
+import { IIntegrationType } from '@/core/types/interfaces/integrations/integration-type';
 import { serverFetch } from '../../fetch';
 
 /**

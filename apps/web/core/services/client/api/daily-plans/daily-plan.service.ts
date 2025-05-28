@@ -3,14 +3,13 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ID } from '@/core/types/interfaces/global/base-interfaces';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
 import {
-	IDailyPlanTasksUpdate,
 	IDailyPlan,
 	ICreateDailyPlan,
 	IUpdateDailyPlan,
-	IRemoveTaskFromManyPlansRequest
-} from '@/core/types/interfaces/daily-plan/IDailyPlan';
+	IDailyPlanTasksUpdate
+} from '@/core/types/interfaces/daily-plan/daily-plan';
 
 class DailyPlanService extends APIService {
 	getAllDayPlans = async (activeTeamId?: ID) => {
@@ -116,7 +115,7 @@ class DailyPlanService extends APIService {
 		return this.put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 	};
 
-	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlansRequest }) => {
+	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IDailyPlanTasksUpdate }) => {
 		const organizationId = getOrganizationIdCookie();
 		return this.put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 	};

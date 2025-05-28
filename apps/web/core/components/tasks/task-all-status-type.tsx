@@ -1,7 +1,7 @@
 'use client';
 
 import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
 import { TaskStatus, useTaskLabelsValue, useTaskPrioritiesValue, useTaskSizesValue } from './task-status';

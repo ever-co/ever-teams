@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
-import { IDetailTimerSite } from '@/core/types/interfaces/timer/IDetailTimerSite';
-import { IActivity } from '@/core/types/interfaces/activity/IActivity';
-import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
+import { IDetailTimerSite } from '@/core/types/interfaces/timer/detail-timer-site';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 
 export const timeSlotsState = atom<ITimeSlot[]>([]);
 

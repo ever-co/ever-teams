@@ -3,9 +3,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 

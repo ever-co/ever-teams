@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallbackRef, useTaskEstimation } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { RefObject, useEffect, useRef } from 'react';

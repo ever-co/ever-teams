@@ -1,8 +1,8 @@
-import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskSizesRequest, editTaskSizesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;

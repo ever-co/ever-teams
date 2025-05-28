@@ -14,13 +14,13 @@ import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
 import { tenantService } from '../tenants/tenant.service';
 import { employeeService, organizationTeamService } from '../organizations/teams';
-import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/auth/IAuth';
-import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/IOrganization';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IRegisterDataAPI } from '@/core/types/interfaces/auth/IAuth';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ICustomSmtp } from '@/core/types/interfaces/auth/ICustomSmtp';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/auth/auth';
+import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {

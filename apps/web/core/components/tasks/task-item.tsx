@@ -1,10 +1,10 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import Image from 'next/image';
 import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 export function TaskItem({

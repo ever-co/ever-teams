@@ -13,7 +13,7 @@ import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizat
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { Card } from '../../duplicated-components/card';
-import { IRole } from '@/core/types/interfaces/role/IRole';
+import { IRole } from '@/core/types/interfaces/role/role';
 
 const Permissions = () => {
 	// Translations

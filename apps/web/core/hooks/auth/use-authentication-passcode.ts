@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { AxiosError, isAxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

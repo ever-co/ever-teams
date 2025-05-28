@@ -36,10 +36,10 @@ import { Card } from '../duplicated-components/card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
-import { ETaskIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/interfaces/enums/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/interfaces/enums/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -232,17 +232,17 @@ export function TaskInput(props: Props) {
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === ETaskIssueType.STORY
+				props.task?.issueType === EIssueType.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === ETaskIssueType.TASK ||
-				props.task?.issueType === ETaskIssueType.BUG ||
+				props.task?.issueType === EIssueType.TASK ||
+				props.task?.issueType === EIssueType.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === ETaskIssueType.EPIC || item.issueType === ETaskIssueType.STORY
+					(item) => item.issueType === EIssueType.EPIC || item.issueType === EIssueType.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -382,7 +382,7 @@ export function TaskInput(props: Props) {
 							defaultValue={
 								defaultIssueType
 									? defaultIssueType.name
-									: (localStorage.getItem('lastTaskIssue') as ETaskIssueType) || null
+									: (localStorage.getItem('lastTaskIssue') as EIssueType) || null
 							}
 						/>
 					)}

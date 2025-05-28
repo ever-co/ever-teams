@@ -18,7 +18,7 @@ import {
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
 import { Card } from '../../duplicated-components/card';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface ITimesheetCard {
 	title?: string;

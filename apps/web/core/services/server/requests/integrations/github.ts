@@ -1,8 +1,8 @@
-import { IGithubMetadata } from '@/core/types/interfaces/integrations/IGithubMetadata';
+import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
 import { serverFetch } from '../../fetch';
 import qs from 'qs';
-import { IGithubRepositories } from '@/core/types/interfaces/integrations/IGithubRepositories';
-import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
+import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
 
 export function installGitHubIntegration(
 	data: {

@@ -5,7 +5,7 @@ import { clsxm } from '@/core/lib/utils';
 
 import { AutoCompleteDropdown } from '../../common/auto-complete-dropdown';
 import { IColor } from '../../settings/color-items';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export const TransferTeamDropdown = ({
 	active,

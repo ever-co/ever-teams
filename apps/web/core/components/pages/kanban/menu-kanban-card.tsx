@@ -10,9 +10,9 @@ import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { EDailyPlanMode } from '@/core/types/interfaces/enums/daily-plan';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {

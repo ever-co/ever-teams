@@ -1,4 +1,4 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { ChildIssueCard } from '@/core/components/pages/task/child-issue-card';
 import RichTextEditor from '@/core/components/pages/task/description-block/task-description-editor';
 import { RelatedIssueCard } from '@/core/components/pages/task/issue-card';

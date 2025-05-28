@@ -1,6 +1,6 @@
 import { smtpConfiguration } from '@/core/constants/config/constants';
 import { serverFetch } from '../fetch';
-import { ICustomSmtp } from '@/core/types/interfaces/auth/ICustomSmtp';
+import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
 	const config = smtpConfiguration();
@@ -16,7 +16,7 @@ export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: 
 	});
 }
 
-export function countTenantTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
+export function countTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
 	return serverFetch<{ items: ICustomSmtp[]; total: number }>({
 		path: '/smtp',
 		method: 'GET',

@@ -35,8 +35,8 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';

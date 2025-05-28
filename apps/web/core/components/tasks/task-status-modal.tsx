@@ -15,7 +15,7 @@ import {
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { Card } from '../duplicated-components/card';
-import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
 	types,

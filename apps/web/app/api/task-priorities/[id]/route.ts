@@ -1,8 +1,8 @@
-import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskPrioritiesRequest, editTaskPrioritiesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;

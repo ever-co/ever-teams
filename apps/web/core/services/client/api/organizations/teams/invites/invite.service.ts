@@ -7,11 +7,11 @@ import {
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
-import { IInviteRequest } from '@/core/types/interfaces/user/IInvite';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { IInvite, IInviteCreate, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
+import { IInviteRequest } from '@/core/types/interfaces/user/invite';
 import { EInviteAction } from '@/core/types/interfaces/enums/invite';
-import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IInviteRequest, tenantId: string) => {

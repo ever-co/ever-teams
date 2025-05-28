@@ -1,6 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
-import { ISuccessResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { ISuccessResponse } from '@/core/types/interfaces/global/data-response';
 
 class EmailResetService extends APIService {
 	resetEmail = async (email: string) => {

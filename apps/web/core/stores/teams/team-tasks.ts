@@ -1,8 +1,8 @@
 import moment from 'moment';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 export const teamTasksState = atom<ITask[]>([]);
 

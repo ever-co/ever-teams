@@ -8,10 +8,10 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState } from 'react';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 interface OutstandingAll {
 	profile: any;

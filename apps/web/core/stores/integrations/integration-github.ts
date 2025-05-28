@@ -1,5 +1,5 @@
-import { IGithubMetadata } from '@/core/types/interfaces/integrations/IGithubMetadata';
-import { IGithubRepositories } from '@/core/types/interfaces/integrations/IGithubRepositories';
+import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
+import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
 import { atom } from 'jotai';
 
 export const integrationGithubMetadataState = atom<IGithubMetadata | null>(null);

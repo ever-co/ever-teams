@@ -1,6 +1,6 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
-import { IOrganizationProject } from '../project/IOrganizationProject';
+import { IRelationalOrganizationTeam } from '../team/organization-team';
+import { IOrganizationProject } from '../project/organization-project';
 
 export interface ITaskRelatedIssueType extends IBasePerTenantAndOrganizationEntityModel, IRelationalOrganizationTeam {
 	name: string;

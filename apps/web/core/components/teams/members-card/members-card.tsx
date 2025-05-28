@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/common/separator';
@@ -12,8 +12,8 @@ import { EstimateTimeInfo } from './estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -36,7 +36,7 @@ const Card = ({ member }: { member: IOrganizationTeamEmployee }) => {
 	const [taskEditMode, setTaskEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 
-	const [formValues, setFormValues] = useState<MemberCard_EditableValues>({
+	const [formValues, setFormValues] = useState<MemberCardEditableValues>({
 		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
 		memberTask: '',
 		estimateHours: 0,

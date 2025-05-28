@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';

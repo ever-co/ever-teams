@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import cloneDeep from 'lodash/cloneDeep';
 import { tagsState } from '@/core/stores/tags/tags';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 import { tagService } from '@/core/services/client/api';
 
 export const useTags = () => {

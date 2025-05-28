@@ -16,7 +16,7 @@ import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-s
 import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
 import { StandardTaskStatusDropDown } from './task-status';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 type StatusForm = {
 	formOnly?: boolean;

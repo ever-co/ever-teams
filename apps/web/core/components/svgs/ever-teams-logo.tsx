@@ -1,5 +1,5 @@
 import { APP_LINK, APP_LOGO_URL } from '@/core/constants/config/constants';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { clsxm } from '@/core/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';

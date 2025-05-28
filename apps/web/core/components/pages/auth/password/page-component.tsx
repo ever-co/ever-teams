@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 // import { cn } from '@ever-teams/ui';
 import { BackdropLoader, Button, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';

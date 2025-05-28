@@ -1,4 +1,4 @@
-import { ITaskSizesCreate } from '@/core/types/interfaces/task/ITaskSize';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { serverFetch } from '../fetch';
 import { ETaskSizeName } from '@/core/types/interfaces/enums/task';
 

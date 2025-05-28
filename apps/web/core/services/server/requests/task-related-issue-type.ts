@@ -1,5 +1,5 @@
-import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/IRelatedIssueType';
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/IRelatedIssueType';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { serverFetch } from '../fetch';
 
 export function createRelatedIssueTypeRequest(

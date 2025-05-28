@@ -1,8 +1,8 @@
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/organization-team-employee';
 
 class OrganizationTeamEmployeeService extends APIService {
 	deleteOrganizationEmployeeTeam = async ({

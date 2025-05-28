@@ -2,9 +2,9 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { APIService } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IJoinTeamRequest } from '@/core/types/interfaces/team/IRequestToJoin';
-import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
 import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 class RequestToJoinTeamService extends APIService {

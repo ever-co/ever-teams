@@ -1,7 +1,7 @@
 import { JwtPayload } from 'jsonwebtoken';
 import { LocalAudioTrack, LocalVideoTrack } from 'livekit-client';
 
-export interface ILiveKiteCredentials {
+export interface ILiveKitCredentials {
 	ttl?: number | string;
 	roomName?: string;
 	identity?: string;

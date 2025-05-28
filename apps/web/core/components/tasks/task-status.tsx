@@ -2,9 +2,9 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
+import { IClassName } from '@/core/types/interfaces/global/classname';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { Nullable } from '@/core/types/generics/utils';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -31,9 +31,9 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 
 export type TStatusItem = {

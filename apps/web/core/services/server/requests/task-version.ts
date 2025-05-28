@@ -1,5 +1,5 @@
-import { ITaskVersion } from '@/core/types/interfaces/task/ITaskVersion';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
+import { ITaskVersion } from '@/core/types/interfaces/task/task-version';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { serverFetch } from '../fetch';
 
 export function createVersionRequest(datas: ITaskVersionCreate, bearer_token: string, tenantId?: any) {

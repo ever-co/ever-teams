@@ -16,12 +16,12 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces/daily-plan/IDailyPlan';
+} from '@/core/types/interfaces/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { removeDuplicateItems } from '@/core/lib/utils/remove-duplicate-item';
 import { dailyPlanService } from '../../services/client/api';
 import { useAuthenticateUser } from '../auth';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 

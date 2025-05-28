@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
 import { DateRange } from 'react-day-picker';
 import { isTestDateRange } from '@/core/lib/helpers/index';
 

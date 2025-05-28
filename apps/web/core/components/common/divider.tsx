@@ -1,5 +1,5 @@
 import { clsxm } from '@/core/lib/utils';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 
 export function Divider({ className, type = 'HORIZONTAL' }: IClassName) {
 	if (type === 'HORIZONTAL') {

@@ -10,11 +10,11 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/orga
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/interfaces/enums/role';
-import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import { EProjectBudgetType } from '@/core/types/interfaces/enums/project';
 import { EProjectBilling } from '@/core/types/interfaces/enums/project';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;

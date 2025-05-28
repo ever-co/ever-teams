@@ -1,16 +1,16 @@
 import { atom } from 'jotai';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import {
 	IActivityReport,
 	ITimeLogGroupedDailyReport,
 	ITimeLogReportDaily,
 	ITimeLogReportDailyChart
-} from '@/core/types/interfaces/activity/IActivityReport';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
-import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+} from '@/core/types/interfaces/activity/activity-report';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimeFrequency } from '@/core/types/interfaces/enums/date';
 
 interface IFilterOption {

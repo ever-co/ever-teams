@@ -1,7 +1,7 @@
-import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/IInvite';
-import { IInviteCreate } from '@/core/types/interfaces/user/IInvite';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
+import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EInviteAction } from '@/core/types/interfaces/enums/invite';

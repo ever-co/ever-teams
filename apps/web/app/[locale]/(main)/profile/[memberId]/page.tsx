@@ -30,7 +30,7 @@ import { TaskFilter } from '@/core/components/pages/profile/task-filters';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { IActivityFilter } from '@/core/types/interfaces/activity/IActivity';
+import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 

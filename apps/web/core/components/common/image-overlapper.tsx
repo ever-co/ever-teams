@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal } from '@/core/hooks';
@@ -12,13 +12,13 @@ import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { ITimerStatus } from '@/core/types/interfaces/timer/ITimerStatus';
+import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 export interface ImageOverlapperProps {
 	id: string;

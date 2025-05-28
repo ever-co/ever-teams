@@ -5,14 +5,14 @@ import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/global/data-response';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
 	IOrganizationTeamUpdate,
 	ITeamRequestParams
-} from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+} from '@/core/types/interfaces/team/organization-team';
+import { IUser } from '@/core/types/interfaces/user/user';
 
 class OrganizationTeamService extends APIService {
 	/**

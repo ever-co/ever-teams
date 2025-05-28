@@ -1,4 +1,4 @@
-import { ETaskIssueType } from '../enums/task';
+import { EIssueType } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
 import { IRelationalImageAsset } from '../global/image-asset';
 import { IRelationalOrganizationProject } from '../project/organization-project';
@@ -9,7 +9,7 @@ export interface IIssueType
 		IRelationalOrganizationTeam,
 		IRelationalOrganizationProject,
 		IRelationalImageAsset {
-	name: ETaskIssueType;
+	name: EIssueType;
 	value: string;
 	description?: string;
 	icon?: string;
@@ -19,7 +19,7 @@ export interface IIssueType
 	fullIconUrl?: string;
 }
 export interface IIssueTypesCreate {
-	name: ETaskIssueType;
+	name: EIssueType;
 	description?: string;
 	icon?: string;
 	color?: string;

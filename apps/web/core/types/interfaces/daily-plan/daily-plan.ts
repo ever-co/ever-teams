@@ -1,10 +1,10 @@
-import { IBasePerTenantAndOrganizationEntity, ID } from '../global/base-interfaces';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
+import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
+import { IRelationalOrganizationTeam } from '../team/organization-team';
 import { EDailyPlanStatus } from '../enums/daily-plan';
-import { IRelationalEmployee } from '../organization/employee/IEmployee';
-import { ITask } from '../task/ITask';
+import { IRelationalEmployee } from '../organization/employee';
+import { ITask } from '../task/task';
 
-export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
+export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntityModel {
 	date: Date;
 	workTimePlanned: number;
 	status: EDailyPlanStatus;
@@ -31,4 +31,4 @@ export interface IUpdateDailyPlan
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-		Omit<IBasePerTenantAndOrganizationEntity, 'id'> {}
+		Omit<IBasePerTenantAndOrganizationEntityModel, 'id'> {}

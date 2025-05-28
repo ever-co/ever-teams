@@ -2,14 +2,14 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import {
 	getActiveTaskIdCookie,
 	getActiveTeamIdCookie,
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
-import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/ITimerStatus';
+import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 
 class TimerService extends APIService {
 	getTimerStatus = async (tenantId: string, organizationId: string) => {

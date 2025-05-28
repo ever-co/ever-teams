@@ -1,11 +1,11 @@
-import { ECurrencies } from '@/core/types/interfaces/enums/currency';
-import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
-import { IOrganizationTeam } from '../../team/IOrganizationTeam';
-import { IUser } from '../../user/IUser';
-import { IOrganizationProject } from '../../project/IOrganizationProject';
-import { ITask } from '../../task/ITask';
-import { ITimesheet } from '../../timesheet/ITimesheet';
-import { ITimeSlot } from '../../timer/time-slot/ITimeSlot';
+import { ECurrencies } from '../enums/currency';
+import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
+import { IOrganizationTeam } from '../team/organization-team';
+import { IUser } from '../user/user';
+import { IOrganizationProject } from '../project/organization-project';
+import { ITask } from '../task/task';
+import { ITimesheet } from '../timesheet/timesheet';
+import { ITimeSlot } from '../timer/time-slot/time-slot';
 
 export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITaggable {
 	id: ID;
@@ -103,7 +103,7 @@ export interface IRelationalEmployee {
 export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
 export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
 
-export type MemberCard_EditableValues = {
+export type MemberCardEditableValues = {
 	memberName: string;
 	memberTask: string;
 	estimateHours: number;

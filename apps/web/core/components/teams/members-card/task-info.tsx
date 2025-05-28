@@ -1,13 +1,13 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
-import { MemberCard_EditableValues } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 
 type Props = {
 	memberTask: ITask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
-	editable: MemberCard_EditableValues;
+	editable: MemberCardEditableValues;
 	onSubmitName: () => void;
 	onChangeName: ChangeEventHandler<HTMLInputElement>;
 	setEditMode: Dispatch<SetStateAction<boolean>>;

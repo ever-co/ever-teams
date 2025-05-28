@@ -16,7 +16,7 @@ import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/interfaces/enums/daily-plan';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
 
 interface IAllPlansModal {
 	closeModal: () => void;

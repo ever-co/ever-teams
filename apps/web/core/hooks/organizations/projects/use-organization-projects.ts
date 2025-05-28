@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { ICreateProjectRequest, IEditProjectRequest } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ICreateProjectRequest, IEditProjectRequest } from '@/core/types/interfaces/project/organization-project';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { useFirstLoad, useQuery } from '../../common';
 

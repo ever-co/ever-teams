@@ -12,7 +12,7 @@ import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
-import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 export const IssueTypesForm = () => {
 	const t = useTranslations();

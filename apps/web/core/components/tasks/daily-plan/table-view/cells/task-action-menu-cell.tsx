@@ -1,4 +1,4 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';

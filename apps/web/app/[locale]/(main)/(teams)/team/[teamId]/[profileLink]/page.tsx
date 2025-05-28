@@ -18,6 +18,7 @@ import { UserTeamCardHeader } from '@/core/components/pages/teams/team/team-memb
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { UnverifiedEmail } from '@/core/components/common/unverified-email';
 import { TeamMembersView } from '@/core/components/pages/teams/team/team-members';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 const Team = () => {
 	const router = useRouter();
@@ -36,7 +37,11 @@ const Team = () => {
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
 
-		if (userId && publicTeamData && publicTeamData.members?.find((member) => member.employee?.userId === userId)) {
+		if (
+			userId &&
+			publicTeamData &&
+			publicTeamData.members?.find((member: IOrganizationTeamEmployee) => member.employee?.userId === userId)
+		) {
 			router.replace('/');
 		}
 	}, [publicTeamData, router]);

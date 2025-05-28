@@ -1,5 +1,5 @@
 import getConfig from 'next/config';
-import { IServerRuntimeConfig } from '@/core/types/interfaces/configs/IRuntimeServerConfig';
+import { IServerRuntimeConfig } from '@/core/types/interfaces/configs/runtime-server-config';
 import { GAUZY_API_SERVER_URL, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 export function getDesktopConfig(): Partial<IServerRuntimeConfig> {

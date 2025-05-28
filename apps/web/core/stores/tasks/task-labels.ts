@@ -1,4 +1,4 @@
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 import { atom } from 'jotai';
 
 export const taskLabelsListState = atom<ITag[]>([]);

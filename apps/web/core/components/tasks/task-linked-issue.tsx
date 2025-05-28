@@ -10,8 +10,8 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 import { Card } from '../duplicated-components/card';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
 
 export function TaskLinkedIssue({

@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces/user/IUser';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';

@@ -8,9 +8,9 @@ import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { timeSheetService } from '@/core/services/client/api/timesheets/timesheet.service';
 import { useAuthenticateUser } from '../auth';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
-import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 
 interface TimesheetParams {
 	startDate?: Date | string;

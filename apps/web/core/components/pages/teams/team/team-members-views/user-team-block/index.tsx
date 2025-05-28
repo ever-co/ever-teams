@@ -15,10 +15,10 @@ import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 type IUserTeamBlock = {
 	active?: boolean;

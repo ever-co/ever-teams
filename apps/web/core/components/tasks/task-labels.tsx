@@ -8,7 +8,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
 import { Card } from '../duplicated-components/card';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 
 type Props = {

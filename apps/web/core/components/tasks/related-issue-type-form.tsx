@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/IRelatedIssueType';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();

@@ -1,4 +1,4 @@
-import { ITaskSize } from '@/core/types/interfaces/task/ITaskSize';
+import { ITaskSize } from '@/core/types/interfaces/task/task-size';
 import { atom } from 'jotai';
 
 export const taskSizesListState = atom<ITaskSize[]>([]);

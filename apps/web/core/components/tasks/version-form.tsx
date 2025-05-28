@@ -13,7 +13,7 @@ import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
+import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 
 type StatusForm = {
 	formOnly?: boolean;

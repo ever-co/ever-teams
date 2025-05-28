@@ -14,8 +14,8 @@ import {
 	ITimerEmployeeLog,
 	ITimerProjectLog,
 	ITimerTaskLog
-} from '@/core/types/interfaces/activity/IActivityReport';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+} from '@/core/types/interfaces/activity/activity-report';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 interface TimeSlot {
 	duration: number;

@@ -7,8 +7,8 @@ import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/ITaskStatusOrder';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatus[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);

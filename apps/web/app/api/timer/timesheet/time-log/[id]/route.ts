@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateTimesheetRequest } from '@/core/services/server/requests';
-import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request) {

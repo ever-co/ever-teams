@@ -13,7 +13,7 @@ import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 type StatusForm = {
 	formOnly?: boolean;

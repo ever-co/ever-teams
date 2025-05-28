@@ -1,15 +1,15 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { IClassName } from '@/core/types/interfaces/global/classname';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {
 	task: Nullable<ITask>;

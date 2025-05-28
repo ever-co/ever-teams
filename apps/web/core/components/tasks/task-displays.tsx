@@ -7,9 +7,9 @@ import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 type Props = {
 	task: Nullable<ITask>;

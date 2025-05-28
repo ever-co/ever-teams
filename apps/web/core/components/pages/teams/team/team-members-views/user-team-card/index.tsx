@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
@@ -39,9 +39,9 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { IActivityFilter } from '@/core/types/interfaces/activity/IActivity';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
 
 type IUserTeamCard = {
 	active?: boolean;

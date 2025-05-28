@@ -1,5 +1,5 @@
 import type { Placement } from '@popperjs/core';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { Transition } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 import { usePopperTooltip } from 'react-popper-tooltip';

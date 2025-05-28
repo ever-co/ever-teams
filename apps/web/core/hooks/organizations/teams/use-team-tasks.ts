@@ -29,11 +29,11 @@ import { useOrganizationEmployeeTeams } from './use-organization-teams-employee'
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useQuery, useSyncRef } from '../../common';
 import { useTaskStatus } from '../../tasks';
-import { ITag } from '@/core/types/interfaces/tag/ITag';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.

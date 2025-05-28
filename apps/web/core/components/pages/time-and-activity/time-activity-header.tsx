@@ -6,9 +6,9 @@ import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-acti
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { Card } from '../../duplicated-components/card';
 import { TransferTeamDropdown } from '../../teams/transfer-team/transfer-team-dropdown';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * Transfer team modal

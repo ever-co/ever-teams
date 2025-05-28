@@ -7,7 +7,7 @@ import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { DateRange } from 'react-day-picker';
 import moment from 'moment';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
 
 interface ITaskDatePickerWithRange {
 	className?: string;

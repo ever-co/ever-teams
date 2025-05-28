@@ -2,8 +2,8 @@ import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { PaginationResponse } from '@/core/types/interfaces/global/IDataResponse';
-import { IRolePermission } from '@/core/types/interfaces/role/IRolePermission';
+import { PaginationResponse } from '@/core/types/interfaces/global/data-response';
+import { IRolePermission } from '@/core/types/interfaces/role/role-permission';
 
 class RolePermissionService extends APIService {
 	getRolePermission = async (id: string) => {

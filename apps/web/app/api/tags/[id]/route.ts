@@ -1,8 +1,8 @@
-import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskLabelsRequest, editTaskLabelsRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-import { ITagCreate } from '@/core/types/interfaces/tag/ITag';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 
 export async function DELETE(req: Request, props: INextParams) {
 	const params = await props.params;

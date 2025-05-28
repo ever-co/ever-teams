@@ -12,9 +12,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
 import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team

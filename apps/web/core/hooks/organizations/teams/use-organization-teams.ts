@@ -8,7 +8,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import { IOrganizationTeam, IOrganizationTeamUpdate } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeam, IOrganizationTeamUpdate } from '@/core/types/interfaces/team/organization-team';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -26,7 +26,7 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { useFirstLoad, useQuery, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API

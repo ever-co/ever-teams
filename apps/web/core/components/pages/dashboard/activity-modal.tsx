@@ -3,7 +3,7 @@
 import { Modal } from '@/core/components';
 import { useState, useMemo } from 'react';
 import { Avatar } from '../../duplicated-components/avatar';
-import { ITimerEmployeeLog } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimerEmployeeLog } from '@/core/types/interfaces/activity/activity-report';
 
 interface ActivityModalProps {
 	employeeLog: ITimerEmployeeLog;

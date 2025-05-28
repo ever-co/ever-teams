@@ -1,6 +1,6 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard } from '@/core/hooks';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { UserInfo } from '../../../team/team-members-views/user-team-card/user-info';
 
 export default function MemberInfo({ member, className }: { member: IOrganizationTeamEmployee; className?: string }) {

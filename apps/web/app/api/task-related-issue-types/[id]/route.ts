@@ -1,11 +1,11 @@
-import { INextParams } from '@/core/types/interfaces/global/IDataResponse';
+import { INextParams } from '@/core/types/interfaces/global/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	deleteTaskRelatedIssueTypeRequest,
 	editTaskRelatedIssueTypeRequest
 } from '@/core/services/server/requests/task-related-issue-type';
 import { NextResponse } from 'next/server';
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/IRelatedIssueType';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;

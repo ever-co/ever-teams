@@ -1,6 +1,6 @@
 import { useTeamInvitations } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
-import { IInvite } from '@/core/types/interfaces/user/IInvite';
+import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';

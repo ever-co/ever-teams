@@ -1,4 +1,4 @@
-import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createTimesheetRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';

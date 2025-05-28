@@ -6,7 +6,7 @@ import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
-import { IDailyPlan } from '@/core/types/interfaces/daily-plan/IDailyPlan';
+import { IDailyPlan } from '@/core/types/interfaces/daily-plan/daily-plan';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;

@@ -1,6 +1,6 @@
 'use client';
 
-import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 type ColumnId = 'member' | 'totalTime' | 'tracked' | 'manual' | 'active' | 'idle' | 'unknown' | 'activity';

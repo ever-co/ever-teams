@@ -1,20 +1,20 @@
-import { IGetTimeLimitReport, ITimeLimitReport } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
+import { IGetTimeLimitReport, ITimeLimitReport } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	ITimeLogGroupedDailyReport,
 	ITimeLogReportDaily,
 	ITimeLogReportDailyChart,
 	ITimeLogReportDailyChartProps,
 	ITimeLogReportDailyRequest
-} from '@/core/types/interfaces/activity/IActivityReport';
-import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+} from '@/core/types/interfaces/activity/activity-report';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: IGetTimeLimitReport) => {

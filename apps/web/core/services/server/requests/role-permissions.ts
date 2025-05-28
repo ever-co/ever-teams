@@ -1,4 +1,4 @@
-import { IRolePermission } from '@/core/types/interfaces/role/IRolePermission';
+import { IRolePermission } from '@/core/types/interfaces/role/role-permission';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 

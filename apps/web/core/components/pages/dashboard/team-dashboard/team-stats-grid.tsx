@@ -5,7 +5,7 @@ import { Card } from '@/core/components/common/card';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 
 function formatPercentage(value: number | undefined): number {
 	if (!value) return 0;

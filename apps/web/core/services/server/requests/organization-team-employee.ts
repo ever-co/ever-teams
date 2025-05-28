@@ -1,4 +1,4 @@
-import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/organization-team-employee';
 import { serverFetch } from '../fetch';
 
 export function deleteOrganizationTeamEmployeeRequest({

@@ -1,4 +1,4 @@
-import { ITagCreate } from '@/core/types/interfaces/tag/ITag';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createLabelsRequest, getTaskLabelsListRequest } from '@/core/services/server/requests/task-labels';
 import { NextResponse } from 'next/server';

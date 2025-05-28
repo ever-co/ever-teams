@@ -25,7 +25,7 @@ import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 
 interface DateRangePickerProps {
 	className?: string;

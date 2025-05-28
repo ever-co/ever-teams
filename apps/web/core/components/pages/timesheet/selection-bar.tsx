@@ -1,7 +1,7 @@
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
 
 type ActionButtonProps = {

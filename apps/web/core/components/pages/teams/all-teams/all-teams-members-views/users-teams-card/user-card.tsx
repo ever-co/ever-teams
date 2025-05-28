@@ -1,4 +1,4 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import { Card } from '@/core/components/duplicated-components/card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamCard({
 	member,

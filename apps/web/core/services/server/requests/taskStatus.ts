@@ -1,6 +1,6 @@
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
 import { serverFetch } from '../fetch';
-import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 
 export function createStatusRequest(datas: ITaskStatusCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ETaskStatusName>({

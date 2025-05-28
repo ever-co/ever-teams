@@ -1,6 +1,6 @@
 import { ID } from '../global/base-interfaces';
-import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { IUser } from '../user/IUser';
+import { IOrganizationTeam } from '../team/organization-team';
+import { IUser } from '../user/user';
 
 export interface IUserSigninWorkspaceResponse {
 	confirmed_email: string;

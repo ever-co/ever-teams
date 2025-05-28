@@ -4,8 +4,8 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/ITimeLimitsReport';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { WeeklyLimitPDFDocument } from './export-formats/pdf';
 import { WeeklyLimitByEmployeePDFDocument } from './export-formats/pdf/grouped-by-employee';
 

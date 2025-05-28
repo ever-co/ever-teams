@@ -8,8 +8,8 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IAuthResponse } from '@/core/types/interfaces/auth/IAuth';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {

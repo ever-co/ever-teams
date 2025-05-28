@@ -1,4 +1,4 @@
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/IRelatedIssueType';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createRelatedIssueTypeRequest,

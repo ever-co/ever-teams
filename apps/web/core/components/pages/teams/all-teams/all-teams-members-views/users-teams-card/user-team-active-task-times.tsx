@@ -2,8 +2,8 @@ import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamActiveTaskTimes({
 	member,

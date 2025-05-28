@@ -9,10 +9,10 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { useCallbackRef, useSyncRef } from '../common';
 import { TStatus, TStatusItem, useMapToTaskStatusValues } from '@/core/components/tasks/task-status';
-import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/ITaskStatus';
-import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/ITaskStatusOrder';
-import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/ITaskStatusField';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/ITaskStatusStack';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

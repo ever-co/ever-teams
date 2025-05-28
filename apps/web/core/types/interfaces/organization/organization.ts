@@ -99,7 +99,7 @@ export interface IOrganizationTimerSetting {
 	standardWorkHoursPerDay?: number;
 }
 
-export interface CustomFieldsObject<T = any> {
+export interface ICustomFieldsObject<T = any> {
 	[key: string]: T;
 }
 export interface IOrganizationCreate {

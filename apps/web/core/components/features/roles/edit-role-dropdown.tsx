@@ -1,7 +1,7 @@
 import { Dropdown } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
-import { IRole } from '@/core/types/interfaces/role/IRole';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IRole } from '@/core/types/interfaces/role/role';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapRoleItems, RoleItem } from '@/core/components/roles/role-item';
 import { useRoles } from '@/core/hooks/roles';

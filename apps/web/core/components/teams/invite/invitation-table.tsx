@@ -8,8 +8,8 @@ import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
-import { IJoinTeamResponse } from '@/core/types/interfaces/team/IRequestToJoin';
-import { IInvite } from '@/core/types/interfaces/user/IInvite';
+import { IJoinTeamResponse } from '@/core/types/interfaces/team/request-to-join';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { ERequestStatus } from '@/core/types/interfaces/enums';
 
 export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {

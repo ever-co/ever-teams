@@ -3,11 +3,11 @@
 import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;

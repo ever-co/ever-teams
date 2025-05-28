@@ -1,6 +1,6 @@
-import { IEmployee } from '../organization/employee/IEmployee';
-import { IOrganizationTeamEmployee } from '../team/IOrganizationTeamEmployee';
-import { IActivityItem } from './IActivityReport';
+import { IEmployee } from '../organization/employee';
+import { IOrganizationTeamEmployee } from '../team/organization-team-employee';
+import { IActivityItem } from './activity-report';
 
 export interface ActivityData {
 	employee: IOrganizationTeamEmployee & { fullName: string; user: { imageUrl?: string } };

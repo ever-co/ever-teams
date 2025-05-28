@@ -10,7 +10,7 @@ import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authenticati
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/IAuth';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();

@@ -37,7 +37,7 @@ import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
-import { ThemeInterface } from '@/core/types/interfaces/global/ITheme';
+import { ThemeInterface } from '@/core/types/interfaces/global/theme';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();

@@ -5,7 +5,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { useState, useMemo } from 'react';
 import { Spinner } from '@/core/components/common/spinner';
 import { format, startOfWeek, startOfMonth } from 'date-fns';
-import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/IActivityReport';
+import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
 
 type GroupBy = 'daily' | 'weekly' | 'monthly';
 

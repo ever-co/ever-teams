@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../common/use-query';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
 

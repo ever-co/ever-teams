@@ -1,4 +1,4 @@
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { clsxm } from '@/core/lib/utils';
 import Link from 'next/link';
 import { DetailedHTMLProps, forwardRef, HTMLAttributes, PropsWithChildren } from 'react';

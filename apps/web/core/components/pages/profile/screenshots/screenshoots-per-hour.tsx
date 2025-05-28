@@ -5,7 +5,7 @@ import ScreenshotDetailsModal from './screenshot-details';
 import { useModal } from '@/core/hooks';
 import ScreenshotItem from './screenshot-item';
 import React, { useCallback, useEffect } from 'react';
-import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 
 export const ScreenshotPerHour = ({
 	timeSlots,

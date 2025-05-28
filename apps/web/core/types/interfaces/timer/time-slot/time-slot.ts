@@ -4,7 +4,7 @@ import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../global/base-
 import { IEmployee } from '../../organization/employee';
 import { IOrganization } from '../../organization/organization';
 import { IOrganizationProject } from '../../project/organization-project';
-import { IScreenshot } from '../screenshot/screenshot';
+import { IScreenshot } from '../screenshoot/screenshoot';
 import { ITag } from '../../tag/tag';
 import { ITimeLog } from '../time-log/time-log';
 import { ITimeSlotMinute } from './time-slot-minutes';

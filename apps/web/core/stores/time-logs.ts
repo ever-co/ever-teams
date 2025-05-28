@@ -4,18 +4,18 @@ import {
 	ITimeLogGroupedDailyReport,
 	ITimeLogReportDaily,
 	ITimeLogReportDailyChart
-} from '../types/interfaces/activity/IActivityReport';
-import { ITimeLog } from '../types/interfaces/timer/time-log/ITimeLog';
-import { IOrganizationTeam } from '../types/interfaces/team/IOrganizationTeam';
-import { IOrganizationProject } from '../types/interfaces/project/IOrganizationProject';
-import { ITask } from '../types/interfaces/task/ITask';
+} from '../types/interfaces/activity/activity-report';
+import { ITimeLog } from '../types/interfaces/timer/time-log/time-log';
+import { IOrganizationTeam } from '../types/interfaces/team/organization-team';
+import { IOrganizationProject } from '../types/interfaces/project/organization-project';
+import { ITask } from '../types/interfaces/task/task';
 import { ETimeFrequency } from '../types/interfaces/enums/date';
 import {
 	ITimesheet,
 	ITimesheetCountsStatistics,
 	IUpdateTimesheetRequest
-} from '../types/interfaces/timesheet/ITimesheet';
-import { IOrganizationTeamEmployee } from '../types/interfaces/team/IOrganizationTeamEmployee';
+} from '../types/interfaces/timesheet/timesheet';
+import { IOrganizationTeamEmployee } from '../types/interfaces/team/organization-team-employee';
 
 interface IFilterOption {
 	value: string;

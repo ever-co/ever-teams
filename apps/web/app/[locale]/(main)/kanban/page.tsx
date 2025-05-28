@@ -31,7 +31,7 @@ import KanbanBoardSkeleton from '@/core/components/common/skeleton/kanban-board-
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 const Kanban = () => {
 	// Get all required hooks and states

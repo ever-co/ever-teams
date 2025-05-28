@@ -1,4 +1,4 @@
-import { IInvite } from '@/core/types/interfaces/user/IInvite';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { atom } from 'jotai';
 import { activeTeamState } from '../teams/organization-team';
 

@@ -32,10 +32,10 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Card } from '@/core/components/duplicated-components/card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
-import { ETaskIssueType } from '@/core/types/interfaces/enums/task';
-import { IOrganizationProject } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { EIssueType } from '@/core/types/interfaces/enums/task';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -115,7 +115,7 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			{task && task.issueType === ETaskIssueType.STORY && (
+			{task && task.issueType === EIssueType.STORY && (
 				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 					<TaskEpicDropdown
 						onValueChange={(d: string) => {
@@ -243,11 +243,11 @@ const TaskSecondaryInfo = () => {
 const EpicParent = ({ task }: { task: ITask }) => {
 	const t = useTranslations();
 
-	if (task?.issueType === ETaskIssueType.STORY) {
+	if (task?.issueType === EIssueType.STORY) {
 		return <></>;
 	}
 
-	return (!task?.issueType || task?.issueType === ETaskIssueType.TASK || task?.issueType === ETaskIssueType.BUG) &&
+	return (!task?.issueType || task?.issueType === EIssueType.TASK || task?.issueType === EIssueType.BUG) &&
 		task?.rootEpic ? (
 		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">

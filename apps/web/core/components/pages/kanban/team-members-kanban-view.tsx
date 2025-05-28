@@ -12,8 +12,8 @@ import {
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
 import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {

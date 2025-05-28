@@ -1,5 +1,5 @@
 import { validateRequestToJoinRequest } from '@/core/services/server/requests';
-import { IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/IRequestToJoin';
+import { IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

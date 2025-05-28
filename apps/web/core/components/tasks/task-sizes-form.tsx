@@ -14,7 +14,7 @@ import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskSize } from '@/core/types/interfaces/task/ITaskSize';
+import { ITaskSize } from '@/core/types/interfaces/task/task-size';
 
 type StatusForm = {
 	formOnly?: boolean;

@@ -9,11 +9,11 @@ import {
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/core/hooks/common/use-toast';
-import { IEmployee } from '@/core/types/interfaces/organization/employee/IEmployee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 const DropdownMenuTask: FC<{ task: ITask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();

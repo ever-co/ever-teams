@@ -8,7 +8,7 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ETimerStatus } from '@/core/types/interfaces/enums/timer';
 
 export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmployee }) {

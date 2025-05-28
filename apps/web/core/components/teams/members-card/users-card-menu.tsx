@@ -1,5 +1,5 @@
 import { useTaskInput } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
@@ -19,7 +19,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 interface IOption {
 	name: string;

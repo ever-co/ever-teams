@@ -11,7 +11,7 @@ import { Badge } from '@/core/components/common/badge';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '../../tasks/task-displays';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;

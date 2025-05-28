@@ -1,5 +1,5 @@
 import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';

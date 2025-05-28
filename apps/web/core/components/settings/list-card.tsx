@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { svgFetch } from '@/core/services/server/fetch';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 
 export const StatusesListCard = ({
 	statusIcon,

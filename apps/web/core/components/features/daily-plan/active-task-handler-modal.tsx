@@ -7,7 +7,7 @@ import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { Card } from '../../duplicated-components/card';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.

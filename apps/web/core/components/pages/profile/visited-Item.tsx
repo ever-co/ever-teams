@@ -2,7 +2,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ProgressBar } from '../../duplicated-components/_progress-bar';
-import { IActivity } from '@/core/types/interfaces/activity/IActivity';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
 
 const VisitedItem = ({ app, totalMilliseconds, type }: { app: IActivity; totalMilliseconds: number; type: string }) => {
 	const { h, m, s } = app?.duration ? secondsToTime(+app.duration) : { h: 0, m: 0, s: 0 };

@@ -1,4 +1,4 @@
-import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/IRelatedIssueType';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 import { atom } from 'jotai';
 
 export const taskRelatedIssueTypeListState = atom<ITaskRelatedIssueType[]>([]);

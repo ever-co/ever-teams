@@ -1,7 +1,7 @@
 'use client';
 
 import { useModal, useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/IClassName';
+import { IClassName } from '@/core/types/interfaces/global/classname';
 import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { Button, Container } from '@/core/components';

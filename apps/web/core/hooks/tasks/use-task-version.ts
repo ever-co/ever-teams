@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/ITaskVersion';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { userState, taskVersionFetchingState, taskVersionListState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';

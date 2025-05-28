@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { IIssueType } from '@/core/types/interfaces/task/IIssueType';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 export const issueTypesListState = atom<IIssueType[]>([]);
 

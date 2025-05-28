@@ -1,4 +1,4 @@
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/ITaskPriority';
+import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createPrioritiesRequest, getTaskPrioritiesListRequest } from '@/core/services/server/requests/task-priorities';
 import { NextResponse } from 'next/server';

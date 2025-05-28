@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useLinkedTasks(task?: ITask | null) {

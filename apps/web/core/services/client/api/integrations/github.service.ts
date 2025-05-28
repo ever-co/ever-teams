@@ -2,8 +2,8 @@ import qs from 'qs';
 import { APIService } from '../../api.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IGithubMetadata } from '@/core/types/interfaces/integrations/IGithubMetadata';
-import { IGithubRepositories } from '@/core/types/interfaces/integrations/IGithubRepositories';
+import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
+import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
 
 class GithubService extends APIService {
 	installGitHubIntegration = async (body: any) => {

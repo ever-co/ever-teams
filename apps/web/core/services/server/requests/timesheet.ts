@@ -1,15 +1,15 @@
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	ITimesheet,
 	ITimesheetCountsStatistics,
 	IUpdateTimesheetStatus
-} from '@/core/types/interfaces/timesheet/ITimesheet';
+} from '@/core/types/interfaces/timesheet/timesheet';
 import { ETimeLogType } from '@/core/types/interfaces/enums/timer';
-import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/IActivityReport';
-import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/IActivityReport';
+import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;

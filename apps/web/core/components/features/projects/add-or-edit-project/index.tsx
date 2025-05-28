@@ -8,7 +8,7 @@ import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
-import { ICreateProjectRequest } from '@/core/types/interfaces/project/IOrganizationProject';
+import { ICreateProjectRequest } from '@/core/types/interfaces/project/organization-project';
 import { Card } from '@/core/components/duplicated-components/card';
 
 export type TModalMode = 'edit' | 'create';

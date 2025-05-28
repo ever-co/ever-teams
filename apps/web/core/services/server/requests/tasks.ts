@@ -1,8 +1,8 @@
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ICreateTask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ICreateTask } from '@/core/types/interfaces/task/task';
 import { serverFetch } from '../fetch';
-import { IUser } from '@/core/types/interfaces/user/IUser';
-import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces/global/IDataResponse';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces/global/data-response';
 import qs from 'qs';
 
 export function getTeamTasksRequest({

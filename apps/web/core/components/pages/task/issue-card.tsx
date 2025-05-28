@@ -12,9 +12,9 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
-import { ETaskIssueType, ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
+import { EIssueType, ERelatedIssuesRelation } from '@/core/types/interfaces/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -136,20 +136,20 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		[task, queryCall, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === ETaskIssueType.EPIC;
-	const isTaskStory = task.issueType === ETaskIssueType.STORY;
+	const isTaskEpic = task.issueType === EIssueType.EPIC;
+	const isTaskStory = task.issueType === EIssueType.STORY;
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom?.id) || [];
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== ETaskIssueType.EPIC;
+				return childTask.issueType !== EIssueType.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== ETaskIssueType.EPIC && childTask.issueType !== ETaskIssueType.STORY;
+				return childTask.issueType !== EIssueType.EPIC && childTask.issueType !== EIssueType.STORY;
 			} else {
 				return (
-					childTask.issueType === ETaskIssueType.BUG ||
-					childTask.issueType === ETaskIssueType.TASK ||
+					childTask.issueType === EIssueType.BUG ||
+					childTask.issueType === EIssueType.TASK ||
 					childTask.issueType === null
 				);
 			}

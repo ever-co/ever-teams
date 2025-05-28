@@ -58,16 +58,9 @@ export enum ETaskSizeName {
 	TINY = 'Tiny'
 }
 
-export enum ETaskIssueType {
+export enum EIssueType {
 	BUG = 'Bug',
 	TASK = 'Task',
 	STORY = 'Story',
 	EPIC = 'Epic'
-}
-
-export enum EIssueType {
-	EPIC = 'Epic',
-	STORY = 'Story',
-	TASK = 'Task',
-	BUG = 'Bug'
 }

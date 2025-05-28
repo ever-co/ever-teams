@@ -7,8 +7,8 @@ import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/core/hooks/common/use-toast';
 import Input from '../../duplicated-components/input';
-import { IInvite } from '@/core/types/interfaces/user/IInvite';
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { IInvite } from '@/core/types/interfaces/user/invite';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 const initialValues: Pick<IInvite, 'email' | 'fullName'> = {
 	email: '',

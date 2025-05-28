@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { ERoleName } from '@/core/types/interfaces/enums/role';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export const organizationTeamsState = atom<IOrganizationTeam[]>([]);
 

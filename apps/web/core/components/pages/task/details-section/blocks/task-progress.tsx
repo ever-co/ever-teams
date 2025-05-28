@@ -9,9 +9,9 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
-import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
-import { ITime } from '@/core/types/interfaces/global/ITime';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITime } from '@/core/types/interfaces/global/time';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);

@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { githubService } from '@/core/services/client/api';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
-import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/IOrganizationProject';
+import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
 
 export function useGitHubIntegration() {
 	const [user] = useAtom(userState);

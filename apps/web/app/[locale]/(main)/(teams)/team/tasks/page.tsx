@@ -20,8 +20,10 @@ import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ITask } from '@/core/types/interfaces/task/ITask';
 import { ETaskStatusName } from '@/core/types/interfaces/enums/task';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ColumnDef } from '@tanstack/react-table';
+
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -56,7 +58,7 @@ const TeamTask = () => {
 		usePagination<ITask>(filteredTasks);
 	useReactTable<ITask>({
 		data: currentItems,
-		columns,
+		columns: columns as ColumnDef<ITask, any>[],
 		state: {
 			columnVisibility: tableColumnsVisibility
 		},

@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { serverFetch } from '../fetch';
 
 export function createTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {

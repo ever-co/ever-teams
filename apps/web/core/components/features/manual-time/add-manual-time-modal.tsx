@@ -11,12 +11,12 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/ITimeSlot';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.

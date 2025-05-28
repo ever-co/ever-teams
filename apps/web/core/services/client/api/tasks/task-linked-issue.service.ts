@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/ITaskLinkedIssue';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 

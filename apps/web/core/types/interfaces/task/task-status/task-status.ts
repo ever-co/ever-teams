@@ -21,6 +21,4 @@ export interface ITaskStatus
 	fullIconUrl?: string;
 	template?: ETaskStatusName;
 }
-export interface ITaskStatusCreate
-	extends Partial<Omit<ITaskStatus, 'isSystem'>>,
-		Partial<Omit<ITaskStatus, 'is_system'>> {}
+export interface ITaskStatusCreate extends Partial<Omit<ITaskStatus, 'is_system'>> {}

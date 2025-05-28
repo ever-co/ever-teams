@@ -1,6 +1,6 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/task/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';

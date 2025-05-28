@@ -2,8 +2,8 @@ import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
-import { ITask } from '@/core/types/interfaces/task/ITask';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamActiveTaskInfo({
 	member,
