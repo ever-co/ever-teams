@@ -1,6 +1,6 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
-import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
+import { IRelationalOrganizationProject } from '../project/organization-project';
+import { IRelationalOrganizationTeam } from '../team/organization-team';
 
 export interface ITaskPriority
 	extends IBasePerTenantAndOrganizationEntityModel,

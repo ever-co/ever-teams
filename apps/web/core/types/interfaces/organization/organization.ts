@@ -1,9 +1,9 @@
 import { ETimeFormat } from '../enums/date';
 import { EDefaultValueDateType, EWeekDays } from '../enums/date';
 import { IBasePerTenantEntityModel, ITaggable } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../global/IImageAsset';
-import { IEmployee } from './employee/IEmployee';
-import { IOrganizationLanguage } from './IOrganizationLanguage';
+import { IRelationalImageAsset } from '../global/image-asset';
+import { IEmployee } from './employee';
+import { IOrganizationLanguage } from './organization-language';
 
 export interface IOrganization
 	extends IBasePerTenantEntityModel,

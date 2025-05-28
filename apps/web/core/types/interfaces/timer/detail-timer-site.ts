@@ -1,4 +1,4 @@
-import { IEmployee } from '../organization/employee/IEmployee';
+import { IEmployee } from '../organization/employee';
 
 export interface IDetailTimerSite {
 	id: string;

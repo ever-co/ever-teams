@@ -2,14 +2,14 @@ import { ECurrencies } from '../enums/currency';
 import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../enums/project';
 import { ETaskListType, ETaskStatusName } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../global/IImageAsset';
-import { IEmployee } from '../organization/employee/IEmployee';
-import { CustomFieldsObject } from '../organization/IOrganization';
-import { ITag } from '../tag/ITag';
-import { ITask } from '../task/ITask';
-import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { ITimeLog } from '../timer/time-log/ITimeLog';
-import { IOrganizationProjectEmployee } from './IOrganizationProjectEmployee';
+import { IRelationalImageAsset } from '../global/image-asset';
+import { IEmployee } from '../organization/employee';
+import { CustomFieldsObject } from '../organization/organization';
+import { ITag } from '../tag/tag';
+import { ITask } from '../task/task';
+import { IOrganizationTeam } from '../team/organization-team';
+import { ITimeLog } from '../timer/time-log/time-log';
+import { IOrganizationProjectEmployee } from './organization-project-employee';
 
 export interface IOrganizationProjectBase
 	extends IBasePerTenantAndOrganizationEntityModel,

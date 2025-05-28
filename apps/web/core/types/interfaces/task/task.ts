@@ -1,13 +1,13 @@
 import { ETaskPriority, ETaskSize, ETaskStatusName, ETaskIssueType } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IEmployee } from '../organization/employee/IEmployee';
-import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
-import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { IIssueType } from './IIssueType';
-import { ITaskLinkedIssue } from './ITaskLinkedIssue';
-import { ITaskPriority } from './ITaskPriority';
-import { ITaskSize } from './ITaskSize';
-import { ITaskStatus } from './task-status/ITaskStatus';
+import { IEmployee } from '../organization/employee';
+import { IRelationalOrganizationProject } from '../project/organization-project';
+import { IOrganizationTeam } from '../team/organization-team';
+import { IIssueType } from './issue-type';
+import { ITaskLinkedIssue } from './task-linked-issue';
+import { ITaskPriority } from './task-priority';
+import { ITaskSize } from './task-size';
+import { ITaskStatus } from './task-status/task-status';
 
 export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntityModel {
 	title: string;

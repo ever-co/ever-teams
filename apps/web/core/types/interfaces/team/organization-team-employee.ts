@@ -1,9 +1,9 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { IManagerAssignable, IRelationalEmployee } from '../organization/employee/IEmployee';
-import { IRelationalRole } from '../role/IRole';
-import { ITask, ITasksStatistics } from '../task/ITask';
-import { ITimerStatus } from '../timer/ITimerStatus';
-import { IRelationalOrganizationTeam } from './IOrganizationTeam';
+import { IManagerAssignable, IRelationalEmployee } from '../organization/employee';
+import { IRelationalRole } from '../role/role';
+import { ITask, ITasksStatistics } from '../task/task';
+import { ITimerStatus } from '../timer/timer-status';
+import { IRelationalOrganizationTeam } from './organization-team';
 
 // Base interface with common properties
 export interface IBaseOrganizationTeamEmployee

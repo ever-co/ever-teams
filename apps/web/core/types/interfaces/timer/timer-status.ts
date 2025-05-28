@@ -1,6 +1,6 @@
 import { ETimeLogSource, ETimerStatus } from '../enums/timer';
-import { ITask } from '../task/ITask';
-import { ITimeLog } from './time-log/ITimeLog';
+import { ITask } from '../task/task';
+import { ITimeLog } from './time-log/time-log';
 
 export interface ITimerStatus {
 	duration?: number;

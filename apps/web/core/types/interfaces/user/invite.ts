@@ -1,9 +1,9 @@
 import { EInviteStatus } from '../enums/invite';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { IOrganizationProject } from '../project/IOrganizationProject';
-import { IRelationalRole } from '../role/IRole';
-import { IOrganizationTeam } from '../team/IOrganizationTeam';
-import { IRelationalUser, IUser } from './IUser';
+import { IOrganizationProject } from '../project/organization-project';
+import { IRelationalRole } from '../role/role';
+import { IOrganizationTeam } from '../team/organization-team';
+import { IRelationalUser, IUser } from './user';
 
 interface IInviteBase extends IBasePerTenantAndOrganizationEntityModel {
 	email: string;

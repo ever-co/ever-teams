@@ -1,8 +1,8 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IImageAsset, IRelationalImageAsset } from '../global/IImageAsset';
-import { IOrganizationProject } from '../project/IOrganizationProject';
-import { ITask } from '../task/ITask';
-import { IOrganizationTeamEmployee } from './IOrganizationTeamEmployee';
+import { IImageAsset, IRelationalImageAsset } from '../global/image-asset';
+import { IOrganizationProject } from '../project/organization-project';
+import { ITask } from '../task/task';
+import { IOrganizationTeamEmployee } from './organization-team-employee';
 
 // Base interface for common properties
 interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, IRelationalImageAsset, ITaggable {

@@ -1,5 +1,5 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
-import { ILanguage } from '../language/ILanguage';
+import { ILanguage } from '../language/language';
 
 export interface IOrganizationLanguage extends IBasePerTenantAndOrganizationEntityModel {
 	language: ILanguage;

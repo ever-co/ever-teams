@@ -1,8 +1,8 @@
 import { ETaskIssueType } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../global/base-interfaces';
-import { IRelationalImageAsset } from '../global/IImageAsset';
-import { IRelationalOrganizationProject } from '../project/IOrganizationProject';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
+import { IRelationalImageAsset } from '../global/image-asset';
+import { IRelationalOrganizationProject } from '../project/organization-project';
+import { IRelationalOrganizationTeam } from '../team/organization-team';
 
 export interface IIssueType
 	extends IBasePerTenantAndOrganizationEntityModel,

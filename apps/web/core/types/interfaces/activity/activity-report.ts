@@ -1,9 +1,9 @@
 import { ETimeLogType } from '../enums/timer';
-import { IEmployee } from '../organization/employee/IEmployee';
-import { IOrganizationContact } from '../organization/IOrganizationContact';
-import { IOrganizationProject } from '../project/IOrganizationProject';
-import { ITask } from '../task/ITask';
-import { IUser } from '../user/IUser';
+import { IEmployee } from '../organization/employee';
+import { IOrganizationContact } from '../organization/organization-contact';
+import { IOrganizationProject } from '../project/organization-project';
+import { ITask } from '../task/task';
+import { IUser } from '../user/user';
 
 /**
  * Base interface for entities with tenant and organization

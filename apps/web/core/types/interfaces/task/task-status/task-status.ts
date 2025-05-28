@@ -1,8 +1,8 @@
 import { ETaskStatusName } from '../../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../../global/base-interfaces';
-import { IRelationalOrganizationProject } from '../../project/IOrganizationProject';
-import { IRelationalOrganizationTeam } from '../../team/IOrganizationTeam';
-import { TaskStatusWorkFlow } from './ITaskStatusWorkFlow';
+import { IRelationalOrganizationProject } from '../../project/organization-project';
+import { IRelationalOrganizationTeam } from '../../team/organization-team';
+import { TaskStatusWorkFlow } from './task-status-workflow';
 
 export interface ITaskStatus
 	extends IBasePerTenantAndOrganizationEntityModel,

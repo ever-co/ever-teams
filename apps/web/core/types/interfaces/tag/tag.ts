@@ -1,5 +1,5 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../global/base-interfaces';
-import { IRelationalOrganizationTeam } from '../team/IOrganizationTeam';
+import { IRelationalOrganizationTeam } from '../team/organization-team';
 
 export interface ITag extends IBasePerTenantAndOrganizationEntityModel, IRelationalOrganizationTeam {
 	name: string;

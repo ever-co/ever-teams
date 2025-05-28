@@ -1,8 +1,8 @@
 import { ETimesheetStatus } from '../enums/timesheet';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { IEmployee } from '../organization/employee/IEmployee';
-import { ITimeLog } from '../timer/time-log/ITimeLog';
-import { IUser } from '../user/IUser';
+import { IEmployee } from '../organization/employee';
+import { ITimeLog } from '../timer/time-log/time-log';
+import { IUser } from '../user/user';
 
 export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	employee: IEmployee;

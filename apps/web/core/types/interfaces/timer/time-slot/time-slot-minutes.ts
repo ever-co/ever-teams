@@ -1,5 +1,5 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../global/base-interfaces';
-import { ITimeSlot } from './ITimeSlot';
+import { ITimeSlot } from './time-slot';
 
 export interface ITimeSlotMinute extends IBasePerTenantAndOrganizationEntityModel {
 	timeSlot?: ITimeSlot;

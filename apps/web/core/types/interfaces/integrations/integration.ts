@@ -1,4 +1,4 @@
-import { IIntegrationType } from './IIntegrationType';
+import { IIntegrationType } from './integration-type';
 
 export interface IIntegration {
 	id: string;

@@ -1,6 +1,6 @@
 import { ERelatedIssuesRelation } from '../enums/task';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../global/base-interfaces';
-import { ITask } from './ITask';
+import { ITask } from './task';
 
 export interface ITaskLinkedIssue extends IBasePerTenantAndOrganizationEntityModel {
 	action: ERelatedIssuesRelation;

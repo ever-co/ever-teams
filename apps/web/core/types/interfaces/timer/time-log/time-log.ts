@@ -1,10 +1,10 @@
-import { IRelationalEmployee } from '../../organization/employee/IEmployee';
+import { IRelationalEmployee } from '../../organization/employee';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../../global/base-interfaces';
-import { IRelationalOrganizationProject } from '../../project/IOrganizationProject';
-import { ITask } from '../../task/ITask';
-import { IRelationalOrganizationTeam } from '../../team/IOrganizationTeam';
-import { ITimeSlot } from '../time-slot/ITimeSlot';
-import { ITimesheet } from '../../timesheet/ITimesheet';
+import { IRelationalOrganizationProject } from '../../project/organization-project';
+import { ITask } from '../../task/task';
+import { IRelationalOrganizationTeam } from '../../team/organization-team';
+import { ITimeSlot } from '../time-slot/time-slot';
+import { ITimesheet } from '../../timesheet/timesheet';
 import { ETimeLogSource, ETimeLogType } from '../../enums/timer';
 
 export interface ITimeLog

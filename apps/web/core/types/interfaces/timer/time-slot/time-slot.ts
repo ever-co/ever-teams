@@ -1,13 +1,13 @@
 import { ETimeLogType, ETimeLogSource } from '../../enums/timer';
-import { IActivity } from '../../activity/IActivity';
+import { IActivity } from '../../activity/activity';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../global/base-interfaces';
-import { IEmployee } from '../../organization/employee/IEmployee';
-import { IOrganization } from '../../organization/IOrganization';
-import { IOrganizationProject } from '../../project/IOrganizationProject';
-import { IScreenshot } from '../screenshot/IScreenShot';
-import { ITag } from '../../tag/ITag';
-import { ITimeLog } from '../time-log/ITimeLog';
-import { ITimeSlotMinute } from './ITimeSlotMinutes';
+import { IEmployee } from '../../organization/employee';
+import { IOrganization } from '../../organization/organization';
+import { IOrganizationProject } from '../../project/organization-project';
+import { IScreenshot } from '../screenshot/screenshot';
+import { ITag } from '../../tag/tag';
+import { ITimeLog } from '../time-log/time-log';
+import { ITimeSlotMinute } from './time-slot-minutes';
 
 export interface ITimeSlot extends IBasePerTenantAndOrganizationEntityModel {
 	[x: string]: any;
