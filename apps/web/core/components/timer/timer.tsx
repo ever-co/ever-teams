@@ -19,7 +19,7 @@ import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { ETimeLogSource } from '@/core/types/interfaces/enums/timer';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {

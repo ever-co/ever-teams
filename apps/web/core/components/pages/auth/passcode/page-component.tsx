@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, BackdropLoader, Button, SpinnerLoader, Text } from '@/core/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';

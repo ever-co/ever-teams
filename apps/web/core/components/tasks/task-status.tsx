@@ -2,7 +2,7 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { Nullable } from '@/core/types/generics/utils';

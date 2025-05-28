@@ -1,6 +1,6 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';

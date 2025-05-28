@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { clsxm } from '@/core/lib/utils';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';

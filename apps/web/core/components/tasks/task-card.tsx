@@ -54,7 +54,7 @@ import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 
 type Props = {
 	active?: boolean;

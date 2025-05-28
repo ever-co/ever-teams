@@ -28,7 +28,7 @@ import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
 import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 

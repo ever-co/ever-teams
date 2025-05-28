@@ -16,7 +16,7 @@ import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Card } from '../duplicated-components/card';
 import { InputField } from '../duplicated-components/_input';
-import { IClassName } from '@/core/types/interfaces/global/classname';
+import { IClassName } from '@/core/types/interfaces/global/class-name';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/interfaces/enums/task';
