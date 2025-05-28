@@ -12,41 +12,44 @@ import {
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
 	<div className={cn('flex gap-2 items-center', className)}>
-		<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+		<div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
 			<div className="h-full bg-blue-500" style={{ width: `${percentage}%` }} />
 		</div>
 		<span className="text-gray-600 dark:text-gray-300">{Math.round(percentage)}%</span>
 	</div>
 );
 
-export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) => (
-	<TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800">
-		<TableCell></TableCell>
-		<TableCell>
-			<div className="flex gap-2 items-center">
-				<Avatar className="w-8 h-8">
-					{employee.user?.imageUrl && <AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />}
-					<AvatarFallback>
-						{employee?.fullName ||
-							''
-								.split(' ')
-								.map((n: string) => n[0])
-								.join('')
-								.toUpperCase()}
-					</AvatarFallback>
-				</Avatar>
-				<span className="text-gray-700 dark:text-gray-300">{employee.fullName}</span>
-			</div>
-		</TableCell>
-		<TableCell className="text-gray-600 dark:text-gray-400">{activity.title}</TableCell>
-		<TableCell className="text-gray-600 dark:text-gray-400">
-			{formatDuration(activity.duration.toString())}
-		</TableCell>
-		<TableCell>
-			<ProgressBar percentage={parseFloat(activity.duration_percentage)} />
-		</TableCell>
-	</TableRow>
-);
+export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) =>
+	employee && (
+		<TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800">
+			<TableCell></TableCell>
+			<TableCell>
+				<div className="flex items-center gap-2">
+					<Avatar className="w-8 h-8">
+						{employee.user?.imageUrl && (
+							<AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />
+						)}
+						<AvatarFallback>
+							{employee?.fullName ||
+								''
+									.split(' ')
+									.map((n: string) => n[0])
+									.join('')
+									.toUpperCase()}
+						</AvatarFallback>
+					</Avatar>
+					<span className="text-gray-700 dark:text-gray-300">{employee.fullName}</span>
+				</div>
+			</TableCell>
+			<TableCell className="text-gray-600 dark:text-gray-400">{activity.title}</TableCell>
+			<TableCell className="text-gray-600 dark:text-gray-400">
+				{formatDuration(activity.duration.toString())}
+			</TableCell>
+			<TableCell>
+				<ProgressBar percentage={parseFloat(activity.duration_percentage)} />
+			</TableCell>
+		</TableRow>
+	);
 
 export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities }) => {
 	const totalDuration = activities.reduce((sum, { activity }) => sum + (activity.duration as number), 0);
@@ -71,7 +74,7 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
 export const ProjectHeaderRow: React.FC<ProjectHeaderRowProps> = ({ projectName }) => (
 	<TableRow className="bg-gray-50/50 dark:bg-gray-800">
 		<TableCell colSpan={5} className="py-2">
-			<div className="flex gap-2 items-center">
+			<div className="flex items-center gap-2">
 				<Avatar className="w-6 h-6">
 					<AvatarImage src="/ever-teams-logo.svg" alt={projectName} />
 					<AvatarFallback>
@@ -91,7 +94,7 @@ export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }
 	<TableRow className="bg-gray-50/30 dark:bg-gray-800">
 		<TableCell className="text-gray-700 dark:text-gray-300">{format(new Date(date), 'EEEE dd MMM yyyy')}</TableCell>
 		<TableCell colSpan={4}>
-			<div className="flex gap-2 items-center text-sm text-gray-500 dark:text-gray-400">
+			<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 				{activities.length} activities • {Array.from(new Set(activities.map((a) => a.employee.id))).length}{' '}
 				members
 			</div>

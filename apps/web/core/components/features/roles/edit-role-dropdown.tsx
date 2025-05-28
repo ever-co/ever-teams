@@ -16,7 +16,7 @@ export const EditUserRoleDropdown = ({
 	const { roles } = useRoles();
 
 	const items = useMemo(
-		() => mapRoleItems(roles?.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name))),
+		() => mapRoleItems(roles?.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name)) || []),
 		[roles]
 	);
 

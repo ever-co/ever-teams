@@ -41,7 +41,7 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 			if (teamIndex === -1) return;
 
 			const tempTeams = cloneDeep(organizationTeams);
-			const memberIndex = tempTeams[teamIndex].members?.findIndex(
+			const memberIndex = tempTeams?.[teamIndex].members?.findIndex(
 				(member: IOrganizationTeamEmployee) => member.id === updatedMember.id
 			);
 
