@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { publicactiveTeamState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
@@ -66,7 +66,7 @@ export function usePublicOrganizationTeams() {
 					setPublicTeam(newPublicTeamData);
 				}
 
-				let responseTasks = (res.data.tasks as ITeamTask[]) || [];
+				let responseTasks = (res.data.tasks as ITask[]) || [];
 				if (Array.isArray(responseTasks) && responseTasks.length > 0) {
 					responseTasks = responseTasks.map((task) => {
 						const clone = cloneDeep(task);

@@ -1,5 +1,5 @@
 import { IHookModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';
@@ -7,14 +7,14 @@ import { useTranslations } from 'next-intl';
 import { Card } from '../../duplicated-components/card';
 import { TaskInput } from '../../tasks/task-input';
 
-function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
+function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const t = useTranslations();
 	const { tasks, loadTeamTasksData, updateTask } = useTeamTasks();
 
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITeamTask | undefined) => {
+		async (parentTask: ITask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 			setLoading(true);

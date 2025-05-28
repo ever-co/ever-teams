@@ -8,8 +8,6 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { ITeamTask } from '@/core/types/interfaces';
-
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/common/input';
@@ -22,6 +20,10 @@ import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ColumnDef } from '@tanstack/react-table';
+
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -53,14 +55,14 @@ const TeamTask = () => {
 	});
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ITeamTask>(filteredTasks);
-	useReactTable<ITeamTask>({
+		usePagination<ITask>(filteredTasks);
+	useReactTable<ITask>({
 		data: currentItems,
-		columns,
+		columns: columns as ColumnDef<ITask, any>[],
 		state: {
 			columnVisibility: tableColumnsVisibility
 		},
-		getRowId: (row) => row.id,
+		getRowId: (row) => row.id.toString(),
 
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel()
@@ -84,8 +86,8 @@ const TeamTask = () => {
 											(taskStatus, index) => (
 												<StatusBadge
 													key={index}
-													color={getStatusColor(taskStatus)}
-													label={taskStatus.split('-').join(' ')}
+													color={getStatusColor(taskStatus as ETaskStatusName)}
+													label={taskStatus?.split('-').join(' ') || ''}
 													count={tasks.filter((item) => item.status === taskStatus).length}
 												/>
 											)

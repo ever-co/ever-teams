@@ -7,7 +7,6 @@ import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-es
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
-import { DailyPlanStatusEnum, IDailyPlan } from '@/core/types/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
@@ -16,6 +15,8 @@ import { ActiveModifiers } from 'react-day-picker';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -74,19 +75,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => myDailyPlans.items.find((plan) => isSameDate(plan.date, moment().toDate())),
+		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().toDate())),
 		[isSameDate, myDailyPlans.items]
 	);
 
 	const tomorrowPlan = useMemo(
-		() => myDailyPlans.items.find((plan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
+		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
 		[isSameDate, myDailyPlans.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			myDailyPlans.items.find((plan) => {
+			myDailyPlans.items.find((plan: IDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
 		[customDate, myDailyPlans.items, isSameDate]
@@ -161,10 +162,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			await createDailyPlan({
 				workTimePlanned: 0,
 				date: new Date(moment(customDate).format('YYYY-MM-DD')),
-				status: DailyPlanStatusEnum.OPEN,
+				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee.id,
-				organizationId: user?.employee.organizationId
+				employeeId: user?.employee?.id,
+				organizationId: user?.employee?.organizationId
 			});
 
 			handleCalendarSelect();
@@ -175,15 +176,15 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		createDailyPlan,
 		customDate,
 		handleCalendarSelect,
-		user?.employee.id,
-		user?.employee.organizationId,
+		user?.employee?.id,
+		user?.employee?.organizationId,
 		user?.tenantId
 	]);
 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = myDailyPlans.items.find((plan) => {
+			const existPlan = myDailyPlans.items.find((plan: IDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 

@@ -10,7 +10,7 @@ import { TranslationHooks } from 'next-intl';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
 import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -23,7 +23,7 @@ export interface TimesheetFilterDateProps {
 	minDate?: Date;
 	maxDate?: Date;
 	t: TranslationHooks;
-	data?: TimesheetLog[];
+	data?: ITimeLog[];
 }
 
 export function TimesheetFilterDate({
@@ -241,7 +241,7 @@ export function DatePickerFilter({
 	setDate: (date: Date | null) => void;
 	minDate?: Date | null;
 	maxDate?: Date | null;
-	timesheet?: TimesheetLog[];
+	timesheet?: ITimeLog[];
 }) {
 	const isDateDisabled = React.useCallback(
 		(date: Date) => {
@@ -267,7 +267,7 @@ export function DatePickerFilter({
 	}, [timesheet]);
 
 	const entriesByDate = React.useMemo(() => {
-		const map = new Map<string, TimesheetLog[]>();
+		const map = new Map<string, ITimeLog[]>();
 		timesheet?.forEach((entry) => {
 			if (!entry.timesheet?.createdAt) {
 				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
@@ -371,7 +371,7 @@ export function DatePickerFilter({
 		</div>
 	);
 }
-const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
+const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 	if (entries.length === 1) {
 		return (
 			<span

@@ -1,8 +1,8 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
 
-const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
+const TaskProperties = ({ task }: { task: ITask | null }) => {
 	const t = useTranslations();
 
 	return (

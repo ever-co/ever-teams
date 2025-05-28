@@ -1,7 +1,6 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { OT_Member } from '@/core/types/interfaces';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
@@ -15,14 +14,14 @@ const TeamMembersTableView = ({
 	publicTeam = false,
 	active = false
 }: {
-	teamMembers: OT_Member[];
-	currentUser: OT_Member | undefined;
+	teamMembers: any[];
+	currentUser?: any;
 	publicTeam?: boolean;
 	active?: boolean;
 }) => {
 	const t = useTranslations();
 
-	const columns = React.useMemo<ColumnDef<OT_Member>[]>(
+	const columns = React.useMemo<ColumnDef<any>[]>(
 		() => [
 			{
 				id: 'name',
@@ -65,7 +64,7 @@ const TeamMembersTableView = ({
 		[]
 	);
 
-	const sortedTeamMembers: OT_Member[] = [];
+	const sortedTeamMembers: any[] = [];
 	if (currentUser) {
 		sortedTeamMembers.push(currentUser);
 	}
@@ -75,7 +74,7 @@ const TeamMembersTableView = ({
 		<>
 			<DataTable
 				isHeader={false}
-				columns={columns as Column<OT_Member>[]}
+				columns={columns as Column<any>[]}
 				data={sortedTeamMembers}
 				isScrollable
 				noResultsMessage={{

@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { atom } from 'jotai';
 
 export const collaborativeSelectState = atom<boolean>(false);

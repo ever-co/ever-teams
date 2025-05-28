@@ -1,12 +1,4 @@
 import { APIService, getFallbackAPI } from '../../api.service';
-import {
-	ILoginResponse,
-	IOrganizationTeam,
-	IRegisterDataAPI,
-	ISigninEmailConfirmResponse,
-	ISuccessResponse,
-	IUser
-} from '@/core/types/interfaces';
 import { getRefreshTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	APP_LOGO_URL,
@@ -17,9 +9,18 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
-import { ProviderEnum } from '@/core/services/server/requests/o-auth';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { signinService } from './signin.service';
 import { userService } from '../users';
+import {
+	IAuthResponse,
+	IRegisterDataAPI,
+	ISigninEmailConfirmResponse,
+	IUserSigninWorkspaceResponse
+} from '@/core/types/interfaces/auth/auth';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 class AuthService extends APIService {
 	refreshToken = async () => {
@@ -36,7 +37,7 @@ class AuthService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ILoginResponse>(`/auth/refresh`, {
+		return api.post<IAuthResponse>(`/auth/refresh`, {
 			refresh_token
 		});
 	};
@@ -44,7 +45,7 @@ class AuthService extends APIService {
 	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
 	signInWithEmailAndCode = async (email: string, code: string) => {
 		// Direct call to /auth/login to handles both invite and auth codes
-		return this.post<ILoginResponse>(`/auth/login`, {
+		return this.post<IAuthResponse>(`/auth/login`, {
 			email,
 			code
 		});
@@ -107,10 +108,10 @@ class AuthService extends APIService {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? '/auth/signin.email.password'
 			: `/auth/signin-email-password`;
-		return this.post<ISigninEmailConfirmResponse>(endpoint, { email, password, includeTeams: true });
+		return this.post<IUserSigninWorkspaceResponse>(endpoint, { email, password, includeTeams: true });
 	};
 
-	signInEmailSocialLogin = async (provider: ProviderEnum, access_token: string) => {
+	signInEmailSocialLogin = async (provider: EProvider, access_token: string) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
 
 		return this.post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
@@ -119,7 +120,7 @@ class AuthService extends APIService {
 	signInEmailConfirm = async (email: string, code: string) => {
 		// Mobile uses /auth/signin.email/confirm as fallback
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', {
+			return this.post<IUserSigninWorkspaceResponse>('/auth/signin.email/confirm', {
 				email,
 				code,
 				includeTeams: true
@@ -163,7 +164,7 @@ class AuthService extends APIService {
 		}
 		const api = await getFallbackAPI();
 		// Non-Gauzy workspace signin - also no code
-		return api.post<ILoginResponse>(`/auth/signin-workspace`, {
+		return api.post<IAuthResponse>(`/auth/signin-workspace`, {
 			email: params.email,
 			token: params.token,
 			teamId: params.selectedTeam
@@ -172,7 +173,7 @@ class AuthService extends APIService {
 
 	registerUserTeam = async (data: IRegisterDataAPI) => {
 		const api = await getFallbackAPI();
-		return api.post<ILoginResponse>('/auth/register', data);
+		return api.post<IAuthResponse>('/auth/register', data);
 	};
 }
 

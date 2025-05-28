@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '../common/use-query';
-import { IAddManualTimeRequest, ITimeLog } from '@/core/types/interfaces/timer/ITimerLogs';
-import { TimeLogType, TimerSource } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
+import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
@@ -15,9 +17,9 @@ export function useManualTime() {
 		(data: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
 			queryAddManualTime({
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee.id ?? '',
-				logType: TimeLogType.MANUAL,
-				source: TimerSource.BROWSER,
+				employeeId: user?.employee?.id ?? '',
+				logType: ETimeLogType.MANUAL,
+				source: ETimeLogSource.BROWSER,
 				...data
 			})
 				.then((response) => {
@@ -27,7 +29,7 @@ export function useManualTime() {
 					console.log(error);
 				});
 		},
-		[queryAddManualTime, user?.employee.id, user?.tenantId]
+		[queryAddManualTime, user?.employee?.id, user?.tenantId]
 	);
 
 	return {

@@ -1,28 +1,31 @@
 'use client';
 
-import { IUser, OT_Member, RoleNameEnum } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+
 export function useIsMemberManager(user: IUser | undefined | null) {
 	const [isTeamManager, setTeamManager] = useState(false);
 	const [isTeamCreator, setTeamCreator] = useState(false);
-	const [activeManager, setActiveManager] = useState<OT_Member>();
+	const [activeManager, setActiveManager] = useState<IOrganizationTeamEmployee>();
 	const activeTeam = useAtomValue(activeTeamState);
 
 	useEffect(() => {
 		if (activeTeam && user) {
 			// Team manager
-			const isM = activeTeam?.members?.find((member) => {
-				const isUser = member.employee.userId === user?.id;
+			const isM = activeTeam?.members?.find((member: IOrganizationTeamEmployee) => {
+				const isUser = member.employee?.userId === user?.id;
 
 				return (
 					isUser &&
 					member.role &&
-					(member.role.name === RoleNameEnum.MANAGER ||
-						member.role.name === RoleNameEnum.SUPER_ADMIN ||
-						member.role.name === RoleNameEnum.ADMIN)
+					(member.role.name === ERoleName.MANAGER ||
+						member.role.name === ERoleName.SUPER_ADMIN ||
+						member.role.name === ERoleName.ADMIN)
 				);
 			});
 			setActiveManager(isM);

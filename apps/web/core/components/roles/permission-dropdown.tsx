@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces';
+import { IRole } from '@/core/types/interfaces/role/role';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -53,7 +53,8 @@ export const PermissionDropDown = ({
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEditRole({
 				...editRole,
-				name: e.target.value
+				name: e.target.value,
+				id: editRole?.id ?? ''
 			});
 		},
 		[editRole]

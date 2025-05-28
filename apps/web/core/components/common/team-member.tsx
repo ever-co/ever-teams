@@ -16,11 +16,11 @@ const TeamMemberSection = () => {
 	const $teamsFetching = getOrganizationTeamsLoading && members.length === 0;
 
 	const currentUser = members.find((m) => {
-		return m.employee.userId === user?.id;
+		return m.employee?.userId === user?.id;
 	});
 
 	const $members = members.filter((m) => {
-		return m.employee.userId !== user?.id;
+		return m.employee?.userId !== user?.id;
 	});
 
 	return (

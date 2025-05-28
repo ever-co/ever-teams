@@ -1,6 +1,6 @@
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IRegisterDataAPI } from '@/core/types/interfaces/IAuthentication';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import {
 	createEmployeeFromUser,
 	createOrganizationRequest,
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
 	const { data: employee } = await createEmployeeFromUser(
 		{
 			organizationId: organization.id,
-			startedWorkOn: new Date().toISOString(),
+			startedWorkOn: new Date(),
 			tenantId: tenant.id,
 			userId: user.id
 		},

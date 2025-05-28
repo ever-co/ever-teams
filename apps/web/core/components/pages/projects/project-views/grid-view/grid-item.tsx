@@ -35,8 +35,8 @@ export default function GridItem(props: IGridItemProps) {
 			data?.members
 				?.filter((el) => !el.isManager)
 				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					name: el?.employee?.fullName
+					imageUrl: el?.employee?.user?.imageUrl || '',
+					name: el?.employee?.fullName || ''
 				})) || [],
 		[data?.members]
 	);
@@ -46,8 +46,8 @@ export default function GridItem(props: IGridItemProps) {
 			data?.members
 				?.filter((el) => el.isManager)
 				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					name: el?.employee?.fullName
+					imageUrl: el?.employee?.user?.imageUrl || '',
+					name: el?.employee?.fullName || ''
 				})) || [],
 		[data?.members]
 	);

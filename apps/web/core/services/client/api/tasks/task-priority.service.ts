@@ -1,11 +1,7 @@
-import {
-	DeleteResponse,
-	ITaskPrioritiesCreate,
-	ITaskPrioritiesItemList,
-	PaginationResponse
-} from '@/core/types/interfaces';
+import { ITaskPrioritiesCreate, ITaskPriority } from '@/core/types/interfaces/task/task-priority';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 class TaskPriorityService extends APIService {
 	createTaskPriority = async (data: ITaskPrioritiesCreate, tenantId?: string) => {
@@ -27,7 +23,7 @@ class TaskPriorityService extends APIService {
 	getTaskPrioritiesList = async (tenantId: string, organizationId: string, organizationTeamId: string | null) => {
 		const endpoint = `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-		return this.get<PaginationResponse<ITaskPrioritiesItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskPriority>>(endpoint, { tenantId });
 	};
 }
 

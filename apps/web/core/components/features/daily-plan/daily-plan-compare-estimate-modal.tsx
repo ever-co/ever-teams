@@ -3,7 +3,6 @@
 import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
@@ -15,6 +14,9 @@ import { IconsErrorWarningFill } from '@/core/components/icons';
 import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
 import { Card } from '../../duplicated-components/card';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -110,9 +112,9 @@ export function DailyPlanCompareEstimatedModal({
 	);
 }
 
-export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: any }) {
+export function DailyPlanTask({ task, profile }: { task?: ITask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
-	const member = task?.selectedTeam?.members.find((member) => {
+	const member = task?.selectedTeam?.members?.find((member: IOrganizationTeamEmployee) => {
 		return member?.employee?.user?.id === profile?.userProfile?.id;
 	});
 

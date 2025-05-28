@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
-import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../../tasks/daily-plan';
@@ -26,6 +27,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Card } from '../../duplicated-components/card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -34,7 +36,7 @@ import { UnplanActiveTaskModal } from './unplan-active-task-modal';
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
  * @param {IDailyPlan} props.plan - The selected plan
- * @param {ITeamTask[]} props.tasks - The list of planned tasks
+ * @param {ITask[]} props.tasks - The list of planned tasks
  * @param {boolean} props.isRenderedInSoftFlow - If true use the soft flow logic.
  * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
@@ -44,7 +46,7 @@ interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
 	plan?: IDailyPlan;
-	tasks: ITeamTask[];
+	tasks: ITask[];
 	isRenderedInSoftFlow?: boolean;
 	selectedDate?: Date;
 }
@@ -71,7 +73,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const totalWorkedTime = useMemo(
 		() =>
 			plan && plan.tasks
-				? plan.tasks.reduce((acc, cur) => {
+				? plan.tasks.reduce((acc: number, cur) => {
 						const totalWorkedTime = cur.totalWorkedTime ?? 0;
 
 						return acc + totalWorkedTime;
@@ -81,7 +83,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	);
 	const [warning, setWarning] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
+	const [defaultTask, setDefaultTask] = useState<ITask | null>(null);
 	const isActiveTaskPlanned = useMemo(
 		() => plan && plan.tasks && plan.tasks.some((task) => task.id == activeTeamTask?.id),
 		[activeTeamTask?.id, plan]
@@ -241,9 +243,19 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const sortedTasks = useMemo(
 		() =>
 			[...tasks].sort((t1, t2) => {
-				if ((t1.estimate === null || t1.estimate <= 0) && t2.estimate !== null && t2.estimate > 0) {
+				if (
+					(t1.estimate === null || (t1.estimate && t1.estimate <= 0)) &&
+					t2.estimate !== null &&
+					t2.estimate &&
+					t2.estimate > 0
+				) {
 					return -1;
-				} else if (t1.estimate !== null && t1.estimate > 0 && (t2.estimate === null || t2.estimate <= 0)) {
+				} else if (
+					t1.estimate !== null &&
+					t1.estimate &&
+					t1.estimate > 0 &&
+					(t2.estimate === null || (t2.estimate && t2.estimate <= 0))
+				) {
 					return 1;
 				} else {
 					return 0;
@@ -256,7 +268,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	useEffect(() => {
 		if (!sortedTasks.find((task) => task.id == activeTeamTask?.id)) {
 			[...sortedTasks].forEach((task) => {
-				if (task.estimate !== null && task.estimate > 0) {
+				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
@@ -532,8 +544,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 interface ISearchTaskInputProps {
 	selectedPlan?: IDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
-	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
-	defaultTask: ITeamTask | null;
+	setDefaultTask: Dispatch<SetStateAction<ITask | null>>;
+	defaultTask: ITask | null;
 	selectedDate?: Date;
 }
 
@@ -543,8 +555,8 @@ interface ISearchTaskInputProps {
  * @param {Object} props - The props object
  * @param {string} props.selectedPlan - The selected plan
  * @param {Dispatch<SetStateAction<boolean>>} props.setShowSearchInput - A setter for (showing / hiding) the input
- * @param {Dispatch<SetStateAction<ITeamTask>>} props.setDefaultTask - A function that sets default planned task
- * @param {ITeamTask} props.defaultTask - The default planned task
+ * @param {Dispatch<SetStateAction<ITask>>} props.setDefaultTask - A function that sets default planned task
+ * @param {ITask} props.defaultTask - The default planned task
  * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
  * @returns The Search input component
@@ -554,7 +566,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatuses } = useTaskStatus();
 	const [taskName, setTaskName] = useState('');
-	const [tasks, setTasks] = useState<ITeamTask[]>([]);
+	const [tasks, setTasks] = useState<ITask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
 	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
 	const t = useTranslations();
@@ -686,8 +698,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
  */
 
 interface ITaskCardProps {
-	task: ITeamTask;
-	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
+	task: ITask;
+	setDefaultTask: Dispatch<SetStateAction<ITask | null>>;
 	isDefaultTask: boolean;
 	plan?: IDailyPlan;
 	viewListMode?: 'planned' | 'searched';
@@ -740,10 +752,10 @@ function TaskCard(props: ITaskCardProps) {
 						workTimePlanned: 0,
 						taskId: task.id,
 						date: new Date(moment(planDate).format('YYYY-MM-DD')),
-						status: DailyPlanStatusEnum.OPEN,
+						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee.id,
-						organizationId: user?.employee.organizationId
+						employeeId: user?.employee?.id,
+						organizationId: user?.employee?.organizationId
 					});
 				}
 			}
@@ -758,8 +770,8 @@ function TaskCard(props: ITaskCardProps) {
 		plan,
 		selectedDate,
 		task.id,
-		user?.employee.id,
-		user?.employee.organizationId,
+		user?.employee?.id,
+		user?.employee?.organizationId,
 		user?.tenantId
 	]);
 
@@ -838,7 +850,7 @@ function TaskCard(props: ITaskCardProps) {
  */
 
 interface ITaskCardActionsProps {
-	task: ITeamTask;
+	task: ITask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
 	openUnplanActiveTaskModal: () => void;
@@ -848,7 +860,7 @@ interface ITaskCardActionsProps {
  * A Popover that contains task actions (view, edit, unplan)
  *
  * @param {object} props - The props object
- * @param {ITeamTask} props.task - The task on which actions will be performed
+ * @param {ITask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
  * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
@@ -867,7 +879,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			[...futurePlans, ...todayPlan]
 				// Remove selected plan
 				.filter((plan) => plan.id! !== selectedPlan.id)
-				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
+				.filter((plan) => plan.tasks && plan.tasks.find((_task: ITask) => _task.id == task.id))
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
@@ -890,14 +902,14 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					} else {
 						selectedPlan?.id &&
 							(await removeTaskFromPlan(
-								{ taskId: task.id, employeeId: user?.employee.id },
+								{ taskId: task.id, employeeId: user?.employee?.id },
 								selectedPlan?.id
 							));
 					}
 				} else {
 					selectedPlan?.id &&
 						(await removeTaskFromPlan(
-							{ taskId: task.id, employeeId: user?.employee.id },
+							{ taskId: task.id, employeeId: user?.employee?.id },
 							selectedPlan?.id
 						));
 				}
@@ -915,7 +927,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			selectedPlan.id,
 			task.id,
 			timerStatus?.running,
-			user?.employee.id
+			user?.employee?.id
 		]
 	);
 
@@ -1038,7 +1050,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { activeTeamTask } = useTeamTasks();
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
-		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
+		() => todayPlan[0].tasks?.find((task: ITask) => task.id === activeTeamTask?.id),
 		[activeTeamTask?.id, todayPlan]
 	);
 
@@ -1054,10 +1066,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
 					}
 				} else {
-					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
 				}
 
 				closePopover();
@@ -1076,7 +1088,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 			removeManyTaskPlans,
 			taskId,
 			timerStatus?.running,
-			user?.employee.id
+			user?.employee?.id
 		]
 	);
 

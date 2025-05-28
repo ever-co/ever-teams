@@ -1,13 +1,13 @@
-import { ITaskPrioritiesItemList } from '@/core/types/interfaces/ITaskPriorities';
 import { atom } from 'jotai';
+import { ITaskPriority } from '@/core/types/interfaces/task/task-priority';
 
-export const taskPrioritiesListState = atom<ITaskPrioritiesItemList[]>([]);
+export const taskPrioritiesListState = atom<ITaskPriority[]>([]);
 
 export const activeTaskPrioritiesIdState = atom<string | null>(null);
 
 export const taskPrioritiesFetchingState = atom<boolean>(false);
 
-export const activeTaskPrioritiesState = atom<ITaskPrioritiesItemList | null>((get) => {
+export const activeTaskPrioritiesState = atom<ITaskPriority | null>((get) => {
 	const taskPriorities = get(taskPrioritiesListState);
 	const activeId = get(activeTaskPrioritiesIdState);
 	return taskPriorities.find((priority) => priority.id === activeId) || taskPriorities[0] || null;

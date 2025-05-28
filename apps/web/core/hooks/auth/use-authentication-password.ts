@@ -1,12 +1,13 @@
 'use client';
 
 import { validateForm } from '@/core/lib/helpers/index';
-import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { useCallback, useRef, useState } from 'react';
 import { useQuery } from '../common/use-query';
 import { AxiosError, isAxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 type AuthCodeRef = {
 	focus: () => void;

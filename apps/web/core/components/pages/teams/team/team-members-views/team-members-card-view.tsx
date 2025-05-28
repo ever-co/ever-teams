@@ -2,15 +2,15 @@ import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInv
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from '../../../../features/teams/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from '../../../../teams/invite/user-invite-card';
-import { OT_Member } from '@/core/types/interfaces';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import React, { useCallback, useEffect } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
 
 interface Props {
-	teamMembers: OT_Member[];
+	teamMembers: any[];
 	publicTeam: boolean;
-	currentUser: OT_Member | undefined;
+	currentUser?: any;
 	teamsFetching: boolean;
 }
 
@@ -26,14 +26,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
 	// TODO: sort teamMembers by index
-	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
+	const [memberOrdereds, setMemberOrdereds] = React.useState<any[]>(members);
 	const dragTeamMember = React.useRef<number>(0);
 	const draggedOverTeamMember = React.useRef<number>(0);
 
 	useEffect(() => setMemberOrdereds(members), [members]);
 
 	const handleChangeOrder = useCallback(
-		(employee: OT_Member, order: number) => {
+		(employee: IOrganizationTeamEmployee, order: number) => {
 			updateOrganizationTeamEmployeeOrderOnList(employee, order);
 		},
 		[updateOrganizationTeamEmployeeOrderOnList]
@@ -73,7 +73,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 							onDragStart={() => (dragTeamMember.current = 0)}
 							onDragEnter={() => (draggedOverTeamMember.current = 0)}
 							onDragEnd={handleSort}
-							onDragOver={(e) => e.preventDefault()}
+							onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
 						/>
 					</li>
 				</Transition>
@@ -104,7 +104,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 										draggedOverTeamMember.current = i;
 									}}
 									onDragEnd={handleSort}
-									onDragOver={(e) => e.preventDefault()}
+									onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
 								/>
 							</li>
 						</Transition>

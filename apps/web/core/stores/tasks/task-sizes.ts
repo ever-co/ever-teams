@@ -1,13 +1,13 @@
-import { ITaskSizesItemList } from '@/core/types/interfaces/ITaskSizes';
+import { ITaskSize } from '@/core/types/interfaces/task/task-size';
 import { atom } from 'jotai';
 
-export const taskSizesListState = atom<ITaskSizesItemList[]>([]);
+export const taskSizesListState = atom<ITaskSize[]>([]);
 
 export const activeTaskSizesIdState = atom<string | null>(null);
 
 export const taskSizesFetchingState = atom<boolean>(false);
 
-export const activeTaskSizesState = atom<ITaskSizesItemList | null>((get) => {
+export const activeTaskSizesState = atom<ITaskSize | null>((get) => {
 	const taskSizes = get(taskSizesListState);
 	const activeId = get(activeTaskSizesIdState);
 	return taskSizes.find((size) => size.id === activeId) || taskSizes[0] || null;

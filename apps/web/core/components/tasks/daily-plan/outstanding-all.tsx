@@ -8,8 +8,10 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState } from 'react';
-import { ITeamTask, IUser } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 interface OutstandingAll {
 	profile: any;
@@ -23,11 +25,13 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 	const tasks = outstandingPlans.flatMap(
 		(plan) =>
 			(user
-				? plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				? plan.tasks?.filter((task: ITask) =>
+						task.members?.some((member: IEmployee) => member.userId === user.id)
+					)
 				: plan.tasks) ?? []
 	);
 
-	const [task, setTask] = useState<ITeamTask[]>(() => tasks);
+	const [task, setTask] = useState<ITask[]>(() => tasks);
 
 	return (
 		<div className="flex flex-col gap-6">

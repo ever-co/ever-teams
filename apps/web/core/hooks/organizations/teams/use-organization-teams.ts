@@ -8,7 +8,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
+import { IOrganizationTeam, IOrganizationTeamUpdate } from '@/core/types/interfaces/team/organization-team';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -26,6 +26,7 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { useFirstLoad, useQuery, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -39,7 +40,7 @@ function useTeamsState() {
 	const teamsRef = useSyncRef(teams);
 
 	const setTeamsUpdate = useCallback(
-		(team: IOrganizationTeamWithMStatus) => {
+		(team: IOrganizationTeam) => {
 			// Update active teams fields with from team Status API
 			setTeams((tms) => {
 				return [...tms.filter((t) => t.id != team.id), team];
@@ -74,7 +75,7 @@ function useCreateOrganizationTeam() {
 		(name: string) => {
 			const teams = teamsRef.current;
 			const $name = name.trim();
-			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
+			const exits = teams.find((t: IOrganizationTeam) => t.name.toLowerCase() === $name.toLowerCase());
 
 			if (exits || $name.length < 2 || !$user.current) {
 				return Promise.reject(new Error('Invalid team name !'));
@@ -83,10 +84,10 @@ function useCreateOrganizationTeam() {
 			return queryCall($name, $user.current).then(async (res) => {
 				const dt = res.data?.items || [];
 				setTeams(dt);
-				const created = dt.find((t) => t.name === $name);
+				const created = dt.find((t: IOrganizationTeam) => t.name === $name);
 				if (created) {
 					setActiveTeamIdCookie(created.id);
-					setOrganizationIdCookie(created.organizationId);
+					setOrganizationIdCookie(created.organizationId || '');
 					// This must be called at the end (Update store)
 					setActiveTeamId(created.id);
 					if (!isTeamMember) {
@@ -120,17 +121,17 @@ function useUpdateOrganizationTeam() {
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
-		(team: IOrganizationTeamList, data: Partial<IOrganizationTeamUpdate> = {}) => {
+		(team: IOrganizationTeam, data: Partial<IOrganizationTeamUpdate> = {}) => {
 			const members = team.members;
 
 			const body: Partial<IOrganizationTeamUpdate> = {
 				id: team.id,
 				memberIds: members
-					.map((t) => t.employee.id)
+					?.map((t: IOrganizationTeamEmployee) => t.employee?.id || '')
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				managerIds: members
-					.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t) => t.employee.id)
+					?.filter((m) => m.role && m.role.name === 'MANAGER')
+					.map((t: IOrganizationTeamEmployee) => t.employee?.id || '')
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				name: team.name,
 				tenantId: team.tenantId,
@@ -302,13 +303,13 @@ export function useOrganizationTeams() {
 	// const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
 
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
-	const currentUser = members.find((member) => member.employee.userId === user?.id);
+	const currentUser = members.find((member: IOrganizationTeamEmployee) => member.employee?.userId === user?.id);
 
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
 	const isTrackingEnabled = activeTeam?.members?.find(
-		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
+		(member: IOrganizationTeamEmployee) => member.employee?.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
 		: false;
@@ -332,8 +333,8 @@ export function useOrganizationTeams() {
 
 	const isManager = useCallback(() => {
 		const $u = user;
-		const isM = members.find((member) => {
-			const isUser = member.employee.userId === $u?.id;
+		const isM = members.find((member: IOrganizationTeamEmployee) => {
+			const isUser = member.employee?.userId === $u?.id;
 			return isUser && member.role && member.role.name === 'MANAGER';
 		});
 		setIsTeamManager(!!isM);
@@ -342,7 +343,7 @@ export function useOrganizationTeams() {
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
 			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId);
+			setOrganizationIdCookie(team?.organizationId || '');
 			// This must be called at the end (Update store)
 			setActiveTeamId(team?.id);
 
@@ -361,8 +362,8 @@ export function useOrganizationTeams() {
 		if (
 			getOrganizationTeamsLoadingRef.current ||
 			loadingRefTeam.current ||
-			!user?.employee.organizationId ||
-			!user?.employee.tenantId
+			!user?.employee?.organizationId ||
+			!user?.employee?.tenantId
 		) {
 			return;
 		}
@@ -402,7 +403,7 @@ export function useOrganizationTeams() {
 			}
 
 			teamId &&
-				user?.employee.organizationId &&
+				user?.employee?.organizationId &&
 				user?.employee.tenantId &&
 				queryCallTeam(teamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 					const newTeam = res.data;

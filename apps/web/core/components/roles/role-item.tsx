@@ -1,18 +1,18 @@
-import { IRoleList } from '@/core/types/interfaces';
+import { IRole } from '@/core/types/interfaces/role/role';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import React, { HTMLAttributes } from 'react';
 
-export type RoleItem = DropdownItem<IRoleList>;
+export type RoleItem = DropdownItem<IRole>;
 
-export function mapRoleItems(roles: IRoleList[]) {
+export function mapRoleItems(roles: IRole[]) {
 	// eslint-disable-next-line react/display-name
 	const RoleLabel = React.memo(({ selected, name }: { selected: boolean | undefined; name: string }) => (
 		<div className="flex justify-between">
 			<RoleItem title={name} className={selected ? 'font-medium' : ''} />
 		</div>
 	));
-	const items = roles.map<RoleItem>((role: IRoleList) => {
+	const items = roles.map<RoleItem>((role: IRole) => {
 		const name = role.name || 'Unnamed Role';
 		return {
 			key: role.id,

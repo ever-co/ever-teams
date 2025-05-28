@@ -6,10 +6,12 @@ import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { ITasksTimesheet, ITime, OT_Member } from '@/core/types/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITime } from '@/core/types/interfaces/common/time';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -37,15 +39,15 @@ const TaskProgress = () => {
 
 	const members = activeTeam?.members || [];
 
-	const currentUser: OT_Member | undefined = members.find((m) => {
-		return m.employee.user?.id === user?.id;
+	const currentUser: any = members.find((m) => {
+		return m.employee?.user?.id === user?.id;
 	});
 
 	// const memberInfo = useTeamMemberCard(currentUser);
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalWorkedTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -58,7 +60,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalTodayTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -70,16 +72,17 @@ const TaskProgress = () => {
 	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
-		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
-			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		const matchingMembers: IOrganizationTeamEmployee[] | undefined = activeTeam?.members?.filter((member) =>
+			task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
-		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
-			?.flatMap((obj) => obj.totalWorkedTasks)
-			.filter((taskObj) => taskObj?.id === task?.id);
+		const usersTaskArray: ITasksStatistics[] =
+			matchingMembers
+				?.flatMap((obj) => obj.totalWorkedTasks || [])
+				.filter((taskObj) => taskObj?.id === task?.id) || [];
 
 		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
-			(totalDuration, item) => totalDuration + item.duration,
+			(totalDuration, item) => totalDuration + (item.duration ?? 0),
 			0
 		);
 
@@ -181,11 +184,11 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 	const [task] = useAtom(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
-	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
-		task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	const matchingMembers = activeTeam?.members?.filter((member) =>
+		task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
-	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
+	const findUserTotalWorked = (user: IOrganizationTeamEmployee, id: string | undefined) => {
 		return user?.totalWorkedTasks?.find((task: any) => task?.id === id)?.duration || 0;
 	};
 
@@ -202,10 +205,10 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 					<div key={member.id} className="mt-2">
 						<ProfileInfoWithTime
 							key={member.id}
-							profilePicSrc={member.employee.user?.imageUrl}
-							names={member.employee.fullName}
+							profilePicSrc={member.employee?.user?.imageUrl}
+							names={member.employee?.fullName}
 							time={time}
-							userId={member.employee.userId}
+							userId={member.employee?.userId || ''}
 						/>
 					</div>
 				);

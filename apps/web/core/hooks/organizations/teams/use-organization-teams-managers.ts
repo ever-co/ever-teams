@@ -46,22 +46,22 @@ export function useOrganizationAndTeamManagers() {
 			: filtered === 'pause'
 				? userManagedTeams.map((team) => ({
 						...team,
-						members: team.members.filter((member) => member.timerStatus === 'pause')
+						members: team.members?.filter((member) => member.timerStatus === 'pause')
 					}))
 				: filtered === 'running'
 					? userManagedTeams.map((team) => ({
 							...team,
-							members: team.members.filter((member) => member.timerStatus === 'running')
+							members: team.members?.filter((member) => member.timerStatus === 'running')
 						}))
 					: filtered === 'suspended'
 						? userManagedTeams.map((team) => ({
 								...team,
-								members: team.members.filter((member) => member.timerStatus === 'suspended')
+								members: team.members?.filter((member) => member.timerStatus === 'suspended')
 							}))
 						: filtered === 'invited'
 							? userManagedTeams.map((team) => ({
 									...team,
-									members: team.members.filter((member) => member.employee.acceptDate)
+									members: team.members?.filter((member) => member.employee?.acceptDate)
 								}))
 							: userManagedTeams;
 	}, [filtered, userManagedTeams]);

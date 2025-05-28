@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { AxiosError, isAxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -131,7 +131,7 @@ export function useAuthenticationPasscode() {
 			try {
 				const response = await signInEmailConfirmQueryCall(email, code);
 
-				if (response?.data?.team || (response?.data?.workspaces?.length ?? 0) > 0) {
+				if (response?.data?.user || (response?.data?.workspaces?.length ?? 0) > 0) {
 					setAuthenticated(true);
 					setStatus('success');
 					if (response.data.workspaces?.length > 0) {

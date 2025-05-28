@@ -1,8 +1,9 @@
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
-import { ITag, PaginationResponse } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 class TagService extends APIService {
 	getTags = async () => {

@@ -3,15 +3,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeamList, IProject, ITeamTask } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 
 interface TimeActivityHeaderProps {
-	userManagedTeams?: IOrganizationTeamList[];
-	projects?: IProject[];
-	tasks?: ITeamTask[];
-	activeTeam?: IOrganizationTeamList | null;
+	userManagedTeams?: IOrganizationTeam[];
+	projects?: IOrganizationProject[];
+	tasks?: ITask[];
+	activeTeam?: IOrganizationTeam | null;
 }
 
 const STORAGE_KEY = 'ever-teams-activity-filters';
@@ -177,7 +179,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-member"
 									removeItems={shouldRemoveItems}
 									items={activeTeam?.members || []}
-									itemToString={(member) => member?.employee.fullName || ''}
+									itemToString={(member) => member?.employee?.fullName || ''}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
 									multiSelect={true}

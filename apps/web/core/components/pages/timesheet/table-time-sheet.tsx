@@ -2,31 +2,16 @@
 
 import * as React from 'react';
 import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@/core/components/duplicated-components/_button';
 import {
-	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuPortal,
-	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger
+	DropdownMenuSub
 } from '@/core/components/common/dropdown-menu';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue
-} from '@/core/components/common/select';
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
+import { SelectContent } from '@/core/components/common/select';
+import { MdKeyboardArrowUp } from 'react-icons/md';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
 import { useModal, useTimelogFilterOptions } from '@/core/hooks';
-import { Checkbox } from '@/core/components/common/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
@@ -50,9 +35,29 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { IUser, TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { Button } from '@/core/components/common/button';
+import { Checkbox } from '@/core/components/common/checkbox';
+import {
+	Select,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/common/select';
+import {
+	DropdownMenu,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+	DropdownMenuSeparator
+} from '@/core/components/common/dropdown-menu';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
 	const accordionRef = React.useRef(null);
@@ -107,9 +112,9 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			case 'Approved':
 				if (selectTimesheetId.length > 0) {
 					updateTimesheetStatus({
-						status: 'APPROVED',
+						status: ETimesheetStatus.APPROVED,
 						ids: selectTimesheetId
-							.map((select) => select.timesheetId)
+							.map((select) => select.timesheetId || '')
 							.filter((timesheetId) => timesheetId !== undefined)
 					})
 						.then(() => setSelectTimesheetId([]))
@@ -140,7 +145,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			/>
 			<RejectSelectedModal
 				selectTimesheetId={selectTimesheetId
-					.map((select) => select.timesheetId)
+					.map((select) => select.timesheetId || '')
 					.filter((timesheetId) => timesheetId !== undefined)}
 				onReject={() => {
 					// Pending implementation
@@ -296,24 +301,29 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	<EmployeeAvatar
 																		className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
 																		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-																		imageUrl={task.employee.user.imageUrl!}
+																		imageUrl={task.employee?.user.imageUrl!}
 																	/>
 																	<span className="flex-1 font-medium">
-																		{task.employee.fullName}
+																		{task.employee?.fullName}
 																	</span>
 																</div>
 																<div className="flex-1">
 																	<Badge
-																		className={`${getBadgeColor(task.timesheet.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
+																		className={`${getBadgeColor(task.timesheet?.status as ETimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
 																	>
-																		{task.timesheet.status === 'DENIED'
+																		{task.timesheet?.status ===
+																		ETimesheetStatus.DENIED
 																			? 'REJECTED'
-																			: task.timesheet.status}
+																			: task.timesheet?.status}
 																	</Badge>
 																</div>
 																<DisplayTimeForTimesheet
 																	timesheetLog={task}
-																	logType={task.logType}
+																	logType={
+																		task.logType
+																			? ETimeLogType[task.logType]
+																			: ETimeLogType.TRACKED
+																	}
 																/>
 																<TaskActionMenu
 																	dataTimesheet={task}
@@ -394,14 +404,14 @@ const TaskActionMenu = ({
 	isManage,
 	user
 }: {
-	dataTimesheet: TimesheetLog;
+	dataTimesheet: ITimeLog;
 	isManage?: boolean;
 	user?: IUser | undefined;
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
-	const canEdit = isManage || user?.id === dataTimesheet.employee.user.id;
+	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
 
 	const t = useTranslations();
 	const handleDeleteTask = () => {
@@ -463,7 +473,7 @@ const TaskActionMenu = ({
 	);
 };
 
-export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
+export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 	const t = useTranslations();
 	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
 	const handleUpdateTimesheet = async (isBillable: boolean) => {
@@ -496,8 +506,8 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 								onClick={async () => {
 									try {
 										await updateTimesheetStatus({
-											status: status.label as TimesheetStatus,
-											ids: [timesheet.timesheet.id]
+											status: status.label as ETimesheetStatus,
+											ids: [timesheet.timesheet?.id ?? '']
 										});
 									} catch (error) {
 										console.error('Failed to update timesheet status:');
@@ -551,7 +561,7 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	);
 };
 
-export const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
+export const getBadgeColor = (timesheetStatus: ETimesheetStatus | null) => {
 	switch (timesheetStatus) {
 		case 'DRAFT':
 			return 'bg-gray-300';
@@ -614,10 +624,10 @@ const HeaderRow = ({
 }: {
 	status: string;
 	onSort: (key: string, order: SortOrder) => void;
-	data: TimesheetLog[];
+	data: ITimeLog[];
 	handleSelectRowByStatusAndDate: (status: string, date: string) => void;
 	date?: string;
-	selectedIds: TimesheetLog[];
+	selectedIds: ITimeLog[];
 }) => {
 	const { bg, bgOpacity } = statusColor(status);
 	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({

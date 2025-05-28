@@ -1,9 +1,9 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
-import { I_SMTPRequest } from '@/core/types/interfaces/ISmtp';
+import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
 import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
-import { ManualTimeReasons } from '@/core/types/interfaces/timer/IManualTimeReasons';
+import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -426,13 +426,13 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Add manual timer reason
 
-export const manualTimeReasons: ManualTimeReasons[] = [
-	'LOST_ELECTRICITY',
-	'LOST_INTERNET',
-	'FORGOT_TO_START_TIMER',
-	'ERROR',
-	'UNPLANNED_WORK',
-	'TESTED_TIMER'
+export const manualTimeReasons: EManualTimeReasons[] = [
+	EManualTimeReasons.LOST_ELECTRICITY,
+	EManualTimeReasons.LOST_INTERNET,
+	EManualTimeReasons.FORGOT_TO_START_TIMER,
+	EManualTimeReasons.ERROR,
+	EManualTimeReasons.UNPLANNED_WORK,
+	EManualTimeReasons.TESTED_TIMER
 ];
 
 export const statusOptions = [
@@ -476,3 +476,12 @@ export const FILE_CACHE_MAX_AGE_SEC = 31536000;
 export const FILE_UPLOAD_MAX_BYTES = 3 * 1024 * 1024;
 
 export const LOCAL_STORAGE_THEME = 'excalidraw-theme';
+
+export const TIMESHEET_RELATIONS = [
+	'project',
+	'task',
+	'organizationContact',
+	'employee.user',
+	'task.taskStatus',
+	'timesheet'
+] as const;

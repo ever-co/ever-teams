@@ -2,7 +2,8 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { DeleteResponse, IIntegrationTenant, PaginationResponse } from '@/core/types/interfaces';
+import { IIntegrationTenant } from '@/core/types/interfaces/integrations/integration-tenant';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 class IntegrationTenantService extends APIService {
 	getIntegrationTenant = async (name: string) => {

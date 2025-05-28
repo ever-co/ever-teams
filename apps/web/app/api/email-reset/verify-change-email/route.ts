@@ -1,4 +1,3 @@
-import { ICode } from '@/core/types/interfaces/IUserData';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { verifyChangemailRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -8,7 +7,9 @@ export async function POST(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-	const { code } = (await req.json()) as ICode;
+	const { code } = (await req.json()) as {
+		code: string;
+	};
 
 	const response = await verifyChangemailRequest({
 		code,

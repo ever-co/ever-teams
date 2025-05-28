@@ -1,20 +1,21 @@
 import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export default function UserTeamActiveTaskTimesBlock({
 	member,
 	activeTaskId
 }: {
-	member: OT_Member;
+	member: IOrganizationTeamEmployee;
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);
 
 	const { getTaskById } = useTeamTasks();
 
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 
 	useEffect(() => {
 		getTaskById(activeTaskId || '')

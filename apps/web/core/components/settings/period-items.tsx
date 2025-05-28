@@ -1,6 +1,6 @@
-import { IPeriod } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
+import { IPeriod } from './period-dropdown';
 
 export type PeriodItem = DropdownItem<IPeriod>;
 

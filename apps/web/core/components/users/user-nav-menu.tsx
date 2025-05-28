@@ -2,7 +2,6 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, ThemeInterface } from '@/core/types/interfaces';
 import { publicState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -37,6 +36,8 @@ import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
 import { Card } from '../duplicated-components/card';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { ThemeInterface } from '@/core/types/interfaces/common/theme';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -47,9 +48,9 @@ export function UserNavAvatar() {
 	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
-		return m.employee.userId === user?.id;
+		return m.employee?.userId === user?.id;
 	});
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 
@@ -142,7 +143,7 @@ function UserNavMenu() {
 
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
-		return m.employee.userId === user?.id;
+		return m.employee?.userId === user?.id;
 	});
 
 	const pathname = usePathname();
@@ -156,7 +157,7 @@ function UserNavMenu() {
 		return !notAllowedList.includes(pathname);
 	}, [pathname]);
 
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
 

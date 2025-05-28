@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 			organizationId,
 			logType: 'TRACKED',
 			source,
-			employeeId: user.employee.id,
+			employeeId: user.employee?.id,
 			duration: 5
 		},
 		access_token

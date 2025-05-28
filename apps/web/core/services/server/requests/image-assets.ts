@@ -1,4 +1,4 @@
-import { IImageAssets } from '@/core/types/interfaces';
+import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
 import { serverFetch } from '../fetch';
 
 type Params = {
@@ -9,7 +9,7 @@ type Params = {
 };
 
 export function createImageAssetsRequest(params: Params, body: FormData) {
-	return serverFetch<IImageAssets>({
+	return serverFetch<IImageAsset>({
 		path: '/image-assets/upload/' + params.folder,
 		method: 'POST',
 		body,

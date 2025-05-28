@@ -3,7 +3,7 @@
 import { useAtomValue } from 'jotai';
 import { timerStatusState, userState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
 
@@ -24,14 +24,14 @@ export function useAutoAssignTask() {
 	 * Assign task to the member
 	 */
 	const autoAssignTask = useCallback(
-		(task: ITeamTask, employeeId: string) => {
-			const exists = task.members.some((t) => t.id === employeeId);
+		(task: ITask, employeeId: string) => {
+			const exists = task.members?.some((t) => t.id === employeeId);
 
 			if (exists || updateLoadingRef.current) return;
 
 			return updateTask({
 				...task,
-				members: [...task.members, (employeeId ? { id: employeeId } : {}) as any]
+				members: [...(task.members || []), (employeeId ? { id: employeeId } : {}) as any]
 			});
 		},
 		[updateTask, updateLoadingRef]
@@ -39,7 +39,7 @@ export function useAutoAssignTask() {
 
 	useEffect(() => {
 		if (firstLoad && timerStatus?.running && activeTeamTask && authUser) {
-			autoAssignTask(activeTeamTask, authUser.employee.id);
+			autoAssignTask(activeTeamTask, authUser.employee?.id || '');
 		}
 	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad]);
 

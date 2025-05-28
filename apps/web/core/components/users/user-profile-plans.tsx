@@ -25,7 +25,9 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { IDailyPlan, ITeamTask, IUser } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
@@ -187,7 +189,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 															outstandingPlans.map((plan) => {
 																const tasks = plan.tasks ?? [];
 																if (user) {
-																	return tasks.filter((task) =>
+																	return tasks.filter((task: ITask) =>
 																		task.members?.some(
 																			(member) => member.userId === user.id
 																		)
@@ -342,7 +344,9 @@ function AllPlans({
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+					tasks: plan.tasks?.filter((task: ITask) =>
+						task.members?.some((member) => member.userId === user.id)
+					)
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}
@@ -493,7 +497,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
-	const sumTimes = useCallback((tasks: ITeamTask[], key: any) => {
+	const sumTimes = useCallback((tasks: ITask[], key: any) => {
 		return (
 			tasks
 				?.map((task: any) => task[key])

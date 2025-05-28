@@ -1,6 +1,4 @@
 import { useTaskStatus } from '@/core/hooks';
-import { ITaskStatusItemList, ITeamTask } from '@/core/types/interfaces';
-import { IKanban } from '@/core/types/interfaces/IKanban';
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
@@ -13,7 +11,9 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
-import { useKanban } from '@/core/hooks/tasks/use-kanban';
+import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -38,7 +38,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { taskStatuses } = useTaskStatus();
-	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
+	const reorderTask = (list: ITask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
 		tasks.splice(endIndex, 0, removedTask);
@@ -102,8 +102,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	};
 
-	const getHeaderBackground = (columns: ITaskStatusItemList[], column: string) => {
-		const selectState = columns.find((item: ITaskStatusItemList) => {
+	const getHeaderBackground = (columns: ITaskStatus[], column: string) => {
+		const selectState = columns.find((item: ITaskStatus) => {
 			return item.name === column;
 		});
 

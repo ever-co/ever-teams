@@ -1,9 +1,10 @@
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { formatDayPlanDate } from './date-and-time';
 
 export const planBadgeContent = (
 	plans: IDailyPlan[],
-	taskId: ITeamTask['id'],
+	taskId: ITask['id'],
 	tab?: 'default' | 'unassign' | 'dailyplan'
 ): string | null => {
 	// Search a plan that contains a given task
@@ -29,7 +30,7 @@ export const planBadgeContent = (
 	}
 };
 
-export const planBadgeContPast = (dailyPlan: IDailyPlan[], taskId: ITeamTask['id']): string | null => {
+export const planBadgeContPast = (dailyPlan: IDailyPlan[], taskId: ITask['id']): string | null => {
 	const today = new Date().toISOString().split('T')[0];
 	const dailyPlanDataPast = dailyPlan.filter((plan) => new Date(plan.date) < new Date(today));
 	const allTasks = dailyPlanDataPast.flatMap((plan) => plan.tasks);

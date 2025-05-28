@@ -4,6 +4,7 @@ import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 export interface IRejectSelectedModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
@@ -42,7 +43,7 @@ export function RejectSelectedModal({
 		setIsSubmitting(true);
 		try {
 			updateTimesheetStatus({
-				status: 'DENIED',
+				status: ETimesheetStatus.DENIED,
 				ids: selectTimesheetId || []
 			})
 				.then(() => {

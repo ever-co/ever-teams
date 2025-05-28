@@ -1,12 +1,12 @@
 import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard } from '@/core/hooks';
-import { OT_Member } from '@/core/types/interfaces';
 import { TodayWorkedTime } from '@/core/components/tasks/task-times';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamActiveTaskTodayWorked({
 	member,
 	className
-}: Readonly<{ member: OT_Member; className?: string }>) {
+}: Readonly<{ member: IOrganizationTeamEmployee; className?: string }>) {
 	const memberInfo = useTeamMemberCard(member);
 	return (
 		<div

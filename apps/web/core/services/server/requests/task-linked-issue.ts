@@ -1,8 +1,8 @@
-import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@/core/types/interfaces';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { serverFetch } from '../fetch';
 
 export function createTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {
-	return serverFetch<ITaskLinkedIssueResponse>({
+	return serverFetch<ITaskLinkedIssue>({
 		path: '/task-linked-issue',
 		method: 'POST',
 		body: data,
@@ -11,8 +11,8 @@ export function createTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: stri
 	});
 }
 
-export function updateTaskLinkedIssue(data: LinkedTaskIssue, bearer_token: string, tenantId?: string) {
-	return serverFetch<LinkedTaskIssue>({
+export function updateTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {
+	return serverFetch<ITaskLinkedIssue>({
 		path: `/task-linked-issue/${data.id}`,
 		method: 'PUT',
 		body: data,

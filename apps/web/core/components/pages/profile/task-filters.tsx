@@ -2,7 +2,6 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useModal } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
@@ -29,6 +28,7 @@ import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
 import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 

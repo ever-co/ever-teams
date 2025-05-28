@@ -2,7 +2,7 @@
 
 import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';

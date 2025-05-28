@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -12,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();
@@ -19,7 +19,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskRelatedIssueTypeItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
 	const {
 		loading,

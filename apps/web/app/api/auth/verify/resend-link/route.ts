@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 	const { data } = await resentVerifyUserLinkRequest({
 		bearer_token: access_token,
 		tenantId,
-		email: user.email,
+		email: user.email || '',
 		appEmailConfirmationUrl
 	});
 

@@ -1,13 +1,14 @@
-import { IRole, PaginationResponse } from '@/core/types/interfaces';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { IRole } from '@/core/types/interfaces/role/role';
 
 class RoleService extends APIService {
 	getRoles = async () => {
 		return this.get<PaginationResponse<IRole>>('/roles');
 	};
 
-	createRole = async (data: IRole) => {
+	createRole = async (data: Omit<IRole, 'id'>) => {
 		return this.post<IRole>('/roles', data);
 	};
 

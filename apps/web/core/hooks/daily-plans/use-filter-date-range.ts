@@ -1,7 +1,7 @@
 'use client';
 
 import { isTestDateRange } from '@/core/lib/helpers/index';
-import { IDailyPlan } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import {
 	dateRangeAllPlanState,
 	dateRangeFuturePlanState,

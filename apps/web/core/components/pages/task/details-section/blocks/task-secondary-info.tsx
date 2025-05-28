@@ -1,5 +1,4 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { IProject, ITaskVersionCreate, ITeamTask } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
@@ -33,6 +32,10 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Card } from '@/core/components/duplicated-components/card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { EIssueType } from '@/core/types/generics/enums/task';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -65,7 +68,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITeamTask | undefined) => {
+		async (parentTask: ITask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 
@@ -83,7 +86,7 @@ const TaskSecondaryInfo = () => {
 	const tags = useMemo(() => {
 		return (
 			task?.tags
-				.map((tag) => {
+				?.map((tag) => {
 					return taskLabels[tag.name];
 				})
 				.filter(Boolean) || []
@@ -112,13 +115,13 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			{task && task.issueType === 'Story' && (
+			{task && task.issueType === EIssueType.STORY && (
 				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 					<TaskEpicDropdown
-						onValueChange={(d) => {
+						onValueChange={(d: string) => {
 							onTaskSelect({
 								id: d
-							} as ITeamTask);
+							} as ITask);
 						}}
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
@@ -237,14 +240,15 @@ const TaskSecondaryInfo = () => {
 	);
 };
 
-const EpicParent = ({ task }: { task: ITeamTask }) => {
+const EpicParent = ({ task }: { task: ITask }) => {
 	const t = useTranslations();
 
-	if (task?.issueType === 'Story') {
+	if (task?.issueType === EIssueType.STORY) {
 		return <></>;
 	}
 
-	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
+	return (!task?.issueType || task?.issueType === EIssueType.TASK || task?.issueType === EIssueType.BUG) &&
+		task?.rootEpic ? (
 		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
@@ -263,9 +267,9 @@ const EpicParent = ({ task }: { task: ITeamTask }) => {
 };
 
 interface ITaskProjectDropdownProps {
-	task?: ITeamTask;
+	task?: ITask;
 	controlled?: boolean;
-	onChange?: (project: IProject) => void;
+	onChange?: (project: IOrganizationProject) => void;
 	styles?: {
 		container?: string; // The dropdown element
 		value?: string;
@@ -279,9 +283,9 @@ export default TaskSecondaryInfo;
  * TaskProject dropdown
  *
  * @param {Object} props - The props object
- * @param {ITeamTask} props.task - The ITeamTask object which
+ * @param {ITask} props.task - The ITask object which
  * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
- * @param {(project: IProject) => void} props.onChange - The function called when user selects a value (external handler)
+ * @param {(project: 	IOrganizationProject) => void} props.onChange - The function called when user selects a value (external handler)
  *
  * @returns {JSX.Element} - The Dropdown element
  */
@@ -292,7 +296,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<IProject | null>(() => {
+	const [selected, setSelected] = useState<IOrganizationProject | null>(() => {
 		if (task && task.projectId) {
 			return organizationProjects.find((project) => project.id === task.projectId) || null;
 		}
@@ -309,7 +313,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	// Update the project
 	const handleUpdateProject = useCallback(
-		async (project: IProject) => {
+		async (project: IOrganizationProject) => {
 			try {
 				if (task) {
 					await updateTask({ ...task, projectId: project.id });
@@ -325,7 +329,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const handleRemoveProject = useCallback(async () => {
 		try {
 			if (task) {
-				await updateTask({ ...task, projectId: null });
+				await updateTask({ ...task, projectId: undefined });
 				setSelected(null);
 			}
 		} catch (error) {
@@ -343,7 +347,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			>
 				<Listbox
 					value={selected || undefined}
-					onChange={(project: IProject) => {
+					onChange={(project: IOrganizationProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {

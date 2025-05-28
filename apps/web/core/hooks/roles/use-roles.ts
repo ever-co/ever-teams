@@ -1,9 +1,9 @@
-import { IRole } from '@/core/types/interfaces';
 import { rolesState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../common/use-query';
 import { useFirstLoad } from '../common/use-first-load';
+import { IRole } from '@/core/types/interfaces/role/role';
 import { roleService } from '@/core/services/client/api/roles';
 
 export const useRoles = () => {
@@ -25,7 +25,7 @@ export const useRoles = () => {
 	}, [getRolesQueryCall]);
 
 	const createRole = useCallback(
-		async (role: IRole) => {
+		async (role: Omit<IRole, 'id'>) => {
 			try {
 				const res = await createRoleQueryCall(role);
 

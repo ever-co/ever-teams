@@ -1,12 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import {
-	ILoginResponse,
-	IOrganizationTeam,
-	IOrganizationTeamList,
-	ISigninEmailConfirmResponse,
-	ISigninWorkspaceInput
-} from '@/core/types/interfaces';
+
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { AxiosResponse } from 'axios';
@@ -15,6 +9,8 @@ import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/coo
 import { inviteService } from '../organizations/teams/invites';
 import { userOrganizationService } from '../users/user-organization.service';
 import { organizationTeamService } from '../organizations/teams';
+import { IAuthResponse, ISigninEmailConfirmResponse, ISigninWorkspaceInput } from '@/core/types/interfaces/auth/auth';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 class SigninService extends APIService {
 	signInEmailConfirm = async (data: { code: string; email: string }) => {
@@ -27,7 +23,7 @@ class SigninService extends APIService {
 	};
 
 	signInEmailCodeConfirmGauzy = async (email: string, code: string) => {
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		const { errors, valid: formValid } = authFormValidate(['email', 'code'], { email, code } as any);
 
@@ -87,7 +83,7 @@ class SigninService extends APIService {
 			}
 
 			const { data: teams } = await organizationTeamService.getAllOrganizationTeam(
-				{ tenantId, organizationId: organization.organizationId },
+				{ tenantId, organizationId: organization.organizationId || '' },
 				access_token
 			);
 
@@ -103,13 +99,13 @@ class SigninService extends APIService {
 				},
 				teamId: team?.id,
 				tenantId,
-				organizationId: organization?.organizationId,
+				organizationId: organization?.organizationId || '',
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
 				userId
 			});
 
-			const response: AxiosResponse<{ loginResponse: ILoginResponse; team: IOrganizationTeamList }> = {
+			const response: AxiosResponse<{ loginResponse: IAuthResponse; team: IOrganizationTeam }> = {
 				data: { team, loginResponse },
 				status: 200,
 				statusText: '',
@@ -124,7 +120,7 @@ class SigninService extends APIService {
 	};
 
 	signInWorkspace = async (input: ISigninWorkspaceInput) => {
-		const res = await this.post<ILoginResponse>('/auth/signin.workspace', input);
+		const res = await this.post<IAuthResponse>('/auth/signin.workspace', input);
 		return res.data;
 	};
 
@@ -218,13 +214,13 @@ class SigninService extends APIService {
 			},
 			teamId: params.teamId,
 			tenantId,
-			organizationId: organization?.organizationId,
+			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
 			userId
 		});
 
-		const response: AxiosResponse<{ loginResponse: ILoginResponse }> = {
+		const response: AxiosResponse<{ loginResponse: IAuthResponse }> = {
 			data: { loginResponse: data },
 			status: 200,
 			statusText: '',

@@ -1,4 +1,4 @@
-import { IOrganizationTeamWithMStatus } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
@@ -33,7 +33,7 @@ export function getPublicOrganizationTeamRequest({
 
 	const queries = qs.stringify(params);
 
-	return serverFetch<IOrganizationTeamWithMStatus>({
+	return serverFetch<IOrganizationTeam>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'
 	});
@@ -60,7 +60,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 
 	const queries = qs.stringify(params);
 
-	return serverFetch<IOrganizationTeamWithMStatus>({
+	return serverFetch<IOrganizationTeam>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'
 	});

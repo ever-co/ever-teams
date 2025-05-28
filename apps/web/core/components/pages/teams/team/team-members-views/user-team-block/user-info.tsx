@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
-import { IClassName, ITimerStatusEnum } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -8,6 +7,8 @@ import stc from 'string-to-color';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-status';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -23,7 +24,7 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
 
 	const { timerStatus } = useTimer();
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 

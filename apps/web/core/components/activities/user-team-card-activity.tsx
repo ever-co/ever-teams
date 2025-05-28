@@ -7,17 +7,16 @@ import { ActivityFilters } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
-import { OT_Member } from '@/core/types/interfaces';
 import UserWorkedTaskTab from '@/core/components/activities/user-worked-task';
 import { ScreenshootTeamTab } from '../pages/profile/screenshots/screenshoots';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 
-const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: OT_Member }) => {
+const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: any }) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 
-	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
+	const activityPercent = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0) / timeSlots.length;
 
 	return (
 		<Transition

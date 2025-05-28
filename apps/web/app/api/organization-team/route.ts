@@ -1,5 +1,4 @@
-import { IUserOrganization } from '@/core/types/interfaces/IOrganization';
-import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
+import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	createOrganizationTeamRequest,
@@ -7,6 +6,7 @@ import {
 	getUserOrganizationsRequest
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
@@ -32,11 +32,11 @@ export async function POST(req: Request) {
 				managerIds: user?.employee?.id ? [user.employee.id] : [],
 				public: true // By default team should be public
 			},
-			access_token
+			access_token || ''
 		);
 
 		// Return updated teams list after creation
-		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token);
+		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token || '');
 		return $res(teams.data);
 	} catch (error) {
 		return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -52,7 +52,10 @@ export async function GET(req: Request) {
 	}
 
 	try {
-		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
+		const { data: organizations } = await getUserOrganizationsRequest(
+			{ tenantId: tenantId || '', userId: user.id },
+			access_token || ''
+		);
 		const organizationsItems = organizations.items;
 
 		const filteredOrganization = organizationsItems.reduce((acc, org) => {
@@ -63,7 +66,10 @@ export async function GET(req: Request) {
 		}, [] as IUserOrganization[]);
 
 		const call_teams = filteredOrganization.map((item) =>
-			getAllOrganizationTeamRequest({ tenantId, organizationId: item.organizationId }, access_token)
+			getAllOrganizationTeamRequest(
+				{ tenantId: tenantId || '', organizationId: item.organizationId || '' },
+				access_token || ''
+			)
 		);
 
 		const teams = await Promise.all(call_teams).then((tms) =>
@@ -75,7 +81,7 @@ export async function GET(req: Request) {
 					}
 					return acc;
 				},
-				{ items: [] as IOrganizationTeamList[], total: 0 }
+				{ items: [] as IOrganizationTeam[], total: 0 }
 			)
 		);
 

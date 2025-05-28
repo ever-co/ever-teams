@@ -1,4 +1,5 @@
-import { ITaskRelatedIssueTypeCreate, ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { serverFetch } from '../fetch';
 
 export function createRelatedIssueTypeRequest(
@@ -6,7 +7,7 @@ export function createRelatedIssueTypeRequest(
 	bearer_token: string,
 	tenantId?: any
 ) {
-	return serverFetch<ITaskRelatedIssueTypeItemList>({
+	return serverFetch<ITaskRelatedIssueType>({
 		path: '/task-related-issue-types',
 		method: 'POST',
 		body: datas,
@@ -26,7 +27,7 @@ export function editTaskRelatedIssueTypeRequest({
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskRelatedIssueTypeItemList>({
+	return serverFetch<ITaskRelatedIssueType>({
 		path: `/task-related-issue-types/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -44,7 +45,7 @@ export function deleteTaskRelatedIssueTypeRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskRelatedIssueTypeItemList>({
+	return serverFetch<ITaskRelatedIssueType>({
 		path: `/task-related-issue-types/${id}`,
 		method: 'DELETE',
 		bearer_token,

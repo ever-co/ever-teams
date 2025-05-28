@@ -1,4 +1,4 @@
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -12,11 +12,12 @@ import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import { Card } from '@/core/components/duplicated-components/card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamCard({
 	member,
 	className = 'max-w-full'
-}: Readonly<{ member: OT_Member; className?: string }>) {
+}: Readonly<{ member: IOrganizationTeamEmployee; className?: string }>) {
 	return (
 		<Transition
 			as="div"
@@ -79,9 +80,9 @@ export default function UserTeamCard({
 	);
 }
 
-function UserActiveTaskMenu({ member }: { member: OT_Member }) {
+function UserActiveTaskMenu({ member }: { member: IOrganizationTeamEmployee }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();

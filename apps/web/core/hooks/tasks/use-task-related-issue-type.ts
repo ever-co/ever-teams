@@ -1,6 +1,5 @@
 'use client';
 
-import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces';
 import {
 	userState,
 	taskRelatedIssueTypeFetchingState,
@@ -14,6 +13,7 @@ import { useQuery } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
+import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 
 export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);

@@ -1,8 +1,9 @@
 import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
-import { IRolePermissions, PaginationResponse } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { IRolePermission } from '@/core/types/interfaces/role/role-permission';
 
 class RolePermissionService extends APIService {
 	getRolePermission = async (id: string) => {
@@ -18,11 +19,11 @@ class RolePermissionService extends APIService {
 		};
 		const query = qs.stringify(params);
 
-		return this.get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}?${query}`);
+		return this.get<PaginationResponse<IRolePermission>>(`/role-permissions/${id}?${query}`);
 	};
 
-	updateRolePermission = async (data: IRolePermissions) => {
-		return this.put<IRolePermissions>(`/role-permissions/${data.id}`, data);
+	updateRolePermission = async (data: IRolePermission) => {
+		return this.put<IRolePermission>(`/role-permissions/${data.id}`, data);
 	};
 }
 

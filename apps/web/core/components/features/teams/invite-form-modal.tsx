@@ -1,6 +1,5 @@
 'use client';
 
-import { IInviteEmail } from '@/core/types/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Modal, Text } from '@/core/components';
@@ -11,6 +10,7 @@ import { useToast } from '@/core/hooks/common/use-toast';
 import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
+import { IInviteEmail } from '../../teams/invite/invite-email-item';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
@@ -33,7 +33,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 
 	useEffect(() => {
 		if (activeTeam?.members) {
-			const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee.user?.email);
+			const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee?.user?.email);
 
 			setCurrentOrgEmails(
 				workingEmployees

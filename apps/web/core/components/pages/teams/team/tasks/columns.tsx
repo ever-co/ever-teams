@@ -1,14 +1,15 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { ColumnDef } from '@tanstack/react-table';
 import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';
 import DropdownMenuTask from './dropdown-menu-task';
 import { ActiveTaskStatusDropdown } from '@/core/components/tasks/task-status';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 // Columns that can be hidden in the team tasks table
 export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];
 
-export const columns: ColumnDef<ITeamTask>[] = [
+export const columns: ColumnDef<ITask>[] = [
 	{
 		accessorKey: 'typeNumber',
 		header: 'Type + Number',
@@ -19,16 +20,16 @@ export const columns: ColumnDef<ITeamTask>[] = [
 					<>
 						<span
 							className={`w-5 h-5 rounded-full flex items-center justify-center ${
-								row.original.issueType === 'Bug'
+								row.original.issueType === EIssueType.BUG
 									? 'bg-red-500'
-									: row.original.issueType === 'Story'
+									: row.original.issueType === EIssueType.STORY
 										? 'bg-orange-400'
 										: 'bg-green-400'
 							}`}
 						>
-							{row.original.issueType === 'Bug' ? (
+							{row.original.issueType === EIssueType.BUG ? (
 								<Bug className="w-3 h-3 text-white" />
-							) : row.original.issueType === 'Story' ? (
+							) : row.original.issueType === EIssueType.STORY ? (
 								<svg
 									width={12}
 									height={12}

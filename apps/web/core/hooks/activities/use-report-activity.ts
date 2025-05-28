@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/timer/ITimerLog';
 import { useQuery } from '../common/use-query';
 import { useAtom } from 'jotai';
 import {
@@ -8,16 +7,17 @@ import {
 	timeLogsRapportDailyState,
 	timesheetStatisticsCountsState
 } from '@/core/stores';
-import { TimeLogType } from '@/core/types/interfaces';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import { activityService } from '@/core/services/client/api/activities';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { ITimeLogReportDailyChartProps } from '@/core/services/server/requests/timesheet';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
-	logType?: TimeLogType[];
+	logType?: ETimeLogType[];
 	activityLevel: {
 		start: number;
 		end: number;
@@ -56,7 +56,7 @@ const defaultProps: Required<
 		start: 0,
 		end: 100
 	},
-	logType: [TimeLogType.TRACKED],
+	logType: [ETimeLogType.TRACKED],
 	start: 0,
 	end: 100,
 	employeeIds: [],
@@ -101,7 +101,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const employeeIds = useMemo(
 		() =>
 			isManage
-				? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+				? alluserState?.map(({ employee }) => employee?.id).filter(Boolean)
 				: user?.employee?.id
 					? [user.employee.id]
 					: [],
@@ -112,7 +112,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	// Props merging logic
 	const getMergedProps = useMemo(() => {
-		if (!user?.employee.organizationId) {
+		if (!user?.employee?.organizationId) {
 			return null;
 		}
 
@@ -121,18 +121,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				...defaultProps,
 				...currentFilters,
 				...(customProps || {}),
-				organizationId: user.employee.organizationId,
+				organizationId: user?.employee?.organizationId,
 				teamId: customProps?.teamId || currentFilters.teamId,
 				userId: customProps?.userId || currentFilters.userId,
-				tenantId: user.tenantId ?? '',
-				logType: (customProps?.logType || currentFilters.logType || defaultProps.logType) as TimeLogType[],
+				tenantId: user?.tenantId ?? '',
+				logType: (customProps?.logType || currentFilters.logType || defaultProps.logType) as ETimeLogType[],
 				startDate: (customProps?.startDate || currentFilters.startDate || defaultProps.startDate) as string,
 				endDate: (customProps?.endDate || currentFilters.endDate || defaultProps.endDate) as string,
 				groupBy: (customProps?.groupBy || currentFilters.groupBy || defaultProps.groupBy) as string,
 				projectIds: (customProps?.projectIds ||
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
-				employeeIds: isManage ? employeeIds : [user.employee.id],
+				employeeIds: isManage ? employeeIds : [user?.employee?.id],
 				teamIds: teamIds,
 				activityLevel: {
 					start:
@@ -250,7 +250,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				const mergedProps = getMergedProps(customProps);
 				const response = await queryTimesheetStatisticsCounts({
 					...mergedProps,
-					logType: [TimeLogType.TRACKED]
+					logType: [ETimeLogType.TRACKED]
 				});
 				setStatisticsCounts(response.data);
 				if (customProps) {

@@ -1,13 +1,9 @@
-import {
-	DeleteResponse,
-	ITaskStatusCreate,
-	ITaskStatusItemList,
-	ITaskStatusOrder,
-	PaginationResponse
-} from '@/core/types/interfaces';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ITaskStatus, ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 
 class TaskStatusService extends APIService {
 	createTaskStatus = async (data: ITaskStatusCreate, tenantId?: string) => {
@@ -41,7 +37,7 @@ class TaskStatusService extends APIService {
 
 		const endpoint = `/task-statuses?${query}`;
 
-		return this.get<PaginationResponse<ITaskStatusItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskStatus>>(endpoint, { tenantId });
 	};
 }
 

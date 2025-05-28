@@ -1,5 +1,4 @@
 /* eslint-disable no-case-declarations */
-import { MyInvitationActionEnum } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getTeamInvitationsRequest,
@@ -7,6 +6,7 @@ import {
 	getMyInvitationsRequest,
 	acceptRejectMyInvitationsRequest
 } from '@/core/services/server/requests';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
@@ -19,7 +19,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({}, { status: 401 });
 
-	const { data } = await getMyInvitationsRequest(tenantId, access_token);
+	const { data } = await getMyInvitationsRequest(tenantId || '', access_token || '');
 
 	return $res(data);
 }
@@ -37,19 +37,19 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 	if (!user) return NextResponse.json({}, { status: 401 });
 
 	await removeTeamInvitationsRequest({
-		bearer_token: access_token,
-		tenantId: tenantId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
 		invitationId
 	});
 
 	const { data } = await getTeamInvitationsRequest(
 		{
-			tenantId,
-			teamId,
-			organizationId,
+			tenantId: tenantId || '',
+			teamId: teamId || '',
+			organizationId: organizationId || '',
 			role: 'EMPLOYEE'
 		},
-		access_token
+		access_token || ''
 	);
 
 	return $res(data);
@@ -75,10 +75,10 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
 	}
 
 	const response = await acceptRejectMyInvitationsRequest(
-		tenantId,
-		access_token,
+		tenantId || '',
+		access_token || '',
 		invitationId,
-		action as MyInvitationActionEnum
+		action as EInviteAction
 	);
 
 	return $res(response.data);

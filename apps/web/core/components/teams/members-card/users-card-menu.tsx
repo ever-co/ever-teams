@@ -1,6 +1,5 @@
 import { useTaskInput } from '@/core/hooks';
-import { IOrganizationTeamList } from '@/core/types/interfaces/IOrganizationTeam';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
@@ -20,6 +19,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 interface IOption {
 	name: string;
@@ -27,7 +27,7 @@ interface IOption {
 	extramenu?: boolean;
 }
 
-type IMember = IOrganizationTeamList['members'][number];
+type IMember = IOrganizationTeamEmployee;
 
 interface IDropdownUserProps {
 	setEdit: Dispatch<SetStateAction<boolean>>;
@@ -188,7 +188,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-									displayValue={(task: ITeamTask) => {
+									displayValue={(task: ITask) => {
 										return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 									}}
 									onChange={(event) => setQuery(event.target.value)}

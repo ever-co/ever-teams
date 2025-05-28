@@ -1,5 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { Card } from '../../duplicated-components/card';
@@ -7,7 +8,7 @@ import { Card } from '../../duplicated-components/card';
 interface UnplanActiveTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
-	task: ITeamTask;
+	task: ITask;
 	plan: IDailyPlan;
 }
 
@@ -17,7 +18,7 @@ interface UnplanActiveTaskModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITeamTask} props.task - The task to unplan
+ * @param {ITask} props.task - The task to unplan
  * @param {IDailyPlan} props.plan - The today's plan
  *
  * @returns {JSX.Element} The modal element
@@ -34,11 +35,11 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 
 	const handleUnplanTask = useCallback(async () => {
 		try {
-			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, plan.id));
+			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, plan.id));
 		} catch (error) {
 			console.log(error);
 		}
-	}, [plan.id, removeTaskFromPlan, task.id, user?.employee.id]);
+	}, [plan.id, removeTaskFromPlan, task.id, user?.employee?.id]);
 
 	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {

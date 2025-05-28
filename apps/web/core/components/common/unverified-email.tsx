@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -92,7 +92,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 			e.preventDefault();
 			if (code.length < 6 || !user) return;
 
-			queryCall(code, user.email).finally(() => {
+			queryCall(code, user.email || '').finally(() => {
 				window.location.reload();
 			});
 		},

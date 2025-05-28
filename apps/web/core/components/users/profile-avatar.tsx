@@ -33,7 +33,7 @@ export const ProfileAvatar = () => {
 					e.target.files[0],
 					'profile_pictures_avatars',
 					user.tenantId as string,
-					user?.employee?.organizationId
+					user?.employee?.organizationId || ''
 				)
 					.then((image) => {
 						updateAvatar({ imageId: image.id, id: user.id });

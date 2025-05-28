@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import {
@@ -18,6 +18,7 @@ import {
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
 import { Card } from '../../duplicated-components/card';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface ITimesheetCard {
 	title?: string;
@@ -83,7 +84,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	);
 }
 
-export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, TimesheetLog[]> }) => {
+export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
 	const { getStatusTimesheet, groupByDate } = useTimesheet({});
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);
@@ -180,9 +181,9 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
 															/>
 														</div>
 														<div className="flex items-center flex-1 gap-x-2">
-															<EmployeeAvatar imageUrl={task.employee.user.imageUrl!} />
+															<EmployeeAvatar imageUrl={task.employee?.user.imageUrl!} />
 															<span className="flex-1 font-medium text-[12px] overflow-hidden">
-																{task.employee.fullName}
+																{task.employee?.fullName}
 															</span>
 														</div>
 														<DisplayTimeForTimesheet timesheetLog={task} />

@@ -1,5 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@/core/hooks';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
@@ -8,7 +9,7 @@ import { Card } from '../../duplicated-components/card';
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
-	task: ITeamTask;
+	task: ITask;
 	plan: IDailyPlan;
 	content: ReactNode;
 	onOK?: () => void;
@@ -31,7 +32,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 		[hasPlan?.workTimePlanned]
 	);
 	const areAllTasksEstimated = useMemo(
-		() => hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el?.estimate > 0),
+		() => hasPlan?.tasks?.every((el: ITask) => typeof el?.estimate === 'number' && el?.estimate > 0),
 		[hasPlan?.tasks]
 	);
 

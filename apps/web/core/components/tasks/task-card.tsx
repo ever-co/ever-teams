@@ -17,18 +17,15 @@ import {
 	useTimerView
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
+import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
-	DailyPlanStatusEnum,
-	IClassName,
 	IDailyPlan,
-	IDailyPlanMode,
 	IDailyPlanTasksUpdate,
-	IOrganizationTeamList,
-	IRemoveTaskFromManyPlans,
-	ITeamTask,
-	Nullable,
-	OT_Member
-} from '@/core/types/interfaces';
+	IRemoveTaskFromManyPlansRequest
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -50,16 +47,18 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { SetAtom } from '@/core/types/generics';
+import { Nullable, SetAtom } from '@/core/types/generics';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 type Props = {
 	active?: boolean;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';
@@ -96,8 +95,8 @@ export function TaskCard(props: Props) {
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentMember = useMemo(
 		() =>
-			members.find((m) => {
-				return m.employee.user?.id === profile?.userProfile?.id;
+			members.find((m: IOrganizationTeamEmployee) => {
+				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
 	);
@@ -138,7 +137,7 @@ export function TaskCard(props: Props) {
 	);
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const activeMembers = useMemo(() => task != null && task?.members?.length > 0, [task]);
+	const activeMembers = useMemo(() => ((task != null && task?.members?.length) || 0) > 0, [task]);
 	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
 	const taskAssignee: ImageOverlapperProps[] = useMemo(
 		() =>
@@ -232,7 +231,7 @@ export function TaskCard(props: Props) {
 					<div className="flex items-center justify-center ">
 						<ActiveTaskStatusDropdown
 							task={task}
-							onChangeLoading={(load) => setLoading(load)}
+							onChangeLoading={(load: boolean) => setLoading(load)}
 							className="min-w-[10.625rem] text-sm"
 						/>
 					</div>
@@ -296,7 +295,10 @@ export function TaskCard(props: Props) {
 							<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 						)}
 					</div>
-					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
+					<ActiveTaskStatusDropdown
+						task={task || null}
+						onChangeLoading={(loadState: boolean) => setLoading(loadState)}
+					/>
 					{task && currentMember && (
 						<TaskCardMenu
 							task={task}
@@ -312,7 +314,7 @@ export function TaskCard(props: Props) {
 	);
 }
 
-function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & IClassName) {
+function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & IClassName) {
 	const t = useTranslations();
 	const members = useMemo(() => task?.members || [], [task?.members]);
 
@@ -345,9 +347,9 @@ function TimerButtonCall({
 	activeTeam,
 	className
 }: {
-	task: ITeamTask;
-	currentMember: OT_Member | undefined;
-	activeTeam: IOrganizationTeamList | null;
+	task: ITask;
+	currentMember: IOrganizationTeamEmployee | undefined;
+	activeTeam: IOrganizationTeam | null;
 	className?: string;
 }) {
 	const [loading, setLoading] = useState(false);
@@ -377,7 +379,7 @@ function TimerButtonCall({
 		setActiveTask(task);
 
 		// Update Current user's active task to sync across multiple devices
-		const currentEmployeeDetails = activeTeam?.members.find((member) => member.id === currentMember?.id);
+		const currentEmployeeDetails = activeTeam?.members?.find((member) => member.id === currentMember?.id);
 		if (currentEmployeeDetails && currentEmployeeDetails.id) {
 			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
 				organizationId: task.organizationId,
@@ -472,7 +474,7 @@ export function TaskInfo({
 }: IClassName & {
 	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
 }) {
@@ -518,7 +520,7 @@ export function TaskCardMenu({
 	plan,
 	planMode
 }: {
-	task: ITeamTask;
+	task: ITask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
@@ -541,7 +543,7 @@ export function TaskCardMenu({
 	const { todayPlan, futurePlans } = useDailyPlan();
 
 	const taskPlannedToday = useMemo(
-		() => todayPlan[todayPlan.length - 1]?.tasks?.find((_task) => _task.id === task.id),
+		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask: ITask) => planTask.id === task.id),
 		[task.id, todayPlan]
 	);
 
@@ -549,7 +551,7 @@ export function TaskCardMenu({
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
-				const taskCount = plan.tasks.filter((_task) => _task.id === task.id).length;
+				const taskCount = plan.tasks.filter((planTask: ITask) => planTask.id === task.id).length;
 				return count + taskCount;
 			}
 			return count;
@@ -564,7 +566,7 @@ export function TaskCardMenu({
 						?.toString()
 						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
 				)[0]
-				?.tasks?.find((_task) => _task.id === task.id),
+				?.tasks?.find((planTask: ITask) => planTask.id === task.id),
 		[futurePlans, task.id]
 	);
 
@@ -636,7 +638,7 @@ export function TaskCardMenu({
 												{!taskPlannedToday && (
 													<li className="mb-2">
 														<PlanTask
-															planMode="today"
+															planMode={EDailyPlanMode['TODAY']}
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
 															taskPlannedToday={taskPlannedToday}
@@ -646,7 +648,7 @@ export function TaskCardMenu({
 												{!taskPlannedTomorrow && (
 													<li className="mb-2">
 														<PlanTask
-															planMode="tomorrow"
+															planMode={EDailyPlanMode['TOMORROW']}
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
 															taskPlannedForTomorrow={taskPlannedTomorrow}
@@ -655,7 +657,7 @@ export function TaskCardMenu({
 												)}
 												<li className="mb-2">
 													<PlanTask
-														planMode="custom"
+														planMode={EDailyPlanMode['CUSTOM']}
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
 													/>
@@ -727,11 +729,11 @@ export function PlanTask({
 	taskPlannedForTomorrow
 }: {
 	taskId: string;
-	planMode: IDailyPlanMode;
+	planMode: EDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
-	taskPlannedToday?: ITeamTask;
-	taskPlannedForTomorrow?: ITeamTask;
+	taskPlannedToday?: ITask;
+	taskPlannedForTomorrow?: ITask;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -748,10 +750,10 @@ export function PlanTask({
 					workTimePlanned: 0,
 					taskId,
 					date: new Date(),
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
-					organizationId: user?.employee.organizationId
+					organizationId: user?.employee?.organizationId
 				});
 			});
 		} else {
@@ -760,10 +762,10 @@ export function PlanTask({
 					workTimePlanned: 0,
 					taskId,
 					date: tomorrowDate,
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
-					organizationId: user?.employee.organizationId
+					organizationId: user?.employee?.organizationId
 				});
 			});
 		}
@@ -811,7 +813,7 @@ export function PlanTask({
 	);
 }
 
-export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: IEmployee }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
@@ -828,7 +830,15 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 	);
 }
 
-export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+export function RemoveTaskFromPlan({
+	task,
+	plan,
+	member
+}: {
+	task: ITask;
+	member?: IOrganizationTeamEmployee;
+	plan?: IDailyPlan;
+}) {
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
@@ -851,10 +861,10 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: IOrganizationTeamEmployee }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
-	const data: IRemoveTaskFromManyPlans = {
+	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
 		employeeId: member?.employeeId
 	};

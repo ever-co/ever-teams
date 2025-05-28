@@ -1,8 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
-import { ILocalTimerStatus, ITimerStatus, TimerSource } from '@/core/types/interfaces/ITimer';
+import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -26,6 +25,10 @@ import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
+import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -35,12 +38,12 @@ const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
  *
  * The function is used in the `Timer` component
  * @param {ITimerStatus | null} timerStatus - ITimerStatus | null,
- * @param {ITeamTask | null} activeTeamTask - ITeamTask | null - the current active task
+ * @param {ITask | null} activeTeamTask - ITask | null - the current active task
  * @param {boolean} firstLoad - boolean - this is a flag that indicates that the component is loaded
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITeamTask | null, firstLoad: boolean) {
+function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITask | null, firstLoad: boolean) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 
@@ -89,7 +92,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 				updateLocalTimerStatus({
 					runnedDateTime:
 						(timerStatus.running ? timerStatusDate || Date.now() : 0) || localStatus?.runnedDateTime || 0,
-					running: timerStatus.running,
+					running: timerStatus.running || false,
 					lastTaskId: timerStatus.lastLog?.taskId || null
 				});
 		}
@@ -180,7 +183,7 @@ export function useTimer() {
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
 	const hasPlan = myDailyPlans.items.find(
-		(plan) =>
+		(plan: IDailyPlan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
 			plan.tasks &&
 			plan.tasks?.length > 0
@@ -188,7 +191,7 @@ export function useTimer() {
 
 	const tomorrow = moment().add(1, 'days');
 	const hasPlanForTomorrow = myDailyPlans.items.find(
-		(plan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+		(plan: IDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
 	);
 
 	// Team setting that tells if each member must have a today plan for allowing tracking time
@@ -206,14 +209,14 @@ export function useTimer() {
 	const isPlanVerified = requirePlan
 		? hasPlan &&
 			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
+			!!hasPlan?.tasks?.every((task: ITask) => task.estimate && task.estimate > 0)
 		: true;
 
 	const canRunTimer =
 		user?.isEmailVerified &&
 		((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
 			// If timer is running at some other source and user may or may not have selected the task
-			timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS);
+			timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS);
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
@@ -227,9 +230,9 @@ export function useTimer() {
 			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall(user?.tenantId, user?.employee.organizationId).then((res) => {
+			return queryCall(user?.tenantId, user?.employee?.organizationId || '').then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
-					setTimerStatus((t) => {
+					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {
 							return res.data.running !== t?.running ? res.data : t;
 						}
@@ -260,7 +263,7 @@ export function useTimer() {
 		if (syncTimerLoading || syncTimerLoadingRef.current) {
 			return;
 		}
-		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS, $user.current).then((res) => {
+		return syncTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, $user.current).then((res) => {
 			return res;
 		});
 	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef, $user]);
@@ -311,14 +314,14 @@ export function useTimer() {
 			updateTask({
 				...activeTeamTaskRef.current,
 				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,
-				status: 'in-progress'
+				status: ETaskStatusName.IN_PROGRESS
 			});
 		}
 
 		if (activeTeamTaskRef.current) {
 			// Update Current user's active task to sync across multiple devices
-			const currentEmployeeDetails = activeTeam?.members.find(
-				(member) => member.employeeId === user?.employee.id
+			const currentEmployeeDetails = activeTeam?.members?.find(
+				(member) => member.employeeId === user?.employee?.id
 			);
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
@@ -349,7 +352,7 @@ export function useTimer() {
 		activeTeam?.members,
 		activeTeam?.id,
 		activeTeam?.tenantId,
-		user?.employee.id,
+		user?.employee?.id,
 		updateOrganizationTeamEmployeeActiveTask
 	]);
 
@@ -363,7 +366,7 @@ export function useTimer() {
 
 		syncTimer();
 
-		return stopTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS).then((res) => {
+		return stopTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -391,7 +394,7 @@ export function useTimer() {
 		) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Team Change
-			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
+			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
 				stopTimer();
 			}
 		}
@@ -408,7 +411,7 @@ export function useTimer() {
 		if (canStop && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
-			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
+			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
 				stopTimer();
 			}
 		}

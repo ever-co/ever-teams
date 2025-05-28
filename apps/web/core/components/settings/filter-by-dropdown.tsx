@@ -1,10 +1,10 @@
 import { Dropdown } from '@/core/components';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IFilter } from '@/core/types/interfaces/IFilter';
 import { clsxm } from '@/core/lib/utils';
-import { FilterItem, mapFilterItems } from './filter-items';
-import { MemberSettingfilterByType } from '@/core/types/interfaces/IMemberSetting';
+import { FilterItem, IFilter, mapFilterItems } from './filter-items';
+
+type MemberSettingfilterByType = 'Name' | 'Title' | 'Roles' | 'Joined/Left' | 'Status';
 
 export const FilterDropdown = ({
 	setValue,

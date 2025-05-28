@@ -1,5 +1,5 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { useToast } from '@/core/hooks/common/use-toast';
@@ -18,6 +18,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -195,10 +196,12 @@ const TaskTitleBlock = () => {
 					</div>
 					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
 
-					{task?.issueType !== 'Epic' && task && (
+					{task?.issueType !== EIssueType.EPIC && task && (
 						<div className="flex gap-3 items-center">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
-							{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
+							{(!task?.issueType ||
+								task?.issueType === EIssueType.TASK ||
+								task?.issueType === EIssueType.BUG) &&
 								task?.rootEpic &&
 								task?.parentId !== task?.rootEpic.id && (
 									<ParentTaskBadge
@@ -255,7 +258,7 @@ const TaskTitleBlock = () => {
 
 export default TaskTitleBlock;
 
-const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
+const ParentTaskBadge = ({ task }: { task: ITask | null }) => {
 	return task?.parentId && task?.parent ? (
 		<HoverCard>
 			<HoverCardTrigger asChild>
@@ -263,28 +266,28 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 					href={`/task/${task.parentId}`}
 					target="_blank"
 					className={clsxm(
-						task.parent.issueType === 'Epic' && 'bg-[#8154BA]',
-						task.parent.issueType === 'Story' && 'bg-[#54BA951A]',
-						task.parent.issueType === 'Bug' && 'bg-[#C24A4A1A]',
-						(task.parent.issueType === 'Task' || !task.parent.issueType) && 'bg-[#5483ba]',
+						task.parent.issueType === EIssueType.EPIC && 'bg-[#8154BA]',
+						task.parent.issueType === EIssueType.STORY && 'bg-[#54BA951A]',
+						task.parent.issueType === EIssueType.BUG && 'bg-[#C24A4A1A]',
+						(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'bg-[#5483ba]',
 						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
 					)}
 				>
 					<span
 						className={clsxm(
-							task.parent.issueType === 'Epic' && 'text-white',
-							task.parent.issueType === 'Story' && 'text-[#27AE60]',
-							task.parent.issueType === 'Bug' && 'text-[#C24A4A]',
-							(task.parent.issueType === 'Task' || !task.parent.issueType) && 'text-white',
+							task.parent.issueType === EIssueType.EPIC && 'text-white',
+							task.parent.issueType === EIssueType.STORY && 'text-[#27AE60]',
+							task.parent.issueType === EIssueType.BUG && 'text-[#C24A4A]',
+							(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'text-white',
 							'font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
 						)}
 					>
 						<span
 							className={clsxm(
-								task.parent.issueType === 'Epic' && 'text-[#FFFFFF80]',
-								task.parent.issueType === 'Story' && 'text-[#27AE6080]',
-								task.parent.issueType === 'Bug' && 'text-[#C24A4A80]',
-								(task.parent.issueType === 'Task' || !task.parent.issueType) && 'text-white'
+								task.parent.issueType === EIssueType.EPIC && 'text-[#FFFFFF80]',
+								task.parent.issueType === EIssueType.STORY && 'text-[#27AE6080]',
+								task.parent.issueType === EIssueType.BUG && 'text-[#C24A4A80]',
+								(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'text-white'
 							)}
 						>{`#${task.parent.taskNumber || task.parent.number}`}</span>
 						{` - ${task.parent.title}`}
@@ -308,11 +311,11 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 		<></>
 	);
 };
-const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
+const ParentTaskInput = ({ task }: { task: ITask | null }) => {
 	const modal = useModal();
 	const t = useTranslations();
 
-	return task && task.issueType !== 'Epic' ? (
+	return task && task.issueType !== EIssueType.EPIC ? (
 		<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
 			<Button
 				variant="outline-danger"

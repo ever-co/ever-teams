@@ -1,6 +1,5 @@
 'use client';
 
-import { ITaskLabelsCreate } from '@/core/types/interfaces';
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -9,6 +8,7 @@ import { useQuery } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);
@@ -51,7 +51,7 @@ export function useTaskLabels() {
 	}, [user, activeTeamId, setTaskLabels, taskLabels, getTaskLabelsQueryCall]);
 
 	const createTaskLabels = useCallback(
-		(data: ITaskLabelsCreate) => {
+		(data: ITagCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(
 					{
@@ -99,7 +99,7 @@ export function useTaskLabels() {
 	);
 
 	const editTaskLabels = useCallback(
-		(id: string, data: ITaskLabelsCreate) => {
+		(id: string, data: ITagCreate) => {
 			if (user?.tenantId) {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					getTaskLabelsQueryCall(

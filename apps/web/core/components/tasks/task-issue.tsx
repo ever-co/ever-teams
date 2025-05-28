@@ -1,5 +1,4 @@
 import { useModal, useStatusValue } from '@/core/hooks';
-import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -17,9 +16,13 @@ import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Card } from '../duplicated-components/card';
 import { InputField } from '../duplicated-components/_input';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { Nullable } from '@/core/types/generics/utils';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
-export const taskIssues: TStatus<ITaskIssue> = {
+export const taskIssues: TStatus<EIssueType> = {
 	Bug: {
 		icon: <BugIcon className={cn(defaultTaskClasses)} />,
 		name: 'Bug',
@@ -103,14 +106,18 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 	const t = useTranslations();
 	const { item, items, onChange, field } = useActiveTaskStatus(props, taskIssues, 'issueType');
 
-	const validTransitions: Record<IssueType, TStatusItem[]> = useMemo(
+	const validTransitions: Record<EIssueType, TStatusItem[]> = useMemo(
 		() => ({
-			[IssueType.EPIC]: [],
-			[IssueType.STORY]: items.filter((it) => [IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)),
+			[EIssueType.EPIC]: [],
+			[EIssueType.STORY]: items.filter((it) =>
+				[EIssueType.TASK, EIssueType.BUG].includes(it.value as EIssueType)
+			),
 
-			[IssueType.TASK]: items.filter((it) => [IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)),
+			[EIssueType.TASK]: items.filter((it) =>
+				[EIssueType.STORY, EIssueType.BUG].includes(it.value as EIssueType)
+			),
 
-			[IssueType.BUG]: items.filter((it) => [IssueType.STORY, IssueType.TASK].includes(it.value as IssueType))
+			[EIssueType.BUG]: items.filter((it) => [EIssueType.STORY, EIssueType.TASK].includes(it.value as EIssueType))
 		}),
 		[items]
 	);
@@ -121,9 +128,9 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
 
 			// If parent task is already Story then user can not assign current task as a Story
-			if (props.task.parent.issueType === 'Story') {
+			if (props.task.parent.issueType === EIssueType.STORY) {
 				updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter(
-					(it) => it.value !== 'Story'
+					(it) => it.value !== EIssueType.STORY
 				);
 			}
 		} else if (props.task && props.task?.issueType) {
@@ -163,10 +170,10 @@ export function TaskIssueStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issueType || 'Task']}
+			{...taskIssues[task?.issueType || EIssueType.TASK]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('px-2 text-white rounded-md', className)}

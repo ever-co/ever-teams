@@ -1,6 +1,6 @@
-import { TimerSource } from '@/core/types/interfaces/ITimer';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, startTimerRequest } from '@/core/services/server/requests';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -19,18 +19,21 @@ export async function POST(req: Request) {
 
 	await startTimerRequest(
 		{
-			tenantId,
-			organizationId,
-			taskId,
+			tenantId: tenantId || '',
+			organizationId: organizationId || '',
+			taskId: taskId || '',
 			logType: 'TRACKED',
-			source: TimerSource.TEAMS,
+			source: ETimeLogSource.TEAMS,
 			tags: [],
 			organizationTeamId
 		},
-		access_token
+		access_token || ''
 	);
 
-	const { data: timerStatus } = await getTimerStatusRequest({ tenantId, organizationId }, access_token);
+	const { data: timerStatus } = await getTimerStatusRequest(
+		{ tenantId: tenantId || '', organizationId: organizationId || '' },
+		access_token || ''
+	);
 
 	return $res(timerStatus);
 }

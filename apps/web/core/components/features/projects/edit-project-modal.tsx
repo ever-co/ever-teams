@@ -1,9 +1,10 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
 import AddOrEditProjectForm from './add-or-edit-project';
-import { RolesEnum } from '@/core/types/interfaces/IRoles';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 interface IEditProjectModalProps {
 	open: boolean;
@@ -24,8 +25,8 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 	const { organizationProjects } = useOrganizationProjects();
 	const { roles } = useRoles();
 
-	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
+	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
 	const data = useMemo(() => {
 		const project = organizationProjects.find((project) => project.id === projectId);
@@ -39,7 +40,7 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 							memberId: el.employeeId,
 							roleId: el.isManager ? managerRole?.id : simpleMemberRole?.id
 						})) || [],
-					tags: project.tags?.map((el) => el.id),
+					tags: project.tags?.map((el: ITag) => el.id),
 					relations: []
 				}
 			: {};

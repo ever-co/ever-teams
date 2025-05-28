@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
-import { DailyPlanStatusEnum, IDailyPlan, ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	Command,
 	CommandEmpty,
@@ -21,6 +23,7 @@ import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 export function AddTaskToPlan({
 	open,
@@ -30,8 +33,8 @@ export function AddTaskToPlan({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	task: ITeamTask;
-	employee?: OT_Member;
+	task: ITask;
+	employee?: IEmployee;
 }) {
 	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =
 		useDailyPlan();
@@ -50,7 +53,7 @@ export function AddTaskToPlan({
 					workTimePlanned: workTimePlanned,
 					taskId: task.id,
 					date: new Date(moment(date).format('YYYY-MM-DD')),
-					status: DailyPlanStatusEnum.OPEN,
+					status: EDailyPlanStatus.OPEN,
 					tenantId: employee?.tenantId,
 					employeeId: employee?.employeeId,
 					organizationId: employee?.organizationId

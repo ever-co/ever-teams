@@ -1,6 +1,7 @@
-import { DeleteResponse, IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@/core/types/interfaces';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { IIssueTypesCreate, IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 class IssueTypeService extends APIService {
 	createIssueType = async (data: IIssueTypesCreate, tenantId?: string) => {
@@ -22,7 +23,7 @@ class IssueTypeService extends APIService {
 	getIssueTypeList = async (tenantId: string, organizationId: string, activeTeamId: string | null) => {
 		const endpoint = `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
 
-		return this.get<PaginationResponse<IIssueTypesItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId });
 	};
 }
 

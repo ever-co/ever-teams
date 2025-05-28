@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -11,6 +11,7 @@ import { AddIcon } from 'assets/svg';
 import { Card } from '../../duplicated-components/card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -27,7 +28,7 @@ export const ChildIssueCard = () => {
 				acc.push($item);
 			}
 			return acc;
-		}, [] as ITeamTask[]);
+		}, [] as ITask[]);
 
 		return children || [];
 	}, [task, tasks]);
@@ -69,7 +70,7 @@ export const ChildIssueCard = () => {
 	);
 };
 
-function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
+function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const { trans } = useTranslation();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -78,7 +79,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITeamTask | undefined) => {
+		async (childTask: ITask | undefined) => {
 			if (!childTask) return;
 
 			setLoading(true);
@@ -97,18 +98,22 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === 'Epic';
-	const isTaskStory = task.issueType === 'Story';
+	const isTaskEpic = task.issueType === EIssueType.EPIC;
+	const isTaskStory = task.issueType === EIssueType.STORY;
 	const childTasks = task.children?.map((t) => t.id) || [];
 
 	const unchildTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== 'Epic';
+				return childTask.issueType !== EIssueType.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== 'Epic' && childTask.issueType !== 'Story';
+				return childTask.issueType !== EIssueType.EPIC && childTask.issueType !== EIssueType.STORY;
 			} else {
-				return childTask.issueType === 'Bug' || childTask.issueType === 'Task' || childTask.issueType === null;
+				return (
+					childTask.issueType === EIssueType.BUG ||
+					childTask.issueType === EIssueType.TASK ||
+					childTask.issueType === null
+				);
 			}
 		};
 

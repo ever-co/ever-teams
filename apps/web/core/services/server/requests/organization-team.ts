@@ -1,13 +1,11 @@
-import { TimerSource } from '@/core/types/interfaces';
-import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
-	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus,
 	ITeamRequestParams
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/team/organization-team';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';
@@ -113,7 +111,7 @@ export function getOrganizationTeamRequest(
 	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
 	// Fetch and return team details
-	return serverFetch<IOrganizationTeamWithMStatus>({
+	return serverFetch<IOrganizationTeam>({
 		path: `/organization-team/${teamId}?${queryString}`,
 		method: 'GET',
 		bearer_token,
@@ -148,7 +146,7 @@ export function getAllOrganizationTeamRequest(
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		source: TimerSource.TEAMS,
+		source: ETimeLogSource.TEAMS,
 		withLastWorkedTask: 'true',
 		relations
 	};
@@ -157,7 +155,7 @@ export function getAllOrganizationTeamRequest(
 	const query = qs.stringify(params, { arrayFormat: 'brackets' });
 
 	// Construct and return the server fetch request
-	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
+	return serverFetch<PaginationResponse<IOrganizationTeam>>({
 		path: `/organization-team?${query}`,
 		method: 'GET',
 		bearer_token,

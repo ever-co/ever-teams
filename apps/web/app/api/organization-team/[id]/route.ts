@@ -1,4 +1,3 @@
-import { INextParams } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 import {
@@ -6,6 +5,7 @@ import {
 	getOrganizationTeamRequest,
 	updateOrganizationTeamRequest
 } from '@/core/services/server/requests';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +26,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 			tenantId,
 			teamId: teamId
 		},
-		access_token
+		access_token || ''
 	);
 
 	return $res(data);
@@ -52,10 +52,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 			tenantId,
 			teamId: teamId
 		},
-		access_token
+		access_token || ''
 	);
 
-	await updateOrganizationTeamRequest(body, access_token);
+	await updateOrganizationTeamRequest(body, access_token || '');
 
 	return $res(data);
 }
@@ -74,9 +74,9 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	const response = await deleteOrganizationTeamRequest({
 		id: params.id,
-		bearer_token: access_token,
-		tenantId,
-		organizationId
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
+		organizationId: organizationId || ''
 	});
 
 	return $res(response.data);

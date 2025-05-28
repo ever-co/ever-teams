@@ -1,7 +1,6 @@
 'use client';
 
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
@@ -9,9 +8,11 @@ import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
 import { Card } from '../duplicated-components/card';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { Nullable } from '@/core/types/generics/utils';
 
 type Props = {
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	className?: string;
 	forDetails: boolean;
 	taskStatusClassName?: string;

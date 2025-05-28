@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -21,7 +21,7 @@ import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 
 interface TaskItemProps {
-	task: ITeamTask;
+	task: ITask;
 }
 
 export default function TaskBlockCard(props: TaskItemProps) {
@@ -33,36 +33,41 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => m.employee.userId === user?.id);
+	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i) => i.id === task?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === task?.id) || null;
 		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration;
+			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
 	});
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
-	const taskAssignee: ImageOverlapperProps[] = task.members?.map((member: any) => {
-		return {
-			id: member.user?.id,
-			url: member.user?.imageUrl,
-			alt: member.user?.firstName
-		};
-	});
+	const taskAssignee: ImageOverlapperProps[] =
+		task.members?.map((member: any) => {
+			return {
+				id: member.user?.id,
+				url: member.user?.imageUrl,
+				alt: member.user?.firstName
+			};
+		}) ?? [];
 
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
 
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || task?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || task?.id);
 
 	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t) => t.id === task?.id)
-				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+				.filter((t: ITask) => t.id === task?.id)
+				.reduce(
+					(previousValue: number, currentValue: ITasksStatistics) =>
+						previousValue + (currentValue.duration || 0),
+					0
+				)) ||
 			0
 	);
 

@@ -9,7 +9,6 @@ import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from '../../timesheet/monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from '../../timesheet/weekly-timesheet-calendar';
-import { TimesheetLog } from '@/core/types/interfaces';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import TimesheetSkeleton from '../../activities/timesheet-skeleton';
@@ -19,6 +18,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];
@@ -159,11 +159,13 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 																<div className="flex justify-between items-center pl-3 w-full">
 																	<div className="flex gap-x-1 items-center">
 																		<EmployeeAvatar
-																			imageUrl={task.employee.user.imageUrl ?? ''}
+																			imageUrl={
+																				task.employee?.user.imageUrl ?? ''
+																			}
 																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
 																		/>
 																		<span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
-																			{task.employee.fullName}
+																			{task.employee?.fullName}
 																		</span>
 																	</div>
 																	<DisplayTimeForTimesheet timesheetLog={task} />
@@ -287,10 +289,12 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	<div className="flex gap-x-1 items-center">
 																		<EmployeeAvatar
 																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
-																			imageUrl={task.employee.user.imageUrl ?? ''}
+																			imageUrl={
+																				task.employee?.user.imageUrl ?? ''
+																			}
 																		/>
 																		<span className="font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
-																			{task.employee.fullName}
+																			{task.employee?.fullName}
 																		</span>
 																	</div>
 																	<DisplayTimeForTimesheet timesheetLog={task} />
@@ -362,9 +366,9 @@ export const CheckBoxTimesheet = ({
 	timesheet,
 	handleSelectRowTimesheet
 }: {
-	selectTimesheetId: TimesheetLog[];
-	timesheet: TimesheetLog;
-	handleSelectRowTimesheet: (items: TimesheetLog) => void;
+	selectTimesheetId: ITimeLog[];
+	timesheet: ITimeLog;
+	handleSelectRowTimesheet: (items: ITimeLog) => void;
 }) => {
 	return (
 		<Checkbox

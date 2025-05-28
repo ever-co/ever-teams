@@ -1,4 +1,4 @@
 import { atom } from 'jotai';
-import { IProject } from '../../types/interfaces';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
-export const organizationProjectsState = atom<IProject[]>([]);
+export const organizationProjectsState = atom<IOrganizationProject[]>([]);

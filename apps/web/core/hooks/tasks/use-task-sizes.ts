@@ -1,6 +1,5 @@
 'use client';
 
-import { ITaskSizesCreate } from '@/core/types/interfaces';
 import { activeTeamIdState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
@@ -8,6 +7,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
 import { useQuery } from '../common/use-query';
 import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

@@ -1,5 +1,6 @@
 import { useTeamInvitations } from '@/core/hooks';
-import { IClassName, IInvitation } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
@@ -12,8 +13,9 @@ import { Avatar } from '../../duplicated-components/avatar';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
-type Props = IClassName & { invitation: IInvitation };
+type Props = IClassName & { invitation: IInvite };
 
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();
@@ -41,7 +43,10 @@ export function InvitedCard({ invitation, className }: Props) {
 					>
 						{' '}
 						<Avatar size={50} className="relative" imageTitle={invitation.fullName}>
-							<TimerStatus status={'idle'} className="absolute z-20 -mb-3 border bottom-3 -right-1" />
+							<TimerStatus
+								status={ETimerStatus.IDLE}
+								className="absolute z-20 -mb-3 border bottom-3 -right-1"
+							/>
 						</Avatar>
 					</div>
 
@@ -95,7 +100,10 @@ export function InvitedCard({ invitation, className }: Props) {
 			<Card shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
 				<div className="flex items-center mb-4">
 					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
-						<TimerStatus status={'idle'} className="absolute z-20 -mb-3 border bottom-3 -right-1" />
+						<TimerStatus
+							status={ETimerStatus.IDLE}
+							className="absolute z-20 -mb-3 border bottom-3 -right-1"
+						/>
 					</Avatar>
 					<div className="">
 						<Text.Heading as="h3" className="overflow-hidden text-ellipsis whitespace-nowrap">

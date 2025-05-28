@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
-import { IRequestToJoinCreate } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -11,6 +10,7 @@ import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
@@ -147,7 +147,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 };
 const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 	const [joinButtonAction, setJoinButtonAction] = useState<'JOIN' | 'CONFIRM'>('JOIN');
-	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IRequestToJoinCreate | null>(null);
+	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IJoinTeamRequest | null>(null);
 	const [position, setPosition] = useState<string>('');
 
 	const t = useTranslations();
@@ -172,7 +172,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 			const form = new FormData(e.currentTarget);
 
-			const payload: IRequestToJoinCreate = {
+			const payload: IJoinTeamRequest = {
 				fullName: form.get('fullName') as string,
 				email: form.get('email') as string,
 				linkAddress: form.get('linkAddress') as string,

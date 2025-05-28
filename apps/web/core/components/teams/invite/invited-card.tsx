@@ -1,8 +1,8 @@
 import { imgTitle } from '@/core/lib/helpers/img-title';
-import { IInvitation } from '@/core/types/interfaces/IInvite';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import Separator from '@/core/components/common/separator';
 
-export function InvitedCard({ invitation }: { invitation: IInvitation }) {
+export function InvitedCard({ invitation }: { invitation: IInvite }) {
 	return (
 		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary border border-white dark:border-[#202023] font-bold py-[24px] dark:text-[#FFFFFF]">
 			<div className="w-[60px] flex justify-center items-center">

@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { FilterStatus } from '@/core/components/timesheet/filter-with-status';
 import { GroupedTimesheet } from './use-timesheet';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useLocalStorageState } from '../common/use-local-storage-state';
 
 export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
@@ -14,19 +15,19 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 			.map((group) => {
 				type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
 
-				const statusMap: Record<FilterStatusWithoutAll, TimesheetStatus> = {
-					Pending: 'PENDING',
-					Approved: 'APPROVED',
-					'In review': 'IN REVIEW',
-					Draft: 'DRAFT',
-					Rejected: 'DENIED'
+				const statusMap: Record<FilterStatusWithoutAll, ETimesheetStatus> = {
+					Pending: ETimesheetStatus.PENDING,
+					Approved: ETimesheetStatus.APPROVED,
+					'In review': ETimesheetStatus.IN_REVIEW,
+					Draft: ETimesheetStatus.DRAFT,
+					Rejected: ETimesheetStatus.DENIED
 				};
 
 				const filteredTasks = group.tasks.filter((task) => {
 					if (activeStatus === 'All Tasks') {
 						return true;
 					}
-					return task.timesheet.status === statusMap[activeStatus as FilterStatusWithoutAll];
+					return task.timesheet?.status === statusMap[activeStatus as FilterStatusWithoutAll];
 				});
 
 				return {
@@ -38,7 +39,7 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 	}, [data, activeStatus]);
 
 	const statusData = useMemo(() => {
-		const emptyStatusData: Record<TimesheetStatus, TimesheetLog[]> = {
+		const emptyStatusData: Record<ETimesheetStatus, ITimeLog[]> = {
 			DRAFT: [],
 			PENDING: [],
 			'IN REVIEW': [],
@@ -51,8 +52,8 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 		const allTasks = data.flatMap((group) => group.tasks);
 		return allTasks.reduce(
 			(acc, task) => {
-				const status = task.timesheet.status as TimesheetStatus;
-				acc[status].push(task);
+				const status = task.timesheet?.status;
+				if (status) acc[status].push(task);
 				return acc;
 			},
 			{ ...emptyStatusData }
