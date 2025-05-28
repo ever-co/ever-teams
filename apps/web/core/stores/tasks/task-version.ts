@@ -1,4 +1,4 @@
-import { ITaskVersion } from '../types/interfaces/task/ITaskVersion';
+import { ITaskVersion } from '@/core/types/interfaces/task/ITaskVersion';
 import { atom } from 'jotai';
 
 export const taskVersionListState = atom<ITaskVersion[]>([]);

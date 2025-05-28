@@ -232,7 +232,7 @@ export function useTimer() {
 			}
 			return queryCall(user?.tenantId, user?.employee?.organizationId || '').then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
-					setTimerStatus((t) => {
+					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {
 							return res.data.running !== t?.running ? res.data : t;
 						}

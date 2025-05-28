@@ -12,6 +12,7 @@ export interface IUserSigninWorkspaceResponse {
 	lastOrganizationId?: ID;
 	workspaces: ISigninEmailConfirmWorkspaces[];
 	status?: number;
+	user: IUser;
 }
 export interface IAuthResponse {
 	team: IUser;
@@ -82,7 +83,7 @@ export interface ISigninEmailConfirmWorkspaces {
 	}[];
 }
 export interface ISigninEmailConfirmResponse {
-	team: IUser;
+	user: IUser;
 	confirmed_email: string;
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];

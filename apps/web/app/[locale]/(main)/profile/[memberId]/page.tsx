@@ -30,6 +30,7 @@ import { TaskFilter } from '@/core/components/pages/profile/task-filters';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { IActivityFilter } from '@/core/types/interfaces/activity/IActivity';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -89,7 +90,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	);
 
 	React.useEffect(() => {
-		setActivityTypeFilter((prev) => ({
+		setActivityTypeFilter((prev: IActivityFilter) => ({
 			...prev,
 			member: profile.member ? profile.member : null
 		}));

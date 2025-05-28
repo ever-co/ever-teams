@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { ITeamsMembersFilter } from '@/core/types/interfaces';
 import { filterValue } from '@/core/stores/teams/all-teams';
-=======
-import { ITeamsMembersFilter } from '@/core/types/interfaces/to-review';
-=======
->>>>>>> cbd537495 (reorganize types by features)
-import { filterValue } from '@/core/stores/all-teams';
->>>>>>> d2027d8b9 (refactor tasks and related types/interfaces)
 import { clsxm } from '@/core/lib/utils';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren } from 'react';

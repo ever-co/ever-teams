@@ -10,7 +10,7 @@ import { timeSheetService } from '@/core/services/client/api/timesheets/timeshee
 import { useAuthenticateUser } from '../auth';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/ITimeLog';
 import { ETimesheetStatus } from '@/core/types/interfaces/enums/timesheet';
-import { ITimesheet, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
+import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/ITimesheet';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -290,7 +290,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
 			})
 				.then((response) => {
-					setTimesheet(response.data as unknown as ITimesheet[]);
+					setTimesheet(response.data as unknown as ITimeLog[]);
 				})
 				.catch((error) => {
 					console.error('Error fetching timesheet:', error);

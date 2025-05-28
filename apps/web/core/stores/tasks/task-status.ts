@@ -1,4 +1,4 @@
-import { ITaskStatus } from '../types/interfaces/task/task-status/ITaskStatus';
+import { ITaskStatus } from '@/core/types/interfaces/task/task-status/ITaskStatus';
 import { atom } from 'jotai';
 
 export const taskStatusesState = atom<ITaskStatus[]>([]);

@@ -1,4 +1,4 @@
 import { atom } from 'jotai';
-import { IKanban } from '../hooks/tasks/use-kanban';
+import { IKanban } from '@/core/hooks/tasks/use-kanban';
 
 export const kanbanBoardState = atom<IKanban>({});

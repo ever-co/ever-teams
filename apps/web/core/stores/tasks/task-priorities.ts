@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { ITaskPriority } from '../types/interfaces/task/ITaskPriority';
+import { ITaskPriority } from '@/core/types/interfaces/task/ITaskPriority';
 
 export const taskPrioritiesListState = atom<ITaskPriority[]>([]);
 

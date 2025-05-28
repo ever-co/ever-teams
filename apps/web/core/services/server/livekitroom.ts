@@ -1,4 +1,4 @@
-import { ILiveKiteCredentials } from '@/core/types/interfaces/live-kit/ILiveKiteCredentials';
+import { ILiveKiteCredentials } from '@/core/types/interfaces/integrations/ILiveKiteCredentials';
 
 export async function tokenLiveKitRoom({ roomName, username }: ILiveKiteCredentials) {
 	try {

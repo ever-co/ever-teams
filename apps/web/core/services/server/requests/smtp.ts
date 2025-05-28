@@ -1,6 +1,6 @@
 import { smtpConfiguration } from '@/core/constants/config/constants';
 import { serverFetch } from '../fetch';
-import { ICustomSmtp } from '@/core/types/interfaces/smpt/ICustomSmtp';
+import { ICustomSmtp } from '@/core/types/interfaces/auth/ICustomSmtp';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
 	const config = smtpConfiguration();

@@ -41,6 +41,7 @@ import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { ITasksStatistics } from '@/core/types/interfaces/task/ITask';
+import { IActivityFilter } from '@/core/types/interfaces/activity/IActivity';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -87,7 +88,7 @@ export function UserTeamCard({
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
 		setShowActivity((prev) => !prev);
 		setUserDetailAccordion('');
-		setActivityFilter((prev) => ({
+		setActivityFilter((prev: IActivityFilter) => ({
 			...prev,
 			type,
 			member

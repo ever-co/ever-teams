@@ -19,7 +19,7 @@ import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/orga
 import { IOrganizationTeam } from '@/core/types/interfaces/team/IOrganizationTeam';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/IAuth';
 import { IUser } from '@/core/types/interfaces/user/IUser';
-import { ICustomSmtp } from '@/core/types/interfaces/smpt/ICustomSmtp';
+import { ICustomSmtp } from '@/core/types/interfaces/auth/ICustomSmtp';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/IOrganizationTeamEmployee';
 
 class RegisterService extends APIService {
