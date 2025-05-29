@@ -6,7 +6,7 @@ import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
-	useFavoritesTask,
+	useFavorites,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
@@ -46,6 +46,8 @@ import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
 import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -487,48 +489,24 @@ export function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
+	const favorites = useAtomValue(favoritesState);
 
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const { toggleFavoriteTask } = useFavorites();
 
-	const handleToggleFavorite = useCallback(async () => {
-		try {
-			const wasAlreadyFavorite = isFavorite(task);
-			toggleFavorite(task);
-
-			if (wasAlreadyFavorite) {
-				toast.success(t('task.toastMessages.TASK_REMOVED_FROM_FAVORITES'), {
-					id: 'task-favorite-removed'
-				});
-			} else {
-				toast.success(t('task.toastMessages.TASK_ADDED_TO_FAVORITES'), {
-					id: 'task-favorite-added'
-				});
-			}
-		} catch (error) {
-			console.error('Favorite toggle error:', error);
-			toast.error(t('task.toastMessages.TASK_FAVORITE_FAILED'), {
-				id: 'task-favorite-failed'
-			});
-		}
-	}, [task, toggleFavorite, isFavorite, t]);
-	const handleAssignment = useCallback(async () => {
-		try {
-			if (viewType === 'unassign') {
-				await memberInfo?.assignTask(task);
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-					id: 'task-assigned'
-				});
-			} else {
-				await memberInfo?.unassignTask(task);
-				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
-					id: 'task-unassigned'
-				});
-			}
-		} catch (error) {
-			console.error('Assignment error:', error);
-			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
-				id: 'task-assignment-failed'
-			});
+	const isFavoriteTask = useMemo(
+		() =>
+			task
+				? favorites.some((el) => {
+						return el.entity === EBaseEntityEnum.Task && el.entityId === task?.id;
+					})
+				: false,
+		[task]
+	);
+	const handleAssignment = useCallback(() => {
+		if (viewType === 'unassign') {
+			memberInfo?.assignTask(task);
+		} else {
+			memberInfo?.unassignTask(task);
 		}
 	}, [memberInfo, task, viewType, t]);
 
@@ -598,15 +576,16 @@ export function TaskCardMenu({
 									</li>
 									<li className="mb-2">
 										<span
-											onClick={handleToggleFavorite}
+											onClick={() => toggleFavoriteTask(task)}
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
 												'cursor-pointer hover:font-semibold hover:transition-all'
 											)}
 										>
-											{isFavorite(task)
+											{isFavoriteTask
 												? t('common.REMOVE_FAVORITE_TASK')
 												: t('common.ADD_FAVORITE_TASK')}
+											{}
 										</span>
 									</li>
 									<li className="mb-3">

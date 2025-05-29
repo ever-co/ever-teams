@@ -2,6 +2,7 @@ export * from './common';
 export * from './activities';
 export * from './auth';
 export * from './daily-plans';
+export * from './favorites';
 export * from './integrations';
 export * from './organizations';
 export * from './roles';

@@ -23,8 +23,14 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
+import {
+	useAuthenticateUser,
+	useFavorites,
+	useModal,
+	useOrganizationProjects,
+	useOrganizationTeams,
+	useTeamTasks
+} from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
@@ -56,13 +62,18 @@ const LazyCreateTeamModal = dynamic(
 		// Suspense fallback will handle all loading states uniformly
 	}
 );
+import { useAtomValue } from 'jotai';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { isTeamManager } = useOrganizationTeams();
-	const { favoriteTasks, toggleFavorite } = useFavoritesTask();
 	const { state } = useSidebar();
+	const favorites = useAtomValue(favoritesState);
+	const { deleteFavorite, deleteFavoriteLoading } = useFavorites();
+	const { tasks } = useTeamTasks();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	const { activeTeam } = useActiveTeam();
@@ -76,6 +87,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				: [],
 		[activeTeam, organizationProjects]
 	); // Consider projects for the active team
+
+	const favoritesTasks = useMemo(() => {
+		const taskIds = favorites.filter((el) => el.entity === EBaseEntityEnum.Task).map((el) => el.entityId);
+
+		return tasks.filter((task) => taskIds.includes(task.id));
+	}, [tasks, favorites]);
 
 	// This is sample data.
 	const data = useMemo(
@@ -174,8 +191,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					icon: FavoriteIcon,
 					label: 'favorites',
 					items:
-						favoriteTasks && favoriteTasks.length > 0
-							? favoriteTasks
+						favoritesTasks && favoritesTasks.length > 0
+							? favoritesTasks
 									.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
 									.map((task, index) => ({
 										title: task?.title,
@@ -219,7 +236,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 													</Link>
 													<X
 														className="w-5 h-5 cursor-pointer"
-														onClick={() => toggleFavorite(task)}
+														onClick={() => deleteFavorite(task.id)}
 													/>
 												</span>
 											</SidebarMenuSubButton>
@@ -366,7 +383,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			],
 			projects: []
 		}),
-		[favoriteTasks, isTeamManager, projects, t, toggleFavorite, user?.id, username]
+		[favoritesTasks, isTeamManager, projects, t, deleteFavoriteLoading, deleteFavorite, user?.id, username]
 	);
 
 	return (

@@ -1,18 +1,20 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useFavorites, useModal } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-assign-popover';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { useAtomValue } from 'jotai';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -28,9 +30,19 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		edition,
 		memberInfo
 	});
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const { toggleFavoriteTask } = useFavorites();
 	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
+	const favorites = useAtomValue(favoritesState);
+	const isFavoriteTask = useMemo(
+		() =>
+			edition.task
+				? favorites.some((el) => {
+						return el.entity === EBaseEntityEnum.Task && el.entityId === edition.task?.id;
+					})
+				: false,
+		[edition.task]
+	);
 
 	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
 
@@ -45,13 +57,13 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		},
 		{
 			name: edition.task
-				? isFavorite(edition.task)
+				? isFavoriteTask
 					? t('common.REMOVE_FAVORITE_TASK')
 					: t('common.ADD_FAVORITE_TASK')
 				: t('common.ADD_FAVORITE_TASK'),
 			closable: true,
 			onClick: () => {
-				edition.task && toggleFavorite(edition.task);
+				edition.task && toggleFavoriteTask(edition.task);
 			},
 			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},

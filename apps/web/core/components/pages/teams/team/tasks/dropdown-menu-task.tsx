@@ -6,13 +6,21 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
-import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import {
+	useAuthenticateUser,
+	useFavorites,
+	useOrganizationTeams,
+	useTeamMemberCard,
+	useTMCardTaskEdit
+} from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { useAtomValue } from 'jotai';
 import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -24,8 +32,14 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
+	const { toggleFavoriteTask } = useFavorites();
+	const favorites = useAtomValue(favoritesState);
 
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const isFavorite = useMemo(() => {
+		return favorites.some((el) => {
+			return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
+		});
+	}, [favorites, task]);
 	const t = useTranslations();
 
 	const handleAssignment = useCallback(async () => {
@@ -86,8 +100,8 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem className="cursor-pointer " onClick={() => toggleFavorite(task)}>
-					{isFavorite(task) ? t('common.REMOVE_FAVORITE_TASK') : t('common.ADD_FAVORITE_TASK')}
+				<DropdownMenuItem className=" cursor-pointer" onClick={async () => await toggleFavoriteTask(task)}>
+					{isFavorite ? t('common.REMOVE_FAVORITE_TASK') : t('common.ADD_FAVORITE_TASK')}
 				</DropdownMenuItem>
 
 				<DropdownMenuItem className="cursor-pointer " onClick={handleAssignment}>

@@ -18,3 +18,4 @@ export * from './currencies';
 export * from './timers';
 export * from './timesheets';
 export * from './users';
+export * from './favorites';

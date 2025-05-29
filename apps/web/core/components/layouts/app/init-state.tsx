@@ -27,6 +27,7 @@ import {
 	useIssueType,
 	useTaskRelatedIssueType
 } from '@/core/hooks/tasks';
+import { useFavorites } from '@/core/hooks';
 
 export function AppState() {
 	const user = useAtomValue(userState);
@@ -54,6 +55,7 @@ function InitState() {
 	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
+	const { firstLoadFavoritesData } = useFavorites();
 
 	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlan();
 	const { firstLoadTimeLogs } = useTimeLogs();
@@ -81,6 +83,7 @@ function InitState() {
 		firstLoadTimeLogs();
 		firstLoadDataEmployee();
 		firstLoadRolesData();
+		firstLoadFavoritesData();
 		// --------------
 
 		getTimerStatus();
