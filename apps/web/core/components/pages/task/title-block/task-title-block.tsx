@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useFavorites, useModal, useTeamTasks } from '@/core/hooks';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
@@ -9,21 +9,25 @@ import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
 
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import CreateParentTask from '../parent-task';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { Spinner } from '@/core/components/common/spinner';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
 	const { toast } = useToast();
 	const t = useTranslations();
+	const favorites = useAtomValue(favoritesState);
+	const { toggleFavoriteTask, createFavoriteLoading, deleteFavoriteLoading } = useFavorites();
 
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
@@ -37,8 +41,15 @@ const TaskTitleBlock = () => {
 	const [task] = useAtom(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
-	const isFavoriteTask = useMemo(() => (task ? isFavorite(task) : false), [task, isFavorite]);
+	const isFavoriteTask = useMemo(
+		() =>
+			task
+				? favorites.some((el) => {
+						return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
+					})
+				: false,
+		[task]
+	);
 	//Hooks and functions
 	useEffect(() => {
 		if (!edit) {
@@ -227,9 +238,11 @@ const TaskTitleBlock = () => {
 									? 'text-red-600 bg-red-50 hover:bg-red-100'
 									: 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
 							)}
-							onClick={() => toggleFavorite(task)}
+							onClick={() => toggleFavoriteTask(task)}
 						>
-							{isFavoriteTask ? (
+							{createFavoriteLoading || deleteFavoriteLoading ? (
+								<Spinner />
+							) : isFavoriteTask ? (
 								<svg
 									className="w-4 h-4"
 									fill="currentColor"
