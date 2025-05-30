@@ -485,3 +485,4 @@ export const TIMESHEET_RELATIONS = [
 	'task.taskStatus',
 	'timesheet'
 ] as const;
+export const PATH_WITH_MORE_THAN_ONE_TIMER = ['/', '/profile'];

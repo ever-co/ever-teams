@@ -9,6 +9,7 @@ import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar'
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
+import { PATH_WITH_MORE_THAN_ONE_TIMER } from '@/core/constants/config/constants';
 import AppContainer from './app-container';
 import { AppSidebar } from '../app-sidebar';
 import GlobalHeader from './global-header';
@@ -130,7 +131,17 @@ export function MainLayout({
 	useEffect(() => {
 		if (!headerHeight) return;
 
-		const shouldActivateTimer = path !== '/' || headerHeight <= 100;
+		// Verify if the page has potentially more than one timer using precise matching
+		const hasMultipleTimers = PATH_WITH_MORE_THAN_ONE_TIMER.some((p: string) => {
+			if (p === '/') {
+				return path === '/'; // Exact match for the home page
+			}
+			return path.startsWith(p); // Match for paths that start with the pattern
+		});
+
+		// If the page has multiple timers, only show the timer navbar when the header is reduced
+		// Otherwise, always show the timer navbar
+		const shouldActivateTimer = !hasMultipleTimers || headerHeight <= 100;
 
 		setActiveTimer((prev) => {
 			if (prev !== shouldActivateTimer) {
@@ -139,7 +150,7 @@ export function MainLayout({
 			return prev;
 		});
 		setShouldRenderTimer(true);
-	}, [path, headerHeight]);
+	}, [path, headerHeight, mainHeaderSlot]);
 
 	return (
 		<AppContainer title={title}>
