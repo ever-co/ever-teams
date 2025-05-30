@@ -7,6 +7,7 @@ import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
+	useFavorites,
 	useModal,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
@@ -48,13 +49,14 @@ import moment from 'moment';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { Nullable, SetAtom } from '@/core/types/generics';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { Card } from '../duplicated-components/card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { favoritesState } from '@/core/stores/common/favorites';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 
 type Props = {
 	active?: boolean;
@@ -529,8 +531,19 @@ export function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
+	const favorites = useAtomValue(favoritesState);
 
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const { toggleFavoriteTask } = useFavorites();
+
+	const isFavoriteTask = useMemo(
+		() =>
+			task
+				? favorites.some((el) => {
+						return el.entity === EBaseEntityEnum.Task && el.entityId === task?.id;
+					})
+				: false,
+		[task]
+	);
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);
@@ -605,15 +618,16 @@ export function TaskCardMenu({
 									</li>
 									<li className="mb-2">
 										<span
-											onClick={() => toggleFavorite(task)}
+											onClick={() => toggleFavoriteTask(task)}
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
 												'hover:font-semibold hover:transition-all'
 											)}
 										>
-											{isFavorite(task)
+											{isFavoriteTask
 												? t('common.REMOVE_FAVORITE_TASK')
 												: t('common.ADD_FAVORITE_TASK')}
+											{}
 										</span>
 									</li>
 									<li className="mb-3">
