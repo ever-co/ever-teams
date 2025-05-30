@@ -3,28 +3,28 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
-import { useQuery } from '../../common';
+import { useQueryCall } from '../../common';
 import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
 import { ERequestStatus } from '@/core/types/generics/enums';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
 
-	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(
+	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.requestToJoin
 	);
-	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQuery(
+	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.validateRequestToJoin
 	);
-	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQuery(
+	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.resendCodeRequestToJoin
 	);
 
-	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(
+	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.getRequestToJoin
 	);
 
-	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQuery(
+	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.acceptRejectRequestToJoin
 	);
 

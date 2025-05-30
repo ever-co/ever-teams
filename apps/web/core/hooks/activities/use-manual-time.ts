@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
@@ -10,7 +10,7 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
 
-	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQuery(timeLogService.addManualTime);
+	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQueryCall(timeLogService.addManualTime);
 	const [timeLog, setTimeLog] = useState<ITimeLog>();
 
 	const addManualTime = useCallback(

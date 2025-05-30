@@ -1,7 +1,7 @@
 'use client';
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useQueryCall } from '@/core/hooks';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
@@ -17,7 +17,9 @@ export function UnverifiedEmail() {
 	const t = useTranslations();
 	const [verified, setVerified] = useState(true);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
+		authService.resendVerifyUserLink
+	);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
@@ -81,8 +83,10 @@ export function UnverifiedEmail() {
 }
 
 export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
-	const { loading, queryCall } = useQuery(emailVerificationService.verifyUserEmailByCode);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
+	const { loading, queryCall } = useQueryCall(emailVerificationService.verifyUserEmailByCode);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
+		authService.resendVerifyUserLink
+	);
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();

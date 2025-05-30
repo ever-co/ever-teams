@@ -2,12 +2,12 @@ import { integrationService } from '@/core/services/client/api';
 import { integrationState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 
 export function useIntegration() {
 	const [integration, setIntegration] = useAtom(integrationState);
 
-	const { loading: loading, queryCall: queryCall } = useQuery(integrationService.getIntegration);
+	const { loading: loading, queryCall: queryCall } = useQueryCall(integrationService.getIntegration);
 
 	const getIntegration = useCallback(
 		(name: string) => {

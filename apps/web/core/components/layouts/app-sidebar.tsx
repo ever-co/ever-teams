@@ -366,7 +366,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<WorkspacesSwitcher workspaces={data.workspaces} />
 
 					<SidebarSeparator />
-					<SidebarCommandModal publicTeam={publicTeam!} />
+					{state !== 'collapsed' && <SidebarCommandModal publicTeam={publicTeam!} />}
 					<NavHome homeData={data.home} />
 					<SidebarSeparator />
 				</SidebarHeader>

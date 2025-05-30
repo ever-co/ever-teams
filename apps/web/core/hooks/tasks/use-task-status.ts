@@ -4,7 +4,7 @@ import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { useCallbackRef, useSyncRef } from '../common';
@@ -26,15 +26,15 @@ export function useTaskStatus() {
 		loading: getTaskStatusesLoading,
 		queryCall: getTaskStatusesQueryCall,
 		loadingRef: getTaskStatusesLoadingRef
-	} = useQuery(taskStatusService.getTaskStatuses);
-	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(
+	} = useQueryCall(taskStatusService.getTaskStatuses);
+	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQueryCall(
 		taskStatusService.createTaskStatus
 	);
-	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQueryCall(
 		taskStatusService.deleteTaskStatus
 	);
-	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(taskStatusService.editTaskStatus);
-	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQuery(
+	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQueryCall(taskStatusService.editTaskStatus);
+	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQueryCall(
 		taskStatusService.editTaskStatusOrder
 	);
 
