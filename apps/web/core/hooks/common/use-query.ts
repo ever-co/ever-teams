@@ -12,12 +12,19 @@ import { useCallback, useRef, useState } from 'react';
  *   - `infiniteLoading`: A ref that can be used to track whether the query is part of an infinite loading scenario.
  *   - `loadingRef`: A ref that can be used to access the current loading state.
  */
-export function useQuery<T extends (...params: any[]) => Promise<any>>(queryFunction: T) {
+export function useQueryCall<T extends (...params: any[]) => Promise<any>, R = Awaited<ReturnType<T>>>(
+	queryFunction: T
+): {
+	queryCall: (...params: Parameters<T>) => Promise<R>;
+	loading: boolean;
+	infiniteLoading: React.RefObject<boolean>;
+	loadingRef: React.RefObject<boolean>;
+} {
 	const [loading, setLoading] = useState(false);
 	const loadingRef = useRef(false);
 	const infiniteLoading = useRef(false);
 
-	const queryCall = useCallback((...params: Parameters<T>) => {
+	const queryCall = useCallback((...params: Parameters<T>): Promise<R> => {
 		setLoading(true);
 		loadingRef.current = true;
 
@@ -35,7 +42,7 @@ export function useQuery<T extends (...params: any[]) => Promise<any>>(queryFunc
 		});
 		return promise;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []) as T;
+	}, []);
 
 	return { queryCall, loading, infiniteLoading, loadingRef };
 }

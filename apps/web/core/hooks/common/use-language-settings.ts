@@ -13,12 +13,12 @@ import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from './use-first-load';
 import { useLanguage } from './use-language';
-import { useQuery } from './use-query';
+import { useQueryCall } from './use-query';
 import { languageService } from '@/core/services/client/api';
 
 export function useLanguageSettings() {
 	const [user] = useAtom(userState);
-	const { loading, queryCall } = useQuery(languageService.getLanguages);
+	const { loading, queryCall } = useQueryCall(languageService.getLanguages);
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);

@@ -13,7 +13,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
 import isEqual from 'lodash/isEqual';
@@ -164,15 +164,15 @@ export function useTimer() {
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQuery(timerService.getTimerStatus);
-	const { queryCall: toggleQueryCall } = useQuery(timerService.toggleTimer);
-	const { queryCall: startTimerQueryCall } = useQuery(timerService.startTimer);
-	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(timerService.stopTimer);
+	const { queryCall, loading, loadingRef } = useQueryCall(timerService.getTimerStatus);
+	const { queryCall: toggleQueryCall } = useQueryCall(timerService.toggleTimer);
+	const { queryCall: startTimerQueryCall } = useQueryCall(timerService.startTimer);
+	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQueryCall(timerService.stopTimer);
 	const {
 		queryCall: syncTimerQueryCall,
 		loading: syncTimerLoading,
 		loadingRef: syncTimerLoadingRef
-	} = useQuery(timerService.syncTimer);
+	} = useQueryCall(timerService.syncTimer);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);

@@ -5,7 +5,7 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
 import { AxiosError, isAxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -53,17 +53,17 @@ export function useAuthenticationPasscode() {
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
 	// Queries
-	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCode);
-	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmail);
-	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
+	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQueryCall(authService.sendAuthCode);
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQueryCall(authService.signInEmail);
+	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQueryCall(
 		authService.signInEmailConfirm
 	);
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading: infiniteWLoading
-	} = useQuery(authService.signInWorkspace);
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCode);
+	} = useQueryCall(authService.signInWorkspace);
+	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.signInWithEmailAndCode);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;

@@ -1,12 +1,12 @@
 import { emailResetService } from '@/core/services/client/api/users/emails/email-reset.service';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 
 export const useEmailReset = () => {
-	const { queryCall: emailResetRequestQueryCall, loading: emailResetRequestLoading } = useQuery(
+	const { queryCall: emailResetRequestQueryCall, loading: emailResetRequestLoading } = useQueryCall(
 		emailResetService.resetEmail
 	);
 
-	const { queryCall: verifyChangeEmailRequestQueryCall, loading: verifyChangeEmailRequestLoading } = useQuery(
+	const { queryCall: verifyChangeEmailRequestQueryCall, loading: verifyChangeEmailRequestLoading } = useQueryCall(
 		emailResetService.verifyChangeEmail
 	);
 

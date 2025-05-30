@@ -5,7 +5,7 @@ import { organizationProjectsState } from '@/core/stores/projects/organization-p
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { ICreateProjectRequest, IEditProjectRequest } from '@/core/types/interfaces/project/organization-project';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
-import { useFirstLoad, useQuery } from '../../common';
+import { useFirstLoad, useQueryCall } from '../../common';
 
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
@@ -14,26 +14,26 @@ export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
 	const { firstLoadData: firstOrganizationProjectsLoad } = useFirstLoad();
 
-	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } = useQuery(
+	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } = useQueryCall(
 		organizationProjectService.editOrganizationProject
 	);
 
 	const { loading: editOrganizationProjectSettingLoading, queryCall: editOrganizationProjectSettingQueryCall } =
-		useQuery(organizationProjectService.editOrganizationProjectSetting);
+		useQueryCall(organizationProjectService.editOrganizationProjectSetting);
 
-	const { loading: getOrganizationProjectLoading, queryCall: getOrganizationProjectQueryCall } = useQuery(
+	const { loading: getOrganizationProjectLoading, queryCall: getOrganizationProjectQueryCall } = useQueryCall(
 		organizationProjectService.getOrganizationProject
 	);
 
-	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } = useQuery(
+	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } = useQueryCall(
 		organizationProjectService.getOrganizationProjects
 	);
 
-	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } = useQuery(
+	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } = useQueryCall(
 		organizationProjectService.createOrganizationProject
 	);
 
-	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } = useQuery(
+	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } = useQueryCall(
 		organizationProjectService.deleteOrganizationProject
 	);
 

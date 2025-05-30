@@ -7,7 +7,7 @@ import { useCallback, useEffect } from 'react';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { timeAppsState, timeVisitedSitesState } from '@/core/stores/timer/time-slot';
 
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { activityService } from '@/core/services/client/api/activities';
 import { useAuthenticateUser } from '../auth';
 
@@ -17,7 +17,7 @@ export function useTimeDailyActivity(type?: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useAtom(timeVisitedSitesState);
 
-	const { loading, queryCall } = useQuery(activityService.getDailyActivities);
+	const { loading, queryCall } = useQueryCall(activityService.getDailyActivities);
 
 	const getVisitedApps = useCallback(
 		(title?: string) => {

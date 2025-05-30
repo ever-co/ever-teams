@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollaborative, useQuery } from '@/core/hooks';
+import { useCollaborative, useQueryCall } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
 import dynamic from 'next/dynamic';
@@ -22,7 +22,7 @@ function useMeetJwtToken(room?: string) {
 	const [token, setToken] = useState<string>();
 	const [error, setError] = useState<Error>();
 	const [retryCount, setRetryCount] = useState(0);
-	const { queryCall, loading } = useQuery(meetAuthService.getMeetJwtAuthToken);
+	const { queryCall, loading } = useQueryCall(meetAuthService.getMeetJwtAuthToken);
 
 	useEffect(() => {
 		const getToken = async () => {

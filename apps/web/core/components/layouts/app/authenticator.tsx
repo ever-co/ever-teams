@@ -1,6 +1,6 @@
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { useOrganizationTeams } from '@/core/hooks';
-import { useQuery } from '@/core/hooks/common/use-query';
+import { useQueryCall } from '@/core/hooks/common/use-query';
 import { userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
@@ -20,7 +20,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useAtom(userState);
-		const { queryCall, loading } = useQuery(userService.getAuthenticatedUserData);
+		const { queryCall, loading } = useQueryCall(userService.getAuthenticatedUserData);
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();

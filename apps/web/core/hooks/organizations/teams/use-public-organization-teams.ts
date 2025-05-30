@@ -6,13 +6,13 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useTeamTasks } from './use-team-tasks';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
-import { useQuery } from '../../common';
+import { useQueryCall } from '../../common';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useTaskLabels, useTaskPriorities, useTaskSizes, useTaskStatus } from '../../tasks';
 
 export function usePublicOrganizationTeams() {
-	const { loading, queryCall, loadingRef } = useQuery(publicOrganizationTeamService.getPublicOrganizationTeams);
-	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(
+	const { loading, queryCall, loadingRef } = useQueryCall(publicOrganizationTeamService.getPublicOrganizationTeams);
+	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQueryCall(
 		publicOrganizationTeamService.getPublicOrganizationTeamsMiscData
 	);
 	const { activeTeam, teams, setTeams, getOrganizationTeamsLoading } = useOrganizationTeams();

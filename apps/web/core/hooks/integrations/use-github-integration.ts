@@ -1,7 +1,7 @@
 import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { githubService } from '@/core/services/client/api';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
@@ -14,15 +14,17 @@ export function useGitHubIntegration() {
 		integrationGithubRepositoriesState
 	);
 
-	const { loading: installLoading, queryCall: installQueryCall } = useQuery(githubService.installGitHubIntegration);
-	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(githubService.oAuthEndpointAuthorization);
-	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
+	const { loading: installLoading, queryCall: installQueryCall } = useQueryCall(
+		githubService.installGitHubIntegration
+	);
+	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQueryCall(githubService.oAuthEndpointAuthorization);
+	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQueryCall(
 		githubService.getGithubIntegrationMetadata
 	);
-	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
+	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQueryCall(
 		githubService.getGithubIntegrationRepositories
 	);
-	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } = useQuery(
+	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } = useQueryCall(
 		githubService.syncGitHubRepository
 	);
 

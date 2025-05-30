@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useAtom } from 'jotai';
 import {
 	activityReportState,
@@ -84,16 +84,16 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const [activityReport, setActivityReport] = useAtom(activityReportState);
 
 	// API queries
-	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQuery(
+	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQueryCall(
 		timeLogService.getTimeLogReportDailyChart
 	);
-	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(
+	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQueryCall(
 		timeLogService.getTimeLogReportDaily
 	);
-	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } = useQuery(
+	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } = useQueryCall(
 		statisticsService.getTimesheetStatisticsCounts
 	);
-	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(
+	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQueryCall(
 		activityService.getActivitiesReport
 	);
 

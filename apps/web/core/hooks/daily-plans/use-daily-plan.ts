@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import {
 	activeTeamState,
 	dailyPlanListState,
@@ -29,31 +29,35 @@ export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } = useQuery(
+	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } = useQueryCall(
 		dailyPlanService.getDayPlansByEmployee
 	);
-	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQuery(
+	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQueryCall(
 		dailyPlanService.getAllDayPlans
 	);
-	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(
+	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQueryCall(
 		dailyPlanService.getMyDailyPlans
 	);
-	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(dailyPlanService.createDailyPlan);
-	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(dailyPlanService.updateDailyPlan);
-	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(
+	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQueryCall(
+		dailyPlanService.createDailyPlan
+	);
+	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQueryCall(
+		dailyPlanService.updateDailyPlan
+	);
+	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQueryCall(
 		dailyPlanService.getPlansByTask
 	);
-	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(
+	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQueryCall(
 		dailyPlanService.addTaskToPlan
 	);
-	const { loading: removeTaskFromPlanLoading, queryCall: removeTaskFromPlanQueryCall } = useQuery(
+	const { loading: removeTaskFromPlanLoading, queryCall: removeTaskFromPlanQueryCall } = useQueryCall(
 		dailyPlanService.removeTaskFromPlan
 	);
-	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(
+	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQueryCall(
 		dailyPlanService.removeManyTaskFromPlans
 	);
 
-	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(
+	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQueryCall(
 		dailyPlanService.deleteDailyPlan
 	);
 

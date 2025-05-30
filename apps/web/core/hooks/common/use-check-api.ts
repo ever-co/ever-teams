@@ -2,13 +2,13 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 import React, { useCallback, useEffect } from 'react';
-import { useQuery } from './use-query';
+import { useQueryCall } from './use-query';
 import { getDefaultAPI } from '@/core/services/client/api';
 import { Logger } from '@/core/services/logs/logger.service';
 import { LogLevel } from '@/core/types/generics/services';
 
 export function useCheckAPI() {
-	const { queryCall, loading } = useQuery(getDefaultAPI);
+	const { queryCall, loading } = useQueryCall(getDefaultAPI);
 	const [isApiWork, setIsApiWork] = React.useState(true);
 	const logger = Logger.getInstance();
 

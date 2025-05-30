@@ -2,7 +2,7 @@ import { integrationTenantService } from '@/core/services/client/api';
 import { integrationTenantState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useGitHubIntegration } from './use-github-integration';
 
 export function useIntegrationTenant() {
@@ -10,8 +10,8 @@ export function useIntegrationTenant() {
 
 	const { setIntegrationGithubRepositories } = useGitHubIntegration();
 
-	const { loading, queryCall } = useQuery(integrationTenantService.getIntegrationTenant);
-	const { loading: deleteLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading, queryCall } = useQueryCall(integrationTenantService.getIntegrationTenant);
+	const { loading: deleteLoading, queryCall: deleteQueryCall } = useQueryCall(
 		integrationTenantService.deleteIntegrationTenant
 	);
 

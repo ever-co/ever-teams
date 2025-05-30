@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
@@ -111,7 +111,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
-	const { queryCall } = useQuery(taskLinkedIssueService.createTaskLinkedIssue);
+	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(

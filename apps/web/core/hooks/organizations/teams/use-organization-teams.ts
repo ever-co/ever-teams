@@ -23,7 +23,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad, useQuery, useSyncRef } from '../../common';
+import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
@@ -64,7 +64,7 @@ function useTeamsState() {
  * 2. loading: A boolean value.
  */
 function useCreateOrganizationTeam() {
-	const { loading, queryCall } = useQuery(organizationTeamService.createOrganizationTeam);
+	const { loading, queryCall } = useQueryCall(organizationTeamService.createOrganizationTeam);
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
@@ -117,7 +117,7 @@ function useCreateOrganizationTeam() {
  * It takes a team and an optional data object and updates the team with the data
  */
 function useUpdateOrganizationTeam() {
-	const { loading, queryCall } = useQuery(organizationTeamService.updateOrganizationTeam);
+	const { loading, queryCall } = useQueryCall(organizationTeamService.updateOrganizationTeam);
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
@@ -275,12 +275,12 @@ export function useOrganizationTeams() {
 		loading: getOrganizationTeamsLoading,
 		queryCall: getOrganizationTeamsQueryCall,
 		loadingRef: getOrganizationTeamsLoadingRef
-	} = useQuery(organizationTeamService.getOrganizationTeams);
+	} = useQueryCall(organizationTeamService.getOrganizationTeams);
 	const {
 		loading: loadingTeam,
 		queryCall: queryCallTeam,
 		loadingRef: loadingRefTeam
-	} = useQuery(organizationTeamService.getOrganizationTeam);
+	} = useQueryCall(organizationTeamService.getOrganizationTeam);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationId = getOrganizationIdCookie();
@@ -319,15 +319,15 @@ export function useOrganizationTeams() {
 
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
-	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } = useQuery(
+	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } = useQueryCall(
 		organizationTeamService.editOrganizationTeam
 	);
 
-	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } = useQueryCall(
 		organizationTeamService.deleteOrganizationTeam
 	);
 
-	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } = useQuery(
+	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } = useQueryCall(
 		organizationTeamService.removeUserFromAllTeams
 	);
 
