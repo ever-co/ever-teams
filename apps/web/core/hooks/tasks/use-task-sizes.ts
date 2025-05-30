@@ -5,7 +5,7 @@ import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 
@@ -18,14 +18,16 @@ export function useTaskSizes() {
 		loading: getTaskSizesLoading,
 		queryCall: getTaskSizesQueryCall,
 		loadingRef: getTaskSizesLoadingRef
-	} = useQuery(taskSizeService.getTaskSizes);
-	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQuery(
+	} = useQueryCall(taskSizeService.getTaskSizes);
+	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQueryCall(
 		taskSizeService.createTaskSize
 	);
-	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQuery(
+	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQueryCall(
 		taskSizeService.deleteTaskSize
 	);
-	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQuery(taskSizeService.editTaskSize);
+	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQueryCall(
+		taskSizeService.editTaskSize
+	);
 
 	const loadTaskSizes = useCallback(async () => {
 		try {

@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useQuery } from '../../common';
+import { useFirstLoad } from '../../common';
 import { IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 
 export const useEmployee = () => {
@@ -13,7 +13,7 @@ export const useEmployee = () => {
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
 	const { firstLoad, firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
-	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQuery(
+	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQueryCall(
 		employeeService.getWorkingEmployees
 	);
 
@@ -47,7 +47,7 @@ export const useEmployee = () => {
 };
 
 export const useEmployeeUpdate = () => {
-	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(employeeService.updateEmployee);
+	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQueryCall(employeeService.updateEmployee);
 
 	const updateEmployee = useCallback(
 		({ id, data }: { id: string; data: IUpdateEmployee }) => {

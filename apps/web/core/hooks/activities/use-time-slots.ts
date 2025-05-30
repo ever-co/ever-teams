@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useAtom, useAtomValue } from 'jotai';
 import { timeSlotsState } from '@/core/stores/timer/time-slot';
 import moment from 'moment';
@@ -17,8 +17,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(statisticsService.getTimerLogsRequest);
-	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQuery(timeSlotService.deleteTimeSlots);
+	const { loading, queryCall } = useQueryCall(statisticsService.getTimerLogsRequest);
+	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQueryCall(timeSlotService.deleteTimeSlots);
 
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();

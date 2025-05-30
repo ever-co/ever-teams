@@ -10,7 +10,7 @@ import {
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../../common/use-first-load';
-import { useQuery } from '../../common/use-query';
+import { useQueryCall } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
@@ -28,15 +28,15 @@ export function useTeamInvitations() {
 	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
-	const { queryCall, loading } = useQuery(inviteService.getTeamInvitations);
+	const { queryCall, loading } = useQueryCall(inviteService.getTeamInvitations);
 
-	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteService.inviteByEmails);
+	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQueryCall(inviteService.inviteByEmails);
 
-	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQueryCall(
 		inviteService.removeTeamInvitations
 	);
 
-	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(
+	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQueryCall(
 		inviteService.resendTeamInvitations
 	);
 
@@ -44,9 +44,9 @@ export function useTeamInvitations() {
 		queryCall: myInvitationsQueryCall,
 		loading: myInvitationsLoading,
 		loadingRef: myInvitationsLoadingRef
-	} = useQuery(inviteService.getMyInvitations);
+	} = useQueryCall(inviteService.getMyInvitations);
 
-	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQuery(
+	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQueryCall(
 		inviteService.acceptRejectMyInvitations
 	);
 

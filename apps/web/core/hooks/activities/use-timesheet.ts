@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/timer/time-logs';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
@@ -206,17 +206,17 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowByStatusAndDate,
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
-	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(timeLogService.getTaskTimesheetLogs);
-	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(
+	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQueryCall(timeLogService.getTaskTimesheetLogs);
+	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQueryCall(
 		timeLogService.deleteTaskTimesheetLogs
 	);
-	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(
+	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQueryCall(
 		timeSheetService.updateStatusTimesheetFrom
 	);
-	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(
+	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQueryCall(
 		timeLogService.createTimesheetFrom
 	);
-	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(
+	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQueryCall(
 		timeLogService.updateTimesheetFrom
 	);
 	const isManage = user && isUserAllowedToAccess(user);

@@ -9,7 +9,7 @@ import {
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
@@ -19,16 +19,16 @@ export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
-	const { loading: getTaskRelatedIssueTypeLoading, queryCall: getTaskRelatedIssueTypeQueryCall } = useQuery(
+	const { loading: getTaskRelatedIssueTypeLoading, queryCall: getTaskRelatedIssueTypeQueryCall } = useQueryCall(
 		taskRelatedIssueTypeService.getTaskRelatedIssueTypeList
 	);
-	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } = useQuery(
+	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } = useQueryCall(
 		taskRelatedIssueTypeService.createTaskRelatedIssueType
 	);
-	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } = useQueryCall(
 		taskRelatedIssueTypeService.deleteTaskRelatedIssueType
 	);
-	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } = useQuery(
+	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } = useQueryCall(
 		taskRelatedIssueTypeService.editTaskRelatedIssueType
 	);
 

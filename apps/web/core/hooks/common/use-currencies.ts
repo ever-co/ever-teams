@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { currenciesState } from '@/core/stores/common/currencies';
 import { currencyService } from '@/core/services/client/api/currencies/currency.service';
-import { useQuery } from './use-query';
+import { useQueryCall } from './use-query';
 
 export const useCurrencies = () => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);
 
-	const { loading, queryCall: getCurrenciesQueryCall } = useQuery(currencyService.getCurrencies);
+	const { loading, queryCall: getCurrenciesQueryCall } = useQueryCall(currencyService.getCurrencies);
 
 	const getCurrencies = useCallback(() => {
 		getCurrenciesQueryCall().then((response) => {

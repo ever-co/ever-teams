@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@/core/hooks';
+import { useQueryCall } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Dropdown, DropdownItem } from '@/core/components';
 import Link from 'next/link';
@@ -102,7 +102,7 @@ function mapToActionType(items: ActionType[] = []) {
 function useActionType(defaultValue: ERelatedIssuesRelation, issue: ITaskLinkedIssue | undefined) {
 	const t = useTranslations();
 
-	const { queryCall } = useQuery(taskLinkedIssueService.updateTaskLinkedIssue);
+	const { queryCall } = useQueryCall(taskLinkedIssueService.updateTaskLinkedIssue);
 
 	const actionsTypes = useMemo(
 		() => [

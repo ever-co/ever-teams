@@ -4,7 +4,7 @@ import { userState, taskPrioritiesListState, activeTeamIdState } from '@/core/st
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskPriorityService } from '@/core/services/client/api/tasks/task-priority.service';
@@ -18,14 +18,14 @@ export function useTaskPriorities() {
 		loading: getTaskPrioritiesLoading,
 		queryCall: getTaskPrioritiesQueryCall,
 		loadingRef: getTaskPrioritiesLoadingRef
-	} = useQuery(taskPriorityService.getTaskPrioritiesList);
-	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } = useQuery(
+	} = useQueryCall(taskPriorityService.getTaskPrioritiesList);
+	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } = useQueryCall(
 		taskPriorityService.createTaskPriority
 	);
-	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } = useQueryCall(
 		taskPriorityService.deleteTaskPriority
 	);
-	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } = useQuery(
+	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } = useQueryCall(
 		taskPriorityService.editTaskPriority
 	);
 

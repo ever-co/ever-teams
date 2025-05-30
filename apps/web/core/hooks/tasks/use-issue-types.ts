@@ -4,7 +4,7 @@ import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdSt
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
 import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 
@@ -12,10 +12,14 @@ export function useIssueType() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(issueTypeService.getIssueTypeList);
-	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQuery(issueTypeService.createIssueType);
-	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(issueTypeService.deleteIssueType);
-	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQuery(issueTypeService.editIssueType);
+	const { loading, queryCall } = useQueryCall(issueTypeService.getIssueTypeList);
+	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQueryCall(
+		issueTypeService.createIssueType
+	);
+	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQueryCall(
+		issueTypeService.deleteIssueType
+	);
+	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQueryCall(issueTypeService.editIssueType);
 
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
 	const [issueTypeFetching, setIssueTypesFetching] = useAtom(issueTypesFetchingState);
