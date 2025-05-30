@@ -62,11 +62,11 @@ export const useFavorites = () => {
 	const deleteFavorite = useCallback(
 		async (id: ID) => {
 			const favoriteId = favorites.find((favorite) => favorite.entityId === id)?.id;
-			const rest = favoriteId && (await deleteFavoriteQueryCall(favoriteId));
+			const res = favoriteId && (await deleteFavoriteQueryCall(favoriteId, user?.employee?.id ?? ''));
 			setFavorites((favorites) => favorites.filter((favorite) => favorite.id !== id));
-			return rest;
+			return res;
 		},
-		[deleteFavoriteQueryCall]
+		[deleteFavoriteQueryCall, favorites, user?.employee?.id]
 	);
 
 	const loadFavorites = useCallback(async () => {
@@ -115,11 +115,6 @@ export const useFavorites = () => {
 		createFavoriteLoading,
 		getFavoritesByEmployeeLoading,
 		deleteFavoriteLoading,
-
-		// Query calls (for advanced usage)
-		createFavoriteQueryCall,
-		getFavoritesByEmployeeQueryCall,
-		deleteFavoriteQueryCall,
 		firstLoadFavoritesData: handleFirstFavoritesLoad,
 
 		toggleFavoriteTask
