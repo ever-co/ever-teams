@@ -45,8 +45,20 @@ class FavoriteService extends APIService {
 	/**
 	 * Delete a favorite
 	 */
-	deleteFavorite = async (favoriteId: ID) => {
-		return this.delete<DeleteResponse>(`/favorite/${favoriteId}`);
+	deleteFavorite = async (favoriteId: ID, employeeId: ID) => {
+		const organizationId = getOrganizationIdCookie();
+		const tenantId = getTenantIdCookie();
+
+		const obj = {
+			'where[employeeId]': employeeId,
+			'where[organizationId]': organizationId,
+			'where[tenantId]': tenantId
+		} as Record<string, string>;
+
+		const query = qs.stringify(obj);
+		const endpoint = `/favorite/${favoriteId}?${query}`;
+
+		return this.delete<DeleteResponse>(endpoint, { tenantId });
 	};
 }
 

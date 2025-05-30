@@ -236,7 +236,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 													</Link>
 													<X
 														className="w-5 h-5 cursor-pointer"
-														onClick={() => deleteFavorite(task.id)}
+														onClick={async () => {
+															await deleteFavorite(task.id);
+														}}
 													/>
 												</span>
 											</SidebarMenuSubButton>
