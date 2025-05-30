@@ -1,7 +1,7 @@
 'use client';
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useModal } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useQueryCall } from '@/core/hooks';
 import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';

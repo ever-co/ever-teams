@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad } from '../../common';
+import { useFirstLoad, useQueryCall } from '../../common';
 import { IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 
 export const useEmployee = () => {
