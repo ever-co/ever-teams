@@ -84,10 +84,6 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const handleInvite = async (email: string, name: string, form: HTMLFormElement) => {
 		await inviteUser(email, name);
 
-		toast(t('common.INVITATION_SENT'), {
-			description: t('common.INVITATION_SENT_TO_USER', { email: email }),
-			duration: 5 * 1000
-		});
 		form.reset();
 		showSuccessToast(email);
 	};
