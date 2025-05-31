@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Veuillez confirmer si vous voulez fermer la tâche",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Tâche non attribuée"
+			"TASK_UNASSIGNED": "Tâche non attribuée",
+			"TASK_ASSIGNED": "Tâche attribuée avec succès",
+			"TASK_ADDED_TO_FAVORITES": "Tâche ajoutée aux favoris",
+			"TASK_REMOVED_FROM_FAVORITES": "Tâche supprimée des favoris",
+			"TASK_PLANNED_FOR_TODAY": "Tâche planifiée pour aujourd'hui",
+			"TASK_PLANNED_FOR_TOMORROW": "Tâche planifiée pour demain",
+			"TASK_PLANNED_FOR_DATE": "Tâche planifiée pour la date sélectionnée",
+			"TASK_PLAN_FAILED": "Échec de la planification de la tâche. Veuillez réessayer.",
+			"TASK_ASSIGNMENT_FAILED": "Échec de l'attribution/désattribution de la tâche. Veuillez réessayer.",
+			"TASK_FAVORITE_FAILED": "Échec de la mise à jour des favoris. Veuillez réessayer."
 		}
 	},
 	"dailyPlan": {

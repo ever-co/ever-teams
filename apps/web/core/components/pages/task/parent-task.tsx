@@ -4,7 +4,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TaskInput } from '../../tasks/task-input';
 
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITask }) {
@@ -39,12 +39,12 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[668px] relative">
 				{loading && (
-					<div className="flex absolute inset-0 z-10 justify-center items-center bg-black/30">
+					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
-				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center w-full">
+				<EverCard className="w-full" shadow="custom">
+					<div className="flex flex-col items-center justify-between w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{t('common.ADD_PARENT')}
 						</Text.Heading>
@@ -64,7 +64,7 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 						cardWithoutShadow={true}
 						forParentChildRelationship={true}
 					/>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);

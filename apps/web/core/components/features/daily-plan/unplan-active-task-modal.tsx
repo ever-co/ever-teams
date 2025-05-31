@@ -3,7 +3,7 @@ import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
@@ -52,18 +52,18 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
-			<Card className="w-full" shadow="custom">
-				<div className="w-full flex flex-col justify-between gap-6">
+			<EverCard className="w-full" shadow="custom">
+				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						You are about to unplan the current active task, please confirm the action
 					</Text.Heading>
-					<div className="w-full flex items-center justify-evenly">
+					<div className="flex items-center w-full justify-evenly">
 						<Button
 							disabled={removeTaskFromPlanLoading}
 							variant="outline"
 							type="button"
 							onClick={handleCloseModal}
-							className="rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
 							No
 						</Button>
@@ -73,13 +73,13 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 							onClick={onYes}
 							variant="primary"
 							type="submit"
-							className=" rounded-md font-light text-md dark:text-white"
+							className="font-light rounded-md  text-md dark:text-white"
 						>
 							Yes
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

@@ -14,6 +14,7 @@ import { useQueryCall } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { toast } from 'sonner';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -85,7 +86,7 @@ export function useTeamInvitations() {
 	}, [loading, firstLoad, setFetchingInvitations]);
 
 	const removeTeamInvitation = useCallback(
-		(invitationId: string) => {
+		(invitationId: string, email?: string) => {
 			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
 				return;
 			}
@@ -97,6 +98,13 @@ export function useTeamInvitations() {
 				'EMPLOYEE',
 				activeTeamId
 			).then((res) => {
+				if (email) {
+					toast.success('Invitation removed', {
+						description: `Invitation removed for ${email}`,
+						duration: 5000
+					});
+				}
+
 				setTeamInvitations(res.data?.items || []);
 			});
 		},

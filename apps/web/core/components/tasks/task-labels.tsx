@@ -7,7 +7,7 @@ import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 
@@ -77,9 +77,9 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 
 			{/* Modal */}
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
+				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
 					<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
-				</Card>
+				</EverCard>
 			</Modal>
 		</>
 	);

@@ -14,7 +14,7 @@ import { WorkSpaceComponent } from '../passcode/page-component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 
 export default function AuthPassword() {
@@ -42,7 +42,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 
 	return (
 		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-transparent rounded-2xl">
-			<Card className={cn('w-full dark:bg-[#25272D]')} shadow="bigger">
+			<EverCard className={cn('w-full dark:bg-[#25272D]')} shadow="bigger">
 				<form onSubmit={form.handleSubmit} className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
@@ -94,7 +94,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 						</Button>
 					</div>
 				</form>
-			</Card>
+			</EverCard>
 			<div className="bg-[#f2f2f2] dark:bg-transparent">
 				<SocialLogins />
 			</div>

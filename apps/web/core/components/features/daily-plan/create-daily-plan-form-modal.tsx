@@ -22,7 +22,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
@@ -139,7 +139,7 @@ export function CreateDailyPlanFormModal({
 	return (
 		<Modal isOpen={open} closeModal={handleCloseModal}>
 			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						{/* Form header */}
 						<div className="mb-3">
@@ -172,7 +172,7 @@ export function CreateDailyPlanFormModal({
 								<Button
 									variant="outline"
 									type="button"
-									className="px-7 py-4 w-36 font-light rounded-md"
+									className="py-4 font-light rounded-md px-7 w-36"
 									onClick={() => closeModal()}
 								>
 									{t('common.CANCEL')}
@@ -183,21 +183,21 @@ export function CreateDailyPlanFormModal({
 									)}
 								>
 									{createDailyPlanLoading ? (
-										<div className="w-full h-full flex items-center justify-center">
-											<ReloadIcon className="animate-spin text-white h-4 w-4" />
+										<div className="flex items-center justify-center w-full h-full">
+											<ReloadIcon className="w-4 h-4 text-white animate-spin" />
 										</div>
 									) : (
-										<div className="w-full  h-full items-center overflow-hidden justify-between flex">
+										<div className="flex items-center justify-between w-full h-full overflow-hidden">
 											<Button
 												onClick={lastSelectedOption}
-												className="w-full text-sm text-white h-full font-light flex items-center justify-center "
+												className="flex items-center justify-center w-full h-full text-sm font-light text-white "
 											>
 												{latestOption ?? 'Select & close'}
 											</Button>
 
 											<div
 												onClick={() => setIsOpen(!isOpen)}
-												className=" flex items-center text-white justify-center w-8 h-full border-l"
+												className="flex items-center justify-center w-8 h-full text-white border-l "
 											>
 												<ChevronDown
 													size={10}
@@ -211,8 +211,8 @@ export function CreateDailyPlanFormModal({
 									)}
 
 									{isOpen && (
-										<div className="absolute z-5 right-0 w-full mt-2 p-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-											<div className="flex w-full flex-col items-center gap-1">
+										<div className="absolute right-0 w-full p-2 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg z-5 ring-1 ring-black ring-opacity-5 focus:outline-none">
+											<div className="flex flex-col items-center w-full gap-1">
 												<Button
 													disabled={createDailyPlanLoading}
 													onClick={handleSelect}
@@ -240,7 +240,7 @@ export function CreateDailyPlanFormModal({
 							</div>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

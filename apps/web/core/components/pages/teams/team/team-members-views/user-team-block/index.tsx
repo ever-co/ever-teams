@@ -13,7 +13,7 @@ import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
@@ -86,7 +86,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 
 	return (
 		<div className={clsxm(!active && 'border-2 border-transparent')}>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3 !px-4 dark:bg-[#1E2025] min-h-[7rem]',
@@ -141,7 +141,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 						radial={true}
 					/>
 				</div>
-			</Card>
+			</EverCard>
 		</div>
 	);
 }

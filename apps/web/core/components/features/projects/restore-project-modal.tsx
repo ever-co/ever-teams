@@ -3,7 +3,7 @@ import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface IRestoreProjectModalProps {
 	open: boolean;
@@ -56,8 +56,8 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<Card className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="w-full text-primary py-3 flex items-center justify-center">
+			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
+				<div className="flex items-center justify-center w-full py-3 text-primary">
 					<RotateCcw size={45} />
 				</div>
 
@@ -84,7 +84,7 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

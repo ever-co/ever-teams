@@ -18,7 +18,7 @@ import NoTeam from '@/core/components/common/no-team';
 import { TeamAvatar } from '@/core/components/teams/team-avatar';
 import { DangerZoneTeam } from '@/core/components/pages/settings/team/danger-zone-team';
 import { TeamSettingForm } from '@/core/components/pages/settings/team/team-setting-form';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 
 const Team = () => {
 	const t = useTranslations();
@@ -120,9 +120,9 @@ const Team = () => {
 				</>
 			) : (
 				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
-					<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+					<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 						<NoTeam className="p-5 mt-0 xs:mt-0" />
-					</Card>
+					</EverCard>
 				</div>
 			)}
 		</div>

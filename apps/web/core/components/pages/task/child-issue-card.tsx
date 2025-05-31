@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { AddIcon } from 'assets/svg';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { EIssueType } from '@/core/types/generics/enums/task';
@@ -34,7 +34,7 @@ export const ChildIssueCard = () => {
 	}, [task, tasks]);
 
 	return (
-		<Card
+		<EverCard
 			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#25272D] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
@@ -66,7 +66,7 @@ export const ChildIssueCard = () => {
 			)}
 
 			{task && <CreateChildTask task={task} modal={modal} />}
-		</Card>
+		</EverCard>
 	);
 };
 
@@ -128,7 +128,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 						<SpinnerLoader />
 					</div>
 				)}
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{trans.common.CHILD_ISSUE_TASK}
@@ -148,7 +148,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 						onTaskCreated={onTaskSelect}
 						cardWithoutShadow={true}
 					/>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);

@@ -7,7 +7,7 @@ import { Button } from '@ever-teams/ui';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 
 interface IFiltersCardModalProps {
@@ -237,7 +237,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 
 	return (
 		<Modal className="w-[26rem]" isOpen={open} closeModal={closeModal}>
-			<Card className="w-full h-full border " shadow="custom">
+			<EverCard className="w-full h-full border " shadow="custom">
 				<div className="w-full flex gap-2 font-medium text-[1rem]">
 					<ListFilterPlus size={20} strokeWidth={2} /> <span>{t('common.FILTER')}</span>
 				</div>
@@ -481,7 +481,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 					</Button>
 					<Button onClick={handleApplyFilters}>{t('common.APPLY_FILTERS')}</Button>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

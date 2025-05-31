@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Задачата не е възложена"
+			"TASK_UNASSIGNED": "Задачата не е възложена",
+			"TASK_ASSIGNED": "Задачата е възложена успешно",
+			"TASK_ADDED_TO_FAVORITES": "Задачата е добавена в любими",
+			"TASK_REMOVED_FROM_FAVORITES": "Задачата е премахната от любими",
+			"TASK_PLANNED_FOR_TODAY": "Задачата е планирана за днес",
+			"TASK_PLANNED_FOR_TOMORROW": "Задачата е планирана за утре",
+			"TASK_PLANNED_FOR_DATE": "Задачата е планирана за избраната дата",
+			"TASK_PLAN_FAILED": "Неуспешно планиране на задачата. Моля, опитайте отново.",
+			"TASK_ASSIGNMENT_FAILED": "Неуспешно възлагане/отмяна на възлагане на задачата. Моля, опитайте отново.",
+			"TASK_FAVORITE_FAILED": "Неуспешно обновяване на любими. Моля, опитайте отново."
 		}
 	},
 	"dailyPlan": {

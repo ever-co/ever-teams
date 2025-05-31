@@ -2,7 +2,7 @@ import { useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 
@@ -76,18 +76,18 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 			aria-labelledby="delete-status-modal-title"
 			aria-describedby="delete-status-modal-description"
 		>
-			<Card className="w-full" shadow="custom">
-				<div className="w-full flex flex-col justify-between gap-6">
+			<EverCard className="w-full" shadow="custom">
+				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" id="delete-status-modal-title" className="mb-3 text-center">
 						{t('pages.taskStatus.DELETE_STATUS_CONFIRMATION', { statusName: status.name })}
 					</Text.Heading>
-					<div className="w-full flex items-center justify-evenly">
+					<div className="flex items-center w-full justify-evenly">
 						<Button
 							disabled={deleteTaskStatusLoading}
 							variant="outline"
 							type="button"
 							onClick={handleCloseModal}
-							className="rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
 							{t('common.NO')}
 						</Button>
@@ -97,13 +97,13 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 							onClick={handleDeleteTaskStatus}
 							variant="primary"
 							type="submit"
-							className=" rounded-md font-light text-md dark:text-white"
+							className="font-light rounded-md  text-md dark:text-white"
 						>
 							{t('common.YES')}
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

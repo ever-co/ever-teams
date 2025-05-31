@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Attività non assegnata"
+			"TASK_UNASSIGNED": "Attività non assegnata",
+			"TASK_ASSIGNED": "Attività assegnata con successo",
+			"TASK_ADDED_TO_FAVORITES": "Attività aggiunta ai preferiti",
+			"TASK_REMOVED_FROM_FAVORITES": "Attività rimossa dai preferiti",
+			"TASK_PLANNED_FOR_TODAY": "Attività pianificata per oggi",
+			"TASK_PLANNED_FOR_TOMORROW": "Attività pianificata per domani",
+			"TASK_PLANNED_FOR_DATE": "Attività pianificata per la data selezionata",
+			"TASK_PLAN_FAILED": "Pianificazione dell'attività fallita. Riprova.",
+			"TASK_ASSIGNMENT_FAILED": "Assegnazione/rimozione dell'attività fallita. Riprova.",
+			"TASK_FAVORITE_FAILED": "Aggiornamento dei preferiti fallito. Riprova."
 		}
 	},
 	"dailyPlan": {

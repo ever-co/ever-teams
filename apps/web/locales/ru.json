@@ -917,7 +917,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Пожалуйста, подтвердите, что вы хотите закрыть задачу",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Задача не назначена"
+			"TASK_UNASSIGNED": "Задача не назначена",
+			"TASK_ASSIGNED": "Задача успешно назначена",
+			"TASK_ADDED_TO_FAVORITES": "Задача добавлена в избранное",
+			"TASK_REMOVED_FROM_FAVORITES": "Задача удалена из избранного",
+			"TASK_PLANNED_FOR_TODAY": "Задача запланирована на сегодня",
+			"TASK_PLANNED_FOR_TOMORROW": "Задача запланирована на завтра",
+			"TASK_PLANNED_FOR_DATE": "Задача запланирована на выбранную дату",
+			"TASK_PLAN_FAILED": "Не удалось запланировать задачу. Попробуйте еще раз.",
+			"TASK_ASSIGNMENT_FAILED": "Не удалось назначить/отменить назначение задачи. Попробуйте еще раз.",
+			"TASK_FAVORITE_FAILED": "Не удалось обновить избранное. Попробуйте еще раз."
 		}
 	},
 	"dailyPlan": {

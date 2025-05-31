@@ -9,7 +9,7 @@ import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
@@ -31,7 +31,7 @@ export function TaskLinkedIssue({
 	);
 
 	return (
-		<Card shadow="custom" className={clsxm('flex justify-between items-center py-3 px-0 md:px-0', className)}>
+		<EverCard shadow="custom" className={clsxm('flex justify-between items-center py-3 px-0 md:px-0', className)}>
 			<Link href={`/task/${task.id}`}>
 				<TaskNameInfoDisplay
 					task={task}
@@ -70,7 +70,7 @@ export function TaskLinkedIssue({
 					</div>
 				</div>
 			</div>
-		</Card>
+		</EverCard>
 	);
 }
 

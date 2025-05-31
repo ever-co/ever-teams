@@ -3,7 +3,7 @@ import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 
 interface IBulkRestoreProjectModalProps {
 	open: boolean;
@@ -64,8 +64,8 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<Card className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="w-full text-primary py-3 flex items-center justify-center">
+			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
+				<div className="flex items-center justify-center w-full py-3 text-primary">
 					<RotateCcw size={45} />
 				</div>
 
@@ -74,12 +74,12 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 						{t('pages.projects.bulkActions.bulkRestoreModal.title', { projectsCount: projects.length })}
 					</Text.Heading>
 
-					<div className="w-full flex flex-col items-center gap-1">
+					<div className="flex flex-col items-center w-full gap-1">
 						<p className=" text-center text-[1rem] text-gray-600">
 							{t('pages.projects.bulkActions.bulkRestoreModal.description')}:
 						</p>
 
-						<p className=" font-medium">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
+						<p className="font-medium ">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
 					</div>
 
 					<div className="flex items-center justify-between w-full">
@@ -96,7 +96,7 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

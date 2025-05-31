@@ -29,7 +29,8 @@ export function PastTasks({
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [pastPlans, setPastPlans] = useState<IDailyPlan[]>(_pastPlans);
-	const { date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
+	// Use a safe default instead of direct localStorage access
+	const { date } = useDateRange('Past Tasks');
 
 	useEffect(() => {
 		setPastPlans(filterDailyPlan(date as any, pastPlans));

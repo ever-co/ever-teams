@@ -34,7 +34,7 @@ import { ChevronDown, Globe2Icon } from 'lucide-react';
 import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
 import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ThemeInterface } from '@/core/types/interfaces/common/theme';
@@ -118,7 +118,7 @@ export function UserNavAvatar() {
 
 function MenuIndicator() {
 	return (
-		<Card
+		<EverCard
 			className={clsxm(
 				'absolute  top-4 right-0 -z-10 bg-transparent dark:bg-transparent',
 				'nav-items--shadow rounded-none !py-0 !px-0',
@@ -162,7 +162,7 @@ function UserNavMenu() {
 	}, [timerStatus, currentMember, publicTeam]);
 
 	return (
-		<Card
+		<EverCard
 			shadow="custom"
 			className="w-[308px relative flex flex-col nav-items--shadow z-10 shadow-darker dark:bg-[#1B1D22] border dark:border-[#26272C]"
 		>
@@ -324,7 +324,7 @@ function UserNavMenu() {
 				</ul>
 			</div>
 			<div className="w-10 h-10 bg-inherit border-inherit border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-5 right-8 rounded-xl rotate-[135deg] " />
-		</Card>
+		</EverCard>
 	);
 }
 
@@ -364,7 +364,7 @@ function ThemeDropdown() {
 				leaveTo="transform scale-95 opacity-0"
 			>
 				<PopoverPanel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
-					<Card
+					<EverCard
 						shadow="bigger"
 						className="flex flex-col !px-5 !py-3 !overflow-auto h-[15.5rem] 3xl:h-auto gap-4"
 					>
@@ -380,7 +380,7 @@ function ThemeDropdown() {
 								setTheme={setTheme}
 							/>
 						))}
-					</Card>
+					</EverCard>
 				</PopoverPanel>
 			</Transition>
 		</Popover>
@@ -410,7 +410,7 @@ function ThemeDropdown() {
 // 					/>
 // 				</Listbox.Button>
 // 				<Listbox.Options className={'absolute inset-0 flex flex-col mt-6'}>
-// 					<Card className="!p-0" shadow="custom">
+// 					<EverCard className="!p-0" shadow="custom">
 // 						{Object.keys(themes).map((key) => (
 // 							<Listbox.Option
 // 								key={key}
@@ -420,7 +420,7 @@ function ThemeDropdown() {
 // 								{themes[key as keyof typeof themes]}
 // 							</Listbox.Option>
 // 						))}
-// 					</Card>
+// 					</EverCard>
 // 				</Listbox.Options>
 // 			</Listbox>
 // 		</div>

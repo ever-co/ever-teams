@@ -127,25 +127,53 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	useEffect(() => {
-		window.localStorage.setItem('daily-plan-tab', currentTab);
-		if (!currentDataDailyPlan) return;
-		if (currentTab === 'All Tasks') {
-			setCurrentDataDailyPlan(sortedPlans);
-			setFilterAllPlanData(filterDailyPlan(date as any, sortedPlans));
-		} else if (currentTab === 'Past Tasks') {
-			setCurrentDataDailyPlan(pastPlans);
-			setFilteredPastPlanData(filterDailyPlan(date as any, pastPlans));
-		} else if (currentTab === 'Future Tasks') {
-			setCurrentDataDailyPlan(futurePlans);
-			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
-		} else if (currentTab === 'Outstanding') {
-			window.localStorage.setItem(
-				HAS_VISITED_OUTSTANDING_TASKS,
-				new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
-			);
+	// Memoize expensive computations to prevent unnecessary re-renders
+	const filteredData = useMemo(() => {
+		if (!currentDataDailyPlan) return null;
+
+		switch (currentTab) {
+			case 'All Tasks':
+				return filterDailyPlan(date as any, sortedPlans);
+			case 'Past Tasks':
+				return filterDailyPlan(date as any, pastPlans);
+			case 'Future Tasks':
+				return filterDailyPlan(date as any, futurePlans);
+			default:
+				return null;
 		}
-	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
+	}, [currentTab, date, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan]);
+
+	// Handle tab changes with optimized effects
+	useEffect(() => {
+		if (!currentDataDailyPlan) return;
+
+		switch (currentTab) {
+			case 'All Tasks':
+				setCurrentDataDailyPlan(sortedPlans);
+				if (filteredData) setFilterAllPlanData(filteredData);
+				break;
+			case 'Past Tasks':
+				setCurrentDataDailyPlan(pastPlans);
+				if (filteredData) setFilteredPastPlanData(filteredData);
+				break;
+			case 'Future Tasks':
+				setCurrentDataDailyPlan(futurePlans);
+				if (filteredData) setFilterFuturePlanData(filteredData);
+				break;
+			case 'Outstanding':
+				// Only update localStorage when necessary
+				try {
+					const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
+					const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+					if (lastVisited !== today) {
+						window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);
+					}
+				} catch (error) {
+					console.error('Error updating outstanding tasks visit date:', error);
+				}
+				break;
+		}
+	}, [currentTab, filteredData, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>

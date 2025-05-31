@@ -1,7 +1,7 @@
 import { Button, Modal, Text } from '@/core/components';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 
 export const RemoveModal = ({
 	open,
@@ -22,7 +22,7 @@ export const RemoveModal = ({
 	return (
 		<>
 			<Modal isOpen={open} closeModal={close}>
-				<Card className="w-full md:min-w-[480px]" shadow="custom">
+				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
@@ -64,7 +64,7 @@ export const RemoveModal = ({
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</Modal>
 		</>
 	);

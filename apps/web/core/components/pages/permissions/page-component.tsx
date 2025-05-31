@@ -12,7 +12,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { IRole } from '@/core/types/interfaces/role/role';
 
 const Permissions = () => {
@@ -80,7 +80,7 @@ const Permissions = () => {
 				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
 			</MainHeader>
 			<Container fullWidth={fullWidth} className="flex">
-				<Card className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
+				<EverCard className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
 					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
 						{roles.map((role) => (
 							<div
@@ -286,7 +286,7 @@ const Permissions = () => {
 						)}
 						{!selectedRole && <SelectRole />}
 					</div>
-				</Card>
+				</EverCard>
 			</Container>
 		</MainLayout>
 	);

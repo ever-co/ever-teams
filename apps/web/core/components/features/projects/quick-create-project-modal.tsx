@@ -4,7 +4,7 @@ import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { InputField } from '../../duplicated-components/_input';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
@@ -52,7 +52,7 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<Card className=" sm:w-[33rem] w-[20rem]" shadow="custom">
+			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{t('common.CREATE_PROJECT')}
@@ -92,7 +92,7 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

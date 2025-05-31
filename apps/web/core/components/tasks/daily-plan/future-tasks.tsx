@@ -27,7 +27,8 @@ export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 	const [popupOpen, setPopupOpen] = useState(false);
 
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
+	// Use a safe default instead of direct localStorage access
+	const { setDate, date } = useDateRange('Future Tasks');
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
 	useEffect(() => {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));

@@ -5,7 +5,7 @@ import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
-import { useToast } from '@/core/hooks/common/use-toast';
+import { toast } from 'sonner';
 import Input from '../../duplicated-components/input';
 import { IInvite } from '@/core/types/interfaces/user/invite';
 import { ITask } from '@/core/types/interfaces/task/task';
@@ -28,7 +28,6 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
 	const [errors, setErrors] = useState({});
 	const t = useTranslations();
-	const { toast } = useToast();
 
 	const isLoading = inviteLoading || resendInviteLoading;
 
@@ -51,9 +50,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			resendTeamInvitation(existingInvitation.id).then(() => {
 				closeModal();
 
-				toast({
-					variant: 'default',
-					title: t('common.INVITATION_SENT'),
+				toast.success(t('common.INVITATION_SENT'), {
+					id: 'modal-invitation-sent',
 					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
 					duration: 5 * 1000
 				});
@@ -65,9 +63,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			.then(() => {
 				setFormData(initialValues);
 				closeModal();
-				toast({
-					variant: 'default',
-					title: t('common.INVITATION_SENT'),
+				toast.success(t('common.INVITATION_SENT'), {
+					id: 'modal-invitation-sent',
 					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
 					duration: 5 * 1000
 				});

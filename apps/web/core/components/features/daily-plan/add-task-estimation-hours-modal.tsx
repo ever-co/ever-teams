@@ -5,13 +5,13 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
+import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { estimatedTotalTime } from '../../tasks/daily-plan';
 import { clsxm } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
@@ -24,7 +24,7 @@ import moment from 'moment';
 import { IconsErrorWarningFill } from '@/core/components/icons';
 import { InputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
@@ -52,7 +52,7 @@ interface IAddTasksEstimationHoursModalProps {
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan, tasks, isRenderedInSoftFlow = true, selectedDate } = props;
+	const { isOpen, closeModal, plan: propsPlan, tasks: propsTasks, isRenderedInSoftFlow = true, selectedDate } = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -60,16 +60,50 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
+	const { updateDailyPlan, myDailyPlans, profileDailyPlans } = useDailyPlan();
+
+	// Get the updated plan from the hook instead of relying only on props
+	const plan = useMemo(() => {
+		if (propsPlan?.id) {
+			// Find the updated plan from the hook's state
+			const updatedPlan = profileDailyPlans.items?.find((p) => p.id === propsPlan.id);
+			return updatedPlan || propsPlan;
+		}
+		return propsPlan;
+	}, [propsPlan, profileDailyPlans.items]);
+
+	// Use the updated plan's tasks if available, otherwise fall back to props
+	const tasks = useMemo(() => {
+		return plan?.tasks || propsTasks;
+	}, [plan?.tasks, propsTasks]);
+
+	const { tasks: globalTasks } = useTeamTasks();
 	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-	const tasksEstimationTimes = useMemo(
-		() => (plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0),
-		[plan]
-	);
+	// Calculate total estimation time using global tasks to ensure updates when estimates change
+	const tasksEstimationTimes = useMemo(() => {
+		if (!plan?.tasks || !globalTasks) return 0;
+
+		// Get the task IDs from the plan
+		const planTaskIds = plan.tasks.map((task) => task.id);
+
+		// Find the corresponding tasks from global state (which are always up-to-date)
+		const upToDateTasks = globalTasks.filter((task) => planTaskIds.includes(task.id));
+
+		// Calculate total estimation by summing individual task estimates from global state
+		const totalEstimationSeconds = upToDateTasks.reduce((total, task) => {
+			return total + (task.estimate || 0);
+		}, 0);
+
+		return totalEstimationSeconds / 3600; // Convert to hours
+	}, [
+		plan?.tasks?.map((task) => task.id).join(','), // Plan task IDs
+		globalTasks?.map((task) => task.estimate).join(','), // Global task estimates
+		plan?.tasks?.length
+	]);
 	const totalWorkedTime = useMemo(
 		() =>
 			plan && plan.tasks
@@ -117,19 +151,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan &&
-				plan.workTimePlanned !== workTimePlanned &&
-				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				toast.success('Plan updated successfully', {
+					description: `Work time planned updated to ${workTimePlanned} hours`,
+					duration: 3000
+				});
+			}
 
 			setPlanEditState({ draft: false, saved: true });
 
 			handleCloseModal();
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to update plan. Please try again.');
 		} finally {
 			setLoading(false);
 		}
-	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned]);
+	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned, t]);
 
 	/**
 	 * The function that opens the Change task modal if conditions are met (or start the timer)
@@ -166,14 +205,22 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan &&
-				plan.workTimePlanned !== workTimePlanned &&
-				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				toast.success('Plan updated successfully', {
+					description: `Work time planned updated to ${workTimePlanned} hours`,
+					duration: 3000
+				});
+			}
 
 			setPlanEditState({ draft: false, saved: true });
 
 			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
+				toast.success('Work started successfully', {
+					description: 'Timer has been started for your planned tasks',
+					duration: 3000
+				});
 
 				if (isRenderedInSoftFlow) {
 					handleCloseModal();
@@ -181,6 +228,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			}
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to start work. Please try again.');
 		} finally {
 			setLoading(false);
 		}
@@ -212,28 +260,27 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tasksEstimationTimes, workTimePlanned]);
 
-	// Handle warning messages
+	// Handle warning messages (informational only, don't block Start Working)
 	useEffect(() => {
-		// First,  Check if there are no tasks in the plan
+		// First,  Check if there are no tasks in the plan (CRITICAL - blocks Start Working)
 		if (!plan?.tasks || plan.tasks.length === 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS')); // New warning for no tasks
-		} else {
-			//Check if there are tasks without estimates and show the corresponding warning
-			if (plan.tasks.find((task) => !task.estimate)) {
-				setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
-			}
-			// Next, check if no work time is planned or if planned time is invalid
-			else if (!workTimePlanned || workTimePlanned <= 0) {
-				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-			}
-			// If the difference between planned and estimated times is significant, check further
-			else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
-				checkPlannedAndEstimateTimeDiff();
-			}
-			// If all checks pass, clear the warning
-			else {
-				setWarning('');
-			}
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS'));
+		}
+		// Next, check if no work time is planned or if planned time is invalid (CRITICAL - blocks Start Working)
+		else if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		}
+		// Check if there are tasks without estimates (INFORMATIONAL - doesn't block)
+		else if (plan.tasks.find((task) => !task.estimate)) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		}
+		// If the difference between planned and estimated times is significant (INFORMATIONAL - doesn't block)
+		else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+			checkPlannedAndEstimateTimeDiff();
+		}
+		// If all checks pass, clear the warning
+		else {
+			setWarning('');
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,20 +336,38 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		setWorkTimePlanned(plan?.workTimePlanned ?? 0);
 	}, [plan?.id, plan?.workTimePlanned]);
 
+	// Simplified logic for Start Working button
+	const isStartWorkingDisabled = useMemo(() => {
+		// Always disabled if loading
+		if (loading) return true;
+
+		// For today's plan (canStartWorking = true)
+		if (canStartWorking) {
+			// If timer is already running, only disable if no draft changes
+			if (timerStatus?.running) {
+				return !planEditState.draft;
+			}
+
+			// For starting work, we need at least one task and some planned time
+			const hasNoTasks = !plan?.tasks || plan.tasks.length === 0;
+			const hasNoPlannedTime = !workTimePlanned || workTimePlanned <= 0;
+
+			// Only block if there are critical issues (no tasks or no planned time)
+			return hasNoTasks || hasNoPlannedTime;
+		}
+
+		// For other dates, never disabled (just save)
+		return false;
+	}, [loading, canStartWorking, timerStatus?.running, planEditState.draft, plan?.tasks, workTimePlanned]);
+
 	const StartWorkingButton = (
 		<Button
-			disabled={
-				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
-					? planEditState.draft && !warning
-						? false
-						: true
-					: false
-			}
+			disabled={isStartWorkingDisabled}
 			variant="default"
 			type="submit"
 			className={clsxm(
 				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
-				canStartWorking && warning && 'bg-gray-400'
+				isStartWorkingDisabled && 'bg-gray-400'
 			)}
 			onClick={handleSubmit}
 		>
@@ -511,9 +576,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		<>
 			{isRenderedInSoftFlow ? (
 				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon>
-					<Card className="w-[36rem]" shadow="custom">
+					<EverCard className="w-[36rem]" shadow="custom">
 						{content}
-					</Card>
+					</EverCard>
 				</Modal>
 			) : (
 				content
@@ -608,8 +673,13 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				taskStatusId: taskStatuses[0].id,
 				issueType: 'Bug' // TODO: Let the user choose the issue type
 			});
+			toast.success('Task created successfully', {
+				description: `Task "${taskName.trim()}" has been created`,
+				duration: 3000
+			});
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to create task. Please try again.');
 		} finally {
 			setCreateTaskLoading(false);
 		}
@@ -659,7 +729,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
-					<Card shadow="custom" className="border shadow-lg !p-3">
+					<EverCard shadow="custom" className="border shadow-lg !p-3">
 						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
 							{tasks.map((task, index) => (
 								<li key={index}>
@@ -670,13 +740,14 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										setDefaultTask={setDefaultTask}
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
+										onTaskAdded={() => setShowSearchInput(false)}
 									/>
 								</li>
 							))}
 						</ul>
-					</Card>
+					</EverCard>
 				) : (
-					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
+					<EverCard shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
 						<Button
 							disabled={createTaskLoading || taskName.trim().length < 5}
 							onClick={handleCreateTask}
@@ -684,7 +755,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						>
 							{createTaskLoading ? <SpinnerLoader variant="light" size={20} /> : 'Create Task'}
 						</Button>
-					</Card>
+					</EverCard>
 				)}
 			</PopoverPanel>
 		</Popover>
@@ -704,10 +775,11 @@ interface ITaskCardProps {
 	plan?: IDailyPlan;
 	viewListMode?: 'planned' | 'searched';
 	selectedDate?: Date;
+	onTaskAdded?: () => void; // Callback to close search input after adding task
 }
 
 function TaskCard(props: ITaskCardProps) {
-	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate } = props;
+	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
 	const { getTaskById } = useTeamTasks();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
 	const { user } = useAuthenticateUser();
@@ -744,6 +816,12 @@ function TaskCard(props: ITaskCardProps) {
 
 			if (plan && plan.id) {
 				await addTaskToPlan({ taskId: task.id }, plan.id);
+				toast.success('Task added to plan', {
+					description: `"${task.title}" has been added to your daily plan`,
+					duration: 3000
+				});
+				// Close search input after successful addition
+				onTaskAdded?.();
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
@@ -757,10 +835,17 @@ function TaskCard(props: ITaskCardProps) {
 						employeeId: user?.employee?.id,
 						organizationId: user?.employee?.organizationId
 					});
+					toast.success('Daily plan created', {
+						description: `Daily plan created with task "${task.title}"`,
+						duration: 3000
+					});
+					// Close search input after successful addition
+					onTaskAdded?.();
 				}
 			}
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to add task to plan. Please try again.');
 		} finally {
 			setAddToPlanLoading(false);
 		}
@@ -770,13 +855,15 @@ function TaskCard(props: ITaskCardProps) {
 		plan,
 		selectedDate,
 		task.id,
+		task.title,
 		user?.employee?.id,
 		user?.employee?.organizationId,
-		user?.tenantId
+		user?.tenantId,
+		onTaskAdded
 	]);
 
 	return (
-		<Card
+		<EverCard
 			shadow="custom"
 			className={clsx(
 				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
@@ -802,7 +889,7 @@ function TaskCard(props: ITaskCardProps) {
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex items-center w-full h-full gap-1">
+						<div className="flex items-center h-full gap-1 min-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
 									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
@@ -839,7 +926,7 @@ function TaskCard(props: ITaskCardProps) {
 					closeModal={closeUnplanActiveTaskModal}
 				/>
 			)}
-		</Card>
+		</EverCard>
 	);
 }
 
@@ -900,23 +987,31 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					if (timerStatus?.running && isTodayPLan) {
 						openUnplanActiveTaskModal();
 					} else {
-						selectedPlan?.id &&
-							(await removeTaskFromPlan(
+						if (selectedPlan?.id) {
+							await removeTaskFromPlan(
 								{ taskId: task.id, employeeId: user?.employee?.id },
 								selectedPlan?.id
-							));
+							);
+							toast.success('Task removed from plan', {
+								description: `"${task.title}" has been removed from your daily plan`,
+								duration: 3000
+							});
+						}
 					}
 				} else {
-					selectedPlan?.id &&
-						(await removeTaskFromPlan(
-							{ taskId: task.id, employeeId: user?.employee?.id },
-							selectedPlan?.id
-						));
+					if (selectedPlan?.id) {
+						await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, selectedPlan?.id);
+						toast.success('Task removed from plan', {
+							description: `"${task.title}" has been removed from your daily plan`,
+							duration: 3000
+						});
+					}
 				}
 
 				closePopover();
 			} catch (error) {
 				console.log(error);
+				toast.error('Failed to remove task from plan. Please try again.');
 			}
 		},
 		[
@@ -926,6 +1021,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			removeTaskFromPlan,
 			selectedPlan.id,
 			task.id,
+			task.title,
 			timerStatus?.running,
 			user?.employee?.id
 		]
@@ -947,10 +1043,10 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<PopoverPanel>
+				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
+							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
 								<ul className="flex flex-col justify-end gap-3 ">
 									<li
 										onClick={openTaskDetailsModal}
@@ -995,7 +1091,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 										</>
 									)}
 								</ul>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>
@@ -1067,9 +1163,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
 						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+						toast.success('Task removed from all plans', {
+							description: 'Task has been removed from all daily plans',
+							duration: 3000
+						});
 					}
 				} else {
 					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+					toast.success('Task removed from all plans', {
+						description: 'Task has been removed from all daily plans',
+						duration: 3000
+					});
 				}
 
 				closePopover();
@@ -1077,6 +1181,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				closeActionPopover();
 			} catch (error) {
 				console.log(error);
+				toast.error('Failed to remove task from plans. Please try again.');
 			}
 		},
 		[
@@ -1108,10 +1213,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<PopoverPanel>
+				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
-							<Card
+							<EverCard
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
@@ -1148,7 +1253,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								>
 									<span>Cancel</span>
 								</button>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>

@@ -4,7 +4,7 @@ import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TransferTeamDropdown } from '../../teams/transfer-team/transfer-team-dropdown';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
@@ -47,7 +47,7 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px]" autoComplete="off" onSubmit={handleSubmit}>
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.TRANSFER_TEAM')}
@@ -80,7 +80,7 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

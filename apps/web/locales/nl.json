@@ -917,7 +917,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Taak niet toegewezen"
+			"TASK_UNASSIGNED": "Taak niet toegewezen",
+			"TASK_ASSIGNED": "Taak succesvol toegewezen",
+			"TASK_ADDED_TO_FAVORITES": "Taak toegevoegd aan favorieten",
+			"TASK_REMOVED_FROM_FAVORITES": "Taak verwijderd uit favorieten",
+			"TASK_PLANNED_FOR_TODAY": "Taak gepland voor vandaag",
+			"TASK_PLANNED_FOR_TOMORROW": "Taak gepland voor morgen",
+			"TASK_PLANNED_FOR_DATE": "Taak gepland voor geselecteerde datum",
+			"TASK_PLAN_FAILED": "Taak plannen mislukt. Probeer opnieuw.",
+			"TASK_ASSIGNMENT_FAILED": "Taak toewijzen/intrekken mislukt. Probeer opnieuw.",
+			"TASK_FAVORITE_FAILED": "Favorieten bijwerken mislukt. Probeer opnieuw."
 		}
 	},
 	"dailyPlan": {
