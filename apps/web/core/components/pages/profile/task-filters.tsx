@@ -6,7 +6,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
 import {
 	TaskLabelsDropdown,
@@ -20,6 +20,7 @@ import { DailyPlanFilter } from '../../tasks/daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
@@ -217,12 +218,9 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
-	const [dailyPlanTab, setDailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
+	// Use useLocalStorageState for consistent state management
+	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
 	const { date, setDate, data } = useDateRange(dailyPlanTab);
-
-	useEffect(() => {
-		setDailyPlanTab(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
-	}, [dailyPlanTab, date]);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
