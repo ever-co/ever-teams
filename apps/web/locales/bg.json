@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Задачата не е възложена"
+			"TASK_UNASSIGNED": "Задачата не е възложена",
+			"TASK_ASSIGNED": "Task assigned successfully",
+			"TASK_ADDED_TO_FAVORITES": "Task added to favorites",
+			"TASK_REMOVED_FROM_FAVORITES": "Task removed from favorites",
+			"TASK_PLANNED_FOR_TODAY": "Task planned for today",
+			"TASK_PLANNED_FOR_TOMORROW": "Task planned for tomorrow",
+			"TASK_PLANNED_FOR_DATE": "Task planned for selected date",
+			"TASK_PLAN_FAILED": "Failed to plan task. Please try again.",
+			"TASK_ASSIGNMENT_FAILED": "Failed to assign/unassign task. Please try again.",
+			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again."
 		}
 	},
 	"dailyPlan": {

@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "任务未分配"
+			"TASK_UNASSIGNED": "任务未分配",
+			"TASK_ASSIGNED": "任务分配成功",
+			"TASK_ADDED_TO_FAVORITES": "任务已添加到收藏夹",
+			"TASK_REMOVED_FROM_FAVORITES": "任务已从收藏夹中移除",
+			"TASK_PLANNED_FOR_TODAY": "任务已安排到今天",
+			"TASK_PLANNED_FOR_TOMORROW": "任务已安排到明天",
+			"TASK_PLANNED_FOR_DATE": "任务已安排到选定日期",
+			"TASK_PLAN_FAILED": "任务规划失败。请重试。",
+			"TASK_ASSIGNMENT_FAILED": "任务分配/取消分配失败。请重试。",
+			"TASK_FAVORITE_FAILED": "更新收藏夹失败。请重试。"
 		}
 	},
 	"dailyPlan": {

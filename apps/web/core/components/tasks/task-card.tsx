@@ -55,6 +55,7 @@ import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { toast } from 'sonner';
 
 type Props = {
 	active?: boolean;
@@ -531,13 +532,36 @@ export function TaskCardMenu({
 	const t = useTranslations();
 
 	const { toggleFavorite, isFavorite } = useFavoritesTask();
-	const handleAssignment = useCallback(() => {
-		if (viewType === 'unassign') {
-			memberInfo?.assignTask(task);
-		} else {
-			memberInfo?.unassignTask(task);
+
+	const handleToggleFavorite = useCallback(async () => {
+		try {
+			const wasAlreadyFavorite = isFavorite(task);
+			toggleFavorite(task);
+
+			if (wasAlreadyFavorite) {
+				toast.success(t('task.toastMessages.TASK_REMOVED_FROM_FAVORITES'));
+			} else {
+				toast.success(t('task.toastMessages.TASK_ADDED_TO_FAVORITES'));
+			}
+		} catch (error) {
+			console.error('Favorite toggle error:', error);
+			toast.error(t('task.toastMessages.TASK_FAVORITE_FAILED'));
 		}
-	}, [memberInfo, task, viewType]);
+	}, [task, toggleFavorite, isFavorite, t]);
+	const handleAssignment = useCallback(async () => {
+		try {
+			if (viewType === 'unassign') {
+				await memberInfo?.assignTask(task);
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'));
+			} else {
+				await memberInfo?.unassignTask(task);
+				toast.success(t('task.toastMessages.TASK_UNASSIGNED'));
+			}
+		} catch (error) {
+			console.error('Assignment error:', error);
+			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'));
+		}
+	}, [memberInfo, task, viewType, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { todayPlan, futurePlans } = useDailyPlan();
@@ -605,10 +629,10 @@ export function TaskCardMenu({
 									</li>
 									<li className="mb-2">
 										<span
-											onClick={() => toggleFavorite(task)}
+											onClick={handleToggleFavorite}
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all'
+												'hover:font-semibold hover:transition-all cursor-pointer'
 											)}
 										>
 											{isFavorite(task)
@@ -741,33 +765,51 @@ export function PlanTask({
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 	const { user } = useAuthenticateUser();
 
-	const handleOpenModal = () => {
-		if (planMode === 'custom') {
-			openModal();
-		} else if (planMode === 'today') {
-			startTransition(() => {
-				createDailyPlan({
-					workTimePlanned: 0,
-					taskId,
-					date: new Date(),
-					status: EDailyPlanStatus.OPEN,
-					tenantId: user?.tenantId ?? '',
-					employeeId: employeeId,
-					organizationId: user?.employee?.organizationId
+	const handleOpenModal = async () => {
+		try {
+			if (planMode === 'custom') {
+				openModal();
+				// Note: Toast for custom plan will be shown when the plan is actually created in the modal
+			} else if (planMode === 'today') {
+				startTransition(async () => {
+					try {
+						await createDailyPlan({
+							workTimePlanned: 0,
+							taskId,
+							date: new Date(),
+							status: EDailyPlanStatus.OPEN,
+							tenantId: user?.tenantId ?? '',
+							employeeId: employeeId,
+							organizationId: user?.employee?.organizationId
+						});
+						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'));
+					} catch (error) {
+						console.error('Plan creation error:', error);
+						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
+					}
 				});
-			});
-		} else {
-			startTransition(() => {
-				createDailyPlan({
-					workTimePlanned: 0,
-					taskId,
-					date: tomorrowDate,
-					status: EDailyPlanStatus.OPEN,
-					tenantId: user?.tenantId ?? '',
-					employeeId: employeeId,
-					organizationId: user?.employee?.organizationId
+			} else {
+				startTransition(async () => {
+					try {
+						await createDailyPlan({
+							workTimePlanned: 0,
+							taskId,
+							date: tomorrowDate,
+							status: EDailyPlanStatus.OPEN,
+							tenantId: user?.tenantId ?? '',
+							employeeId: employeeId,
+							organizationId: user?.employee?.organizationId
+						});
+						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'));
+					} catch (error) {
+						console.error('Plan creation error:', error);
+						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
+					}
 				});
-			});
+			}
+		} catch (error) {
+			console.error('Plan modal error:', error);
+			toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
 		}
 	};
 

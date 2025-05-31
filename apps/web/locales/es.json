@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Por favor, confirma si deseas cerrar la tarea",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Tarea no asignada"
+			"TASK_UNASSIGNED": "Tarea no asignada",
+			"TASK_ASSIGNED": "Tarea asignada exitosamente",
+			"TASK_ADDED_TO_FAVORITES": "Tarea agregada a favoritos",
+			"TASK_REMOVED_FROM_FAVORITES": "Tarea eliminada de favoritos",
+			"TASK_PLANNED_FOR_TODAY": "Tarea planificada para hoy",
+			"TASK_PLANNED_FOR_TOMORROW": "Tarea planificada para mañana",
+			"TASK_PLANNED_FOR_DATE": "Tarea planificada para la fecha seleccionada",
+			"TASK_PLAN_FAILED": "Error al planificar la tarea. Por favor, inténtalo de nuevo.",
+			"TASK_ASSIGNMENT_FAILED": "Error al asignar/desasignar la tarea. Por favor, inténtalo de nuevo.",
+			"TASK_FAVORITE_FAILED": "Error al actualizar favoritos. Por favor, inténtalo de nuevo."
 		}
 	},
 	"dailyPlan": {

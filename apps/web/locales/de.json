@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Bitte bestätigen Sie, ob Sie die Aufgabe schließen möchten",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Aufgabe nicht zugewiesen"
+			"TASK_UNASSIGNED": "Aufgabe nicht zugewiesen",
+			"TASK_ASSIGNED": "Aufgabe erfolgreich zugewiesen",
+			"TASK_ADDED_TO_FAVORITES": "Aufgabe zu Favoriten hinzugefügt",
+			"TASK_REMOVED_FROM_FAVORITES": "Aufgabe aus Favoriten entfernt",
+			"TASK_PLANNED_FOR_TODAY": "Aufgabe für heute geplant",
+			"TASK_PLANNED_FOR_TOMORROW": "Aufgabe für morgen geplant",
+			"TASK_PLANNED_FOR_DATE": "Aufgabe für ausgewähltes Datum geplant",
+			"TASK_PLAN_FAILED": "Aufgabenplanung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+			"TASK_ASSIGNMENT_FAILED": "Aufgabenzuweisung/-entfernung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+			"TASK_FAVORITE_FAILED": "Favoriten-Update fehlgeschlagen. Bitte versuchen Sie es erneut."
 		}
 	},
 	"dailyPlan": {
