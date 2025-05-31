@@ -242,28 +242,27 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tasksEstimationTimes, workTimePlanned]);
 
-	// Handle warning messages
+	// Handle warning messages (informational only, don't block Start Working)
 	useEffect(() => {
-		// First,  Check if there are no tasks in the plan
+		// First,  Check if there are no tasks in the plan (CRITICAL - blocks Start Working)
 		if (!plan?.tasks || plan.tasks.length === 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS')); // New warning for no tasks
-		} else {
-			//Check if there are tasks without estimates and show the corresponding warning
-			if (plan.tasks.find((task) => !task.estimate)) {
-				setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
-			}
-			// Next, check if no work time is planned or if planned time is invalid
-			else if (!workTimePlanned || workTimePlanned <= 0) {
-				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-			}
-			// If the difference between planned and estimated times is significant, check further
-			else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
-				checkPlannedAndEstimateTimeDiff();
-			}
-			// If all checks pass, clear the warning
-			else {
-				setWarning('');
-			}
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS'));
+		}
+		// Next, check if no work time is planned or if planned time is invalid (CRITICAL - blocks Start Working)
+		else if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		}
+		// Check if there are tasks without estimates (INFORMATIONAL - doesn't block)
+		else if (plan.tasks.find((task) => !task.estimate)) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		}
+		// If the difference between planned and estimated times is significant (INFORMATIONAL - doesn't block)
+		else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+			checkPlannedAndEstimateTimeDiff();
+		}
+		// If all checks pass, clear the warning
+		else {
+			setWarning('');
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -319,20 +318,38 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		setWorkTimePlanned(plan?.workTimePlanned ?? 0);
 	}, [plan?.id, plan?.workTimePlanned]);
 
+	// Simplified logic for Start Working button
+	const isStartWorkingDisabled = useMemo(() => {
+		// Always disabled if loading
+		if (loading) return true;
+
+		// For today's plan (canStartWorking = true)
+		if (canStartWorking) {
+			// If timer is already running, only disable if no draft changes
+			if (timerStatus?.running) {
+				return !planEditState.draft;
+			}
+
+			// For starting work, we need at least one task and some planned time
+			const hasNoTasks = !plan?.tasks || plan.tasks.length === 0;
+			const hasNoPlannedTime = !workTimePlanned || workTimePlanned <= 0;
+
+			// Only block if there are critical issues (no tasks or no planned time)
+			return hasNoTasks || hasNoPlannedTime;
+		}
+
+		// For other dates, never disabled (just save)
+		return false;
+	}, [loading, canStartWorking, timerStatus?.running, planEditState.draft, plan?.tasks, workTimePlanned]);
+
 	const StartWorkingButton = (
 		<Button
-			disabled={
-				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
-					? planEditState.draft && !warning
-						? false
-						: true
-					: false
-			}
+			disabled={isStartWorkingDisabled}
 			variant="default"
 			type="submit"
 			className={clsxm(
 				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
-				canStartWorking && warning && 'bg-gray-400'
+				isStartWorkingDisabled && 'bg-gray-400'
 			)}
 			onClick={handleSubmit}
 		>
