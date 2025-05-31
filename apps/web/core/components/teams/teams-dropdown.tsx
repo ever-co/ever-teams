@@ -90,7 +90,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							disabled={!user?.isEmailVerified}
 						>
 							<PlusIcon className="w-4 h-4" />
-							{t('common.CREATE_TEAM')}
+							<span className="text-nowrap whitespace-nowrap">{t('common.CREATE_TEAM')}</span>
 						</Button>
 					</Tooltip>
 				)}
