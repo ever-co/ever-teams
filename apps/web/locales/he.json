@@ -918,15 +918,15 @@
 		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "משימה לא הוקצתה",
-			"TASK_ASSIGNED": "Task assigned successfully",
-			"TASK_ADDED_TO_FAVORITES": "Task added to favorites",
-			"TASK_REMOVED_FROM_FAVORITES": "Task removed from favorites",
-			"TASK_PLANNED_FOR_TODAY": "Task planned for today",
-			"TASK_PLANNED_FOR_TOMORROW": "Task planned for tomorrow",
-			"TASK_PLANNED_FOR_DATE": "Task planned for selected date",
-			"TASK_PLAN_FAILED": "Failed to plan task. Please try again.",
-			"TASK_ASSIGNMENT_FAILED": "Failed to assign/unassign task. Please try again.",
-			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again."
+			"TASK_ASSIGNED": "המשימה הוקצתה בהצלחה",
+			"TASK_ADDED_TO_FAVORITES": "המשימה הוספה למועדפים",
+			"TASK_REMOVED_FROM_FAVORITES": "המשימה הוסרה ממועדפים",
+			"TASK_PLANNED_FOR_TODAY": "המשימה תוכננה להיום",
+			"TASK_PLANNED_FOR_TOMORROW": "המשימה תוכננה למחר",
+			"TASK_PLANNED_FOR_DATE": "המשימה תוכננה לתאריך נבחר",
+			"TASK_PLAN_FAILED": "נכשל לתכנן את המשימה. אנא נסה שוב.",
+			"TASK_ASSIGNMENT_FAILED": "נכשל להקצות/להסיר את המשימה. אנא נסה שוב.",
+			"TASK_FAVORITE_FAILED": "נכשל לעדכן את המועדפים. אנא נסה שוב."
 		}
 	},
 	"dailyPlan": {

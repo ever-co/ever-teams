@@ -63,7 +63,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			.then(() => {
 				setFormData(initialValues);
 				closeModal();
-				toast(t('common.INVITATION_SENT'), {
+				toast.success(t('common.INVITATION_SENT'), {
 					id: 'modal-invitation-sent',
 					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
 					duration: 5 * 1000

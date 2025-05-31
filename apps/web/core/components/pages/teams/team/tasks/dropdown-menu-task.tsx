@@ -35,7 +35,7 @@ const DropdownMenuTask: FC<{ task: ITask }> = ({ task }) => {
 				id: 'task-unassigned'
 			});
 		} else {
-			memberInfo.assignTask(task);
+			await memberInfo.assignTask(task);
 			toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
 				id: 'task-assigned'
 			});

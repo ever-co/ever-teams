@@ -230,11 +230,11 @@ type IAssignCall = (params: { task?: ITask; closeCombobox1?: () => void; closeCo
 
 export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(
-		({ task, closeCombobox1, closeCombobox2 }) => {
+		async ({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
 
 			edition.setLoading(true);
-			memberInfo.assignTask(task).finally(() => edition.setLoading(false));
+			await memberInfo.assignTask(task).finally(() => edition.setLoading(false));
 
 			closeCombobox1 && closeCombobox1();
 			closeCombobox2 && closeCombobox2();
