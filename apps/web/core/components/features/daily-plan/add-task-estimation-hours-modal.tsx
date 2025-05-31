@@ -5,6 +5,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
+import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
@@ -117,19 +118,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan &&
-				plan.workTimePlanned !== workTimePlanned &&
-				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				toast.success('Plan updated successfully', {
+					description: `Work time planned updated to ${workTimePlanned} hours`,
+					duration: 3000
+				});
+			}
 
 			setPlanEditState({ draft: false, saved: true });
 
 			handleCloseModal();
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to update plan. Please try again.');
 		} finally {
 			setLoading(false);
 		}
-	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned]);
+	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned, t]);
 
 	/**
 	 * The function that opens the Change task modal if conditions are met (or start the timer)
@@ -166,14 +172,22 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan &&
-				plan.workTimePlanned !== workTimePlanned &&
-				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				toast.success('Plan updated successfully', {
+					description: `Work time planned updated to ${workTimePlanned} hours`,
+					duration: 3000
+				});
+			}
 
 			setPlanEditState({ draft: false, saved: true });
 
 			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
+				toast.success('Work started successfully', {
+					description: 'Timer has been started for your planned tasks',
+					duration: 3000
+				});
 
 				if (isRenderedInSoftFlow) {
 					handleCloseModal();
@@ -181,6 +195,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			}
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to start work. Please try again.');
 		} finally {
 			setLoading(false);
 		}
@@ -608,8 +623,13 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				taskStatusId: taskStatuses[0].id,
 				issueType: 'Bug' // TODO: Let the user choose the issue type
 			});
+			toast.success('Task created successfully', {
+				description: `Task "${taskName.trim()}" has been created`,
+				duration: 3000
+			});
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to create task. Please try again.');
 		} finally {
 			setCreateTaskLoading(false);
 		}
@@ -744,6 +764,10 @@ function TaskCard(props: ITaskCardProps) {
 
 			if (plan && plan.id) {
 				await addTaskToPlan({ taskId: task.id }, plan.id);
+				toast.success('Task added to plan', {
+					description: `"${task.title}" has been added to your daily plan`,
+					duration: 3000
+				});
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
@@ -757,10 +781,15 @@ function TaskCard(props: ITaskCardProps) {
 						employeeId: user?.employee?.id,
 						organizationId: user?.employee?.organizationId
 					});
+					toast.success('Daily plan created', {
+						description: `Daily plan created with task "${task.title}"`,
+						duration: 3000
+					});
 				}
 			}
 		} catch (error) {
 			console.log(error);
+			toast.error('Failed to add task to plan. Please try again.');
 		} finally {
 			setAddToPlanLoading(false);
 		}
@@ -770,6 +799,7 @@ function TaskCard(props: ITaskCardProps) {
 		plan,
 		selectedDate,
 		task.id,
+		task.title,
 		user?.employee?.id,
 		user?.employee?.organizationId,
 		user?.tenantId
@@ -802,7 +832,7 @@ function TaskCard(props: ITaskCardProps) {
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex items-center w-full h-full gap-1">
+						<div className="flex items-center h-full gap-1 min-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
 									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
@@ -900,23 +930,31 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					if (timerStatus?.running && isTodayPLan) {
 						openUnplanActiveTaskModal();
 					} else {
-						selectedPlan?.id &&
-							(await removeTaskFromPlan(
+						if (selectedPlan?.id) {
+							await removeTaskFromPlan(
 								{ taskId: task.id, employeeId: user?.employee?.id },
 								selectedPlan?.id
-							));
+							);
+							toast.success('Task removed from plan', {
+								description: `"${task.title}" has been removed from your daily plan`,
+								duration: 3000
+							});
+						}
 					}
 				} else {
-					selectedPlan?.id &&
-						(await removeTaskFromPlan(
-							{ taskId: task.id, employeeId: user?.employee?.id },
-							selectedPlan?.id
-						));
+					if (selectedPlan?.id) {
+						await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, selectedPlan?.id);
+						toast.success('Task removed from plan', {
+							description: `"${task.title}" has been removed from your daily plan`,
+							duration: 3000
+						});
+					}
 				}
 
 				closePopover();
 			} catch (error) {
 				console.log(error);
+				toast.error('Failed to remove task from plan. Please try again.');
 			}
 		},
 		[
@@ -926,6 +964,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			removeTaskFromPlan,
 			selectedPlan.id,
 			task.id,
+			task.title,
 			timerStatus?.running,
 			user?.employee?.id
 		]
@@ -1067,9 +1106,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
 						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+						toast.success('Task removed from all plans', {
+							description: 'Task has been removed from all daily plans',
+							duration: 3000
+						});
 					}
 				} else {
 					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+					toast.success('Task removed from all plans', {
+						description: 'Task has been removed from all daily plans',
+						duration: 3000
+					});
 				}
 
 				closePopover();
@@ -1077,6 +1124,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				closeActionPopover();
 			} catch (error) {
 				console.log(error);
+				toast.error('Failed to remove task from plans. Please try again.');
 			}
 		},
 		[
