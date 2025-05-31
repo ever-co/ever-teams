@@ -7,6 +7,7 @@ import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg';
+import { toast } from 'sonner';
 import { TimerStatus } from '@/core/components/timer/timer-status';
 import { EverCard } from '@/core/components/common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
@@ -176,36 +177,50 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 							<EverCard shadow="custom" className="shadow-xl card !py-3!px-4">
 								<ul className="flex flex-col gap-2.5">
 									<li>
-										<PopoverButton
-											onClick={() => resendTeamInvitation(invitation.id)}
-											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
+										<button
+											onClick={async () => {
+												try {
+													await resendTeamInvitation(invitation.id);
+													toast.success(t('common.INVITATION_SENT'), {
+														description: t('common.INVITATION_SENT_TO_USER', {
+															email: invitation.email
+														}),
+														duration: 5000
+													});
+													close();
+												} catch (error) {
+													toast.error('Failed to resend invitation. Please try again.');
+												}
+											}}
+											className="w-full font-normal text-left whitespace-nowrap hover:font-semibold hover:transition-all"
 										>
 											{t('common.RESEND_INVITATION')}
-										</PopoverButton>
+										</button>
 									</li>
 									<li>
-										<PopoverButton
-											onClick={() => {
-												open();
-											}}
-											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
-										>
-											<ConfirmDropdown
-												className="right-[110%] top-0"
-												onConfirm={() => {
-													removeTeamInvitation(invitation.id);
+										<ConfirmDropdown
+											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
+											onConfirm={async () => {
+												try {
+													await removeTeamInvitation(invitation.id);
+													toast.success('Invitation removed', {
+														description: `Invitation removed for ${invitation.email}`,
+														duration: 5000
+													});
 													close();
-												}}
+												} catch (error) {
+													toast.error('Failed to remove invitation. Please try again.');
+												}
+											}}
+										>
+											<span
+												className={cn(
+													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500 cursor-pointer'
+												)}
 											>
-												<span
-													className={cn(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500'
-													)}
-												>
-													{t('common.REMOVE')}
-												</span>
-											</ConfirmDropdown>
-										</PopoverButton>
+												{t('common.REMOVE')}
+											</span>
+										</ConfirmDropdown>
 									</li>
 								</ul>
 							</EverCard>

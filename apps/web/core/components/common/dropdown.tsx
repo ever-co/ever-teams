@@ -177,22 +177,26 @@ export function ConfirmDropdown({
 	return (
 		<Popover>
 			<PopoverTrigger asChild>{children}</PopoverTrigger>
-			<PopoverContent className={clsxm('z-10 p-0 border-none shadow-none', className)} sideOffset={5} align="end">
-				<EverCard shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
-					<ul className="flex flex-col">
-						<li className="w-full mb-2 font-medium text-primary dark:text-white">
-							<button className="w-full text-left" onClick={onConfirm}>
-								{confirmText}
-							</button>
-						</li>
-						+
-						<li className="w-full text-sm">
-							<PopoverClose asChild>
-								<button className="w-full text-left">Cancel</button>
-							</PopoverClose>
-						</li>
-					</ul>
-				</EverCard>
+			<PopoverContent
+				className={clsxm(
+					'z-10 border shadow-none h-fit bg-light--theme-light dark:bg-dark--theme-light rounded-[16px] px-4 p-4 border-light--theme-border dark:border-dark--theme-border',
+					className
+				)}
+				sideOffset={5}
+				align="end"
+			>
+				<ul className="flex flex-col p-2 gap-y-2.5">
+					<li className="w-full font-medium text-primary dark:text-white">
+						<button className="w-full text-left" onClick={onConfirm}>
+							{confirmText}
+						</button>
+					</li>
+					<li className="w-full text-sm">
+						<PopoverClose asChild>
+							<button className="w-full text-left text-red-500">Cancel</button>
+						</PopoverClose>
+					</li>
+				</ul>
 			</PopoverContent>
 		</Popover>
 	);
