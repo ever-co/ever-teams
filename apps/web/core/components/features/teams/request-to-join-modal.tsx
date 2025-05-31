@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeftIcon } from 'assets/svg';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
 import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
@@ -19,7 +19,7 @@ export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeM
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<Card className="w-[98%] md:w-[480px]" shadow="custom">
+			<EverCard className="w-[98%] md:w-[480px]" shadow="custom">
 				<div className="flex justify-between items-center border-b dark:border-b-[#FFFFFF29]">
 					<Text.Heading
 						as="h3"
@@ -49,7 +49,7 @@ export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeM
 
 				{currentTab === 'ALREADY_MEMBER' && <AlreadyMember closeModal={closeModal} />}
 				{currentTab === 'BECOME_MEMBER' && <BecomeMember closeModal={closeModal} />}
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 };

@@ -50,7 +50,7 @@ import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanM
 import { Nullable, SetAtom } from '@/core/types/generics';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
@@ -153,7 +153,7 @@ export function TaskCard(props: Props) {
 	);
 	return (
 		<>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
@@ -251,10 +251,10 @@ export function TaskCard(props: Props) {
 						)}
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 
 			{/* Small screen size */}
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative lg:hidden flex justify-between py-3 flex-col',
@@ -310,7 +310,7 @@ export function TaskCard(props: Props) {
 						/>
 					)}
 				</div>
-			</Card>
+			</EverCard>
 		</>
 	);
 }
@@ -626,7 +626,7 @@ export function TaskCardMenu({
 				<PopoverPanel className="z-50">
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xl card !py-3 !px-7">
+							<EverCard shadow="custom" className="shadow-xl card !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link
@@ -747,7 +747,7 @@ export function TaskCardMenu({
 										</ConfirmDropdown>
 									</li> */}
 								</ul>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>

@@ -2,7 +2,7 @@
 
 import { Button, Text } from '@/core/components';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 
 import { useTranslations } from 'next-intl';
@@ -13,7 +13,7 @@ const AuthPasscode = () => {
 	return (
 		<AuthLayout title={t('pages.auth.JOIN_TEAM')} description={t('pages.auth.INPUT_INVITE_CODE_DESC')}>
 			<form className="w-[98%] md:w-[530px]" autoComplete="off">
-				<Card className="w-full" shadow="bigger">
+				<EverCard className="w-full" shadow="bigger">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
 							{t('pages.auth.INPUT_INVITE_CODE')}
@@ -53,7 +53,7 @@ const AuthPasscode = () => {
 							<Button type="submit">{t('pages.auth.JOIN')}</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</AuthLayout>
 	);

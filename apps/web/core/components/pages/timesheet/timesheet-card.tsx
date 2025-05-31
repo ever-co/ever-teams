@@ -17,7 +17,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface ITimesheetCard {
@@ -36,7 +36,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	const { icon, title, date, description, hours, count, onClick, classNameIcon } = props;
 	const t = useTranslations();
 	return (
-		<Card
+		<EverCard
 			aria-label={`Timesheet card for ${title}`}
 			shadow="custom"
 			className="w-full  h-[175px] rounded-md border border-gray-200 dark:border-gray-600 flex  gap-[8px] shadow shadow-gray-100 dark:shadow-transparent p-[24px]"
@@ -80,7 +80,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 			>
 				{icon}
 			</div>
-		</Card>
+		</EverCard>
 	);
 }
 

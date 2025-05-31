@@ -24,7 +24,7 @@ import moment from 'moment';
 import { IconsErrorWarningFill } from '@/core/components/icons';
 import { InputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
@@ -511,9 +511,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		<>
 			{isRenderedInSoftFlow ? (
 				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon>
-					<Card className="w-[36rem]" shadow="custom">
+					<EverCard className="w-[36rem]" shadow="custom">
 						{content}
-					</Card>
+					</EverCard>
 				</Modal>
 			) : (
 				content
@@ -659,7 +659,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
 				{tasks.length ? (
-					<Card shadow="custom" className="border shadow-lg !p-3">
+					<EverCard shadow="custom" className="border shadow-lg !p-3">
 						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
 							{tasks.map((task, index) => (
 								<li key={index}>
@@ -674,9 +674,9 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 								</li>
 							))}
 						</ul>
-					</Card>
+					</EverCard>
 				) : (
-					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
+					<EverCard shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
 						<Button
 							disabled={createTaskLoading || taskName.trim().length < 5}
 							onClick={handleCreateTask}
@@ -684,7 +684,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						>
 							{createTaskLoading ? <SpinnerLoader variant="light" size={20} /> : 'Create Task'}
 						</Button>
-					</Card>
+					</EverCard>
 				)}
 			</PopoverPanel>
 		</Popover>
@@ -776,7 +776,7 @@ function TaskCard(props: ITaskCardProps) {
 	]);
 
 	return (
-		<Card
+		<EverCard
 			shadow="custom"
 			className={clsx(
 				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
@@ -839,7 +839,7 @@ function TaskCard(props: ITaskCardProps) {
 					closeModal={closeUnplanActiveTaskModal}
 				/>
 			)}
-		</Card>
+		</EverCard>
 	);
 }
 
@@ -950,7 +950,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
+							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
 								<ul className="flex flex-col justify-end gap-3 ">
 									<li
 										onClick={openTaskDetailsModal}
@@ -995,7 +995,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 										</>
 									)}
 								</ul>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>
@@ -1111,7 +1111,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
-							<Card
+							<EverCard
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
@@ -1148,7 +1148,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								>
 									<span>Cancel</span>
 								</button>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>

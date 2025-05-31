@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { ITask } from '@/core/types/interfaces/task/task';
 
@@ -129,7 +129,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					<PopoverPanel>
 						{({ close }) => {
 							return (
-								<Card
+								<EverCard
 									shadow="custom"
 									className="shadow-xl card !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
 								>
@@ -215,7 +215,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											</button>
 										</ul>
 									</ul>
-								</Card>
+								</EverCard>
 							);
 						}}
 					</PopoverPanel>

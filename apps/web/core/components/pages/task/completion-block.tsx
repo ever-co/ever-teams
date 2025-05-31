@@ -3,13 +3,13 @@ import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/core/lib/utils';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 const CompletionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const t = useTranslations();
 	return (
-		<Card className="w-full mt-8" shadow="bigger">
+		<EverCard className="w-full mt-8" shadow="bigger">
 			<div className="flex justify-between">
 				<h4 className="pb-2 text-lg font-semibold">{t('pages.settingsTeam.PROOF_OF_COMPLETION')}</h4>
 
@@ -111,7 +111,7 @@ const CompletionBlock = () => {
 					)}
 				</div>
 			</div>
-		</Card>
+		</EverCard>
 	);
 };
 

@@ -28,7 +28,7 @@ import NoTeam from '@/core/components/common/no-team';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { UnverifiedEmail } from '@/core/components/common/unverified-email';
 import { TeamMembers } from '@/core/components/pages/teams/team/team-members';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { Timer } from '@/core/components/timer/timer';
 import { AuthUserTaskInput } from '@/core/components/auth/auth-user-task-input';
 
@@ -117,7 +117,7 @@ function MainPage() {
 function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = React.useState(false);
 	return (
-		<Card
+		<EverCard
 			shadow="bigger"
 			className={clsxm(
 				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
@@ -144,7 +144,7 @@ function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: b
 					<Timer />
 				</div>
 			) : null}
-		</Card>
+		</EverCard>
 	);
 }
 

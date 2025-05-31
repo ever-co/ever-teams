@@ -20,7 +20,7 @@ import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/cor
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
@@ -101,7 +101,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
-			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
+			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="text-center mb-7">
 						{t('pages.auth.ENTER_EMAIL')}
@@ -143,7 +143,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</form>
 	);
 }
@@ -200,7 +200,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 
 	return (
 		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
-			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
+			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.auth.LOGIN')}
@@ -298,7 +298,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</form>
 	);
 }
@@ -426,7 +426,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			onSubmit={props.onSubmit}
 			autoComplete="off"
 		>
-			<Card className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
+			<EverCard className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
@@ -546,7 +546,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</form>
 	);
 }

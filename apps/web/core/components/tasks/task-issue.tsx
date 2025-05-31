@@ -14,7 +14,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { cn } from '@/core/lib/helpers';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITask } from '@/core/types/interfaces/task/task';
@@ -195,13 +195,13 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[430px]" autoComplete="off" onSubmit={handleSubmit}>
-				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+				<EverCard className="w-full" shadow="custom">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.CREATE_ISSUE')}
 						</Text.Heading>
 
-						<div className="mt-5 w-full">
+						<div className="w-full mt-5">
 							<InputField
 								name="name"
 								autoCustomFocus
@@ -210,12 +210,12 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 							/>
 						</div>
 
-						<div className="flex justify-between items-center mt-3 w-full">
+						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
 							<Button type="submit">{t('common.CREATE')}</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

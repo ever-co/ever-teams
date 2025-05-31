@@ -32,7 +32,7 @@ import { ProjectDropDown } from '@/core/components/pages/task/details-section/bl
 import { cn } from '@/core/lib/helpers';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
@@ -492,7 +492,7 @@ function TaskCard({
 
 	return (
 		<>
-			<Card
+			<EverCard
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4 overflow-hidden',
@@ -702,7 +702,7 @@ function TaskCard({
 							<div className="text-center">{t('common.NO_TASKS')}</div>
 						))}
 				</ul>
-			</Card>
+			</EverCard>
 
 			{/* Just some spaces at the end */}
 			<div className="w-2 h-5 opacity-0">{'|'}</div>

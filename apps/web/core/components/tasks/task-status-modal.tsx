@@ -14,7 +14,7 @@ import {
 	useTaskSizesValue
 } from './task-status';
 import { useTranslations } from 'next-intl';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
@@ -88,7 +88,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 					onPointerDown={(e) => e.stopPropagation()}
 					onPointerUp={(e) => e.stopPropagation()}
 				>
-					<Card className="w-full" shadow="custom">
+					<EverCard className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between w-full">
 							<Text.Heading as="h3" className="mb-2 text-center">
 								{title}
@@ -140,7 +140,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 								</Button>
 							</div>
 						</div>
-					</Card>
+					</EverCard>
 				</div>
 			</Modal>
 		</>

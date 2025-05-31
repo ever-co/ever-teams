@@ -21,7 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { cn } from '@/core/lib/helpers';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
@@ -85,7 +85,7 @@ export function AddTaskToPlan({
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
-			<Card className="w-full" shadow="custom">
+			<EverCard className="w-full" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
@@ -98,7 +98,7 @@ export function AddTaskToPlan({
 						</Text>
 					</div>
 					{newPlan ? (
-						<div className="mb-5 w-full flex flex-col gap-4">
+						<div className="flex flex-col w-full gap-4 mb-5">
 							<InputField
 								type="number"
 								placeholder="Working time to plan"
@@ -116,7 +116,7 @@ export function AddTaskToPlan({
 											!date && 'text-muted-foreground'
 										)}
 									>
-										<CalendarIcon className="mr-2 h-4 w-4" />
+										<CalendarIcon className="w-4 h-4 mr-2" />
 										{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
 									</Button>
 								</PopoverTrigger>
@@ -146,21 +146,21 @@ export function AddTaskToPlan({
 					<Button
 						variant="default"
 						type="submit"
-						className="p-7 font-normal rounded-xl text-md w-full"
+						className="w-full font-normal p-7 rounded-xl text-md"
 						disabled={addTaskToPlanLoading}
 						onClick={onSubmit}
 					>
-						{addTaskToPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
+						{addTaskToPlanLoading && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
 						{newPlan ? 'Create new Plan' : 'Add task to plan'}
 					</Button>
 					<span
-						className="mt-5 text-sm cursor-pointer text-blue-600 underline"
+						className="mt-5 text-sm text-blue-600 underline cursor-pointer"
 						onClick={() => setNewPlan((prev) => !prev)}
 					>
 						{newPlan ? 'Add to an existing plan' : 'Create a new Plan'}
 					</span>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

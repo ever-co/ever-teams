@@ -30,7 +30,7 @@ import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
 import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
 import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
@@ -227,14 +227,14 @@ const TaskSecondaryInfo = () => {
 				</TaskRow>
 			)}
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
+				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
 					{formTarget === 'version' && (
 						<VersionForm onVersionCreated={onVersionCreated} onCreated={modal.closeModal} formOnly={true} />
 					)}
 					{formTarget === 'status' && <TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />}
 					{formTarget === 'priority' && <TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />}
 					{formTarget === 'size' && <TaskSizesForm onCreated={modal.closeModal} formOnly={true} />}
-				</Card>
+				</EverCard>
 			</Modal>
 		</section>
 	);
@@ -424,7 +424,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									}}
 								>
 									<ListboxOptions className="outline-none">
-										<Card
+										<EverCard
 											shadow="bigger"
 											className={clsxm(
 												'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
@@ -475,7 +475,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												</div>
 												<ScrollBar className="-pr-60" />
 											</ScrollArea>
-										</Card>
+										</EverCard>
 									</ListboxOptions>
 								</Transition>
 							</div>

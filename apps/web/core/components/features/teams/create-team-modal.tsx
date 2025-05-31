@@ -4,7 +4,7 @@ import { useOrganizationTeams } from '@/core/hooks';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 
 /**
@@ -48,7 +48,7 @@ export function CreateTeamModal({
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<form className="sm:w-[530px] w-[330px]" autoComplete="off" onSubmit={handleSubmit}>
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.CREATE_TEAM')}
@@ -89,7 +89,7 @@ export function CreateTeamModal({
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

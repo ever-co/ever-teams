@@ -8,7 +8,7 @@ import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 
 interface IProps {
@@ -71,7 +71,7 @@ export function TeamInvitations(props: IProps) {
 			{myInvitationsList
 				.filter((invitation) => !removedInvitations.includes(invitation.id))
 				.map((invitation, index) => (
-					<Card
+					<EverCard
 						shadow="bigger"
 						className={clsxm(
 							'w-full mt-2 flex justify-between',
@@ -114,7 +114,7 @@ export function TeamInvitations(props: IProps) {
 						>
 							<CrossIcon className="w-5 h-5" />
 						</button>
-					</Card>
+					</EverCard>
 				))}
 
 			<ConfirmModal
@@ -159,7 +159,7 @@ export const ConfirmModal = ({
 	return (
 		<>
 			<Modal isOpen={open} closeModal={handleOnClose}>
-				<Card className="w-full md:min-w-[480px]" shadow="custom">
+				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
@@ -207,7 +207,7 @@ export const ConfirmModal = ({
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</Modal>
 		</>
 	);

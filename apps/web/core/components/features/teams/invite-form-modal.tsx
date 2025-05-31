@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
 import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
 import { toast } from 'sonner';
@@ -129,7 +129,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit}>
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<div className="mb-7">
 							<Text.Heading as="h3" className="mb-3 text-center">
@@ -169,7 +169,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

@@ -35,7 +35,7 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
@@ -159,7 +159,7 @@ export function UserTeamCard({
 			onDragOver={onDragOver}
 			ref={profile.loadTaskStatsIObserverRef}
 		>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'sm:flex sm:flex-col hidden transition-all dark:bg-[#1E2025] min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
@@ -265,7 +265,7 @@ export function UserTeamCard({
 							</p>
 						) : null}
 					</div>
-					{/* Card menu */}
+					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
@@ -300,8 +300,8 @@ export function UserTeamCard({
 					</div>
 				) : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
-			</Card>
-			<Card
+			</EverCard>
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative flex py-3 sm:hidden flex-col',
@@ -337,9 +337,9 @@ export function UserTeamCard({
 					<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
 				</div>
 
-				{/* Card menu */}
+				{/* EverCard menu */}
 				<div className="absolute right-2">{menu}</div>
-			</Card>
+			</EverCard>
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)} */}

@@ -9,7 +9,7 @@ import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
 import { ICreateProjectRequest } from '@/core/types/interfaces/project/organization-project';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 
 export type TModalMode = 'edit' | 'create';
 
@@ -79,7 +79,7 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 	};
 
 	return (
-		<Card className="w-full  h-full " shadow="custom">
+		<EverCard className="w-full h-full " shadow="custom">
 			<div className="flex flex-row items-center justify-between h-12 gap-4">
 				{steps.map((step, index) => {
 					const isCurrent = index === currentStep;
@@ -95,7 +95,7 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 									isCurrent && 'bg-primary text-primary-foreground'
 								)}
 							>
-								{step.isCompleted ? <Check size={10} /> : <span className=" text-xs">{step.id}</span>}
+								{step.isCompleted ? <Check size={10} /> : <span className="text-xs ">{step.id}</span>}
 							</div>
 							<div
 								className={cn(
@@ -142,6 +142,6 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 					}
 				</AddOrEditContainer>
 			</div>
-		</Card>
+		</EverCard>
 	);
 }

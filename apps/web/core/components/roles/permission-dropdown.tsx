@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
 import { useRoles } from '@/core/hooks/roles';
 import { PermissonItem } from './permission-item';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 
 export const PermissionDropDown = ({
@@ -135,7 +135,7 @@ export const PermissionDropDown = ({
 				>
 					<PopoverPanel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 						{({ close }) => (
-							<Card
+							<EverCard
 								shadow="custom"
 								className="md:px-4 py-4 rounded-x md:min-w-[14.125rem] max-h-72 overflow-auto"
 								style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
@@ -212,7 +212,7 @@ export const PermissionDropDown = ({
 									{t('common.CREATE')}
 									{!rolesList.length ? ` "${filterValue}"` : ''}
 								</Button>
-							</Card>
+							</EverCard>
 						)}
 					</PopoverPanel>
 				</Transition>

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import moment from 'moment';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 
 interface IArchiveProjectModalProps {
@@ -98,7 +98,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<Card className=" sm:w-[28rem] w-[16rem]" shadow="custom">
+			<EverCard className=" sm:w-[28rem] w-[16rem]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.projects.archiveModal.title', { projectName: project?.name })}
@@ -113,8 +113,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 								})}
 							</p>
 
-							<ScrollArea style={{ height: scrollAreaHeight }} className=" w-full">
-								<div className="h-full w-full m-auto flex flex-col border p-2 rounded-md gap-2">
+							<ScrollArea style={{ height: scrollAreaHeight }} className="w-full ">
+								<div className="flex flex-col w-full h-full gap-2 p-2 m-auto border rounded-md">
 									{affectedTasks.map((task) => (
 										<TaskNameInfoDisplay
 											key={task.id}
@@ -130,7 +130,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 						</>
 					) : null}
 
-					<div className="flex items-center gap-3 justify-between w-full">
+					<div className="flex items-center justify-between w-full gap-3">
 						<Button
 							disabled={editOrganizationProjectLoading}
 							onClick={closeModal}
@@ -150,7 +150,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

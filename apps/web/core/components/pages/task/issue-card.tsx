@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { ITask } from '@/core/types/interfaces/task/task';
@@ -47,7 +47,7 @@ export const RelatedIssueCard = () => {
 	}, [task, tasks]);
 
 	return (
-		<Card
+		<EverCard
 			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#25272D] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
@@ -103,7 +103,7 @@ export const RelatedIssueCard = () => {
 			)}
 
 			{task && <CreateLinkedTask task={task} modal={modal} />}
-		</Card>
+		</EverCard>
 	);
 };
 
@@ -166,7 +166,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 						<SpinnerLoader />
 					</div>
 				)}
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{t('common.LINK_TASK')}
@@ -186,7 +186,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 						onTaskCreated={onTaskSelect}
 						cardWithoutShadow={true}
 					/>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);

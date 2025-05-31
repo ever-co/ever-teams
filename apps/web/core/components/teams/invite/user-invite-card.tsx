@@ -8,12 +8,13 @@ import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components'
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg';
 import { TimerStatus } from '@/core/components/timer/timer-status';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { cn } from '@/core/lib/helpers';
 
 type Props = IClassName & { invitation: IInvite };
 
@@ -22,7 +23,7 @@ export function InvitedCard({ invitation, className }: Props) {
 
 	return (
 		<div>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative sm:flex hidden items-center py-3 min-h-[7rem] border-[0.1875rem] border-transparent',
@@ -88,7 +89,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				</div>
 				<VerticalSeparator />
 
-				{/* Card menu */}
+				{/* card menu */}
 				<div className="font-normal text-center 2xl:w-52 3xl:w-64 opacity-40">
 					<Text>0h : 0m</Text>
 				</div>
@@ -96,8 +97,8 @@ export function InvitedCard({ invitation, className }: Props) {
 				<div className="absolute right-2">
 					<RemoveUserInviteMenu invitation={invitation} />
 				</div>
-			</Card>
-			<Card shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
+			</EverCard>
+			<EverCard shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
 				<div className="flex items-center mb-4">
 					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
 						<TimerStatus
@@ -138,7 +139,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<div className="absolute right-2">
 					<RemoveUserInviteMenu invitation={invitation} />
 				</div>
-			</Card>
+			</EverCard>
 		</div>
 	);
 }
@@ -172,8 +173,8 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 				<PopoverPanel>
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xl card !py-3 !px-4">
-								<ul>
+							<EverCard shadow="custom" className="shadow-xl card !py-3!px-4">
+								<ul className="flex flex-col gap-2.5">
 									<li>
 										<PopoverButton
 											onClick={() => resendTeamInvitation(invitation.id)}
@@ -183,24 +184,31 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 										</PopoverButton>
 									</li>
 									<li>
-										<ConfirmDropdown
-											className="right-[110%] top-0"
-											onConfirm={() => {
-												removeTeamInvitation(invitation.id);
-												close();
+										<PopoverButton
+											onClick={() => {
+												open();
 											}}
+											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
 										>
-											<Text.Div
-												className={clsxm(
-													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500'
-												)}
+											<ConfirmDropdown
+												className="right-[110%] top-0"
+												onConfirm={() => {
+													removeTeamInvitation(invitation.id);
+													close();
+												}}
 											>
-												{t('common.REMOVE')}
-											</Text.Div>
-										</ConfirmDropdown>
+												<span
+													className={cn(
+														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500'
+													)}
+												>
+													{t('common.REMOVE')}
+												</span>
+											</ConfirmDropdown>
+										</PopoverButton>
 									</li>
 								</ul>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>
@@ -218,7 +226,7 @@ export function InviteUserTeamCard({
 
 	return (
 		<div>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
@@ -249,7 +257,7 @@ export function InviteUserTeamCard({
 						</Button>
 					</Tooltip>
 				</div>
-			</Card>
+			</EverCard>
 		</div>
 	);
 }

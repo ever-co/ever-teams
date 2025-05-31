@@ -3,7 +3,7 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container, Text } from '@/core/components';
 import LeftSideSettingMenuSkeleton from './left-side-setting-menu-skeleton';
 import DangerZoneSkeleton from './danger-zone-skeleton';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 
 const SettingsPersonalSkeleton = () => {
@@ -19,7 +19,7 @@ const SettingsPersonalSkeleton = () => {
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
-						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="mb-2 text-4xl font-medium">
 								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
@@ -183,13 +183,13 @@ const SettingsPersonalSkeleton = () => {
 									</div>
 								</div>
 							</div>
-						</Card>
-						<Card className="dark:bg-[#272930] p-[32px] mt-[36px]" shadow="bigger">
+						</EverCard>
+						<EverCard className="dark:bg-[#272930] p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
 								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#353741]" />
 							</Text>
 							<DangerZoneSkeleton />
-						</Card>
+						</EverCard>
 					</div>
 				</div>
 			</Container>
