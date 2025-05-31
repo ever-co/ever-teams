@@ -53,7 +53,7 @@ interface IAddTasksEstimationHoursModalProps {
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan, tasks, isRenderedInSoftFlow = true, selectedDate } = props;
+	const { isOpen, closeModal, plan: propsPlan, tasks: propsTasks, isRenderedInSoftFlow = true, selectedDate } = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -61,7 +61,22 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
+	const { updateDailyPlan, myDailyPlans, profileDailyPlans } = useDailyPlan();
+
+	// Get the updated plan from the hook instead of relying only on props
+	const plan = useMemo(() => {
+		if (propsPlan?.id) {
+			// Find the updated plan from the hook's state
+			const updatedPlan = profileDailyPlans.items?.find((p) => p.id === propsPlan.id);
+			return updatedPlan || propsPlan;
+		}
+		return propsPlan;
+	}, [propsPlan, profileDailyPlans.items]);
+
+	// Use the updated plan's tasks if available, otherwise fall back to props
+	const tasks = useMemo(() => {
+		return plan?.tasks || propsTasks;
+	}, [plan?.tasks, propsTasks]);
 	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
@@ -690,6 +705,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										setDefaultTask={setDefaultTask}
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
+										onTaskAdded={() => setShowSearchInput(false)}
 									/>
 								</li>
 							))}
@@ -724,10 +740,11 @@ interface ITaskCardProps {
 	plan?: IDailyPlan;
 	viewListMode?: 'planned' | 'searched';
 	selectedDate?: Date;
+	onTaskAdded?: () => void; // Callback to close search input after adding task
 }
 
 function TaskCard(props: ITaskCardProps) {
-	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate } = props;
+	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
 	const { getTaskById } = useTeamTasks();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
 	const { user } = useAuthenticateUser();
@@ -768,6 +785,8 @@ function TaskCard(props: ITaskCardProps) {
 					description: `"${task.title}" has been added to your daily plan`,
 					duration: 3000
 				});
+				// Close search input after successful addition
+				onTaskAdded?.();
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
@@ -785,6 +804,8 @@ function TaskCard(props: ITaskCardProps) {
 						description: `Daily plan created with task "${task.title}"`,
 						duration: 3000
 					});
+					// Close search input after successful addition
+					onTaskAdded?.();
 				}
 			}
 		} catch (error) {
@@ -802,7 +823,8 @@ function TaskCard(props: ITaskCardProps) {
 		task.title,
 		user?.employee?.id,
 		user?.employee?.organizationId,
-		user?.tenantId
+		user?.tenantId,
+		onTaskAdded
 	]);
 
 	return (
