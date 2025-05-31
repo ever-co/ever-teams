@@ -539,27 +539,39 @@ export function TaskCardMenu({
 			toggleFavorite(task);
 
 			if (wasAlreadyFavorite) {
-				toast.success(t('task.toastMessages.TASK_REMOVED_FROM_FAVORITES'));
+				toast.success(t('task.toastMessages.TASK_REMOVED_FROM_FAVORITES'), {
+					id: 'task-favorite-removed'
+				});
 			} else {
-				toast.success(t('task.toastMessages.TASK_ADDED_TO_FAVORITES'));
+				toast.success(t('task.toastMessages.TASK_ADDED_TO_FAVORITES'), {
+					id: 'task-favorite-added'
+				});
 			}
 		} catch (error) {
 			console.error('Favorite toggle error:', error);
-			toast.error(t('task.toastMessages.TASK_FAVORITE_FAILED'));
+			toast.error(t('task.toastMessages.TASK_FAVORITE_FAILED'), {
+				id: 'task-favorite-failed'
+			});
 		}
 	}, [task, toggleFavorite, isFavorite, t]);
 	const handleAssignment = useCallback(async () => {
 		try {
 			if (viewType === 'unassign') {
 				await memberInfo?.assignTask(task);
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'));
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					id: 'task-assigned'
+				});
 			} else {
 				await memberInfo?.unassignTask(task);
-				toast.success(t('task.toastMessages.TASK_UNASSIGNED'));
+				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
+					id: 'task-unassigned'
+				});
 			}
 		} catch (error) {
 			console.error('Assignment error:', error);
-			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'));
+			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
+				id: 'task-assignment-failed'
+			});
 		}
 	}, [memberInfo, task, viewType, t]);
 
@@ -611,7 +623,7 @@ export function TaskCardMenu({
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<PopoverPanel>
+				<PopoverPanel className="z-50">
 					{() => {
 						return (
 							<Card shadow="custom" className="shadow-xl card !py-3 !px-7">
@@ -782,10 +794,14 @@ export function PlanTask({
 							employeeId: employeeId,
 							organizationId: user?.employee?.organizationId
 						});
-						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'));
+						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'), {
+							id: 'task-planned-for-today'
+						});
 					} catch (error) {
 						console.error('Plan creation error:', error);
-						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
+						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
+							id: 'task-plan-failed'
+						});
 					}
 				});
 			} else {
@@ -800,10 +816,14 @@ export function PlanTask({
 							employeeId: employeeId,
 							organizationId: user?.employee?.organizationId
 						});
-						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'));
+						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'), {
+							id: 'task-planned-for-tomorrow'
+						});
 					} catch (error) {
 						console.error('Plan creation error:', error);
-						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
+						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
+							id: 'task-plan-failed'
+						});
 					}
 				});
 			}

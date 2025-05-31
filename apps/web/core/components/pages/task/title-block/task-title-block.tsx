@@ -2,7 +2,6 @@ import { useModal, useTeamTasks } from '@/core/hooks';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
-import { useToast } from '@/core/hooks/common/use-toast';
 import { Button, CopyTooltip } from '@/core/components';
 import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
@@ -19,10 +18,10 @@ import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { Heart } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { toast } from 'sonner';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
-	const { toast } = useToast();
 	const t = useTranslations();
 
 	//DOM elements
@@ -57,9 +56,7 @@ const TaskTitleBlock = () => {
 	const saveTitle = useCallback(
 		(newTitle: string) => {
 			if (newTitle.length > 255) {
-				toast({
-					variant: 'destructive',
-					title: t('pages.taskDetails.TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE'),
+				toast.error(t('pages.taskDetails.TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE'), {
 					description: t('pages.taskDetails.TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION')
 				});
 				return;
@@ -68,7 +65,7 @@ const TaskTitleBlock = () => {
 			updateTitle(newTitle, task, true);
 			setEdit(false);
 		},
-		[task, updateTitle, toast, t]
+		[task, updateTitle, t]
 	);
 
 	const saveOnEnter = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -125,7 +122,7 @@ const TaskTitleBlock = () => {
 					/>
 
 					{edit ? (
-						<div className="flex flex-col gap-1 justify-start transition-all">
+						<div className="flex flex-col justify-start gap-1 transition-all">
 							<button
 								ref={saveButton}
 								onClick={() => saveTitle(title)}
@@ -142,7 +139,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col gap-2 justify-start items-center">
+						<div className="flex flex-col items-center justify-start gap-2">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -174,7 +171,7 @@ const TaskTitleBlock = () => {
 			)}
 
 			<div className="flex flex-col items-start">
-				<div className="flex flex-row gap-3 justify-start items-center">
+				<div className="flex flex-row items-center justify-start gap-3">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
 						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
@@ -197,7 +194,7 @@ const TaskTitleBlock = () => {
 					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
 
 					{task?.issueType !== EIssueType.EPIC && task && (
-						<div className="flex gap-3 items-center">
+						<div className="flex items-center gap-3">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 							{(!task?.issueType ||
 								task?.issueType === EIssueType.TASK ||
@@ -316,7 +313,7 @@ const ParentTaskInput = ({ task }: { task: ITask | null }) => {
 	const t = useTranslations();
 
 	return task && task.issueType !== EIssueType.EPIC ? (
-		<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
+		<div className="box-border flex items-center justify-center text-center bg-transparent rounded cursor-pointer h-7">
 			<Button
 				variant="outline-danger"
 				className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"

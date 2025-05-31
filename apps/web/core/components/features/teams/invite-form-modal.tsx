@@ -6,11 +6,11 @@ import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useToast } from '@/core/hooks/common/use-toast';
 import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
 import { Card } from '../../duplicated-components/card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
+import { toast } from 'sonner';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
@@ -27,7 +27,6 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const { activeTeam } = useOrganizationTeams();
 	const nameInputRef = useRef<HTMLInputElement>(null);
-	const { toast } = useToast();
 
 	const isLoading = inviteLoading || resendInviteLoading;
 
@@ -82,9 +81,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				resendTeamInvitation(existingInvitation.id).then(() => {
 					closeModal();
 
-					toast({
-						variant: 'default',
-						title: t('common.INVITATION_SENT'),
+					toast(t('common.INVITATION_SENT'), {
 						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
 						duration: 5 * 1000
 					});
@@ -97,9 +94,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 					closeModal();
 					e.currentTarget.reset();
 
-					toast({
-						variant: 'default',
-						title: t('common.INVITATION_SENT'),
+					toast(t('common.INVITATION_SENT'), {
 						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
 						duration: 5 * 1000
 					});

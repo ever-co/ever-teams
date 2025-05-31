@@ -1,17 +1,16 @@
 'use client';
 
-import { useToast } from '@/core/hooks/common/use-toast';
 import { useCallback } from 'react';
 import { TeamItem } from '@/core/components/teams/team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useTimer } from '../../activities';
+import { toast } from 'sonner';
 
 export const useActiveTeam = () => {
 	const { activeTeam, setActiveTeam } = useOrganizationTeams();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
-	const { toast } = useToast();
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
 			if (item.data) {
@@ -28,9 +27,7 @@ export const useActiveTeam = () => {
 					activeTeam?.id &&
 					timerStatus.lastLog.organizationTeamId === activeTeam?.id
 				) {
-					toast({
-						variant: 'default',
-						title: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+					toast.success(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
 						description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
 					});
 					stopTimer();

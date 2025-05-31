@@ -947,7 +947,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<PopoverPanel>
+				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
 							<Card shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
@@ -1108,7 +1108,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				leaveTo="transform scale-95 opacity-0"
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
-				<PopoverPanel>
+				<PopoverPanel className="z-50">
 					{({ close }) => {
 						return (
 							<Card

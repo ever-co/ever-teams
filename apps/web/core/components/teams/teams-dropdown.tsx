@@ -2,7 +2,6 @@
 
 import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { useToast } from '@/core/hooks/common/use-toast';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
 import { useCallback, useMemo, useState } from 'react';
@@ -12,6 +11,7 @@ import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams
 import React from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { CreateTeamModal } from '../features/teams/create-team-modal';
+import { toast } from 'sonner';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
@@ -19,7 +19,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
-	const { toast } = useToast();
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
@@ -37,9 +36,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					activeTeam?.id &&
 					timerStatus?.lastLog?.organizationTeamId === activeTeam?.id
 				) {
-					toast({
-						variant: 'default',
-						title: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+					toast.success(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
 						description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
 					});
 					stopTimer();
@@ -48,7 +45,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				setActiveTeam(item.data);
 			}
 		},
-		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, t]
+		[setActiveTeam, timerStatus, stopTimer, activeTeam, t]
 	);
 
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
