@@ -12,7 +12,6 @@ import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { estimatedTotalTime } from '../../tasks/daily-plan';
 import { clsxm } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
@@ -77,15 +76,34 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const tasks = useMemo(() => {
 		return plan?.tasks || propsTasks;
 	}, [plan?.tasks, propsTasks]);
+
+	const { tasks: globalTasks } = useTeamTasks();
 	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-	const tasksEstimationTimes = useMemo(
-		() => (plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0),
-		[plan]
-	);
+	// Calculate total estimation time using global tasks to ensure updates when estimates change
+	const tasksEstimationTimes = useMemo(() => {
+		if (!plan?.tasks || !globalTasks) return 0;
+
+		// Get the task IDs from the plan
+		const planTaskIds = plan.tasks.map((task) => task.id);
+
+		// Find the corresponding tasks from global state (which are always up-to-date)
+		const upToDateTasks = globalTasks.filter((task) => planTaskIds.includes(task.id));
+
+		// Calculate total estimation by summing individual task estimates from global state
+		const totalEstimationSeconds = upToDateTasks.reduce((total, task) => {
+			return total + (task.estimate || 0);
+		}, 0);
+
+		return totalEstimationSeconds / 3600; // Convert to hours
+	}, [
+		plan?.tasks?.map((task) => task.id).join(','), // Plan task IDs
+		globalTasks?.map((task) => task.estimate).join(','), // Global task estimates
+		plan?.tasks?.length
+	]);
 	const totalWorkedTime = useMemo(
 		() =>
 			plan && plan.tasks
