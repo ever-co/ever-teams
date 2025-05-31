@@ -202,11 +202,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
 											onConfirm={async () => {
 												try {
-													await removeTeamInvitation(invitation.id);
-													toast.success('Invitation removed', {
-														description: `Invitation removed for ${invitation.email}`,
-														duration: 5000
-													});
+													await removeTeamInvitation(invitation.id, invitation.email);
 													close();
 												} catch (error) {
 													toast.error('Failed to remove invitation. Please try again.');
