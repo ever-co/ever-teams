@@ -156,15 +156,17 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-	const totalDuration = Object.values(statusTimesheet)
-		.flat()
-		.map((entry) => {
-			return differenceBetweenHours(
-				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
-				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
-			);
-		})
-		.reduce((total, current) => total + current, 0);
+	const totalDuration = statusTimesheet
+		? Object.values(statusTimesheet)
+				.flat()
+				.map((entry) => {
+					return differenceBetweenHours(
+						entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
+						entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
+					);
+				})
+				.reduce((total, current) => total + current, 0)
+		: 0;
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
@@ -224,7 +226,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							</div>
 							<div className="flex items-center justify-between w-full gap-6 pt-4">
 								<TimesheetCard
-									count={statusTimesheet.PENDING.length}
+									count={statusTimesheet?.PENDING?.length || 0}
 									title={t('common.PENDING_TASKS')}
 									description="Tasks waiting for your approval"
 									icon={<PendingTaskIcon />}
@@ -248,10 +250,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								{isManage && (
 									<TimesheetCard
 										count={
-											Object.values(statusTimesheet)
-												.flat()
-												.map((entry) => entry.employee?.id)
-												.filter((id, index, array) => array.indexOf(id) === index).length
+											statusTimesheet
+												? Object.values(statusTimesheet)
+														.flat()
+														.map((entry) => entry.employee?.id)
+														.filter((id, index, array) => array.indexOf(id) === index)
+														.length
+												: 0
 										}
 										title={t('common.MEMBERS_WORKED')}
 										description="People worked since last time"

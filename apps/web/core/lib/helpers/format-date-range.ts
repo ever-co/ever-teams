@@ -12,6 +12,11 @@ export function formatStartAndEndDateRange(
 	const startDateObj = new Date(startDate);
 	const endDateObj = new Date(endDate);
 
+	// Validate that dates are valid
+	if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+		throw new Error('Invalid date provided. Both startDate and endDate must be valid dates.');
+	}
+
 	// Format start date to beginning of day (00:00:00.000Z)
 	const startOfDay = new Date(startDateObj);
 	startOfDay.setUTCHours(0, 0, 0, 0);
