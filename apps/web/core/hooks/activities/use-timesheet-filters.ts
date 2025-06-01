@@ -9,9 +9,11 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 	const [activeStatus, setActiveStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
 
 	const filteredData = useMemo(() => {
-		if (!data) return [];
+		if (!data) {
+			return [];
+		}
 
-		return data
+		const result = data
 			.map((group) => {
 				type FilterStatusWithoutAll = Exclude<FilterStatus, 'All Tasks'>;
 
@@ -36,6 +38,8 @@ export const useTimesheetFilters = (data?: GroupedTimesheet[]) => {
 				};
 			})
 			.filter((group) => group.tasks.length > 0);
+
+		return result;
 	}, [data, activeStatus]);
 
 	const statusData = useMemo(() => {

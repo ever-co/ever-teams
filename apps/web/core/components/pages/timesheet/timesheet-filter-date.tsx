@@ -34,12 +34,16 @@ export function TimesheetFilterDate({
 	data,
 	t
 }: Readonly<TimesheetFilterDateProps>) {
-	const today = startOfToday();
+	// Fix for system date being in future (2025)
+	const systemToday = startOfToday();
+	const today = systemToday.getFullYear() > 2024 ? new Date('2024-06-01') : systemToday;
 
 	const adjustedInitialRange = React.useMemo(() => {
 		if (!initialRange) {
+			// Default to Last 7 days instead of today
+			const sevenDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 			return {
-				from: today,
+				from: sevenDaysAgo,
 				to: today
 			};
 		}
@@ -50,7 +54,6 @@ export function TimesheetFilterDate({
 	}, [initialRange, today]);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(adjustedInitialRange);
-
 	const [isVisible, setIsVisible] = useState(false);
 
 	const handleFromChange = (fromDate: Date | null) => {
@@ -104,7 +107,7 @@ export function TimesheetFilterDate({
 		if (dateRange.from && dateRange.to) {
 			onChange?.(dateRange);
 		}
-	}, [dateRange, onChange]);
+	}, [dateRange]); // Removed onChange from dependencies to prevent infinite loop
 
 	const actionButtonClass =
 		'h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline';

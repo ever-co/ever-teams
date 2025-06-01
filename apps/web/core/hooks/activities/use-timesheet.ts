@@ -181,7 +181,7 @@ const createGroupingFunction =
 					const normalizedItem = {
 						...item,
 						timesheet: {
-							...item.timesheet,
+							...item?.timesheet,
 							id: timesheetId,
 							createdAt: createdAt
 						}
@@ -285,8 +285,9 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	 */
 	const currentDateRange = useMemo(() => {
 		const now = moment();
-		const defaultStart = now.clone().startOf('month').toDate();
-		const defaultEnd = now.clone().endOf('month').toDate();
+		// Default to Last 7 days instead of full month
+		const defaultStart = now.clone().subtract(7, 'days').toDate();
+		const defaultEnd = now.toDate();
 
 		const parseDate = (date: Date | string | undefined, defaultValue: Date) => {
 			if (!date) return defaultValue;
@@ -334,6 +335,12 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			const from = moment(startDate).format('YYYY-MM-DD');
 			const to = moment(endDate).format('YYYY-MM-DD');
 
+			// Get current filter values at the time of the call, not as dependencies
+			const currentEmployee = employee;
+			const currentProject = project;
+			const currentTask = task;
+			const currentStatusState = statusState;
+
 			const queryParams = {
 				startDate: from,
 				endDate: to,
@@ -341,11 +348,11 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				tenantId: user.tenantId ?? '',
 				timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
 				employeeIds: isManage
-					? employee?.map(({ employee }) => employee?.id || '').filter(Boolean)
+					? currentEmployee?.map(({ employee }) => employee?.id || '').filter(Boolean)
 					: [user.employee?.id || ''],
-				projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
-				taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
-				status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
+				projectIds: currentProject?.map((project) => project.id).filter((id) => id !== undefined),
+				taskIds: currentTask?.map((task) => task.id).filter((id) => id !== undefined),
+				status: currentStatusState?.map((status) => status.value).filter((value) => value !== undefined)
 			};
 
 			queryTimesheet(queryParams)
@@ -356,14 +363,10 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					console.error('Error fetching timesheet:', error);
 				});
 		},
-		[user, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
+		[user, queryTimesheet, isManage, setTimesheet] // Removed filter dependencies
 	);
 
-	useEffect(() => {
-		if (startDate || endDate) {
-			getTaskTimesheet({ startDate, endDate });
-		}
-	}, [startDate, endDate, getTaskTimesheet]);
+	// Removed duplicate useEffect - using the one below that handles all dependencies
 
 	const createTimesheet = useCallback(
 		async ({ ...timesheetParams }: IUpdateTimesheetRequest) => {
@@ -447,7 +450,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	);
 
 	const getStatusTimesheet = (items: ITimeLog[] = []) => {
-
 		const STATUS_MAP: Record<ETimesheetStatus, ITimeLog[]> = {
 			[ETimesheetStatus.PENDING]: [],
 			[ETimesheetStatus.APPROVED]: [],
@@ -519,7 +521,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	};
 
 	const filterDataTimesheet = useMemo(() => {
-
 		if (!timesheet || !inputSearch) {
 			return timesheet;
 		}
@@ -585,9 +586,12 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		);
 	};
 
+	// Single effect for all changes - dates, search, and filters
 	useEffect(() => {
-		getTaskTimesheet({ startDate, endDate });
-	}, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, inputSearch]);
+		if (startDate && endDate) {
+			getTaskTimesheet({ startDate, endDate });
+		}
+	}, [getTaskTimesheet, startDate, endDate, inputSearch, employee, project, task, statusState]);
 
 	return {
 		loadingTimesheet,
@@ -597,7 +601,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		deleteTaskTimesheet,
 		getStatusTimesheet,
 		timesheetGroupByDays,
-		statusTimesheet: getStatusTimesheet(filterDataTimesheet as ITimeLog[] || []),
+		statusTimesheet: getStatusTimesheet((filterDataTimesheet as ITimeLog[]) || []),
 		updateTimesheetStatus,
 		loadingUpdateTimesheetStatus,
 		puTimesheetStatus,

@@ -34,8 +34,8 @@ import {
 import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
+import { subDays } from 'date-fns';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from '@/core/components/pages/timesheet/timesheet-detail-modal';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import TimesheetPagination from '@/core/components/timesheet/timesheet-pagination';
@@ -44,6 +44,7 @@ import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { toast } from 'sonner';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -74,17 +75,33 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 
 	/**
-	 * Default date range for the current month
+	 * Default date range for the last 7 days
 	 */
-	const defaultDateRange = useMemo(
-		() => ({
-			from: startOfMonth(new Date()),
-			to: endOfMonth(new Date())
-		}),
-		[]
-	);
+	const defaultDateRange = useMemo(() => {
+		const today = new Date();
+		const sevenDaysAgo = subDays(today, 7);
+		return {
+			from: sevenDaysAgo,
+			to: today
+		};
+	}, []);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(defaultDateRange);
+
+	// Force default values on component mount
+	React.useEffect(() => {
+		// Force Last 7 days date range if it's not already set
+		const isDefaultRange =
+			dateRange.from?.getTime() === defaultDateRange.from.getTime() &&
+			dateRange.to?.getTime() === defaultDateRange.to.getTime();
+
+		if (!isDefaultRange) {
+			toast.info('Forcing date range to Last 7 days, current:', {
+				description: JSON.stringify(dateRange)
+			});
+			setDateRange(defaultDateRange);
+		}
+	}, []); // Run only once on mount
 
 	/**
 	 * Memoized date range for timesheet
@@ -137,6 +154,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	});
 
 	const { activeStatus, setActiveStatus, filteredData, statusData } = useTimesheetFilters(viewData);
+
+	// Force default values will be handled by the atomWithStorage and corrected defaults
 
 	React.useEffect(() => {
 		getOrganizationProjects();
@@ -307,9 +326,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								filterStatus={activeStatus}
 								initDate={{
 									initialRange: dateRange,
-									onChange(range) {
+									onChange: React.useCallback((range: { from: Date | null; to: Date | null }) => {
 										setDateRange(range);
-									}
+									}, [])
 								}}
 								closeModal={closeManualTimeModal}
 								openModal={openManualTimeModal}

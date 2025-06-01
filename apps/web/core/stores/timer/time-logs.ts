@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
@@ -28,7 +29,11 @@ export const timesheetFilterTaskState = atom<ITask[]>([]);
 
 export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([]);
-export const timesheetGroupByDayState = atom<ETimeFrequency>(ETimeFrequency.DAILY);
+// Use atomWithStorage to persist the frequency selection
+export const timesheetGroupByDayState =
+	typeof window !== 'undefined'
+		? atomWithStorage<ETimeFrequency>('timesheet-frequency', ETimeFrequency.WEEKLY)
+		: atom<ETimeFrequency>(ETimeFrequency.WEEKLY);
 export const timesheetUpdateStatus = atom<IUpdateTimesheetRequest[]>([]);
 export const timesheetUpdateState = atom<ITimeLog | null>(null);
 export const selectTimesheetIdState = atom<ITimeLog[]>([]);

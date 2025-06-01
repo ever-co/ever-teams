@@ -32,6 +32,7 @@ interface DatePickerInputProps {
 
 export function FrequencySelect() {
 	const { setTimesheetGroupByDays, timesheetGroupByDays } = useTimelogFilterOptions();
+
 	const handleSelectChange = (value: string) => {
 		setTimesheetGroupByDays(value as ETimeFrequency);
 	};
