@@ -363,7 +363,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					console.error('Error fetching timesheet:', error);
 				});
 		},
-		[user, queryTimesheet, isManage, setTimesheet] // Removed filter dependencies
+		[user, queryTimesheet, isManage, setTimesheet, employee, project, task, statusState] // Removed filter dependencies
 	);
 
 	// Removed duplicate useEffect - using the one below that handles all dependencies

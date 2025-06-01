@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { GroupedTimesheet } from './use-timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 type ViewMode = 'ListView' | 'CalendarView';
 type GroupByDays = 'Daily' | 'Weekly' | 'Monthly';
@@ -39,7 +40,7 @@ export const useTimesheetViewData = ({
 			const dailyGroups: GroupedTimesheet[] = [];
 			result.forEach((weekGroup) => {
 				// For each task in the week group, create a daily group based on the task's actual date
-				const tasksByDate: Record<string, any[]> = {};
+				const tasksByDate: Record<string, ITimeLog[]> = {};
 				weekGroup.tasks.forEach((task) => {
 					const taskDate = task.timesheet?.createdAt || task.createdAt || task.startedAt;
 					if (taskDate) {

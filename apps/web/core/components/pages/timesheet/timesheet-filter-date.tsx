@@ -35,8 +35,7 @@ export function TimesheetFilterDate({
 	t
 }: Readonly<TimesheetFilterDateProps>) {
 	// Fix for system date being in future (2025)
-	const systemToday = startOfToday();
-	const today = systemToday.getFullYear() > 2024 ? new Date('2024-06-01') : systemToday;
+	const today = startOfToday();
 
 	const adjustedInitialRange = React.useMemo(() => {
 		if (!initialRange) {
