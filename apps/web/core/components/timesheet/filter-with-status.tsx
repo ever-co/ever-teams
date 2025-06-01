@@ -54,17 +54,17 @@ export function FilterWithStatus({
 		<div
 			className={clsxm(
 				'relative flex h-[36px] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-[8px] border-[1px] overflow-hidden',
-				'w-full max-w-full',
+				'w-fit max-w-full',
 				className
 			)}
 		>
-			<div className="flex overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+			<div className="flex w-full gap-x-0.5 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
 				{buttonData.map(({ label, count, icon }, index) => (
 					<Button
 						key={index}
 						className={clsxm(
-							'group flex items-center justify-start h-[36px] rounded-[8px] shrink-0',
-							'min-w-[90px] sm:min-w-[100px] md:min-w-[111px]',
+							'group flex gap-1 items-center justify-start h-[36px] rounded-[8px] shrink-0',
+							'min-w-20 sm:min-w-fit',
 							'px-2 sm:px-3',
 							'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A]',
 							'transition-colors duration-200 ease-in-out',
@@ -82,9 +82,7 @@ export function FilterWithStatus({
 						>
 							{label}
 						</span>
-						<span className="ml-1 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-							{count}
-						</span>
+						<span className="text-xs font-medium text-gray-500 sm:text-sm dark:text-gray-400">{count}</span>
 					</Button>
 				))}
 			</div>

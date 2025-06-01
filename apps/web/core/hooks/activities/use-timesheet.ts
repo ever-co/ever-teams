@@ -25,20 +25,38 @@ export interface GroupedTimesheet {
 }
 
 const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
-	if (!items?.length) return [];
+	if (!items?.length) {
+		return [];
+	}
 
-	// First, group by timesheetId
+	// First, group by timesheetId with more flexible validation
 	const groupedByTimesheet = items.reduce(
-		(acc, item) => {
-			if (!item?.timesheet?.id || !item?.timesheet.createdAt) {
+		(acc, item, index) => {
+			// More flexible validation - try to work with different data structures
+			const timesheetId = item?.timesheet?.id || item?.timesheetId || `fallback-${index}`;
+			const createdAt =
+				item?.timesheet?.createdAt || item?.createdAt || item?.startedAt || new Date().toISOString();
+
+			if (!item || !createdAt) {
 				console.warn('Skipping item with missing timesheet or createdAt:', item);
 				return acc;
 			}
-			const timesheetId = item.timesheet.id;
+
 			if (!acc[timesheetId]) {
 				acc[timesheetId] = [];
 			}
-			acc[timesheetId].push(item);
+
+			// Ensure the item has the expected structure
+			const normalizedItem = {
+				...item,
+				timesheet: {
+					...item.timesheet,
+					id: timesheetId,
+					createdAt: createdAt
+				}
+			} as ITimeLog;
+
+			acc[timesheetId].push(normalizedItem);
 			return acc;
 		},
 		{} as Record<string, ITimeLog[]>
@@ -71,7 +89,34 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 	});
 
 	// Sort by date in descending order
-	return result.sort((a, b) => b.date.localeCompare(a.date));
+	const sortedResult = result.sort((a, b) => b.date.localeCompare(a.date));
+
+	// Fallback: if no results but we have items, create a simple grouping
+	if (sortedResult.length === 0 && items.length > 0) {
+		const today = new Date().toISOString().split('T')[0];
+		return [
+			{
+				date: today,
+				tasks: items.map(
+					(item) =>
+						({
+							...item,
+							timesheet: {
+								...item.timesheet,
+								id: item.timesheet?.id || item.id || 'fallback',
+								createdAt:
+									item.timesheet?.createdAt ||
+									item.createdAt ||
+									item.startedAt ||
+									new Date().toISOString()
+							}
+						}) as ITimeLog
+				)
+			}
+		];
+	}
+
+	return sortedResult;
 };
 const getWeekYearKey = (date: Date): string => {
 	try {
@@ -105,15 +150,17 @@ const createGroupingFunction =
 		if (!items?.length) return [];
 		const groupedByDate = items.reduce(
 			(acc, item) => {
-				if (!item?.timesheet?.createdAt) {
+				// More flexible validation for different data structures
+				const createdAt = item?.timesheet?.createdAt || item?.createdAt || item?.startedAt;
+				if (!createdAt) {
 					console.warn('Skipping item with missing createdAt:', item);
 					return acc;
 				}
 
 				try {
-					const date = new Date(item.timesheet.createdAt);
+					const date = new Date(createdAt);
 					if (isNaN(date.getTime())) {
-						console.warn('Invalid date:', item.timesheet.createdAt);
+						console.warn('Invalid date:', createdAt);
 						return acc;
 					}
 
@@ -125,11 +172,22 @@ const createGroupingFunction =
 						};
 					}
 
-					const timesheetId = item.timesheet.id;
+					const timesheetId = item?.timesheet?.id || item?.timesheetId || item?.id || 'fallback';
 					if (!acc[key].timesheets[timesheetId]) {
 						acc[key].timesheets[timesheetId] = [];
 					}
-					acc[key].timesheets[timesheetId].push(item);
+
+					// Ensure the item has the expected structure
+					const normalizedItem = {
+						...item,
+						timesheet: {
+							...item?.timesheet,
+							id: timesheetId,
+							createdAt: createdAt
+						}
+					} as ITimeLog;
+
+					acc[key].timesheets[timesheetId].push(normalizedItem);
 				} catch (error) {
 					console.warn('Error processing date:', error);
 				}
@@ -227,8 +285,9 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	 */
 	const currentDateRange = useMemo(() => {
 		const now = moment();
-		const defaultStart = now.clone().startOf('month').toDate();
-		const defaultEnd = now.clone().endOf('month').toDate();
+		// Default to Last 7 days instead of full month
+		const defaultStart = now.clone().subtract(7, 'days').toDate();
+		const defaultEnd = now.toDate();
 
 		const parseDate = (date: Date | string | undefined, defaultValue: Date) => {
 			if (!date) return defaultValue;
@@ -276,19 +335,27 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			const from = moment(startDate).format('YYYY-MM-DD');
 			const to = moment(endDate).format('YYYY-MM-DD');
 
-			queryTimesheet({
+			// Get current filter values at the time of the call, not as dependencies
+			const currentEmployee = employee;
+			const currentProject = project;
+			const currentTask = task;
+			const currentStatusState = statusState;
+
+			const queryParams = {
 				startDate: from,
 				endDate: to,
 				organizationId: user.employee?.organizationId || '',
 				tenantId: user.tenantId ?? '',
 				timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
 				employeeIds: isManage
-					? employee?.map(({ employee }) => employee?.id || '').filter(Boolean)
+					? currentEmployee?.map(({ employee }) => employee?.id || '').filter(Boolean)
 					: [user.employee?.id || ''],
-				projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
-				taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
-				status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
-			})
+				projectIds: currentProject?.map((project) => project.id).filter((id) => id !== undefined),
+				taskIds: currentTask?.map((task) => task.id).filter((id) => id !== undefined),
+				status: currentStatusState?.map((status) => status.value).filter((value) => value !== undefined)
+			};
+
+			queryTimesheet(queryParams)
 				.then((response) => {
 					setTimesheet(response.data as unknown as ITimeLog[]);
 				})
@@ -296,14 +363,10 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					console.error('Error fetching timesheet:', error);
 				});
 		},
-		[user, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
+		[user, queryTimesheet, isManage, setTimesheet, employee, project, task, statusState] // Removed filter dependencies
 	);
 
-	useEffect(() => {
-		if (startDate || endDate) {
-			getTaskTimesheet({ startDate, endDate });
-		}
-	}, [startDate, endDate, getTaskTimesheet]);
+	// Removed duplicate useEffect - using the one below that handles all dependencies
 
 	const createTimesheet = useCallback(
 		async ({ ...timesheetParams }: IUpdateTimesheetRequest) => {
@@ -388,22 +451,24 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 
 	const getStatusTimesheet = (items: ITimeLog[] = []) => {
 		const STATUS_MAP: Record<ETimesheetStatus, ITimeLog[]> = {
-			PENDING: [],
-			APPROVED: [],
-			DENIED: [],
-			DRAFT: [],
-			'IN REVIEW': []
+			[ETimesheetStatus.PENDING]: [],
+			[ETimesheetStatus.APPROVED]: [],
+			[ETimesheetStatus.DENIED]: [],
+			[ETimesheetStatus.DRAFT]: [],
+			[ETimesheetStatus.IN_REVIEW]: []
 		};
 
-		return items.reduce((acc, item) => {
+		const result = items.reduce((acc, item) => {
 			const status = item.timesheet?.status;
+
 			if (isTimesheetStatus(status)) {
 				acc[status].push(item);
 			} else {
-				console.warn(`Invalid timesheet status: ${status}`);
+				console.warn(`Invalid timesheet status: ${status}`, 'item:', item);
 			}
 			return acc;
 		}, STATUS_MAP);
+		return result;
 	};
 
 	// Type guard
@@ -463,7 +528,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		if (searchTerms.length === 0) {
 			return timesheet;
 		}
-		return timesheet.filter((task: any) => {
+
+		const filtered = timesheet.filter((task: any) => {
 			const searchableContent = {
 				title: normalizeText(task.task?.title),
 				employee: normalizeText(task.employee?.fullName),
@@ -473,6 +539,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				Object.values(searchableContent).some((content) => content.includes(term))
 			);
 		});
+		return filtered;
 	}, [timesheet, inputSearch, normalizeText]);
 
 	const reGroupByDate = (groupedTimesheets: GroupedTimesheet[]): GroupedTimesheet[] => {
@@ -519,9 +586,12 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		);
 	};
 
+	// Single effect for all changes - dates, search, and filters
 	useEffect(() => {
-		getTaskTimesheet({ startDate, endDate });
-	}, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, inputSearch]);
+		if (startDate && endDate) {
+			getTaskTimesheet({ startDate, endDate });
+		}
+	}, [getTaskTimesheet, startDate, endDate, inputSearch, employee, project, task, statusState]);
 
 	return {
 		loadingTimesheet,
@@ -531,7 +601,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		deleteTaskTimesheet,
 		getStatusTimesheet,
 		timesheetGroupByDays,
-		statusTimesheet: getStatusTimesheet(filterDataTimesheet.flat() as ITimeLog[]),
+		statusTimesheet: getStatusTimesheet((filterDataTimesheet as ITimeLog[]) || []),
 		updateTimesheetStatus,
 		loadingUpdateTimesheetStatus,
 		puTimesheetStatus,

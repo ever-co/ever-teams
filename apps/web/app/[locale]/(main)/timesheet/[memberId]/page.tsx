@@ -34,8 +34,8 @@ import {
 import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
+import { subDays } from 'date-fns';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from '@/core/components/pages/timesheet/timesheet-detail-modal';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import TimesheetPagination from '@/core/components/timesheet/timesheet-pagination';
@@ -44,6 +44,7 @@ import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { toast } from 'sonner';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -74,17 +75,33 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 
 	/**
-	 * Default date range for the current month
+	 * Default date range for the last 7 days
 	 */
-	const defaultDateRange = useMemo(
-		() => ({
-			from: startOfMonth(new Date()),
-			to: endOfMonth(new Date())
-		}),
-		[]
-	);
+	const defaultDateRange = useMemo(() => {
+		const today = new Date();
+		const sevenDaysAgo = subDays(today, 7);
+		return {
+			from: sevenDaysAgo,
+			to: today
+		};
+	}, []);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(defaultDateRange);
+
+	// Force default values on component mount
+	React.useEffect(() => {
+		// Force Last 7 days date range if it's not already set
+		const isDefaultRange =
+			dateRange.from?.getTime() === defaultDateRange.from.getTime() &&
+			dateRange.to?.getTime() === defaultDateRange.to.getTime();
+
+		if (!isDefaultRange) {
+			toast.info('Forcing date range to Last 7 days, current:', {
+				description: JSON.stringify(dateRange)
+			});
+			setDateRange(defaultDateRange);
+		}
+	}, []); // Run only once on mount
 
 	/**
 	 * Memoized date range for timesheet
@@ -138,6 +155,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const { activeStatus, setActiveStatus, filteredData, statusData } = useTimesheetFilters(viewData);
 
+	// Force default values will be handled by the atomWithStorage and corrected defaults
+
 	React.useEffect(() => {
 		getOrganizationProjects();
 	}, [getOrganizationProjects]);
@@ -156,15 +175,17 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-	const totalDuration = Object.values(statusTimesheet)
-		.flat()
-		.map((entry) => {
-			return differenceBetweenHours(
-				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
-				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
-			);
-		})
-		.reduce((total, current) => total + current, 0);
+	const totalDuration = statusTimesheet
+		? Object.values(statusTimesheet)
+				.flat()
+				.map((entry) => {
+					return differenceBetweenHours(
+						entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
+						entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
+					);
+				})
+				.reduce((total, current) => total + current, 0)
+		: 0;
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
@@ -206,7 +227,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 				childrenClassName="w-full"
 				mainHeaderSlot={
 					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-						<Container fullWidth={fullWidth} className="flex flex-col gap-y-2">
+						<Container fullWidth={fullWidth} className="flex flex-col gap-y-3">
 							<div className="flex flex-row items-start justify-between">
 								<div className="flex items-center justify-center h-10 gap-8">
 									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -222,9 +243,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									{t('pages.timesheet.HEADING_DESCRIPTION')}
 								</span>
 							</div>
-							<div className="flex items-center justify-between w-full gap-6 pt-4">
+							<div className="flex items-center justify-between w-full gap-6 mb-4">
 								<TimesheetCard
-									count={statusTimesheet.PENDING.length}
+									count={statusTimesheet?.PENDING?.length || 0}
 									title={t('common.PENDING_TASKS')}
 									description="Tasks waiting for your approval"
 									icon={<PendingTaskIcon />}
@@ -248,10 +269,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								{isManage && (
 									<TimesheetCard
 										count={
-											Object.values(statusTimesheet)
-												.flat()
-												.map((entry) => entry.employee?.id)
-												.filter((id, index, array) => array.indexOf(id) === index).length
+											statusTimesheet
+												? Object.values(statusTimesheet)
+														.flat()
+														.map((entry) => entry.employee?.id)
+														.filter((id, index, array) => array.indexOf(id) === index)
+														.length
+												: 0
 										}
 										title={t('common.MEMBERS_WORKED')}
 										description="People worked since last time"
@@ -264,7 +288,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								)}
 							</div>
-							<div className="flex justify-between w-full overflow-hidden">
+							<div className="flex items-center justify-between w-full overflow-hidden">
 								<div className="flex w-full">
 									<ViewToggleButton
 										icon={<ListViewIcon />}
@@ -302,9 +326,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								filterStatus={activeStatus}
 								initDate={{
 									initialRange: dateRange,
-									onChange(range) {
+									onChange: React.useCallback((range: { from: Date | null; to: Date | null }) => {
 										setDateRange(range);
-									}
+									}, [])
 								}}
 								closeModal={closeManualTimeModal}
 								openModal={openManualTimeModal}

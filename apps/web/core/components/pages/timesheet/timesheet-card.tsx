@@ -39,9 +39,9 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 		<EverCard
 			aria-label={`Timesheet card for ${title}`}
 			shadow="custom"
-			className="w-full  h-[175px] rounded-md border border-gray-200 dark:border-gray-600 flex  gap-[8px] shadow shadow-gray-100 dark:shadow-transparent p-[24px]"
+			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
 		>
-			<div className="!gap-8 w-full space-y-4 ">
+			<div className="flex flex-col w-full gap-2 ">
 				<div className="flex flex-col items-start justify-start gap-1">
 					<h1 className="text-2xl md:text-[25px] font-bold truncate w-full">{hours ?? count}</h1>
 					<h2 className="text-base md:text-[16px] font-medium text-[#282048] dark:text-gray-400 truncate w-full">
@@ -54,7 +54,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 				<Button
 					variant="outline"
 					className={cn(
-						'h-9 px-2 py-2',
+						'h-9 px-2 py-2 w-fit',
 						'border border-gray-200 ',
 						'text-[#282048] text-sm',
 						'flex items-center',

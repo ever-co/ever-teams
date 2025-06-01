@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import {
@@ -9,7 +8,6 @@ import {
 	DropdownMenuSub
 } from '@/core/components/common/dropdown-menu';
 import { SelectContent } from '@/core/components/common/select';
-import { MdKeyboardArrowUp } from 'react-icons/md';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
 import { useModal, useTimelogFilterOptions } from '@/core/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
@@ -58,6 +56,7 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
+import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
 	const accordionRef = React.useRef(null);
@@ -194,7 +193,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 															statusColor(status).text
 														)}
 													>
-														<div className="flex justify-between items-center space-x-1 w-full">
+														<div className="flex items-center justify-between w-full space-x-1">
 															<div className="flex items-center space-x-1">
 																<div
 																	className={clsxm(
@@ -202,7 +201,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																		statusColor(status).bg
 																	)}
 																></div>
-																<div className="flex gap-x-1 items-center">
+																<div className="flex items-center gap-x-1">
 																	<span className="text-base font-normal text-gray-400 uppercase">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
@@ -286,7 +285,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																		taskNumberClassName="text-sm"
 																	/>
 																</div>
-																<div className="flex flex-1 gap-2 items-center">
+																<div className="flex items-center flex-1 gap-2">
 																	{task.project?.imageUrl && (
 																		<ProjectLogo
 																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
@@ -297,7 +296,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																		{task.project?.name ?? 'No Project'}
 																	</span>
 																</div>
-																<div className="flex flex-1 gap-x-2 items-center">
+																<div className="flex items-center flex-1 gap-x-2">
 																	<EmployeeAvatar
 																		className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
 																		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -448,7 +447,7 @@ const TaskActionMenu = ({
 			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} dataTimesheet={dataTimesheet} />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" className="p-0 w-8 h-8 text-sm sm:text-base">
+					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
 						<span className="sr-only">Open menu</span>
 						<MoreHorizontal className="w-4 h-4" />
 					</Button>
@@ -517,7 +516,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 								textValue={status.label}
 								className="cursor-pointer"
 							>
-								<div className="flex gap-3 items-center">
+								<div className="flex items-center gap-3">
 									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>
 								</div>
@@ -539,7 +538,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 							textValue={'Yes'}
 							className="cursor-pointer"
 						>
-							<div className="flex gap-3 items-center">
+							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
@@ -550,7 +549,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 							textValue={'No'}
 							className="cursor-pointer"
 						>
-							<div className="flex gap-3 items-center">
+							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>
 						</DropdownMenuItem>
@@ -594,17 +593,15 @@ const HeaderColumn = ({
 		<button
 			onClick={onSort}
 			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
-			className="flex flex-col gap-0 items-start leading-none"
+			className="flex flex-col items-start gap-0 leading-none"
 		>
-			{/* @ts-ignore */}
-			<MdKeyboardArrowUp
+			<CaretUpIcon
 				style={{
 					height: 10,
 					color: '#71717A'
 				}}
 			/>
-			{/* @ts-ignore */}
-			<MdKeyboardArrowDown
+			<CaretDownIcon
 				style={{
 					height: 10,
 					color: '#71717A'

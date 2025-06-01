@@ -15,6 +15,7 @@ import {
 	ITimeLogReportDailyRequest
 } from '@/core/types/interfaces/activity/activity-report';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
+import { formatStartAndEndDateRange } from '@/core/lib/helpers/format-date-range';
 
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: IGetTimeLimitReport) => {
@@ -38,12 +39,15 @@ class TimeLogService extends APIService {
 		startDate: Date;
 		endDate: Date;
 	}) => {
+		// Format dates using the utility function to avoid same-day API errors
+		const { start, end } = formatStartAndEndDateRange(startDate, endDate);
+
 		const params = {
 			tenantId: tenantId,
 			organizationId: organizationId,
 			employeeIds,
-			todayStart: startDate.toISOString(),
-			todayEnd: endDate.toISOString()
+			todayStart: start,
+			todayEnd: end
 		};
 
 		const query = qs.stringify(params);
@@ -89,12 +93,8 @@ class TimeLogService extends APIService {
 			);
 		}
 
-		const start = typeof startDate === 'string' ? new Date(startDate).toISOString() : startDate.toISOString();
-		const end = typeof endDate === 'string' ? new Date(endDate).toISOString() : endDate.toISOString();
-
-		if (isNaN(new Date(start).getTime()) || isNaN(new Date(end).getTime())) {
-			throw new Error('Invalid date format provided');
-		}
+		// Format dates using the utility function
+		const { start, end } = formatStartAndEndDateRange(startDate, endDate);
 
 		const params = new URLSearchParams({
 			'activityLevel[start]': '0',
@@ -202,17 +202,6 @@ class TimeLogService extends APIService {
 		logType = [],
 		teamIds = []
 	}: ITimeLogReportDailyChartProps) => {
-		const baseParams = {
-			'activityLevel[start]': activityLevel.start.toString(),
-			'activityLevel[end]': activityLevel.end.toString(),
-			organizationId,
-			tenantId,
-			startDate,
-			endDate,
-			timeZone,
-			...(groupBy && { groupBy })
-		};
-
 		if (!organizationId || !tenantId || !startDate || !endDate) {
 			throw new Error(
 				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
@@ -221,6 +210,20 @@ class TimeLogService extends APIService {
 		if (activityLevel.start < 0 || activityLevel.end > 100 || activityLevel.start >= activityLevel.end) {
 			throw new Error('Invalid activity level range');
 		}
+
+		// Format dates using the utility function
+		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(startDate, endDate);
+
+		const baseParams = {
+			'activityLevel[start]': activityLevel.start.toString(),
+			'activityLevel[end]': activityLevel.end.toString(),
+			organizationId,
+			tenantId,
+			startDate: formattedStartDate,
+			endDate: formattedEndDate,
+			timeZone,
+			...(groupBy && { groupBy })
+		};
 
 		const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
 			values.forEach((value, index) => {
@@ -260,13 +263,16 @@ class TimeLogService extends APIService {
 			);
 		}
 
+		// Format dates using the utility function
+		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(startDate, endDate);
+
 		const baseParams: Record<string, string> = {
 			'activityLevel[start]': activityLevel.start.toString(),
 			'activityLevel[end]': activityLevel.end.toString(),
 			organizationId,
 			tenantId,
-			startDate: startDate instanceof Date ? startDate.toISOString() : startDate,
-			endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
+			startDate: formattedStartDate,
+			endDate: formattedEndDate,
 			timeZone,
 			...(groupBy && { groupBy })
 		};
