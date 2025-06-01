@@ -37,7 +37,7 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 			const createdAt =
 				item?.timesheet?.createdAt || item?.createdAt || item?.startedAt || new Date().toISOString();
 
-			if (!timesheetId || !createdAt) {
+			if (!item || !createdAt) {
 				console.warn('Skipping item with missing timesheet or createdAt:', item);
 				return acc;
 			}
