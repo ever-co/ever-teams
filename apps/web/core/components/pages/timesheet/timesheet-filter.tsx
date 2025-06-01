@@ -42,14 +42,12 @@ export function TimesheetFilter({
 	return (
 		<>
 			{isOpen && <AddTaskModal closeModal={closeModal} isOpen={isOpen} />}
-			<div className="flex w-full justify-between items-center">
-				<div>
-					<FilterWithStatus
-						data={data}
-						activeStatus={filterStatus || 'All Tasks'}
-						onToggle={(label) => onChangeStatus?.(label)}
-					/>
-				</div>
+			<div className="flex items-center gap-2.5 justify-between w-full">
+				<FilterWithStatus
+					data={data}
+					activeStatus={filterStatus || 'All Tasks'}
+					onToggle={(label) => onChangeStatus?.(label)}
+				/>
 
 				<div className="flex gap-2">
 					<FrequencySelect />

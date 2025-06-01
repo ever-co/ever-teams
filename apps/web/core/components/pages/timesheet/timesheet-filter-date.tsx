@@ -119,7 +119,7 @@ export function TimesheetFilterDate({
 						aria-label="Select date range"
 						aria-expanded="false"
 						className={cn(
-							'w-44 justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip',
+							'min-w-36 w-fit justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip',
 							!dateRange.from && 'text-muted-foreground'
 						)}
 					>
@@ -355,7 +355,7 @@ export function DatePickerFilter({
 								)}
 								onClick={() => handleSelect(dayDate)}
 							>
-								<div className="relative w-full h-full flex items-center justify-center">
+								<div className="relative flex items-center justify-center w-full h-full">
 									{dayDate.getDate()}
 									{getEntriesForDate(dayDate).length > 0 && (
 										<span className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -375,7 +375,7 @@ const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 	if (entries.length === 1) {
 		return (
 			<span
-				className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light"
+				className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light"
 				role="status"
 				aria-label="1 time entry for this day"
 			/>
@@ -388,7 +388,7 @@ const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 			aria-label={`${entries.length} time entries for this day`}
 		>
 			{[...Array(3)].map((_, index) => (
-				<span key={index} className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light" />
+				<span key={index} className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light" />
 			))}
 		</div>
 	);

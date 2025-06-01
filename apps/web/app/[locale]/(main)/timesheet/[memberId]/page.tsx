@@ -208,7 +208,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 				childrenClassName="w-full"
 				mainHeaderSlot={
 					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-						<Container fullWidth={fullWidth} className="flex flex-col gap-y-2">
+						<Container fullWidth={fullWidth} className="flex flex-col gap-y-3">
 							<div className="flex flex-row items-start justify-between">
 								<div className="flex items-center justify-center h-10 gap-8">
 									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -224,7 +224,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									{t('pages.timesheet.HEADING_DESCRIPTION')}
 								</span>
 							</div>
-							<div className="flex items-center justify-between w-full gap-6 pt-4">
+							<div className="flex items-center justify-between w-full gap-6 mb-4">
 								<TimesheetCard
 									count={statusTimesheet?.PENDING?.length || 0}
 									title={t('common.PENDING_TASKS')}
@@ -269,7 +269,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								)}
 							</div>
-							<div className="flex justify-between w-full overflow-hidden">
+							<div className="flex items-center justify-between w-full overflow-hidden">
 								<div className="flex w-full">
 									<ViewToggleButton
 										icon={<ListViewIcon />}
