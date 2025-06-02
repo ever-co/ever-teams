@@ -39,11 +39,12 @@ export function TimesheetFilterDate({
 
 	const adjustedInitialRange = React.useMemo(() => {
 		if (!initialRange) {
-			// Default to Last 7 days instead of today
-			const sevenDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+			// Default to Today (start and end of current day)
+			const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+			const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 			return {
-				from: sevenDaysAgo,
-				to: today
+				from: startOfToday,
+				to: endOfToday
 			};
 		}
 		return {

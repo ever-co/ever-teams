@@ -285,9 +285,9 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	 */
 	const currentDateRange = useMemo(() => {
 		const now = moment();
-		// Default to Last 7 days instead of full month
-		const defaultStart = now.clone().subtract(7, 'days').toDate();
-		const defaultEnd = now.toDate();
+		// Default to Today (start and end of current day)
+		const defaultStart = now.clone().startOf('day').toDate();
+		const defaultEnd = now.clone().endOf('day').toDate();
 
 		const parseDate = (date: Date | string | undefined, defaultValue: Date) => {
 			if (!date) return defaultValue;

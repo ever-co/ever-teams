@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
@@ -60,7 +60,26 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	classNames = {},
 	t
 }) => {
-	const [currentDate, setCurrentDate] = useState(new Date());
+	// Initialize with the first data date if available, otherwise use current date
+	const initialDate = useMemo(() => {
+		if (data.length > 0) {
+			const firstDate = new Date(data[0].date);
+			return isNaN(firstDate.getTime()) ? new Date() : firstDate;
+		}
+		return new Date();
+	}, [data]);
+
+	const [currentDate, setCurrentDate] = useState(initialDate);
+
+	// Update currentDate when data changes
+	useEffect(() => {
+		if (data.length > 0) {
+			const firstDataDate = new Date(data[0].date);
+			if (firstDataDate.getTime() !== currentDate.getTime()) {
+				setCurrentDate(firstDataDate);
+			}
+		}
+	}, [data, currentDate]);
 
 	// Calculate the current week based on `currentDate`
 	const weekDates = useMemo(() => generateWeek(currentDate), [currentDate]);
@@ -91,7 +110,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 				</h2>
 				<button
 					onClick={handleNextWeek}
-					className="px-4 py-2 bg-gray-200 dark:bg-primary-light rounded hover:bg-gray-300 hover:dark:bg-primary-light"
+					className="px-4 py-2 bg-gray-200 rounded dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
 				>
 					{t('common.NEXT')}
 				</button>
@@ -103,7 +122,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 				))}
 			</div>
 
-			<div className="grid grid-cols-7 mt-2 w-full h-full" role="grid" aria-label="Calendar">
+			<div className="grid w-full h-full grid-cols-7 mt-2" role="grid" aria-label="Calendar">
 				{weekDates.map((date) => {
 					const formattedDate = format(date, 'yyyy-MM-dd');
 					const plan = groupedData.get(formattedDate);
@@ -129,11 +148,11 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 								}
 							}}
 						>
-							<div className="px-2 flex items-center justify-between">
-								<span className="block text-gray-500 text-sm font-medium">
+							<div className="flex items-center justify-between px-2">
+								<span className="block text-sm font-medium text-gray-500">
 									{format(date, 'dd MMM yyyy')}
 								</span>
-								<div className="flex items-center gap-x-1 text-gray-500 text-sm font-medium">
+								<div className="flex items-center text-sm font-medium text-gray-500 gap-x-1">
 									{/* <span className="text-[#868687]">Total{" : "}</span> */}
 									{plan && (
 										<TotalDurationByDate
@@ -149,7 +168,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 							) : plan ? (
 								<div className="p-2">
 									{plan.tasks.map((task) => (
-										<div key={task.id} className="text-sm mb-1 truncate">
+										<div key={task.id} className="mb-1 text-sm truncate">
 											{task.task?.title}
 										</div>
 									))}

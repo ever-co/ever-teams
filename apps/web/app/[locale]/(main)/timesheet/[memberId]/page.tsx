@@ -34,7 +34,6 @@ import {
 import type { IconBaseProps } from 'react-icons';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
-import { subDays } from 'date-fns';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import TimesheetDetailModal from '@/core/components/pages/timesheet/timesheet-detail-modal';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
@@ -44,7 +43,6 @@ import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { toast } from 'sonner';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -75,14 +73,18 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 
 	/**
-	 * Default date range for the last 7 days
+	 * Default date range for today
 	 */
 	const defaultDateRange = useMemo(() => {
 		const today = new Date();
-		const sevenDaysAgo = subDays(today, 7);
+		// Set to start of day for "Today" filter
+		const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		// Set to end of day for "Today" filter
+		const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
 		return {
-			from: sevenDaysAgo,
-			to: today
+			from: startOfToday,
+			to: endOfToday
 		};
 	}, []);
 
@@ -90,15 +92,12 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	// Force default values on component mount
 	React.useEffect(() => {
-		// Force Last 7 days date range if it's not already set
+		// Force Today date range if it's not already set
 		const isDefaultRange =
 			dateRange.from?.getTime() === defaultDateRange.from.getTime() &&
 			dateRange.to?.getTime() === defaultDateRange.to.getTime();
 
 		if (!isDefaultRange) {
-			toast.info('Forcing date range to Last 7 days, current:', {
-				description: JSON.stringify(dateRange)
-			});
 			setDateRange(defaultDateRange);
 		}
 	}, []); // Run only once on mount
