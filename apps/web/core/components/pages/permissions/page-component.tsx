@@ -58,7 +58,7 @@ const Permissions = () => {
 					enabled: !permission.enabled
 				});
 
-				await getRolePermissions(selectedRoleId);
+				getRolePermissions(selectedRoleId);
 			} catch (error) {
 				console.error('Failed to toggle role permission:', error);
 			}
