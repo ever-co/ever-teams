@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { favoriteService } from '@/core/services/client/api';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
@@ -28,17 +28,17 @@ export const useFavorites = () => {
 	const [favorites, setFavorites] = useAtom(favoritesState);
 	const { firstLoadData: firstRolesLoad } = useFirstLoad();
 	// Create favorite
-	const { loading: createFavoriteLoading, queryCall: createFavoriteQueryCall } = useQuery(
+	const { loading: createFavoriteLoading, queryCall: createFavoriteQueryCall } = useQueryCall(
 		favoriteService.createFavorite
 	);
 
 	// Get favorites by employee
-	const { loading: getFavoritesByEmployeeLoading, queryCall: getFavoritesByEmployeeQueryCall } = useQuery(
+	const { loading: getFavoritesByEmployeeLoading, queryCall: getFavoritesByEmployeeQueryCall } = useQueryCall(
 		favoriteService.getFavoritesByEmployee
 	);
 
 	// Delete favorite
-	const { loading: deleteFavoriteLoading, queryCall: deleteFavoriteQueryCall } = useQuery(
+	const { loading: deleteFavoriteLoading, queryCall: deleteFavoriteQueryCall } = useQueryCall(
 		favoriteService.deleteFavorite
 	);
 
