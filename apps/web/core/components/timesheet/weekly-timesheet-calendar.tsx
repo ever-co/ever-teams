@@ -63,7 +63,8 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	// Initialize with the first data date if available, otherwise use current date
 	const initialDate = useMemo(() => {
 		if (data.length > 0) {
-			return new Date(data[0].date);
+			const firstDate = new Date(data[0].date);
+			return isNaN(firstDate.getTime()) ? new Date() : firstDate;
 		}
 		return new Date();
 	}, [data]);
@@ -74,9 +75,11 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	useEffect(() => {
 		if (data.length > 0) {
 			const firstDataDate = new Date(data[0].date);
-			setCurrentDate(firstDataDate);
+			if (firstDataDate.getTime() !== currentDate.getTime()) {
+				setCurrentDate(firstDataDate);
+			}
 		}
-	}, [data]);
+	}, [data, currentDate]);
 
 	// Calculate the current week based on `currentDate`
 	const weekDates = useMemo(() => generateWeek(currentDate), [currentDate]);
