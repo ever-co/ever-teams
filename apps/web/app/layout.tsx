@@ -1,5 +1,4 @@
 import '@/styles/globals.css';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Toaster } from 'sonner';
 import { QueryClientProvider } from '@/core/components/providers/query-client-provider';
