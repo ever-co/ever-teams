@@ -82,11 +82,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		// Set to end of day for "Today" filter
 		const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 
-		console.log('🔍 TimeSheet Page - defaultDateRange calculated (Today):', {
-			from: startOfToday.toISOString(),
-			to: endOfToday.toISOString()
-		});
-
 		return {
 			from: startOfToday,
 			to: endOfToday
@@ -103,7 +98,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 			dateRange.to?.getTime() === defaultDateRange.to.getTime();
 
 		if (!isDefaultRange) {
-			console.log('🔧 Forcing date range to Today, current:', dateRange);
 			setDateRange(defaultDateRange);
 		}
 	}, []); // Run only once on mount

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from 'date-fns';
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { enGB } from 'date-fns/locale';
@@ -81,7 +81,23 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 	classNames = {},
 	t
 }) => {
-	const [currentMonth, setCurrentMonth] = useState(new Date());
+	// Initialize with the first data date if available, otherwise use current date
+	const initialMonth = useMemo(() => {
+		if (data?.length > 0) {
+			return new Date(data?.[0]?.date);
+		}
+		return new Date();
+	}, [data?.length]);
+
+	const [currentMonth, setCurrentMonth] = useState(initialMonth);
+
+	// Update currentMonth when data changes
+	useEffect(() => {
+		if (data?.length > 0) {
+			const firstDataDate = new Date(data?.[0]?.date);
+			setCurrentMonth(firstDataDate);
+		}
+	}, [data?.length]);
 	const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
 	const groupedData = useMemo(
 		() => new Map(data.map((plan) => [format(new Date(plan.date), 'yyyy-MM-dd'), plan])),
