@@ -9,13 +9,17 @@ export const useRoles = () => {
 
 	const rolesQuery = useQuery({
 		queryKey: ['roles'],
-		queryFn: roleService.getRoles
+		queryFn: () =>
+			roleService.getRoles().then((response) => {
+				setRoles(response.items);
+
+				return response;
+			})
 	});
 
 	const createRoleMutation = useMutation({
 		mutationFn: roleService.createRole,
 		onSuccess: (role) => {
-			setRoles((prevRoles) => [role, ...prevRoles]);
 			queryClient.invalidateQueries({ queryKey: ['roles'] });
 		}
 	});
@@ -23,7 +27,6 @@ export const useRoles = () => {
 	const updateRoleMutation = useMutation({
 		mutationFn: roleService.updateRole,
 		onSuccess: (role) => {
-			setRoles((prevRoles) => prevRoles.map((item) => (item.id === role.id ? role : item)));
 			queryClient.invalidateQueries({ queryKey: ['roles'] });
 		}
 	});
@@ -31,7 +34,6 @@ export const useRoles = () => {
 	const deleteRoleMutation = useMutation({
 		mutationFn: roleService.deleteRole,
 		onSuccess: (_, id) => {
-			setRoles((prevRoles) => prevRoles.filter((item) => item.id !== id));
 			queryClient.invalidateQueries({ queryKey: ['roles'] });
 		}
 	});

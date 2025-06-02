@@ -9,13 +9,16 @@ export const useTags = () => {
 
 	const tagsQuery = useQuery({
 		queryKey: ['tags'],
-		queryFn: tagService.getTags
+		queryFn: () =>
+			tagService.getTags().then((response) => {
+				setTags(response.items);
+				return response;
+			})
 	});
 
 	const createTagMutation = useMutation({
 		mutationFn: tagService.createTag,
 		onSuccess: (tag) => {
-			setTags((prevTags) => [tag, ...prevTags]);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
 		}
 	});
@@ -23,8 +26,6 @@ export const useTags = () => {
 	const updateTagMutation = useMutation({
 		mutationFn: tagService.updateTag,
 		onSuccess: (tag) => {
-			// Update local state or invalidate query
-			setTags((prevTags) => prevTags.map((item) => (item.id === tag.id ? tag : item)));
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
 		}
 	});
@@ -32,7 +33,6 @@ export const useTags = () => {
 	const deleteTagMutation = useMutation({
 		mutationFn: tagService.deleteTag,
 		onSuccess: (_, id) => {
-			setTags((prevTags) => prevTags.filter((item) => item.id !== id));
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
 		}
 	});

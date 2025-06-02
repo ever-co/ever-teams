@@ -19,7 +19,7 @@ export const PermissionDropDown = ({
 	selectedRole: TRole | null;
 	setSelectedRole: Dispatch<SetStateAction<TRole | null>>;
 }) => {
-	const { roles, createRole, createRoleLoading, deleteRole, updateRole, setRoles } = useRoles();
+	const { roles, createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
 	const [editRole, setEditRole] = useState<TRole | null>(null);
@@ -35,7 +35,7 @@ export const PermissionDropDown = ({
 			});
 			setFilterValue('');
 		}
-	}, [filterValue, createRole, setRoles, roles]);
+	}, [filterValue, createRole]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleCreateRole();
@@ -58,7 +58,7 @@ export const PermissionDropDown = ({
 			await updateRole(editRole);
 			setEditRole(null);
 		}
-	}, [editRole, setRoles, updateRole]);
+	}, [editRole, updateRole]);
 
 	const handleEditOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
@@ -89,7 +89,7 @@ export const PermissionDropDown = ({
 		async (roleId: string) => {
 			await deleteRole(roleId);
 		},
-		[deleteRole, setRoles]
+		[deleteRole]
 	);
 
 	return (
