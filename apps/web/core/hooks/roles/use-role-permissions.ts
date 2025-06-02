@@ -1,63 +1,73 @@
 import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQueryCall } from '../common/use-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import cloneDeep from 'lodash/cloneDeep';
 import { rolePermissionService } from '@/core/services/client/api/roles/role-permission.service';
-import { IRolePermission } from '@/core/types/interfaces/role/role-permission';
+import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
 
-export const useRolePermissions = () => {
-	const [rolePermissions, setrolePermissions] = useAtom(rolePermissionsState);
+export const useRolePermissions = (roleId?: string) => {
+	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
 	const [rolePermissionsFormated, setRolePermissionsFormated] = useAtom(rolePermissionsFormatedState);
+	const queryClient = useQueryClient();
 
-	const { loading, queryCall: getRolePermissionsQueryCall } = useQueryCall(rolePermissionService.getRolePermission);
-	const { loading: updateRolePermissionLoading, queryCall: updateRoleQueryCall } = useQueryCall(
-		rolePermissionService.updateRolePermission
-	);
+	// Query for fetching role permissions
+	const rolePermissionsQuery = useQuery({
+		queryKey: ['rolePermissions', roleId],
+		queryFn: () => {
+			if (!roleId) return null;
+			return rolePermissionService.getRolePermission(roleId).then((response) => {
+				if (response?.items?.length) {
+					const tempRolePermissions = response.items;
+					const formatedItems: { [key: string]: TRolePermission } = {};
 
-	const getRolePermissions = useCallback(
-		(id: string) => {
-			return getRolePermissionsQueryCall(id).then((response) => {
-				if (response?.data?.items?.length) {
-					const tempRolePermissions = response.data.items;
-					const formatedItems: { [key: string]: IRolePermission } = {};
-
-					tempRolePermissions.forEach((item: IRolePermission) => {
+					tempRolePermissions.forEach((item: TRolePermission) => {
 						formatedItems[item.permission] = item;
 					});
 					setRolePermissionsFormated(formatedItems);
-
-					setrolePermissions(tempRolePermissions);
+					setRolePermissions(tempRolePermissions);
 				}
 			});
-		},
-		[getRolePermissionsQueryCall, setRolePermissionsFormated, setrolePermissions]
-	);
+		}
+	});
 
-	const updateRolePermission = useCallback(
-		async (permission: IRolePermission) => {
-			return updateRoleQueryCall(permission).then(() => {
-				const index = rolePermissions.findIndex((item) => item.id === permission.id);
-				const tempRoles = cloneDeep(rolePermissions);
-				const formatedItems = cloneDeep(rolePermissionsFormated);
-				if (index >= 0) {
-					tempRoles[index].id = permission.id;
-					formatedItems[permission.permission] = permission;
-				}
+	// Mutation for updating role permissions
+	const updateRolePermissionMutation = useMutation({
+		mutationFn: rolePermissionService.updateRolePermission,
+		onSuccess: (_, permission) => {
+			const index = rolePermissions.findIndex((item) => item.id === permission.id);
+			const tempRoles = cloneDeep(rolePermissions);
+			const formatedItems = cloneDeep(rolePermissionsFormated);
 
-				setRolePermissionsFormated(formatedItems);
-				setrolePermissions(tempRoles);
-			});
+			if (index >= 0) {
+				tempRoles[index] = permission;
+				formatedItems[permission.permission] = permission;
+			}
+
+			setRolePermissionsFormated(formatedItems);
+			setRolePermissions(tempRoles);
+
+			// Invalidate the query to refetch fresh data
+			if (roleId) {
+				queryClient.invalidateQueries({ queryKey: ['rolePermissions', roleId] });
+			}
+		}
+	});
+
+	// For backward compatibility
+	const getRolePermissions = useCallback(
+		(id: string) => {
+			queryClient.invalidateQueries({ queryKey: ['rolePermissions', id] });
 		},
-		[rolePermissions, rolePermissionsFormated, setRolePermissionsFormated, setrolePermissions, updateRoleQueryCall]
+		[queryClient]
 	);
 
 	return {
-		loading,
+		loading: rolePermissionsQuery.isLoading,
 		rolePermissions,
 		getRolePermissions,
-		updateRolePermission,
-		updateRolePermissionLoading,
+		updateRolePermission: updateRolePermissionMutation.mutate,
+		updateRolePermissionLoading: updateRolePermissionMutation.isPending,
 		rolePermissionsFormated
 	};
 };

@@ -1,4 +1,3 @@
-import { IRole } from '@/core/types/interfaces/role/role';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -11,34 +10,29 @@ import { useRoles } from '@/core/hooks/roles';
 import { PermissonItem } from './permission-item';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
+import { TRole } from '@/core/types/schemas';
 
 export const PermissionDropDown = ({
 	selectedRole,
 	setSelectedRole
 }: {
-	selectedRole: IRole | null;
-	setSelectedRole: Dispatch<SetStateAction<IRole | null>>;
+	selectedRole: TRole | null;
+	setSelectedRole: Dispatch<SetStateAction<TRole | null>>;
 }) => {
 	const { roles, createRole, createRoleLoading, deleteRole, updateRole, setRoles } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
-	const [editRole, setEditRole] = useState<IRole | null>(null);
-	const handleEdit = (role: IRole) => {
+	const [editRole, setEditRole] = useState<TRole | null>(null);
+	const handleEdit = (role: TRole) => {
 		setEditRole(role);
 	};
 
 	// CREATE
 	const handleCreateRole = useCallback(async () => {
 		if (filterValue.length) {
-			const res = await createRole({
+			await createRole({
 				name: filterValue
 			});
-
-			if (res) {
-				// Update roles state
-				setRoles([...roles, res.data]);
-			}
-
 			setFilterValue('');
 		}
 	}, [filterValue, createRole, setRoles, roles]);
@@ -61,18 +55,7 @@ export const PermissionDropDown = ({
 	);
 	const handleEditRole = useCallback(async () => {
 		if (editRole) {
-			const res = await updateRole(editRole);
-
-			if (res) {
-				setRoles((prev) => {
-					return prev.map((role) => {
-						if (role.id === editRole.id) {
-							return res.data;
-						}
-						return role;
-					});
-				});
-			}
+			await updateRole(editRole);
 			setEditRole(null);
 		}
 	}, [editRole, setRoles, updateRole]);
@@ -104,14 +87,7 @@ export const PermissionDropDown = ({
 
 	const handleDeleteRole = useCallback(
 		async (roleId: string) => {
-			const res = await deleteRole(roleId);
-
-			if (res) {
-				// Update roles state
-				setRoles((prev) => {
-					return prev.filter((role) => role.id !== roleId);
-				});
-			}
+			await deleteRole(roleId);
 		},
 		[deleteRole, setRoles]
 	);

@@ -18,7 +18,7 @@ import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
-import { IRole } from '@/core/types/interfaces/role/role';
+import { TRole } from '@/core/types/schemas';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
@@ -92,7 +92,7 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 	);
 
 	const handleRoleChange = useCallback(
-		(newRole: IRole) => {
+		(newRole: TRole) => {
 			if (!editMemberRef.current || !activeTeamRef.current) return;
 
 			const { employeeId = '', role } = editMemberRef.current;
@@ -322,6 +322,6 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 	);
 };
 
-const getRoleString = (role: IRole | undefined) => {
+const getRoleString = (role: TRole | undefined) => {
 	return role?.name || 'MEMBER';
 };

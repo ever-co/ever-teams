@@ -1,4 +1,4 @@
-import { IRole } from '@/core/types/interfaces/role/role';
+import { TRole } from '@/core/types/schemas';
 import { atom } from 'jotai';
 
-export const rolesState = atom<IRole[]>([]);
+export const rolesState = atom<TRole[]>([]);

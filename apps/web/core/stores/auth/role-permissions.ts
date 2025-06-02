@@ -1,8 +1,8 @@
-import { IRolePermission } from '@/core/types/interfaces/role/role-permission';
+import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
 import { atom } from 'jotai';
 
-export const rolePermissionsState = atom<IRolePermission[]>([]);
+export const rolePermissionsState = atom<TRolePermission[]>([]);
 
 export const rolePermissionsFormatedState = atom<{
-	[key: string]: IRolePermission;
+	[key: string]: TRolePermission;
 }>({});
