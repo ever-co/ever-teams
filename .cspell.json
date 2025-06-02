@@ -4,6 +4,7 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"instanceof",
 		"knip",
 		"smpt",
 		"exalidraw",
