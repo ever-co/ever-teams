@@ -10,7 +10,7 @@ export const useUserLanguagePreference = (
 	changeLanguage: (lang: string) => void
 ) => {
 	useEffect(() => {
-		const language = user?.preferredLanguage || window.localStorage.getItem('preferredLanguage');
+		const language = (user?.preferredLanguage || window?.localStorage?.getItem('preferredLanguage')) ?? null;
 		if (language) {
 			changeLanguage(language);
 		}

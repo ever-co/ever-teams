@@ -24,7 +24,7 @@ export const useLanguageStateSync = (
 	useEffect(() => {
 		if (languagesQuery.data?.items) {
 			// Cast to the expected type for backward compatibility
-			setLanguages(languagesQuery.data.items as any);
+			setLanguages(languagesQuery.data.items as unknown as ILanguageItemList[]);
 		}
 	}, [languagesQuery.data?.items, setLanguages]);
 };

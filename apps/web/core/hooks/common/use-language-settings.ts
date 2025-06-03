@@ -129,10 +129,15 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 */
 	const loadLanguagesData = useCallback(async () => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
-		// Trigger a refetch of the React Query data
-		const result = await languagesQuery.refetch();
-		// Return the data in the expected format with proper PaginationResponse structure
-		return result.data ? { data: result.data } : { data: { items: [], total: 0 } };
+		try {
+			// Trigger a refetch of the React Query data
+			const result = await languagesQuery.refetch();
+
+			// Return the data in the expected format with proper PaginationResponse structure
+			return result.data ? { data: result.data } : { data: { items: [], total: 0 } };
+		} catch (error) {
+			return { data: { items: [], total: 0 } };
+		}
 	}, [languagesQuery, setActiveLanguageId]);
 
 	/**
