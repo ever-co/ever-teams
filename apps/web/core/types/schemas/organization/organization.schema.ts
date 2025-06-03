@@ -112,5 +112,5 @@ export const organizationCreateSchema = z.object({
 	name: z.string(),
 	currency: z.string(),
 	tenantId: z.string(),
-	invitesAllowed: z.literal(true)
+	invitesAllowed: z.boolean()
 });
