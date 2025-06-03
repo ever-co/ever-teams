@@ -30,8 +30,14 @@ class RoleService extends APIService {
 			return validatePaginationResponse(roleSchema, response.data, 'getRoles API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
+				this.logger.error(
+					'Role validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RoleService'
+				);
 			}
 			throw error;
 		}
@@ -52,7 +58,14 @@ class RoleService extends APIService {
 			return validateApiResponse(roleSchema, response.data, 'createRole API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role creation validation failed:', error.message);
+				this.logger.error(
+					'Role creation validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RoleService'
+				);
 			}
 			throw error;
 		}
@@ -73,7 +86,14 @@ class RoleService extends APIService {
 			return validateApiResponse(roleSchema, response.data, 'deleteRole API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role deletion validation failed:', error.message);
+				this.logger.error(
+					'Role deletion validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RoleService'
+				);
 			}
 			throw error;
 		}
@@ -94,7 +114,14 @@ class RoleService extends APIService {
 			return validateApiResponse(roleSchema, response.data, 'updateRole API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role update validation failed:', error.message);
+				this.logger.error(
+					'Role update validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RoleService'
+				);
 			}
 			throw error;
 		}

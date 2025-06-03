@@ -40,8 +40,14 @@ class RolePermissionService extends APIService {
 			return validatePaginationResponse(rolePermissionSchema, response.data, 'getRolePermission API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role permission validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
+				this.logger.error(
+					'Role permission validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RolePermissionService'
+				);
 			}
 			throw error;
 		}
@@ -65,8 +71,14 @@ class RolePermissionService extends APIService {
 			return validateApiResponse(rolePermissionSchema, response.data, 'updateRolePermission API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Role permission update validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
+				this.logger.error(
+					'Role permission update validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RolePermissionService'
+				);
 			}
 			throw error;
 		}
