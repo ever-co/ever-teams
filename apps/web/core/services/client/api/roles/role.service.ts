@@ -38,7 +38,6 @@ class RoleService extends APIService {
 					},
 					'RoleService'
 				);
-				this.logger.error('Validation issues:', error.issues);
 			}
 			throw error;
 		}
