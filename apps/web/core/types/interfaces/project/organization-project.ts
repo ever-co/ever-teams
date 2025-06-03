@@ -1,11 +1,11 @@
 import { ECurrencies } from '../../generics/enums/currency';
 import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
+import { TTag } from '../../schemas';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from '../organization/employee';
 import { ICustomFieldsObject } from '../organization/organization';
-import { ITag } from '../tag/tag';
 import { ITask } from '../task/task';
 import { IOrganizationTeam } from '../team/organization-team';
 import { ITimeLog } from '../timer/time-log/time-log';
@@ -83,7 +83,7 @@ export interface ICreateProjectRequest {
 	projectUrl?: string;
 	description?: string;
 	color?: string;
-	tags?: ITag[];
+	tags?: TTag[];
 	imageUrl?: string;
 	imageId?: string;
 	budget?: number;

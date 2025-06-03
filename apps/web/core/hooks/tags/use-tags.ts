@@ -1,72 +1,54 @@
-import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQueryCall } from '../common/use-query';
-import cloneDeep from 'lodash/cloneDeep';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tagsState } from '@/core/stores/tags/tags';
-import { ITag } from '@/core/types/interfaces/tag/tag';
 import { tagService } from '@/core/services/client/api';
 
 export const useTags = () => {
-	const [tags, setTags] = useAtom(tagsState);
+	const [, setTags] = useAtom(tagsState);
+	const queryClient = useQueryClient();
 
-	const { loading, queryCall: getTagsQueryCall } = useQueryCall(tagService.getTags);
-	const { loading: createTagLoading, queryCall: createTagQueryCall } = useQueryCall(tagService.createTag);
-	const { loading: updateTagLoading, queryCall: updateTagQueryCall } = useQueryCall(tagService.updateTag);
-	const { loading: deleteTagLoading, queryCall: deleteTagQueryCall } = useQueryCall(tagService.deleteTag);
+	const tagsQuery = useQuery({
+		queryKey: ['tags'],
+		queryFn: () =>
+			tagService.getTags().then((response) => {
+				setTags(response.items);
+				return response;
+			})
+	});
 
-	const getTags = useCallback(() => {
-		getTagsQueryCall().then((response) => {
-			if (response?.data?.items?.length) {
-				setTags(response.data.items);
-			}
-		});
-	}, [getTagsQueryCall, setTags]);
+	const createTagMutation = useMutation({
+		mutationFn: tagService.createTag,
+		onSuccess: (tag) => {
+			queryClient.invalidateQueries({ queryKey: ['tags'] });
+		}
+	});
 
-	const createTag = useCallback(
-		async (tag: Omit<ITag, 'id'>) => {
-			return createTagQueryCall(tag).then((response) => {
-				setTags((prevTags) => [response.data, ...prevTags]);
-			});
-		},
-		[createTagQueryCall, setTags]
-	);
+	const updateTagMutation = useMutation({
+		mutationFn: tagService.updateTag,
+		onSuccess: (tag) => {
+			queryClient.invalidateQueries({ queryKey: ['tags'] });
+		}
+	});
 
-	const updateTag = useCallback(
-		async (tag: ITag) => {
-			updateTagQueryCall(tag).then(() => {
-				const index = tags.findIndex((item) => item.id === tag.id);
-				const tempTags = cloneDeep(tags);
-				if (index >= 0) {
-					tempTags[index].name = tag.name;
-				}
-
-				setTags(tempTags);
-			});
-		},
-		[tags, setTags, updateTagQueryCall]
-	);
-
-	const deleteTag = useCallback(
-		async (id: string) => {
-			deleteTagQueryCall(id).then(() => {
-				setTags(tags.filter((tag) => tag.id !== id));
-			});
-		},
-		[deleteTagQueryCall, setTags, tags]
-	);
+	const deleteTagMutation = useMutation({
+		mutationFn: tagService.deleteTag,
+		onSuccess: (_, id) => {
+			queryClient.invalidateQueries({ queryKey: ['tags'] });
+		}
+	});
 
 	return {
-		tags,
-		loading,
-		getTags,
+		tags: tagsQuery.data?.items || [],
+		loading: tagsQuery.isLoading,
+		getTags: () => queryClient.invalidateQueries({ queryKey: ['tags'] }),
 
-		createTag,
-		createTagLoading,
+		createTag: createTagMutation.mutate,
+		createTagLoading: createTagMutation.isPending,
 
-		deleteTag,
-		deleteTagLoading,
+		updateTag: updateTagMutation.mutate,
+		updateTagLoading: updateTagMutation.isPending,
 
-		updateTag,
-		updateTagLoading
+		deleteTag: deleteTagMutation.mutate,
+		deleteTagLoading: deleteTagMutation.isPending
 	};
 };

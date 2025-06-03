@@ -14,7 +14,7 @@ import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
-import { ITag } from '@/core/types/interfaces/tag/tag';
+import { TTag } from '@/core/types/schemas';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -295,7 +295,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
  */
 
 interface ICategorizationProps {
-	tags?: ITag[];
+	tags?: TTag[];
 	colorCode?: string;
 }
 

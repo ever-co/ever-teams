@@ -13,7 +13,7 @@ import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizat
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { EverCard } from '../../common/ever-card';
-import { IRole } from '@/core/types/interfaces/role/role';
+import { TRole } from '@/core/types/schemas';
 
 const Permissions = () => {
 	// Translations
@@ -24,7 +24,7 @@ const Permissions = () => {
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// Local state
-	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
+	const [selectedRole, setSelectedRole] = useState<TRole | null>(null);
 
 	// Hooks with data fetching
 	const { activeTeamManagers } = useOrganizationTeams();
@@ -58,7 +58,7 @@ const Permissions = () => {
 					enabled: !permission.enabled
 				});
 
-				await getRolePermissions(selectedRoleId);
+				getRolePermissions(selectedRoleId);
 			} catch (error) {
 				console.error('Failed to toggle role permission:', error);
 			}
