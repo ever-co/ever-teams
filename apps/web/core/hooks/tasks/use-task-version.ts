@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
-import { userState, taskVersionFetchingState, taskVersionListState, activeTeamIdState } from '@/core/stores';
+import { userState, taskVersionListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,7 +22,6 @@ export function useTaskVersion() {
 	const queryClient = useQueryClient();
 
 	const [taskVersion, setTaskVersion] = useAtom(taskVersionListState);
-	const [taskVersionFetching] = useAtom(taskVersionFetchingState);
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
 
 	const organizationId =
@@ -89,9 +88,9 @@ export function useTaskVersion() {
 	}, [taskVersionsQuery.data]);
 
 	return {
-		loading: taskVersionFetching,
+		loading: taskVersionsQuery.isLoading,
 		taskVersion,
-		taskVersionFetching,
+		taskVersionFetching: taskVersionsQuery.isPending,
 		firstLoadTaskVersionData,
 		createTaskVersion: createTaskVersionMutation.mutateAsync,
 		createTaskVersionLoading: createTaskVersionMutation.isPending,

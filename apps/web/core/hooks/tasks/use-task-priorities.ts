@@ -84,7 +84,7 @@ export function useTaskPriorities() {
 
 	const loadTaskPriorities = useCallback(async () => {
 		return taskPrioritiesQuery.data;
-	}, [user?.tenantId, user?.employee?.organizationId, activeTeamId, taskPriorities, setTaskPriorities]);
+	}, [taskPrioritiesQuery.data]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskPriorities();

@@ -87,7 +87,7 @@ export function useTaskRelatedIssueType() {
 
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
 		return taskRelatedIssueTypesQuery.data;
-	}, [user?.tenantId, user?.employee?.organizationId, activeTeamId, taskRelatedIssueType, setTaskRelatedIssueType]);
+	}, [user?.tenantId, user?.employee?.organizationId, activeTeamId]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskRelatedIssueTypeData();

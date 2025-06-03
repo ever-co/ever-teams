@@ -81,7 +81,7 @@ export function useTaskLabels() {
 	const loadTaskLabels = useCallback(async () => {
 		return taskLabelsQuery.data;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, activeTeamId, setTaskLabels, taskLabels]);
+	}, [user, activeTeamId]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskLabels();
