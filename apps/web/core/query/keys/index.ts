@@ -54,6 +54,10 @@ export const queryKeys = {
 		joinRequests: (teamId: string) => ['organization-teams', teamId, 'join-requests'] as const
 	},
 
+	tags: {
+		all: ['tags'] as const
+	},
+
 	// Keys related to tasks
 	tasks: {
 		all: ['tasks'] as const,
