@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import cloneDeep from 'lodash/cloneDeep';
 import { rolePermissionService } from '@/core/services/client/api/roles/role-permission.service';
 import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
+import { queryKeys } from '@/core/query/keys';
 
 export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
@@ -13,7 +14,7 @@ export const useRolePermissions = (roleId?: string) => {
 
 	// Query for fetching role permissions
 	const rolePermissionsQuery = useQuery({
-		queryKey: ['rolePermissions', roleId],
+		queryKey: queryKeys.roles.permissions(roleId!),
 		queryFn: () => {
 			if (!roleId) return null;
 			return rolePermissionService.getRolePermission(roleId).then((response) => {
@@ -49,7 +50,7 @@ export const useRolePermissions = (roleId?: string) => {
 
 			// Invalidate the query to refetch fresh data
 			if (roleId) {
-				queryClient.invalidateQueries({ queryKey: ['rolePermissions', roleId] });
+				queryClient.invalidateQueries({ queryKey: queryKeys.roles.permissions(roleId) });
 			}
 		}
 	});
@@ -57,7 +58,7 @@ export const useRolePermissions = (roleId?: string) => {
 	// For backward compatibility
 	const getRolePermissions = useCallback(
 		(id: string) => {
-			queryClient.invalidateQueries({ queryKey: ['rolePermissions', id] });
+			queryClient.invalidateQueries({ queryKey: queryKeys.roles.permissions(id) });
 		},
 		[queryClient]
 	);
