@@ -8,6 +8,7 @@
 // Base schemas - Common interfaces used across entities
 export * from './common/base.schema';
 export * from './common/image-asset.schema';
+export * from './common/language.schema';
 
 // Entity schemas - Specific business domain schemas
 export * from './role/role.schema';
