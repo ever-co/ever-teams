@@ -82,5 +82,12 @@ export const queryKeys = {
 		all: ['languages'] as const,
 		system: (isSystem: boolean) => ['languages', 'system', isSystem] as const,
 		byCode: (code: string) => ['languages', 'by-code', code] as const
+	},
+
+	// Keys related to currencies
+	currencies: {
+		all: ['currencies'] as const,
+		byOrganization: (tenantId: string, organizationId: string) =>
+			['currencies', 'organization', tenantId, organizationId] as const
 	}
 };
