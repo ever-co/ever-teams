@@ -3,119 +3,85 @@
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQueryCall } from '../common/use-query';
-import isEqual from 'lodash/isEqual';
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
+import { queryKeys } from '@/core/query/keys';
+import { useAuthenticateUser } from '../auth';
+import { useOrganizationTeams } from '../organizations';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-
-	const {
-		loading: getTaskLabelsLoading,
-		queryCall: getTaskLabelsQueryCall,
-		loadingRef: getTaskLabelsLoadingRef
-	} = useQueryCall(taskLabelService.getTaskLabelsList);
-	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } = useQueryCall(
-		taskLabelService.createTaskLabels
-	);
-	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } = useQueryCall(
-		taskLabelService.deleteTaskLabels
-	);
-	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } = useQueryCall(taskLabelService.editTaskLabels);
+	const { user: authUser } = useAuthenticateUser();
+	const { activeTeam } = useOrganizationTeams();
+	const queryClient = useQueryClient();
 
 	const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
-
 	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
 
-	const loadTaskLabels = useCallback(async () => {
-		if (getTaskLabelsLoadingRef.current) {
-			return;
-		}
-		const teamId = getActiveTeamIdCookie();
-		getTaskLabelsQueryCall(
-			user?.tenantId as string,
-			user?.employee?.organizationId as string,
-			activeTeamId || teamId || null
-		).then((res) => {
-			if (!isEqual(res?.data?.items || [], taskLabels)) {
-				setTaskLabels(res?.data?.items || []);
-			}
+	const organizationId =
+		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
+	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
+	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+
+	// useQuery for fetching task labels
+	const taskLabelsQuery = useQuery({
+		queryKey: queryKeys.taskLabels.byTeam(teamId || ''),
+		queryFn: async () => {
+			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId || null);
+
+			setTaskLabels(res.data.items);
 
 			return res;
-		});
+		}
+	});
+
+	// Mutations
+	const createTaskLabelMutation = useMutation({
+		mutationFn: (data: ITagCreate) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
+			}
+			const requestData = { ...data, organizationTeamId: teamId || '' };
+			return taskLabelService.createTaskLabels(requestData, tenantId);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const updateTaskLabelMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ITagCreate }) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
+			}
+			return taskLabelService.editTaskLabels(id, data, tenantId);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const deleteTaskLabelMutation = useMutation({
+		mutationFn: (id: string) => taskLabelService.deleteTaskLabels(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const loadTaskLabels = useCallback(async () => {
+		return taskLabelsQuery.data;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, activeTeamId, setTaskLabels, taskLabels, getTaskLabelsQueryCall]);
-
-	const createTaskLabels = useCallback(
-		(data: ITagCreate) => {
-			if (user?.tenantId) {
-				return createQueryCall(
-					{
-						...data,
-						organizationTeamId: activeTeamId as string
-					},
-					user?.tenantId || ''
-				).then((res) => {
-					if (res?.data && res?.data?.name) {
-						getTaskLabelsQueryCall(
-							user?.tenantId as string,
-							user?.employee?.organizationId as string,
-							activeTeamId || null
-						).then((res) => {
-							setTaskLabels(res?.data?.items || []);
-							return res;
-						});
-					}
-
-					return res;
-				});
-			}
-		},
-
-		[createQueryCall, user, activeTeamId, getTaskLabelsQueryCall, setTaskLabels]
-	);
-
-	const deleteTaskLabels = useCallback(
-		(id: string) => {
-			if (user?.tenantId) {
-				return deleteQueryCall(id).then((res) => {
-					getTaskLabelsQueryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setTaskLabels(res?.data?.items || []);
-						return res;
-					});
-					return res;
-				});
-			}
-		},
-		[deleteQueryCall, user, activeTeamId, getTaskLabelsQueryCall, setTaskLabels]
-	);
-
-	const editTaskLabels = useCallback(
-		(id: string, data: ITagCreate) => {
-			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-					getTaskLabelsQueryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setTaskLabels(res?.data?.items || []);
-						return res;
-					});
-					return res;
-				});
-			}
-		},
-		[user, activeTeamId, editQueryCall, getTaskLabelsQueryCall, setTaskLabels]
-	);
+	}, [user, activeTeamId, setTaskLabels, taskLabels]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskLabels();
@@ -123,15 +89,15 @@ export function useTaskLabels() {
 	}, [firstLoadTaskLabelsData, loadTaskLabels]);
 
 	return {
-		loading: getTaskLabelsLoading,
+		loading: taskLabelsQuery.isLoading,
 		taskLabels,
 		firstLoadTaskLabelsData: handleFirstLoad,
-		createTaskLabels,
-		createTaskLabelsLoading,
-		deleteTaskLabelsLoading,
-		deleteTaskLabels,
-		editTaskLabels,
-		editTaskLabelsLoading,
+		createTaskLabels: createTaskLabelMutation.mutateAsync,
+		createTaskLabelsLoading: createTaskLabelMutation.isPending,
+		deleteTaskLabelsLoading: deleteTaskLabelMutation.isPending,
+		deleteTaskLabels: deleteTaskLabelMutation.mutateAsync,
+		editTaskLabels: (id: string, data: ITagCreate) => updateTaskLabelMutation.mutateAsync({ id, data }),
+		editTaskLabelsLoading: updateTaskLabelMutation.isPending,
 		setTaskLabels,
 		loadTaskLabels
 	};

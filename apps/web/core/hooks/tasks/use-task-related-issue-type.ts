@@ -1,127 +1,93 @@
 'use client';
 
-import {
-	userState,
-	taskRelatedIssueTypeFetchingState,
-	taskRelatedIssueTypeListState,
-	activeTeamIdState
-} from '@/core/stores';
+import { userState, taskRelatedIssueTypeListState, activeTeamIdState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQueryCall } from '../common/use-query';
 import isEqual from 'lodash/isEqual';
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
+import { queryKeys } from '@/core/query/keys';
+import { useAuthenticateUser } from '../auth';
+import { useOrganizationTeams } from '../organizations';
 
 export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-
-	const { loading: getTaskRelatedIssueTypeLoading, queryCall: getTaskRelatedIssueTypeQueryCall } = useQueryCall(
-		taskRelatedIssueTypeService.getTaskRelatedIssueTypeList
-	);
-	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } = useQueryCall(
-		taskRelatedIssueTypeService.createTaskRelatedIssueType
-	);
-	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } = useQueryCall(
-		taskRelatedIssueTypeService.deleteTaskRelatedIssueType
-	);
-	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } = useQueryCall(
-		taskRelatedIssueTypeService.editTaskRelatedIssueType
-	);
+	const { user: authUser } = useAuthenticateUser();
+	const { activeTeam } = useOrganizationTeams();
+	const queryClient = useQueryClient();
 
 	const [taskRelatedIssueType, setTaskRelatedIssueType] = useAtom(taskRelatedIssueTypeListState);
-	const [taskRelatedIssueTypeFetching] = useAtom(taskRelatedIssueTypeFetchingState);
 	const { firstLoadData: firstLoadTaskRelatedIssueTypeData } = useFirstLoad();
 
+	const organizationId =
+		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
+	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
+	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+
+	// useQuery for fetching task related issue types
+	const taskRelatedIssueTypesQuery = useQuery({
+		queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || ''),
+		queryFn: async () => {
+			if (!tenantId || !organizationId) {
+				return { items: [] };
+			}
+			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(
+				tenantId,
+				organizationId,
+				teamId || null
+			);
+			if (!isEqual(res.data?.items || [], taskRelatedIssueType)) {
+				setTaskRelatedIssueType(res.data?.items || []);
+			}
+			return res.data;
+		}
+	});
+
+	const createTaskRelatedIssueTypeMutation = useMutation({
+		mutationFn: (data: ITaskRelatedIssueTypeCreate) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
+			}
+			const requestData = { ...data, organizationTeamId: teamId || '' };
+			return taskRelatedIssueTypeService.createTaskRelatedIssueType(requestData, tenantId);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const deleteTaskRelatedIssueTypeMutation = useMutation({
+		mutationFn: (id: string) => taskRelatedIssueTypeService.deleteTaskRelatedIssueType(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const editTaskRelatedIssueTypeMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ITaskRelatedIssueTypeCreate }) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
+			}
+			return taskRelatedIssueTypeService.editTaskRelatedIssueType(id, data, tenantId);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
+			});
+		}
+	});
+
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
-		const teamId = getActiveTeamIdCookie();
-		getTaskRelatedIssueTypeQueryCall(
-			user?.tenantId as string,
-			user?.employee?.organizationId as string,
-			activeTeamId || teamId || null
-		).then((res) => {
-			if (!isEqual(res?.data?.items || [], taskRelatedIssueType)) {
-				setTaskRelatedIssueType(res?.data?.items || []);
-			}
-			return res;
-		});
-	}, [
-		getTaskRelatedIssueTypeQueryCall,
-		user?.tenantId,
-		user?.employee?.organizationId,
-		activeTeamId,
-		taskRelatedIssueType,
-		setTaskRelatedIssueType
-	]);
-
-	const createTaskRelatedIssueType = useCallback(
-		(data: ITaskRelatedIssueTypeCreate) => {
-			if (user?.tenantId) {
-				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
-					(res) => {
-						return res;
-					}
-				);
-			}
-		},
-
-		[createQueryCall, activeTeamId, user]
-	);
-
-	const deleteTaskRelatedIssueType = useCallback(
-		(id: string) => {
-			if (user?.tenantId) {
-				return deleteQueryCall(id).then((res) => {
-					getTaskRelatedIssueTypeQueryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setTaskRelatedIssueType(res?.data?.items || []);
-						return res;
-					});
-					return res;
-				});
-			}
-		},
-		[
-			user?.tenantId,
-			user?.employee?.organizationId,
-			deleteQueryCall,
-			getTaskRelatedIssueTypeQueryCall,
-			activeTeamId,
-			setTaskRelatedIssueType
-		]
-	);
-
-	const editTaskRelatedIssueType = useCallback(
-		(id: string, data: ITaskRelatedIssueTypeCreate) => {
-			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-					getTaskRelatedIssueTypeQueryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setTaskRelatedIssueType(res?.data?.items || []);
-						return res;
-					});
-					return res;
-				});
-			}
-		},
-		[
-			user?.tenantId,
-			user?.employee?.organizationId,
-			editQueryCall,
-			getTaskRelatedIssueTypeQueryCall,
-			activeTeamId,
-			setTaskRelatedIssueType
-		]
-	);
+		return taskRelatedIssueTypesQuery.data;
+	}, [user?.tenantId, user?.employee?.organizationId, activeTeamId, taskRelatedIssueType, setTaskRelatedIssueType]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskRelatedIssueTypeData();
@@ -129,16 +95,16 @@ export function useTaskRelatedIssueType() {
 	}, [firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData]);
 
 	return {
-		loading: getTaskRelatedIssueTypeLoading,
-		taskRelatedIssueType,
-		taskRelatedIssueTypeFetching,
+		taskRelatedIssueTypes: taskRelatedIssueType,
+		loading: taskRelatedIssueTypesQuery.isLoading,
 		firstLoadTaskRelatedIssueTypeData: handleFirstLoad,
-		createTaskRelatedIssueType,
-		createTaskRelatedIssueTypeLoading,
-		deleteTaskRelatedIssueTypeLoading,
-		deleteTaskRelatedIssueType,
-		editTaskRelatedIssueTypeLoading,
-		editTaskRelatedIssueType,
+		createTaskRelatedIssueType: createTaskRelatedIssueTypeMutation.mutateAsync,
+		createTaskRelatedIssueTypeLoading: createTaskRelatedIssueTypeMutation.isPending,
+		deleteTaskRelatedIssueTypeLoading: deleteTaskRelatedIssueTypeMutation.isPending,
+		deleteTaskRelatedIssueType: deleteTaskRelatedIssueTypeMutation.mutateAsync,
+		editTaskRelatedIssueTypeLoading: editTaskRelatedIssueTypeMutation.isPending,
+		editTaskRelatedIssueType: (id: string, data: ITaskRelatedIssueTypeCreate) =>
+			editTaskRelatedIssueTypeMutation.mutateAsync({ id, data }),
 		setTaskRelatedIssueType,
 		loadTaskRelatedIssueTypeData
 	};
