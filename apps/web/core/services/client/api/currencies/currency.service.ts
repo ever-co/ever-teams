@@ -9,6 +9,7 @@ import {
 	ZodValidationError,
 	TCurrencyList
 } from '@/core/types/schemas';
+import { Logger } from '@/core/services/logs/logger.service';
 
 /**
  * Enhanced Currency Service with Zod validation
@@ -40,10 +41,16 @@ class CurrencyService extends APIService {
 			return validatePaginationResponse(currencyListSchema, response.data, 'getCurrencies API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Currency validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
-				// Log the actual data structure for debugging
-				console.log('Actual API response data:', JSON.stringify(response.data, null, 2));
+				const loggerService = Logger.getInstance();
+				loggerService.error(
+					'Currency validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'CurrencyService'
+				);
+				loggerService.debug('Actual API response data:', response.data, 'CurrencyService');
 			}
 			throw error;
 		}

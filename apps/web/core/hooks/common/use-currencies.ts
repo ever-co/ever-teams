@@ -70,7 +70,7 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 	 */
 	const currenciesQuery = useQuery({
 		queryKey: queryKeys.currencies.byOrganization(getTenantIdCookie() || '', getOrganizationIdCookie() || ''),
-		queryFn: () => currencyService.getCurrencies(),
+		queryFn: currencyService.getCurrencies,
 		enabled: !!(getTenantIdCookie() && getOrganizationIdCookie()),
 		staleTime: 1000 * 60 * 10, // Currencies are relatively stable, cache for 10 minutes
 		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
@@ -80,7 +80,12 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 	useEffect(() => {
 		if (currenciesQuery.data?.items) {
 			// Cast to any for backward compatibility with existing interfaces
-			setCurrencies(currenciesQuery.data.items as any);
+			const adaptedCurrencies = currenciesQuery.data.items.map((item) => ({
+				id: item.id,
+				isoCode: item.isoCode,
+				currency: item.currency
+			}));
+			setCurrencies(adaptedCurrencies);
 		}
 	}, [currenciesQuery.data?.items, setCurrencies]);
 
