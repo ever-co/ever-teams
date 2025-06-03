@@ -3,13 +3,16 @@
 import { taskStatusesState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQueryCall } from '../common/use-query';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { useCallbackRef, useSyncRef } from '../common';
 import { TStatus, TStatusItem, useMapToTaskStatusValues } from '@/core/components/tasks/task-status';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
+import { queryKeys } from '@/core/query/keys';
+import { useAuthenticateUser } from '../auth';
+import { useOrganizationTeams } from '../organizations';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
@@ -18,135 +21,88 @@ export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskStatuses, setTaskStatuses] = useAtom(taskStatusesState);
 	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
-	const teamId = getActiveTeamIdCookie() || activeTeamId;
-	const organizationId = getOrganizationIdCookie();
-	const tenantId = getTenantIdCookie();
+	const { user } = useAuthenticateUser();
+	const { activeTeam } = useOrganizationTeams();
+	const queryClient = useQueryClient();
 
-	const {
-		loading: getTaskStatusesLoading,
-		queryCall: getTaskStatusesQueryCall,
-		loadingRef: getTaskStatusesLoadingRef
-	} = useQueryCall(taskStatusService.getTaskStatuses);
-	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQueryCall(
-		taskStatusService.createTaskStatus
-	);
-	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQueryCall(
-		taskStatusService.deleteTaskStatus
-	);
-	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQueryCall(taskStatusService.editTaskStatus);
-	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQueryCall(
-		taskStatusService.editTaskStatusOrder
-	);
+	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = user?.employee?.organizationId || getOrganizationIdCookie();
+	const tenantId = user?.employee?.tenantId || getTenantIdCookie();
 
-	const getTaskStatuses = useCallback(async () => {
-		try {
-			if (getTaskStatusesLoadingRef.current) {
-				return;
+	// useQuery for fetching task statuses
+	const taskStatusesQuery = useQuery({
+		queryKey: queryKeys.taskStatuses.byTeam(teamId || ''),
+		queryFn: () => {
+			if (!(organizationId && teamId && tenantId)) {
+				throw new Error('Required parameters missing: organizationId, teamId, and tenantId are required');
 			}
-			if (organizationId && teamId && tenantId) {
-				const res = await getTaskStatusesQueryCall(tenantId, organizationId, teamId);
-
-				return res;
-			} else {
-				throw Error(
-					'Required parameters missing: organizationId and teamId are required. Ensure you have tenant,  active team and organization ids set in cookies.'
-				);
-			}
-		} catch (error) {
-			console.error('Failed to get task statuses:', error);
+			return taskStatusService.getTaskStatuses(tenantId, organizationId, teamId || null);
 		}
-	}, [getTaskStatusesLoadingRef, getTaskStatusesQueryCall, organizationId, teamId, tenantId]);
+	});
 
-	const createTaskStatus = useCallback(
-		async (data: ITaskStatusCreate) => {
-			try {
-				if (tenantId) {
-					const requestData = { ...data, organizationTeamId: activeTeamId || '' };
-
-					const res = await createQueryCall(requestData, tenantId);
-
-					return res;
-				} else {
-					throw Error(
-						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
-					);
-				}
-			} catch (error) {
-				console.error('[WEB][useTaskStatus] Failed to create task status:', error);
-				throw error;
+	// Mutations using useQuery pattern
+	const createTaskStatusMutation = useMutation({
+		mutationFn: (data: ITaskStatusCreate) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
 			}
+			const requestData = { ...data, organizationTeamId: activeTeamId || '' };
+			return taskStatusService.createTaskStatus(requestData, tenantId);
 		},
-		[tenantId, createQueryCall, activeTeamId]
-	);
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
+			});
+		}
+	});
 
-	const deleteTaskStatus = useCallback(
-		async (id: string) => {
-			try {
-				if (tenantId) {
-					const res = await deleteQueryCall(id);
-
-					return res;
-				} else {
-					throw Error(
-						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
-					);
-				}
-			} catch (error) {
-				console.error('Failed to delete task status:', error);
+	const updateTaskStatusMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ITaskStatusCreate }) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
 			}
+			return taskStatusService.editTaskStatus(id, data, tenantId);
 		},
-		[tenantId, deleteQueryCall]
-	);
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
+			});
+		}
+	});
 
-	const editTaskStatus = useCallback(
-		async (id: string, data: ITaskStatusCreate) => {
-			try {
-				if (tenantId) {
-					const res = await editQueryCall(id, data, tenantId);
+	const deleteTaskStatusMutation = useMutation({
+		mutationFn: (id: string) => taskStatusService.deleteTaskStatus(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
+			});
+		}
+	});
 
-					return res;
-				} else {
-					throw Error(
-						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
-					);
-				}
-			} catch (error) {
-				console.error('Failed to edit task status:', error);
+	const reorderTaskStatusMutation = useMutation({
+		mutationFn: (data: ITaskStatusOrder) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
 			}
+			return taskStatusService.editTaskStatusOrder(data, tenantId);
 		},
-		[tenantId, editQueryCall]
-	);
-
-	const reOrderTaskStatus = useCallback(
-		async (data: ITaskStatusOrder) => {
-			try {
-				if (tenantId) {
-					const res = await reOrderQueryCall(data, tenantId);
-
-					return res;
-				} else {
-					throw Error(
-						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
-					);
-				}
-			} catch (error) {
-				console.error('Failed to re-order task status:', error);
-			}
-		},
-		[reOrderQueryCall, tenantId]
-	);
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
+			});
+		}
+	});
 
 	const loadTaskStatuses = useCallback(async () => {
 		try {
-			const res = await getTaskStatuses();
-
+			const res = taskStatusesQuery.data;
 			if (res) {
 				setTaskStatuses(res.data.items);
 			}
 		} catch (error) {
 			console.error('Failed to load task statuses:', error);
 		}
-	}, [getTaskStatuses, setTaskStatuses]);
+	}, [setTaskStatuses, taskStatusesQuery.data]);
 
 	const handleFirstLoad = useCallback(() => {
 		loadTaskStatuses();
@@ -154,17 +110,18 @@ export function useTaskStatus() {
 	}, [firstLoadTaskStatusesData, loadTaskStatuses]);
 
 	return {
-		getTaskStatuses,
-		getTaskStatusesLoading,
-		createTaskStatus,
-		createTaskStatusLoading,
-		deleteTaskStatus,
-		deleteTaskStatusLoading,
-		editTaskStatus,
-		editTaskStatusLoading,
-		reOrderTaskStatus,
-		reOrderTaskStatusLoading,
-		taskStatuses,
+		taskStatuses: taskStatuses, // Use the atom state which gets updated by onSuccess
+		loading: taskStatusesQuery.isLoading,
+
+		getTaskStatusesLoading: taskStatusesQuery.isLoading,
+		createTaskStatus: createTaskStatusMutation.mutateAsync,
+		createTaskStatusLoading: createTaskStatusMutation.isPending,
+		deleteTaskStatus: deleteTaskStatusMutation.mutateAsync,
+		deleteTaskStatusLoading: deleteTaskStatusMutation.isPending,
+		editTaskStatus: (id: string, data: ITaskStatusCreate) => updateTaskStatusMutation.mutateAsync({ id, data }),
+		editTaskStatusLoading: updateTaskStatusMutation.isPending,
+		reOrderTaskStatus: reorderTaskStatusMutation.mutateAsync,
+		reOrderTaskStatusLoading: reorderTaskStatusMutation.isPending,
 		setTaskStatuses,
 		firstLoadTaskStatusesData: handleFirstLoad,
 		loadTaskStatuses

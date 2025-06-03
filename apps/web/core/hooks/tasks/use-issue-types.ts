@@ -1,121 +1,103 @@
 'use client';
 
-import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@/core/stores';
-import { useCallback, useEffect } from 'react';
+import { userState, issueTypesListState, activeTeamIdState } from '@/core/stores';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQueryCall } from '../common/use-query';
 import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
 import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
+import { queryKeys } from '@/core/query/keys';
+import { useAuthenticateUser } from '../auth';
+import { useOrganizationTeams } from '../organizations';
+import isEqual from 'lodash/isEqual';
 
 export function useIssueType() {
 	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-
-	const { loading, queryCall } = useQueryCall(issueTypeService.getIssueTypeList);
-	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQueryCall(
-		issueTypeService.createIssueType
-	);
-	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQueryCall(
-		issueTypeService.deleteIssueType
-	);
-	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQueryCall(issueTypeService.editIssueType);
+	const { user: authUser } = useAuthenticateUser();
+	const { activeTeam } = useOrganizationTeams();
+	const queryClient = useQueryClient();
 
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
-	const [issueTypeFetching, setIssueTypesFetching] = useAtom(issueTypesFetchingState);
-	const { firstLoadData: firstLoadIssueTypeData, firstLoad } = useFirstLoad();
+	const { firstLoadData: firstLoadIssueTypeData } = useFirstLoad();
 
-	useEffect(() => {
-		if (firstLoad) {
-			setIssueTypesFetching(loading);
-		}
-	}, [loading, firstLoad, setIssueTypesFetching]);
+	const organizationId = authUser?.employee?.organizationId || user?.employee?.organizationId;
+	const tenantId = authUser?.employee?.tenantId || user?.tenantId;
+	const teamId = activeTeam?.id || activeTeamId;
 
-	useEffect(() => {
-		if (!firstLoad) return;
-
-		queryCall(user?.tenantId as string, user?.employee?.organizationId as string, activeTeamId || null).then(
-			(res) => {
+	// useQuery for fetching issue types
+	const issueTypesQuery = useQuery({
+		queryKey: queryKeys.issueTypes.byTeam(teamId || ''),
+		queryFn: async () => {
+			if (!tenantId || !organizationId) {
+				return { items: [] };
+			}
+			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId || null);
+			if (!isEqual(res.data?.items || [], issueTypes)) {
 				setIssueTypes(res.data?.items || []);
-				return res;
 			}
-		);
-	}, [activeTeamId, firstLoad, queryCall, setIssueTypes, user?.employee?.organizationId, user?.tenantId]);
+			return res.data;
+		}
+	});
 
-	const createIssueType = useCallback(
-		(data: IIssueTypesCreate) => {
-			if (user?.tenantId) {
-				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
-					(res) => {
-						if (res.data && res.data?.name) {
-							queryCall(
-								user?.tenantId as string,
-								user?.employee?.organizationId as string,
-								activeTeamId || null
-							).then((res) => {
-								setIssueTypes(res?.data?.items || []);
-								return res;
-							});
-						}
-
-						return res;
-					}
-				);
+	// Mutations
+	const createIssueTypeMutation = useMutation({
+		mutationFn: (data: IIssueTypesCreate) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
 			}
+			const requestData = { ...data, organizationTeamId: teamId || '' };
+			return issueTypeService.createIssueType(requestData, tenantId);
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
+			});
+		}
+	});
 
-		[createQueryCall, activeTeamId, queryCall, setIssueTypes, user?.employee?.organizationId, user?.tenantId]
-	);
-
-	const deleteIssueType = useCallback(
-		(id: string) => {
-			if (user?.tenantId) {
-				return deleteQueryCall(id).then((res) => {
-					queryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setIssueTypes(res?.data?.items || []);
-						return res;
-					});
-					return res;
-				});
+	const updateIssueTypeMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: IIssueTypesCreate }) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId is required');
 			}
+			return issueTypeService.editIssueType(id, data, tenantId);
 		},
-		[deleteQueryCall, user, activeTeamId, queryCall, setIssueTypes]
-	);
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
+			});
+		}
+	});
 
-	const editIssueType = useCallback(
-		(id: string, data: IIssueTypesCreate) => {
-			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
-					queryCall(
-						user?.tenantId as string,
-						user?.employee?.organizationId as string,
-						activeTeamId || null
-					).then((res) => {
-						setIssueTypes(res?.data?.items || []);
-						return res;
-					});
+	const deleteIssueTypeMutation = useMutation({
+		mutationFn: (id: string) => issueTypeService.deleteIssueType(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
+			});
+		}
+	});
 
-					return eRes;
-				});
-			}
-		},
-		[user, activeTeamId, editQueryCall, queryCall, setIssueTypes]
-	);
+	const loadIssueTypes = useCallback(async () => {
+		return issueTypesQuery.data;
+	}, [issueTypesQuery.data]);
+
+	const handleFirstLoad = useCallback(async () => {
+		await loadIssueTypes();
+		firstLoadIssueTypeData();
+	}, [firstLoadIssueTypeData, loadIssueTypes]);
 
 	return {
-		loading: issueTypeFetching,
-		issueTypes,
-		issueTypeFetching,
-		firstLoadIssueTypeData,
-		createIssueType,
-		createIssueTypeLoading,
-		deleteIssueTypeLoading,
-		deleteIssueType,
-		editIssueTypeLoading,
-		editIssueType
+		issueTypes: issueTypes,
+		loading: issueTypesQuery.isLoading,
+		firstLoadIssueTypeData: handleFirstLoad,
+		createIssueType: createIssueTypeMutation.mutateAsync,
+		createIssueTypeLoading: createIssueTypeMutation.isPending,
+		deleteIssueTypeLoading: deleteIssueTypeMutation.isPending,
+		deleteIssueType: deleteIssueTypeMutation.mutateAsync,
+		editIssueTypeLoading: updateIssueTypeMutation.isPending,
+		editIssueType: (id: string, data: IIssueTypesCreate) => updateIssueTypeMutation.mutateAsync({ id, data })
 	};
 }

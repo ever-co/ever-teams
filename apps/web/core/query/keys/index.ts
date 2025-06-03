@@ -1,5 +1,3 @@
-// apps/web/core/query/keys/index.ts
-
 /**
  * Centralize all query keys used by Tanstack Query.
  * Each key is defined once for better consistency.
@@ -56,12 +54,70 @@ export const queryKeys = {
 		joinRequests: (teamId: string) => ['organization-teams', teamId, 'join-requests'] as const
 	},
 
+	tags: {
+		all: ['tags'] as const
+	},
+
 	// Keys related to tasks
 	tasks: {
 		all: ['tasks'] as const,
 		detail: (taskId: string) => ['tasks', taskId] as const,
 		byEmployee: (employeeId: string) => ['tasks', 'by-employee', employeeId] as const,
-		byTeam: (teamId: string) => ['tasks', 'by-team', teamId] as const
+		byTeam: (teamId: string) => ['tasks', 'by-team', teamId] as const,
+		byTeamAndProject: (teamId: string, projectId: string) =>
+			['tasks', 'by-team', teamId, 'project', projectId] as const,
+		statistics: (teamId?: string) => ['tasks', 'statistics', teamId] as const,
+		activity: (taskId: string) => ['tasks', taskId, 'activity'] as const,
+		linked: (taskId: string) => ['tasks', taskId, 'linked'] as const
+	},
+
+	// Keys related to task statuses
+	taskStatuses: {
+		all: ['task-statuses'] as const,
+		byTeam: (teamId: string) => ['task-statuses', 'by-team', teamId] as const,
+		detail: (statusId: string) => ['task-statuses', statusId] as const
+	},
+
+	// Keys related to task priorities
+	taskPriorities: {
+		all: ['task-priorities'] as const,
+		byTeam: (teamId: string) => ['task-priorities', 'by-team', teamId] as const,
+		detail: (priorityId: string) => ['task-priorities', priorityId] as const
+	},
+
+	// Keys related to task sizes
+	taskSizes: {
+		all: ['task-sizes'] as const,
+		byTeam: (teamId: string) => ['task-sizes', 'by-team', teamId] as const,
+		detail: (sizeId: string) => ['task-sizes', sizeId] as const
+	},
+
+	// Keys related to task labels (tags)
+	taskLabels: {
+		all: ['task-labels'] as const,
+		byTeam: (teamId: string) => ['task-labels', 'by-team', teamId] as const,
+		detail: (labelId: string) => ['task-labels', labelId] as const
+	},
+
+	// Keys related to issue types
+	issueTypes: {
+		all: ['issue-types'] as const,
+		byTeam: (teamId: string) => ['issue-types', 'by-team', teamId] as const,
+		detail: (issueTypeId: string) => ['issue-types', issueTypeId] as const
+	},
+
+	// Keys related to task versions
+	taskVersions: {
+		all: ['task-versions'] as const,
+		byTeam: (teamId: string) => ['task-versions', 'by-team', teamId] as const,
+		detail: (versionId: string) => ['task-versions', versionId] as const
+	},
+
+	// Keys related to task related issue types
+	taskRelatedIssueTypes: {
+		all: ['task-related-issue-types'] as const,
+		byTeam: (teamId: string) => ['task-related-issue-types', 'by-team', teamId] as const,
+		detail: (relatedIssueTypeId: string) => ['task-related-issue-types', relatedIssueTypeId] as const
 	},
 
 	// Keys related to projects
