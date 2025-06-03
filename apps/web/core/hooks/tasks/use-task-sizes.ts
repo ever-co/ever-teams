@@ -4,38 +4,71 @@ import { activeTeamIdState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { useQueryCall } from '../common/use-query';
 import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
+import { queryKeys } from '@/core/query/keys';
+import { useOrganizationTeams } from '../organizations';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
+	const { activeTeam } = useOrganizationTeams();
+	const queryClient = useQueryClient();
 
-	const {
-		loading: getTaskSizesLoading,
-		queryCall: getTaskSizesQueryCall,
-		loadingRef: getTaskSizesLoadingRef
-	} = useQueryCall(taskSizeService.getTaskSizes);
-	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQueryCall(
-		taskSizeService.createTaskSize
-	);
-	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQueryCall(
-		taskSizeService.deleteTaskSize
-	);
-	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQueryCall(
-		taskSizeService.editTaskSize
-	);
+	const teamId = activeTeam?.id || activeTeamId;
+
+	// useQuery for fetching task sizes
+	const taskSizesQuery = useQuery({
+		queryKey: queryKeys.taskSizes.byTeam(teamId || ''),
+		queryFn: async () => {
+			const res = await taskSizeService.getTaskSizes();
+
+			setTaskSizes(res.data.items);
+
+			return res;
+		}
+	});
+
+	// Mutations
+	const createTaskSizeMutation = useMutation({
+		mutationFn: (data: ITaskSizesCreate) => {
+			const requestData = { ...data, organizationTeamId: teamId || '' };
+			return taskSizeService.createTaskSize(requestData);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const updateTaskSizeMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ITaskSizesCreate }) => {
+			const requestData = { ...data, organizationTeamId: teamId || '' };
+			return taskSizeService.editTaskSize(id, requestData);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
+			});
+		}
+	});
+
+	const deleteTaskSizeMutation = useMutation({
+		mutationFn: (id: string) => taskSizeService.deleteTaskSize(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
+			});
+		}
+	});
 
 	const loadTaskSizes = useCallback(async () => {
 		try {
-			if (getTaskSizesLoadingRef.current) {
-				return;
-			}
-
-			const res = await getTaskSizesQueryCall();
+			const res = taskSizesQuery.data;
 
 			if (res?.data?.items) {
 				setTaskSizes(res?.data?.items || []);
@@ -43,47 +76,7 @@ export function useTaskSizes() {
 		} catch (error) {
 			console.error('Failed to load task sizes:', error);
 		}
-	}, [getTaskSizesLoadingRef, getTaskSizesQueryCall, setTaskSizes]);
-
-	const createTaskSize = useCallback(
-		async (data: ITaskSizesCreate) => {
-			try {
-				const res = await createTaskSizeQueryCall({ ...data, organizationTeamId: activeTeamId });
-
-				return res.data;
-			} catch (error) {
-				console.error('Failed to create task size:', error);
-			}
-		},
-
-		[createTaskSizeQueryCall, activeTeamId]
-	);
-
-	const deleteTaskSize = useCallback(
-		async (id: string) => {
-			try {
-				const res = await deleteTaskSizeQueryCall(id);
-
-				return res.data;
-			} catch (error) {
-				console.error('Failed to delete task size:', error);
-			}
-		},
-		[deleteTaskSizeQueryCall]
-	);
-
-	const editTaskSize = useCallback(
-		async (id: string, data: ITaskSizesCreate) => {
-			try {
-				const res = await editTaskSizeQueryCall(id, { ...data, organizationTeamId: activeTeamId });
-
-				return res.data;
-			} catch (error) {
-				console.error('Failed to edit task size:', error);
-			}
-		},
-		[editTaskSizeQueryCall, activeTeamId]
-	);
+	}, [setTaskSizes]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskSizes();
@@ -92,15 +85,15 @@ export function useTaskSizes() {
 	}, [firstLoadTaskSizesData, loadTaskSizes]);
 
 	return {
-		loading: getTaskSizesLoading,
 		taskSizes,
+		loading: taskSizesQuery.isLoading,
 		firstLoadTaskSizesData: handleFirstLoad,
-		createTaskSize,
-		deleteTaskSize,
-		createTaskSizeLoading,
-		deleteTaskSizeLoading,
-		editTaskSizeLoading,
-		editTaskSize,
+		createTaskSize: createTaskSizeMutation.mutateAsync,
+		deleteTaskSize: deleteTaskSizeMutation.mutateAsync,
+		createTaskSizeLoading: createTaskSizeMutation.isPending,
+		deleteTaskSizeLoading: deleteTaskSizeMutation.isPending,
+		editTaskSizeLoading: updateTaskSizeMutation.isPending,
+		editTaskSize: (id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
 		setTaskSizes,
 		loadTaskSizes
 	};

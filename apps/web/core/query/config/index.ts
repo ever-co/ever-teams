@@ -1,4 +1,3 @@
-// apps/web/core/query/config/index.ts
 import { isServer, QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
