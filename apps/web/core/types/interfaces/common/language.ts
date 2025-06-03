@@ -32,7 +32,7 @@ export interface ILanguageItemList {
  */
 export interface UseLanguageSettingsReturn {
 	/** Function to load languages data from the API */
-	loadLanguagesData: () => Promise<any>;
+	loadLanguagesData: () => Promise<{ data: PaginationResponse<TLanguageItemList> | { items: []; total: 0 } }>;
 	/** Loading state for the languages query */
 	loading: boolean;
 	/** Array of available languages filtered by APPLICATION_LANGUAGES_CODE */
