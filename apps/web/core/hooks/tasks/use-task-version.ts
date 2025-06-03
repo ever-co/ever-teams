@@ -61,9 +61,6 @@ export function useTaskVersion() {
 
 	const deleteTaskVersionMutation = useMutation({
 		mutationFn: (id: string) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
-			}
 			return taskVersionService.deleteTaskVersion(id);
 		},
 		onSuccess: () => {
@@ -89,7 +86,7 @@ export function useTaskVersion() {
 
 	const loadTaskVersionData = useCallback(() => {
 		return taskVersionsQuery.data;
-	}, [user, activeTeamId, setTaskVersion, taskVersion]);
+	}, [taskVersionsQuery.data]);
 
 	return {
 		loading: taskVersionFetching,

@@ -27,10 +27,11 @@ export function useTaskLabels() {
 	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
 	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
 
-	// useQuery for fetching task labels
-	const taskLabelsQuery = useQuery({
-		queryKey: queryKeys.taskLabels.byTeam(teamId || ''),
-		queryFn: async () => {
+const taskLabelsQuery = useQuery({
+   queryKey: queryKeys.taskLabels.byTeam(teamId!),
+   queryFn: async () => { /* ... */ },
+  enabled: Boolean(teamId && tenantId && organizationId)
+ });
 			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId || null);
 
 			setTaskLabels(res.data.items);
