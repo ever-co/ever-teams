@@ -42,8 +42,14 @@ class TagService extends APIService {
 			return validatePaginationResponse(tagSchema, response.data, 'getTags API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Tag validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
+				this.logger.error(
+					'Tag validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TagService'
+				);
 			}
 			throw error;
 		}
@@ -71,7 +77,14 @@ class TagService extends APIService {
 			return validateApiResponse(tagSchema, response.data, 'createTag API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Tag creation validation failed:', error.message);
+				this.logger.error(
+					'Tag creation validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TagService'
+				);
 			}
 			throw error;
 		}
@@ -92,7 +105,14 @@ class TagService extends APIService {
 			return validateApiResponse(tagSchema, response.data, 'deleteTag API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Tag deletion validation failed:', error.message);
+				this.logger.error(
+					'Tag deletion validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TagService'
+				);
 			}
 			throw error;
 		}
@@ -116,7 +136,14 @@ class TagService extends APIService {
 			return validateApiResponse(tagSchema, response.data, 'updateTag API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Tag update validation failed:', error.message);
+				this.logger.error(
+					'Tag update validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TagService'
+				);
 			}
 			throw error;
 		}
@@ -144,7 +171,14 @@ class TagService extends APIService {
 			return validatePaginationResponse(tagSchema, response.data, 'getTagsByOrganization API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Tags by organization validation failed:', error.message);
+				this.logger.error(
+					'Tags by organization validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TagService'
+				);
 			}
 			throw error;
 		}
