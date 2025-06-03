@@ -76,6 +76,13 @@ export const queryKeys = {
 		dailyReport: (date: string) => ['timesheet', 'daily-report', date] as const,
 		timeLog: (logId: string) => ['timesheet', 'time-log', logId] as const
 		// ...
+	},
+
+	// Keys related to languages
+	languages: {
+		all: ['languages'] as const,
+		system: (isSystem: boolean) => ['languages', 'system', isSystem] as const,
+		byCode: (code: string) => ['languages', 'by-code', code] as const
 	}
 
 	// ... Add all other entities here, using kebab-case for identifiers
