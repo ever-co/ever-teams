@@ -145,5 +145,12 @@ export const queryKeys = {
 		all: ['currencies'] as const,
 		byOrganization: (tenantId: string, organizationId: string) =>
 			['currencies', 'organization', tenantId, organizationId] as const
+	},
+
+	// Keys related to integration types
+	integrations: {
+		all: ['integrations'] as const,
+		types: (tenantId: string) => ['integrations', 'types', tenantId] as const,
+		byTenant: (tenantId: string) => ['integrations', 'tenant', tenantId] as const
 	}
 };

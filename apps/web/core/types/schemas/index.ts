@@ -21,6 +21,9 @@ export * from './team/organization-team.schema';
 export * from './team/organization-team-employee.schema';
 export * from './timer/timer-status.schema';
 
+// Integration schemas
+export * from './integrations/integration-type.schema';
+
 // Validation utilities - Helper functions for schema validation
 export * from './utils/validation';
 
