@@ -28,32 +28,28 @@ export function useGitHubIntegration() {
 	const [repositoriesIntegrationId, setRepositoriesIntegrationId] = useState<string | null>(null);
 
 	// React Query for GitHub metadata
-	const metadataQueryFn = useCallback(() => {
-		if (!metadataIntegrationId) throw new Error('Integration ID is required for metadata');
-		return githubService.getGithubIntegrationMetadata(metadataIntegrationId);
-	}, [metadataIntegrationId]);
-
 	const metadataQuery = useQuery({
 		queryKey: metadataIntegrationId
 			? queryKeys.integrations.github.metadata(tenantId, organizationId, metadataIntegrationId)
 			: ['integrations', 'github', 'metadata', 'disabled'],
-		queryFn: metadataQueryFn,
+		queryFn: () => {
+			if (!metadataIntegrationId) throw new Error('Integration ID is required for metadata');
+			return githubService.getGithubIntegrationMetadata(metadataIntegrationId);
+		},
 		enabled: !!metadataIntegrationId,
 		staleTime: 1000 * 60 * 10, // GitHub metadata is relatively stable, cache for 10 minutes
 		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
 	});
 
 	// React Query for GitHub repositories
-	const repositoriesQueryFn = useCallback(() => {
-		if (!repositoriesIntegrationId) throw new Error('Integration ID is required for repositories');
-		return githubService.getGithubIntegrationRepositories(repositoriesIntegrationId);
-	}, [repositoriesIntegrationId]);
-
 	const repositoriesQuery = useQuery({
 		queryKey: repositoriesIntegrationId
 			? queryKeys.integrations.github.repositories(tenantId, organizationId, repositoriesIntegrationId)
 			: ['integrations', 'github', 'repositories', 'disabled'],
-		queryFn: repositoriesQueryFn,
+		queryFn: () => {
+			if (!repositoriesIntegrationId) throw new Error('Integration ID is required for repositories');
+			return githubService.getGithubIntegrationRepositories(repositoriesIntegrationId);
+		},
 		enabled: !!repositoriesIntegrationId,
 		staleTime: 1000 * 60 * 5, // GitHub repositories change more frequently, cache for 5 minutes
 		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
@@ -90,14 +86,23 @@ export function useGitHubIntegration() {
 	});
 
 	const oAuthGitHubMutation = useMutation({
-		mutationFn: (params: { code: string; state: string }) =>
-			githubService.oAuthEndpointAuthorization({
+		mutationFn: (params: { code: string; state: string }) => {
+			// Safely parse state parameter
+			const stateParts = params.state.split('_');
+			if (stateParts.length !== 2) {
+				throw new Error(
+					`Invalid state format: ${params.state}. Expected format: 'installation_id_setup_action'`
+				);
+			}
+
+			return githubService.oAuthEndpointAuthorization({
 				tenantId: user?.tenantId as string,
 				organizationId: user?.employee?.organizationId as string,
-				installation_id: params.state.split('_')[0], // Extract installation_id from state
-				setup_action: params.state.split('_')[1], // Extract setup_action from state
+				installation_id: stateParts[0],
+				setup_action: stateParts[1],
 				code: params.code
-			}),
+			});
+		},
 		onSuccess: () => {
 			// Invalidate GitHub-related queries after successful OAuth
 			queryClient.invalidateQueries({

@@ -13,10 +13,17 @@ export function useIntegration(integrationTypeId?: string, searchQuery?: string)
 	const [queryParams, setQueryParams] = useState<{
 		integrationTypeId: string;
 		searchQuery: string;
-	} | null>({
-		integrationTypeId: integrationTypeId || '',
-		searchQuery: searchQuery || ''
-	});
+	} | null>(null);
+
+	// Initialize query params when hook parameters change
+	useEffect(() => {
+		if (integrationTypeId) {
+			setQueryParams({
+				integrationTypeId,
+				searchQuery: searchQuery || ''
+			});
+		}
+	}, [integrationTypeId, searchQuery]);
 	const queryFn = useCallback(
 		() => integrationService.getIntegration(queryParams!.integrationTypeId, queryParams!.searchQuery),
 		[queryParams]

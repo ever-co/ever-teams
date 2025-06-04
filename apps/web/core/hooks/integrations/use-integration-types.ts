@@ -1,5 +1,5 @@
 import { integrationTypesState } from '@/core/stores';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { integrationService } from '@/core/services/client/api';
 import { useQuery } from '@tanstack/react-query';
@@ -8,12 +8,17 @@ import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 export function useIntegrationTypes() {
 	const [integrationTypes, setIntegrationTypes] = useAtom(integrationTypesState);
+
+	// Memoize tenantId to avoid re-reading cookie on every render
+	const tenantId = useMemo(() => getTenantIdCookie() || '', []);
+
 	const queryFn = useCallback(() => integrationService.getIntegrationTypes(), []);
+
 	// React Query for integration types data
 	const integrationTypesQuery = useQuery({
-		queryKey: queryKeys.integrations.types(getTenantIdCookie() || ''),
+		queryKey: queryKeys.integrations.types(tenantId),
 		queryFn,
-		enabled: !!getTenantIdCookie(),
+		enabled: !!tenantId,
 		staleTime: 1000 * 60 * 30, // Integration types are stable, cache for 30 minutes
 		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
 	});
@@ -34,6 +39,7 @@ export function useIntegrationTypes() {
 
 	return {
 		loading: integrationTypesQuery.isLoading,
+		error: integrationTypesQuery.error,
 		getIntegrationTypes,
 		integrationTypes
 	};
