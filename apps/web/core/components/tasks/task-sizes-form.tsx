@@ -14,7 +14,7 @@ import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskSize } from '@/core/types/interfaces/task/task-size';
+import { TTaskSize } from '@/core/types/schemas';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -25,7 +25,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useAtomValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskSize | null>(null);
+	const [edit, setEdit] = useState<TTaskSize | null>(null);
 
 	const t = useTranslations();
 
@@ -174,7 +174,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 										/>
 
 										<ColorPicker
-											defaultColor={edit ? edit.color : undefined}
+											defaultColor={edit ? (edit.color ?? undefined) : undefined}
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>

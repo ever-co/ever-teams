@@ -28,12 +28,12 @@ export function useIssueType() {
 
 	// useQuery for fetching issue types
 	const issueTypesQuery = useQuery({
-		queryKey: queryKeys.issueTypes.byTeam(teamId || ''),
+		queryKey: queryKeys.issueTypes.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId) {
-				return { items: [] };
+			if (!tenantId || !organizationId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId || null);
+			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId);
 			if (!isEqual(res.data?.items || [], issueTypes)) {
 				setIssueTypes(res.data?.items || []);
 			}
@@ -44,39 +44,42 @@ export function useIssueType() {
 	// Mutations
 	const createIssueTypeMutation = useMutation({
 		mutationFn: (data: IIssueTypesCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return issueTypeService.createIssueType(requestData, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.issueTypes.byTeam(teamId)
+				});
 		}
 	});
 
 	const updateIssueTypeMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: IIssueTypesCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return issueTypeService.editIssueType(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.issueTypes.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteIssueTypeMutation = useMutation({
 		mutationFn: (id: string) => issueTypeService.deleteIssueType(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.issueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.issueTypes.byTeam(teamId)
+				});
 		}
 	});
 

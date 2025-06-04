@@ -7,7 +7,6 @@ import { useAtomValue } from 'jotai';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskPriorities } from '@/core/hooks';
-import { ITaskPriority } from '@/core/types/interfaces/task/task-priority';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -15,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { InputField } from '../duplicated-components/_input';
+import { TTaskPriority } from '@/core/types/schemas';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -25,7 +25,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 	const user = useAtomValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskPriority | null>(null);
+	const [edit, setEdit] = useState<TTaskPriority | null>(null);
 	const t = useTranslations();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
@@ -173,7 +173,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 										/>
 
 										<ColorPicker
-											defaultColor={edit ? edit.color : undefined}
+											defaultColor={edit ? (edit.color ?? undefined) : undefined}
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>

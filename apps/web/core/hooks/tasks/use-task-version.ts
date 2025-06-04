@@ -31,12 +31,12 @@ export function useTaskVersion() {
 
 	// useQuery for fetching task versions
 	const taskVersionsQuery = useQuery({
-		queryKey: queryKeys.taskVersions.byTeam(teamId || ''),
+		queryKey: queryKeys.taskVersions.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId) {
-				return { items: [] };
+			if (!tenantId || !organizationId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId || null);
+			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId);
 			if (!isEqual(res.data?.items || [], taskVersion)) {
 				setTaskVersion(res.data?.items || []);
 			}
@@ -46,15 +46,16 @@ export function useTaskVersion() {
 
 	const createTaskVersionMutation = useMutation({
 		mutationFn: (data: ITaskVersionCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskVersionService.createTaskVersion(data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskVersions.byTeam(teamId)
+				});
 		}
 	});
 
@@ -63,23 +64,25 @@ export function useTaskVersion() {
 			return taskVersionService.deleteTaskVersion(id);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskVersions.byTeam(teamId)
+				});
 		}
 	});
 
 	const editTaskVersionMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskVersionCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskVersionService.editTaskVersion(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskVersions.byTeam(teamId)
+				});
 		}
 	});
 

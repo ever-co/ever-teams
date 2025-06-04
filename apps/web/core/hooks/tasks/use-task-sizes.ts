@@ -22,11 +22,11 @@ export function useTaskSizes() {
 
 	// useQuery for fetching task sizes
 	const taskSizesQuery = useQuery({
-		queryKey: queryKeys.taskSizes.byTeam(teamId || ''),
+		queryKey: queryKeys.taskSizes.byTeam(teamId),
 		queryFn: async () => {
 			const res = await taskSizeService.getTaskSizes();
 
-			setTaskSizes(res.data.items);
+			setTaskSizes(res.items);
 
 			return res;
 		}
@@ -35,34 +35,37 @@ export function useTaskSizes() {
 	// Mutations
 	const createTaskSizeMutation = useMutation({
 		mutationFn: (data: ITaskSizesCreate) => {
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.createTaskSize(requestData);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskSizes.byTeam(teamId)
+				});
 		}
 	});
 
 	const updateTaskSizeMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskSizesCreate }) => {
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.editTaskSize(id, requestData);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskSizes.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteTaskSizeMutation = useMutation({
 		mutationFn: (id: string) => taskSizeService.deleteTaskSize(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskSizes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskSizes.byTeam(teamId)
+				});
 		}
 	});
 
@@ -70,8 +73,8 @@ export function useTaskSizes() {
 		try {
 			const res = taskSizesQuery.data;
 
-			if (res?.data?.items) {
-				setTaskSizes(res?.data?.items || []);
+			if (res?.items) {
+				setTaskSizes(res?.items || []);
 			}
 		} catch (error) {
 			console.error('Failed to load task sizes:', error);

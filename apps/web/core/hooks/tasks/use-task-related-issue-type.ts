@@ -30,16 +30,12 @@ export function useTaskRelatedIssueType() {
 
 	// useQuery for fetching task related issue types
 	const taskRelatedIssueTypesQuery = useQuery({
-		queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || ''),
+		queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId) {
-				return { items: [] };
+			if (!tenantId || !organizationId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(
-				tenantId,
-				organizationId,
-				teamId || null
-			);
+			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
 			if (!isEqual(res.data?.items || [], taskRelatedIssueType)) {
 				setTaskRelatedIssueType(res.data?.items || []);
 			}
@@ -49,39 +45,42 @@ export function useTaskRelatedIssueType() {
 
 	const createTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: (data: ITaskRelatedIssueTypeCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskRelatedIssueTypeService.createTaskRelatedIssueType(requestData, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: (id: string) => taskRelatedIssueTypeService.deleteTaskRelatedIssueType(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
+				});
 		}
 	});
 
 	const editTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskRelatedIssueTypeCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskRelatedIssueTypeService.editTaskRelatedIssueType(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
+				});
 		}
 	});
 

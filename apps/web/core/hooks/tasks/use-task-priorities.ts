@@ -29,15 +29,15 @@ export function useTaskPriorities() {
 
 	// useQuery for fetching task priorities
 	const taskPrioritiesQuery = useQuery({
-		queryKey: queryKeys.taskPriorities.byTeam(teamId || ''),
+		queryKey: queryKeys.taskPriorities.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId) {
-				return Promise.resolve({ items: [] });
+			if (!tenantId || !organizationId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 
-			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId || null);
+			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
 
-			setTaskPriorities(res.data.items);
+			setTaskPriorities(res.items);
 
 			return res;
 		}
@@ -46,39 +46,42 @@ export function useTaskPriorities() {
 	// Mutations
 	const createTaskPriorityMutation = useMutation({
 		mutationFn: (data: ITaskPrioritiesCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskPriorityService.createTaskPriority(requestData, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskPriorities.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskPriorities.byTeam(teamId)
+				});
 		}
 	});
 
 	const updateTaskPriorityMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskPrioritiesCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskPriorityService.editTaskPriority(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskPriorities.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskPriorities.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteTaskPriorityMutation = useMutation({
 		mutationFn: (id: string) => taskPriorityService.deleteTaskPriority(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskPriorities.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskPriorities.byTeam(teamId)
+				});
 		}
 	});
 

@@ -31,51 +31,54 @@ export function useTaskStatus() {
 
 	// useQuery for fetching task statuses
 	const taskStatusesQuery = useQuery({
-		queryKey: queryKeys.taskStatuses.byTeam(teamId || ''),
+		queryKey: queryKeys.taskStatuses.byTeam(teamId),
 		queryFn: () => {
-			if (!(organizationId && teamId && tenantId)) {
+			if (!organizationId || !teamId || !tenantId) {
 				throw new Error('Required parameters missing: organizationId, teamId, and tenantId are required');
 			}
-			return taskStatusService.getTaskStatuses(tenantId, organizationId, teamId || null);
+			return taskStatusService.getTaskStatuses(tenantId, organizationId, teamId);
 		}
 	});
 
 	// Mutations using useQuery pattern
 	const createTaskStatusMutation = useMutation({
 		mutationFn: (data: ITaskStatusCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			const requestData = { ...data, organizationTeamId: activeTeamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskStatusService.createTaskStatus(requestData, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskStatuses.byTeam(teamId)
+				});
 		}
 	});
 
 	const updateTaskStatusMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskStatusCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskStatusService.editTaskStatus(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskStatuses.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteTaskStatusMutation = useMutation({
 		mutationFn: (id: string) => taskStatusService.deleteTaskStatus(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskStatuses.byTeam(teamId)
+				});
 		}
 	});
 
@@ -87,9 +90,10 @@ export function useTaskStatus() {
 			return taskStatusService.editTaskStatusOrder(data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskStatuses.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskStatuses.byTeam(teamId)
+				});
 		}
 	});
 

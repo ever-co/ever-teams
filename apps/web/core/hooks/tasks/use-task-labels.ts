@@ -29,9 +29,12 @@ export function useTaskLabels() {
 
 	// useQuery for fetching task labels
 	const taskLabelsQuery = useQuery({
-		queryKey: queryKeys.taskLabels.byTeam(teamId || ''),
+		queryKey: queryKeys.taskLabels.byTeam(teamId),
 		queryFn: async () => {
-			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId || null);
+			if (!tenantId || !organizationId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
+			}
+			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId);
 
 			setTaskLabels(res.data.items);
 
@@ -42,39 +45,42 @@ export function useTaskLabels() {
 	// Mutations
 	const createTaskLabelMutation = useMutation({
 		mutationFn: (data: ITagCreate) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			const requestData = { ...data, organizationTeamId: teamId || '' };
+			const requestData = { ...data, organizationTeamId: teamId };
 			return taskLabelService.createTaskLabels(requestData, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskLabels.byTeam(teamId)
+				});
 		}
 	});
 
 	const updateTaskLabelMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITagCreate }) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
+			if (!tenantId || !teamId) {
+				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskLabelService.editTaskLabels(id, data, tenantId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskLabels.byTeam(teamId)
+				});
 		}
 	});
 
 	const deleteTaskLabelMutation = useMutation({
 		mutationFn: (id: string) => taskLabelService.deleteTaskLabels(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskLabels.byTeam(teamId || '')
-			});
+			teamId &&
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.taskLabels.byTeam(teamId)
+				});
 		}
 	});
 
