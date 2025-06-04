@@ -145,5 +145,23 @@ export const queryKeys = {
 		all: ['currencies'] as const,
 		byOrganization: (tenantId: string, organizationId: string) =>
 			['currencies', 'organization', tenantId, organizationId] as const
+	},
+
+	// Keys related to integration
+	integrations: {
+		all: ['integrations'] as const,
+		types: (tenantId: string) => ['integrations', 'types', tenantId] as const,
+		byTenant: (tenantId: string) => ['integrations', 'tenant', tenantId] as const,
+		byTypeAndQuery: (integrationTypeId: string, searchQuery: string) =>
+			['integrations', 'by-type-query', integrationTypeId, searchQuery] as const,
+		tenantByName: (tenantId: string, organizationId: string, name: string) =>
+			['integrations', 'tenant-by-name', tenantId, organizationId, name] as const,
+		github: {
+			all: ['integrations', 'github'] as const,
+			metadata: (tenantId: string, organizationId: string, integrationId: string) =>
+				['integrations', 'github', 'metadata', tenantId, organizationId, integrationId] as const,
+			repositories: (tenantId: string, organizationId: string, integrationId: string) =>
+				['integrations', 'github', 'repositories', tenantId, organizationId, integrationId] as const
+		}
 	}
 };
