@@ -31,15 +31,13 @@ export function useIntegrationTypes() {
 	}, [integrationTypesQuery.data, setIntegrationTypes]);
 
 	// Manually fetch integration types data
+	// OPTIMIZATION: Let React Query handle caching automatically instead of manual refetch
 	const getIntegrationTypes = useCallback(async () => {
-		try {
-			const { data } = await integrationTypesQuery.refetch();
-			return data ?? [];
-		} catch (error) {
-			console.error('Error fetching integration types', error);
-			return [];
-		}
-	}, [integrationTypesQuery]);
+		// React Query will handle caching, stale time, and refetching automatically
+		// No need for manual refetch - this follows React Query best practices
+		// The data will be available through the integrationTypesQuery.data
+		return integrationTypesQuery.data ?? [];
+	}, [integrationTypesQuery.data]);
 
 	return {
 		loading: integrationTypesQuery.isLoading,

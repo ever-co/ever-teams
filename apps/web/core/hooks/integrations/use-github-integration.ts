@@ -169,44 +169,24 @@ export function useGitHubIntegration() {
 		[oAuthGitHubMutation]
 	);
 	// Phase 1: Migrated GET functions using React Query
-	const metaData = useCallback(
-		async (integrationId: string) => {
-			const queryKey = queryKeys.integrations.github.metadata(tenantId, organizationId, integrationId);
-			setMetadataIntegrationId(integrationId);
-			// Try to get from cache first
-			const cachedData = queryClient.getQueryData(queryKey);
-			if (cachedData) return cachedData;
+	// OPTIMIZATION: Let React Query handle caching automatically instead of manual fetchQuery
+	const metaData = useCallback(async (integrationId: string) => {
+		// Set integration ID to trigger React Query
+		setMetadataIntegrationId(integrationId);
 
-			// Fetch if not in cache
-			return await queryClient.fetchQuery({
-				queryKey,
-				queryFn: () => githubService.getGithubIntegrationMetadata(integrationId)
-			});
-		},
-		[queryClient, tenantId, organizationId]
-	);
+		// React Query will handle caching, stale time, and refetching automatically
+		// No need for manual cache checks or fetchQuery - this follows React Query best practices
+		// The data will be available through the metadataQuery.data
+	}, []);
 
-	const getRepositories = useCallback(
-		async (integrationId: string) => {
-			const queryKey = queryKeys.integrations.github.repositories(tenantId, organizationId, integrationId);
+	const getRepositories = useCallback(async (integrationId: string) => {
+		// Set integration ID to trigger React Query
+		setRepositoriesIntegrationId(integrationId);
 
-			// Set integration ID to trigger React Query
-			setRepositoriesIntegrationId(integrationId);
-
-			// If we already have cached data for this integration ID, return it immediately
-			// Try to get from cache first
-			const cachedData = queryClient.getQueryData(queryKey);
-			if (cachedData) return cachedData;
-
-			// Otherwise wait for the query to complete
-			// Fetch if not in cache
-			return await queryClient.fetchQuery({
-				queryKey,
-				queryFn: () => githubService.getGithubIntegrationRepositories(integrationId)
-			});
-		},
-		[queryClient, tenantId, organizationId]
-	);
+		// React Query will handle caching, stale time, and refetching automatically
+		// No need for manual cache checks or fetchQuery - this follows React Query best practices
+		// The data will be available through the repositoriesQuery.data
+	}, []);
 	// Phase 3: Migrated sync function using React Query mutation (maintains exact same interface)
 	const syncGitHubRepository = useCallback(
 		async (

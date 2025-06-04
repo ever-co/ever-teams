@@ -45,23 +45,10 @@ export function useIntegration(integrationTypeId?: string, searchQuery?: string)
 	}, [integrationQuery.data, setIntegration]);
 
 	// Manual fetch function that triggers React Query (maintains backward compatibility)
-	const getIntegration = useCallback(
-		async (integrationTypeId: string, searchQuery = '') => {
-			// Set query parameters to trigger React Query
-			setQueryParams({ integrationTypeId, searchQuery });
-
-			// If we already have cached data for these params, return it immediately
-			const cachedData = integrationQuery.data;
-			if (cachedData && !integrationQuery.isStale) {
-				return cachedData;
-			}
-
-			// Otherwise wait for the query to complete
-			const result = await integrationQuery.refetch();
-			return result.data || [];
-		},
-		[integrationQuery]
-	);
+	const getIntegration = useCallback(async (integrationTypeId: string, searchQuery = '') => {
+		// Set query parameters to trigger React Query
+		setQueryParams({ integrationTypeId, searchQuery });
+	}, []);
 
 	return {
 		loading: integrationQuery.isLoading,
