@@ -45,7 +45,7 @@ export function useIntegration(integrationTypeId?: string, searchQuery?: string)
 	}, [integrationQuery.data, setIntegration]);
 
 	// Manual fetch function that triggers React Query (maintains backward compatibility)
-	const getIntegration = useCallback(async (integrationTypeId: string, searchQuery = '') => {
+	const getIntegration = useCallback((integrationTypeId: string, searchQuery = '') => {
 		// Set query parameters to trigger React Query
 		setQueryParams({ integrationTypeId, searchQuery });
 	}, []);

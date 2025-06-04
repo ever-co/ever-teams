@@ -170,13 +170,12 @@ export function useGitHubIntegration() {
 	);
 	// Phase 1: Migrated GET functions using React Query
 	// OPTIMIZATION: Let React Query handle caching automatically instead of manual fetchQuery
-	const metaData = useCallback(async (integrationId: string) => {
-		// Set integration ID to trigger React Query
-		setMetadataIntegrationId(integrationId);
-
+	const metaData = useCallback((integrationId: string) => {
 		// React Query will handle caching, stale time, and refetching automatically
 		// No need for manual cache checks or fetchQuery - this follows React Query best practices
 		// The data will be available through the metadataQuery.data
+		// Set integration ID to trigger React Query
+		setMetadataIntegrationId(integrationId);
 	}, []);
 
 	const getRepositories = useCallback(async (integrationId: string) => {
