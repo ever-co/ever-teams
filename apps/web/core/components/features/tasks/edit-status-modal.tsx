@@ -52,7 +52,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					setTaskStatuses((prev) => {
 						return prev.map((el) => {
 							if (el.id === status.id) {
-								return { ...status, ...taskStatus.data };
+								return { ...status, ...taskStatus };
 							}
 							return el;
 						});

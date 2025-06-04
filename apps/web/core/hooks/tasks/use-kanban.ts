@@ -6,7 +6,7 @@ import { ITask } from '@/core/types/interfaces/task/task';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
+import { TTaskStatus } from '@/core/types/schemas';
 
 export interface IKanban {
 	[key: string]: ITask[];
@@ -120,7 +120,7 @@ export function useKanban() {
 				});
 			};
 
-			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatus) => {
+			taskStatusHook.taskStatuses.map((taskStatus: TTaskStatus) => {
 				kanban = {
 					...kanban,
 					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
@@ -136,7 +136,7 @@ export function useKanban() {
 	 * collapse or show kanban column
 	 */
 	const toggleColumn = async (column: string, status: boolean) => {
-		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatus) => {
+		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: TTaskStatus) => {
 			return taskStatus.name === column;
 		});
 
@@ -151,7 +151,7 @@ export function useKanban() {
 			taskStatusHook.setTaskStatuses((prev) => {
 				return prev.map((status) => {
 					if (status.id === columnId) {
-						return { ...status, ...updatedStatus.data };
+						return { ...status, ...updatedStatus };
 					}
 					return status;
 				});
@@ -160,14 +160,14 @@ export function useKanban() {
 	};
 
 	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatus) => {
+		const columnData = taskStatusHook.taskStatuses.find((taskStatus: TTaskStatus) => {
 			return taskStatus.name === column;
 		});
 
 		return columnData?.isCollapsed;
 	};
 	const isAllColumnCollapse = () => {
-		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatus) => {
+		return taskStatusHook.taskStatuses.every((taskStatus: TTaskStatus) => {
 			return taskStatus.isCollapsed;
 		});
 	};
@@ -187,7 +187,7 @@ export function useKanban() {
 				taskStatusHook.setTaskStatuses((prev) => {
 					return prev.map((el) => {
 						if (el.id === status.id) {
-							return { ...status, ...reOrderedStatus.data };
+							return { ...status, ...reOrderedStatus };
 						}
 						return el;
 					});

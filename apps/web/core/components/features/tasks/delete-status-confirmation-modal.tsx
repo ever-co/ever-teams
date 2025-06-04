@@ -4,12 +4,12 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
+import { TTaskStatus } from '@/core/types/schemas';
 
 interface DeleteTaskStatusModalProps {
 	open: boolean;
 	closeModal: () => void;
-	status: ITaskStatus;
+	status: TTaskStatus;
 	onCancel: () => void;
 }
 

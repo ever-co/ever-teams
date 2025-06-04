@@ -47,7 +47,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 	const { taskStatuses } = useTaskStatus();
 	const router = useRouter();
-	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
+	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
 	}, [taskStatuses]);
 
@@ -301,9 +301,9 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
-										backgroundColor: statusColorsMap.get(
-											taskStatuses.find((el) => el.name == statusId)?.name
-										)
+										backgroundColor:
+											statusColorsMap.get(taskStatuses.find((el) => el.name == statusId)?.name) ??
+											undefined
 									}}
 									className=" rounded-md flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
 									key={statusId}

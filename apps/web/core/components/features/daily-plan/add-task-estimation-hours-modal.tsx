@@ -894,8 +894,9 @@ function TaskCard(props: ITaskCardProps) {
 								<span
 									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
-										backgroundColor: status.taskStatuses.filter((s) => s.value === task.status)[0]
-											.color
+										backgroundColor:
+											status.taskStatuses.filter((s) => s.value === task.status)[0].color ??
+											undefined
 									}}
 								>
 									{task.status}

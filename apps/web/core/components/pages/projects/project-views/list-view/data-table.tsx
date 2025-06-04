@@ -74,7 +74,7 @@ export const ProjectsTable = memo(
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
 		const { taskStatuses } = useTaskStatus();
-		const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
+		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
 		}, [taskStatuses]);
 

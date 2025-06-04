@@ -14,6 +14,7 @@ export * from './common/currency.schema';
 // Entity schemas - Specific business domain schemas
 export * from './role/role.schema';
 export * from './tag/tag.schema';
+export * from './task/task-status.schema';
 export * from './organization/organization.schema';
 export * from './organization/employee.schema';
 export * from './organization/user-organization.schema';
@@ -26,19 +27,3 @@ export * from './utils/validation';
 
 // Re-export commonly used Zod types for convenience
 export { z } from 'zod';
-
-/**
- * Usage Examples:
- *
- * Basic validation:
- * import { roleSchema, validateApiResponse } from '@/core/types/schemas';
- * const validatedRole = validateApiResponse(roleSchema, apiData);
- *
- * Safe validation:
- * import { zodSafeParse, tagSchema } from '@/core/types/schemas';
- * const result = zodSafeParse(tagSchema, apiData);
- *
- * Pagination validation:
- * import { validatePaginationResponse, roleSchema } from '@/core/types/schemas';
- * const validatedRoles = validatePaginationResponse(roleSchema, paginatedData);
- */
