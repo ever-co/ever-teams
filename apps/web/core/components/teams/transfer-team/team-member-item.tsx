@@ -1,11 +1,11 @@
-import { IOrganizationTeamMember } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
-export type TeamMemberItem = DropdownItem<IOrganizationTeamMember>;
+export type TeamMemberItem = DropdownItem<IOrganizationTeamEmployee & { name: string }>;
 
-export function mapTeamMemberItems(members: IOrganizationTeamMember[]) {
-	const items = members.map((member: IOrganizationTeamMember) => {
+export function mapTeamMemberItems(members: (IOrganizationTeamEmployee & { name: string })[]) {
+	const items = members.map((member: IOrganizationTeamEmployee & { name: string }) => {
 		return {
 			key: member.id,
 			Label: ({ selected }: { selected: boolean }) => (

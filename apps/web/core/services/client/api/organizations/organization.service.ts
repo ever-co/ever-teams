@@ -1,4 +1,4 @@
-import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces';
+import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 

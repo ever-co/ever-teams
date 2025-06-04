@@ -1,100 +1,60 @@
-import { IRole } from '@/core/types/interfaces';
 import { rolesState } from '@/core/stores';
-import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQuery } from '../common/use-query';
-import { useFirstLoad } from '../common/use-first-load';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
+import { queryKeys } from '@/core/query/keys';
 
 export const useRoles = () => {
-	const [roles, setRoles] = useAtom(rolesState);
-	const { firstLoadData: firstRolesLoad } = useFirstLoad();
-	const { loading, queryCall: getRolesQueryCall } = useQuery(roleService.getRoles);
-	const { loading: createRoleLoading, queryCall: createRoleQueryCall } = useQuery(roleService.createRole);
-	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } = useQuery(roleService.updateRole);
-	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } = useQuery(roleService.deleteRole);
+	const [, setRoles] = useAtom(rolesState);
+	const queryClient = useQueryClient();
 
-	const getRoles = useCallback(async () => {
-		try {
-			const res = await getRolesQueryCall();
+	const rolesQuery = useQuery({
+		queryKey: queryKeys.roles.all,
+		queryFn: () =>
+			roleService.getRoles().then((response) => {
+				setRoles(response.items);
 
-			return res;
-		} catch (error) {
-			console.error('Failed to get roles', error);
+				return response;
+			})
+	});
+
+	const createRoleMutation = useMutation({
+		mutationFn: roleService.createRole,
+		onSuccess: (role) => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
 		}
-	}, [getRolesQueryCall]);
+	});
 
-	const createRole = useCallback(
-		async (role: IRole) => {
-			try {
-				const res = await createRoleQueryCall(role);
-
-				return res;
-			} catch (error) {
-				console.error('Failed to create role', error);
-			}
-		},
-		[createRoleQueryCall]
-	);
-
-	const updateRole = useCallback(
-		async (role: IRole) => {
-			try {
-				const res = await updateRoleQueryCall(role);
-				return res;
-			} catch (error) {
-				console.error('Failed to update role', error);
-			}
-		},
-		[updateRoleQueryCall]
-	);
-
-	const deleteRole = useCallback(
-		async (id: string) => {
-			try {
-				const res = await deleteRoleQueryCall(id);
-				return res;
-			} catch (error) {
-				console.error('Failed to delete role:', error);
-			}
-		},
-		[deleteRoleQueryCall]
-	);
-
-	const loadRoles = useCallback(async () => {
-		try {
-			const res = await getRoles();
-
-			if (res) {
-				setRoles(res.data.items);
-				return;
-			} else {
-				throw new Error('Could not load roles');
-			}
-		} catch (error) {
-			console.error('Failed to load roles', error);
+	const updateRoleMutation = useMutation({
+		mutationFn: roleService.updateRole,
+		onSuccess: (role) => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
 		}
-	}, [getRoles, setRoles]);
+	});
 
-	const handleFirstRolesLoad = useCallback(() => {
-		loadRoles();
-		firstRolesLoad();
-	}, [firstRolesLoad, loadRoles]);
+	const deleteRoleMutation = useMutation({
+		mutationFn: roleService.deleteRole,
+		onSuccess: (_, id) => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
+		}
+	});
 
 	return {
-		roles,
+		roles: rolesQuery.data?.items || [],
 		setRoles,
-		loading,
-		getRoles,
+		loading: rolesQuery.isLoading,
+		getRoles: () => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all }),
 
-		createRole,
-		createRoleLoading,
+		createRole: createRoleMutation.mutate,
+		createRoleLoading: createRoleMutation.isPending,
 
-		deleteRole,
-		deleteRoleLoading,
+		updateRole: updateRoleMutation.mutate,
+		updateRoleLoading: updateRoleMutation.isPending,
 
-		updateRole,
-		updateRoleLoading,
-		firstLoadRolesData: handleFirstRolesLoad
+		deleteRole: deleteRoleMutation.mutate,
+		deleteRoleLoading: deleteRoleMutation.isPending,
+
+		// For backward compatibility with existing code
+		firstLoadRolesData: () => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all })
 	};
 };

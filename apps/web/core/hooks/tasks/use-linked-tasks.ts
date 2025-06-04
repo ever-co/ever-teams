@@ -1,12 +1,12 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useCallback, useEffect, useState } from 'react';
 
-export function useLinkedTasks(task?: ITeamTask | null) {
-	const [tasks, setTasks] = useState<ITeamTask[]>([]);
+export function useLinkedTasks(task?: ITask | null) {
+	const [tasks, setTasks] = useState<ITask[]>([]);
 
-	const loadRelatedTasks = useCallback<(taskId: string) => Promise<ITeamTask[]>>((taskId: string) => {
+	const loadRelatedTasks = useCallback<(taskId: string) => Promise<ITask[]>>((taskId: string) => {
 		console.log(taskId);
 
 		return Promise.resolve([]);

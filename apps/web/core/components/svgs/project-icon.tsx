@@ -1,4 +1,4 @@
-import { IIconProps } from '@/core/types/interfaces';
+import { IIconProps } from './play-icon';
 
 export default function ProjectIcon(props: Partial<IIconProps>) {
 	return (

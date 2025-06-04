@@ -1,4 +1,3 @@
-import { OT_Member, RoleNameEnum } from '@/core/types/interfaces';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
@@ -13,10 +12,12 @@ import {
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {
-	member: OT_Member;
-	handleEdit?: (member: OT_Member) => void;
+	member: IOrganizationTeamEmployee;
+	handleEdit?: (member: IOrganizationTeamEmployee) => void;
 	status?: 'settings' | 'profile';
 };
 /**
@@ -39,8 +40,8 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 
 	const { isOpen, openModal, closeModal } = useModal();
 
-	const isCurrentUser = user?.employee.id === memberInfo.member?.employeeId;
-	const isManager = activeTeamManagers.findIndex((member) => member.employee.user?.id === user?.id);
+	const isCurrentUser = user?.employee?.id === memberInfo.member?.employeeId;
+	const isManager = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);
 	// };
@@ -83,7 +84,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 								</span>
 							</div> */}
 							<RolePopover />
-							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER && (
+							{isManager !== -1 && member.role?.name !== ERoleName.MANAGER && (
 								<div className="flex items-center justify-between gap-x-2">
 									<span>Time tracking</span>
 									<div
@@ -91,25 +92,26 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 										onClick={() => {
 											updateEmployee({
 												data: {
-													isTrackingEnabled: !member.employee.isTrackingEnabled,
-													id: member.employee.id,
-													organizationId: member.employee.organizationId,
-													isActive: member.employee.isActive,
-													tenantId: member.employee.tenantId
+													isTrackingEnabled: !member.employee?.isTrackingEnabled,
+													id: member.employee?.id || '',
+													organizationId: member.employee?.organizationId,
+													isActive: member.employee?.isActive,
+													tenantId: member.employee?.tenantId
 												},
-												id: member.employee.id
+												id: member.employee?.id ?? ''
 											});
 										}}
 										style={
-											member.employee.isTrackingEnabled
+											member.employee?.isTrackingEnabled
 												? { background: 'linear-gradient(to right, #ea31244d, #ea312479)' }
 												: { background: '#2ead805b' }
 										}
 									>
 										<div
-											className={` ${member.employee.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
+											className={` ${member.employee?.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee?.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
 										>
-											{!isLoading && renderTrackingIcon(member.employee.isTrackingEnabled)}
+											{!isLoading &&
+												renderTrackingIcon(member.employee?.isTrackingEnabled ?? false)}
 
 											{isLoading ? (
 												<svg
@@ -160,7 +162,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						</PopoverPanel>
 					</Transition>
 					{(status === 'settings' ||
-						(status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
+						(status === 'profile' && isManager !== -1 && member.role?.name !== ERoleName.MANAGER)) && (
 						<PopoverButton className="w-full mt-2 outline-none">
 							<ThreeCircleOutlineHorizontalIcon
 								className="w-6 text-[#292D32] relative dark:text-white"

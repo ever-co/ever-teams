@@ -1,12 +1,11 @@
-import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { pad } from './number';
-import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
-import { ITaskTimesheet } from '@/core/types/interfaces';
-export function groupDataByHour(data: ITimerSlot[]) {
-	const groupedData: { startedAt: string; stoppedAt: string; items: ITimerSlot[] }[] = [];
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
+export function groupDataByHour(data: ITimeSlot[]) {
+	const groupedData: { startedAt: string; stoppedAt: string; items: ITimeSlot[] }[] = [];
 
 	data.forEach((item) => {
-		const startHour = formatTime(item.startedAt, false);
+		const startHour = formatTime(String(item.startedAt), false);
 
 		const inInterval = groupedData.findIndex((el) => {
 			return el.startedAt == startHour;
@@ -16,8 +15,8 @@ export function groupDataByHour(data: ITimerSlot[]) {
 			groupedData[inInterval].items.push(item);
 		} else {
 			groupedData.push({
-				startedAt: formatTime(item.startedAt, false),
-				stoppedAt: formatTime(item.stoppedAt, true),
+				startedAt: formatTime(String(item.startedAt), false),
+				stoppedAt: formatTime(String(item.stoppedAt), true),
 				items: [item]
 			});
 		}
@@ -26,8 +25,8 @@ export function groupDataByHour(data: ITimerSlot[]) {
 	return groupedData.sort((a, b) => (new Date(a.stoppedAt) < new Date(b.stoppedAt) ? 1 : -1));
 }
 
-export function groupAppsByHour(apps: ITimerApps[]) {
-	const groupedData: { hour: string; totalMilliseconds: number; apps: ITimerApps[] }[] = [];
+export function groupAppsByHour(apps: IActivity[]) {
+	const groupedData: { hour: string; totalMilliseconds: number; apps: IActivity[] }[] = [];
 
 	apps.forEach((app) => {
 		const time = app.time.slice(0, 5);
@@ -49,8 +48,8 @@ export function groupAppsByHour(apps: ITimerApps[]) {
 	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
 }
 
-export function groupByTime(data: ITaskTimesheet[]) {
-	const groupedData: { date: string; items: ITaskTimesheet[] }[] = [];
+export function groupByTime(data: IActivity[]) {
+	const groupedData: { date: string; items: IActivity[] }[] = [];
 
 	data.forEach((item) => {
 		const date = new Date(item.date).toDateString();

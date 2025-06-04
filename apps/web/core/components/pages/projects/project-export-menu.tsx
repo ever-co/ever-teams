@@ -6,11 +6,11 @@ import { useTranslations } from 'next-intl';
 import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 interface IProps {
 	projects: ProjectViewDataType[];
-	activeTeam: IOrganizationTeamList | null;
+	activeTeam: IOrganizationTeam | null;
 }
 
 export function ProjectExportMenu(props: IProps) {
@@ -65,9 +65,11 @@ export function ProjectExportMenu(props: IProps) {
 														endDate: el.endDate
 															? moment(el.endDate).format('YYYY-MM-DD')
 															: '-',
-														members: el.members?.map((el) => el.employee.fullName) ?? [],
-														managers: el.managers?.map((el) => el.employee.fullName) ?? [],
-														teams: el.teams?.map((el) => el.name) ?? []
+														members:
+															el.members?.map((el) => el.employee?.fullName || '') ?? [],
+														managers:
+															el.managers?.map((el) => el.employee?.fullName || '') ?? [],
+														teams: el.teams?.map((el: IOrganizationTeam) => el.name) ?? []
 													};
 												})}
 												headers={{

@@ -4,7 +4,7 @@ import { Container, Text } from '@/core/components';
 import LeftSideSettingMenuSkeleton from '../common/skeleton/left-side-setting-menu-skeleton';
 import DangerZoneSkeleton from '../common/skeleton/danger-zone-skeleton';
 import StatusListCard from '../common/skeleton/status-list-card';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 
 const SettingsTeamSkeleton = () => {
@@ -19,7 +19,7 @@ const SettingsTeamSkeleton = () => {
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
-						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="mb-2 text-4xl font-medium">
 								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
@@ -142,13 +142,13 @@ const SettingsTeamSkeleton = () => {
 									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 								</div>
 							</div>
-						</Card>
-						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+						</EverCard>
+						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
 								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#272930]" />
 							</Text>
 							<DangerZoneSkeleton />
-						</Card>
+						</EverCard>
 					</div>
 				</div>
 			</Container>

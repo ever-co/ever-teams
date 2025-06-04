@@ -3,24 +3,31 @@ import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
-import { IInvite, IInviteProps } from '../../../types/interfaces/hooks';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
-import { useToast } from '@/core/hooks/common/use-toast';
+import { toast } from 'sonner';
 import Input from '../../duplicated-components/input';
+import { IInvite } from '@/core/types/interfaces/user/invite';
+import { ITask } from '@/core/types/interfaces/task/task';
 
-const initialValues: IInvite = {
+const initialValues: Pick<IInvite, 'email' | 'fullName'> = {
 	email: '',
-	name: ''
+	fullName: ''
 };
+
+export interface IInviteProps {
+	isOpen: boolean;
+	Fragment?: any;
+	closeModal: any;
+	task: ITask | null;
+}
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
-	const [formData, setFormData] = useState<IInvite>(initialValues);
+	const [formData, setFormData] = useState<Pick<IInvite, 'email' | 'fullName'>>(initialValues);
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
 
 	const [errors, setErrors] = useState({});
 	const t = useTranslations();
-	const { toast } = useToast();
 
 	const isLoading = inviteLoading || resendInviteLoading;
 
@@ -43,9 +50,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			resendTeamInvitation(existingInvitation.id).then(() => {
 				closeModal();
 
-				toast({
-					variant: 'default',
-					title: t('common.INVITATION_SENT'),
+				toast.success(t('common.INVITATION_SENT'), {
+					id: 'modal-invitation-sent',
 					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
 					duration: 5 * 1000
 				});
@@ -53,13 +59,12 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 			return;
 		}
 
-		inviteUser(formData.email, formData.name)
+		inviteUser(formData.email || '', formData.fullName || '')
 			.then(() => {
 				setFormData(initialValues);
 				closeModal();
-				toast({
-					variant: 'default',
-					title: t('common.INVITATION_SENT'),
+				toast.success(t('common.INVITATION_SENT'), {
+					id: 'modal-invitation-sent',
 					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
 					duration: 5 * 1000
 				});
@@ -134,7 +139,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 											type="text"
 											label={t('pages.invite.TEAM_MEMBER_FULLNAME')}
 											placeholder={t('pages.invite.TEAM_MEMBER_FULLNAME')}
-											value={formData.name}
+											value={formData.fullName || ''}
 											required={true}
 											onChange={handleChange}
 											errors={errors}

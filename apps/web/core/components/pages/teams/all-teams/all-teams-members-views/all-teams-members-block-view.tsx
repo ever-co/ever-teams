@@ -1,24 +1,28 @@
-import { IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import UserTeamBlockCard from './users-teams-block/member-block';
 
-interface Employee extends OT_Member {
-	teams: { team: IOrganizationTeamList; activeTaskId?: string | null }[];
+interface Employee extends IOrganizationTeamEmployee {
+	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
 }
 
-export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizationTeamList[] }) {
-	const employees: Employee[] = teams.flatMap((team) =>
-		team.members.map((member) => ({
-			...member,
-			teams: [{ team, activeTaskId: member.activeTaskId }]
-		}))
+export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizationTeam[] }) {
+	const employees: Employee[] = teams.flatMap(
+		(team) =>
+			team.members?.map((member) => ({
+				...member,
+				teams: [{ team, activeTaskId: member.activeTaskId }]
+			})) || []
 	);
 
 	const groupedEmployees: Record<string, Employee> = employees.reduce(
 		(acc, employee) => {
-			if (!acc[employee.employeeId]) {
+			if (employee.employeeId && !acc[employee.employeeId]) {
 				acc[employee.employeeId] = { ...employee, teams: [] };
 			}
-			acc[employee.employeeId].teams.push(...employee.teams);
+			if (employee.employeeId && acc[employee.employeeId]) {
+				acc[employee.employeeId].teams.push(...employee.teams);
+			}
 			return acc;
 		},
 		{} as Record<string, Employee>

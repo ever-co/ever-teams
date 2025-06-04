@@ -1,6 +1,5 @@
 // import { useOrganizationTeams } from '@app/hooks';
 import { useOrganizationTeams } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
 import { activeTeamTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
@@ -10,6 +9,7 @@ import { TaskLabels } from '../tasks/task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from '../tasks/task-status';
 import { useTranslations } from 'next-intl';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();

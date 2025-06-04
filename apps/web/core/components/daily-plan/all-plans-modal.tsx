@@ -7,15 +7,16 @@ import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-es
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
-import { DailyPlanStatusEnum, IDailyPlan } from '@/core/types/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { ActiveModifiers } from 'react-day-picker';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -74,19 +75,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => myDailyPlans.items.find((plan) => isSameDate(plan.date, moment().toDate())),
+		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().toDate())),
 		[isSameDate, myDailyPlans.items]
 	);
 
 	const tomorrowPlan = useMemo(
-		() => myDailyPlans.items.find((plan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
+		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
 		[isSameDate, myDailyPlans.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			myDailyPlans.items.find((plan) => {
+			myDailyPlans.items.find((plan: IDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
 		[customDate, myDailyPlans.items, isSameDate]
@@ -161,10 +162,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			await createDailyPlan({
 				workTimePlanned: 0,
 				date: new Date(moment(customDate).format('YYYY-MM-DD')),
-				status: DailyPlanStatusEnum.OPEN,
+				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee.id,
-				organizationId: user?.employee.organizationId
+				employeeId: user?.employee?.id,
+				organizationId: user?.employee?.organizationId
 			});
 
 			handleCalendarSelect();
@@ -175,15 +176,15 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		createDailyPlan,
 		customDate,
 		handleCalendarSelect,
-		user?.employee.id,
-		user?.employee.organizationId,
+		user?.employee?.id,
+		user?.employee?.organizationId,
 		user?.tenantId
 	]);
 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = myDailyPlans.items.find((plan) => {
+			const existPlan = myDailyPlans.items.find((plan: IDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 
@@ -262,9 +263,9 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			closeModal={() => null}
 			className={clsxm('w-[36rem]')}
 		>
-			<Card className="w-full  h-full overflow-hidden" shadow="custom">
-				<div className="w-full flex flex-col gap-3 ">
-					<div className="relative w-full h-12  flex items-center justify-center">
+			<EverCard className="w-full h-full overflow-hidden" shadow="custom">
+				<div className="flex flex-col w-full gap-3 ">
+					<div className="relative flex items-center justify-center w-full h-12">
 						{selectedTab === 'Calendar' && showCustomPlan && (
 							<Tooltip label="Go back to the calendar">
 								<button
@@ -272,7 +273,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										setShowCustomPlan(false);
 										setShowCalendar(true);
 									}}
-									className=" absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-3"
+									className="absolute left-0 flex items-center gap-3 -translate-y-1/2  top-1/2"
 								>
 									<span className="rotate-180">
 										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />
@@ -282,12 +283,12 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 							</Tooltip>
 						)}
 
-						<Text.Heading as="h3" className="uppercase text-center">
+						<Text.Heading as="h3" className="text-center uppercase">
 							{displayPlanTitle(selectedTab, selectedPlan)}
 						</Text.Heading>
 					</div>
-					<div className="w-full h-12 flex items-center justify-between">
-						<ul className="w-full flex items-center gap-3">
+					<div className="flex items-center justify-between w-full h-12">
+						<ul className="flex items-center w-full gap-3">
 							{tabs.map((tab, index) => (
 								<li
 									key={index}
@@ -305,14 +306,14 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
-						<div className="flex h-8 items-center justify-between border rounded ">
+						<div className="flex items-center justify-between h-8 border rounded ">
 							<span
 								onClick={() =>
 									navigationMode === 'DATE'
 										? arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())
 										: moveBetweenPlans(false)
 								}
-								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
+								className="flex items-center justify-center h-full px-2 rotate-180 cursor-pointer"
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
@@ -323,7 +324,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										? arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())
 										: moveBetweenPlans(true)
 								}
-								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
+								className="flex items-center justify-center h-full px-2 cursor-pointer "
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
@@ -332,11 +333,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 					<div className="w-full flex flex-col items-center h-[34rem]">
 						{selectedTab === 'Calendar' && showCalendar ? (
-							<div className="w-full h-full flex-col flex items-center justify-between">
+							<div className="flex flex-col items-center justify-between w-full h-full">
 								<div className="w-full grow">
-									<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
-										<p className=" text-sm font-medium">{t('common.plan.CHOOSE_DATE')}</p>
-										<div className="p-3 border flex  items-center  justify-center rounded-md">
+									<div className="flex flex-col items-center justify-center w-full h-full gap-4">
+										<p className="text-sm font-medium ">{t('common.plan.CHOOSE_DATE')}</p>
+										<div className="flex items-center justify-center p-3 border rounded-md">
 											<FuturePlansCalendar
 												selectedPlan={customDate}
 												setSelectedPlan={setCustomDate}
@@ -349,7 +350,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									</div>
 								</div>
 
-								<div className="flex items-center justify-between h-14 w-full">
+								<div className="flex items-center justify-between w-full h-14">
 									<Button
 										variant="outline"
 										type="submit"
@@ -397,7 +398,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										selectedDate={customDate}
 									/>
 								) : (
-									<div className="flex justify-center items-center h-full">
+									<div className="flex items-center justify-center h-full">
 										<NoData component={<ValueNoneIcon />} text={t('common.plan.PLAN_NOT_FOUND')} />
 									</div>
 								)}
@@ -405,7 +406,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						)}
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 });

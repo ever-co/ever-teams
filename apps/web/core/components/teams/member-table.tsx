@@ -2,7 +2,6 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IRole, OT_Member, OT_Role } from '@/core/types/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -19,11 +18,14 @@ import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
+import { TRole } from '@/core/types/schemas';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
-export const MemberTable = ({ members }: { members: OT_Member[] }) => {
+export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
-		usePagination<OT_Member>(members, 5);
+		usePagination<IEmployee>(members, 5);
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
@@ -31,25 +33,30 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
-	const editMemberRef = useRef<OT_Member | null>(null);
+	const editMemberRef = useRef<IOrganizationTeamEmployee | null>(null);
 
 	const updateTeamMember = useCallback(
-		(updatedMember: OT_Member) => {
+		(updatedMember: IOrganizationTeamEmployee) => {
 			const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 			if (teamIndex === -1) return;
 
 			const tempTeams = cloneDeep(organizationTeams);
-			const memberIndex = tempTeams[teamIndex].members.findIndex((member) => member.id === updatedMember.id);
+			const memberIndex = tempTeams?.[teamIndex].members?.findIndex(
+				(member: IOrganizationTeamEmployee) => member.id === updatedMember.id
+			);
 
 			if (memberIndex === -1) return;
 
-			tempTeams[teamIndex].members[memberIndex] = updatedMember;
+			if (tempTeams && tempTeams[teamIndex] && tempTeams[teamIndex].members && memberIndex !== undefined) {
+				const members = tempTeams[teamIndex].members!;
+				members[memberIndex] = updatedMember;
+			}
 			setOrganizationTeams(tempTeams);
 		},
 		[activeTeamId, organizationTeams, setOrganizationTeams]
 	);
 
-	const handleEdit = useCallback((member: OT_Member) => {
+	const handleEdit = useCallback((member: IOrganizationTeamEmployee) => {
 		editMemberRef.current = member;
 	}, []);
 
@@ -60,8 +67,8 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					.filter((member: OT_Member) => member.role?.name === 'MANAGER')
-					.map((manager: OT_Member) => manager.employee.id) || [];
+					?.filter((member: IOrganizationTeamEmployee) => member.role?.name === 'MANAGER')
+					.map((manager: IOrganizationTeamEmployee) => manager.employee?.id || '') || [];
 
 			if (isPromotingToManager) {
 				// Add new manager
@@ -85,10 +92,10 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	);
 
 	const handleRoleChange = useCallback(
-		(newRole: IRole) => {
+		(newRole: TRole) => {
 			if (!editMemberRef.current || !activeTeamRef.current) return;
 
-			const { employeeId, role } = editMemberRef.current;
+			const { employeeId = '', role } = editMemberRef.current;
 
 			const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
 			handleManagerRoleUpdate(employeeId, isPromotingToManager);
@@ -104,12 +111,12 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const handelNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
 		const name = event.target.value || '';
 
-		if (name === editMemberRef.current?.employee.fullName) {
+		if (name === editMemberRef.current?.employee?.fullName) {
 			return;
 		}
 
 		const names = name.split(' ');
-		const tempMember: OT_Member | null = cloneDeep(editMemberRef.current);
+		const tempMember: IOrganizationTeamEmployee | null = cloneDeep(editMemberRef.current);
 
 		if (tempMember?.employee?.user) {
 			tempMember.employee.fullName = name;
@@ -315,6 +322,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	);
 };
 
-const getRoleString = (role: OT_Role | undefined) => {
+const getRoleString = (role: TRole | undefined) => {
 	return role?.name || 'MEMBER';
 };

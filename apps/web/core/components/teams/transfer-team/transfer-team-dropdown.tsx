@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapTeamMemberItems, TeamMemberItem } from './team-member-item';
 
 import { clsxm } from '@/core/lib/utils';
-import { IColor, IOrganizationTeamMember } from '@/core/types/interfaces';
+
 import { AutoCompleteDropdown } from '../../common/auto-complete-dropdown';
+import { IColor } from '../../settings/color-items';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export const TransferTeamDropdown = ({
 	active,
@@ -13,8 +15,8 @@ export const TransferTeamDropdown = ({
 }: {
 	active?: IColor | null;
 	members: any;
-	setSelectedMember: (member: IOrganizationTeamMember | undefined) => void;
-	selectedMember: IOrganizationTeamMember | undefined;
+	setSelectedMember: (member: IOrganizationTeamEmployee | undefined) => void;
+	selectedMember: IOrganizationTeamEmployee | undefined;
 }) => {
 	const items: any = useMemo(() => mapTeamMemberItems(members), [members]);
 

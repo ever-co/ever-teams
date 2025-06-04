@@ -45,10 +45,10 @@ export function MembersSelect(props: IProps) {
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>
-					{activeTeam?.members.map((member) => {
+					{activeTeam?.members?.map((member) => {
 						return (
-							<SelectItem key={member.id} value={member.employeeId}>
-								{member.employee.fullName}
+							<SelectItem key={member.id} value={member.employeeId || ''}>
+								{member.employee?.fullName || ''}
 							</SelectItem>
 						);
 					})}

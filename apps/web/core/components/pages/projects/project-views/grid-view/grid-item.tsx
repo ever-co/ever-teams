@@ -26,7 +26,7 @@ export default function GridItem(props: IGridItemProps) {
 	} = useModal();
 	const { taskStatuses } = useTaskStatus();
 
-	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
+	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
 	}, [taskStatuses]);
 
@@ -35,8 +35,8 @@ export default function GridItem(props: IGridItemProps) {
 			data?.members
 				?.filter((el) => !el.isManager)
 				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					name: el?.employee?.fullName
+					imageUrl: el?.employee?.user?.imageUrl || '',
+					name: el?.employee?.fullName || ''
 				})) || [],
 		[data?.members]
 	);
@@ -46,8 +46,8 @@ export default function GridItem(props: IGridItemProps) {
 			data?.members
 				?.filter((el) => el.isManager)
 				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					name: el?.employee?.fullName
+					imageUrl: el?.employee?.user?.imageUrl || '',
+					name: el?.employee?.fullName || ''
 				})) || [],
 		[data?.members]
 	);

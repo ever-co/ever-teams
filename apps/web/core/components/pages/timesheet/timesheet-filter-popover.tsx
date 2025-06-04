@@ -94,7 +94,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	React.useEffect(() => {
 		if (timesheet && statusTimesheet) {
-			const filteredResults = getFilteredResults(timesheet);
+			const filteredResults = getFilteredResults(timesheet as any);
 			setFilteredCount(filteredResults.length);
 		}
 	}, [timesheet, statusTimesheet, getFilteredResults]);
@@ -144,7 +144,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 										localStorageKey="timesheet-select-filter-employee"
 										removeItems={shouldRemoveItems}
 										items={activeTeam?.members ?? []}
-										itemToString={(members) => (members ? members.employee.fullName : '')}
+										itemToString={(members) => (members ? members?.employee?.fullName || '' : '')}
 										itemId={(item) => item.id}
 										onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
 										multiSelect={true}

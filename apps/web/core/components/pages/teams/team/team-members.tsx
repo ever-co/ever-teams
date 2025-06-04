@@ -6,13 +6,13 @@ import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
-import { OT_Member } from '@/core/types/interfaces';
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, useCallback } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -27,12 +27,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterValidMembers = useCallback((members: OT_Member[]) => {
+	const filterValidMembers = useCallback((members: any[]) => {
 		return members.filter((member) => member.employee !== null);
 	}, []);
 
 	// Memoize the sort function
-	const sortMembers = useCallback((members: OT_Member[]) => {
+	const sortMembers = useCallback((members: any[]) => {
 		return [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 	}, []);
 
@@ -44,7 +44,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	}, [activeTeam?.members, filterValidMembers, sortMembers]);
 
 	// Memoize the block view filter function
-	const filterBlockViewMembers = useCallback((members: OT_Member[], filter: string) => {
+	const filterBlockViewMembers = useCallback((members: any[], filter: string) => {
 		if (filter === 'all') return members;
 		if (filter === 'idle') {
 			return members.filter((m) => m.timerStatus === undefined || m.timerStatus === 'idle');
@@ -80,11 +80,11 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 type TeamMembersViewProps = {
 	fullWidth?: boolean;
-	members: OT_Member[];
-	currentUser?: OT_Member;
+	members: any[];
+	currentUser?: any;
 	teamsFetching: boolean;
 	view: IssuesView;
-	blockViewMembers: OT_Member[];
+	blockViewMembers: any[];
 	publicTeam: boolean;
 	isMemberActive?: boolean;
 };
@@ -102,12 +102,12 @@ export function TeamMembersView({
 	let teamMembersView;
 
 	// Memoize the filter function to prevent recreation on every render
-	const filterOtherMembers = useCallback((members: OT_Member[], currentUser: OT_Member | undefined) => {
+	const filterOtherMembers = useCallback((members: any[], currentUser: any | undefined) => {
 		return members.filter((member) => member.id !== currentUser?.id);
 	}, []);
 
 	// Memoize the sort function
-	const sortOtherMembers = useCallback((members: OT_Member[]) => {
+	const sortOtherMembers = useCallback((members: any[]) => {
 		return members.sort((a, b) => {
 			if (a.order && b.order) return a.order > b.order ? -1 : 1;
 			if (a.order) return -1;
@@ -206,12 +206,14 @@ export function TeamMembersView({
 	return teamMembersView;
 }
 
-const sortByWorkStatus = (user_a: OT_Member, user_b: OT_Member) => {
+const sortByWorkStatus = (user_a: any, user_b: any) => {
 	return (
-		user_a.timerStatus === 'running' ||
-		(user_a.timerStatus === 'online' && user_b.timerStatus !== 'running') ||
-		(user_a.timerStatus === 'pause' && user_b.timerStatus !== 'running' && user_b.timerStatus !== 'online') ||
-		(user_a.timerStatus === 'idle' && user_b.timerStatus === 'suspended') ||
-		(user_a.timerStatus === undefined && user_b.timerStatus === 'suspended')
+		user_a.timerStatus === ETimerStatus.RUNNING ||
+		(user_a.timerStatus === ETimerStatus.ONLINE && user_b.timerStatus !== ETimerStatus.RUNNING) ||
+		(user_a.timerStatus === ETimerStatus.PAUSE &&
+			user_b.timerStatus !== ETimerStatus.RUNNING &&
+			user_b.timerStatus !== ETimerStatus.ONLINE) ||
+		(user_a.timerStatus === ETimerStatus.IDLE && user_b.timerStatus === ETimerStatus.SUSPENDED) ||
+		(user_a.timerStatus === undefined && user_b.timerStatus === ETimerStatus.SUSPENDED)
 	);
 };

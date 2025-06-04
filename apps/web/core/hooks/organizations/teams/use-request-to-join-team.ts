@@ -1,29 +1,30 @@
-import { IRequestToJoinActionEnum, IRequestToJoinCreate, IValidateRequestToJoin } from '@/core/types/interfaces';
 import { requestToJoinState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
-import { useQuery } from '../../common';
+import { useQueryCall } from '../../common';
+import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
 
-	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(
+	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.requestToJoin
 	);
-	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQuery(
+	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.validateRequestToJoin
 	);
-	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQuery(
+	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.resendCodeRequestToJoin
 	);
 
-	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(
+	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.getRequestToJoin
 	);
 
-	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQuery(
+	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQueryCall(
 		requestToJoinTeamService.acceptRejectRequestToJoin
 	);
 
@@ -34,7 +35,7 @@ export const useRequestToJoinTeam = () => {
 	}, [getRequestToJoinQueryCall, setRequestToJoin]);
 
 	const requestToJoinTeam = useCallback(
-		(data: IRequestToJoinCreate) => {
+		(data: IJoinTeamRequest) => {
 			return requestToJoinQueryCall(data).then((res) => {
 				return res.data;
 			});
@@ -42,7 +43,7 @@ export const useRequestToJoinTeam = () => {
 		[requestToJoinQueryCall]
 	);
 	const validateRequestToJoinTeam = useCallback(
-		(data: IValidateRequestToJoin) => {
+		(data: IValidateRequestToJoinTeam) => {
 			return validateRequestToJoinQueryCall(data).then((res) => {
 				return res.data;
 			});
@@ -50,7 +51,7 @@ export const useRequestToJoinTeam = () => {
 		[validateRequestToJoinQueryCall]
 	);
 	const resendCodeRequestToJoinTeam = useCallback(
-		(data: IRequestToJoinCreate) => {
+		(data: IJoinTeamRequest) => {
 			return resendCodeRequestToJoinQueryCall(data).then((res) => {
 				return res.data;
 			});
@@ -59,7 +60,7 @@ export const useRequestToJoinTeam = () => {
 	);
 
 	const acceptRejectRequestToJoin = useCallback(
-		(id: string, action: IRequestToJoinActionEnum) => {
+		(id: string, action: ERequestStatus) => {
 			acceptRejectRequestToJoinQueryCall(id, action).then(() => {
 				getRequestToJoin();
 			});

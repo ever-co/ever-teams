@@ -8,23 +8,19 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import {
-	I_SMTP,
-	IEmployee,
-	ILoginResponse,
-	IOrganization,
-	IOrganizationCreate,
-	IOrganizationTeam,
-	IRegisterDataAPI,
-	IRegisterDataRequest,
-	IUser
-} from '@/core/types/interfaces';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
 import { tenantService } from '../tenants/tenant.service';
 import { employeeService, organizationTeamService } from '../organizations/teams';
+import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/auth/auth';
+import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -44,7 +40,7 @@ class RegisterService extends APIService {
 	};
 
 	loginUser = async (email: string, password: string) => {
-		return this.post<ILoginResponse>('/auth/login', { email, password }).then(({ data }) => data);
+		return this.post<IAuthResponse>('/auth/login', { email, password }).then(({ data }) => data);
 	};
 
 	createTenantSmtp = async ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
@@ -52,7 +48,7 @@ class RegisterService extends APIService {
 
 		console.log(`SMTP Config: ${JSON.stringify(config)}`);
 
-		return this.post<I_SMTP>('/smtp', config, {
+		return this.post<ICustomSmtp>('/smtp', config, {
 			tenantId,
 			headers: { Authorization: `Bearer ${access_token}` }
 		});
@@ -124,7 +120,7 @@ class RegisterService extends APIService {
 		const employee = await employeeService.createEmployeeFromUser(
 			{
 				organizationId: organization.id,
-				startedWorkOn: new Date().toISOString(),
+				startedWorkOn: new Date(),
 				tenantId: tenant.id,
 				userId: user.id
 			},
@@ -158,7 +154,11 @@ class RegisterService extends APIService {
 			userId: user.id
 		});
 
-		const response: AxiosResponse<{ loginRes: ILoginResponse; team: IOrganizationTeam; employee: IEmployee }> = {
+		const response: AxiosResponse<{
+			loginRes: IAuthResponse;
+			team: IOrganizationTeam;
+			employee: IOrganizationTeamEmployee;
+		}> = {
 			data: { loginRes, team, employee },
 			status: 200,
 			statusText: '',

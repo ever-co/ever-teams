@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react';
-import { Toaster, ToastMessageManager } from '@/core/components/common/toaster';
+import { ToastMessageManager } from '@/core/components/common/toaster';
 import { Meta } from '@/core/components/common/meta';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -33,7 +33,6 @@ const AppContainer: FC<AppContainerProps> = ({ children, title = 'Ever Teams' })
 			</style>
 			<Meta title={title} />
 			{children}
-			<Toaster />
 			<ToastMessageManager />
 		</>
 	);

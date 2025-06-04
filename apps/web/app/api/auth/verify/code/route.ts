@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 		bearer_token: access_token,
 		tenantId,
 		code: body.code,
-		email: user.email
+		email: user.email || ''
 	});
 
 	return $res(data);

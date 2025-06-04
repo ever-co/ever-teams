@@ -2,7 +2,7 @@ import { Button } from '@/core/components';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
-import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/core/types/interfaces';
+import { EProjectBudgetType, EProjectBilling } from '@/core/types/generics/enums/project';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
@@ -13,18 +13,18 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
 	const { currencies, getCurrencies } = useCurrencies();
 	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, 'currency', undefined));
-	const [billingType, setBillingType] = useState<ProjectBillingEnum>(() =>
-		getInitialValue(currentData, 'billing', ProjectBillingEnum.FLAT_FEE)
+	const [billingType, setBillingType] = useState<EProjectBilling>(() =>
+		getInitialValue(currentData, 'billing', EProjectBilling.FLAT_FEE)
 	);
-	const [budgetType, setBudgetType] = useState<OrganizationProjectBudgetTypeEnum>(() =>
-		getInitialValue(currentData, 'budgetType', OrganizationProjectBudgetTypeEnum.HOURS)
+	const [budgetType, setBudgetType] = useState<EProjectBudgetType>(() =>
+		getInitialValue(currentData, 'budgetType', EProjectBudgetType.HOURS)
 	);
 	const [budgetAmount, setBudgetAmount] = useState<number>(() => getInitialValue(currentData, 'budget', undefined));
-	const budgetTypes = Object.values(OrganizationProjectBudgetTypeEnum).map((value) => ({
+	const budgetTypes = Object.values(EProjectBudgetType).map((value) => ({
 		id: value,
 		value: value
 	}));
-	const billingTypes = Object.values(ProjectBillingEnum).map((value) => ({
+	const billingTypes = Object.values(EProjectBilling).map((value) => ({
 		id: value,
 		value: value
 	}));
@@ -63,7 +63,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 						</label>
 						<div className="w-full">
 							<Select
-								onChange={(data) => setBudgetType(data as OrganizationProjectBudgetTypeEnum)}
+								onChange={(data) => setBudgetType(data as EProjectBudgetType)}
 								selected={budgetType as string}
 								placeholder={t('pages.projects.financialSettingsForm.formFields.budgetTypePlaceholder')}
 								options={budgetTypes}
@@ -121,7 +121,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 						</label>
 						<div className="w-full">
 							<Select
-								onChange={(data) => setBillingType(data as ProjectBillingEnum)}
+								onChange={(data) => setBillingType(data as EProjectBilling)}
 								selected={billingType as string}
 								placeholder={t('pages.projects.financialSettingsForm.formFields.billingPlaceholder')}
 								options={billingTypes}

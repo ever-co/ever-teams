@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import {
 	activeTeamState,
 	dailyPlanListState,
@@ -14,13 +14,14 @@ import {
 import {
 	ICreateDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
+	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces';
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { removeDuplicateItems } from '@/core/lib/utils/remove-duplicate-item';
 import { dailyPlanService } from '../../services/client/api';
 import { useAuthenticateUser } from '../auth';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -28,31 +29,35 @@ export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } = useQuery(
+	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } = useQueryCall(
 		dailyPlanService.getDayPlansByEmployee
 	);
-	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQuery(
+	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQueryCall(
 		dailyPlanService.getAllDayPlans
 	);
-	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(
+	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQueryCall(
 		dailyPlanService.getMyDailyPlans
 	);
-	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(dailyPlanService.createDailyPlan);
-	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(dailyPlanService.updateDailyPlan);
-	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(
+	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQueryCall(
+		dailyPlanService.createDailyPlan
+	);
+	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQueryCall(
+		dailyPlanService.updateDailyPlan
+	);
+	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQueryCall(
 		dailyPlanService.getPlansByTask
 	);
-	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(
+	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQueryCall(
 		dailyPlanService.addTaskToPlan
 	);
-	const { loading: removeTaskFromPlanLoading, queryCall: removeTaskFromPlanQueryCall } = useQuery(
+	const { loading: removeTaskFromPlanLoading, queryCall: removeTaskFromPlanQueryCall } = useQueryCall(
 		dailyPlanService.removeTaskFromPlan
 	);
-	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(
+	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQueryCall(
 		dailyPlanService.removeManyTaskFromPlans
 	);
 
-	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(
+	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQueryCall(
 		dailyPlanService.deleteDailyPlan
 	);
 
@@ -135,7 +140,7 @@ export function useDailyPlan() {
 	);
 
 	const loadEmployeeDayPlans = useCallback(async () => {
-		if (user?.employee.id) {
+		if (user?.employee?.id) {
 			const employeeDayPlans = await getEmployeeDayPlans(user?.employee?.id);
 
 			if (employeeDayPlans) {
@@ -143,7 +148,7 @@ export function useDailyPlan() {
 				setProfileDailyPlans(employeeDayPlans);
 			}
 		}
-	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, user?.employee.id]);
+	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, user?.employee?.id]);
 
 	const getPlansByTask = useCallback(
 		(taskId?: string) => {
@@ -294,18 +299,18 @@ export function useDailyPlan() {
 	);
 
 	const removeManyTaskPlans = useCallback(
-		async (data: IRemoveTaskFromManyPlans, taskId: string) => {
+		async (data: IRemoveTaskFromManyPlansRequest, taskId: string) => {
 			const res = await removeManyTaskPlanQueryCall({ taskId, data });
 			const updatedProfileDailyPlans = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
 				.map((plan) => {
-					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task: ITask) => task.id !== taskId) : [];
 					return { ...plan, tasks: updatedTasks };
 				})
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 			// Delete plans without tasks
 			const updatedEmployeePlans = [...(employeePlans ? employeePlans : [])]
 				.map((plan) => {
-					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task: ITask) => task.id !== taskId) : [];
 					return { ...plan, tasks: updatedTasks };
 				})
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
@@ -421,13 +426,13 @@ export function useDailyPlan() {
 				.map((plan) => ({
 					...plan,
 					// Include only no completed tasks
-					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+					tasks: plan.tasks?.filter((task: ITask) => task.status !== 'completed')
 				}))
 				.map((plan) => ({
 					...plan,
 					// Include only tasks that are not added yet to the today plan or future plans
 					tasks: plan.tasks?.filter(
-						(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
+						(_task: ITask) => ![...todayTasks, ...futureTasks].find((task: ITask) => task.id === _task.id)
 					)
 				}))
 				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)

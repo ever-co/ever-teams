@@ -1,5 +1,5 @@
 import { validateForm } from '@/core/lib/helpers/validations';
-import { IInviteVerifyCode } from '@/core/types/interfaces/IInvite';
+import { IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { verifyInviteCodeRequest } from '@/core/services/server/requests';
 
 import { NextResponse } from 'next/server';

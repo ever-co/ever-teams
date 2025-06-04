@@ -1,28 +1,28 @@
-import { DeleteResponse, ITaskVersionCreate, ITaskVersionItemList, PaginationResponse } from '@/core/types/interfaces';
+import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 class TaskVersionService extends APIService {
+	// TODO: Implement createTaskVersion method
 	createTaskVersion = async (data: ITaskVersionCreate, tenantId?: string) => {
-		return this.post<ITaskVersionCreate>('/task-versions', data, {
-			tenantId
-		});
+		console.error('Not implemented');
 	};
 
+	// TODO: Implement editTaskVersion method
 	editTaskVersion = async (id: string, data: ITaskVersionCreate, tenantId?: string) => {
-		return this.put<ITaskVersionCreate>(`/task-versions/${id}`, data, {
-			tenantId
-		});
+		console.error('Not implemented');
 	};
 
+	// TODO: Implement deleteTaskVersion method
 	deleteTaskVersion = async (id: string) => {
-		return this.delete<DeleteResponse>(`/task-versions/${id}`);
+		console.error('Not implemented');
 	};
 
 	getTaskVersionList = async (tenantId: string, organizationId: string, organizationTeamId: string | null) => {
 		const endpoint = `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-		return this.get<PaginationResponse<ITaskVersionItemList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskVersion>>(endpoint, { tenantId });
 	};
 }
 

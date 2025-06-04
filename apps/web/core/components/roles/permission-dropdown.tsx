@@ -1,4 +1,3 @@
-import { IRole } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -9,39 +8,34 @@ import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
 import { useRoles } from '@/core/hooks/roles';
 import { PermissonItem } from './permission-item';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
+import { TRole } from '@/core/types/schemas';
 
 export const PermissionDropDown = ({
 	selectedRole,
 	setSelectedRole
 }: {
-	selectedRole: IRole | null;
-	setSelectedRole: Dispatch<SetStateAction<IRole | null>>;
+	selectedRole: TRole | null;
+	setSelectedRole: Dispatch<SetStateAction<TRole | null>>;
 }) => {
-	const { roles, createRole, createRoleLoading, deleteRole, updateRole, setRoles } = useRoles();
+	const { roles, createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
-	const [editRole, setEditRole] = useState<IRole | null>(null);
-	const handleEdit = (role: IRole) => {
+	const [editRole, setEditRole] = useState<TRole | null>(null);
+	const handleEdit = (role: TRole) => {
 		setEditRole(role);
 	};
 
 	// CREATE
 	const handleCreateRole = useCallback(async () => {
 		if (filterValue.length) {
-			const res = await createRole({
+			await createRole({
 				name: filterValue
 			});
-
-			if (res) {
-				// Update roles state
-				setRoles([...roles, res.data]);
-			}
-
 			setFilterValue('');
 		}
-	}, [filterValue, createRole, setRoles, roles]);
+	}, [filterValue, createRole]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleCreateRole();
@@ -53,28 +47,18 @@ export const PermissionDropDown = ({
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEditRole({
 				...editRole,
-				name: e.target.value
+				name: e.target.value,
+				id: editRole?.id ?? ''
 			});
 		},
 		[editRole]
 	);
 	const handleEditRole = useCallback(async () => {
 		if (editRole) {
-			const res = await updateRole(editRole);
-
-			if (res) {
-				setRoles((prev) => {
-					return prev.map((role) => {
-						if (role.id === editRole.id) {
-							return res.data;
-						}
-						return role;
-					});
-				});
-			}
+			await updateRole(editRole);
 			setEditRole(null);
 		}
-	}, [editRole, setRoles, updateRole]);
+	}, [editRole, updateRole]);
 
 	const handleEditOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
@@ -103,16 +87,9 @@ export const PermissionDropDown = ({
 
 	const handleDeleteRole = useCallback(
 		async (roleId: string) => {
-			const res = await deleteRole(roleId);
-
-			if (res) {
-				// Update roles state
-				setRoles((prev) => {
-					return prev.filter((role) => role.id !== roleId);
-				});
-			}
+			await deleteRole(roleId);
 		},
-		[deleteRole, setRoles]
+		[deleteRole]
 	);
 
 	return (
@@ -134,7 +111,7 @@ export const PermissionDropDown = ({
 				>
 					<PopoverPanel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 						{({ close }) => (
-							<Card
+							<EverCard
 								shadow="custom"
 								className="md:px-4 py-4 rounded-x md:min-w-[14.125rem] max-h-72 overflow-auto"
 								style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
@@ -211,7 +188,7 @@ export const PermissionDropDown = ({
 									{t('common.CREATE')}
 									{!rolesList.length ? ` "${filterValue}"` : ''}
 								</Button>
-							</Card>
+							</EverCard>
 						)}
 					</PopoverPanel>
 				</Transition>

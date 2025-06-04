@@ -1,11 +1,16 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IIcon } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 export type IconItem = DropdownItem<IIcon>;
+
+export interface IIcon {
+	title: string;
+	fullUrl?: string;
+	path?: string;
+}
 
 export function mapIconItems(icons: IIcon[]) {
 	const items = icons.map((icon: IIcon) => {

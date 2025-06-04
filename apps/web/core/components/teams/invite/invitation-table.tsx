@@ -1,7 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useRequestToJoinTeam } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import moment from 'moment';
@@ -9,10 +8,13 @@ import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
+import { IJoinTeamResponse } from '@/core/types/interfaces/team/request-to-join';
+import { IInvite } from '@/core/types/interfaces/user/invite';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
-export const InvitationTable = ({ invitations }: { invitations: (IInvitation | IRequestToJoin)[] }) => {
+export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
-		IInvitation | IRequestToJoin
+		IInvite | IJoinTeamResponse
 	>(invitations);
 	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
@@ -64,7 +66,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 											backgroundColor: `${stc(invitation.fullName || '')}80`
 										}}
 									>
-										{imgTitle(invitation.fullName)}
+										{imgTitle(invitation.fullName || '')}
 									</div>
 									<div className="flex flex-col gap-1 pl-3">
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
@@ -92,10 +94,10 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 									<InvitationTableStatus
 										status={invitation.status}
 										acceptJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, IRequestToJoinActionEnum.ACCEPTED);
+											acceptRejectRequestToJoin(invitation.id, ERequestStatus.ACCEPTED);
 										}}
 										rejectJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, IRequestToJoinActionEnum.REJECTED);
+											acceptRejectRequestToJoin(invitation.id, ERequestStatus.REJECTED);
 										}}
 									/>
 								</td>

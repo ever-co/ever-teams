@@ -3,20 +3,18 @@ import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
-import {
-	ICreateProjectInput,
-	IProjectRelation,
-	ITag,
-	OrganizationProjectBudgetTypeEnum,
-	ProjectBillingEnum,
-	TaskStatusEnum
-} from '@/core/types/interfaces';
+
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { RolesEnum } from '@/core/types/interfaces/IRoles';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { EProjectBilling } from '@/core/types/generics/enums/project';
+import { TTag } from '@/core/types/schemas';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -31,10 +29,10 @@ export default function FinalReview(props: IStepElementProps) {
 	const { activeTeam } = useOrganizationTeams();
 	const { roles } = useRoles();
 
-	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
+	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
-	const newProject: Partial<ICreateProjectInput> = {
+	const newProject: Partial<ICreateProjectRequest> = {
 		name: finalData?.name,
 		startDate: finalData?.startDate,
 		endDate: finalData?.endDate,
@@ -56,7 +54,7 @@ export default function FinalReview(props: IStepElementProps) {
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
 		teams: [...(activeTeam ? [activeTeam] : [])],
-		status: TaskStatusEnum.OPEN,
+		status: ETaskStatusName.OPEN,
 		isActive: true,
 		isArchived: false,
 		isTasksAutoSync: true,
@@ -243,10 +241,10 @@ function BasicInformation(props: IBasicInformationProps) {
  */
 
 interface FinancialSettingsProps {
-	budgetType?: OrganizationProjectBudgetTypeEnum;
+	budgetType?: EProjectBudgetType;
 	budgetAmount?: number;
 	budgetCurrency?: string;
-	billingType?: ProjectBillingEnum;
+	billingType?: EProjectBilling;
 }
 function FinancialSettings(props: FinancialSettingsProps) {
 	const { budgetType, budgetAmount, budgetCurrency, billingType } = props;
@@ -297,7 +295,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
  */
 
 interface ICategorizationProps {
-	tags?: ITag[];
+	tags?: TTag[];
 	colorCode?: string;
 }
 
@@ -368,11 +366,11 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="w-full flex wrap items-center gap-2">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
-							const member = members.find((el) => el.employeeId === managerId);
+							const member = members?.find((el) => el?.employeeId === managerId);
 
-							const memberImgUrl = member?.employee.user?.imageUrl;
+							const memberImgUrl = member?.employee?.user?.imageUrl;
 
-							const memberName = member?.employee.fullName;
+							const memberName = member?.employee?.fullName;
 
 							return <Item key={member?.id} name={memberName ?? '-'} imgUrl={memberImgUrl} />;
 						})

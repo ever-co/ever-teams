@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { IssuesView } from '@/core/constants/config/constants';
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
@@ -13,7 +13,7 @@ export default function AllTeamsMembers({
 	teams,
 	view = IssuesView.CARDS
 }: {
-	teams: IOrganizationTeamList[];
+	teams: IOrganizationTeam[];
 	view: IssuesView;
 }) {
 	const fullWidth = useAtomValue(fullWidthState);

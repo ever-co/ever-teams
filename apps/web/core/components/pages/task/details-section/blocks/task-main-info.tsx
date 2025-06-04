@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -16,6 +15,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -81,7 +82,7 @@ function DueDates() {
 
 	const $dueDate = useSyncRef(dueDate || (task?.dueDate ? new Date(task.dueDate) : null));
 
-	const remainingDays = task ? calculateRemainingDays(new Date().toISOString(), task.dueDate) : undefined;
+	const remainingDays = task ? calculateRemainingDays(new Date().toISOString(), String(task.dueDate)) : undefined;
 
 	const handleResetDate = useCallback(
 		(date: 'startDate' | 'dueDate') => {
@@ -119,7 +120,7 @@ function DueDates() {
 							{startDate ? (
 								formatDateString(startDate.toISOString())
 							) : task?.startDate ? (
-								formatDateString(task?.startDate)
+								formatDateString(String(task?.startDate))
 							) : (
 								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
@@ -131,7 +132,7 @@ function DueDates() {
 							setStartDate(date);
 
 							if (task) {
-								updateTask({ ...task, startDate: date?.toISOString() });
+								updateTask({ ...task, startDate: date });
 							}
 						}
 					}}
@@ -169,7 +170,7 @@ function DueDates() {
 							{dueDate ? (
 								formatDateString(dueDate.toISOString())
 							) : task?.dueDate ? (
-								formatDateString(task?.dueDate)
+								formatDateString(String(task?.dueDate))
 							) : (
 								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
@@ -183,7 +184,7 @@ function DueDates() {
 						) {
 							setDueDate(date);
 							if (task) {
-								updateTask({ ...task, dueDate: date?.toISOString() });
+								updateTask({ ...task, dueDate: date });
 							}
 						}
 					}}
@@ -214,9 +215,9 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) => {
+const ManageMembersPopover = (memberList: IOrganizationTeamEmployee[], task: ITask | null) => {
 	const t = useTranslations();
-	const [member, setMember] = useState<OT_Member>();
+	const [member, setMember] = useState<IOrganizationTeamEmployee>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
 

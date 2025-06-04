@@ -1,11 +1,11 @@
 'use client';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces';
+import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { AxiosError, isAxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -16,6 +16,8 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
+	const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
 	const router = useRouter();
 	// const pathname = usePathname();
 	const query = useSearchParams();
@@ -51,17 +53,17 @@ export function useAuthenticationPasscode() {
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
 	// Queries
-	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(authService.sendAuthCode);
-	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(authService.signInEmail);
-	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQuery(
+	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQueryCall(authService.sendAuthCode);
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQueryCall(authService.signInEmail);
+	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } = useQueryCall(
 		authService.signInEmailConfirm
 	);
 	const {
 		queryCall: signInWorkspaceQueryCall,
 		loading: signInWorkspaceLoading,
 		infiniteLoading: infiniteWLoading
-	} = useQuery(authService.signInWorkspace);
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.signInWithEmailAndCode);
+	} = useQueryCall(authService.signInWorkspace);
+	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.signInWithEmailAndCode);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
@@ -107,71 +109,51 @@ export function useAuthenticationPasscode() {
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
 			try {
+				setStatus('loading');
 				const loginResponse = await queryCall(email, code);
 
-				// Check for successful direct login
-				if (loginResponse?.data) {
-					const data = loginResponse.data;
-
-					// If we have user data, redirect
-					if (data.user || data.team) {
-						setAuthenticated(true);
-						router.replace('/');
-						return;
-					}
+				if (loginResponse?.data?.user || loginResponse?.data?.team) {
+					setAuthenticated(true);
+					setStatus('success');
+					router.replace('/');
+					return;
 				}
 			} catch (loginError) {
+				setStatus('error');
 				if (isAxiosError(loginError) && loginError.response?.status === 400) {
 					setErrors(loginError.response.data?.errors || {});
 				} else {
-					setErrors({
-						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
-					});
+					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
 			}
 
-			// Fallback to /auth/signin.email/confirm
+			// Second attempt: signInEmailConfirmQueryCall
 			try {
 				const response = await signInEmailConfirmQueryCall(email, code);
 
-				if (response?.data) {
-					const data = response.data as ISigninEmailConfirmResponse;
-
-					// If we get workspaces, show workspace selection
-					if (data.workspaces && data.workspaces.length > 0) {
-						setWorkspaces(data.workspaces);
-						setDefaultTeamId(data.defaultTeamId);
+				if (response?.data?.user || (response?.data?.workspaces?.length ?? 0) > 0) {
+					setAuthenticated(true);
+					setStatus('success');
+					if (response.data.workspaces?.length > 0) {
+						setWorkspaces(response.data.workspaces);
+						setDefaultTeamId(response.data.defaultTeamId);
 						setScreen('workspace');
-						return;
-					}
-
-					// If we have team data, redirect
-					if (data.team) {
-						setAuthenticated(true);
+					} else {
 						router.replace('/');
-						return;
 					}
+					return;
 				}
 
-				// Handle 401 error - check the actual response object
-				if (response?.status === 401) {
-					setErrors({
-						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
-					});
-				} else if (response?.data?.status === 401) {
-					// Some APIs return status in the data object
-					setErrors({
-						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
-					});
+				if (response?.status === 401 || response?.data?.status === 401) {
+					setStatus('error');
+					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
 			} catch (confirmError) {
-				// Handle errors
+				setStatus('error');
 				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
 					setErrors(confirmError.response.data?.errors || {});
 				} else {
-					setErrors({
-						code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
-					});
+					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
 			}
 		},
@@ -205,6 +187,8 @@ export function useAuthenticationPasscode() {
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrors({});
+		setStatus('loading');
+
 		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
 		if (!valid) {
 			setErrors(errors);
@@ -299,6 +283,8 @@ export function useAuthenticationPasscode() {
 		handleSubmit,
 		handleChange,
 		loading,
+		status,
+		setStatus,
 		formValues,
 		setFormValues,
 		inputCodeRef,

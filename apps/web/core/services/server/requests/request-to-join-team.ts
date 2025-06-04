@@ -1,14 +1,9 @@
-import {
-	IRequestToJoinCreate,
-	IRequestToJoin,
-	IDataResponse,
-	PaginationResponse,
-	ISuccessResponse,
-	IValidateRequestToJoin,
-	IRequestToJoinActionEnum
-} from '@/core/types/interfaces';
+import { IJoinTeamResponse, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
+import { IDataResponse, ISuccessResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { IJoinTeamRequest } from '@/core/types/interfaces/team/request-to-join';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ERequestStatus } from '@/core/types/generics/enums';
 
 /**
  * Request to Join Team request
@@ -16,8 +11,8 @@ import qs from 'qs';
  * @param body
  * @returns
  */
-export function requestToJoinRequest(body: IRequestToJoinCreate) {
-	return serverFetch<PaginationResponse<IRequestToJoin>>({
+export function requestToJoinRequest(body: IJoinTeamRequest) {
+	return serverFetch<PaginationResponse<IJoinTeamResponse>>({
 		path: '/organization-team-join',
 		method: 'POST',
 		body
@@ -30,8 +25,8 @@ export function requestToJoinRequest(body: IRequestToJoinCreate) {
  * @param body
  * @returns
  */
-export function validateRequestToJoinRequest(body: IValidateRequestToJoin) {
-	return serverFetch<PaginationResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>({
+export function validateRequestToJoinRequest(body: IValidateRequestToJoinTeam) {
+	return serverFetch<PaginationResponse<Pick<IJoinTeamResponse, 'email' | 'organizationTeamId'>>>({
 		path: '/organization-team-join/validate',
 		method: 'POST',
 		body
@@ -44,7 +39,7 @@ export function validateRequestToJoinRequest(body: IValidateRequestToJoin) {
  * @param body
  * @returns
  */
-export function resendCodeRequestToJoinRequest(body: IRequestToJoinCreate) {
+export function resendCodeRequestToJoinRequest(body: IJoinTeamRequest) {
 	return serverFetch<IDataResponse<ISuccessResponse>>({
 		path: '/organization-team-join/resend-code',
 		method: 'POST',
@@ -73,7 +68,7 @@ export function getRequestToJoinRequest({
 	} as { [x: string]: string };
 	const query = qs.stringify(params);
 
-	return serverFetch<PaginationResponse<IRequestToJoin>>({
+	return serverFetch<PaginationResponse<IJoinTeamResponse>>({
 		path: `/organization-team-join?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -96,7 +91,7 @@ export function acceptRejectRequestToJoinRequest({
 	bearer_token: string | undefined;
 	tenantId: string | undefined;
 	id: string;
-	action: IRequestToJoinActionEnum;
+	action: ERequestStatus;
 }) {
 	return serverFetch<IDataResponse<ISuccessResponse>>({
 		path: `/organization-team-join/${id}/${action}`,

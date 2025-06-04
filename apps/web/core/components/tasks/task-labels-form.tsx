@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useTaskLabels } from '@/core/hooks';
-import { IIcon, ITaskLabelsItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -10,10 +9,11 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -23,7 +23,7 @@ type StatusForm = {
 export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, watch } = useForm();
-	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
+	const [edit, setEdit] = useState<ITag | null>(null);
 	const [isCreating, setIsCreating] = useState(formOnly);
 	const t = useTranslations();
 	const initialRender = useRef(true);
@@ -189,7 +189,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								</Text>
 								<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 									{loading && !taskLabels?.length && <Spinner dark={false} />}
-									{taskLabels?.map((label) => (
+									{taskLabels?.map((label: any) => (
 										<StatusesListCard
 											key={label.id}
 											statusTitle={label.name?.split('-').join(' ') || ''}

@@ -1,4 +1,3 @@
-import { ITeamsMembersFilter } from '@/core/types/interfaces';
 import { filterValue } from '@/core/stores/teams/all-teams';
 import { clsxm } from '@/core/lib/utils';
 import { CircleIcon } from 'assets/svg';
@@ -6,6 +5,13 @@ import { PropsWithChildren } from 'react';
 import { useAtom } from 'jotai';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
+
+export interface ITeamsMembersFilter {
+	label: string;
+	value: ETimerStatus | 'all' | 'invited';
+	bg: string;
+}
 
 export function MemberFilterOption({
 	children,
@@ -54,9 +60,9 @@ export function MemberFilterOption({
 export function MemberFilter() {
 	const options: ITeamsMembersFilter[] = [
 		{ label: 'All', value: 'all', bg: 'transparent' },
-		{ label: 'Working now', value: 'running', bg: '#1f973d33' },
-		{ label: 'Paused', value: 'pause', bg: '#e58484' },
-		{ label: 'Off', value: 'suspended', bg: '#6b7280' },
+		{ label: 'Working now', value: ETimerStatus.RUNNING, bg: '#1f973d33' },
+		{ label: 'Paused', value: ETimerStatus.PAUSE, bg: '#e58484' },
+		{ label: 'Off', value: ETimerStatus.SUSPENDED, bg: '#6b7280' },
 		{ label: 'Invited', value: 'invited', bg: '#d1ad5b' }
 	];
 	const [value, setValue] = useAtom(filterValue);

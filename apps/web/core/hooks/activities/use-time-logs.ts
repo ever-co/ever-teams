@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { timerLogsDailyReportState } from '@/core/stores/timer/time-logs';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useCallback, useEffect } from 'react';
 import moment from 'moment';
 import { useFirstLoad } from '../common/use-first-load';
@@ -16,7 +16,7 @@ export function useTimeLogs() {
 
 	const [timerLogsDailyReport, setTimerLogsDailyReport] = useAtom(timerLogsDailyReportState);
 
-	const { loading: timerLogsDailyReportLoading, queryCall: queryTimerLogsDailyReport } = useQuery(
+	const { loading: timerLogsDailyReportLoading, queryCall: queryTimerLogsDailyReport } = useQueryCall(
 		timeLogService.getTimerLogsDailyReport
 	);
 
@@ -24,7 +24,7 @@ export function useTimeLogs() {
 		(startDate: Date = moment().startOf('year').toDate(), endDate: Date = moment().endOf('day').toDate()) => {
 			queryTimerLogsDailyReport({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				employeeIds: [profile.member?.employeeId ?? ''],
 				startDate,
 				endDate
@@ -42,7 +42,7 @@ export function useTimeLogs() {
 			profile.member?.employeeId,
 			queryTimerLogsDailyReport,
 			setTimerLogsDailyReport,
-			user?.employee.organizationId,
+			user?.employee?.organizationId,
 			user?.tenantId
 		]
 	);

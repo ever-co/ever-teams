@@ -1,7 +1,7 @@
 'use client';
 
 import { mergeRefs } from '@/core/lib/helpers/index';
-import { IClassName } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import {
 	Dispatch,

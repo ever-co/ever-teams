@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIssueType } from '@/core/hooks';
-import { IIcon, IIssueTypesItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -9,17 +8,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 export const IssueTypesForm = () => {
 	const t = useTranslations();
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
-	const [edit, setEdit] = useState<IIssueTypesItemList | null>(null);
+	const [edit, setEdit] = useState<IIssueType | null>(null);
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',

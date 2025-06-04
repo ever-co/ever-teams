@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 	const { data } = await getEmployeeDailyRequest({
 		tenantId,
 		organizationId,
-		employeeId: user.employee.id,
+		employeeId: user.employee?.id || '',
 		todayEnd: endDate,
 		todayStart: startDate,
 		type,

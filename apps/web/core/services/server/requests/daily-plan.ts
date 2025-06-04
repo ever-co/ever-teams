@@ -3,11 +3,12 @@ import {
 	ICreateDailyPlan,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
+	IRemoveTaskFromManyPlansRequest,
 	IUpdateDailyPlan
-} from '@/core/types/interfaces/IDailyPlan';
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { serverFetch } from '../fetch';
-import { DeleteResponse, ID } from '@/core/types/interfaces';
+import { DeleteResponse } from '@/core/types/interfaces/common/data-response';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
 
 export function getAllDayPlans({
 	organizationId,
@@ -228,7 +229,7 @@ export function deleteDailyPlansManyRequest({
 }: {
 	bearer_token?: string;
 	taskId: string;
-	data: IRemoveTaskFromManyPlans;
+	data: IRemoveTaskFromManyPlansRequest;
 }) {
 	return serverFetch<IDailyPlan[]>({
 		method: 'PUT',

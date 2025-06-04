@@ -2,7 +2,7 @@ import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sy
 import { Button, DataSyncModeToggler, DataSyncToggler, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 
 export function SyncZone() {
 	const t = useTranslations();
@@ -11,8 +11,8 @@ export function SyncZone() {
 	return (
 		<div className="flex flex-col items-center justify-between">
 			<div className="w-full mt-5">
-				<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-6">
-					<div className=" flex flex-col items-center justify-between w-full md:w-1/2 sm:gap-4 sm:flex-row">
+				<div className="flex flex-col items-center justify-between w-full gap-6 lg:flex-row">
+					<div className="flex flex-col items-center justify-between w-full  md:w-1/2 sm:gap-4 sm:flex-row">
 						<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">Auto Sync</Text>
 						<div className="flex items-center w-full">
 							<DataSyncToggler />
@@ -22,7 +22,7 @@ export function SyncZone() {
 						</div>
 					</div>
 					{isDataSync ? (
-						<div className=" flex flex-col items-center justify-between w-full md:w-1/2 sm:gap-4 sm:flex-row">
+						<div className="flex flex-col items-center justify-between w-full  md:w-1/2 sm:gap-4 sm:flex-row">
 							<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 								Sync Mode
 							</Text>
@@ -46,7 +46,7 @@ export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; op
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<div className="sm:w-[530px] w-[330px]">
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div>
 						<p className="py-4 text-center">{t('alerts.REAL_TIME_ON_WORKING')}</p>
 						<div className="flex justify-center gap-2">
@@ -60,7 +60,7 @@ export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; op
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);

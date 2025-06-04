@@ -3,7 +3,6 @@
 import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
@@ -14,7 +13,10 @@ import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { IconsErrorWarningFill } from '@/core/components/icons';
 import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -57,11 +59,11 @@ export function DailyPlanCompareEstimatedModal({
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<div className="w-[98%] md:w-[550px] relative">
-				<Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow="custom">
+				<EverCard className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<DailyPlanCompareHeader />
 					</div>
-					<div className="flex items-start flex-col justify-start w-full px-2">
+					<div className="flex flex-col items-start justify-start w-full px-2">
 						<TimePicker
 							defaultValue={{
 								hours: hour,
@@ -73,7 +75,7 @@ export function DailyPlanCompareEstimatedModal({
 						<DailyPlanWorkTimeInput />
 					</div>
 
-					<ScrollArea className="flex h-full w-full p-2 flex-col">
+					<ScrollArea className="flex flex-col w-full h-full p-2">
 						{todayPlan.map((plan, i) => {
 							return (
 								<div key={i}>
@@ -104,22 +106,22 @@ export function DailyPlanCompareEstimatedModal({
 							disabled={updateDailyPlanLoading && (parseInt(times.hours) > 0 ? false : true)}
 						/>
 					</div>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);
 }
 
-export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: any }) {
+export function DailyPlanTask({ task, profile }: { task?: ITask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
-	const member = task?.selectedTeam?.members.find((member) => {
+	const member = task?.selectedTeam?.members?.find((member: IOrganizationTeamEmployee) => {
 		return member?.employee?.user?.id === profile?.userProfile?.id;
 	});
 
 	const memberInfo = useTeamMemberCard(member);
 	return (
-		<div className="flex items-center w-full bg-white dark:bg-dark--theme-light border dark:border-gray-700 h-16  drop-shadow rounded-lg px-1 font-normal justify-between">
-			<div className="flex items-center space-x-1 w-full">
+		<div className="flex items-center justify-between w-full h-16 px-1 font-normal bg-white border rounded-lg dark:bg-dark--theme-light dark:border-gray-700 drop-shadow">
+			<div className="flex items-center w-full space-x-1">
 				<TaskNameInfoDisplay
 					task={task}
 					className={clsxm('text-2xl')}
@@ -176,7 +178,7 @@ export function DailyPlanCompareHeader() {
 	return (
 		<>
 			<div>
-				<Text.Heading as="h3" className="mb-3 text-center font-bold">
+				<Text.Heading as="h3" className="mb-3 font-bold text-center">
 					TODAY&apos;S PLAN
 				</Text.Heading>
 			</div>
@@ -197,7 +199,7 @@ export function DailyPlanCompareHeader() {
 export function DailyPlanWorkTimeInput() {
 	return (
 		<>
-			<div className="flex items-center space-x-1 w-auto">
+			<div className="flex items-center w-auto space-x-1">
 				<Text.Heading as="h4" className=" text-center text-gray-500 text-[12px]">
 					Tasks with no time estimations
 				</Text.Heading>

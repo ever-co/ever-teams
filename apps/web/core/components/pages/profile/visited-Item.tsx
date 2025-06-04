@@ -1,18 +1,10 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { ITimerApps } from '@/core/types/interfaces/timer/ITimerApp';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ProgressBar } from '../../duplicated-components/_progress-bar';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
 
-const VisitedItem = ({
-	app,
-	totalMilliseconds,
-	type
-}: {
-	app: ITimerApps;
-	totalMilliseconds: number;
-	type: string;
-}) => {
+const VisitedItem = ({ app, totalMilliseconds, type }: { app: IActivity; totalMilliseconds: number; type: string }) => {
 	const { h, m, s } = app?.duration ? secondsToTime(+app.duration) : { h: 0, m: 0, s: 0 };
 	const percent = app?.duration && ((+app.duration * 100) / totalMilliseconds).toFixed(2);
 

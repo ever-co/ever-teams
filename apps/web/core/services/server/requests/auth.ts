@@ -1,20 +1,20 @@
 import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@/core/constants/config/constants';
-import { ISuccessResponse } from '@/core/types/interfaces';
 import {
-	ILoginResponse,
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
 	ISigninWorkspaceInput
-} from '@/core/types/interfaces/IAuthentication';
-import { IUser } from '@/core/types/interfaces/IUserData';
+} from '@/core/types/interfaces/auth/auth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ProviderEnum } from './o-auth';
+import { EProvider } from '@/core/types/generics/enums/social-accounts';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	ISocialAccount,
 	ISocialAccountExistUser,
 	ISocialAccountSendToken
-} from '@/core/types/interfaces/ISocialAccount';
+} from '@/core/types/interfaces/user/social-account';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -60,7 +60,7 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 	});
 }
 
-export function signWithSocialLoginsRequest(provider: ProviderEnum, token: string) {
+export function signWithSocialLoginsRequest(provider: EProvider, token: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.social',
 		method: 'POST',
@@ -79,7 +79,7 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 };
 
 export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/signin.workspace',
 		method: 'POST',
 		body: input,
@@ -88,7 +88,7 @@ export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
 }
 
 export function verifyAuthCodeRequest(email: string, code: string) {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
 		body: { email, code }
@@ -96,7 +96,7 @@ export function verifyAuthCodeRequest(email: string, code: string) {
 }
 
 export const loginUserRequest = (email: string, password: string) => {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/auth/login',
 		method: 'POST',
 		body: {

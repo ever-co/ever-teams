@@ -1,6 +1,6 @@
-import { INextParams } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getRolePermissionsRequest, updateRolePermissionRequest } from '@/core/services/server/requests';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: INextParams) {
@@ -17,8 +17,8 @@ export async function GET(req: Request, props: INextParams) {
 
 	const response = await getRolePermissionsRequest({
 		roleId: params.id,
-		bearer_token: access_token,
-		tenantId
+		bearer_token: access_token || '',
+		tenantId: tenantId || ''
 	});
 
 	return $res(response.data);
@@ -39,8 +39,8 @@ export async function PUT(req: Request, props: INextParams) {
 	const body = await req.json();
 
 	const response = await updateRolePermissionRequest({
-		bearer_token: access_token,
-		tenantId,
+		bearer_token: access_token || '',
+		tenantId: tenantId || '',
 		data: body
 	});
 

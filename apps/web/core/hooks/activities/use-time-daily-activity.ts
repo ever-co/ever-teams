@@ -7,7 +7,7 @@ import { useCallback, useEffect } from 'react';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { timeAppsState, timeVisitedSitesState } from '@/core/stores/timer/time-slot';
 
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { activityService } from '@/core/services/client/api/activities';
 import { useAuthenticateUser } from '../auth';
 
@@ -17,7 +17,7 @@ export function useTimeDailyActivity(type?: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useAtom(timeVisitedSitesState);
 
-	const { loading, queryCall } = useQuery(activityService.getDailyActivities);
+	const { loading, queryCall } = useQueryCall(activityService.getDailyActivities);
 
 	const getVisitedApps = useCallback(
 		(title?: string) => {
@@ -25,12 +25,12 @@ export function useTimeDailyActivity(type?: string) {
 			const todayEnd = moment().endOf('day').toDate();
 			const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
 			if (
-				activityFilter.member?.employeeId === user?.employee.id ||
+				activityFilter.member?.employeeId === user?.employee?.id ||
 				user?.role?.name?.toUpperCase() == 'MANAGER'
 			) {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
-					organizationId: user?.employee.organizationId ?? '',
+					organizationId: user?.employee?.organizationId ?? '',
 					employeeId: employeeId ?? '',
 					todayEnd,
 					type,

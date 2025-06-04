@@ -1,7 +1,7 @@
 'use client';
 
 import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
-import { ITeamTask, Nullable } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
 import { TaskStatus, useTaskLabelsValue, useTaskPrioritiesValue, useTaskSizesValue } from './task-status';
@@ -12,6 +12,7 @@ import { FilterTabs } from '../users/user-profile-plans';
 import ProjectIcon from '@/core/components/svgs/project-icon';
 import { useAtomValue } from 'jotai';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { Nullable } from '@/core/types/generics/utils';
 
 export function TaskAllStatusTypes({
 	task,
@@ -23,7 +24,7 @@ export function TaskAllStatusTypes({
 }: {
 	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	showStatus?: boolean;
 	toBlockCard?: boolean;
 	className?: string;
@@ -34,7 +35,7 @@ export function TaskAllStatusTypes({
 	const taskStatus = useTaskStatusValue();
 	const projects = useAtomValue(organizationProjectsState);
 	const taskProject = useMemo(
-		() => (task ? projects.find((project) => project.tasks?.some((el) => el.id === task.id)) : null),
+		() => (task ? projects.find((project) => project.tasks?.some((el: ITask) => el.id === task.id)) : null),
 		[projects, task]
 	);
 

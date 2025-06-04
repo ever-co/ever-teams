@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
-import { TimeLogType, TimerSource } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
@@ -22,6 +21,7 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -135,11 +135,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			isBillable: formState.isBillable,
 			description: formState.notes,
 			projectId: formState.projectId,
-			logType: TimeLogType.MANUAL as any,
-			source: TimerSource.BROWSER as any,
+			logType: ETimeLogType.MANUAL as any,
+			source: ETimeLogSource.BROWSER as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
-			organizationTeamId: null
+			organizationTeamId: undefined
 		};
 		try {
 			if (!formState.shifts || formState.shifts.length === 0) {

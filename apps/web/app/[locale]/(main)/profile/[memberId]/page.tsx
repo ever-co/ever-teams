@@ -13,7 +13,7 @@ import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -30,13 +30,13 @@ import { TaskFilter } from '@/core/components/pages/profile/task-filters';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const profile = useUserProfilePage();
-	const [headerSize] = useState(10);
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
@@ -89,7 +89,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	);
 
 	React.useEffect(() => {
-		setActivityTypeFilter((prev) => ({
+		setActivityTypeFilter((prev: IActivityFilter) => ({
 			...prev,
 			member: profile.member ? profile.member : null
 		}));
@@ -127,7 +127,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<MainLayout
-			showTimer={(headerSize <= 11.8 && isTrackingEnabled) || !profileIsAuthUser}
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
 					<div className="w-full space-y-4">

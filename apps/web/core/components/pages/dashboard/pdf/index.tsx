@@ -1,7 +1,6 @@
 'use client';
 
-import { ITimerLogGrouped } from '@/core/types/interfaces';
-
+import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 type ColumnId = 'member' | 'totalTime' | 'tracked' | 'manual' | 'active' | 'idle' | 'unknown' | 'activity';
@@ -17,7 +16,7 @@ type TableColumn = {
 	width: string;
 	style: 'memberCell' | 'tableCell';
 	textStyle?: 'text' | 'percentageText';
-	getValue: (activity: ITimerLogGrouped) => CellContent;
+	getValue: (activity: ITimeLogGroupedDailyReport) => CellContent;
 };
 
 const TABLE_COLUMNS: TableColumn[] = [
@@ -133,15 +132,15 @@ const styles = StyleSheet.create({
 	dateRow: { fontSize: 12, fontWeight: 'bold', backgroundColor: '#F3F4F6', padding: 8, marginTop: 8, marginBottom: 4 }
 });
 
-const getEmployeeLog = (data: ITimerLogGrouped) => {
+const getEmployeeLog = (data: ITimeLogGroupedDailyReport) => {
 	return data?.logs?.[0]?.employeeLogs?.[0];
 };
 
-const getEmployeeName = (data: ITimerLogGrouped): string => {
+const getEmployeeName = (data: ITimeLogGroupedDailyReport): string => {
 	return getEmployeeLog(data)?.employee?.fullName || '-';
 };
 
-const getTaskDurationByType = (data: ITimerLogGrouped, type: string): number => {
+const getTaskDurationByType = (data: ITimeLogGroupedDailyReport, type: string): number => {
 	const employeeLog = getEmployeeLog(data);
 	if (!employeeLog?.tasks) return 0;
 	return (
@@ -153,13 +152,13 @@ const getTaskDurationByType = (data: ITimerLogGrouped, type: string): number => 
 	);
 };
 
-const getTrackedTime = (data: ITimerLogGrouped): string => {
+const getTrackedTime = (data: ITimeLogGroupedDailyReport): string => {
 	const employeeLog = getEmployeeLog(data);
 	const total = employeeLog?.tasks.reduce((sum, task) => sum + task.duration, 0) || 0;
 	return formatPercentage(total);
 };
 
-const getActivityLevel = (data: ITimerLogGrouped): number => {
+const getActivityLevel = (data: ITimeLogGroupedDailyReport): number => {
 	return getEmployeeLog(data)?.activity || 0;
 };
 
@@ -185,13 +184,13 @@ const formatPercentage = (value: number) => {
 	return `${Math.round(value)}%`;
 };
 
-const getTotalTime = (data: ITimerLogGrouped): number => {
+const getTotalTime = (data: ITimeLogGroupedDailyReport): number => {
 	if (!data?.logs) return 0;
 	return data.logs.reduce((sum, log) => sum + log.employeeLogs.reduce((empSum, empLog) => empSum + empLog.sum, 0), 0);
 };
 
 interface TeamStatsPDFProps {
-	rapportDailyActivity: ITimerLogGrouped[];
+	rapportDailyActivity: ITimeLogGroupedDailyReport[];
 	title?: string;
 	startDate?: string;
 	endDate?: string;
@@ -204,7 +203,7 @@ export function TeamStatsPDF({
 	endDate
 }: TeamStatsPDFProps) {
 	const groupedByDate = rapportDailyActivity.reduce(
-		(acc: { [key: string]: ITimerLogGrouped[] }, curr: ITimerLogGrouped) => {
+		(acc: { [key: string]: ITimeLogGroupedDailyReport[] }, curr: ITimeLogGroupedDailyReport) => {
 			const date = new Date(curr.date).toLocaleDateString('en-US', {
 				weekday: 'long',
 				day: '2-digit',
@@ -243,7 +242,7 @@ export function TeamStatsPDF({
 									</View>
 								))}
 							</View>
-							{activities.map((activity: ITimerLogGrouped, index: number) => (
+							{activities.map((activity: ITimeLogGroupedDailyReport, index: number) => (
 								<View key={index} style={styles.tableRow}>
 									{TABLE_COLUMNS.map((column) => {
 										const content = column.getValue(activity);

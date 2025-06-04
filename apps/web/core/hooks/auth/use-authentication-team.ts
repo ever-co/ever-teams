@@ -3,10 +3,10 @@
 
 import { userTimezone } from '@/core/lib/helpers/date-and-time';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { IRegisterDataAPI } from '@/core/types/interfaces';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import { AxiosError } from 'axios';
 import { useCallback, useMemo, useState } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -52,7 +52,7 @@ export function useAuthenticationTeam() {
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
-	const { queryCall, loading, infiniteLoading } = useQuery(authService.registerUserTeam);
+	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.registerUserTeam);
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

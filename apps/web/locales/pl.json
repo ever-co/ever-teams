@@ -917,7 +917,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Zadanie nieprzypisane"
+			"TASK_UNASSIGNED": "Zadanie nieprzypisane",
+			"TASK_ASSIGNED": "Zadanie pomyślnie przypisane",
+			"TASK_ADDED_TO_FAVORITES": "Zadanie dodane do ulubionych",
+			"TASK_REMOVED_FROM_FAVORITES": "Zadanie usunięte z ulubionych",
+			"TASK_PLANNED_FOR_TODAY": "Zadanie zaplanowane na dzisiaj",
+			"TASK_PLANNED_FOR_TOMORROW": "Zadanie zaplanowane na jutro",
+			"TASK_PLANNED_FOR_DATE": "Zadanie zaplanowane na wybraną datę",
+			"TASK_PLAN_FAILED": "Nie udało się zaplanować zadania. Spróbuj ponownie.",
+			"TASK_ASSIGNMENT_FAILED": "Nie udało się przypisać/cofnąć przypisania zadania. Spróbuj ponownie.",
+			"TASK_FAVORITE_FAILED": "Nie udało się zaktualizować ulubionych. Spróbuj ponownie."
 		}
 	},
 	"dailyPlan": {

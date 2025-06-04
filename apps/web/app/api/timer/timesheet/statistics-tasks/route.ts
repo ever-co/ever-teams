@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 	const query = searchParams as unknown as { activeTask: string; employeeId: string };
 	const activeTask = query.activeTask;
 	let employeeId = query.employeeId;
-	employeeId = employeeId || user.employee?.id;
+	employeeId = employeeId || user.employee?.id || '';
 
 	if (activeTask && !taskId) {
 		return $res({

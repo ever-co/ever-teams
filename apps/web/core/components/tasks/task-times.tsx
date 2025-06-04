@@ -1,17 +1,21 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
-import { IClassName, ITeamTask, Nullable, OT_Member } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { Nullable } from '@/core/types/generics/utils';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	memberInfo?: I_TeamMemberCardHook | OT_Member | any;
+	memberInfo?: I_TeamMemberCardHook | IEmployee | any;
 	showDaily?: boolean;
 	showTotal?: boolean;
 	isBlock?: boolean;
@@ -21,7 +25,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = useMemo(
-		() => activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
+		() => activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
 
@@ -31,8 +35,12 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalWorkedTasks &&
 					currentMember?.totalWorkedTasks?.length &&
 					currentMember?.totalWorkedTasks
-						.filter((t) => t.id === task?.id)
-						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+						.filter((t: ITask) => t.id === task?.id)
+						.reduce(
+							(previousValue: number, currentValue: ITasksStatistics) =>
+								previousValue + (currentValue?.duration || 0),
+							0
+						)) ||
 					0
 			),
 		[currentMember?.totalWorkedTasks, task?.id]
@@ -44,8 +52,12 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalTodayTasks &&
 					currentMember?.totalTodayTasks.length &&
 					currentMember?.totalTodayTasks
-						.filter((t) => t.id === task?.id)
-						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+						.filter((t: ITask) => t.id === task?.id)
+						.reduce(
+							(previousValue: number, currentValue: ITasksStatistics) =>
+								previousValue + (currentValue?.duration || 0),
+							0
+						)) ||
 					0
 			),
 		[currentMember?.totalTodayTasks, task?.id]
@@ -88,8 +100,8 @@ function TimeInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: OT_Member | undefined;
-	task: Nullable<ITeamTask>;
+	currentUser: IOrganizationTeamEmployee | undefined;
+	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
 
@@ -98,7 +110,7 @@ function TimeInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
 						daily.m
 					}m`}
 				>
@@ -114,7 +126,7 @@ function TimeInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
 						total.m
 					}m`}
 				>
@@ -147,8 +159,8 @@ function TimeBlockInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: OT_Member | undefined;
-	task: Nullable<ITeamTask>;
+	currentUser: IOrganizationTeamEmployee | undefined;
+	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
 	return (
@@ -156,7 +168,7 @@ function TimeBlockInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
 						daily.m
 					}m`}
 				>
@@ -174,7 +186,7 @@ function TimeBlockInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
+					label={`${currentUser?.employee?.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
 						total.m
 					}m`}
 				>
@@ -203,11 +215,12 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 
 	const t = useTranslations();
 
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id);
 	const { h, m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
-				(previousValue, currentValue) => previousValue + currentValue.duration,
+				(previousValue: number, currentValue: ITasksStatistics) =>
+					previousValue + (currentValue?.duration || 0),
 				0
 			)) ||
 			0
@@ -216,7 +229,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	return (
 		<div className={clsxm('font-normal text-center', className)}>
 			<Tooltip
-				label={`${currentMember?.employee.fullName} ${t(
+				label={`${currentMember?.employee?.fullName} ${t(
 					'task.WORKED_TODAY_ON_ALL_TOOLTIP'
 				)} ${activeTeam?.name} ${t('task.TASKS_FOR_TOOLTIP')} ${h}h : ${m}m`}
 			>

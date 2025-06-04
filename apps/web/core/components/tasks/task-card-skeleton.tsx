@@ -1,11 +1,11 @@
 import Skeleton from 'react-loading-skeleton';
 import { SixSquareGridIcon } from 'assets/svg';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 
 const TaskCardSkeleton = () => {
 	return (
-		<Card
+		<EverCard
 			shadow="bigger"
 			className="relative flex items-center justify-between py-8 my-4 border border-[#F0F0F0] dark:border-0"
 		>
@@ -19,18 +19,18 @@ const TaskCardSkeleton = () => {
 
 			<VerticalSeparator className="ml-2" />
 
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="flex flex-col items-center justify-center w-48 space-y-2">
 				<Skeleton height={20} width={120} borderRadius={10} className="dark:bg-[#353741]" />
 				<Skeleton height={10} width={160} borderRadius={10} className="dark:bg-[#353741]" />
 			</div>
 
 			<VerticalSeparator />
 
-			<div className="flex space-y-2 items-center justify-center flex-col">
+			<div className="flex flex-col items-center justify-center space-y-2">
 				<Skeleton height={20} width={80} borderRadius={10} className="dark:bg-[#353741]" />
 				<Skeleton height={10} width={120} borderRadius={10} className="dark:bg-[#353741]" />
 			</div>
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="flex flex-col items-center justify-center w-48 space-y-2">
 				<Skeleton height={20} width={80} borderRadius={10} className="dark:bg-[#353741]" />
 				<Skeleton height={10} width={120} borderRadius={10} className="dark:bg-[#353741]" />
 			</div>
@@ -38,7 +38,7 @@ const TaskCardSkeleton = () => {
 			<VerticalSeparator />
 
 			<Skeleton width={180} height={40} borderRadius={20} className="dark:bg-[#353741]" />
-		</Card>
+		</EverCard>
 	);
 };
 

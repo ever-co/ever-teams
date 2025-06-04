@@ -1,0 +1,226 @@
+/**
+ * Centralize all query keys used by Tanstack Query.
+ * Each key is defined once for better consistency.
+ */
+export const queryKeys = {
+	// Keys related to authentication and users
+	// Keys related to users
+	users: {
+		auth: {
+			signIn: ['auth', 'sign-in'] as const,
+			signUp: ['auth', 'sign-up'] as const,
+			signOut: ['auth', 'sign-out'] as const,
+			refreshToken: ['auth', 'refresh-token'] as const,
+			verifyEmail: ['auth', 'verify-email'] as const,
+			resetPassword: ['auth', 'reset-password'] as const
+		},
+		me: ['users', 'me'] as const,
+		all: ['users'] as const,
+		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const
+	},
+	roles: {
+		all: ['roles'] as const,
+		detail: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : [])] as const,
+		permissions: (roleId: string | undefined | null) =>
+			['roles', ...(roleId ? [roleId] : []), 'permissions'] as const,
+		users: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : []), 'users'] as const
+	},
+	permissions: {
+		all: ['permissions'] as const,
+		detail: (permissionId: string | undefined | null) =>
+			['permissions', ...(permissionId ? [permissionId] : [])] as const
+	},
+	organizations: {
+		all: ['organizations'] as const,
+		detail: (organizationId: string | undefined | null) =>
+			['organizations', ...(organizationId ? [organizationId] : [])] as const
+	},
+	teams: {
+		all: ['teams'] as const,
+		detail: (teamId: string | undefined | null) => ['teams', ...(teamId ? [teamId] : [])] as const
+	},
+
+	// Keys related to Daily Plans
+	dailyPlans: {
+		all: ['daily-plans'] as const,
+		myPlan: (date: string | undefined | null) => ['daily-plans', 'my-plan', ...(date ? [date] : [])] as const, // Key for the user's plan at a given date
+		detail: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : [])] as const,
+		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const
+	},
+
+	// Keys related to teams (organization-team)
+	organizationTeams: {
+		all: ['organization-teams'] as const,
+		paginated: (params: Record<string, any>) => ['organization-teams', 'paginated', params] as const,
+		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
+		members: (teamId: string | undefined | null) =>
+			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
+		joinRequests: (teamId: string | undefined | null) =>
+			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const
+	},
+
+	tags: {
+		all: ['tags'] as const
+	},
+
+	// Keys related to tasks
+	tasks: {
+		all: ['tasks'] as const,
+		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
+		byEmployee: (employeeId: string | undefined | null) =>
+			['tasks', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byTeamAndProject: (teamId: string | undefined | null, projectId: string | undefined | null) =>
+			['tasks', 'by-team', ...(teamId ? [teamId] : []), 'project', ...(projectId ? [projectId] : [])] as const,
+		statistics: (teamId?: string | undefined | null) =>
+			['tasks', 'statistics', ...(teamId ? [teamId] : [])] as const,
+		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
+		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
+	},
+
+	// Keys related to task statuses
+	taskStatuses: {
+		all: ['task-statuses'] as const,
+		byTeam: (teamId: string | undefined | null) =>
+			['task-statuses', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (statusId: string | undefined | null) => ['task-statuses', ...(statusId ? [statusId] : [])] as const
+	},
+
+	// Keys related to task priorities
+	taskPriorities: {
+		all: ['task-priorities'] as const,
+		byTeam: (teamId: string | undefined | null) =>
+			['task-priorities', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (priorityId: string | undefined | null) =>
+			['task-priorities', ...(priorityId ? [priorityId] : [])] as const
+	},
+
+	// Keys related to task sizes
+	taskSizes: {
+		all: ['task-sizes'] as const,
+		byTeam: (teamId: string | undefined | null) => ['task-sizes', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (sizeId: string | undefined | null) => ['task-sizes', ...(sizeId ? [sizeId] : [])] as const
+	},
+
+	// Keys related to task labels (tags)
+	taskLabels: {
+		all: ['task-labels'] as const,
+		byTeam: (teamId: string | undefined | null) => ['task-labels', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (labelId: string | undefined | null) => ['task-labels', ...(labelId ? [labelId] : [])] as const
+	},
+
+	// Keys related to issue types
+	issueTypes: {
+		all: ['issue-types'] as const,
+		byTeam: (teamId: string | undefined | null) => ['issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (issueTypeId: string | undefined | null) =>
+			['issue-types', ...(issueTypeId ? [issueTypeId] : [])] as const
+	},
+
+	// Keys related to task versions
+	taskVersions: {
+		all: ['task-versions'] as const,
+		byTeam: (teamId: string | undefined | null) =>
+			['task-versions', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (versionId: string | undefined | null) => ['task-versions', ...(versionId ? [versionId] : [])] as const
+	},
+
+	// Keys related to task related issue types
+	taskRelatedIssueTypes: {
+		all: ['task-related-issue-types'] as const,
+		byTeam: (teamId: string | undefined | null) =>
+			['task-related-issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		detail: (relatedIssueTypeId: string | undefined | null) =>
+			['task-related-issue-types', ...(relatedIssueTypeId ? [relatedIssueTypeId] : [])] as const
+	},
+
+	// Keys related to projects
+	projects: {
+		all: ['projects'] as const,
+		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
+	},
+
+	// Keys related to the Timesheet / Timer
+	timesheet: {
+		all: ['timesheet'] as const,
+		dailyReport: (date: string | null | undefined) =>
+			['timesheet', 'daily-report', ...(date ? [date] : [])] as const,
+		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
+	},
+
+	// Keys related to languages
+	languages: {
+		all: ['languages'] as const,
+		system: (isSystem: boolean) => ['languages', 'system', isSystem] as const,
+		byCode: (code: string | undefined | null) => ['languages', 'by-code', ...(code ? [code] : [])] as const
+	},
+
+	// Keys related to currencies
+	currencies: {
+		all: ['currencies'] as const,
+		byOrganization: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			[
+				'currencies',
+				'organization',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : [])
+			] as const
+	},
+
+	// Keys related to integration
+	integrations: {
+		all: ['integrations'] as const,
+		types: (tenantId: string | undefined | null) =>
+			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
+		byTenant: (tenantId: string | undefined | null) =>
+			['integrations', 'tenant', ...(tenantId ? [tenantId] : [])] as const,
+		byTypeAndQuery: (integrationTypeId: string | undefined | null, searchQuery: string | undefined | null) =>
+			[
+				'integrations',
+				'by-type-query',
+				...(integrationTypeId ? [integrationTypeId] : []),
+				...(searchQuery ? [searchQuery] : [])
+			] as const,
+		tenantByName: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			name: string | undefined | null
+		) =>
+			[
+				'integrations',
+				'tenant-by-name',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(name ? [name] : [])
+			] as const,
+		github: {
+			all: ['integrations', 'github'] as const,
+			metadata: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null
+			) =>
+				[
+					'integrations',
+					'github',
+					'metadata',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : []),
+					...(integrationId ? [integrationId] : [])
+				] as const,
+			repositories: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null
+			) =>
+				[
+					'integrations',
+					'github',
+					'repositories',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : []),
+					...(integrationId ? [integrationId] : [])
+				] as const
+		}
+	}
+};

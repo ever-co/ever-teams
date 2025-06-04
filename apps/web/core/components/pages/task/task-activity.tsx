@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { UserTaskActivity } from '../../tasks/user-task-activity';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useTaskTimeSheets } from '@/core/hooks/tasks/use-task-activity';
 import { groupByTime } from '@/core/lib/helpers/array-data';
 
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
-export function TaskActivity({ task }: { task: ITeamTask }) {
+export function TaskActivity({ task }: { task: ITask }) {
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
 	const [hidden, setHidden] = React.useState(true);
 
@@ -21,7 +21,7 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 		getTaskTimesheets();
 	}, [task, getTaskTimesheets]);
 	return (
-		<Card
+		<EverCard
 			className="w-full p-4 md:px-4 dark:bg-[#25272D] flex flex-col gap-6 border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
@@ -49,7 +49,7 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 							key={i}
 							className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"
 						>
-							<h3 className="text-base font-semibold py-2">{timesheet.date}</h3>
+							<h3 className="py-2 text-base font-semibold">{timesheet.date}</h3>
 							{timesheet.items.map((item) => (
 								<UserTaskActivity key={item.id} timesheet={item} />
 							))}
@@ -57,6 +57,6 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 					))
 				)}
 			</div>
-		</Card>
+		</EverCard>
 	);
 }

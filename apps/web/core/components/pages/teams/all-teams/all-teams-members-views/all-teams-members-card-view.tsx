@@ -1,9 +1,9 @@
-import { IOrganizationTeamList } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import UserTeamCard from './users-teams-card/user-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 
-export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeamList[] }) {
+export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeam[] }) {
 	return (
 		<div className="flex flex-col gap-5 w-full">
 			<Accordion type="multiple" className="text-sm flex flex-col gap-5" defaultValue={teams.map((t) => t.name)}>
@@ -13,7 +13,7 @@ export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTe
 							<AccordionTrigger className="!min-w-full text-start hover:no-underline">
 								<div className="flex items-center justify-between gap-3 w-full">
 									<span className="font-medium min-w-max">
-										{team.name} ({team.members.length})
+										{team.name} ({team.members?.length})
 									</span>
 									<HorizontalSeparator />
 									{/* <MinusCircledIcon /> */}
@@ -21,9 +21,9 @@ export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTe
 							</AccordionTrigger>
 
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme flex flex-col gap-2 mt-4">
-								{team.members.length > 0 ? (
+								{(team.members?.length || 0) > 0 ? (
 									<ul className="w-full">
-										{team.members.map((member) => {
+										{team.members?.map((member) => {
 											return (
 												<li key={member.id} className="mb-4 w-full">
 													<UserTeamCard key={`${member.id}${team.id}`} member={member} />

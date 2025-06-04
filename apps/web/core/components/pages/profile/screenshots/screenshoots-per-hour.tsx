@@ -1,11 +1,11 @@
 'use client';
 
-import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
 import { clsxm } from '@/core/lib/utils';
 import ScreenshotDetailsModal from './screenshot-details';
 import { useModal } from '@/core/hooks';
 import ScreenshotItem from './screenshot-item';
 import React, { useCallback, useEffect } from 'react';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 
 export const ScreenshotPerHour = ({
 	timeSlots,
@@ -13,16 +13,16 @@ export const ScreenshotPerHour = ({
 	stoppedAt,
 	isTeamPage = false
 }: {
-	timeSlots: ITimerSlot[];
+	timeSlots: ITimeSlot[];
 	startedAt: string;
 	stoppedAt: string;
 	isTeamPage?: boolean;
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
-	const [selectedElement, setSelectedElement] = React.useState<ITimerSlot | null>(null);
+	const [selectedElement, setSelectedElement] = React.useState<ITimeSlot | null>(null);
 
 	const openScreenModal = useCallback(
-		(el: ITimerSlot) => {
+		(el: ITimeSlot) => {
 			setSelectedElement(el);
 			openModal();
 		},
@@ -54,9 +54,9 @@ export const ScreenshotPerHour = ({
 						return (
 							<div key={i} className={clsxm('min-w-[15rem] xl:w-1/6 p-4')}>
 								<ScreenshotItem
-									endTime={el.stoppedAt}
-									startTime={el.startedAt}
-									percent={el.percentage}
+									endTime={el.stoppedAt || ''}
+									startTime={el.startedAt || ''}
+									percent={el.percentage || 0}
 									imageUrl={
 										(el.screenshots && el.screenshots[0]?.thumbUrl) ||
 										'/assets/jpeg/placeholder-image.jpeg'
@@ -72,9 +72,9 @@ export const ScreenshotPerHour = ({
 					return (
 						<ScreenshotItem
 							key={i}
-							endTime={el.stoppedAt}
-							startTime={el.startedAt}
-							percent={el.percentage}
+							endTime={el.stoppedAt || ''}
+							startTime={el.startedAt || ''}
+							percent={el.percentage || 0}
 							imageUrl={
 								(el.screenshots && el.screenshots[0]?.thumbUrl) || '/assets/jpeg/placeholder-image.jpeg'
 							}
@@ -90,6 +90,6 @@ export const ScreenshotPerHour = ({
 	);
 };
 
-export const ScreenshotPerHourTeam = (props: { timeSlots: ITimerSlot[]; startedAt: string; stoppedAt: string }) => {
+export const ScreenshotPerHourTeam = (props: { timeSlots: ITimeSlot[]; startedAt: string; stoppedAt: string }) => {
 	return <ScreenshotPerHour {...props} isTeamPage={true} />;
 };

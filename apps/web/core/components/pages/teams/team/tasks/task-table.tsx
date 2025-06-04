@@ -1,13 +1,13 @@
 'use client';
 import { VisibilityState } from '@tanstack/react-table';
-import { ITeamTask } from '@/core/types/interfaces';
 import { TasksDataTable } from './tasks-data-table';
 import { columns } from './columns';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export function TaskTable({
 	currentItems,
 	columnVisibility
-}: Readonly<{ currentItems: ITeamTask[]; columnVisibility: VisibilityState }>) {
+}: Readonly<{ currentItems: ITask[]; columnVisibility: VisibilityState }>) {
 	return (
 		<TasksDataTable
 			columns={columns}

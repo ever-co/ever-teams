@@ -9,7 +9,6 @@ import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from '../../timesheet/monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import WeeklyTimesheetCalendar from '../../timesheet/weekly-timesheet-calendar';
-import { TimesheetLog } from '@/core/types/interfaces';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import TimesheetSkeleton from '../../activities/timesheet-skeleton';
@@ -19,6 +18,9 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { toast } from 'sonner';
+import { useRef } from 'react';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];
@@ -28,6 +30,7 @@ interface BaseCalendarDataViewProps {
 
 export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loading: boolean }) {
 	const t = useTranslations();
+	const isToastShown = useRef(false);
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const defaultDaysLabels = [
 		t('common.DAYS.sun'),
@@ -50,6 +53,10 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loa
 	}
 
 	if (data.length === 0) {
+		if (!isToastShown.current) {
+			toast.info('CalendarView - No data found, showing empty state');
+			isToastShown.current = true;
+		}
 		return (
 			<AnimatedEmptyState
 				title={t('pages.timesheet.NO_ENTRIES_FOUND')}
@@ -72,7 +79,6 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loa
 		</div>
 	);
 }
-
 const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationHooks }) => {
 	const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
 
@@ -92,7 +98,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 								<div className="flex gap-x-3">
 									<span>{formatDate(plan.date)}</span>
 								</div>
-								<div className="flex gap-x-1 items-center">
+								<div className="flex items-center gap-x-1">
 									<span className="text-[#868687]">Total{' : '}</span>
 
 									<TotalDurationByDate
@@ -121,15 +127,15 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 															statusColor(status).text
 														)}
 													>
-														<div className="flex justify-between items-center space-x-1 w-full">
-															<div className="flex gap-2 items-center w-full">
+														<div className="flex items-center justify-between w-full space-x-1">
+															<div className="flex items-center w-full gap-2">
 																<div
 																	className={cn(
 																		'p-2 rounded',
 																		statusColor(status).bg
 																	)}
 																></div>
-																<div className="flex gap-x-1 items-center">
+																<div className="flex items-center gap-x-1">
 																	<span className="text-base font-medium text-[#71717A] uppercase !text-[14px]">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
@@ -144,7 +150,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex flex-col gap-y-2 w-full">
+													<AccordionContent className="flex flex-col w-full gap-y-2">
 														{timesheetRows.map((task) => (
 															<div
 																key={task.id}
@@ -156,14 +162,16 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 																	'flex flex-col gap-2 items-start p-2 space-x-4 rounded-l border-l-4 group/item'
 																)}
 															>
-																<div className="flex justify-between items-center pl-3 w-full">
-																	<div className="flex gap-x-1 items-center">
+																<div className="flex items-center justify-between w-full pl-3">
+																	<div className="flex items-center gap-x-1">
 																		<EmployeeAvatar
-																			imageUrl={task.employee.user.imageUrl ?? ''}
+																			imageUrl={
+																				task.employee?.user.imageUrl ?? ''
+																			}
 																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
 																		/>
 																		<span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
-																			{task.employee.fullName}
+																			{task.employee?.fullName}
 																		</span>
 																	</div>
 																	<DisplayTimeForTimesheet timesheetLog={task} />
@@ -180,8 +188,8 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 																	dash
 																	taskNumberClassName="text-sm"
 																/>
-																<div className="flex justify-between items-center pr-3 w-full">
-																	<div className="flex flex-row flex-none flex-grow-0 gap-2 items-center self-stretch py-0">
+																<div className="flex items-center justify-between w-full pr-3">
+																	<div className="flex flex-row items-center self-stretch flex-none flex-grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
 																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
@@ -219,6 +227,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 
 const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCalendarDataViewProps) => {
 	const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
+
 	return (
 		<CalendarComponent
 			t={t}
@@ -248,15 +257,15 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 															statusColor(status).text
 														)}
 													>
-														<div className="flex justify-between items-center space-x-1 w-full">
-															<div className="flex gap-2 items-center w-full">
+														<div className="flex items-center justify-between w-full space-x-1">
+															<div className="flex items-center w-full gap-2">
 																<div
 																	className={cn(
 																		'p-2 rounded',
 																		statusColor(status).bg
 																	)}
 																></div>
-																<div className="flex gap-x-1 items-center">
+																<div className="flex items-center gap-x-1">
 																	<span className="text-base font-normal text-gray-400 uppercase !text-[13px]">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
@@ -271,7 +280,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex overflow-auto flex-col flex-none flex-grow-0 order-1 gap-y-2 items-start p-0">
+													<AccordionContent className="flex flex-col items-start flex-none flex-grow-0 order-1 p-0 overflow-auto gap-y-2">
 														{timesheetRows.map((task) => (
 															<div
 																key={task.id}
@@ -283,14 +292,16 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	'group/item border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow'
 																)}
 															>
-																<div className="flex justify-between items-center pl-3 w-full">
-																	<div className="flex gap-x-1 items-center">
+																<div className="flex items-center justify-between w-full pl-3">
+																	<div className="flex items-center gap-x-1">
 																		<EmployeeAvatar
 																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
-																			imageUrl={task.employee.user.imageUrl ?? ''}
+																			imageUrl={
+																				task.employee?.user.imageUrl ?? ''
+																			}
 																		/>
 																		<span className="font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
-																			{task.employee.fullName}
+																			{task.employee?.fullName}
 																		</span>
 																	</div>
 																	<DisplayTimeForTimesheet timesheetLog={task} />
@@ -307,8 +318,8 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	dash
 																	taskNumberClassName="text-sm"
 																/>
-																<div className="flex justify-between items-center w-full">
-																	<div className="flex flex-row flex-none flex-grow-0 gap-2 items-center self-stretch py-0">
+																<div className="flex items-center justify-between w-full">
+																	<div className="flex flex-row items-center self-stretch flex-none flex-grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
 																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
@@ -362,9 +373,9 @@ export const CheckBoxTimesheet = ({
 	timesheet,
 	handleSelectRowTimesheet
 }: {
-	selectTimesheetId: TimesheetLog[];
-	timesheet: TimesheetLog;
-	handleSelectRowTimesheet: (items: TimesheetLog) => void;
+	selectTimesheetId: ITimeLog[];
+	timesheet: ITimeLog;
+	handleSelectRowTimesheet: (items: ITimeLog) => void;
 }) => {
 	return (
 		<Checkbox

@@ -2,10 +2,10 @@ import { workingEmployeesEmailState, workingEmployeesState } from '@/core/stores
 import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 
-import { IUpdateEmployee } from '@/core/types/interfaces';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useQuery } from '../../common';
+import { useFirstLoad, useQueryCall } from '../../common';
+import { IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
@@ -13,7 +13,7 @@ export const useEmployee = () => {
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
 	const { firstLoad, firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
-	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQuery(
+	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } = useQueryCall(
 		employeeService.getWorkingEmployees
 	);
 
@@ -21,11 +21,11 @@ export const useEmployee = () => {
 		if (!user?.tenantId) {
 			return;
 		}
-		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee.organizationId).then(({ data }) => {
+		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee?.organizationId ?? '').then(({ data }) => {
 			if (data?.items && data?.items?.length) {
 				const items = data.items || [];
 
-				setWorkingEmployees(items);
+				setWorkingEmployees(items as unknown as IEmployee[]);
 				setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
 			}
 		});
@@ -47,7 +47,7 @@ export const useEmployee = () => {
 };
 
 export const useEmployeeUpdate = () => {
-	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(employeeService.updateEmployee);
+	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQueryCall(employeeService.updateEmployee);
 
 	const updateEmployee = useCallback(
 		({ id, data }: { id: string; data: IUpdateEmployee }) => {

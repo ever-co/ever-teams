@@ -1,4 +1,4 @@
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
@@ -11,11 +11,12 @@ import { Badge } from '@/core/components/common/badge';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '../../tasks/task-displays';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
-	timesheet?: Record<TimesheetStatus, TimesheetLog[]>;
+	timesheet?: Record<ETimesheetStatus, ITimeLog[]>;
 	timesheetDetailMode?: TimesheetDetailMode;
 }
 
@@ -70,8 +71,8 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 }
 export default TimesheetDetailModal;
 
-const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[]; t: TranslationHooks }) => {
-	const memberWork = groupBy(element, (items) => items.employeeId);
+const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: TranslationHooks }) => {
+	const memberWork = groupBy(element, (items) => items.employeeId || '');
 	const memberWorkItems = Object.entries(memberWork)
 		.map(([employeeId, element]) => ({ employeeId, element }))
 		.sort((a, b) => b.employeeId.localeCompare(a.employeeId));
@@ -107,9 +108,9 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[]; t: Transla
 									<div className="flex items-center gap-2">
 										<EmployeeAvatar
 											className="w-10 h-10 border rounded-full shadow-md"
-											imageUrl={timesheet.element[0].employee.user?.imageUrl ?? ''}
+											imageUrl={timesheet.element[0].employee?.user?.imageUrl ?? ''}
 										/>
-										<span className="font-bold">{timesheet.element[0].employee.fullName}</span>
+										<span className="font-bold">{timesheet.element[0].employee?.fullName}</span>
 									</div>
 									<Badge
 										variant={'outline'}
@@ -230,7 +231,7 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[]; t: Transla
 };
 
 interface MenHoursCardProps {
-	element: TimesheetLog[];
+	element: ITimeLog[];
 	t: TranslationHooks;
 }
 
@@ -239,7 +240,7 @@ interface MenHoursCardProps {
  * @returns {JSX.Element} - the rendered component
  */
 const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
-	const menHours = groupBy(element, (items) => items.timesheet.status);
+	const menHours = groupBy(element, (items) => items.timesheet?.status || '');
 	const menHoursItems = Object.entries(menHours)
 		.map(([status, element]) => ({ status, element }))
 		.sort((a, b) => b.status.localeCompare(a.status));
@@ -267,7 +268,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 						<AccordionItem value={timesheet.status} className="p-1 rounded">
 							<AccordionTrigger
 								style={{
-									backgroundColor: statusColor(timesheet.element[0].timesheet.status).bgOpacity
+									backgroundColor: statusColor(timesheet.element[0].timesheet?.status || '').bgOpacity
 								}}
 								type="button"
 								className={cn(
@@ -279,13 +280,13 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 										<div
 											className={cn(
 												'p-2 rounded-[3px] gap-2 w-[20px] h-[20px]',
-												statusColor(timesheet.element[0].timesheet.status).bg
+												statusColor(timesheet.element[0].timesheet?.status || '').bg
 											)}
 										></div>
 										<span className="font-bold">
-											{timesheet.element[0].timesheet.status === 'DENIED'
+											{timesheet.element[0].timesheet?.status === ETimesheetStatus.DENIED
 												? 'REJECTED'
-												: timesheet.element[0].timesheet.status}
+												: timesheet.element[0].timesheet?.status}
 										</span>
 									</div>
 									<Badge

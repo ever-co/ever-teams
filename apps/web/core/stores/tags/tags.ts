@@ -1,4 +1,4 @@
-import { ITag } from '@/core/types/interfaces';
+import { TTag } from '@/core/types/schemas';
 import { atom } from 'jotai';
 
-export const tagsState = atom<ITag[]>([]);
+export const tagsState = atom<TTag[]>([]);

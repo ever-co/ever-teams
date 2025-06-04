@@ -1,10 +1,10 @@
-import { ILanguageItemList } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
+import { ILanguageItemList as ILanguage } from '@/core/types/interfaces/common/language';
 
-export type LanguageItem = DropdownItem<ILanguageItemList>;
+export type LanguageItem = DropdownItem<ILanguage>;
 
-export function mapLanguageItems(languages: ILanguageItemList[]) {
+export function mapLanguageItems(languages: ILanguage[]) {
 	const items = languages.map<LanguageItem>((language) => {
 		return {
 			key: language.code,

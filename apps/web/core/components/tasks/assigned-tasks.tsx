@@ -1,9 +1,9 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITasksTimesheet } from '@/core/types/interfaces/ITimer';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
 import { useRef } from 'react';
@@ -12,14 +12,14 @@ import { useTranslations } from 'next-intl';
 
 interface ITaskDetailCard {
 	now?: boolean;
-	task: ITeamTask | null;
+	task: ITask | null;
 	current: string;
 }
 const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
 	const timerReconds = useAtomValue(timerSecondsState);
 	const t = useTranslations();
-	let taskStat: ITasksTimesheet | null | undefined = null;
+	let taskStat: ITasksStatistics | null | undefined = null;
 
 	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
 

@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetLog, TimesheetStatus } from '@/core/types/interfaces';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import {
@@ -17,7 +17,8 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface ITimesheetCard {
 	title?: string;
@@ -35,12 +36,12 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	const { icon, title, date, description, hours, count, onClick, classNameIcon } = props;
 	const t = useTranslations();
 	return (
-		<Card
+		<EverCard
 			aria-label={`Timesheet card for ${title}`}
 			shadow="custom"
-			className="w-full  h-[175px] rounded-md border border-gray-200 dark:border-gray-600 flex  gap-[8px] shadow shadow-gray-100 dark:shadow-transparent p-[24px]"
+			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
 		>
-			<div className="!gap-8 w-full space-y-4 ">
+			<div className="flex flex-col w-full gap-2 ">
 				<div className="flex flex-col items-start justify-start gap-1">
 					<h1 className="text-2xl md:text-[25px] font-bold truncate w-full">{hours ?? count}</h1>
 					<h2 className="text-base md:text-[16px] font-medium text-[#282048] dark:text-gray-400 truncate w-full">
@@ -53,7 +54,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 				<Button
 					variant="outline"
 					className={cn(
-						'h-9 px-2 py-2',
+						'h-9 px-2 py-2 w-fit',
 						'border border-gray-200 ',
 						'text-[#282048] text-sm',
 						'flex items-center',
@@ -79,11 +80,11 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 			>
 				{icon}
 			</div>
-		</Card>
+		</EverCard>
 	);
 }
 
-export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, TimesheetLog[]> }) => {
+export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
 	const { getStatusTimesheet, groupByDate } = useTimesheet({});
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);
@@ -180,9 +181,9 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
 															/>
 														</div>
 														<div className="flex items-center flex-1 gap-x-2">
-															<EmployeeAvatar imageUrl={task.employee.user.imageUrl!} />
+															<EmployeeAvatar imageUrl={task.employee?.user.imageUrl!} />
 															<span className="flex-1 font-medium text-[12px] overflow-hidden">
-																{task.employee.fullName}
+																{task.employee?.fullName}
 															</span>
 														</div>
 														<DisplayTimeForTimesheet timesheetLog={task} />

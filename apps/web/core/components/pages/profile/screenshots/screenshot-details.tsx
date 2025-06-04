@@ -1,15 +1,16 @@
 'use client';
 
 import { Modal } from '@/core/components';
-import { ITimerSlot } from '@/core/types/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
-import { IProject, ITeamTask } from '@/core/types/interfaces';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -18,7 +19,7 @@ const ScreenshotDetailsModal = ({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	slot?: ITimerSlot | null;
+	slot?: ITimeSlot | null;
 }) => {
 	const t = useTranslations();
 
@@ -39,8 +40,8 @@ const ScreenshotDetailsModal = ({
 			})}
 `;
 
-	const [project, setProject] = useState<IProject | null>(null);
-	const [task, setTask] = useState<ITeamTask | null>(null);
+	const [project, setProject] = useState<IOrganizationProject | null>(null);
+	const [task, setTask] = useState<ITask | null>(null);
 
 	const { getOrganizationProject } = useOrganizationProjects();
 	const { getTaskById } = useTeamTasks();
@@ -63,13 +64,13 @@ const ScreenshotDetailsModal = ({
 	);
 
 	useEffect(() => {
-		if (!slot?.timeLogs[0]?.projectId) return;
+		if (!slot?.timeLogs?.[0]?.projectId) return;
 
 		getProject(slot.timeLogs[0]?.projectId);
 	}, [getProject, slot?.timeLogs]);
 
 	useEffect(() => {
-		if (!slot?.timeLogs[0]?.taskId) return;
+		if (!slot?.timeLogs?.[0]?.taskId) return;
 
 		getTask(slot.timeLogs[0]?.taskId);
 	}, [getTask, slot?.timeLogs]);
@@ -101,21 +102,21 @@ const ScreenshotDetailsModal = ({
 					<h4 className=" font-medium text-lg">{t('common.SCREENSHOTS')}</h4>
 
 					<div className="flex w-full gap-2 overflow-x-auto">
-						{slot?.screenshots.map((screenshot, i) => (
+						{slot?.screenshots?.map((screenshot, i) => (
 							<div className="w-[12rem] space-y-2 shrink-0" key={i}>
 								<ScreenshotItem
 									viewMode="screenShot-only"
 									idSlot={slot?.id}
-									endTime={slot?.stoppedAt}
-									startTime={screenshot?.recordedAt}
-									imageUrl={screenshot?.thumbUrl}
+									endTime={slot?.stoppedAt || ''}
+									startTime={screenshot?.recordedAt || ''}
+									imageUrl={screenshot?.thumbUrl || ''}
 									percent={0}
 									showProgress={false}
 									onShow={() => null}
 								/>
 
 								<p className=" font-light text-[.6rem] px-2 text-center">
-									{new Date(slot?.startedAt ?? '').toLocaleDateString('en-US', {
+									{new Date(slot?.startedAt || '').toLocaleDateString('en-US', {
 										weekday: 'long',
 										year: 'numeric',
 										month: 'long',

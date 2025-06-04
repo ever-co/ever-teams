@@ -1,26 +1,30 @@
 import { useTeamInvitations } from '@/core/hooks';
-import { IClassName, IInvitation } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg';
+import { toast } from 'sonner';
 import { TimerStatus } from '@/core/components/timer/timer-status';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TimeInputField } from '../../duplicated-components/_input';
 import { Tooltip } from '../../duplicated-components/tooltip';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { cn } from '@/core/lib/helpers';
 
-type Props = IClassName & { invitation: IInvitation };
+type Props = IClassName & { invitation: IInvite };
 
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();
 
 	return (
 		<div>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative sm:flex hidden items-center py-3 min-h-[7rem] border-[0.1875rem] border-transparent',
@@ -41,7 +45,10 @@ export function InvitedCard({ invitation, className }: Props) {
 					>
 						{' '}
 						<Avatar size={50} className="relative" imageTitle={invitation.fullName}>
-							<TimerStatus status={'idle'} className="absolute z-20 -mb-3 border bottom-3 -right-1" />
+							<TimerStatus
+								status={ETimerStatus.IDLE}
+								className="absolute z-20 -mb-3 border bottom-3 -right-1"
+							/>
 						</Avatar>
 					</div>
 
@@ -83,7 +90,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				</div>
 				<VerticalSeparator />
 
-				{/* Card menu */}
+				{/* card menu */}
 				<div className="font-normal text-center 2xl:w-52 3xl:w-64 opacity-40">
 					<Text>0h : 0m</Text>
 				</div>
@@ -91,11 +98,14 @@ export function InvitedCard({ invitation, className }: Props) {
 				<div className="absolute right-2">
 					<RemoveUserInviteMenu invitation={invitation} />
 				</div>
-			</Card>
-			<Card shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
+			</EverCard>
+			<EverCard shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
 				<div className="flex items-center mb-4">
 					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
-						<TimerStatus status={'idle'} className="absolute z-20 -mb-3 border bottom-3 -right-1" />
+						<TimerStatus
+							status={ETimerStatus.IDLE}
+							className="absolute z-20 -mb-3 border bottom-3 -right-1"
+						/>
 					</Avatar>
 					<div className="">
 						<Text.Heading as="h3" className="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -130,7 +140,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<div className="absolute right-2">
 					<RemoveUserInviteMenu invitation={invitation} />
 				</div>
-			</Card>
+			</EverCard>
 		</div>
 	);
 }
@@ -164,35 +174,52 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 				<PopoverPanel>
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xl card !py-3 !px-4">
-								<ul>
+							<EverCard shadow="custom" className="shadow-xl card !py-3!px-4">
+								<ul className="flex flex-col gap-2.5">
 									<li>
-										<PopoverButton
-											onClick={() => resendTeamInvitation(invitation.id)}
-											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
+										<button
+											onClick={async () => {
+												try {
+													await resendTeamInvitation(invitation.id);
+													toast.success(t('common.INVITATION_SENT'), {
+														description: t('common.INVITATION_SENT_TO_USER', {
+															email: invitation.email
+														}),
+														duration: 5000
+													});
+													close();
+												} catch (error) {
+													toast.error('Failed to resend invitation. Please try again.');
+												}
+											}}
+											className="w-full font-normal text-left whitespace-nowrap hover:font-semibold hover:transition-all"
 										>
 											{t('common.RESEND_INVITATION')}
-										</PopoverButton>
+										</button>
 									</li>
 									<li>
 										<ConfirmDropdown
-											className="right-[110%] top-0"
-											onConfirm={() => {
-												removeTeamInvitation(invitation.id);
-												close();
+											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
+											onConfirm={async () => {
+												try {
+													await removeTeamInvitation(invitation.id, invitation.email);
+													close();
+												} catch (error) {
+													toast.error('Failed to remove invitation. Please try again.');
+												}
 											}}
 										>
-											<Text.Div
-												className={clsxm(
-													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500'
+											<span
+												className={cn(
+													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500 cursor-pointer'
 												)}
 											>
 												{t('common.REMOVE')}
-											</Text.Div>
+											</span>
 										</ConfirmDropdown>
 									</li>
 								</ul>
-							</Card>
+							</EverCard>
 						);
 					}}
 				</PopoverPanel>
@@ -210,7 +237,7 @@ export function InviteUserTeamCard({
 
 	return (
 		<div>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
@@ -241,7 +268,7 @@ export function InviteUserTeamCard({
 						</Button>
 					</Tooltip>
 				</div>
-			</Card>
+			</EverCard>
 		</div>
 	);
 }

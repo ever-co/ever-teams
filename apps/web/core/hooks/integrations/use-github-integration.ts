@@ -1,119 +1,242 @@
 import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { useQuery } from '../common/use-query';
-import { IProjectRepository } from '@/core/types/interfaces';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { githubService } from '@/core/services/client/api';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
+import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
+import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
+import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
 
 export function useGitHubIntegration() {
-	const [user] = useAtom(userState);
+	const [user] = useAtom(userState); // Phase 2: Still needed for install/oauth parameters
+	const queryClient = useQueryClient(); // Phase 2: Now used for mutations
 
 	const [integrationGithubMetadata, setIntegrationGithubMetadata] = useAtom(integrationGithubMetadataState);
 	const [integrationGithubRepositories, setIntegrationGithubRepositories] = useAtom(
 		integrationGithubRepositoriesState
 	);
 
-	const { loading: installLoading, queryCall: installQueryCall } = useQuery(githubService.installGitHubIntegration);
-	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(githubService.oAuthEndpointAuthorization);
-	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
-		githubService.getGithubIntegrationMetadata
-	);
-	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
-		githubService.getGithubIntegrationRepositories
-	);
-	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } = useQuery(
-		githubService.syncGitHubRepository
-	);
+	// Memoize cookies to avoid re-reading on every render
+	const tenantId = useMemo(() => getTenantIdCookie() || '', []);
+	const organizationId = useMemo(() => getOrganizationIdCookie() || '', []);
 
-	const installGitHub = useCallback(
-		(installation_id: string, setup_action: string) => {
-			return installQueryCall({
+	// State to track current integration IDs for React Query
+	const [metadataIntegrationId, setMetadataIntegrationId] = useState<string | null>(null);
+	const [repositoriesIntegrationId, setRepositoriesIntegrationId] = useState<string | null>(null);
+
+	// React Query for GitHub metadata
+	const metadataQuery = useQuery({
+		queryKey: metadataIntegrationId
+			? queryKeys.integrations.github.metadata(tenantId, organizationId, metadataIntegrationId)
+			: ['integrations', 'github', 'metadata', 'disabled'],
+		queryFn: () => {
+			if (!metadataIntegrationId) throw new Error('Integration ID is required for metadata');
+			return githubService.getGithubIntegrationMetadata(metadataIntegrationId);
+		},
+		enabled: !!metadataIntegrationId,
+		staleTime: 1000 * 60 * 30, // GitHub metadata is relatively stable, cache for 30 minutes
+		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
+	});
+
+	// React Query for GitHub repositories
+	const repositoriesQuery = useQuery({
+		queryKey: repositoriesIntegrationId
+			? queryKeys.integrations.github.repositories(tenantId, organizationId, repositoriesIntegrationId)
+			: ['integrations', 'github', 'repositories', 'disabled'],
+		queryFn: () => {
+			if (!repositoriesIntegrationId) throw new Error('Integration ID is required for repositories');
+			return githubService.getGithubIntegrationRepositories(repositoriesIntegrationId);
+		},
+		enabled: !!repositoriesIntegrationId
+	});
+
+	// Sync React Query data with Jotai state for backward compatibility
+	useEffect(() => {
+		if (metadataQuery.data) {
+			setIntegrationGithubMetadata(metadataQuery.data as IGithubMetadata);
+		}
+	}, [metadataQuery.data, setIntegrationGithubMetadata]);
+
+	useEffect(() => {
+		if (repositoriesQuery.data) {
+			setIntegrationGithubRepositories(repositoriesQuery.data as IGithubRepositories);
+		}
+	}, [repositoriesQuery.data, setIntegrationGithubRepositories]);
+
+	// Phase 2: React Query mutations for install and oauth
+	const installGitHubMutation = useMutation({
+		mutationFn: (params: { installation_id: string; setup_action: string }) =>
+			githubService.installGitHubIntegration({
 				tenantId: user?.tenantId as string,
 				organizationId: user?.employee?.organizationId as string,
+				installation_id: params.installation_id,
+				setup_action: params.setup_action
+			}),
+		onSuccess: () => {
+			// Invalidate GitHub-related queries after successful installation
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.integrations.github.all
+			});
+		}
+	});
+
+	const oAuthGitHubMutation = useMutation({
+		mutationFn: (params: { code: string; state: string }) => {
+			// Safely parse state parameter
+			const stateParts = params.state.split('_');
+			if (stateParts.length !== 2) {
+				throw new Error(
+					`Invalid state format: ${params.state}. Expected format: 'installation_id_setup_action'`
+				);
+			}
+
+			return githubService.oAuthEndpointAuthorization({
+				tenantId: user?.tenantId as string,
+				organizationId: user?.employee?.organizationId as string,
+				installation_id: stateParts[0],
+				setup_action: stateParts[1],
+				code: params.code
+			});
+		},
+		onSuccess: () => {
+			// Invalidate GitHub-related queries after successful OAuth
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.integrations.github.all
+			});
+		}
+	});
+
+	// Phase 3: React Query mutation for sync (complex mutation with side-effects)
+	const syncGitHubRepositoryMutation = useMutation({
+		mutationFn: async (params: {
+			installationId: string;
+			repository: IOrganizationProjectRepository;
+			projectId: string;
+			tenantId: string;
+			organizationId: string;
+		}) => {
+			// 1. Main API call - sync GitHub repository
+			const syncResult = await githubService.syncGitHubRepository({
+				installationId: params.installationId,
+				repository: params.repository
+			});
+
+			// 2. Side-effect - update organization project settings if sync successful
+			if (syncResult.data?.id) {
+				await organizationProjectService.editOrganizationProjectSetting(
+					params.projectId,
+					{
+						tenantId: params.tenantId,
+						organizationId: params.organizationId,
+						repositoryId: syncResult.data.id
+					},
+					params.tenantId
+				);
+			}
+
+			return syncResult.data;
+		},
+		onSuccess: () => {
+			// 3. Intelligent cache invalidation for related data
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.integrations.github.all
+			});
+			// Note: Organization projects invalidation would be added when that hook is migrated
+		}
+	});
+
+	// Phase 2: Migrated mutation functions using React Query
+	const installGitHub = useCallback(
+		async (installation_id: string, setup_action: string) => {
+			return await installGitHubMutation.mutateAsync({
 				installation_id,
 				setup_action
 			});
 		},
-		[installQueryCall, user]
+		[installGitHubMutation]
 	);
+
 	const oAuthGitHub = useCallback(
-		(installation_id: string, setup_action: string, code: string) => {
-			return oAuthQueryCall({
-				tenantId: user?.tenantId as string,
-				organizationId: user?.employee?.organizationId as string,
-				installation_id,
-				setup_action,
-				code
+		async (installation_id: string, setup_action: string, code: string) => {
+			return await oAuthGitHubMutation.mutateAsync({
+				code,
+				state: `${installation_id}_${setup_action}` // Combine installation_id and setup_action as state
 			});
 		},
-		[oAuthQueryCall, user]
+		[oAuthGitHubMutation]
 	);
-	const metaData = useCallback(
-		(integrationId: string) => {
-			return metadataQueryCall(integrationId).then((response) => {
-				setIntegrationGithubMetadata(response.data);
+	// Phase 1: Migrated GET functions using React Query
+	// OPTIMIZATION: Let React Query handle caching automatically instead of manual fetchQuery
+	const metaData = useCallback((integrationId: string) => {
+		// React Query will handle caching, stale time, and refetching automatically
+		// No need for manual cache checks or fetchQuery - this follows React Query best practices
+		// The data will be available through the metadataQuery.data
+		// Set integration ID to trigger React Query
+		setMetadataIntegrationId(integrationId);
+	}, []);
 
-				return response.data;
-			});
-		},
-		[metadataQueryCall, setIntegrationGithubMetadata]
-	);
-	const getRepositories = useCallback(
-		(integrationId: string) => {
-			return repositoriesQueryCall(integrationId).then((response) => {
-				setIntegrationGithubRepositories(response.data);
+	const getRepositories = useCallback(async (integrationId: string) => {
+		// Set integration ID to trigger React Query
+		setRepositoriesIntegrationId(integrationId);
 
-				return response.data;
-			});
-		},
-		[repositoriesQueryCall, setIntegrationGithubRepositories]
-	);
+		// React Query will handle caching, stale time, and refetching automatically
+		// No need for manual cache checks or fetchQuery - this follows React Query best practices
+		// The data will be available through the repositoriesQuery.data
+	}, []);
+	// Phase 3: Migrated sync function using React Query mutation (maintains exact same interface)
 	const syncGitHubRepository = useCallback(
-		(
+		async (
 			installationId: string,
-			repository: IProjectRepository,
+			repository: IOrganizationProjectRepository,
 			projectId: string,
 			tenantId: string,
 			organizationId: string
 		) => {
-			return syncGitHubRepositoryQueryCall({
+			return await syncGitHubRepositoryMutation.mutateAsync({
 				installationId,
-				repository
-			}).then((response) => {
-				if (response.data.id) {
-					organizationProjectService.editOrganizationProjectSetting(
-						projectId,
-						{
-							tenantId,
-							organizationId,
-							repositoryId: response.data.id
-						},
-						tenantId
-					);
-				}
-
-				return response.data;
+				repository,
+				projectId,
+				tenantId,
+				organizationId
 			});
 		},
-		[syncGitHubRepositoryQueryCall]
+		[syncGitHubRepositoryMutation]
 	);
 
 	return {
-		installLoading,
-		installQueryCall,
-		installGitHub,
-		oAuthLoading,
-		oAuthQueryCall,
-		oAuthGitHub,
+		// Phase 1: Migrated GET operations with React Query
 		metaData,
-		metadataLoading,
+		metadataLoading: metadataQuery.isLoading,
 		getRepositories,
-		repositoriesLoading,
+		repositoriesLoading: repositoriesQuery.isLoading,
 		integrationGithubMetadata,
 		integrationGithubRepositories,
 		setIntegrationGithubRepositories,
+
+		// Phase 2: Migrated mutation operations with React Query
+		installGitHub,
+		installLoading: installGitHubMutation.isPending,
+		oAuthGitHub,
+		oAuthLoading: oAuthGitHubMutation.isPending,
+
+		// Phase 3: Migrated sync operation with React Query
 		syncGitHubRepository,
-		syncGitHubRepositoryLoading
+		syncGitHubRepositoryLoading: syncGitHubRepositoryMutation.isPending,
+
+		// Additional React Query states
+		metadataError: metadataQuery.error,
+		repositoriesError: repositoriesQuery.error,
+		installError: installGitHubMutation.error,
+		oAuthError: oAuthGitHubMutation.error,
+		syncGitHubRepositoryError: syncGitHubRepositoryMutation.error,
+		metadataRefetch: metadataQuery.refetch,
+		repositoriesRefetch: repositoriesQuery.refetch,
+
+		// Backward compatibility (deprecated - use new error states)
+		installQueryCall: installGitHub, // Backward compatibility alias
+		oAuthQueryCall: oAuthGitHub // Backward compatibility alias
 	};
 }

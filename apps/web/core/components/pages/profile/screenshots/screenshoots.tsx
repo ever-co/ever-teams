@@ -11,7 +11,7 @@ export function ScreenshootTab() {
 	const { loading, timeSlots } = useTimeSlots();
 	const t = useTranslations();
 
-	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
+	const activityPercent = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0) / timeSlots.length;
 	// const workedSeconds = timeSlots.reduce((acc, el) => acc + el.duration, 0);
 	const {
 		time: { h, m }

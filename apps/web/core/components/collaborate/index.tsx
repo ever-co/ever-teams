@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import {
 	Command,
@@ -38,10 +38,10 @@ const Collaborate = () => {
 
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-	const members: IUser[] = useMemo(
+	const members = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
-				? activeTeam.members.map((item) => item.employee.user as IUser).filter((item) => item.id !== user?.id)
+				? activeTeam.members.map((item) => item.employee?.user).filter((item) => item?.id !== user?.id)
 				: [],
 		[activeTeam, user]
 	);
@@ -57,7 +57,9 @@ const Collaborate = () => {
 				);
 			}
 
-			return setCollaborativeMembers([...members].filter((u) => [...collaborativeMembers, member].includes(u)));
+			return setCollaborativeMembers(
+				[...members].filter((u: any) => [...collaborativeMembers, member].includes(u)) as IUser[]
+			);
 		},
 		[collaborativeMembers, members, setCollaborativeMembers]
 	);
@@ -107,7 +109,7 @@ const Collaborate = () => {
 							<CommandEmpty>{t('common.USER_NOT_FOUND')}</CommandEmpty>
 							<ScrollArea className="h-[15rem]">
 								<CommandGroup className="p-2">
-									{members.map((member) => (
+									{members.map((member: any) => (
 										<CommandItem
 											key={member?.id}
 											className="flex items-center px-2 cursor-pointer"
@@ -132,7 +134,8 @@ const Collaborate = () => {
 												isValidUrl(
 													member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
-														member?.imageUrl
+														member?.imageUrl ||
+														''
 												) ? (
 													<Avatar
 														size={36}
@@ -183,7 +186,7 @@ const Collaborate = () => {
 									>
 										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
 										isValidUrl(
-											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
+											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl || ''
 										) ? (
 											<Avatar
 												size={32}

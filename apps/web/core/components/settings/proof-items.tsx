@@ -1,8 +1,11 @@
-import { IProof } from '@/core/types/interfaces/IProof';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type ProofItem = DropdownItem<IProof>;
+
+export interface IProof {
+	title: string;
+}
 
 export function mapPropfItems(ProofList: IProof[]) {
 	const items = ProofList.map<ProofItem>((proof) => {

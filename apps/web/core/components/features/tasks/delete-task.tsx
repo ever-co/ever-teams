@@ -1,9 +1,10 @@
-import { IInviteProps } from '@/core/types/interfaces/hooks';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { useTeamTasks } from '@/core/hooks/organizations';
+import { IInviteProps } from '../teams/invite-modal';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();
@@ -12,7 +13,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 		if (task) {
 			await updateTask({
 				...task,
-				status: 'closed'
+				status: ETaskStatusName.CLOSED
 			});
 		}
 		closeModal();

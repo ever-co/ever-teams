@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { serverFetch } from '../fetch';
-import { IProject, PaginationResponse } from '@/core/types/interfaces';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 export function editOrganizationProjectsSettingsRequest({
 	id,
@@ -51,7 +52,7 @@ export function getOrganizationProjectRequest({
 	tenantId: string;
 	bearer_token: string;
 }) {
-	return serverFetch<IProject>({
+	return serverFetch<IOrganizationProject>({
 		path: `/organization-projects/${id}`,
 		method: 'GET',
 		bearer_token,
@@ -74,7 +75,7 @@ export function getOrganizationProjectsRequest({
 	};
 	const query = qs.stringify(obj);
 
-	return serverFetch<PaginationResponse<IProject>>({
+	return serverFetch<PaginationResponse<IOrganizationProject>>({
 		path: `/organization-projects?${query}`,
 		method: 'GET',
 		bearer_token,

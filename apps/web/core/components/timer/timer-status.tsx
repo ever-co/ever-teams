@@ -1,13 +1,15 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { clsxm } from '@/core/lib/utils';
 import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
 type Props = {
-	status: ITimerStatusEnum;
+	status: ETimerStatus;
 	showIcon?: boolean;
 	tooltipClassName?: string;
 	labelContainerClassName?: string;
@@ -50,9 +52,9 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 
 export function getTimerStatusValue(
 	timerStatus: ITimerStatus | null,
-	member: OT_Member | undefined,
+	member: any | undefined,
 	publicTeam?: boolean
-): ITimerStatusEnum {
+): ETimerStatus {
 	const isSuspended = () => !member?.employee?.isActive && !publicTeam;
 	const isPaused = () => member?.timerStatus === 'pause';
 	const shouldPauseDueToTimerStatus = () => {
@@ -67,18 +69,18 @@ export function getTimerStatusValue(
 	const isOnline = () => member?.employee?.isOnline && member?.employee?.isTrackingTime;
 	const isIdle = () => !member?.totalTodayTasks?.length;
 
-	let status: ITimerStatusEnum;
+	let status: ETimerStatus;
 
 	if (isOnline()) {
-		status = 'online';
+		status = ETimerStatus.ONLINE;
 	} else if (isIdle()) {
-		status = 'idle';
+		status = ETimerStatus.IDLE;
 	} else if (isPaused() || shouldPauseDueToTimerStatus()) {
-		status = 'pause';
+		status = ETimerStatus.PAUSE;
 	} else if (isSuspended()) {
-		status = 'suspended';
+		status = ETimerStatus.SUSPENDED;
 	} else {
-		status = member?.timerStatus || 'idle';
+		status = member?.timerStatus || ETimerStatus.IDLE;
 	}
 
 	return status;

@@ -1,8 +1,8 @@
 'use client';
 
 import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
-import { useAuthenticationTeam, IStepProps } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces';
+import { IStepProps, useAuthenticationTeam } from '@/core/hooks';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, BackdropLoader, Button, SiteReCAPTCHA, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 
 function AuthTeam() {
@@ -86,7 +86,7 @@ function FillTeamNameForm({
 	const t = useTranslations();
 
 	return (
-		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="custom">
+		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="custom">
 			<div className="flex flex-col items-center justify-between">
 				<Text.Heading as="h3" className="text-center mb-7">
 					{t('pages.authTeam.INPUT_TEAM_NAME')}
@@ -112,7 +112,7 @@ function FillTeamNameForm({
 					<Button type="submit">{t('common.CONTINUE')}</Button>
 				</div>
 			</div>
-		</Card>
+		</EverCard>
 	);
 }
 
@@ -173,7 +173,7 @@ function FillUserDataForm({
 		}
 	};
 	return (
-		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
+		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
 			<div className="flex flex-col items-center justify-between h-full">
 				<Text.Heading as="h3" className="mb-10 text-center">
 					{t('pages.authTeam.CREATE_FIRST_TEAM')}
@@ -212,7 +212,7 @@ function FillUserDataForm({
 					</Button>
 				</div>
 			</div>
-		</Card>
+		</EverCard>
 	);
 }
 

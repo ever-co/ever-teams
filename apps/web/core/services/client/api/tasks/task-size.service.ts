@@ -1,36 +1,145 @@
-import { DeleteResponse, ITaskSizesCreate, ITaskSizesItemList, PaginationResponse } from '@/core/types/interfaces';
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import {
+	validatePaginationResponse,
+	taskSizeSchema,
+	validateApiResponse,
+	ZodValidationError,
+	TTaskSize
+} from '@/core/types/schemas';
 
+/**
+ * Enhanced Task Size Service with Zod validation
+ *
+ * This service extends the base APIService to add schema validation
+ * for all API responses, ensuring data integrity and type safety.
+ */
 class TaskSizeService extends APIService {
-	createTaskSize = async (data: ITaskSizesCreate) => {
-		const tenantId = getTenantIdCookie();
+	/**
+	 * Create a new task size with validation
+	 *
+	 * @param data - Task size data without ID
+	 * @returns Promise<TTaskSize> - Validated created task size
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	createTaskSize = async (data: ITaskSizesCreate): Promise<TTaskSize> => {
+		try {
+			const tenantId = getTenantIdCookie();
 
-		return this.post<ITaskSizesItemList>('/task-sizes', data, {
-			tenantId
-		});
+			const response = await this.post<TTaskSize>('/task-sizes', data, {
+				tenantId
+			});
+
+			// Validate the response data
+			return validateApiResponse(taskSizeSchema, response.data, 'createTaskSize API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Task size creation validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TaskSizeService'
+				);
+			}
+			throw error;
+		}
 	};
 
-	editTaskSize = async (id: string, data: ITaskSizesCreate) => {
-		const tenantId = getTenantIdCookie();
+	/**
+	 * Update a task size with validation
+	 *
+	 * @param id - Task size ID to update
+	 * @param data - Task size data to update
+	 * @returns Promise<TTaskSize> - Validated updated task size
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	editTaskSize = async (id: string, data: ITaskSizesCreate): Promise<TTaskSize> => {
+		try {
+			const tenantId = getTenantIdCookie();
 
-		return this.put<ITaskSizesCreate>(`/task-sizes/${id}`, data, {
-			tenantId
-		});
+			const response = await this.put<TTaskSize>(`/task-sizes/${id}`, data, {
+				tenantId
+			});
+
+			// Validate the response data
+			return validateApiResponse(taskSizeSchema, response.data, 'editTaskSize API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Task size update validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TaskSizeService'
+				);
+			}
+			throw error;
+		}
 	};
 
+	/**
+	 * Delete a task size with validation
+	 *
+	 * @param id - Task size ID to delete
+	 * @returns Promise<TTaskSize> - Validated deleted task size data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
 	deleteTaskSize = async (id: string) => {
-		return this.delete<DeleteResponse>(`/task-sizes/${id}`);
+		try {
+			const response = await this.delete(`/task-sizes/${id}`);
+
+			return response;
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Task size deletion validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TaskSizeService'
+				);
+			}
+			throw error;
+		}
 	};
 
-	getTaskSizes = async () => {
-		const tenantId = getTenantIdCookie();
-		const organizationId = getOrganizationIdCookie();
-		const activeTeamId = getActiveTeamIdCookie();
+	/**
+	 * Get all task sizes with validation
+	 *
+	 * @returns Promise<PaginationResponse<TTaskSize>> - Validated task sizes data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	getTaskSizes = async (): Promise<PaginationResponse<TTaskSize>> => {
+		try {
+			const tenantId = getTenantIdCookie();
+			const organizationId = getOrganizationIdCookie();
+			const activeTeamId = getActiveTeamIdCookie();
 
-		const endpoint = `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
-		return this.get<PaginationResponse<ITaskSizesItemList>>(endpoint);
+			const endpoint = `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
+			const response = await this.get<PaginationResponse<TTaskSize>>(endpoint);
+
+			// Validate the response data using Zod schema
+			return validatePaginationResponse(taskSizeSchema, response.data, 'getTaskSizes API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Task size validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TaskSizeService'
+				);
+			}
+			throw error;
+		}
 	};
 }
 

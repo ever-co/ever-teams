@@ -1,6 +1,6 @@
-import { ID } from '@/core/types/interfaces';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateStatusTimesheetRequest } from '@/core/services/server/requests';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request) {
@@ -42,11 +42,11 @@ export async function PUT(req: Request) {
 		const { data } = await updateStatusTimesheetRequest(
 			{
 				ids,
-				organizationId,
+				organizationId: organizationId || '',
 				status,
-				tenantId
+				tenantId: tenantId || ''
 			},
-			access_token
+			access_token || ''
 		);
 
 		return $res({

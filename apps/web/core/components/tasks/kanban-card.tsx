@@ -1,6 +1,6 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { ITaskPriority, ITeamTask, Tag } from '@/core/types/interfaces';
+import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
@@ -20,6 +20,8 @@ import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ETaskPriority } from '@/core/types/generics/enums/task';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -73,11 +75,11 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 }
 // TODO: remove this component, it is using only in kanban and now we uses the previous component
 // added export to remove lint error
-export function TagList({ tags }: { tags: Tag[] }) {
+export function TagList({ tags }: { tags: ITag[] }) {
 	return (
 		<>
 			<div className="flex flex-wrap gap-1 items-center">
-				{tags.map((tag: Tag, index: number) => {
+				{tags.map((tag: ITag, index: number) => {
 					return <TagCard key={index} title={tag.name} backgroundColor={tag.color} color={'#FFFFFF'} />;
 				})}
 			</div>
@@ -85,7 +87,7 @@ export function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-export function Priority({ level }: { level: ITaskPriority }) {
+export function Priority({ level }: { level: ETaskPriority }) {
 	const levelSmallCase = level.toString().toLowerCase();
 	const levelIntoNumber =
 		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;
@@ -117,7 +119,7 @@ export function Priority({ level }: { level: ITaskPriority }) {
 	);
 }
 type ItemProps = {
-	item: ITeamTask;
+	item: ITask;
 	isDragging: boolean;
 	isGroupedOver: boolean;
 	provided: DraggableProvided;
@@ -141,34 +143,39 @@ export default function Item(props: ItemProps) {
 	const { timerStatus } = useTimerView();
 
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => m.employee.userId === user?.id);
+	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i) => i.id === item?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === item?.id) || null;
 		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration;
+			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
 	});
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
-	const taskAssignee: ImageOverlapperProps[] = item.members.map((member: any) => {
-		return {
-			id: member.user.id,
-			url: member.user.imageUrl,
-			alt: member.user.firstName
-		};
-	});
+	const taskAssignee: ImageOverlapperProps[] =
+		item.members?.map((member: any) => {
+			return {
+				id: member.user.id,
+				url: member.user.imageUrl,
+				alt: member.user.firstName
+			};
+		}) || [];
 
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
 
 	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t) => t.id === item?.id)
-				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+				.filter((t: ITask) => t.id === item?.id)
+				.reduce(
+					(previousValue: number, currentValue: ITasksStatistics) =>
+						previousValue + (currentValue.duration || 0),
+					0
+				)) ||
 			0
 	);
 	return (
@@ -179,7 +186,7 @@ export default function Item(props: ItemProps) {
 			{...provided.dragHandleProps}
 			style={getStyle(provided, style)}
 			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
-			aria-label={item.label}
+			aria-label={item.title}
 		>
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">

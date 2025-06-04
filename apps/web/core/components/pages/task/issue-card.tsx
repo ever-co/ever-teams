@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IHookModal, useModal, useQuery, useTeamTasks } from '@/core/hooks';
-import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@/core/types/interfaces';
+import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
@@ -10,9 +9,12 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
+import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -27,7 +29,7 @@ export const RelatedIssueCard = () => {
 	const linkedTasks = useMemo(() => {
 		const issues = task?.linkedIssues?.reduce(
 			(acc, item) => {
-				const $item = tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
+				const $item = tasks.find((ts) => ts.id === item.taskFrom?.id) || item.taskFrom;
 
 				if ($item /*&& item.action === actionType?.data?.value*/) {
 					acc.push({
@@ -38,14 +40,14 @@ export const RelatedIssueCard = () => {
 
 				return acc;
 			},
-			[] as { issue: LinkedTaskIssue; task: ITeamTask }[]
+			[] as { issue: ITaskLinkedIssue; task: ITask }[]
 		);
 
 		return issues || [];
 	}, [task, tasks]);
 
 	return (
-		<Card
+		<EverCard
 			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#25272D] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
@@ -101,19 +103,19 @@ export const RelatedIssueCard = () => {
 			)}
 
 			{task && <CreateLinkedTask task={task} modal={modal} />}
-		</Card>
+		</EverCard>
 	);
 };
 
-function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
+function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
-	const { queryCall } = useQuery(taskLinkedIssueService.createTaskLinkedIssue);
+	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITeamTask | undefined) => {
+		async (childTask: ITask | undefined) => {
 			if (!childTask) return;
 			setLoading(true);
 			const parentTask = task;
@@ -123,7 +125,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 				taskToId: parentTask.id,
 
 				organizationId: task.organizationId,
-				action: TaskRelatedIssuesRelationEnum.RELATES_TO
+				action: ERelatedIssuesRelation.RELATES_TO
 			}).catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {
@@ -134,18 +136,22 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 		[task, queryCall, loadTeamTasksData, modal]
 	);
 
-	const isTaskEpic = task.issueType === 'Epic';
-	const isTaskStory = task.issueType === 'Story';
-	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
+	const isTaskEpic = task.issueType === EIssueType.EPIC;
+	const isTaskStory = task.issueType === EIssueType.STORY;
+	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom?.id) || [];
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
 			if (isTaskEpic) {
-				return childTask.issueType !== 'Epic';
+				return childTask.issueType !== EIssueType.EPIC;
 			} else if (isTaskStory) {
-				return childTask.issueType !== 'Epic' && childTask.issueType !== 'Story';
+				return childTask.issueType !== EIssueType.EPIC && childTask.issueType !== EIssueType.STORY;
 			} else {
-				return childTask.issueType === 'Bug' || childTask.issueType === 'Task' || childTask.issueType === null;
+				return (
+					childTask.issueType === EIssueType.BUG ||
+					childTask.issueType === EIssueType.TASK ||
+					childTask.issueType === null
+				);
 			}
 		};
 
@@ -160,7 +166,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 						<SpinnerLoader />
 					</div>
 				)}
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{t('common.LINK_TASK')}
@@ -180,7 +186,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask 
 						onTaskCreated={onTaskSelect}
 						cardWithoutShadow={true}
 					/>
-				</Card>
+				</EverCard>
 			</div>
 		</Modal>
 	);

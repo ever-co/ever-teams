@@ -22,8 +22,8 @@ import { DatePicker } from '@/core/components/common/date-picker';
 import { cn } from '@/core/lib/helpers';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { TimesheetFilterByDays } from '@/core/types/interfaces';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -32,16 +32,17 @@ interface DatePickerInputProps {
 
 export function FrequencySelect() {
 	const { setTimesheetGroupByDays, timesheetGroupByDays } = useTimelogFilterOptions();
+
 	const handleSelectChange = (value: string) => {
-		setTimesheetGroupByDays(value as TimesheetFilterByDays);
+		setTimesheetGroupByDays(value as ETimeFrequency);
 	};
 
 	return (
 		<Select value={timesheetGroupByDays} onValueChange={handleSelectChange}>
-			<SelectTrigger className="w-36 overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="min-w-24 w-fit overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 				<SelectValue placeholder="Select a daily" />
 			</SelectTrigger>
-			<SelectContent>
+			<SelectContent className="w-fit">
 				<SelectGroup>
 					<SelectItem value="Daily">Daily</SelectItem>
 					<SelectItem value="Weekly">Weekly</SelectItem>
@@ -112,11 +113,11 @@ export const CustomDateRange = () => {
 			</DropdownMenuSubTrigger>
 			<DropdownMenuPortal>
 				<DropdownMenuSubContent className="bg-white hover:bg-white">
-					<DropdownMenuItem className="cursor-pointer bg-white hover:bg-white">
+					<DropdownMenuItem className="bg-white cursor-pointer hover:bg-white">
 						<div className="flex flex-col gap-3">
 							<DynamicDatePicker label="From" date={dateRange.from} setDate={handleFromChange} />
 							<DynamicDatePicker label="To" date={dateRange.to} setDate={handleToChange} />
-							<div className="flex w-full justify-end gap-4">
+							<div className="flex justify-end w-full gap-4">
 								<button className="text-primary" onClick={cancelChanges}>
 									Cancel
 								</button>
@@ -143,7 +144,7 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
 		>
 			{date ? format(date, 'LLL dd, y') : <span>{label}</span>}
 		</Button>
-		<IconsCalendarMonthOutline className="h-5 w-5 dark:text-gray-500" />
+		<IconsCalendarMonthOutline className="w-5 h-5 dark:text-gray-500" />
 	</>
 );
 
@@ -161,7 +162,7 @@ export function DynamicDatePicker({
 			<DatePicker
 				buttonVariant={'link'}
 				// @ts-ignore
-				className="dark:bg-dark--theme-light rounded-lg bg-white"
+				className="bg-white rounded-lg dark:bg-dark--theme-light"
 				buttonClassName={
 					'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black h-10 border dark:border-slate-600 rounded-md'
 				}

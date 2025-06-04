@@ -7,8 +7,9 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces';
 import { NextResponse } from 'next/server';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 export async function POST(req: Request) {
 	try {
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
 			defaultTeamId?: IOrganizationTeam['id'];
 			lastTeamId?: IOrganizationTeam['id'];
 		};
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 
@@ -110,7 +111,7 @@ export async function POST(req: Request) {
 				);
 			}
 			const { data: teams } = await getAllOrganizationTeamRequest(
-				{ tenantId, organizationId: organization.organizationId },
+				{ tenantId, organizationId: organization.organizationId || '' },
 				access_token
 			);
 
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
 					},
 					teamId: team?.id,
 					tenantId,
-					organizationId: organization?.organizationId,
+					organizationId: organization?.organizationId || '',
 					languageId: 'en', // TODO: not sure what should be here
 					noTeamPopup: true,
 					userId
@@ -169,7 +170,7 @@ export async function POST(req: Request) {
 				},
 				teamId: body.teamId,
 				tenantId,
-				organizationId: organization?.organizationId,
+				organizationId: organization?.organizationId || '',
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
 				userId

@@ -1,20 +1,18 @@
-import {
-	DeleteResponse,
-	IOrganizationTeam,
-	IOrganizationTeamCreate,
-	IOrganizationTeamList,
-	IOrganizationTeamUpdate,
-	ITeamRequestParams,
-	IUser,
-	PaginationResponse,
-	TimerSource
-} from '@/core/types/interfaces';
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import {
+	IOrganizationTeam,
+	IOrganizationTeamCreate,
+	IOrganizationTeamUpdate,
+	ITeamRequestParams
+} from '@/core/types/interfaces/team/organization-team';
+import { IUser } from '@/core/types/interfaces/user/user';
 
 class OrganizationTeamService extends APIService {
 	/**
@@ -38,7 +36,7 @@ class OrganizationTeamService extends APIService {
 		const queryParameters = {
 			'where[organizationId]': organizationId,
 			'where[tenantId]': tenantId,
-			source: TimerSource.TEAMS,
+			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			relations
 		};
@@ -48,7 +46,7 @@ class OrganizationTeamService extends APIService {
 
 		const endpoint = `/organization-team?${query}`;
 
-		return this.get<PaginationResponse<IOrganizationTeamList>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IOrganizationTeam>>(endpoint, { tenantId });
 	};
 
 	createOrganizationTeamGauzy = async (data: IOrganizationTeamCreate, bearer_token: string) => {
@@ -89,7 +87,7 @@ class OrganizationTeamService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
+		return api.post<PaginationResponse<IOrganizationTeam>>('/organization-team', { name });
 	};
 
 	/**
@@ -129,14 +127,14 @@ class OrganizationTeamService extends APIService {
 		const endpoint = `/organization-team/${teamId}?${queryString}`;
 
 		// Fetch and return the team details
-		return this.get<IOrganizationTeamList>(endpoint);
+		return this.get<IOrganizationTeam>(endpoint);
 	};
 
 	editOrganizationTeam = async (data: IOrganizationTeamUpdate) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
-		let response = await this.put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
+		let response = await this.put<IOrganizationTeam>(`/organization-team/${data.id}`, data);
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			response = await this.getOrganizationTeam(data.id, organizationId, tenantId);
@@ -149,7 +147,7 @@ class OrganizationTeamService extends APIService {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
-		let response = await this.put<IOrganizationTeamList>(`/organization-team/${teamId}`, data);
+		let response = await this.put<IOrganizationTeam>(`/organization-team/${teamId}`, data);
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			response = await this.getOrganizationTeam(teamId, organizationId, tenantId);
@@ -190,7 +188,7 @@ class OrganizationTeamService extends APIService {
 		const queryParams = {
 			'where[organizationId]': params.organizationId,
 			'where[tenantId]': params.tenantId,
-			source: TimerSource.TEAMS,
+			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
 		};
@@ -199,7 +197,7 @@ class OrganizationTeamService extends APIService {
 		const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
 		// Construct and execute the request
-		return this.get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${queryString}`, {
+		return this.get<PaginationResponse<IOrganizationTeam>>(`/organization-team?${queryString}`, {
 			tenantId: params.tenantId,
 			headers: {
 				Authorization: `Bearer ${bearer_token}`

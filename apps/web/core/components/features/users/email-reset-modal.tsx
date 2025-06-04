@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { AuthCodeInputField } from '../../auth/auth-code-input';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 
 export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
@@ -55,7 +55,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 		<Modal isOpen={open} closeModal={onCloseModal}>
 			<form className="w-[98%] md:w-[480px]" autoComplete="off" onSubmit={handleConfirm}>
 				{step === 'EMAIL' && (
-					<Card className="w-full" shadow="custom">
+					<EverCard className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between">
 							<Text.Heading as="h3" className="gap-32 text-center">
 								{t('pages.settingsPersonal.ABOUT_TO_CHANGE_EMAIL')}
@@ -101,11 +101,11 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 								</Button>
 							</div>
 						</div>
-					</Card>
+					</EverCard>
 				)}
 
 				{step === 'CODE_VERIFICATION' && (
-					<Card className="w-full" shadow="custom">
+					<EverCard className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between">
 							<Text.Heading as="h3" className="text-center">
 								{t('common.SECURITY_CODE')}
@@ -169,7 +169,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 								</Button>
 							</div>
 						</div>
-					</Card>
+					</EverCard>
 				)}
 			</form>
 		</Modal>
