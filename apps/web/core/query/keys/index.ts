@@ -155,6 +155,13 @@ export const queryKeys = {
 		byTypeAndQuery: (integrationTypeId: string, searchQuery: string) =>
 			['integrations', 'by-type-query', integrationTypeId, searchQuery] as const,
 		tenantByName: (tenantId: string, organizationId: string, name: string) =>
-			['integrations', 'tenant-by-name', tenantId, organizationId, name] as const
+			['integrations', 'tenant-by-name', tenantId, organizationId, name] as const,
+		github: {
+			all: ['integrations', 'github'] as const,
+			metadata: (tenantId: string, organizationId: string, integrationId: string) =>
+				['integrations', 'github', 'metadata', tenantId, organizationId, integrationId] as const,
+			repositories: (tenantId: string, organizationId: string, integrationId: string) =>
+				['integrations', 'github', 'repositories', tenantId, organizationId, integrationId] as const
+		}
 	}
 };

@@ -25,6 +25,7 @@ export * from './timer/timer-status.schema';
 export * from './integrations/integration-type.schema';
 export * from './integrations/integration.schema';
 export * from './integrations/integration-tenant.schema';
+export * from './integrations/github.schema';
 
 // Validation utilities - Helper functions for schema validation
 export * from './utils/validation';
