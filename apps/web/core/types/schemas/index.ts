@@ -23,6 +23,7 @@ export * from './timer/timer-status.schema';
 
 // Integration schemas
 export * from './integrations/integration-type.schema';
+export * from './integrations/integration.schema';
 
 // Validation utilities - Helper functions for schema validation
 export * from './utils/validation';
