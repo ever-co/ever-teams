@@ -1,7 +1,6 @@
 'use client';
-
 import { userState, issueTypesListState, activeTeamIdState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -22,24 +21,49 @@ export function useIssueType() {
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
 	const { firstLoadData: firstLoadIssueTypeData } = useFirstLoad();
 
-	const organizationId = authUser?.employee?.organizationId || user?.employee?.organizationId;
-	const tenantId = authUser?.employee?.tenantId || user?.tenantId;
-	const teamId = activeTeam?.id || activeTeamId;
+	// PERFORMANCE OPTIMIZATION: Memoize derived values to avoid recalculation on every render
+	const organizationId = useMemo(
+		() => authUser?.employee?.organizationId || user?.employee?.organizationId,
+		[authUser?.employee?.organizationId, user?.employee?.organizationId]
+	);
+
+	const tenantId = useMemo(
+		() => authUser?.employee?.tenantId || user?.tenantId,
+		[authUser?.employee?.tenantId, user?.tenantId]
+	);
+
+	const teamId = useMemo(() => activeTeam?.id || activeTeamId, [activeTeam?.id, activeTeamId]);
 
 	// useQuery for fetching issue types
+	// PERFORMANCE OPTIMIZATION: Removed setState from queryFn to follow React Query best practices
 	const issueTypesQuery = useQuery({
 		queryKey: queryKeys.issueTypes.byTeam(teamId),
 		queryFn: async () => {
 			if (!tenantId || !organizationId || !teamId) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
+
+			// Clean queryFn - only fetch and return data
 			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId);
-			if (!isEqual(res.data?.items || [], issueTypes)) {
-				setIssueTypes(res.data?.items || []);
-			}
 			return res.data;
-		}
+		},
+		enabled: !!tenantId && !!organizationId && !!teamId, // Only fetch when all required params are available
+		staleTime: 1000 * 60 * 5, // Issue types are relatively stable, cache for 5 minutes
+		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
 	});
+
+	// PERFORMANCE OPTIMIZATION: Sync React Query data with Jotai state using useEffect
+	// This replaces the setState in queryFn and follows React Query best practices
+	// DEEP EQUAL COMPARISON: Important for application context to avoid unnecessary updates
+	useEffect(() => {
+		if (issueTypesQuery.data?.items) {
+			// Deep comparison to prevent unnecessary state updates
+			// This is important for the application context as requested
+			if (!isEqual(issueTypesQuery.data.items, issueTypes)) {
+				setIssueTypes(issueTypesQuery.data.items);
+			}
+		}
+	}, [issueTypesQuery.data?.items, issueTypes, setIssueTypes]);
 
 	// Mutations
 	const createIssueTypeMutation = useMutation({
