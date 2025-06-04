@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { useGitHubIntegration } from './use-github-integration';
+import { IIntegrationTenant } from '@/core/types/interfaces/integrations/integration-tenant';
 
 export function useIntegrationTenant() {
 	const [integrationTenant, setIntegrationTenant] = useAtom(integrationTenantState);
@@ -19,28 +20,25 @@ export function useIntegrationTenant() {
 	const tenantId = useMemo(() => getTenantIdCookie() || '', []);
 	const organizationId = useMemo(() => getOrganizationIdCookie() || '', []);
 
-	// Memoize queryFn to avoid recreation on every render
-	const queryFn = useCallback(() => {
-		if (!queryName) throw new Error('Query name is required');
-		return integrationTenantService.getIntegrationTenant(queryName);
-	}, [queryName]);
-
 	// React Query for integration tenant data with dynamic parameters
 	const integrationTenantQuery = useQuery({
 		queryKey: queryName
 			? queryKeys.integrations.tenantByName(tenantId, organizationId, queryName)
 			: ['integrations', 'tenant', 'disabled'],
-		queryFn,
+		queryFn: () => {
+			if (!queryName) throw new Error('Query name is required');
+			return integrationTenantService.getIntegrationTenant(queryName);
+		},
 		enabled: !!queryName,
-		staleTime: 1000 * 60 * 5, // Integration tenant data changes moderately, cache for 5 minutes
-		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
+		staleTime: 1000 * 60 * 30, // Integration tenant data changes moderately, cache for 30 minutes
+		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
 		if (integrationTenantQuery.data?.items) {
 			// Cast to any for backward compatibility with existing interfaces
-			setIntegrationTenant(integrationTenantQuery.data.items as any);
+			setIntegrationTenant(integrationTenantQuery.data.items as IIntegrationTenant[]);
 		}
 	}, [integrationTenantQuery.data?.items, setIntegrationTenant]);
 

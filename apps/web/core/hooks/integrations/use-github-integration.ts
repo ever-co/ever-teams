@@ -37,8 +37,8 @@ export function useGitHubIntegration() {
 			return githubService.getGithubIntegrationMetadata(metadataIntegrationId);
 		},
 		enabled: !!metadataIntegrationId,
-		staleTime: 1000 * 60 * 10, // GitHub metadata is relatively stable, cache for 10 minutes
-		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
+		staleTime: 1000 * 60 * 30, // GitHub metadata is relatively stable, cache for 30 minutes
+		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
 	});
 
 	// React Query for GitHub repositories
@@ -50,9 +50,7 @@ export function useGitHubIntegration() {
 			if (!repositoriesIntegrationId) throw new Error('Integration ID is required for repositories');
 			return githubService.getGithubIntegrationRepositories(repositoriesIntegrationId);
 		},
-		enabled: !!repositoriesIntegrationId,
-		staleTime: 1000 * 60 * 5, // GitHub repositories change more frequently, cache for 5 minutes
-		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
+		enabled: !!repositoriesIntegrationId
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility
@@ -173,20 +171,20 @@ export function useGitHubIntegration() {
 	// Phase 1: Migrated GET functions using React Query
 	const metaData = useCallback(
 		async (integrationId: string) => {
-			// Set integration ID to trigger React Query
+			const queryKey = queryKeys.integrations.github.metadata(tenantId, organizationId, integrationId);
 			setMetadataIntegrationId(integrationId);
+			// Try to get from cache first
+			const cachedData = queryClient.getQueryData(queryKey);
+			if (cachedData) return cachedData;
 
-			// If we already have cached data for this integration ID, return it immediately
-			const cachedData = metadataQuery.data;
-			if (cachedData && !metadataQuery.isStale) {
-				return cachedData;
-			}
-
-			// Otherwise wait for the query to complete
-			const result = await metadataQuery.refetch();
-			return result.data || null;
+			// Fetch if not in cache
+			return await queryClient.fetchQuery({
+				queryKey,
+				queryFn: () => githubService.getGithubIntegrationMetadata(integrationId),
+				staleTime: 1000 * 60 * 10
+			});
 		},
-		[metadataQuery]
+		[queryClient, tenantId, organizationId]
 	);
 
 	const getRepositories = useCallback(

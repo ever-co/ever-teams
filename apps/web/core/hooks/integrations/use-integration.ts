@@ -24,19 +24,16 @@ export function useIntegration(integrationTypeId?: string, searchQuery?: string)
 			});
 		}
 	}, [integrationTypeId, searchQuery]);
-	const queryFn = useCallback(
-		() => integrationService.getIntegration(queryParams!.integrationTypeId, queryParams!.searchQuery),
-		[queryParams]
-	);
+
 	// React Query for integration data with dynamic parameters
 	const integrationQuery = useQuery({
 		queryKey: queryParams
 			? queryKeys.integrations.byTypeAndQuery(queryParams.integrationTypeId, queryParams.searchQuery)
 			: ['integrations', 'disabled'],
-		queryFn,
+		queryFn: () => integrationService.getIntegration(queryParams!.integrationTypeId, queryParams!.searchQuery),
 		enabled: !!queryParams, // Only fetch when parameters are set
-		staleTime: 1000 * 60 * 5, // Integrations change moderately, cache for 5 minutes
-		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
+		staleTime: 1000 * 60 * 30, // Integrations change moderately, cache for 30 minutes
+		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility

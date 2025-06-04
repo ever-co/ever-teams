@@ -9,7 +9,10 @@ import {
 	minimalGithubMetadataSchema,
 	minimalGithubRepositoriesSchema,
 	ZodValidationError,
-	TGithubMetadata
+	TGithubMetadata,
+	TMinimalGithubMetadata,
+	TMinimalGithubRepositories,
+	TGithubRepositories
 } from '@/core/types/schemas';
 
 class GithubService extends APIService {
@@ -21,7 +24,7 @@ class GithubService extends APIService {
 		return this.post<any>('/integration/github/oauth', body);
 	};
 
-	getGithubIntegrationMetadata = async (integrationId: string): Promise<any> => {
+	getGithubIntegrationMetadata = async (integrationId: string): Promise<TGithubMetadata | TMinimalGithubMetadata> => {
 		const query = qs.stringify({
 			tenantId: getTenantIdCookie(),
 			organizationId: getOrganizationIdCookie()
@@ -32,7 +35,7 @@ class GithubService extends APIService {
 			: `/integration/github/metadata?integrationId=${integrationId}`;
 
 		try {
-			const response = await this.get<TGithubMetadata>(endpoint);
+			const response = await this.get<TGithubMetadata | TMinimalGithubMetadata>(endpoint);
 
 			// Validate the response data using Zod schema with fallback
 			try {
@@ -65,7 +68,9 @@ class GithubService extends APIService {
 		}
 	};
 
-	getGithubIntegrationRepositories = async (integrationId: string): Promise<any> => {
+	getGithubIntegrationRepositories = async (
+		integrationId: string
+	): Promise<TGithubRepositories | TMinimalGithubRepositories> => {
 		const query = qs.stringify({
 			tenantId: getTenantIdCookie(),
 			organizationId: getOrganizationIdCookie()
