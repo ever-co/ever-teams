@@ -14,8 +14,8 @@ export function useIntegrationTypes() {
 		queryKey: queryKeys.integrations.types(getTenantIdCookie() || ''),
 		queryFn,
 		enabled: !!getTenantIdCookie(),
-		staleTime: 1000 * 60 * 10, // Integration types are stable, cache for 10 minutes
-		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
+		staleTime: 1000 * 60 * 30, // Integration types are stable, cache for 30 minutes
+		gcTime: 1000 * 60 * 60 // Keep in cache for 1 hour
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility

@@ -153,6 +153,8 @@ export const queryKeys = {
 		types: (tenantId: string) => ['integrations', 'types', tenantId] as const,
 		byTenant: (tenantId: string) => ['integrations', 'tenant', tenantId] as const,
 		byTypeAndQuery: (integrationTypeId: string, searchQuery: string) =>
-			['integrations', 'by-type-query', integrationTypeId, searchQuery] as const
+			['integrations', 'by-type-query', integrationTypeId, searchQuery] as const,
+		tenantByName: (tenantId: string, organizationId: string, name: string) =>
+			['integrations', 'tenant-by-name', tenantId, organizationId, name] as const
 	}
 };
