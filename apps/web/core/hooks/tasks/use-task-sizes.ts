@@ -26,7 +26,7 @@ export function useTaskSizes() {
 		queryFn: async () => {
 			const res = await taskSizeService.getTaskSizes();
 
-			setTaskSizes(res.data.items);
+			setTaskSizes(res.items);
 
 			return res;
 		}
@@ -70,8 +70,8 @@ export function useTaskSizes() {
 		try {
 			const res = taskSizesQuery.data;
 
-			if (res?.data?.items) {
-				setTaskSizes(res?.data?.items || []);
+			if (res?.items) {
+				setTaskSizes(res?.items || []);
 			}
 		} catch (error) {
 			console.error('Failed to load task sizes:', error);

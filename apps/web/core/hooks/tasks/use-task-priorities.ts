@@ -37,7 +37,7 @@ export function useTaskPriorities() {
 
 			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId || null);
 
-			setTaskPriorities(res.data.items);
+			setTaskPriorities(res.items);
 
 			return res;
 		}
