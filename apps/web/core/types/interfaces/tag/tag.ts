@@ -10,6 +10,35 @@ export interface ITag extends IBasePerTenantAndOrganizationEntityModel, IRelatio
 	isSystem?: boolean;
 	tagTypeId?: ID;
 	tagType?: ITagType;
+	tagTypeName?: string;
+	fix_relational_custom_fields?: any;
+	// Counter fields
+	candidate_counter?: number;
+	employee_counter?: number;
+	employee_level_counter?: number;
+	equipment_counter?: number;
+	event_type_counter?: number;
+	expense_counter?: number;
+	income_counter?: number;
+	integration_counter?: number;
+	invoice_counter?: number;
+	merchant_counter?: number;
+	organization_counter?: number;
+	organization_contact_counter?: number;
+	organization_department_counter?: number;
+	organization_employment_type_counter?: number;
+	expense_category_counter?: number;
+	organization_position_counter?: number;
+	organization_project_counter?: number;
+	organization_team_counter?: number;
+	organization_vendor_counter?: number;
+	payment_counter?: number;
+	product_counter?: number;
+	request_approval_counter?: number;
+	task_counter?: number;
+	user_counter?: number;
+	warehouse_counter?: number;
+	proposals_counter?: number;
 }
 
 export interface ITagType extends IBasePerTenantAndOrganizationEntityModel, ITaggable {

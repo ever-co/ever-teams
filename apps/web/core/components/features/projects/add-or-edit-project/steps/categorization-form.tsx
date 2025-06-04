@@ -1,7 +1,7 @@
 import { Button } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
@@ -31,6 +31,10 @@ export default function CategorizationForm(props: IStepElementProps) {
 			color: colorCode
 		});
 	}, [colorCode, goToPrevious, tagData, tags]);
+
+	useEffect(() => {
+		console.log(tagData);
+	}, [tagData]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
