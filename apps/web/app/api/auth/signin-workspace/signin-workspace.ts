@@ -8,7 +8,8 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { ILoginResponse, IOrganizationTeam } from '@/core/types/interfaces';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -36,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			return;
 		}
 
-		let loginResponse: ILoginResponse | null = null;
+		let loginResponse: IAuthResponse | null = null;
 
 		/**
 		 * Verify first if match with invite code
@@ -107,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				});
 			}
 			const { data: teams } = await getAllOrganizationTeamRequest(
-				{ tenantId, organizationId: organization.organizationId },
+				{ tenantId, organizationId: organization.organizationId || '' },
 				access_token
 			);
 
@@ -124,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 					},
 					teamId: team?.id,
 					tenantId,
-					organizationId: organization?.organizationId,
+					organizationId: organization?.organizationId || '',
 					languageId: 'en', // TODO: not sure what should be here
 					noTeamPopup: true,
 					userId
@@ -175,7 +176,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			},
 			teamId: body.teamId,
 			tenantId,
-			organizationId: organization?.organizationId,
+			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
 			userId

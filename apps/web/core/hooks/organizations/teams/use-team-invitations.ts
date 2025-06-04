@@ -1,6 +1,5 @@
 'use client';
 
-import { MyInvitationActionEnum } from '@/core/types/interfaces';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
@@ -11,9 +10,11 @@ import {
 import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../../common/use-first-load';
-import { useQuery } from '../../common/use-query';
+import { useQueryCall } from '../../common/use-query';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { toast } from 'sonner';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -28,15 +29,15 @@ export function useTeamInvitations() {
 	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
-	const { queryCall, loading } = useQuery(inviteService.getTeamInvitations);
+	const { queryCall, loading } = useQueryCall(inviteService.getTeamInvitations);
 
-	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteService.inviteByEmails);
+	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQueryCall(inviteService.inviteByEmails);
 
-	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQueryCall(
 		inviteService.removeTeamInvitations
 	);
 
-	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(
+	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQueryCall(
 		inviteService.resendTeamInvitations
 	);
 
@@ -44,9 +45,9 @@ export function useTeamInvitations() {
 		queryCall: myInvitationsQueryCall,
 		loading: myInvitationsLoading,
 		loadingRef: myInvitationsLoadingRef
-	} = useQuery(inviteService.getMyInvitations);
+	} = useQueryCall(inviteService.getMyInvitations);
 
-	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQuery(
+	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } = useQueryCall(
 		inviteService.acceptRejectMyInvitations
 	);
 
@@ -58,7 +59,7 @@ export function useTeamInvitations() {
 				{
 					email,
 					name,
-					organizationId: user?.employee.organizationId as string,
+					organizationId: user?.employee?.organizationId as string,
 					teamId: activeTeamId as string
 				},
 				user?.tenantId as string
@@ -67,12 +68,12 @@ export function useTeamInvitations() {
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee.organizationId]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee?.organizationId]
 	);
 
 	useEffect(() => {
 		if (activeTeamId && firstLoad && isTeamManager && user?.tenantId) {
-			queryCall(user?.tenantId, user.employee.organizationId, 'EMPLOYEE', activeTeamId).then((res) => {
+			queryCall(user?.tenantId, user?.employee?.organizationId ?? '', 'EMPLOYEE', activeTeamId).then((res) => {
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
@@ -85,7 +86,7 @@ export function useTeamInvitations() {
 	}, [loading, firstLoad, setFetchingInvitations]);
 
 	const removeTeamInvitation = useCallback(
-		(invitationId: string) => {
+		(invitationId: string, email?: string) => {
 			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
 				return;
 			}
@@ -93,10 +94,17 @@ export function useTeamInvitations() {
 			removeInviteQueryCall(
 				invitationId,
 				user.tenantId,
-				user.employee.organizationId,
+				user?.employee?.organizationId ?? '',
 				'EMPLOYEE',
 				activeTeamId
 			).then((res) => {
+				if (email) {
+					toast.success('Invitation removed', {
+						description: `Invitation removed for ${email}`,
+						duration: 5000
+					});
+				}
+
 				setTeamInvitations(res.data?.items || []);
 			});
 		},
@@ -127,13 +135,13 @@ export function useTeamInvitations() {
 		[myInvitationsList, setMyInvitationsList]
 	);
 	const acceptRejectMyInvitation = useCallback(
-		(id: string, action: MyInvitationActionEnum) => {
+		(id: string, action: EInviteAction) => {
 			return acceptRejectMyInvitationsQueryCall(id, action).then((res) => {
 				if (res.data.message) {
 					return res.data;
 				}
 
-				if (action === MyInvitationActionEnum.ACCEPTED) {
+				if (action === EInviteAction.ACCEPTED) {
 					refreshToken().then(() => {
 						window.location.reload();
 					});

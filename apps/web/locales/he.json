@@ -917,7 +917,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "משימה לא הוקצתה"
+			"TASK_UNASSIGNED": "משימה לא הוקצתה",
+			"TASK_ASSIGNED": "המשימה הוקצתה בהצלחה",
+			"TASK_ADDED_TO_FAVORITES": "המשימה הוספה למועדפים",
+			"TASK_REMOVED_FROM_FAVORITES": "המשימה הוסרה ממועדפים",
+			"TASK_PLANNED_FOR_TODAY": "המשימה תוכננה להיום",
+			"TASK_PLANNED_FOR_TOMORROW": "המשימה תוכננה למחר",
+			"TASK_PLANNED_FOR_DATE": "המשימה תוכננה לתאריך נבחר",
+			"TASK_PLAN_FAILED": "נכשל לתכנן את המשימה. אנא נסה שוב.",
+			"TASK_ASSIGNMENT_FAILED": "נכשל להקצות/להסיר את המשימה. אנא נסה שוב.",
+			"TASK_FAVORITE_FAILED": "נכשל לעדכן את המועדפים. אנא נסה שוב."
 		}
 	},
 	"dailyPlan": {

@@ -1,41 +1,45 @@
-import { ITimerLogsDailyReport } from '@/core/types/interfaces/timer/ITimerLogs';
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import {
-	IOrganizationTeamList,
-	IProject,
-	ITeamTask,
-	ITimerDailyLog,
-	ITimerLogGrouped,
-	ITimesheetStatisticsData,
-	OT_Member,
-	TimesheetFilterByDays,
-	TimesheetLog,
-	UpdateTimesheetStatus
-} from '../../types/interfaces';
-import { IActivityReport } from '../../types/interfaces/activity/IActivityReport';
+	IActivityReport,
+	ITimeLogGroupedDailyReport,
+	ITimeLogReportDaily,
+	ITimeLogReportDailyChart
+} from '@/core/types/interfaces/activity/activity-report';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 
 interface IFilterOption {
 	value: string;
 	label: string;
 }
 
-export const timerLogsDailyReportState = atom<ITimerLogsDailyReport[]>([]);
+export const timerLogsDailyReportState = atom<ITimeLogReportDaily[]>([]);
 
-export const timesheetRapportState = atom<TimesheetLog[]>([]);
+export const timesheetRapportState = atom<ITimeLog[]>([]);
 
-export const timesheetFilterEmployeeState = atom<OT_Member[]>([]);
-export const timesheetFilterProjectState = atom<IProject[]>([]);
-export const timesheetFilterTaskState = atom<ITeamTask[]>([]);
+export const timesheetFilterEmployeeState = atom<IOrganizationTeamEmployee[]>([]);
+export const timesheetFilterProjectState = atom<IOrganizationProject[]>([]);
+export const timesheetFilterTaskState = atom<ITask[]>([]);
 
 export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([]);
-export const timesheetGroupByDayState = atom<TimesheetFilterByDays>('Daily');
-export const timesheetUpdateStatus = atom<UpdateTimesheetStatus[]>([]);
-export const timesheetUpdateState = atom<TimesheetLog | null>(null);
-export const selectTimesheetIdState = atom<TimesheetLog[]>([]);
-export const timeLogsRapportChartState = atom<ITimerDailyLog[]>([]);
-export const timeLogsRapportDailyState = atom<ITimerLogGrouped[]>([]);
-export const timesheetStatisticsCountsState = atom<ITimesheetStatisticsData | null>(null);
-export const allTeamsState = atom<IOrganizationTeamList[]>([]);
-export const allUserState = atom<OT_Member[]>([]);
+// Use atomWithStorage to persist the frequency selection
+export const timesheetGroupByDayState =
+	typeof window !== 'undefined'
+		? atomWithStorage<ETimeFrequency>('timesheet-frequency', ETimeFrequency.WEEKLY)
+		: atom<ETimeFrequency>(ETimeFrequency.WEEKLY);
+export const timesheetUpdateStatus = atom<IUpdateTimesheetRequest[]>([]);
+export const timesheetUpdateState = atom<ITimeLog | null>(null);
+export const selectTimesheetIdState = atom<ITimeLog[]>([]);
+export const timeLogsRapportChartState = atom<ITimeLogReportDailyChart[]>([]);
+export const timeLogsRapportDailyState = atom<ITimeLogGroupedDailyReport[]>([]);
+export const timesheetStatisticsCountsState = atom<ITimesheetCountsStatistics | null>(null);
+export const allTeamsState = atom<IOrganizationTeam[]>([]);
+export const allUserState = atom<IOrganizationTeamEmployee[]>([]);
 export const activityReportState = atom<IActivityReport[]>([]);

@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/common/separator';
@@ -12,23 +12,31 @@ import { EstimateTimeInfo } from './estimate-time-info';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
-import { IMember, MC_EditableValues } from '@/core/types/interfaces';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 
-const Card = ({ member }: { member: IMember }) => {
+export type MembersCard_EditableValues = {
+	memberName: string;
+	memberTask: string;
+	estimateHours: number;
+	estimateMinutes: number;
+};
+
+const Card = ({ member }: { member: IOrganizationTeamEmployee }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
-	const isAuthUser = member.employee.userId === user?.id;
+	const isAuthUser = member.employee?.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
-	const iuser = member.employee.user;
+	const iuser = member.employee?.user;
 
-	const [memberTask, setMemberTask] = useState<ITeamTask | null>(null);
+	const [memberTask, setMemberTask] = useState<ITask | null>(null);
 
 	// Can edit hooks
 	const hasEditMode = isManager || isAuthUser;
 	const [taskEditMode, setTaskEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 
-	const [formValues, setFormValues] = useState<MC_EditableValues>({
+	const [formValues, setFormValues] = useState<MemberCardEditableValues>({
 		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
 		memberTask: '',
 		estimateHours: 0,

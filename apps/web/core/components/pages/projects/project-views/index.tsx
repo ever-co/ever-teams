@@ -1,5 +1,5 @@
 import { useModal } from '@/core/hooks';
-import { IProject } from '@/core/types/interfaces';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
@@ -12,18 +12,18 @@ import { ArchiveProjectModal } from '@/core/components/features/projects/archive
 export type ProjectViewDataType = {
 	project: {
 		id: string;
-		name: IProject['name'];
-		imageUrl: IProject['imageUrl'];
-		color: IProject['color'];
+		name: IOrganizationProject['name'];
+		imageUrl: IOrganizationProject['imageUrl'];
+		color: IOrganizationProject['color'];
 	};
-	status: IProject['status'];
-	archivedAt: IProject['archivedAt'];
-	isArchived: IProject['isArchived'];
-	startDate: IProject['startDate'];
-	endDate: IProject['endDate'];
-	members: IProject['members'];
-	managers: IProject['members'];
-	teams: IProject['teams'];
+	status: IOrganizationProject['status'];
+	archivedAt: IOrganizationProject['archivedAt'];
+	isArchived: IOrganizationProject['isArchived'];
+	startDate: IOrganizationProject['startDate'];
+	endDate: IOrganizationProject['endDate'];
+	members: IOrganizationProject['members'];
+	managers: IOrganizationProject['members'];
+	teams: IOrganizationProject['teams'];
 };
 
 export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {

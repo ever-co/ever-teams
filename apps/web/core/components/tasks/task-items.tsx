@@ -1,6 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useTeamTasks } from '@/core/hooks';
-import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@/core/types/interfaces';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
@@ -15,10 +14,14 @@ import { TaskStatusModal } from './task-status-modal';
 import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 type Props = {
-	task?: ITeamTask;
-	onClick?: (task: ITeamTask) => void;
+	task?: ITask;
+	onClick?: (task: ITask) => void;
 	selected?: boolean;
 } & IClassName;
 
@@ -27,7 +30,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	const t = useTranslations();
 
 	const handleChange = useCallback(
-		(status: ITaskStatus) => {
+		(status: ETaskStatusName) => {
 			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
@@ -91,7 +94,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					{task?.status !== 'closed' && (
 						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
 							<ConfirmDropdown
-								onConfirm={() => handleChange('closed')}
+								onConfirm={() => handleChange(ETaskStatusName.CLOSED)}
 								confirmText={'Confirm'}
 								className="fixed z-50"
 							>
@@ -111,7 +114,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 									placement="left"
 									className="min-w-10"
 								>
-									<button onClick={() => handleChange('todo')}>
+									<button onClick={() => handleChange(ETaskStatusName.TODO)}>
 										<RefreshIcon className="w-6 text-[#7E7991]" />
 									</button>
 								</Tooltip>
@@ -124,19 +127,20 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-type PartialITeamTask = Partial<ITeamTask> & { members: IEmployee[] };
+type PartialITeamTask = Partial<ITask> & { members?: IEmployee[] };
 
 export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task.members;
-	const taskAssignee: ImageOverlapperProps[] = members.map((member: any) => {
-		return {
-			id: member.user.id,
-			url: member.user.imageUrl,
-			alt: member.user.firstName
-		};
-	});
+	const taskAssignee: ImageOverlapperProps[] =
+		members?.map((member: any) => {
+			return {
+				id: member.user.id,
+				url: member.user.imageUrl,
+				alt: member.user.firstName
+			};
+		}) ?? [];
 
-	if (!members.length) {
+	if (!members?.length) {
 		return (
 			<div className="avatars flex -space-x-2 min-w-[59px] justify-center items-center">
 				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
@@ -149,7 +153,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 			className="avatars flex -space-x-2 min-w-[59px] justify-center items-center"
 			onClick={(e) => e.stopPropagation()}
 		>
-			{members.slice(0, limit).map((member, i) => {
+			{members?.slice(0, limit).map((member, i) => {
 				const user = member.user;
 				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 				const userImageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';

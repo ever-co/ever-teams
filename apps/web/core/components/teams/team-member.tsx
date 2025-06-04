@@ -1,6 +1,6 @@
 import { useTeamMemberCard } from '@/core/hooks';
 import { useEffect } from 'react';
-import { IEmployee } from '@/core/types/interfaces';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IconsCheck } from '@/core/components/icons';
 import { UserInfo } from '../pages/teams/team/team-members-views/user-team-card/user-info';
 

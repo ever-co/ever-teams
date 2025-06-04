@@ -7,8 +7,8 @@ import { Button } from '@ever-teams/ui';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { OrganizationProjectBudgetTypeEnum } from '@/core/types/interfaces';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
+import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -31,23 +31,23 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 	const budgetTypes: {
 		value: string;
-		id: OrganizationProjectBudgetTypeEnum;
+		id: EProjectBudgetType;
 	}[] = useMemo(
 		() => [
 			{
 				value: t('common.COST_BASED'),
-				id: OrganizationProjectBudgetTypeEnum.COST
+				id: EProjectBudgetType.COST
 			},
 			{
 				value: t('common.HOURS_BASED'),
-				id: OrganizationProjectBudgetTypeEnum.HOURS
+				id: EProjectBudgetType.HOURS
 			}
 		],
 		[t]
 	);
 	const { taskStatuses } = useTaskStatus();
 	const router = useRouter();
-	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
+	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
 	}, [taskStatuses]);
 
@@ -237,7 +237,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 
 	return (
 		<Modal className="w-[26rem]" isOpen={open} closeModal={closeModal}>
-			<Card className="w-full h-full border " shadow="custom">
+			<EverCard className="w-full h-full border " shadow="custom">
 				<div className="w-full flex gap-2 font-medium text-[1rem]">
 					<ListFilterPlus size={20} strokeWidth={2} /> <span>{t('common.FILTER')}</span>
 				</div>
@@ -301,9 +301,9 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
-										backgroundColor: statusColorsMap.get(
-											taskStatuses.find((el) => el.name == statusId)?.name
-										)
+										backgroundColor:
+											statusColorsMap.get(taskStatuses.find((el) => el.name == statusId)?.name) ??
+											undefined
 									}}
 									className=" rounded-md flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
 									key={statusId}
@@ -481,7 +481,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 					</Button>
 					<Button onClick={handleApplyFilters}>{t('common.APPLY_FILTERS')}</Button>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

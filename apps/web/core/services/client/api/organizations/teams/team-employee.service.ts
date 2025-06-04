@@ -1,7 +1,8 @@
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
-import { IOrganizationTeam, IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/organization-team-employee';
 
 class OrganizationTeamEmployeeService extends APIService {
 	deleteOrganizationEmployeeTeam = async ({
@@ -47,7 +48,7 @@ class OrganizationTeamEmployeeService extends APIService {
 			? `/organization-team-employee/${employeeId}`
 			: `/organization-team/employee/${employeeId}`;
 
-		return this.put<OT_Member>(endpoint, data, { tenantId });
+		return this.put<IOrganizationTeamEmployeeUpdate>(endpoint, data, { tenantId });
 	};
 }
 

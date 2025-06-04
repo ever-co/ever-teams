@@ -1,6 +1,6 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
-import { IClassName, ITeamTask } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
@@ -10,8 +10,9 @@ import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -128,7 +129,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					<PopoverPanel>
 						{({ close }) => {
 							return (
-								<Card
+								<EverCard
 									shadow="custom"
 									className="shadow-xl card !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
 								>
@@ -214,7 +215,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											</button>
 										</ul>
 									</ul>
-								</Card>
+								</EverCard>
 							);
 						}}
 					</PopoverPanel>
@@ -225,15 +226,15 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-type IAssignCall = (params: { task?: ITeamTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
+type IAssignCall = (params: { task?: ITask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
 
 export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(
-		({ task, closeCombobox1, closeCombobox2 }) => {
+		async ({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
 
 			edition.setLoading(true);
-			memberInfo.assignTask(task).finally(() => edition.setLoading(false));
+			await memberInfo.assignTask(task).finally(() => edition.setLoading(false));
 
 			closeCombobox1 && closeCombobox1();
 			closeCombobox2 && closeCombobox2();

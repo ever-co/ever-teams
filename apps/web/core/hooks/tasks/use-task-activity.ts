@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { useAtom, useAtomValue } from 'jotai';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { taskTimesheetState } from '@/core/stores/tasks/task-timesheet';
@@ -15,12 +15,12 @@ export function useTaskTimeSheets(id: string) {
 	const activityFilter = useAtomValue(activityTypeState);
 	const profile = useUserProfilePage();
 
-	const { loading, queryCall } = useQuery(activityService.getActivities);
+	const { loading, queryCall } = useQueryCall(activityService.getActivities);
 	const getTaskTimesheets = useCallback(() => {
-		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		if (activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee.organizationId ?? '',
+				organizationId: user?.employee?.organizationId ?? '',
 				taskId: id
 			}).then((response) => {
 				if (response.data) {

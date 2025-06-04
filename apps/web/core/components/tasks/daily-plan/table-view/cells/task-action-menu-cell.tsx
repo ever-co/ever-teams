@@ -1,4 +1,4 @@
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
@@ -6,7 +6,7 @@ import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/co
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
 
-export default function TaskActionMenuCell(props: CellContext<ITeamTask, unknown>) {
+export default function TaskActionMenuCell(props: CellContext<ITask, unknown>) {
 	const [loading, setLoading] = useState(false);
 	const { activeTeam } = useOrganizationTeams();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
@@ -16,7 +16,7 @@ export default function TaskActionMenuCell(props: CellContext<ITeamTask, unknown
 	const currentMember = useMemo(
 		() =>
 			members.find((m) => {
-				return m.employee.user?.id === profile?.userProfile?.id;
+				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
 	);
@@ -28,7 +28,7 @@ export default function TaskActionMenuCell(props: CellContext<ITeamTask, unknown
 			<div className="flex items-center justify-center ">
 				<ActiveTaskStatusDropdown
 					task={props.row.original}
-					onChangeLoading={(load) => setLoading(load)}
+					onChangeLoading={(load: boolean) => setLoading(load)}
 					className="min-w-[10.625rem] text-sm"
 				/>
 			</div>

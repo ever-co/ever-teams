@@ -1,4 +1,16 @@
-import { IInputProps } from '@/core/types/interfaces/hooks';
+import { ChangeEventHandler } from 'react';
+
+export interface IInputProps {
+	label: string;
+	name: string;
+	type: string;
+	placeholder: string;
+	required: boolean;
+	onChange?: ChangeEventHandler<HTMLInputElement>;
+	value: string;
+	centered?: boolean;
+	errors?: { [x: string]: any };
+}
 
 const Input = ({
 	label,

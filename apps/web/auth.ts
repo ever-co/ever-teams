@@ -1,8 +1,9 @@
 import NextAuth, { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import { filteredProviders } from '@/core/lib/utils/check-provider-env-vars';
-import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@/core/services/server/requests/o-auth';
+import { GauzyAdapter, jwtCallback, signInCallback } from '@/core/services/server/requests/o-auth';
 import { NextRequest } from 'next/server';
 import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
+import { EProvider } from './core/types/generics/enums/social-accounts';
 
 declare module 'next-auth' {
 	interface Session extends DefaultSession {
@@ -28,7 +29,7 @@ const config: NextAuthConfig = {
 				if (account) {
 					const { provider, access_token } = account;
 					if (access_token) {
-						await signInCallback(provider as ProviderEnum, access_token);
+						await signInCallback(provider as EProvider, access_token);
 						return true;
 					}
 					return true;
@@ -43,7 +44,7 @@ const config: NextAuthConfig = {
 			if (user && account) {
 				const { access_token, provider } = account;
 				if (access_token) {
-					token.authCookie = await jwtCallback(provider as ProviderEnum, access_token);
+					token.authCookie = await jwtCallback(provider as EProvider, access_token);
 				}
 			}
 

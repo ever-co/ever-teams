@@ -1,4 +1,3 @@
-import { ITeamTask, Nullable, TimesheetLog } from '@/core/types/interfaces';
 import { clsxm } from '@/core/lib/utils';
 import { TaskIssueStatus } from './task-issue';
 import { differenceBetweenHours, formatDate, secondsToTime } from '@/core/lib/helpers/index';
@@ -7,9 +6,13 @@ import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { Nullable } from '@/core/types/generics/utils';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 type Props = {
-	task: Nullable<ITeamTask>;
+	task: Nullable<ITask>;
 	className?: string;
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;
@@ -93,12 +96,12 @@ export const DisplayTimeForTimesheet = ({
 	timesheetLog,
 	logType
 }: {
-	timesheetLog: TimesheetLog;
-	logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined;
+	timesheetLog: ITimeLog;
+	logType?: ETimeLogType;
 }) => {
 	const seconds = differenceBetweenHours(
-		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(timesheetLog.startedAt),
-		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(timesheetLog.stoppedAt)
+		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(String(timesheetLog.startedAt)),
+		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(String(timesheetLog.stoppedAt))
 	);
 
 	const { h: hours, m: minute } = secondsToTime(seconds);
@@ -109,7 +112,7 @@ export const DisplayTimeForTimesheet = ({
 		TRACKED: <ClockIcon className={`text-green-400 ${iconClasses}`} />,
 		IDLE: <CalendarArrowDown className={`text-yellow-400 ${iconClasses}`} />
 	};
-	const resolvedLogType: keyof typeof icons = logType ?? 'TRACKED';
+	const resolvedLogType: keyof typeof icons = (logType ?? 'TRACKED') as keyof typeof icons;
 	return (
 		<div className="flex gap-x-1 justify-start items-start font-medium">
 			{icons[resolvedLogType]}
@@ -121,12 +124,12 @@ export const DisplayTimeForTimesheet = ({
 };
 
 export const TotalTimeDisplay = React.memo(
-	({ timesheetLog, className }: { timesheetLog: TimesheetLog[]; className?: string }) => {
+	({ timesheetLog, className }: { timesheetLog: ITimeLog[]; className?: string }) => {
 		const totalDuration = Array.isArray(timesheetLog)
 			? timesheetLog.reduce((acc, item) => {
 					const seconds = differenceBetweenHours(
-						item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
-						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+						item.startedAt instanceof Date ? item.startedAt : new Date(String(item.startedAt)),
+						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(String(item.stoppedAt))
 					);
 					return acc + seconds;
 				}, 0)
@@ -144,19 +147,19 @@ export const TotalDurationByDate = React.memo(
 		createdAt,
 		className
 	}: {
-		timesheetLog: TimesheetLog[];
+		timesheetLog: ITimeLog[];
 		createdAt: Date | string;
 		className?: string;
 	}) => {
 		const filteredLogs = timesheetLog.filter(
-			(item) => formatDate(item.timesheet.createdAt) === formatDate(createdAt)
+			(item) => formatDate(item.timesheet?.createdAt ?? '') === formatDate(createdAt)
 		);
 
 		const totalDurationInSeconds = Array.isArray(filteredLogs)
 			? filteredLogs.reduce((acc, item) => {
 					const seconds = differenceBetweenHours(
-						item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
-						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+						item.startedAt instanceof Date ? item.startedAt : new Date(String(item.startedAt)),
+						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(String(item.stoppedAt))
 					);
 					return acc + seconds;
 				}, 0)

@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
-import { IClassName, IOrganizationTeamList, OT_Member } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
@@ -35,16 +35,19 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
 
 type IUserTeamCard = {
 	active?: boolean;
-	member?: IOrganizationTeamList['members'][number];
+	member?: any;
 	publicTeam?: boolean;
-	members?: IOrganizationTeamList['members'];
+	members?: IOrganizationTeam['members'];
 	draggable: boolean;
 	onDragStart: () => any;
 	onDragEnter: () => any;
@@ -82,10 +85,10 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
+	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
 		setShowActivity((prev) => !prev);
 		setUserDetailAccordion('');
-		setActivityFilter((prev) => ({
+		setActivityFilter((prev: IActivityFilter) => ({
 			...prev,
 			type,
 			member
@@ -97,7 +100,8 @@ export function UserTeamCard({
 		const { h, m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
-					(previousValue, currentValue) => previousValue + currentValue.duration,
+					(previousValue: number, currentValue: ITasksStatistics) =>
+						previousValue + (currentValue.duration || 0),
 					0
 				)) ||
 				activeTaskTotalStat?.duration ||
@@ -132,7 +136,7 @@ export function UserTeamCard({
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
 	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee.user} />,
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee?.user} />,
 		Screenshots: <ScreenshootTab />,
 		Apps: <AppsTab />,
 		'Visited Sites': <VisitedSitesTab />
@@ -155,7 +159,7 @@ export function UserTeamCard({
 			onDragOver={onDragOver}
 			ref={profile.loadTaskStatsIObserverRef}
 		>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'sm:flex sm:flex-col hidden transition-all dark:bg-[#1E2025] min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
@@ -261,7 +265,7 @@ export function UserTeamCard({
 							</p>
 						) : null}
 					</div>
-					{/* Card menu */}
+					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
@@ -296,8 +300,8 @@ export function UserTeamCard({
 					</div>
 				) : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
-			</Card>
-			<Card
+			</EverCard>
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'relative flex py-3 sm:hidden flex-col',
@@ -333,9 +337,9 @@ export function UserTeamCard({
 					<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
 				</div>
 
-				{/* Card menu */}
+				{/* EverCard menu */}
 				<div className="absolute right-2">{menu}</div>
-			</Card>
+			</EverCard>
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)} */}

@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 	const { data } = await getEmployeeTimeSlotsRequest({
 		tenantId,
 		organizationId,
-		employeeId: user.employee.id,
+		employeeId: user.employee?.id || '',
 		todayEnd,
 		todayStart,
 		bearer_token: access_token

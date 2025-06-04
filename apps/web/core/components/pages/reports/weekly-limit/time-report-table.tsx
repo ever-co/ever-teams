@@ -1,4 +1,4 @@
-import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/ITimeLimits';
+import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import moment from 'moment';
@@ -43,7 +43,7 @@ export const TimeReportTable = ({
 					const remaining = limit - item.duration;
 
 					return {
-						indexValue: item.employee.fullName,
+						indexValue: item.employee?.fullName || '',
 						limit,
 						percentageUsed,
 						timeSpent: item.duration,

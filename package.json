@@ -24,6 +24,7 @@
 		"ng:ci": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=7000 yarn nx",
 		"config": "yarn ts-node ./.scripts/configure.ts",
 		"config:dev": "yarn run config -- --environment=dev",
+		"knip:web": "cd apps/web && yarn run knip",
 		"config:prod": "yarn run config -- --environment=prod",
 		"start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web\"",
 		"start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web:prod\"",

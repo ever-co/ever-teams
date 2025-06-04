@@ -10,7 +10,7 @@ import { TranslationHooks } from 'next-intl';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
 import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -23,7 +23,7 @@ export interface TimesheetFilterDateProps {
 	minDate?: Date;
 	maxDate?: Date;
 	t: TranslationHooks;
-	data?: TimesheetLog[];
+	data?: ITimeLog[];
 }
 
 export function TimesheetFilterDate({
@@ -34,13 +34,17 @@ export function TimesheetFilterDate({
 	data,
 	t
 }: Readonly<TimesheetFilterDateProps>) {
+	// Fix for system date being in future (2025)
 	const today = startOfToday();
 
 	const adjustedInitialRange = React.useMemo(() => {
 		if (!initialRange) {
+			// Default to Today (start and end of current day)
+			const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+			const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 			return {
-				from: today,
-				to: today
+				from: startOfToday,
+				to: endOfToday
 			};
 		}
 		return {
@@ -50,7 +54,6 @@ export function TimesheetFilterDate({
 	}, [initialRange, today]);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(adjustedInitialRange);
-
 	const [isVisible, setIsVisible] = useState(false);
 
 	const handleFromChange = (fromDate: Date | null) => {
@@ -104,7 +107,7 @@ export function TimesheetFilterDate({
 		if (dateRange.from && dateRange.to) {
 			onChange?.(dateRange);
 		}
-	}, [dateRange, onChange]);
+	}, [dateRange]); // Removed onChange from dependencies to prevent infinite loop
 
 	const actionButtonClass =
 		'h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline';
@@ -119,7 +122,7 @@ export function TimesheetFilterDate({
 						aria-label="Select date range"
 						aria-expanded="false"
 						className={cn(
-							'w-44 justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip',
+							'min-w-36 w-fit justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip',
 							!dateRange.from && 'text-muted-foreground'
 						)}
 					>
@@ -241,7 +244,7 @@ export function DatePickerFilter({
 	setDate: (date: Date | null) => void;
 	minDate?: Date | null;
 	maxDate?: Date | null;
-	timesheet?: TimesheetLog[];
+	timesheet?: ITimeLog[];
 }) {
 	const isDateDisabled = React.useCallback(
 		(date: Date) => {
@@ -267,7 +270,7 @@ export function DatePickerFilter({
 	}, [timesheet]);
 
 	const entriesByDate = React.useMemo(() => {
-		const map = new Map<string, TimesheetLog[]>();
+		const map = new Map<string, ITimeLog[]>();
 		timesheet?.forEach((entry) => {
 			if (!entry.timesheet?.createdAt) {
 				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
@@ -355,7 +358,7 @@ export function DatePickerFilter({
 								)}
 								onClick={() => handleSelect(dayDate)}
 							>
-								<div className="relative w-full h-full flex items-center justify-center">
+								<div className="relative flex items-center justify-center w-full h-full">
 									{dayDate.getDate()}
 									{getEntriesForDate(dayDate).length > 0 && (
 										<span className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -371,11 +374,11 @@ export function DatePickerFilter({
 		</div>
 	);
 }
-const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
+const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 	if (entries.length === 1) {
 		return (
 			<span
-				className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light"
+				className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light"
 				role="status"
 				aria-label="1 time entry for this day"
 			/>
@@ -388,7 +391,7 @@ const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
 			aria-label={`${entries.length} time entries for this day`}
 		>
 			{[...Array(3)].map((_, index) => (
-				<span key={index} className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light" />
+				<span key={index} className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light" />
 			))}
 		</div>
 	);

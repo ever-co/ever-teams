@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useCallback } from 'react';
 import { useAuthTeamTasks, useOrganizationTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
@@ -16,7 +16,7 @@ export function useUserSelectedPage(id?: string) {
 
 	const members = activeTeam?.members || [];
 
-	const matchUser = members.find((m) => {
+	const matchUser = members.find((m: any) => {
 		return m.employee.userId === memberId;
 	});
 
@@ -24,7 +24,7 @@ export function useUserSelectedPage(id?: string) {
 
 	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
 
-	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
+	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);
@@ -34,14 +34,14 @@ export function useUserSelectedPage(id?: string) {
 	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (!matchUser?.employeeId) {
 				return Promise.resolve();
 			}
 
 			return updateTask({
 				...task,
-				members: [...task.members, (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
 			});
 		},
 		[updateTask, matchUser]

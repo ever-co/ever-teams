@@ -1,16 +1,16 @@
-import { IEmployee } from '@/core/types/interfaces';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { FC } from 'react';
 
-const AssigneeUser: FC<{ users: IEmployee[] }> = ({ users }) => {
+const AssigneeUser: FC<{ users?: IEmployee[] }> = ({ users }) => {
 	const employee = users && users.length > 0 ? users.at(0) : null;
 	return (
 		<div className="flex items-center gap-1.5 h-full" role="group" aria-label="Task assignee">
-			{employee ? (
+			{employee && employee.fullName ? (
 				<div className="flex items-center gap-2.5">
 					<Avatar className="w-6 h-6 rounded-full" aria-label={`${employee.fullName}'s avatar`}>
 						{employee?.user?.imageUrl && (
-							<AvatarImage src={employee?.user?.imageUrl} alt={`${employee.fullName}'s avatar`} />
+							<AvatarImage src={employee.user.imageUrl} alt={`${employee.fullName}'s avatar`} />
 						)}
 
 						<AvatarFallback aria-hidden="true">

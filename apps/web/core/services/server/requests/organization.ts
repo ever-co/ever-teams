@@ -1,5 +1,6 @@
-import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
-import { IOrganization, IOrganizationCreate, IUserOrganization } from '@/core/types/interfaces/IOrganization';
+import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
+import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { serverFetch } from '../fetch';
 
 export function createOrganizationRequest(datas: IOrganizationCreate, bearerToken: string) {

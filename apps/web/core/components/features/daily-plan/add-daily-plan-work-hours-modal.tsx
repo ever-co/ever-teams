@@ -2,11 +2,11 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { IDailyPlan } from '@/core/types/interfaces';
 import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
@@ -53,13 +53,13 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon>
-			<Card className="w-full" shadow="custom">
+			<EverCard className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('timer.todayPlanSettings.TITLE')}
 						</Text.Heading>
-						<div className="mb-7 w-full flex flex-col gap-4">
+						<div className="flex flex-col w-full gap-4 mb-7">
 							<span className="text-sm">
 								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
 							</span>
@@ -77,7 +77,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 							/>
 						</div>
 					</div>
-					<div className="mt-6 flex justify-between items-center">
+					<div className="flex items-center justify-between mt-6">
 						<Button
 							variant="outline"
 							type="submit"
@@ -101,7 +101,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

@@ -1,19 +1,20 @@
-import { ICreateProjectInput, IImageAssets, IProject } from '@/core/types/interfaces';
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 import { TModalMode } from '.';
+import { ICreateProjectRequest, IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: (data: TStepData) => void;
 	onPrevious?: (data: TStepData) => void;
-	onFinish?: (project: IProject) => void;
+	onFinish?: (project: IOrganizationProject) => void;
 	step: number;
 	currentData: TStepData;
 	mode: TModalMode;
 }
 
 export type TStepData = Partial<
-	ICreateProjectInput & {
-		projectImage?: IImageAssets;
+	ICreateProjectRequest & {
+		projectImage?: IImageAsset;
 		members?: { memberId: string; roleId: string; id: string }[];
 		id?: string;
 	}
@@ -22,7 +23,7 @@ export type TStepData = Partial<
 export interface IStepElementProps extends PropsWithChildren {
 	goToNext: (stepData: TStepData) => void;
 	goToPrevious: (stepData: TStepData) => void;
-	finish: (newProject: IProject) => void;
+	finish: (newProject: IOrganizationProject) => void;
 	currentData: TStepData;
 	mode: TModalMode;
 }
@@ -46,7 +47,7 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 		}
 	};
 
-	const handleFinish = (data: IProject) => {
+	const handleFinish = (data: IOrganizationProject) => {
 		onFinish?.(data);
 	};
 

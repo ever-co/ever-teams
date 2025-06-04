@@ -1,6 +1,5 @@
 'use client';
 import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
-import { IDailyPlan, IEmployee, IUser } from '@/core/types/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -9,6 +8,10 @@ import { estimatedTotalTime } from '../tasks/daily-plan';
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { IUser } from '@/core/types/interfaces/user/user';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -131,17 +134,17 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 			outstandingTasks
 
 				.filter((plan) => {
-					if (plan.employeeId === user?.employee.id) return false;
+					if (plan.employeeId === user?.employee?.id) return false;
 					if (!plan.date) return false;
 
 					const isTodayOrBefore = moment(plan.date).isSameOrBefore(moment().endOf('day'));
 					if (!isTodayOrBefore) return false;
 
-					const hasIncompleteTasks = plan.tasks?.some((task) => task.status !== 'completed');
+					const hasIncompleteTasks = plan.tasks?.some((task) => task.status !== ETaskStatusName.COMPLETED);
 					return hasIncompleteTasks;
 				})
 				.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee })),
-		[outstandingTasks, user?.employee.id]
+		[outstandingTasks, user?.employee?.id]
 	);
 
 	const uniqueEmployees: IEmployeeWithOutstanding[] = employeeWithOutstanding.reduce(

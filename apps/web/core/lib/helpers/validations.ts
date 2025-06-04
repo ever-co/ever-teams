@@ -1,12 +1,12 @@
 import { RECAPTCHA_SITE_KEY, smtpConfiguration } from '@/core/constants/config/constants';
-import { IRegisterDataAPI } from '@/core/types/interfaces/IAuthentication';
-import { I_SMTPRequest } from '@/core/types/interfaces/ISmtp';
+import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
+import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
 import { PHONE_REGEX, URL_REGEX } from './regex';
 import { isEmail } from 'class-validator';
 
 type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
-type Ks = { [x: string]: string };
+export type Ks = { [x: string]: string };
 
 export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegisterDataAPI) => {
 	const err = {} as Err;

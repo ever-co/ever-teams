@@ -1,5 +1,5 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
-import { RoleNameEnum } from '@/core/types/interfaces';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { userState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
@@ -103,18 +103,18 @@ export const TeamSettingForm = () => {
 					shareProfileView: activeTeam.shareProfileView,
 					teamSize: values.teamSize,
 					memberIds: activeTeam.members
-						.map((t) => t.employee.id)
-						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
+						?.map((t) => t.id)
+						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index), // To make the array Unique list of ids
 					managerIds: activeTeam.members
-						.filter(
+						?.filter(
 							(m) =>
 								m.role &&
-								(m.role.name === RoleNameEnum.MANAGER ||
-									m.role.name === RoleNameEnum.SUPER_ADMIN ||
-									m.role.name === RoleNameEnum.ADMIN)
+								(m.role.name === ERoleName.MANAGER ||
+									m.role.name === ERoleName.SUPER_ADMIN ||
+									m.role.name === ERoleName.ADMIN)
 						)
-						.map((t) => t.employee.id)
-						.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
+						.map((t) => t.id)
+						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 				});
 			}
 		},
@@ -373,7 +373,7 @@ export const TeamSettingForm = () => {
 											{t('pages.settingsTeam.TIME_TRACKING')}
 										</Text>
 										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
-											<TimeTrackingToggle activeManager={activeManager} />
+											<TimeTrackingToggle activeManager={activeManager as any} />
 										</div>
 									</div>
 									<div className="flex items-center justify-between w-full gap-12 mt-8">

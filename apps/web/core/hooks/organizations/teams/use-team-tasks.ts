@@ -7,7 +7,6 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@/core/types/interfaces';
 import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -28,40 +27,45 @@ import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useQuery, useSyncRef } from '../../common';
+import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
 import { useTaskStatus } from '../../tasks';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
  *
  * @returns {Object} An object containing various functions and state related to team tasks.
- * @property {ITeamTask[]} tasks - The list of team tasks.
+ * @property {ITask[]} tasks - The list of team tasks.
  * @property {boolean} loading - Indicates whether the tasks are currently being loaded.
  * @property {boolean} tasksFetching - Indicates whether the tasks are currently being fetched.
- * @property {(task: ITeamTask) => Promise<any>} deleteTask - A function to delete a task.
+ * @property {(task: ITask) => Promise<any>} deleteTask - A function to delete a task.
  * @property {boolean} deleteLoading - Indicates whether a task is currently being deleted.
  * @property {(taskData: { taskName: string; issueType?: string; status?: string; taskStatusId: string; priority?: string; size?: string; tags?: ITaskLabelsItemList[]; description?: string | null; }, members?: { id: string }[]) => Promise<any>} createTask - A function to create a new task.
  * @property {boolean} createLoading - Indicates whether a task is currently being created.
- * @property {(task: Partial<ITeamTask> & { id: string }) => Promise<any>} updateTask - A function to update an existing task.
+ * @property {(task: Partial<ITask> & { id: string }) => Promise<any>} updateTask - A function to update an existing task.
  * @property {boolean} updateLoading - Indicates whether a task is currently being updated.
- * @property {(task: ITeamTask | null) => void} setActiveTask - A function to set the active task.
- * @property {ITeamTask | null} activeTeamTask - The currently active team task.
+ * @property {(task: ITask | null) => void} setActiveTask - A function to set the active task.
+ * @property {ITask | null} activeTeamTask - The currently active team task.
  * @property {any} firstLoadTasksData - Data related to the first load of tasks.
- * @property {(newTitle: string, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updateTitle - A function to update the title of a task.
- * @property {(newDescription: string, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updateDescription - A function to update the description of a task.
- * @property {(publicity: boolean, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updatePublicity - A function to update the publicity of a task.
- * @property {<T extends ITaskStatusField>(status: ITaskStatusStack[T], field: T, taskStatusId: ITeamTask['taskStatusId'], task?: ITeamTask | null, loader?: boolean) => Promise<any>} handleStatusUpdate - A function to update the status of a task.
+ * @property {(newTitle: string, task?: ITask | null, loader?: boolean) => Promise<any>} updateTitle - A function to update the title of a task.
+ * @property {(newDescription: string, task?: ITask | null, loader?: boolean) => Promise<any>} updateDescription - A function to update the description of a task.
+ * @property {(publicity: boolean, task?: ITask | null, loader?: boolean) => Promise<any>} updatePublicity - A function to update the publicity of a task.
+ * @property {<T extends ITaskStatusField>(status: ITaskStatusStack[T], field: T, taskStatusId: ITask['taskStatusId'], task?: ITask | null, loader?: boolean) => Promise<any>} handleStatusUpdate - A function to update the status of a task.
  * @property {(employeeId: string, organizationTeamId: string) => void} getTasksByEmployeeId - A function to fetch tasks by employee ID.
  * @property {boolean} getTasksByEmployeeIdLoading - Indicates whether tasks are currently being fetched by employee ID.
- * @property {ITeamTask['organizationId']} activeTeamId - The ID of the active team.
+ * @property {ITask['organizationId']} activeTeamId - The ID of the active team.
  * @property {() => void} unassignAuthActiveTask - A function to unassign the active task of the authenticated user.
- * @property {(tasks: ITeamTask[]) => void} setAllTasks - A function to set all the tasks.
+ * @property {(tasks: ITask[]) => void} setAllTasks - A function to set all the tasks.
  * @property {(deepCheck?: boolean) => Promise<any>} loadTeamTasksData - A function to load the team tasks data.
  * @property {(employeeId: string, organizationTeamId: string) => void} deleteEmployeeFromTasks - A function to delete an employee from tasks.
  * @property {boolean} deleteEmployeeFromTasksLoading - Indicates whether an employee is currently being deleted from tasks.
  * @property {(taskId: string) => Promise<any>} getTaskById - A function to fetch a task by its ID.
  * @property {boolean} getTasksByIdLoading - Indicates whether a task is currently being fetched by its ID.
- * @property {ITeamTask | null} detailedTask - The detailed task.
+ * @property {ITask | null} detailedTask - The detailed task.
  */
 
 export function useTeamTasks() {
@@ -91,22 +95,22 @@ export function useTeamTasks() {
 	const setMyDailyPlans = useSetAtom(myDailyPlanListState);
 
 	// Queries hooks
-	const { queryCall, loading, loadingRef } = useQuery(taskService.getTeamTasks);
-	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(taskService.getTasksById);
-	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } = useQuery(
+	const { queryCall, loading, loadingRef } = useQueryCall(taskService.getTasks);
+	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQueryCall(taskService.getTaskById);
+	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } = useQueryCall(
 		taskService.getTasksByEmployeeId
 	);
 
-	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(taskService.deleteTask);
+	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQueryCall(taskService.deleteTask);
 
-	const { queryCall: createQueryCall, loading: createLoading } = useQuery(taskService.createTeamTask);
+	const { queryCall: createQueryCall, loading: createLoading } = useQueryCall(taskService.createTask);
 
-	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(taskService.updateTask);
+	const { queryCall: updateQueryCall, loading: updateLoading } = useQueryCall(taskService.updateTask);
 
-	const { queryCall: getAllQueryCall } = useQuery(dailyPlanService.getAllDayPlans);
-	const { queryCall: getMyDailyPlansQueryCall } = useQuery(dailyPlanService.getMyDailyPlans);
+	const { queryCall: getAllQueryCall } = useQueryCall(dailyPlanService.getAllDayPlans);
+	const { queryCall: getMyDailyPlansQueryCall } = useQueryCall(dailyPlanService.getMyDailyPlans);
 
-	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } = useQuery(
+	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } = useQueryCall(
 		taskService.deleteEmployeeFromTasks
 	);
 
@@ -163,7 +167,7 @@ export function useTeamTasks() {
 	);
 
 	const deepCheckAndUpdateTasks = useCallback(
-		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
+		(responseTasks: ITask[], deepCheck?: boolean) => {
 			if (responseTasks && responseTasks.length) {
 				responseTasks.forEach((task) => {
 					if (task.tags && task.tags?.length) {
@@ -179,7 +183,7 @@ export function useTeamTasks() {
 			if (deepCheck) {
 				const latestActiveTeamTasks = responseTasks
 					.filter((task) => {
-						return task.teams.some((tm) => {
+						return task.teams?.some((tm) => {
 							return tm.id === activeTeamRef.current?.id;
 						});
 					})
@@ -209,8 +213,8 @@ export function useTeamTasks() {
 			}
 
 			return queryCall(
-				user?.employee.organizationId,
-				user?.employee.tenantId,
+				user?.employee?.organizationId ?? '',
+				user?.employee?.tenantId ?? '',
 				activeTeamRef.current?.projects && activeTeamRef.current?.projects.length
 					? activeTeamRef.current?.projects[0].id
 					: '',
@@ -231,7 +235,7 @@ export function useTeamTasks() {
 	}, [loading, firstLoad, setTasksFetching]);
 
 	const setActiveUserTaskCookieCb = useCallback(
-		(task: ITeamTask | null) => {
+		(task: ITask | null) => {
 			if (task?.id && authUser.current?.id) {
 				setActiveUserTaskCookie({
 					taskId: task?.id,
@@ -303,7 +307,7 @@ export function useTeamTasks() {
 			taskStatusId: string;
 			priority?: string;
 			size?: string;
-			tags?: ITaskLabelsItemList[];
+			tags?: ITag[];
 			description?: string | null;
 			projectId?: string | null;
 			members?: { id: string }[];
@@ -332,7 +336,7 @@ export function useTeamTasks() {
 	);
 
 	const updateTask = useCallback(
-		(task: Partial<ITeamTask> & { id: string }) => {
+		(task: Partial<ITask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
 				setActive({
 					id: ''
@@ -351,7 +355,7 @@ export function useTeamTasks() {
 	);
 
 	const updateTitle = useCallback(
-		(newTitle: string, task?: ITeamTask | null, loader?: boolean) => {
+		(newTitle: string, task?: ITask | null, loader?: boolean) => {
 			if (task && newTitle !== task.title) {
 				loader && setTasksFetching(true);
 				return updateTask({
@@ -368,7 +372,7 @@ export function useTeamTasks() {
 	);
 
 	const updateDescription = useCallback(
-		(newDescription: string, task?: ITeamTask | null, loader?: boolean) => {
+		(newDescription: string, task?: ITask | null, loader?: boolean) => {
 			if (task && newDescription !== task.description) {
 				loader && setTasksFetching(true);
 				return updateTask({
@@ -385,7 +389,7 @@ export function useTeamTasks() {
 	);
 
 	const updatePublicity = useCallback(
-		(publicity: boolean, task?: ITeamTask | null, loader?: boolean) => {
+		(publicity: boolean, task?: ITask | null, loader?: boolean) => {
 			if (task && publicity !== task.public) {
 				loader && setTasksFetching(true);
 				return updateTask({
@@ -405,11 +409,11 @@ export function useTeamTasks() {
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
 			field: T,
-			taskStatusId: ITeamTask['taskStatusId'],
-			task?: ITeamTask | null,
+			taskStatusId: ITask['taskStatusId'],
+			task?: ITask | null,
 			loader?: boolean
 		) => {
-			if (task && status !== task[field]) {
+			if (task && status !== (task as any)[field]) {
 				loader && setTasksFetching(true);
 
 				if (field === 'status' && status === 'closed') {
@@ -445,7 +449,7 @@ export function useTeamTasks() {
 	 * Change active task
 	 */
 	const setActiveTask = useCallback(
-		(task: ITeamTask | null) => {
+		(task: ITask | null) => {
 			/**
 			 * Unassign previous active task
 			 */
@@ -455,7 +459,7 @@ export function useTeamTasks() {
 				if (_task) {
 					updateTask({
 						..._task,
-						members: _task.members.filter((m) => m.id !== $user.current?.employee.id)
+						members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
 					});
 				}
 			}
@@ -466,8 +470,8 @@ export function useTeamTasks() {
 
 			if (task) {
 				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members.find(
-					(member) => member.employeeId === authUser.current?.employee?.id
+				const currentEmployeeDetails = activeTeam?.members?.find(
+					(member: IOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {

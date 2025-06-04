@@ -2,16 +2,10 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	IClassName,
-	ITaskStatusField,
-	ITaskStatusItemList,
-	ITaskStatusStack,
-	ITeamTask,
-	Nullable,
-	Tag,
-	TaskStatusEnum
-} from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
+import { Nullable } from '@/core/types/generics/utils';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
@@ -37,10 +31,14 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTaskStatus } from '@/core/types/schemas';
 
 export type TStatusItem = {
 	id?: string;
-	bgColor?: string;
+	bgColor?: string | null;
 	icon?: React.ReactNode | undefined;
 	realName?: string;
 	name?: string;
@@ -50,7 +48,7 @@ export type TStatusItem = {
 	className?: string;
 };
 
-export type TStatus<T extends string> = {
+export type TStatus<T extends string = string> = {
 	[k in T]: TStatusItem;
 };
 
@@ -80,7 +78,7 @@ export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
 	onChangeLoading?: (loading: boolean) => void;
 } & {
-	task?: Nullable<ITeamTask>;
+	task?: Nullable<ITask>;
 	showIssueLabels?: boolean;
 	forDetails?: boolean;
 	sidebarUI?: boolean;
@@ -90,7 +88,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropd
 	showIcon?: boolean;
 };
 
-export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[], bordered = false): TStatus<any> {
+export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], bordered = false): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
@@ -150,7 +148,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		let taskStatusId: string | undefined;
 
 		if (field === 'label' && task) {
-			const currentTag = taskLabels.find((label) => label.name === status) as Tag;
+			const currentTag = taskLabels.find((label) => label.name === status) as ITag;
 			updatedField = 'tags';
 			status = [currentTag];
 		}
@@ -169,7 +167,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: props.defaultValue ? props.defaultValue : task ? task[field] : undefined,
+		value: props.defaultValue ? props.defaultValue : task ? (task as any)[field] : undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});
@@ -246,7 +244,7 @@ export function StandardTaskStatusDropDown({
 	});
 
 	const standardStatuses = useMemo(
-		() => items.filter((status) => Object.values(TaskStatusEnum).includes(status.value as TaskStatusEnum)),
+		() => items.filter((status) => Object.values(ETaskStatusName).includes(status.value as ETaskStatusName)),
 		[items]
 	);
 	return (
@@ -481,10 +479,10 @@ export function TaskPropertiesDropdown({
 			items={items}
 			value={item}
 			defaultItem={!item ? 'priority' : undefined}
-			onChange={onChange}
+			onChange={onChange as any}
 			multiple={multiple}
 			isMultiple={isMultiple}
-			values={values}
+			values={values as any}
 			largerWidth={largerWidth}
 		>
 			{children}
@@ -503,7 +501,7 @@ export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priorit
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={props.onValueChange ? props.onValueChange : onChange}
+			onChange={props.onValueChange ? props.onValueChange : (onChange as any)}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -519,7 +517,7 @@ export function TaskPriorityStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
 	return task?.priority ? (
@@ -612,7 +610,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 
 export function useTaskLabelsValue() {
 	const { taskLabels } = useTaskLabels();
-	return useMapToTaskStatusValues(taskLabels, false);
+	return useMapToTaskStatusValues(taskLabels as any[], false);
 }
 
 export function TaskLabelsDropdown({
@@ -777,7 +775,7 @@ export function TaskStatus({
 				className
 			)}
 			style={{
-				backgroundColor: active ? backgroundColor : undefined,
+				backgroundColor: active ? (backgroundColor ?? undefined) : undefined,
 				color: getTextColor(backgroundColor ?? 'white')
 			}}
 		>
@@ -945,8 +943,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	);
 
 	const dropdown = (
-		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={cn('relative', className)}>
+		<div className={cn('relative', className)}>
+			<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
 				{(() => {
 					const triggerContent = !multiple ? (
 						<Tooltip
@@ -983,7 +981,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="outline-none cursor-pointer w-full">
+							<div className="w-full outline-none cursor-pointer">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -1059,8 +1057,8 @@ export function StatusDropdown<T extends TStatusItem>({
 						/>
 					);
 				})()}
-			</div>
-		</Tooltip>
+			</Tooltip>
+		</div>
 	);
 
 	return dropdown;
@@ -1164,7 +1162,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
-			<div className="relative outline-none cursor-pointer w-full">
+			<div className="relative w-full outline-none cursor-pointer">
 				<TaskStatus
 					showIcon={showIcon}
 					{...item}
@@ -1210,8 +1208,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	};
 
 	const dropdown = (
-		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
-			<div className={cn('relative', className)}>
+		<div className={cn('relative', className)}>
+			<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 				<CustomListboxDropdown
 					value={value?.value || value?.name}
 					values={values}
@@ -1226,8 +1224,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 				>
 					{children && <div className="mt-2">{children}</div>}
 				</CustomListboxDropdown>
-			</div>
-		</Tooltip>
+			</Tooltip>
+		</div>
 	);
 	return dropdown;
 }

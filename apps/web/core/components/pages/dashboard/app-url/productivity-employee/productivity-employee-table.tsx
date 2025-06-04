@@ -68,6 +68,7 @@ export interface IEmployee {
 	isActive: boolean;
 	isTrackingEnabled: boolean;
 	user: IUser;
+	userId?: string;
 }
 
 export interface IActivityItem {

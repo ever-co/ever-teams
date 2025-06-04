@@ -1,14 +1,10 @@
-import { ILoginResponse } from '@/core/types/interfaces/IAuthentication';
-import { PaginationResponse } from '@/core/types/interfaces/IDataResponse';
-import {
-	IInvitation,
-	IInviteCreate,
-	IInviteVerified,
-	IInviteVerifyCode,
-	MyInvitationActionEnum
-} from '@/core/types/interfaces/IInvite';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
+import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 
 /**
  * Invite user using email request
@@ -21,7 +17,7 @@ export function inviteByEmailsRequest(
 	{ tenantId, ...body }: IInviteCreate & { tenantId: string },
 	bearer_token: string
 ) {
-	return serverFetch<PaginationResponse<IInvitation>>({
+	return serverFetch<PaginationResponse<IInvite>>({
 		path: '/invite/emails',
 		method: 'POST',
 		body,
@@ -79,7 +75,7 @@ export function getTeamInvitationsRequest(
 		'where[status]': 'INVITED'
 	});
 
-	return serverFetch<PaginationResponse<IInvitation>>({
+	return serverFetch<PaginationResponse<IInvite>>({
 		path: `/invite?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -103,7 +99,7 @@ type ResetInviteParams = {
  * @returns
  */
 export function resendInvitationEmailRequest(params: ResetInviteParams, bearer_token: string) {
-	return serverFetch<PaginationResponse<IInvitation>>({
+	return serverFetch<PaginationResponse<IInvite>>({
 		path: '/invite/resend',
 		method: 'POST',
 		body: params,
@@ -144,7 +140,7 @@ export interface AcceptInviteParams {
  * @returns
  */
 export function acceptInviteRequest(params: AcceptInviteParams) {
-	return serverFetch<ILoginResponse>({
+	return serverFetch<IAuthResponse>({
 		path: '/invite/accept',
 		method: 'POST',
 		body: params
@@ -159,7 +155,7 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
  * @returns
  */
 export function getMyInvitationsRequest(tenantId: string, bearer_token: string) {
-	return serverFetch<PaginationResponse<IInvitation>>({
+	return serverFetch<PaginationResponse<IInvite>>({
 		path: `/invite/me`,
 		method: 'GET',
 		bearer_token,
@@ -171,9 +167,9 @@ export function acceptRejectMyInvitationsRequest(
 	tenantId: string,
 	bearer_token: string,
 	invitationId: string,
-	action: MyInvitationActionEnum
+	action: EInviteAction
 ) {
-	return serverFetch<PaginationResponse<IInvitation>>({
+	return serverFetch<PaginationResponse<IInvite>>({
 		path: `/invite/${invitationId}/${action}`,
 		method: 'PUT',
 		bearer_token,

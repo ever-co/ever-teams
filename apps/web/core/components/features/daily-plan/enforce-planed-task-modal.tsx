@@ -1,14 +1,15 @@
 import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@/core/hooks';
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
-	task: ITeamTask;
+	task: ITask;
 	plan: IDailyPlan;
 	content: ReactNode;
 	onOK?: () => void;
@@ -31,7 +32,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 		[hasPlan?.workTimePlanned]
 	);
 	const areAllTasksEstimated = useMemo(
-		() => hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el?.estimate > 0),
+		() => hasPlan?.tasks?.every((el: ITask) => typeof el?.estimate === 'number' && el?.estimate > 0),
 		[hasPlan?.tasks]
 	);
 
@@ -65,17 +66,17 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
-			<Card className="w-full" shadow="custom">
-				<div className="w-full flex flex-col justify-between gap-6">
+			<EverCard className="w-full" shadow="custom">
+				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						{content}
 					</Text.Heading>
-					<div className="w-full flex items-center justify-evenly">
+					<div className="flex items-center w-full justify-evenly">
 						<Button
 							variant="outline"
 							type="button"
 							onClick={closeModal}
-							className="rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
 							{t('common.NO')}
 						</Button>
@@ -84,13 +85,13 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 							loading={addTaskToPlanLoading}
 							variant="primary"
 							type="submit"
-							className=" rounded-md font-light text-md dark:text-white"
+							className="font-light rounded-md  text-md dark:text-white"
 						>
 							{t('common.YES')}
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

@@ -2,7 +2,7 @@ import { useOrganizationProjects } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface IDeleteProjectModalProps {
 	open: boolean;
@@ -40,7 +40,7 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<Card className=" sm:w-[33rem] w-[20rem]" shadow="custom">
+			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.projects.deleteModal.title')}
@@ -64,7 +64,7 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

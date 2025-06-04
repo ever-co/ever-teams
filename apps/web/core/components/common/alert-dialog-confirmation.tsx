@@ -10,7 +10,7 @@ import {
 } from '@/core/components/common/alert-dialog';
 import { Button, Modal, Text } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 
 interface AlertDialogConfirmationProps {
 	title: string;
@@ -85,7 +85,7 @@ export const AlertConfirmationModal = ({
 	return (
 		<>
 			<Modal isOpen={open} closeModal={close} showCloseIcon={false}>
-				<Card className="w-full md:min-w-[480px]" shadow="custom">
+				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<div className="flex flex-col">
 							<Text.Heading as="h3" className="text-2xl text-center">
@@ -94,14 +94,14 @@ export const AlertConfirmationModal = ({
 							<div className="flex items-center gap-x-2">
 								<span className="text-center">{description}</span>
 								{countID > 0 && (
-									<span className=" h-7 w-7 flex items-center justify-center text-center  text-xl rounded-full font-bold bg-primary dark:bg-primary-light text-white">
+									<span className="flex items-center justify-center text-xl font-bold text-center text-white rounded-full  h-7 w-7 bg-primary dark:bg-primary-light">
 										{' '}
 										{countID}
 									</span>
 								)}
 							</div>
 						</div>
-						<div className="flex items-center justify-end gap-x-5 w-full mt-4">
+						<div className="flex items-center justify-end w-full mt-4 gap-x-5">
 							<Button
 								type="button"
 								onClick={close}
@@ -127,7 +127,7 @@ export const AlertConfirmationModal = ({
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</Modal>
 		</>
 	);

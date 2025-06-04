@@ -18,10 +18,10 @@ export const MemberSetting = () => {
 
 	const members = useMemo(() => {
 		return (
-			activeTeam?.members.filter(
+			activeTeam?.members?.filter(
 				(member) =>
-					member.employee.fullName.toLowerCase().includes(filterString) ||
-					member.employee.user?.email.toLowerCase().includes(filterString)
+					member.employee?.fullName?.toLowerCase().includes(filterString) ||
+					member.employee?.user?.email?.toLowerCase().includes(filterString)
 			) || []
 		);
 	}, [activeTeam, filterString]);
@@ -51,7 +51,7 @@ export const MemberSetting = () => {
 
 			{members.length > 0 ? (
 				<div className="mb-8 mt-7 ">
-					<MemberTable members={members} />
+					<MemberTable members={members as any} />
 				</div>
 			) : (
 				<NoData text={t('pages.settingsTeam.NO_MEMBERS')} />

@@ -3,7 +3,7 @@ import { MainLayout, MainHeader } from '@/core/components/layouts/default-layout
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from './user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from './invite-team-card-skeleton';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 
 const TeamPageSkeleton = () => {
 	const TeamCards = Array.from({ length: 5 }, (_, index) => {
@@ -142,7 +142,7 @@ const TeamPageSkeleton = () => {
 						<Skeleton height={2} width={80} baseColor={'#CFCFD0'} className="dark:bg-[#353741]" />
 						<Skeleton height={10} width={80} borderRadius={10} className="dark:bg-[#353741]" />
 					</div>
-					<Card shadow="bigger" className="relative flex flex-col py-4 my-6">
+					<EverCard shadow="bigger" className="relative flex flex-col py-4 my-6">
 						<div className="flex justify-between pb-4 border-b">
 							<div className="flex flex-col items-start">
 								<Skeleton height={10} width={120} borderRadius={10} className="dark:bg-[#353741]" />
@@ -170,7 +170,7 @@ const TeamPageSkeleton = () => {
 								<Skeleton height={43} width={120} borderRadius={10} className="dark:bg-[#353741]" />
 							</div>
 						</div>
-					</Card>
+					</EverCard>
 					<div className="flex justify-around">
 						<Skeleton height={10} width={80} borderRadius={10} className="dark:bg-[#353741]" />
 						<Skeleton height={2} width={80} baseColor={'#CFCFD0'} className="dark:bg-[#353741]" />
@@ -185,7 +185,7 @@ const TeamPageSkeleton = () => {
 
 export const UserCard = () => {
 	return (
-		<Card shadow="bigger" className="relative flex flex-col py-4 my-6">
+		<EverCard shadow="bigger" className="relative flex flex-col py-4 my-6">
 			<div className="flex justify-between pb-4 border-b">
 				<div className="flex flex-col items-start">
 					<Skeleton height={10} width={120} borderRadius={10} className="dark:bg-[#353741]" />
@@ -208,7 +208,7 @@ export const UserCard = () => {
 					<Skeleton height={43} width={120} borderRadius={10} className="dark:bg-[#353741]" />
 				</div>
 			</div>
-		</Card>
+		</EverCard>
 	);
 };
 

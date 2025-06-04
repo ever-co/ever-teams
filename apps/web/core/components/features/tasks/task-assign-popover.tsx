@@ -1,5 +1,6 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
@@ -15,14 +16,14 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo,
 	userProfile
 }: PropsWithChildren<{
-	tasks?: ITeamTask[];
-	onTaskClick?: (task: ITeamTask, close: () => void) => void;
+	tasks?: ITask[];
+	onTaskClick?: (task: ITask, close: () => void) => void;
 	buttonClassName?: string;
-	onTaskCreated?: (task: ITeamTask | undefined, close: () => void) => void;
+	onTaskCreated?: (task: ITask | undefined, close: () => void) => void;
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];
-	userProfile: OT_Member | undefined;
+	userProfile: IOrganizationTeamEmployee | undefined;
 }>) {
 	const t = useTranslations();
 	const { isOpen, openModal, closeModal } = useModal();
@@ -53,7 +54,7 @@ export function TaskUnOrAssignPopover({
 				isOpen={isOpen}
 				closeModal={closeModal}
 				title={
-					userProfile?.employee.user?.name
+					userProfile?.employee?.user?.name
 						? `${t('common.ASSIGN_TASK_TO')} ${userProfile?.employee.user?.name}`
 						: ''
 				}

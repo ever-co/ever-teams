@@ -1,5 +1,4 @@
 import { useTimer } from '@/core/hooks';
-import { ITimerStatusEnum, OT_Member } from '@/core/types/interfaces';
 import { isValidUrl } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';
@@ -9,9 +8,11 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
-export function UserProfileDetail({ member }: { member?: OT_Member }) {
-	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
+export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmployee }) {
+	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
 
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
@@ -19,7 +20,7 @@ export function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const size = 100;
 	const { timerStatus } = useTimer();
 	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
-	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
 	}, [timerStatus, member]);
 	return (

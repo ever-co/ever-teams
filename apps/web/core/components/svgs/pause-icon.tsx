@@ -1,4 +1,4 @@
-import { IIconProps } from '../../types/interfaces/hooks';
+import { IIconProps } from './play-icon';
 
 export const PauseIcon = ({ width, height }: IIconProps) => {
 	return (

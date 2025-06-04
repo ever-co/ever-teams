@@ -1,8 +1,10 @@
-import { IChoose } from '@/core/types/interfaces/IChoose';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 
 export type ChooseItem = DropdownItem<IChoose>;
+export interface IChoose {
+	title: string;
+}
 
 export function mapChooseItems(choosList: IChoose[]) {
 	const items = choosList.map<ChooseItem>((choose) => {

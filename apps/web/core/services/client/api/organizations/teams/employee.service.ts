@@ -1,13 +1,9 @@
 import qs from 'qs';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import {
-	ICreateEmployee,
-	IEmployee,
-	IUpdateEmployee,
-	IWorkingEmployee,
-	PaginationResponse
-} from '@/core/types/interfaces';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { ICreateEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
 
 class EmployeeService extends APIService {
 	getWorkingEmployees = async (tenantId: string, organizationId: string) => {
@@ -20,7 +16,7 @@ class EmployeeService extends APIService {
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query}` : '/employee/working';
 
-		return this.get<PaginationResponse<IWorkingEmployee>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IOrganizationTeamEmployee>>(endpoint, { tenantId });
 	};
 
 	updateEmployee = async ({ id, data }: { id: string; data: IUpdateEmployee }) => {
@@ -28,7 +24,7 @@ class EmployeeService extends APIService {
 	};
 
 	createEmployeeFromUser = async (data: ICreateEmployee, bearer_token: string) => {
-		const { data: _data } = await this.post<IEmployee>('/employee', data, {
+		const { data: _data } = await this.post<IOrganizationTeamEmployee>('/employee', data, {
 			tenantId: data.tenantId,
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		});

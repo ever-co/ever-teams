@@ -1,0 +1,35 @@
+export enum ETimeLogType {
+	TRACKED = 'TRACKED',
+	MANUAL = 'MANUAL',
+	IDLE = 'IDLE',
+	RESUMED = 'RESUMED'
+}
+
+export enum ETimeLogSource {
+	MOBILE = 'MOBILE',
+	WEB_TIMER = 'BROWSER',
+	DESKTOP = 'DESKTOP',
+	BROWSER_EXTENSION = 'BROWSER_EXTENSION',
+	HUBSTAFF = 'HUBSTAFF',
+	UPWORK = 'UPWORK',
+	TEAMS = 'TEAMS',
+	CLOC = 'CLOC',
+	BROWSER = 'BROWSER'
+}
+
+export enum ETimerStatus {
+	RUNNING = 'running',
+	IDLE = 'idle',
+	PAUSE = 'pause',
+	ONLINE = 'online',
+	SUSPENDED = 'suspended'
+}
+
+export enum EManualTimeReasons {
+	LOST_ELECTRICITY = 'LOST_ELECTRICITY',
+	LOST_INTERNET = 'LOST_INTERNET',
+	FORGOT_TO_START_TIMER = 'FORGOT_TO_START_TIMER',
+	ERROR = 'ERROR',
+	UNPLANNED_WORK = 'UNPLANNED_WORK',
+	TESTED_TIMER = 'TESTED_TIMER'
+}

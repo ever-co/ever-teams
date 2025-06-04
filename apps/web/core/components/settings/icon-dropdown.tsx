@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from '@/core/components';
-import { mapIconItems, IconItem } from './icon-items';
+import { mapIconItems, IconItem, IIcon } from './icon-items';
 
 import { clsxm } from '@/core/lib/utils';
-import { IIcon } from '@/core/types/interfaces';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 
 export const IconDropdown = ({

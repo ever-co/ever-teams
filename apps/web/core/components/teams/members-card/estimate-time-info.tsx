@@ -1,20 +1,20 @@
 import { pad } from '@/core/lib/helpers/number';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
 import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { EstimationProgress } from './estimation-progress';
 import { useTranslations } from 'next-intl';
-import { MC_EditableValues } from '@/core/types/interfaces';
+import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 
 type Props = {
-	memberTask: ITeamTask | null;
+	memberTask: ITask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
-	editable: MC_EditableValues;
+	editable: MemberCardEditableValues;
 	onSubmitEstimation: () => void;
-	onChangeEstimate: (c: keyof MC_EditableValues) => any;
+	onChangeEstimate: (c: keyof MemberCardEditableValues) => any;
 	setEditMode: Dispatch<SetStateAction<boolean>>;
 	loading: boolean;
 	isAuthUser: boolean;

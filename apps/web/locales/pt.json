@@ -918,7 +918,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Por favor, confirme se deseja fechar a tarefa",
 		"toastMessages": {
-			"TASK_UNASSIGNED": "Tarefa não atribuída"
+			"TASK_UNASSIGNED": "Tarefa não atribuída",
+			"TASK_ASSIGNED": "Tarefa atribuída com sucesso",
+			"TASK_ADDED_TO_FAVORITES": "Tarefa adicionada aos favoritos",
+			"TASK_REMOVED_FROM_FAVORITES": "Tarefa removida dos favoritos",
+			"TASK_PLANNED_FOR_TODAY": "Tarefa planejada para hoje",
+			"TASK_PLANNED_FOR_TOMORROW": "Tarefa planejada para amanhã",
+			"TASK_PLANNED_FOR_DATE": "Tarefa planejada para a data selecionada",
+			"TASK_PLAN_FAILED": "Falha ao planejar a tarefa. Tente novamente.",
+			"TASK_ASSIGNMENT_FAILED": "Falha ao atribuir/desatribuir a tarefa. Tente novamente.",
+			"TASK_FAVORITE_FAILED": "Falha ao atualizar favoritos. Tente novamente."
 		}
 	},
 	"dailyPlan": {

@@ -1,4 +1,4 @@
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -10,13 +10,14 @@ import UserTeamActiveTaskTodayWorked from './user-team-today-worked';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
-import { Card } from '@/core/components/duplicated-components/card';
+import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export default function UserTeamCard({
 	member,
 	className = 'max-w-full'
-}: Readonly<{ member: OT_Member; className?: string }>) {
+}: Readonly<{ member: IOrganizationTeamEmployee; className?: string }>) {
 	return (
 		<Transition
 			as="div"
@@ -28,7 +29,7 @@ export default function UserTeamCard({
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
 		>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] w-full !py-4',
@@ -69,19 +70,19 @@ export default function UserTeamCard({
 
 					<UserTeamActiveTaskTodayWorked member={member} className="!w-[8%]" />
 
-					{/* Card Menu */}
+					{/* EverCard Menu */}
 					<div className="absolute right-2">
 						<UserActiveTaskMenu member={member} />
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Transition>
 	);
 }
 
-function UserActiveTaskMenu({ member }: { member: OT_Member }) {
+function UserActiveTaskMenu({ member }: { member: IOrganizationTeamEmployee }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();

@@ -1,4 +1,5 @@
-import { IDailyPlan, ITeamTask } from '@/core/types/interfaces';
+import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { DropResult } from '@hello-pangea/dnd';
 
 export const handleDragAndDrop = (
@@ -37,8 +38,8 @@ export const handleDragAndDrop = (
 
 export const handleDragAndDropDailyOutstandingAll = (
 	results: DropResult,
-	tasks: ITeamTask[],
-	setTasks: React.Dispatch<React.SetStateAction<ITeamTask[]>>
+	tasks: ITask[],
+	setTasks: React.Dispatch<React.SetStateAction<ITask[]>>
 ) => {
 	try {
 		const { source, destination } = results;

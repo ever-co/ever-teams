@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { ITaskRelatedIssueTypeItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -12,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
+import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();
@@ -19,11 +19,11 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskRelatedIssueTypeItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
 	const {
 		loading,
-		taskRelatedIssueType,
+		taskRelatedIssueTypes,
 		createTaskRelatedIssueType,
 		deleteTaskRelatedIssueType,
 		editTaskRelatedIssueType,
@@ -36,7 +36,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskRelatedIssueType, edit, setValue]);
+	}, [edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -155,15 +155,15 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 								</>
 							)}
 
-							{!formOnly && taskRelatedIssueType?.length > 0 && (
+							{!formOnly && taskRelatedIssueTypes?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
 										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
 									</Text>
 									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskRelatedIssueType?.length && <Spinner dark={false} />}
-										{taskRelatedIssueType && taskRelatedIssueType?.length ? (
-											taskRelatedIssueType.map((relatedIssueType) => (
+										{loading && !taskRelatedIssueTypes?.length && <Spinner dark={false} />}
+										{taskRelatedIssueTypes && taskRelatedIssueTypes?.length ? (
+											taskRelatedIssueTypes.map((relatedIssueType) => (
 												<StatusesListCard
 													key={relatedIssueType.id}
 													statusTitle={

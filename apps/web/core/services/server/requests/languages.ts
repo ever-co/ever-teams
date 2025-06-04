@@ -1,4 +1,5 @@
-import { ILanguageItemList, PaginationResponse } from '@/core/types/interfaces';
+import { ILanguageItemList } from '@/core/types/interfaces/common/language';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { serverFetch } from '../fetch';
 
 export function getLanguageListRequest(

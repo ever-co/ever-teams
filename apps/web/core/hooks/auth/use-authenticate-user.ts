@@ -2,12 +2,12 @@
 
 import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
-import { IUser } from '@/core/types/interfaces/IUserData';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { useQuery } from '../common/use-query';
+import { useQueryCall } from '../common/use-query';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { userService } from '@/core/services/client/api';
 import { useIsMemberManager, useOrganizationTeams } from '../organizations';
@@ -25,7 +25,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		queryCall: refreshUserQueryCall,
 		loading: refreshUserLoading,
 		loadingRef: refreshUserLoadingRef
-	} = useQuery(userService.getAuthenticatedUserData);
+	} = useQueryCall(userService.getAuthenticatedUserData);
 
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {

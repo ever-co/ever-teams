@@ -1,9 +1,10 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import qs from 'qs';
-import { ITaskTimesheet, ITimerApps, TimeLogType } from '@/core/types/interfaces';
-import { IActivityReport } from '@/core/types/interfaces/activity/IActivityReport';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
+import { IActivity } from '@/core/types/interfaces/activity/activity';
+import { IActivityReport } from '@/core/types/interfaces/activity/activity-report';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 class ActivityService extends APIService {
 	getActivities = async ({
@@ -36,7 +37,7 @@ class ActivityService extends APIService {
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/activity?${query}` : `/timer/timesheet?${query}`;
 
-		return this.get<ITaskTimesheet[]>(endpoint);
+		return this.get<IActivity[]>(endpoint);
 	};
 
 	getDailyActivities = async ({
@@ -79,7 +80,7 @@ class ActivityService extends APIService {
 			? `/timesheet/activity/daily?${query}`
 			: `/timer/daily?${query}`;
 
-		return this.get<ITimerApps[]>(endpoint);
+		return this.get<IActivity[]>(endpoint);
 	};
 
 	/**
@@ -120,7 +121,7 @@ class ActivityService extends APIService {
 		projectIds?: string[];
 		employeeIds?: string[];
 		source?: string[];
-		logType?: TimeLogType[];
+		logType?: ETimeLogType[];
 	}) => {
 		const queryString = qs.stringify(
 			{

@@ -1,18 +1,18 @@
-import { IInvitation, IMyInvitations } from '@/core/types/interfaces/IInvite';
+import { IInvite } from '@/core/types/interfaces/user/invite';
 import { atom } from 'jotai';
 import { activeTeamState } from '../teams/organization-team';
 
-export const teamInvitationsState = atom<IInvitation[]>([]);
+export const teamInvitationsState = atom<IInvite[]>([]);
 
-export const myInvitationsState = atom<IMyInvitations[]>([]);
+export const myInvitationsState = atom<IInvite[]>([]);
 
-export const getTeamInvitationsState = atom<IInvitation[]>((get) => {
+export const getTeamInvitationsState = atom<IInvite[]>((get) => {
 	const invitations = get(teamInvitationsState);
 	const activeTeam = get(activeTeamState);
 	const members = activeTeam?.members || [];
 
 	return invitations.filter((invite) => {
-		return !members.find((me) => me?.employee?.user?.email === invite?.email);
+		return !members.find((me: any) => me?.employee?.user?.email === invite?.email);
 	});
 });
 

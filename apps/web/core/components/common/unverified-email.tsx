@@ -1,8 +1,8 @@
 'use client';
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useModal, useQuery } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces';
+import { useAuthenticateUser, useModal, useQueryCall } from '@/core/hooks';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -10,14 +10,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import { AuthCodeInputField } from '../auth/auth-code-input';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 	const [verified, setVerified] = useState(true);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
+		authService.resendVerifyUserLink
+	);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
@@ -41,7 +43,7 @@ export function UnverifiedEmail() {
 
 	return !verified ? (
 		<>
-			<Card
+			<EverCard
 				shadow="bigger"
 				className={clsxm(
 					'w-full mt-4 py-3 px-2 flex justify-between',
@@ -72,7 +74,7 @@ export function UnverifiedEmail() {
 				{/* <button onClick={closeIt}>
 					<CloseIcon />
 				</button> */}
-			</Card>
+			</EverCard>
 			<ConfirmUserModal open={isOpen} user={user} closeModal={closeModal} />
 		</>
 	) : (
@@ -81,8 +83,10 @@ export function UnverifiedEmail() {
 }
 
 export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
-	const { loading, queryCall } = useQuery(emailVerificationService.verifyUserEmailByCode);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(authService.resendVerifyUserLink);
+	const { loading, queryCall } = useQueryCall(emailVerificationService.verifyUserEmailByCode);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
+		authService.resendVerifyUserLink
+	);
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();
@@ -92,7 +96,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 			e.preventDefault();
 			if (code.length < 6 || !user) return;
 
-			queryCall(code, user.email).finally(() => {
+			queryCall(code, user.email || '').finally(() => {
 				window.location.reload();
 			});
 		},
@@ -102,7 +106,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form onSubmit={handleVerifyEmail} className="w-[98%] md:w-[530px]" autoComplete="off">
-				<Card className="w-full" shadow="custom">
+				<EverCard className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.SECURITY_CODE')}
@@ -147,7 +151,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

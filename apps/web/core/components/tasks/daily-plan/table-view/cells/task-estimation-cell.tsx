@@ -1,11 +1,11 @@
 import { TaskEstimateInfo } from '@/core/components/pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
-import { ITeamTask } from '@/core/types/interfaces';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { CellContext } from '@tanstack/react-table';
 import { get } from 'lodash';
 import { useMemo } from 'react';
 
-export default function DailyPlanTaskEstimationCell(props: CellContext<ITeamTask, unknown>) {
+export default function DailyPlanTaskEstimationCell(props: CellContext<ITask, unknown>) {
 	const plan = get(props.column, 'columnDef.meta.plan');
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 	const { activeTeam } = useOrganizationTeams();
@@ -13,7 +13,7 @@ export default function DailyPlanTaskEstimationCell(props: CellContext<ITeamTask
 	const currentMember = useMemo(
 		() =>
 			members.find((m) => {
-				return m.employee.user?.id === profile?.userProfile?.id;
+				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
 	);

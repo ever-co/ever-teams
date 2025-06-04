@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { useTaskStatus } from '@/core/hooks';
 import { Button, Text, ColorPicker } from '@/core/components';
 import { useForm } from 'react-hook-form';
-import { IIcon } from '@/core/types/interfaces';
-import { generateIconList } from '@/core/components/settings/icon-items';
+import { generateIconList, IIcon } from '@/core/components/settings/icon-items';
 import { useTranslations } from 'next-intl';
 import IconPopover from '@/core/components/settings/icon-popover';
 import { Loader } from 'lucide-react';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 
 type EditSet = {
@@ -53,7 +52,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					setTaskStatuses((prev) => {
 						return prev.map((el) => {
 							if (el.id === status.id) {
-								return { ...status, ...taskStatus.data };
+								return { ...status, ...taskStatus };
 							}
 							return el;
 						});
@@ -81,7 +80,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 
 	return (
 		<div className="w-[800px] pt-12 pr-2 h-96 bg-transparent ">
-			<Card shadow="custom">
+			<EverCard shadow="custom">
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<Text className="flex-none flex-grow-0 mb-2 font-normal text-gray-400 text-md">
 						{createNew ? t('common.NEW') : t('common.EDIT')} {t('common.ISSUE_TYPE')}
@@ -110,7 +109,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 							disabled={editTaskStatusLoading}
 							loading={editTaskStatusLoading}
 						>
-							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="h-4 w-4 animate-spin	" />}
+							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="w-4 h-4 animate-spin " />}
 						</Button>
 						<Button
 							variant="grey"
@@ -123,7 +122,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 						</Button>
 					</div>
 				</form>
-			</Card>
+			</EverCard>
 		</div>
 	);
 };

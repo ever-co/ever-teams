@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@/core/hooks';
-import { IIcon, ITaskStatusItemList } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -10,13 +9,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
-import { generateIconList } from '../settings/icon-items';
+import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
 import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
 import { StandardTaskStatusDropDown } from './task-status';
 import { InputField } from '../duplicated-components/_input';
+import { TTaskStatus } from '@/core/types/schemas';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -27,7 +27,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
+	const [edit, setEdit] = useState<TTaskStatus | null>(null);
 	const t = useTranslations();
 	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 	const [randomColor, setRandomColor] = useState<string | undefined>(undefined);
@@ -138,7 +138,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		closeModal: closeDeleteConfirmationModal,
 		openModal: openDeleteConfirmationModal
 	} = useModal();
-	const [statusToDelete, setStatusToDelete] = useState<ITaskStatusItemList | null>(null);
+	const [statusToDelete, setStatusToDelete] = useState<TTaskStatus | null>(null);
 	const { tasks } = useTeamTasks();
 
 	/**
@@ -259,7 +259,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 											}
 										/>
 										<ColorPicker
-											defaultColor={edit ? edit.color : randomColor}
+											defaultColor={edit ? (edit.color ?? undefined) : randomColor}
 											onChange={(color) => setValue('color', color)}
 											className=" shrink-0"
 										/>

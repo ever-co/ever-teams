@@ -74,7 +74,7 @@ export const ProjectsTable = memo(
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
 		const { taskStatuses } = useTaskStatus();
-		const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
+		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
 		}, [taskStatuses]);
 
@@ -328,8 +328,8 @@ export const ProjectsTable = memo(
 						row.original?.members
 							?.filter((el) => !el.isManager)
 							?.map((el) => ({
-								imageUrl: el?.employee?.user?.imageUrl,
-								name: el?.employee?.fullName
+								imageUrl: el?.employee?.user?.imageUrl || '',
+								name: el?.employee?.fullName || ''
 							})) || [];
 
 					return members?.length > 0 ? <AvatarStack avatars={members} /> : null;
@@ -379,8 +379,8 @@ export const ProjectsTable = memo(
 						row.original?.managers
 							?.filter((el) => el.isManager)
 							?.map((el) => ({
-								imageUrl: el?.employee?.user?.imageUrl,
-								name: el?.employee?.fullName
+								imageUrl: el?.employee?.user?.imageUrl || '',
+								name: el?.employee?.fullName || ''
 							})) || [];
 
 					return managers?.length > 0 ? <AvatarStack avatars={managers} /> : null;

@@ -1,7 +1,7 @@
 import { useAuthenticationPasscode } from '@/core/hooks';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { AuthCodeInputField } from '../../auth/auth-code-input';
 
@@ -26,7 +26,7 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px]" onSubmit={handleSubmit} autoComplete="off">
-				<Card className="w-full" shadow="bigger">
+				<EverCard className="w-full" shadow="bigger">
 					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="mb-10 text-center">
 							{t('pages.auth.JOIN_TEAM')}
@@ -92,7 +92,7 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 							</Button>
 						</div>
 					</div>
-				</Card>
+				</EverCard>
 			</form>
 		</Modal>
 	);

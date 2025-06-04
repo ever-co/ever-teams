@@ -61,9 +61,9 @@ export async function GET(req: Request) {
 	// Generate new token
 	const new_token = generateToken({
 		id: user.id,
-		name: user.name || user.email.split('@')[0],
-		email: user.email,
-		avatar: user.imageUrl,
+		name: user.name || user.email?.split('@')[0] || '',
+		email: user.email || '',
+		avatar: user.imageUrl || null,
 		audience: 'jitsi',
 		room: '*',
 		domain: MEET_DOMAIN.value,

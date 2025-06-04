@@ -1,6 +1,5 @@
 'use client';
 
-import { IRole } from '@/core/types/interfaces';
 import { userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -13,7 +12,8 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
+import { TRole } from '@/core/types/schemas';
 
 const Permissions = () => {
 	// Translations
@@ -24,7 +24,7 @@ const Permissions = () => {
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// Local state
-	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
+	const [selectedRole, setSelectedRole] = useState<TRole | null>(null);
 
 	// Hooks with data fetching
 	const { activeTeamManagers } = useOrganizationTeams();
@@ -58,7 +58,7 @@ const Permissions = () => {
 					enabled: !permission.enabled
 				});
 
-				await getRolePermissions(selectedRoleId);
+				getRolePermissions(selectedRoleId);
 			} catch (error) {
 				console.error('Failed to toggle role permission:', error);
 			}
@@ -80,7 +80,7 @@ const Permissions = () => {
 				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
 			</MainHeader>
 			<Container fullWidth={fullWidth} className="flex">
-				<Card className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
+				<EverCard className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
 					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
 						{roles.map((role) => (
 							<div
@@ -286,7 +286,7 @@ const Permissions = () => {
 						)}
 						{!selectedRole && <SelectRole />}
 					</div>
-				</Card>
+				</EverCard>
 			</Container>
 		</MainLayout>
 	);

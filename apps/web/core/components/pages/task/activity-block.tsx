@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 const ActivityBlock = () => {
 	const [selectedAll, setSelectedAll] = useState<boolean>(true);
@@ -30,7 +30,7 @@ const ActivityBlock = () => {
 	};
 
 	return (
-		<Card className="w-full mt-8" shadow="bigger">
+		<EverCard className="w-full mt-8" shadow="bigger">
 			<div className="flex flex-col justify-between sm:flex-row">
 				<div className="flex flex-col sm:flex-row">
 					<h4 className="mr-2 text-lg font-semibold">{t('common.ACTIVITY')} </h4>
@@ -117,7 +117,7 @@ const ActivityBlock = () => {
 					</div>
 				)}
 			</div>
-		</Card>
+		</EverCard>
 	);
 };
 

@@ -1,17 +1,15 @@
-import {
-	DeleteResponse,
-	ICreateDailyPlan,
-	ID,
-	IDailyPlan,
-	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlans,
-	IUpdateDailyPlan,
-	PaginationResponse
-} from '@/core/types/interfaces';
 import { APIService } from '../../api.service';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
+import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import {
+	IDailyPlan,
+	ICreateDailyPlan,
+	IUpdateDailyPlan,
+	IDailyPlanTasksUpdate
+} from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 class DailyPlanService extends APIService {
 	getAllDayPlans = async (activeTeamId?: ID) => {
@@ -117,7 +115,7 @@ class DailyPlanService extends APIService {
 		return this.put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 	};
 
-	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) => {
+	removeManyTaskFromPlans = async ({ taskId, data }: { taskId: string; data: IDailyPlanTasksUpdate }) => {
 		const organizationId = getOrganizationIdCookie();
 		return this.put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 	};

@@ -1,8 +1,9 @@
-import { TimesheetFilterByDays, TimesheetStatus } from '@/core/types/interfaces';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
 import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
 type ITimesheetButton = {
 	title?: string;
 	onClick?: () => void;
@@ -95,16 +96,16 @@ export const getTimesheetButtons = (
 	));
 };
 
-export const statusTable: { label: TimesheetStatus; description: string }[] = [
-	{ label: 'PENDING', description: 'Awaiting approval or review' },
-	{ label: 'IN REVIEW', description: 'The item is being reviewed' },
-	{ label: 'APPROVED', description: 'The item has been approved' },
-	{ label: 'DRAFT', description: 'The item is saved as draft' },
-	{ label: 'DENIED', description: 'The item has been rejected' }
+export const statusTable: { label: ETimesheetStatus; description: string }[] = [
+	{ label: ETimesheetStatus.PENDING, description: 'Awaiting approval or review' },
+	{ label: ETimesheetStatus.IN_REVIEW, description: 'The item is being reviewed' },
+	{ label: ETimesheetStatus.APPROVED, description: 'The item has been approved' },
+	{ label: ETimesheetStatus.DRAFT, description: 'The item is saved as draft' },
+	{ label: ETimesheetStatus.DENIED, description: 'The item has been rejected' }
 ];
 
-export const DailyTable: { label: TimesheetFilterByDays; description: string }[] = [
-	{ label: 'Daily', description: 'Group by Daily' },
-	{ label: 'Weekly', description: 'Group by Weekly' },
-	{ label: 'Monthly', description: 'Group by Monthly' }
+export const DailyTable: { label: ETimeFrequency; description: string }[] = [
+	{ label: ETimeFrequency.DAILY, description: 'Group by Daily' },
+	{ label: ETimeFrequency.WEEKLY, description: 'Group by Weekly' },
+	{ label: ETimeFrequency.MONTHLY, description: 'Group by Monthly' }
 ];

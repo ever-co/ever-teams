@@ -1,9 +1,9 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITeamTask } from '@/core/types/interfaces/ITask';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { useTranslations } from 'next-intl';
 
-export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITeamTask | null; isAuthUser: boolean }) {
+export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITask | null; isAuthUser: boolean }) {
 	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } = useTaskStatistics();
 	const t = useTranslations();
 	if (isAuthUser) {

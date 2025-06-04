@@ -1,7 +1,7 @@
 import { useHasMounted } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { createPortal } from 'react-dom';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 
 export function SpinnerLoader({
 	size = 31,
@@ -66,14 +66,14 @@ export function BackdropLoader({
 			)}
 		>
 			<div>
-				<Card className="w-[98%] md:min-w-[130px] flex items-center justify-center" shadow="custom">
-					<div className="flex space-x-4 items-center">
+				<EverCard className="w-[98%] md:min-w-[130px] flex items-center justify-center" shadow="custom">
+					<div className="flex items-center space-x-4">
 						<div className="w-[31px] h-[31px]">
 							<SpinnerLoader className="mr-1" />
 						</div>
 						{title && <div className="text-xs whitespace-nowrap text-ellipsis">{title}</div>}
 					</div>
-				</Card>
+				</EverCard>
 			</div>
 		</div>
 	);

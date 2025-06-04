@@ -1,4 +1,4 @@
-import { IClassName } from '@/core/types/interfaces';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -6,7 +6,7 @@ import React, { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { PopoverClose } from '@radix-ui/react-popover';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
@@ -75,7 +75,7 @@ export function Dropdown<T extends DropdownItem>({
 			{open && (
 				<div
 					onClick={() => setOpen(false)}
-					className="h-screen w-screen fixed bg-transparent top-0 left-0 z-30"
+					className="fixed top-0 left-0 z-30 w-screen h-screen bg-transparent"
 				></div>
 			)}
 
@@ -97,14 +97,14 @@ export function Dropdown<T extends DropdownItem>({
 				</div>
 
 				{loading ? (
-					<div className="h-5 w-5">
+					<div className="w-5 h-5">
 						<SpinnerLoader size={20} variant="primary" className="w-full h-full" />
 					</div>
 				) : !publicTeam ? (
 					open ? (
-						<ChevronUp className="ml-2 h-5 w-5 dark:text-white transition-transform duration-150 ease-in-out" />
+						<ChevronUp className="w-5 h-5 ml-2 transition-transform duration-150 ease-in-out dark:text-white" />
 					) : (
-						<ChevronDown className="ml-2 h-5 w-5 dark:text-white transition-transform duration-150 ease-in-out" />
+						<ChevronDown className="w-5 h-5 ml-2 transition-transform duration-150 ease-in-out dark:text-white" />
 					)
 				) : null}
 			</button>
@@ -112,7 +112,7 @@ export function Dropdown<T extends DropdownItem>({
 			{/* Dropdown content */}
 			{open && (
 				<div className={clsxm('absolute z-40 min-w-full mt-2', optionsClassName)}>
-					<Card
+					<EverCard
 						shadow="custom"
 						className={clsxm(
 							'md:px-4 py-2 rounded-xl dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
@@ -161,7 +161,7 @@ export function Dropdown<T extends DropdownItem>({
 						{/* Additional content */}
 						{closeOnChildrenClick && <div className="mt-2">{children}</div>}
 						{!closeOnChildrenClick && children}
-					</Card>
+					</EverCard>
 				</div>
 			)}
 		</div>
@@ -177,22 +177,26 @@ export function ConfirmDropdown({
 	return (
 		<Popover>
 			<PopoverTrigger asChild>{children}</PopoverTrigger>
-			<PopoverContent className={clsxm('z-10 p-0 border-none shadow-none', className)} sideOffset={5} align="end">
-				<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
-					<ul className="flex flex-col">
-						<li className="w-full mb-2 font-medium text-primary dark:text-white">
-							<button className="w-full text-left" onClick={onConfirm}>
-								{confirmText}
-							</button>
-						</li>
-						+
-						<li className="w-full text-sm">
-							<PopoverClose asChild>
-								<button className="w-full text-left">Cancel</button>
-							</PopoverClose>
-						</li>
-					</ul>
-				</Card>
+			<PopoverContent
+				className={clsxm(
+					'z-10 border shadow-none h-fit bg-light--theme-light dark:bg-dark--theme-light rounded-[16px] px-4 p-4 border-light--theme-border dark:border-dark--theme-border',
+					className
+				)}
+				sideOffset={5}
+				align="end"
+			>
+				<ul className="flex flex-col p-2 gap-y-2.5">
+					<li className="w-full font-medium text-primary dark:text-white">
+						<button className="w-full text-left" onClick={onConfirm}>
+							{confirmText}
+						</button>
+					</li>
+					<li className="w-full text-sm">
+						<PopoverClose asChild>
+							<button className="w-full text-left text-red-500">Cancel</button>
+						</PopoverClose>
+					</li>
+				</ul>
 			</PopoverContent>
 		</Popover>
 	);

@@ -1,9 +1,10 @@
-import { ITaskLabelsCreate, ITaskLabelsItemList } from '@/core/types/interfaces';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 
-export function createLabelsRequest(datas: ITaskLabelsCreate, bearer_token: string, tenantId?: any) {
-	return serverFetch<ITaskLabelsItemList>({
+export function createLabelsRequest(datas: ITagCreate, bearer_token: string, tenantId?: any) {
+	return serverFetch<ITag>({
 		path: '/tags',
 		method: 'POST',
 		body: datas,
@@ -19,11 +20,11 @@ export function editTaskLabelsRequest({
 	tenantId
 }: {
 	id: string | any;
-	datas: ITaskLabelsCreate;
+	datas: ITagCreate;
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskLabelsItemList>({
+	return serverFetch<ITag>({
 		path: `/tags/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -41,7 +42,7 @@ export function deleteTaskLabelsRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskLabelsItemList>({
+	return serverFetch<ITag>({
 		path: `/tags/${id}`,
 		method: 'DELETE',
 		bearer_token,

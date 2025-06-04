@@ -8,6 +8,7 @@ export class Logger {
 	private config: LoggerConfig;
 	private static instance: Logger;
 	private loggerInstance: Logger | null = null;
+	private isLoggingError = false;
 
 	private static readonly DEFAULT_CONFIG: Required<LoggerConfig> = {
 		logDir: 'logs',
@@ -167,13 +168,18 @@ export class Logger {
 	 * Append a log entry to a file
 	 */
 	private async appendToLogFile(filename: string, logEntry: LogEntry) {
-		if (ACTIVE_LOCAL_LOG_SYSTEM.value) {
+		if (!ACTIVE_LOCAL_LOG_SYSTEM.value || this.isLoggingError) return;
+		try {
 			console.log(`<== A NEW LOG WAS BEEN WRITTEN TO FILE==> ${filename}`);
 			if (isServer()) {
 				await logServerToFile(this.config.logDir!, filename, logEntry); // fs
 			} else {
 				await sendLogToAPI(logEntry); // client
 			}
+		} catch (error) {
+			console.error('[Logger] Failed to log to file:', error);
+		} finally {
+			this.isLoggingError = false;
 		}
 	}
 

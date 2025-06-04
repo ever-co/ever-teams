@@ -1,31 +1,34 @@
-import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@/core/types/interfaces';
 import { useCallback } from 'react';
 import { useOrganizationTeams } from './use-organization-teams';
 import { userState } from '@/core/stores';
 import { useAtom } from 'jotai';
 import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams';
-import { useQuery } from '../../common';
+import { useQueryCall } from '../../common';
+import {
+	IOrganizationTeamEmployee,
+	IOrganizationTeamEmployeeUpdate
+} from '@/core/types/interfaces/team/organization-team-employee';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
 	const [user] = useAtom(userState);
 
-	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQuery(
+	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQueryCall(
 		organizationTeamEmployeeService.deleteOrganizationEmployeeTeam
 	);
 
-	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQuery(
+	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQueryCall(
 		organizationTeamEmployeeService.updateOrganizationEmployeeTeam
 	);
 
-	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQuery(
+	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQueryCall(
 		organizationTeamEmployeeService.editEmployeeOrderOrganizationTeam
 	);
 
 	const {
 		loading: updateOrganizationTeamEmployeeActiveTaskLoading,
 		queryCall: updateOrganizationTeamEmployeeActiveTaskQueryCall
-	} = useQuery(organizationTeamEmployeeService.updateOrganizationTeamEmployeeActiveTask);
+	} = useQueryCall(organizationTeamEmployeeService.updateOrganizationTeamEmployeeActiveTask);
 
 	const deleteOrganizationTeamEmployee = useCallback(
 		({
@@ -63,13 +66,13 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
-		(employee: OT_Member, order: number) => {
+		(employee: IOrganizationTeamEmployee, order: number) => {
 			updateOrderCall(
 				employee.id,
 				{
 					order,
-					organizationTeamId: employee.organizationTeamId,
-					organizationId: employee.organizationId
+					organizationTeamId: employee.organizationTeamId ?? '',
+					organizationId: employee.organizationId ?? ''
 				},
 				user?.tenantId || ''
 			).then((res) => {

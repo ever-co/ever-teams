@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAuthenticateUser, useTeamTasks, useTimer } from '@/core/hooks';
 import { usePathname } from 'next/navigation';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -50,7 +50,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 			closeModal={handleCloseModal}
 			showCloseIcon={requirePlan}
 		>
-			<Card className="w-full" shadow="custom">
+			<EverCard className="w-full" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
@@ -65,14 +65,14 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 					<Link href={`/profile/${user?.id}?name=${name || ''}`} className="flex flex-col w-full gap-3">
 						<Button
 							variant="default"
-							className="p-7 font-normal rounded-xl text-md"
+							className="font-normal p-7 rounded-xl text-md"
 							onClick={handleCloseModal}
 						>
 							OK
 						</Button>
 					</Link>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

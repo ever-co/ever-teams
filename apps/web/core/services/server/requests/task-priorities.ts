@@ -1,8 +1,8 @@
-import { ITaskPrioritiesCreate, ITaskPrioritiesItemList } from '@/core/types/interfaces';
+import { ITaskPriority, ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 import { serverFetch } from '../fetch';
 
 export function createPrioritiesRequest(datas: ITaskPrioritiesCreate, bearer_token: string, tenantId?: any) {
-	return serverFetch<ITaskPrioritiesItemList>({
+	return serverFetch<ITaskPriority>({
 		path: '/task-priorities',
 		method: 'POST',
 		body: datas,
@@ -22,7 +22,7 @@ export function editTaskPrioritiesRequest({
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskPrioritiesItemList>({
+	return serverFetch<ITaskPriority>({
 		path: `/task-priorities/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -40,7 +40,7 @@ export function deleteTaskPrioritiesRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskPrioritiesItemList>({
+	return serverFetch<ITaskPriority>({
 		path: `/task-priorities/${id}`,
 		method: 'DELETE',
 		bearer_token,

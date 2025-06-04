@@ -1,4 +1,3 @@
-import { ITeamTask } from '@/core/types/interfaces';
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { clsxm } from '@/core/lib/utils';
@@ -7,7 +6,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
-import { Card } from '../../duplicated-components/card';
+import { EverCard } from '../../common/ever-card';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.
@@ -15,7 +15,7 @@ import { Card } from '../../duplicated-components/card';
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITeamTask} props.defaultPlannedTask - The default task from the Today's plan
+ * @param {ITask} props.defaultPlannedTask - The default task from the Today's plan
  *
  * @returns {JSX.Element} The modal element
  */
@@ -26,7 +26,7 @@ export function ActiveTaskHandlerModal({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	defaultPlannedTask: ITeamTask;
+	defaultPlannedTask: ITask;
 }) {
 	const t = useTranslations();
 	const { startTimer, hasPlan: todayPlan } = useTimerView();
@@ -95,10 +95,10 @@ export function ActiveTaskHandlerModal({
 
 	return (
 		<Modal isOpen={open} closeModal={handleCloseModal} className="w-[98%] md:w-[530px] relative">
-			<Card className="w-full" shadow="custom">
+			<EverCard className="w-full" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<div className="mb-7">
-						<Text.Heading as="h3" className="mb-3 uppercase text-center">
+						<Text.Heading as="h3" className="mb-3 text-center uppercase">
 							{t('dailyPlan.chang_active_task_popup.TITLE')}
 						</Text.Heading>
 
@@ -110,7 +110,7 @@ export function ActiveTaskHandlerModal({
 						</Text>
 					</div>
 
-					<div className="mx-auto w-full max-w-md">
+					<div className="w-full max-w-md mx-auto">
 						<RadioGroup value={selectedOption} onChange={setSelectedOption}>
 							{options.map((option) => {
 								return (
@@ -138,11 +138,11 @@ export function ActiveTaskHandlerModal({
 						</RadioGroup>
 					</div>
 
-					<div className="mt-7 w-full flex justify-between items-center">
+					<div className="flex items-center justify-between w-full mt-7">
 						<Button
 							variant="outline"
 							type="submit"
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className="px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 							onClick={handleCloseModal}
 						>
 							{t('common.SKIP_ADD_LATER')}
@@ -157,7 +157,7 @@ export function ActiveTaskHandlerModal({
 						</Button>
 					</div>
 				</div>
-			</Card>
+			</EverCard>
 		</Modal>
 	);
 }

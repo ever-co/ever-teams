@@ -37,7 +37,7 @@ export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?:
 					e.target.files[0],
 					'organization_teams_avatars',
 					user.tenantId as string,
-					user.employee.organizationId
+					user.employee?.organizationId || ''
 				)
 					.then((image) => {
 						updateOrganizationTeam(activeTeam, {

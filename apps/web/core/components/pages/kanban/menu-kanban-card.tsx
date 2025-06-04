@@ -6,13 +6,16 @@ import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useSetAtom } from 'jotai';
-import { ITeamTask, OT_Member } from '@/core/types/interfaces';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 
-export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
+export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
@@ -172,13 +175,13 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 				<HorizontalSeparator />
 				<ul className="list-none">
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode="today" taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.TODAY} taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode="tomorrow" taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.TOMORROW} taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
-						<PlanTask planMode="custom" taskId={task.id} chooseMember={true} />
+						<PlanTask planMode={EDailyPlanMode.CUSTOM} taskId={task.id} chooseMember={true} />
 					</li>
 				</ul>
 			</PopoverContent>
@@ -193,8 +196,8 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: OT_Member[];
-	task: ITeamTask;
+	teamMembers: IOrganizationTeamEmployee[];
+	task: ITask;
 	key?: string;
 }
 
@@ -202,8 +205,8 @@ interface ITeamMemberSelectProps {
  * A multi select component that allows to assign members to a task
  *
  * @param {object} props - The props object
- * @param {OT_Member[]} props.teamMembers - Members of the current team
- * @param {ITeamTask} props.task - The task
+ * @param {IOrganizationTeamMember[]} props.teamMembers - Members of the current team
+ * @param {ITask} props.task - The task
  *
  * @return {ReactNode} The multi select component
  */
@@ -243,7 +246,11 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 									<TeamMemberOption
 										task={task}
 										member={member}
-										isAssignee={task.members.some((el) => el.user?.id == member.employee.user?.id)}
+										isAssignee={
+											task.members?.some(
+												(el: IEmployee) => el.user?.id == member?.employee?.user?.id
+											) ?? false
+										}
 									/>
 								</Combobox.Option>
 							))}
@@ -263,8 +270,8 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 
 interface ITeamMemberOptionProps {
 	isAssignee: boolean;
-	member: OT_Member;
-	task: ITeamTask;
+	member: IOrganizationTeamEmployee;
+	task: ITask;
 	key?: string;
 }
 
@@ -281,7 +288,7 @@ function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps):
 
 	return (
 		<div className="cursor-pointer" onClick={handleAssignTask}>
-			<span className="block truncate">{member.employee.fullName}</span>
+			<span className="block truncate">{member?.employee?.fullName}</span>
 			{!(assignTaskLoading || unAssignTaskLoading) && isAssignee ? (
 				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
 					<CheckIcon className="w-5 h-5" aria-hidden="true" />

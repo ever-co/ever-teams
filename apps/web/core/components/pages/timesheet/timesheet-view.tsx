@@ -1,9 +1,11 @@
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { IUser } from '@/core/types/interfaces';
+import { IUser } from '@/core/types/interfaces/user/user';
 import { DataTableTimeSheet } from '@/core/components/integration/calendar';
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import TimesheetSkeleton from '../../activities/timesheet-skeleton';
+import { toast } from 'sonner';
+import { useRef } from 'react';
 
 export function TimesheetView({
 	data,
@@ -15,6 +17,7 @@ export function TimesheetView({
 	user?: IUser | undefined;
 }) {
 	const t = useTranslations();
+	const isToastShown = useRef(false);
 
 	if (loading || !data) {
 		return (
@@ -27,6 +30,10 @@ export function TimesheetView({
 	}
 
 	if (data.length === 0) {
+		if (!isToastShown.current) {
+			toast.info('TimesheetView - No data found, showing empty state');
+			isToastShown.current = true;
+		}
 		return (
 			<AnimatedEmptyState
 				title={t('pages.timesheet.NO_ENTRIES_FOUND')}

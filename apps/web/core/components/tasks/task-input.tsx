@@ -13,16 +13,6 @@ import {
 	useTaskInput,
 	useTaskLabels
 } from '@/core/hooks';
-import {
-	IIssueTypesItemList,
-	ITaskIssue,
-	ITaskPriority,
-	ITaskSize,
-	ITaskStatus,
-	ITeamTask,
-	Nullable,
-	OT_Member
-} from '@/core/types/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
@@ -42,18 +32,23 @@ import { ProjectDropDown } from '@/core/components/pages/task/details-section/bl
 import { cn } from '@/core/lib/helpers';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { Card } from '../duplicated-components/card';
+import { EverCard } from '../common/ever-card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
+import { Nullable } from '@/core/types/generics/utils';
+import { ITask } from '@/core/types/interfaces/task/task';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 type Props = {
-	task?: Nullable<ITeamTask>;
-	tasks?: ITeamTask[];
-	onTaskClick?: (task: ITeamTask) => void;
+	task?: Nullable<ITask>;
+	tasks?: ITask[];
+	onTaskClick?: (task: ITask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITeamTask) => void;
+	onEnterKey?: (taskName: string, task: ITask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -69,7 +64,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITeamTask | undefined) => void;
+	onTaskCreated?: (task: ITask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
@@ -85,7 +80,7 @@ type Props = {
 export function TaskInput(props: Props) {
 	const t = useTranslations();
 	const { issueTypes } = useIssueType();
-	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
+	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -110,12 +105,12 @@ export function TaskInput(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITeamTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
 		[$onTaskCreated]
 	);
 
 	const onTaskClick = useCallback(
-		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
+		(task: ITask) => $onTaskClick.current && $onTaskClick.current(task),
 		[$onTaskClick]
 	);
 
@@ -158,12 +153,12 @@ export function TaskInput(props: Props) {
 	 * set the active task for the authenticated user
 	 */
 	const setAuthActiveTask = useCallback(
-		(task: ITeamTask) => {
+		(task: ITask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
 
 				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members.find(
+				const currentEmployeeDetails = activeTeam?.members?.find(
 					(member) => member.employeeId === user?.employee?.id
 				);
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
@@ -184,7 +179,7 @@ export function TaskInput(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITeamTask, title: string) => {
+		(task: ITask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -233,21 +228,21 @@ export function TaskInput(props: Props) {
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITeamTask[] = [];
+		let updatedTaskList: ITask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
-				props.task?.issueType === 'Story'
+				props.task?.issueType === EIssueType.STORY
 			) {
 				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 			} else if (
 				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-				props.task?.issueType === 'Task' ||
-				props.task?.issueType === 'Bug' ||
+				props.task?.issueType === EIssueType.TASK ||
+				props.task?.issueType === EIssueType.BUG ||
 				!props.task?.issueType
 			) {
 				updatedTaskList = datas.filteredTasks.filter(
-					(item) => item.issueType === 'Epic' || item.issueType === 'Story'
+					(item) => item.issueType === EIssueType.EPIC || item.issueType === EIssueType.STORY
 				);
 			} else {
 				updatedTaskList = datas.filteredTasks;
@@ -383,11 +378,11 @@ export function TaskInput(props: Props) {
 						<TaskIssuesDropdown
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
-							onValueChange={(v) => setTaskIssue(v)}
+							onValueChange={(v: any) => setTaskIssue(v)}
 							defaultValue={
 								defaultIssueType
 									? defaultIssueType.name
-									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+									: (localStorage.getItem('lastTaskIssue') as EIssueType) || null
 							}
 						/>
 					)}
@@ -465,14 +460,14 @@ function TaskCard({
 	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
-	onItemClick?: (task: ITeamTask) => void;
+	onItemClick?: (task: ITask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
-	updatedTaskList?: ITeamTask[];
+	updatedTaskList?: ITask[];
 	assignTaskPopup?: boolean;
 }) {
 	const [, setCount] = useState(0);
@@ -497,7 +492,7 @@ function TaskCard({
 
 	return (
 		<>
-			<Card
+			<EverCard
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4 overflow-hidden',
@@ -526,39 +521,39 @@ function TaskCard({
 									<ActiveTaskStatusDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskStatus) {
 												taskStatus.current = v;
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskStatus?.current as ITaskStatus}
+										defaultValue={taskStatus?.current as ETaskStatusName}
 										task={null}
 									/>
 
 									<ActiveTaskPropertiesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskPriority) {
 												taskPriority.current = v;
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskPriority?.current as ITaskPriority}
+										defaultValue={taskPriority?.current as ETaskPriority}
 										task={null}
 									/>
 
 									<ActiveTaskSizesDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v) => {
+										onValueChange={(v: any) => {
 											if (v && taskSize) {
 												taskSize.current = v;
 											}
 											setCount((c) => c + 1);
 										}}
-										defaultValue={taskSize?.current as ITaskSize}
+										defaultValue={taskSize?.current as ETaskSizeName}
 										task={null}
 									/>
 
@@ -707,7 +702,7 @@ function TaskCard({
 							<div className="text-center">{t('common.NO_TASKS')}</div>
 						))}
 				</ul>
-			</Card>
+			</EverCard>
 
 			{/* Just some spaces at the end */}
 			<div className="w-2 h-5 opacity-0">{'|'}</div>
@@ -722,7 +717,7 @@ function TaskCard({
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: OT_Member[];
+	teamMembers: IOrganizationTeamEmployee[];
 	assignees?: RefObject<
 		{
 			id: string;
@@ -744,7 +739,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const authMember = useMemo(
-		() => teamMembers.find((member) => member.employee.user?.id == user?.id),
+		() => teamMembers.find((member) => member.employee?.user?.id == user?.id),
 		[teamMembers, user?.id]
 	);
 
@@ -797,13 +792,13 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
 									<span className="text-xs text-nowrap whitespace-nowrap">
-										{authMember.employee.fullName}
+										{authMember.employee?.fullName}
 									</span>
 								</Combobox.Option>
 							)}
 
 							{teamMembers
-								.filter((member) => member.employee.user?.id != user?.id)
+								.filter((member) => member.employee?.user?.id != user?.id)
 								.map((member) => (
 									<Combobox.Option
 										key={member.id}
@@ -818,29 +813,29 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 											if (!assignees) return;
 											const isAssigned = assignees.current
 												?.map((el) => el.id)
-												.includes(member.employee.id);
+												.includes(member.employee?.id || '');
 
 											if (isAssigned) {
 												assignees.current = (assignees.current || []).filter(
-													(el) => el.id !== member.employee.id
+													(el) => el.id !== member.employee?.id
 												);
 											} else {
 												assignees.current = [
 													...(assignees.current || []),
-													{ id: member.employee.id }
+													{ id: member.employee?.id || '' }
 												];
 											}
 										}}
 										value={member}
 									>
-										{assignees?.current?.map((el) => el.id).includes(member.employee.id) && (
+										{assignees?.current?.map((el) => el.id).includes(member.employee?.id || '') && (
 											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>
 										)}
 
 										<span className="text-xs text-nowrap whitespace-nowrap">
-											{member.employee.fullName}
+											{member.employee?.fullName}
 										</span>
 									</Combobox.Option>
 								))}

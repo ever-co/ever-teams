@@ -1,7 +1,8 @@
-import { INextParams, ITaskStatusCreate } from '@/core/types/interfaces';
+import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskStatusRequest, editTaskStatusRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';
+import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -19,9 +20,9 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const response = await editTaskStatusRequest({
 		id: params.id,
-		bearer_token: access_token,
+		bearer_token: access_token || '',
 		datas,
-		tenantId
+		tenantId: tenantId || ''
 	});
 
 	return $res(response.data);

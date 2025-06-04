@@ -7,7 +7,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { statusTable } from '../../timesheet/timesheet-action';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
@@ -21,7 +21,7 @@ import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 export interface IEditTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
-	dataTimesheet: TimesheetLog;
+	dataTimesheet: ITimeLog;
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
 	const { organizationProjects } = useOrganizationProjects();
@@ -36,7 +36,10 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
 		date: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date()
 	});
-	const seconds = differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt));
+	const seconds =
+		dataTimesheet.startedAt && dataTimesheet.stoppedAt
+			? differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt))
+			: 0;
 	const { h: hours, m: minutes } = secondsToTime(seconds);
 
 	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>(initialTimeRange);
@@ -78,7 +81,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	}, []);
 	const selectedValues = useMemo(
 		() => ({
-			Project: dataTimesheet.project
+			Project: dataTimesheet.project || null
 		}),
 		[dataTimesheet.project]
 	);
@@ -132,8 +135,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				organizationId: dataTimesheet.organizationId,
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
-				organizationTeamId: dataTimesheet.organizationTeamId ?? null,
-				organizationContactId: dataTimesheet.organizationContactId ?? null
+				organizationTeamId: dataTimesheet.organizationTeamId || undefined,
+				organizationContactId: dataTimesheet.organizationContactId || undefined
 			};
 			updateTimesheet({ ...payload })
 				.then(() => {
@@ -235,8 +238,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="flex items-center gap-x-1 ">
 						<span className="text-gray-400">for</span>
 						<CustomSelect
-							defaultValue={dataTimesheet.employee.fullName}
-							placeholder={dataTimesheet.employee.fullName}
+							defaultValue={dataTimesheet.employee?.fullName}
+							placeholder={dataTimesheet.employee?.fullName}
 							valueKey="employeeId"
 							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}

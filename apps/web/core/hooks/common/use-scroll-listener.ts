@@ -1,5 +1,5 @@
 'use client';
-import { TimesheetLog } from '@/core/types/interfaces';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import React from 'react';
 
 export function useScrollListener() {
@@ -22,8 +22,8 @@ export function useScrollListener() {
 	return { scrolling };
 }
 
-export const useInfinityScroll = (timesheet: TimesheetLog[]) => {
-	const [items, setItems] = React.useState<TimesheetLog[]>(timesheet);
+export const useInfinityScroll = (timesheet: ITimeLog[]) => {
+	const [items, setItems] = React.useState<ITimeLog[]>(timesheet);
 	const [page, setPage] = React.useState(1);
 	const [isLoading, setIsLoading] = React.useState(false);
 
