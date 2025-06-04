@@ -8,9 +8,9 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
+import { TTaskStatus } from '@/core/types/schemas';
 
-const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatus[]; onClose: () => void }) => {
+const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);
 	const [saveLoader, setSaveLoader] = useState(false);
 	const [saveCheck, setSaveCheck] = useState(false);
@@ -41,11 +41,11 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatus[]; onClose
 			const reOrderedStatuses = await reOrderTaskStatus(data);
 			setSaveLoader(false);
 
-			if (reOrderedStatuses?.data?.length) {
+			if (reOrderedStatuses?.length) {
 				// Update task statuses state
 				setTaskStatuses((prev) => {
 					const statusesOrder = Object.fromEntries(
-						reOrderedStatuses.data.map((el: any) => {
+						reOrderedStatuses.map((el: any) => {
 							return [el.id, el.order];
 						})
 					);

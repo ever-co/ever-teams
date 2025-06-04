@@ -97,7 +97,7 @@ export function useTaskStatus() {
 		try {
 			const res = taskStatusesQuery.data;
 			if (res) {
-				setTaskStatuses(res.data.items);
+				setTaskStatuses(res.items);
 			}
 		} catch (error) {
 			console.error('Failed to load task statuses:', error);

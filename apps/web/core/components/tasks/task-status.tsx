@@ -31,14 +31,14 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITaskStatus } from '@/core/types/interfaces/task/task-status/task-status';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTaskStatus } from '@/core/types/schemas';
 
 export type TStatusItem = {
 	id?: string;
-	bgColor?: string;
+	bgColor?: string | null;
 	icon?: React.ReactNode | undefined;
 	realName?: string;
 	name?: string;
@@ -88,7 +88,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropd
 	showIcon?: boolean;
 };
 
-export function useMapToTaskStatusValues<T extends ITaskStatus>(data: T[], bordered = false): TStatus<any> {
+export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], bordered = false): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
@@ -775,7 +775,7 @@ export function TaskStatus({
 				className
 			)}
 			style={{
-				backgroundColor: active ? backgroundColor : undefined,
+				backgroundColor: active ? (backgroundColor ?? undefined) : undefined,
 				color: getTextColor(backgroundColor ?? 'white')
 			}}
 		>
