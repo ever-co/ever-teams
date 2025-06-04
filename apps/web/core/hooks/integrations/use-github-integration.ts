@@ -180,8 +180,7 @@ export function useGitHubIntegration() {
 			// Fetch if not in cache
 			return await queryClient.fetchQuery({
 				queryKey,
-				queryFn: () => githubService.getGithubIntegrationMetadata(integrationId),
-				staleTime: 1000 * 60 * 10
+				queryFn: () => githubService.getGithubIntegrationMetadata(integrationId)
 			});
 		},
 		[queryClient, tenantId, organizationId]
@@ -189,20 +188,24 @@ export function useGitHubIntegration() {
 
 	const getRepositories = useCallback(
 		async (integrationId: string) => {
+			const queryKey = queryKeys.integrations.github.repositories(tenantId, organizationId, integrationId);
+
 			// Set integration ID to trigger React Query
 			setRepositoriesIntegrationId(integrationId);
 
 			// If we already have cached data for this integration ID, return it immediately
-			const cachedData = repositoriesQuery.data;
-			if (cachedData && !repositoriesQuery.isStale) {
-				return cachedData;
-			}
+			// Try to get from cache first
+			const cachedData = queryClient.getQueryData(queryKey);
+			if (cachedData) return cachedData;
 
 			// Otherwise wait for the query to complete
-			const result = await repositoriesQuery.refetch();
-			return result.data || null;
+			// Fetch if not in cache
+			return await queryClient.fetchQuery({
+				queryKey,
+				queryFn: () => githubService.getGithubIntegrationRepositories(integrationId)
+			});
 		},
-		[repositoriesQuery]
+		[queryClient, tenantId, organizationId]
 	);
 	// Phase 3: Migrated sync function using React Query mutation (maintains exact same interface)
 	const syncGitHubRepository = useCallback(
