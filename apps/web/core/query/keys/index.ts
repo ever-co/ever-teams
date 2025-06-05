@@ -148,6 +148,16 @@ export const queryKeys = {
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
 	},
 
+	// Keys related to Timer activities and limits
+	timer: {
+		all: ['timer'] as const,
+		timeLimits: {
+			all: ['timer', 'time-limits'] as const,
+			byParams: (params: Record<string, any> | null) =>
+				['timer', 'time-limits', 'by-params', ...(params ? [params] : [])] as const
+		}
+	},
+
 	// Keys related to languages
 	languages: {
 		all: ['languages'] as const,

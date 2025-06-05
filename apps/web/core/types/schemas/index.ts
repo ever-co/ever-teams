@@ -23,6 +23,7 @@ export * from './organization/user-organization.schema';
 export * from './team/organization-team.schema';
 export * from './team/organization-team-employee.schema';
 export * from './timer/timer-status.schema';
+export * from './timer/time-limit-report.schema';
 
 // Integration schemas
 export * from './integrations/integration-type.schema';
