@@ -22,6 +22,9 @@ export function useManualTime() {
 			setTimeLog(data);
 			// Invalidate related queries to refresh data
 			queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeLogs.all });
+			toast.success('Time added successfully', {
+				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${data.date} from ${data.startTime} to ${data.endTime}`
+			});
 		},
 		onError: (error) => {
 			console.log(error);

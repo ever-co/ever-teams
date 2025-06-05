@@ -129,7 +129,17 @@ export function CustomSelect({
 				<SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
 					{options
 						?.map((option, index) => {
-							// Validate option is a proper object
+							// Handle both string and object options
+							if (typeof option === 'string') {
+								// String option (like manualTimeReasons)
+								return (
+									<SelectItem key={`${option}-${index}`} value={option}>
+										{option}
+									</SelectItem>
+								);
+							}
+
+							// Object option validation
 							if (!option || typeof option !== 'object') {
 								if (process.env.NODE_ENV === 'development') {
 									console.warn('🚨 Invalid option in CustomSelect:', option);
@@ -139,7 +149,7 @@ export function CustomSelect({
 
 							const optionValue = option[valueKey];
 
-							// Ensure we have a valid value
+							// Ensure we have a valid value for object options
 							if (!optionValue || typeof optionValue !== 'string') {
 								if (process.env.NODE_ENV === 'development') {
 									console.warn('🚨 Invalid option value in CustomSelect:', {
@@ -151,7 +161,7 @@ export function CustomSelect({
 								return null;
 							}
 
-							// Get display text with fallback
+							// Get display text with fallback for object options
 							let displayText: string = '';
 							if (renderOption) {
 								const rendered = renderOption(option);

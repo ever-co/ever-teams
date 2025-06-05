@@ -558,7 +558,7 @@ function TaskCard({
 									/>
 
 									<TaskLabels
-										className="min-w-fit lg:max-w-[170px] text-xs z-[9999]"
+										className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
 										forDetails={true}
 										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {

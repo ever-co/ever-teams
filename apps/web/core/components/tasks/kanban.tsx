@@ -349,7 +349,7 @@ export const EmptyKanbanDroppable = ({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
-			<Modal className="z-[5000]" isOpen={editIsOpen} closeModal={editCloseModal}>
+			<Modal className="z-[1002]" isOpen={editIsOpen} closeModal={editCloseModal}>
 				<EditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
 			</Modal>
 		</>
