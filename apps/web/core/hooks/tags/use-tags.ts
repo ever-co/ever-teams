@@ -11,10 +11,10 @@ export const useTags = () => {
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
 		queryFn: async () => {
-			console.log('tagsQuery queryFn executing');
 			const response = await tagService.getTags();
+
 			setTags(response.items);
-			console.log(response);
+
 			return response;
 		}
 	});

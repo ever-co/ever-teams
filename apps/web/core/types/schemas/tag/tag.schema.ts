@@ -32,12 +32,7 @@ export const tagSchema = z
 		tagTypeName: z.string().optional().nullable(),
 		fix_relational_custom_fields: z.any().optional().nullable(),
 		customFields: z.any().optional().nullable(),
-		fullIconUrl: z
-			.object({
-				myField: z.record(z.any())
-			})
-			.optional()
-			.nullable(),
+		fullIconUrl: z.record(z.any()).optional().nullable(),
 		// Counter fields
 		candidate_counter: z.number().optional(),
 		employee_counter: z.number().optional(),
