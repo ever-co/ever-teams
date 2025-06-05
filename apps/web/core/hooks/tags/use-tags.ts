@@ -3,20 +3,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tagsState } from '@/core/stores/tags/tags';
 import { tagService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common';
 
 export const useTags = () => {
-	const [, setTags] = useAtom(tagsState);
+	const [tags, setTags] = useAtom(tagsState);
 	const queryClient = useQueryClient();
 
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
-		queryFn: async () => {
-			const response = await tagService.getTags();
-
-			setTags(response.items);
-
-			return response;
-		}
+		queryFn: () =>
+			tagService.getTags().then((response) => {
+				return response;
+			})
 	});
 
 	const createTagMutation = useMutation({
@@ -40,8 +38,18 @@ export const useTags = () => {
 		}
 	});
 
+	useConditionalUpdateEffect(
+		() => {
+			if (tagsQuery.data) {
+				setTags(tagsQuery.data.items);
+			}
+		},
+		[tagsQuery.data],
+		Boolean(tags) || !tagsQuery.isFetching
+	);
+
 	return {
-		tags: tagsQuery.data?.items || [],
+		tags,
 		loading: tagsQuery.isLoading,
 		getTags: () => queryClient.invalidateQueries({ queryKey: queryKeys.tags.all }),
 

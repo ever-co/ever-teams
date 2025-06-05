@@ -3,17 +3,16 @@ import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
 import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common';
 
 export const useRoles = () => {
-	const [, setRoles] = useAtom(rolesState);
+	const [roles, setRoles] = useAtom(rolesState);
 	const queryClient = useQueryClient();
 
 	const rolesQuery = useQuery({
 		queryKey: queryKeys.roles.all,
 		queryFn: () =>
 			roleService.getRoles().then((response) => {
-				setRoles(response.items);
-
 				return response;
 			})
 	});
@@ -39,8 +38,18 @@ export const useRoles = () => {
 		}
 	});
 
+	useConditionalUpdateEffect(
+		() => {
+			if (rolesQuery.data) {
+				setRoles(rolesQuery.data.items);
+			}
+		},
+		[rolesQuery.data],
+		Boolean(roles) || !rolesQuery.isFetching
+	);
+
 	return {
-		roles: rolesQuery.data?.items || [],
+		roles,
 		setRoles,
 		loading: rolesQuery.isLoading,
 		getRoles: () => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all }),

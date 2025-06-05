@@ -6,6 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { rolePermissionService } from '@/core/services/client/api/roles/role-permission.service';
 import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
 import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common';
 
 export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
@@ -17,18 +18,7 @@ export const useRolePermissions = (roleId?: string) => {
 		queryKey: queryKeys.roles.permissions(roleId!),
 		queryFn: () => {
 			if (!roleId) return null;
-			return rolePermissionService.getRolePermission(roleId).then((response) => {
-				if (response?.items?.length) {
-					const tempRolePermissions = response.items;
-					const formatedItems: { [key: string]: TRolePermission } = {};
-
-					tempRolePermissions.forEach((item: TRolePermission) => {
-						formatedItems[item.permission] = item;
-					});
-					setRolePermissionsFormated(formatedItems);
-					setRolePermissions(tempRolePermissions);
-				}
-			});
+			return rolePermissionService.getRolePermission(roleId);
 		}
 	});
 
@@ -54,6 +44,23 @@ export const useRolePermissions = (roleId?: string) => {
 			}
 		}
 	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (rolePermissionsQuery.data?.items?.length) {
+				const tempRolePermissions = rolePermissionsQuery.data.items;
+				const formatedItems: { [key: string]: TRolePermission } = {};
+
+				tempRolePermissions.forEach((item: TRolePermission) => {
+					formatedItems[item.permission] = item;
+				});
+				setRolePermissionsFormated(formatedItems);
+				setRolePermissions(tempRolePermissions);
+			}
+		},
+		[rolePermissionsQuery.data],
+		Boolean(rolePermissions) || !rolePermissionsQuery.isFetching
+	);
 
 	// For backward compatibility
 	const getRolePermissions = useCallback(

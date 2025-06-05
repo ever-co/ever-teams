@@ -10,6 +10,7 @@ import { taskSizeService } from '@/core/services/client/api/tasks/task-size.serv
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { queryKeys } from '@/core/query/keys';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -69,13 +70,20 @@ export function useTaskSizes() {
 		}
 	});
 
+	useConditionalUpdateEffect(
+		() => {
+			if (taskSizesQuery.data) {
+				setTaskSizes(taskSizesQuery.data.items);
+			}
+		},
+		[taskSizesQuery.data],
+		Boolean(taskSizes)
+	);
+
 	const loadTaskSizes = useCallback(async () => {
 		try {
 			const res = taskSizesQuery.data;
-
-			if (res?.items) {
-				setTaskSizes(res?.items || []);
-			}
+			return res;
 		} catch (error) {
 			console.error('Failed to load task sizes:', error);
 		}

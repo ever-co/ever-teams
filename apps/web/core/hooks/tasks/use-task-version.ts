@@ -7,12 +7,12 @@ import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskVersion() {
 	const [user] = useAtom(userState);
@@ -37,9 +37,6 @@ export function useTaskVersion() {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId);
-			if (!isEqual(res.data?.items || [], taskVersion)) {
-				setTaskVersion(res.data?.items || []);
-			}
 			return res.data;
 		}
 	});
@@ -85,6 +82,16 @@ export function useTaskVersion() {
 				});
 		}
 	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (taskVersionsQuery.data) {
+				setTaskVersion(taskVersionsQuery.data.items);
+			}
+		},
+		[taskVersionsQuery.data],
+		Boolean(taskVersion)
+	);
 
 	const loadTaskVersionData = useCallback(() => {
 		return taskVersionsQuery.data;

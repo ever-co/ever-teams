@@ -11,6 +11,7 @@ import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskLabels() {
 	const [user] = useAtom(userState);
@@ -35,10 +36,7 @@ export function useTaskLabels() {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId);
-
-			setTaskLabels(res.data.items);
-
-			return res;
+			return res.data;
 		}
 	});
 
@@ -83,6 +81,16 @@ export function useTaskLabels() {
 				});
 		}
 	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (taskLabelsQuery.data) {
+				setTaskLabels(taskLabelsQuery.data.items);
+			}
+		},
+		[taskLabelsQuery.data],
+		Boolean(taskLabels)
+	);
 
 	const loadTaskLabels = useCallback(async () => {
 		return taskLabelsQuery.data;

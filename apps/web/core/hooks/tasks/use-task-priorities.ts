@@ -11,6 +11,7 @@ import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priorit
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskPriorities() {
 	const [user] = useAtom(userState);
@@ -36,9 +37,6 @@ export function useTaskPriorities() {
 			}
 
 			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
-
-			setTaskPriorities(res.items);
-
 			return res;
 		}
 	});
@@ -84,6 +82,16 @@ export function useTaskPriorities() {
 				});
 		}
 	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (taskPrioritiesQuery.data) {
+				setTaskPriorities(taskPrioritiesQuery.data.items);
+			}
+		},
+		[taskPrioritiesQuery.data],
+		Boolean(taskPriorities)
+	);
 
 	const loadTaskPriorities = useCallback(async () => {
 		return taskPrioritiesQuery.data;

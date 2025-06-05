@@ -5,13 +5,13 @@ import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskRelatedIssueType() {
 	const [user] = useAtom(userState);
@@ -36,9 +36,6 @@ export function useTaskRelatedIssueType() {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
-			if (!isEqual(res.data?.items || [], taskRelatedIssueType)) {
-				setTaskRelatedIssueType(res.data?.items || []);
-			}
 			return res.data;
 		}
 	});
@@ -83,6 +80,16 @@ export function useTaskRelatedIssueType() {
 				});
 		}
 	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (taskRelatedIssueTypesQuery.data) {
+				setTaskRelatedIssueType(taskRelatedIssueTypesQuery.data.items);
+			}
+		},
+		[taskRelatedIssueTypesQuery.data],
+		Boolean(taskRelatedIssueType)
+	);
 
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
 		return taskRelatedIssueTypesQuery.data;
