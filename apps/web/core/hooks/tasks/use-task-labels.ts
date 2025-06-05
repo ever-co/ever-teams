@@ -89,7 +89,7 @@ export function useTaskLabels() {
 			}
 		},
 		[taskLabelsQuery.data],
-		Boolean(taskLabels)
+		Boolean(taskLabels?.length)
 	);
 
 	const loadTaskLabels = useCallback(async () => {

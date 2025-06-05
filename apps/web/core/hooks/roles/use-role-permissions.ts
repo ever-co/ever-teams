@@ -59,7 +59,7 @@ export const useRolePermissions = (roleId?: string) => {
 			}
 		},
 		[rolePermissionsQuery.data],
-		Boolean(rolePermissions) || !rolePermissionsQuery.isFetching
+		Boolean(rolePermissions?.length)
 	);
 
 	// For backward compatibility

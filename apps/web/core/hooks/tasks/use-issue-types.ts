@@ -60,7 +60,7 @@ export function useIssueType() {
 			}
 		},
 		[issueTypesQuery.data],
-		Boolean(issueTypes)
+		Boolean(issueTypes?.length)
 	);
 
 	// Mutations

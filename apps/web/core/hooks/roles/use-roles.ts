@@ -45,7 +45,7 @@ export const useRoles = () => {
 			}
 		},
 		[rolesQuery.data],
-		Boolean(roles) || !rolesQuery.isFetching
+		Boolean(roles?.length)
 	);
 
 	return {

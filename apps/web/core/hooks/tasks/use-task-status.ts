@@ -110,7 +110,7 @@ export function useTaskStatus() {
 			}
 		},
 		[taskStatusesQuery.data],
-		Boolean(taskStatuses)
+		Boolean(taskStatuses?.length)
 	);
 
 	const loadTaskStatuses = useCallback(async () => {

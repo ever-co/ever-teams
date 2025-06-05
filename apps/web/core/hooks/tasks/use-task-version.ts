@@ -90,7 +90,7 @@ export function useTaskVersion() {
 			}
 		},
 		[taskVersionsQuery.data],
-		Boolean(taskVersion)
+		Boolean(taskVersion?.length)
 	);
 
 	const loadTaskVersionData = useCallback(() => {

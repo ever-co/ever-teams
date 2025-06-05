@@ -45,7 +45,7 @@ export const useTags = () => {
 			}
 		},
 		[tagsQuery.data],
-		Boolean(tags) || !tagsQuery.isFetching
+		Boolean(tags?.length)
 	);
 
 	return {

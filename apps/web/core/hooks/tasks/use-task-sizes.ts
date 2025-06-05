@@ -77,7 +77,7 @@ export function useTaskSizes() {
 			}
 		},
 		[taskSizesQuery.data],
-		Boolean(taskSizes)
+		Boolean(taskSizes?.length)
 	);
 
 	const loadTaskSizes = useCallback(async () => {

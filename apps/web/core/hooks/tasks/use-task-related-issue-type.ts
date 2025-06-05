@@ -88,12 +88,12 @@ export function useTaskRelatedIssueType() {
 			}
 		},
 		[taskRelatedIssueTypesQuery.data],
-		Boolean(taskRelatedIssueType)
+		Boolean(taskRelatedIssueType?.length)
 	);
 
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
 		return taskRelatedIssueTypesQuery.data;
-	}, [user?.tenantId, user?.employee?.organizationId, activeTeamId]);
+	}, [taskRelatedIssueTypesQuery.data]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskRelatedIssueTypeData();

@@ -90,7 +90,7 @@ export function useTaskPriorities() {
 			}
 		},
 		[taskPrioritiesQuery.data],
-		Boolean(taskPriorities)
+		Boolean(taskPriorities?.length)
 	);
 
 	const loadTaskPriorities = useCallback(async () => {
