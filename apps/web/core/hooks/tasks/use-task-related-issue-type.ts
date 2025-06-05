@@ -37,7 +37,8 @@ export function useTaskRelatedIssueType() {
 			}
 			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
 			return res.data;
-		}
+		},
+		enabled: !!tenantId && !!organizationId && !!teamId
 	});
 
 	const createTaskRelatedIssueTypeMutation = useMutation({

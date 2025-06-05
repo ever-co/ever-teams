@@ -11,10 +11,7 @@ export const useTags = () => {
 
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
-		queryFn: () =>
-			tagService.getTags().then((response) => {
-				return response;
-			})
+		queryFn: tagService.getTags
 	});
 
 	const createTagMutation = useMutation({

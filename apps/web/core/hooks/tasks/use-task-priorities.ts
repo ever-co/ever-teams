@@ -38,7 +38,8 @@ export function useTaskPriorities() {
 
 			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
 			return res;
-		}
+		},
+		enabled: !!tenantId && !!organizationId && !!teamId
 	});
 
 	// Mutations

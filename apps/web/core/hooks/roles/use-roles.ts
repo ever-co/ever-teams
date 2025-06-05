@@ -11,10 +11,12 @@ export const useRoles = () => {
 
 	const rolesQuery = useQuery({
 		queryKey: queryKeys.roles.all,
-		queryFn: () =>
-			roleService.getRoles().then((response) => {
+		queryFn: async () => {
+			const response = await roleService.getRoles();
+			if (response) {
 				return response;
-			})
+			}
+		}
 	});
 
 	const createRoleMutation = useMutation({

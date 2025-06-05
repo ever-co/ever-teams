@@ -17,9 +17,9 @@ export const useRolePermissions = (roleId?: string) => {
 	const rolePermissionsQuery = useQuery({
 		queryKey: queryKeys.roles.permissions(roleId!),
 		queryFn: () => {
-			if (!roleId) return null;
-			return rolePermissionService.getRolePermission(roleId);
-		}
+			return rolePermissionService.getRolePermission(roleId!);
+		},
+		enabled: !!roleId
 	});
 
 	// Mutation for updating role permissions

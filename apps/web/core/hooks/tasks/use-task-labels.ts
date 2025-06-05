@@ -37,7 +37,8 @@ export function useTaskLabels() {
 			}
 			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId);
 			return res.data;
-		}
+		},
+		enabled: !!tenantId && !!organizationId && !!teamId
 	});
 
 	// Mutations
