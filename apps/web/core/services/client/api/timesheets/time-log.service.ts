@@ -4,8 +4,8 @@ import qs from 'qs';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { TAddManualTimeRequest, timeLogSchema, TTimeLog } from '@/core/types/schemas';
 import {
 	ITimeLogGroupedDailyReport,
 	ITimeLogReportDaily,
@@ -78,15 +78,28 @@ class TimeLogService extends APIService {
 		return this.get<ITimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
 	};
 
-	addManualTime = async (request: IAddManualTimeRequest) => {
-		const { startedAt, stoppedAt, ...rest } = request;
-		const data = {
-			...rest,
-			startedAt: startedAt.toISOString(),
-			stoppedAt: stoppedAt.toISOString()
-		};
+	addManualTime = async (request: TAddManualTimeRequest): Promise<TTimeLog> => {
+		try {
+			const { startedAt, stoppedAt, ...rest } = request;
+			const data = {
+				...rest,
+				startedAt: startedAt.toISOString(),
+				stoppedAt: stoppedAt.toISOString()
+			};
 
-		return this.post<ITimeLog>('/timesheet/time-log', data);
+			const response = await this.post<TTimeLog>('/timesheet/time-log', data);
+
+			// Validate the response data using Zod schema
+			return validateApiResponse(timeLogSchema, response.data, 'addManualTime API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Add manual time validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
 	};
 
 	getTaskTimesheetLogs = async ({

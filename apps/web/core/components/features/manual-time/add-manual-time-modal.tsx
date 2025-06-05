@@ -12,6 +12,7 @@ import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
@@ -145,14 +146,72 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
-	const memberItemsLists = useMemo(
-		() => ({
-			Project: activeTeam?.projects as [],
-			Employee: activeTeam?.members as [],
-			Task: tasks
-		}),
-		[activeTeam?.projects, activeTeam?.members, tasks]
-	);
+	// Validation function to ensure task is a valid object with required properties
+	const isValidTask = useCallback((task: any): task is ITask => {
+		return (
+			(task &&
+				typeof task === 'object' &&
+				typeof task.id === 'string' &&
+				task.id.length > 0 &&
+				typeof task.title === 'string' &&
+				task.title.length > 0 &&
+				!Array.isArray(task) &&
+				// Exclude objects that are clearly not tasks
+				!task.hasOwnProperty('hello') &&
+				!task.hasOwnProperty('teams')) ||
+			// Allow tasks with valid members array
+			(task.hasOwnProperty('members') && Array.isArray(task.members))
+		);
+	}, []);
+
+	// Validation function for projects
+	const isValidProject = useCallback((project: any): boolean => {
+		return (
+			project &&
+			typeof project === 'object' &&
+			typeof project.id === 'string' &&
+			project.id.length > 0 &&
+			typeof project.name === 'string' &&
+			project.name.length > 0 &&
+			!Array.isArray(project)
+		);
+	}, []);
+
+	// Validation function for employees/members
+	const isValidEmployee = useCallback((employee: any): boolean => {
+		return (
+			employee &&
+			typeof employee === 'object' &&
+			typeof employee.id === 'string' &&
+			employee.id.length > 0 &&
+			employee.employee &&
+			typeof employee.employee.fullName === 'string' &&
+			employee.employee.fullName.length > 0 &&
+			!Array.isArray(employee)
+		);
+	}, []);
+
+	const memberItemsLists = useMemo(() => {
+		// Filter and validate tasks
+		const validTasks = (tasks || []).filter(isValidTask);
+		const invalidTasks = (tasks || []).filter((task) => !isValidTask(task));
+
+		// Log invalid tasks for debugging (only in development)
+		if (process.env.NODE_ENV === 'development' && invalidTasks.length > 0) {
+			console.warn('🚨 Invalid tasks detected in AddManualTimeModal:', {
+				invalidTasks,
+				invalidCount: invalidTasks.length,
+				totalTasks: tasks?.length || 0,
+				validCount: validTasks.length
+			});
+		}
+
+		return {
+			Project: (activeTeam?.projects || []).filter(isValidProject),
+			Employee: (activeTeam?.members || []).filter(isValidEmployee),
+			Task: validTasks
+		};
+	}, [activeTeam?.projects, activeTeam?.members, tasks, isValidProject, isValidEmployee, isValidTask]);
 
 	const selectedValues = useMemo(
 		() => ({
