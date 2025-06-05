@@ -1,5 +1,4 @@
 'use client';
-
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -13,7 +12,6 @@ import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { useTranslations } from 'next-intl';
 import { WeeklyLimitExportMenu } from '@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu';
@@ -25,6 +23,7 @@ import {
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { IOrganization } from '@/core/types/interfaces/organization/organization';
+import { TTimeLimitReportList } from '@/core/types/schemas';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -61,7 +60,7 @@ function WeeklyLimitReport() {
 	const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ITimeLimitReport>(
+		usePagination<TTimeLimitReportList>(
 			groupBy.includes('week')
 				? timeLimitsReports.filter((report) =>
 						moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'day')
@@ -89,8 +88,8 @@ function WeeklyLimitReport() {
 			employeeIds: [
 				...(member === 'all' ? (activeTeam?.members?.map((m: any) => m.employeeId) ?? []) : [member])
 			],
-			startDate: dateRange.from?.toISOString(),
-			endDate: dateRange.to?.toISOString(),
+			startDate: dateRange.from,
+			endDate: dateRange.to,
 			duration: duration == 'date' ? 'day' : duration,
 			timeZone
 		});

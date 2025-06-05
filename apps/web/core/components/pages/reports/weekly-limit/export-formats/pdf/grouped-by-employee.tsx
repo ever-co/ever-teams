@@ -1,10 +1,9 @@
 'use client';
-
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/time-limit-report';
 import moment from 'moment';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import { IWeeklyLimitReportPDFDocumentProps, Table } from '.';
+import { TTimeLimitReportByEmployee } from '@/core/types/schemas';
 
 const styles = StyleSheet.create({
 	page: { padding: 20 },
@@ -34,7 +33,7 @@ export const WeeklyLimitByEmployeePDFDocument = ({
 	organizationLimits,
 	title
 }: IWeeklyLimitReportPDFDocumentProps & {
-	data: ITimeLimitReportByEmployee[];
+	data: TTimeLimitReportByEmployee[];
 }) => {
 	return (
 		<Document style={{ width: '100%', height: '40rem' }}>
