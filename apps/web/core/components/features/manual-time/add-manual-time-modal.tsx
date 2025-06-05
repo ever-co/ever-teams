@@ -179,8 +179,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return Boolean(teamId && task.teams?.some((team: any) => team?.id === teamId));
 	}, []);
 
-	const isTaskInSelectedTeam = useCallback((task: ITask, selectedTeam: IOrganizationTeam | undefined): boolean => {
-		return Boolean(selectedTeam?.id && task.teams?.some((team: any) => team?.id === selectedTeam.id));
+	const isTaskInSelectedTeam = useCallback((task: ITask, selectedTeamId: string | undefined): boolean => {
+		return Boolean(selectedTeamId && task.teams?.some((team: any) => team?.id === selectedTeamId));
 	}, []);
 
 	const isTaskAssignedToUser = useCallback((task: ITask, userId: string | undefined): boolean => {
@@ -195,46 +195,37 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const isValidEmployee = useCallback((employee: any): boolean => {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
+	const filterTasksByTeamAndRole = useCallback(
+		(tasks: any[], teamId: string | undefined, filterByTeam: (task: ITask, teamId: string) => boolean) => {
+			if (!tasks || !Array.isArray(tasks) || !teamId) {
+				return [];
+			}
+
+			const validTasks = tasks.filter(isValidTask);
+			const teamFilteredTasks = validTasks.filter((task) => filterByTeam(task, teamId));
+
+			const finalFilteredTasks = isTeamManager
+				? teamFilteredTasks
+				: teamFilteredTasks.filter((task) => isTaskAssignedToUser(task, user?.id));
+
+			// Debug logging...
+
+			return finalFilteredTasks;
+		},
+		[isValidTask, isTeamManager, isTaskAssignedToUser, user?.id]
+	);
 
 	// Get tasks filtered by active team
-	const activeTeamTasks = useMemo(() => {
-		if (!tasks || !Array.isArray(tasks)) {
-			return [];
-		}
+	const activeTeamTasks = useMemo(
+		() => filterTasksByTeamAndRole(tasks, activeTeam?.id, isTaskInActiveTeam),
+		[tasks, activeTeam?.id, filterTasksByTeamAndRole, isTaskInActiveTeam]
+	);
 
-		// First filter: only valid task objects
-		const validTasks = tasks.filter(isValidTask);
-
-		// Second filter: only tasks belonging to active team
-		const teamFilteredTasks = validTasks.filter((task) => isTaskInActiveTeam(task, activeTeam?.id));
-
-		// Third filter: tasks based on user role
-		// - Team managers see all team tasks
-		// - Regular users see only tasks assigned to them
-		const finalFilteredTasks = isTeamManager
-			? teamFilteredTasks
-			: teamFilteredTasks.filter((task) => isTaskAssignedToUser(task, user?.id));
-
-		// Debug logging for development
-		if (process.env.NODE_ENV === 'development') {
-			if (finalFilteredTasks.length === 0 && tasks.length > 0) {
-				console.warn('🚨 No tasks visible in AddManualTimeModal:', {
-					totalTasks: tasks.length,
-					finalFilteredTasks: finalFilteredTasks.length,
-					isTeamManager: isTeamManager,
-					filteringMode: isTeamManager ? 'ALL_TEAM_TASKS' : 'USER_ASSIGNED_ONLY'
-				});
-			} else if (finalFilteredTasks.length > 0) {
-				console.log('✅ Tasks available:', {
-					count: finalFilteredTasks.length,
-					taskIds: finalFilteredTasks.map((t) => t.id),
-					taskTitles: finalFilteredTasks.map((t) => t.title)
-				});
-			}
-		}
-
-		return finalFilteredTasks;
-	}, [tasks, activeTeam?.id, user?.id, isTeamManager, isValidTask, isTaskInActiveTeam, isTaskAssignedToUser]);
+	// Get tasks filtered by selected team and assigned to current user (for team selection mode)
+	const selectedTeamTasks = useMemo(
+		() => filterTasksByTeamAndRole(tasks, team?.id, isTaskInSelectedTeam),
+		[tasks, team?.id, filterTasksByTeamAndRole, isTaskInSelectedTeam]
+	);
 
 	// Initialize taskId when activeTeamTask changes (after activeTeamTasks is available)
 	useEffect(() => {
@@ -255,28 +246,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam, activeTeamTasks]);
-
-	// Get tasks filtered by selected team and assigned to current user (for team selection mode)
-	const selectedTeamTasks = useMemo(() => {
-		if (!tasks || !Array.isArray(tasks) || !team) {
-			return [];
-		}
-
-		// First filter: only valid task objects
-		const validTasks = tasks.filter(isValidTask);
-
-		// Second filter: only tasks belonging to selected team
-		const teamFilteredTasks = validTasks.filter((task) => isTaskInSelectedTeam(task, team));
-
-		// Third filter: tasks based on user role
-		// - Team managers see all team tasks
-		// - Regular users see only tasks assigned to them
-		const finalFilteredTasks = isTeamManager
-			? teamFilteredTasks
-			: teamFilteredTasks.filter((task) => isTaskAssignedToUser(task, user?.id));
-
-		return finalFilteredTasks;
-	}, [tasks, team, user?.id, isTeamManager, isValidTask, isTaskInSelectedTeam, isTaskAssignedToUser]);
 
 	const memberItemsLists = useMemo(() => {
 		return {
