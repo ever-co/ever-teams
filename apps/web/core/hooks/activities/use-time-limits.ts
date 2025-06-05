@@ -24,18 +24,16 @@ export function useTimeLimits() {
 			const res = await timeLogService.getTimeLimitsReport(currentParams);
 			return res;
 		},
-		enabled: !!currentParams,
-		staleTime: 1000 * 60 * 5,
-		gcTime: 1000 * 60 * 15
+		enabled: !!currentParams
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
-		if (timeLimitsQuery.data) {
+		if (Array.isArray(timeLimitsQuery.data)) {
 			// Type assertion for backward compatibility with existing Jotai atom
-			setTimeLimitsReport(timeLimitsQuery.data as any);
+			setTimeLimitsReport(timeLimitsQuery.data);
 		}
-	}, [timeLimitsQuery.data, setTimeLimitsReport]);
+	}, [timeLimitsQuery.data]);
 
 	// Preserve exact same interface for existing consumers
 	const getTimeLimitsReport = useCallback(
@@ -43,12 +41,10 @@ export function useTimeLimits() {
 			try {
 				setCurrentParams(data);
 
-				const result = await queryClient.fetchQuery({
+				// ✅ BEST PRACTICE - ensureQueryData uses cache intelligently
+				const result = await queryClient.ensureQueryData({
 					queryKey: queryKeys.timer.timeLimits.byParams(data),
-					queryFn: async () => {
-						const res = await timeLogService.getTimeLimitsReport(data);
-						return res;
-					}
+					queryFn: async () => await timeLogService.getTimeLimitsReport(data)
 				});
 
 				return { data: result };
@@ -57,7 +53,7 @@ export function useTimeLimits() {
 				throw error;
 			}
 		},
-		[queryClient, setCurrentParams]
+		[queryClient]
 	);
 
 	return {

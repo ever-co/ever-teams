@@ -8,8 +8,8 @@ import { z } from 'zod';
 export const getTimeLimitReportSchema = z.object({
 	organizationId: z.string().min(1, 'Organization ID is required'),
 	tenantId: z.string().min(1, 'Tenant ID is required'),
-	startDate: z.string().optional(),
-	endDate: z.string().optional(),
+	startDate: z.coerce.date().optional(),
+	endDate: z.coerce.date().optional(),
 	employeeIds: z.array(z.string()).optional(),
 	groupBy: z.string().optional(),
 	timeZone: z.string().optional(),
