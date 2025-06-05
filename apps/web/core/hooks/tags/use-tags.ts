@@ -10,11 +10,13 @@ export const useTags = () => {
 
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
-		queryFn: () =>
-			tagService.getTags().then((response) => {
-				setTags(response.items);
-				return response;
-			})
+		queryFn: async () => {
+			const response = await tagService.getTags();
+
+			setTags(response.items);
+
+			return response;
+		}
 	});
 
 	const createTagMutation = useMutation({
