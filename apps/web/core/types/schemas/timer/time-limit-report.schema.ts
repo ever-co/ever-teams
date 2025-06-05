@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { employeeSchema } from '../organization/employee.schema';
 
 /**
  * Zod schemas for Time Limit Report-related interfaces
@@ -23,14 +24,7 @@ export const timeLimitReportListSchema = z
 		date: z.string(),
 		employees: z.array(
 			z.object({
-				employee: z
-					.object({
-						id: z.string(),
-						userId: z.string(),
-						fullName: z.string().optional()
-						// Allow any additional employee fields from API
-					})
-					.passthrough(),
+				employee: employeeSchema.passthrough(),
 				duration: z.coerce.number().min(0),
 				durationPercentage: z.coerce.number().min(0).max(100),
 				limit: z.coerce.number().min(0)
@@ -52,7 +46,19 @@ export const minimalTimeLimitReportListSchema = z
 	})
 	.passthrough(); // Allow any additional fields
 
+export const timeLimitReportByEmployeeSchema = z.object({
+	employee: employeeSchema,
+	reports: z.array(
+		z.object({
+			date: z.string(),
+			duration: z.coerce.number(),
+			durationPercentage: z.coerce.number(),
+			limit: z.coerce.number()
+		})
+	)
+});
 // Inferred TypeScript types from Zod schemas
 export type TGetTimeLimitReport = z.infer<typeof getTimeLimitReportSchema>;
 export type TTimeLimitReportList = z.infer<typeof timeLimitReportListSchema>;
 export type TMinimalTimeLimitReportList = z.infer<typeof minimalTimeLimitReportListSchema>;
+export type TTimeLimitReportByEmployee = z.infer<typeof timeLimitReportByEmployeeSchema>;

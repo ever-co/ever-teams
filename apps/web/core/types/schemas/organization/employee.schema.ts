@@ -57,7 +57,7 @@ export const employeeSchema = z
 		totalJobs: z.number().optional(),
 		fullName: z.string().optional(),
 		profile_link: z.string().optional(),
-		isTrackingEnabled: z.boolean(),
+		isTrackingEnabled: z.boolean().optional(),
 		isDeleted: z.boolean().optional(),
 		allowScreenshotCapture: z.boolean().optional(),
 		allowManualTime: z.boolean().optional(),
