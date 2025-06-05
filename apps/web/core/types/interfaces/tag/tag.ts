@@ -1,4 +1,5 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
+import { ICustomFieldsObject } from '../organization/organization';
 import { IRelationalOrganizationTeam } from '../team/organization-team';
 
 export interface ITag extends IBasePerTenantAndOrganizationEntityModel, IRelationalOrganizationTeam {
@@ -12,6 +13,8 @@ export interface ITag extends IBasePerTenantAndOrganizationEntityModel, IRelatio
 	tagType?: ITagType;
 	tagTypeName?: string;
 	fix_relational_custom_fields?: any;
+	customFields?: ICustomFieldsObject | null;
+	fullIconUrl?: Record<string, any> | null;
 	// Counter fields
 	candidate_counter?: number;
 	employee_counter?: number;
