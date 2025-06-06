@@ -41,11 +41,20 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			setNoTeamPopupShowCookie(false);
 		}, []);
 
-		useEffect(() => {
-			if (!user) {
-				queryCall().then((data) => setUser(data));
+		const fetchUserData = useCallback(async () => {
+			if (!user && !loading) {
+				try {
+					const data = await queryCall();
+					setUser(data);
+				} catch (error) {
+					console.error('Failed to fetch user data:', error);
+				}
 			}
-		}, [queryCall, setUser, user]);
+		}, [user, loading, queryCall, setUser]);
+
+		useEffect(() => {
+			fetchUserData();
+		}, [fetchUserData]);
 
 		if (!user || loading) {
 			return <></>;

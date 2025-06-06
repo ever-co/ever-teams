@@ -232,7 +232,7 @@ export function useTeamTasks() {
 		if (firstLoad) {
 			setTasksFetching(loading);
 		}
-	}, [loading, firstLoad, setTasksFetching]);
+	}, [loading, firstLoad]);
 
 	const setActiveUserTaskCookieCb = useCallback(
 		(task: ITask | null) => {
@@ -256,7 +256,7 @@ export function useTeamTasks() {
 		if (activeTeam?.id && firstLoad) {
 			loadTeamTasksData();
 		}
-	}, [activeTeam?.id, firstLoad, loadTeamTasksData]);
+	}, [activeTeam?.id, firstLoad]);
 	const setActive = useSetAtom(activeTeamTaskId);
 
 	// Get the active task from cookie and put on global store
@@ -270,7 +270,7 @@ export function useTeamTasks() {
 
 			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
 		}
-	}, [setActiveTeamTask, tasks, firstLoad, authUser]);
+	}, [tasks, firstLoad, authUser]);
 
 	// Queries calls
 	const deleteTask = useCallback(
@@ -514,7 +514,7 @@ export function useTeamTasks() {
 		if (memberActiveTask) {
 			setActiveTeamTask(memberActiveTask);
 		}
-	}, [activeTeam, tasks, memberActiveTaskId, setActiveTeamTask]);
+	}, [activeTeam, tasks, memberActiveTaskId]);
 
 	return {
 		tasks,

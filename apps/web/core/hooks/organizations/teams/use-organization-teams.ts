@@ -353,7 +353,10 @@ export function useOrganizationTeams() {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
 			window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, team.id);
-			if (user) updateUserLastTeam({ id: user.id, lastTeamId: team.id });
+			// Only update user last team if it's different to avoid unnecessary API calls
+			if (user && user.lastTeamId !== team.id) {
+				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
+			}
 		},
 		[setActiveTeamId, updateUserLastTeam, user]
 	);
@@ -487,7 +490,7 @@ export function useOrganizationTeams() {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
 		isManager();
-	}, [activeTeam, isManager]);
+	}, [activeTeam]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();

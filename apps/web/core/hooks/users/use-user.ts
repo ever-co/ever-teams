@@ -9,7 +9,8 @@ export const useUser = () => {
 	const { user, logOut } = useAuthenticateUser();
 	const queryClient = useQueryClient();
 	const invalidateUser = useCallback(() => {
-		queryClient.invalidateQueries();
+		// Invalidate only user-related queries before logout
+		queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
 		logOut();
 	}, [queryClient, logOut]);
 	// React Query mutation for delete user
@@ -35,14 +36,14 @@ export const useUser = () => {
 		if (user) {
 			return await deleteUserMutation.mutateAsync(user.id);
 		}
-	}, [user, deleteUserMutation, logOut]);
+	}, [user, deleteUserMutation]);
 
 	// Preserve exact interface - reset user function
 	const resetUser = useCallback(async () => {
 		if (user) {
 			return await resetUserMutation.mutateAsync();
 		}
-	}, [user, resetUserMutation, logOut]);
+	}, [user, resetUserMutation]);
 
 	// Preserve exact interface - delete query call function
 	const deleteQueryCall = useCallback(
