@@ -1,5 +1,4 @@
 'use client';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { Skeleton } from '@/core/components/common/skeleton';
@@ -10,6 +9,7 @@ import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -21,12 +21,14 @@ const formatDuration = (seconds: number): string => {
 	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
-const getInitials = (name: string): string =>
+const getInitials = (name?: string | null): string =>
 	name
-		.split(' ')
-		.map((n) => n?.[0] || '')
-		.join('')
-		.toUpperCase();
+		? name
+				.split(' ')
+				.map((n) => n?.[0] || '')
+				.join('')
+				.toUpperCase()
+		: '';
 
 const formatDate = (dateStr: string): string => {
 	const date = new Date(dateStr);
@@ -50,25 +52,6 @@ export interface IUserImage {
 	url: string;
 	fullUrl: string;
 	thumbUrl: string;
-}
-
-export interface IUser {
-	id: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	imageUrl: string;
-	name: string;
-	image?: IUserImage;
-}
-
-export interface IEmployee {
-	id: string;
-	fullName: string;
-	isActive: boolean;
-	isTrackingEnabled: boolean;
-	user: IUser;
-	userId?: string;
 }
 
 export interface IActivityItem {
@@ -113,7 +96,7 @@ const TableLoadingSkeleton: React.FC = () => (
 				{Array.from({ length: 7 }).map((_, i) => (
 					<TableRow key={i}>
 						<TableCell>
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<Skeleton className="w-8 h-8 rounded-full" />
 								<Skeleton className="w-24 h-4" />
 							</div>
@@ -139,7 +122,7 @@ const TableLoadingSkeleton: React.FC = () => (
 
 const EmployeeAvatar: React.FC<{ employee: IEmployee }> = React.memo(({ employee }) => (
 	<Avatar className="w-8 h-8">
-		<AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />
+		<AvatarImage src={employee.user.imageUrl ?? ''} alt={employee.fullName ?? ''} />
 		<AvatarFallback className="dark:text-gray-300">{getInitials(employee.fullName)}</AvatarFallback>
 	</Avatar>
 ));
@@ -156,7 +139,7 @@ const ActivityBar: React.FC<{ percentage: string; title: string }> = React.memo(
 	<TooltipProvider>
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<div className="flex flex-1 gap-2 items-center">
+				<div className="flex items-center flex-1 gap-2">
 					<div className="overflow-hidden flex-1 h-2 bg-[#EDF2F7] rounded-full dark:bg-gray-700">
 						<div className="h-full bg-[#422AFB] rounded-full" style={{ width: `${percentage}%` }} />
 					</div>
@@ -194,7 +177,7 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
 			<TooltipProvider>
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<div className="flex gap-2 items-center">
+						<div className="flex items-center gap-2">
 							<ProjectLogo />
 							<span className="font-medium text-gray-700 dark:text-gray-300">
 								{activity.projectName || 'No project'}
@@ -367,7 +350,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 							<React.Fragment key={`${employee.id}-${dates.join('-')}`}>
 								<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
 									<TableCell colSpan={5}>
-										<div className="flex gap-2 items-center px-1 py-2">
+										<div className="flex items-center gap-2 px-1 py-2">
 											<EmployeeAvatar employee={employee} />
 											<span className="font-semibold text-gray-900 dark:text-gray-100">
 												{employee.fullName}

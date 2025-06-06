@@ -1,6 +1,7 @@
 import { ID } from '../common/base-interfaces';
 import { IOrganizationTeam } from '../team/organization-team';
-import { IUser } from '../user/user';
+
+import { TUser } from '@/core/types/schemas';
 
 export interface IUserSigninWorkspaceResponse {
 	confirmed_email: string;
@@ -12,11 +13,11 @@ export interface IUserSigninWorkspaceResponse {
 	lastOrganizationId?: ID;
 	workspaces: ISigninEmailConfirmWorkspaces[];
 	status?: number;
-	user: IUser;
+	user: TUser;
 }
 export interface IAuthResponse {
-	team: IUser;
-	user: IUser;
+	team: TUser;
+	user: TUser;
 	token: string;
 	refresh_token: string;
 }
@@ -35,7 +36,7 @@ export interface ISigninWorkspaceInput {
 }
 
 export interface IRegisterDataRequest {
-	user: Required<Pick<IUser, 'email' | 'firstName' | 'lastName' | 'timeZone'>>;
+	user: Required<Pick<TUser, 'email' | 'firstName' | 'lastName' | 'timeZone'>>;
 	password: string;
 	confirmPassword: string;
 	appEmailConfirmationUrl?: string;
@@ -83,7 +84,7 @@ export interface ISigninEmailConfirmWorkspaces {
 	}[];
 }
 export interface ISigninEmailConfirmResponse {
-	user: IUser;
+	user: TUser;
 	confirmed_email: string;
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];

@@ -3,7 +3,7 @@ import { IEmployee } from '../organization/employee';
 import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';
-import { IUser } from '../user/user';
+import { TUser } from '@/core/types/schemas';
 
 /**
  * Base interface for entities with tenant and organization
@@ -40,7 +40,7 @@ export interface IActivityReportProject extends IBaseTenantOrg {
  */
 export interface IActivityReportUser
 	extends Pick<
-		IUser,
+		TUser,
 		'id' | 'firstName' | 'lastName' | 'email' | 'imageUrl' | 'preferredLanguage' | 'name' | 'isEmailVerified'
 	> {
 	preferredComponentLayout: 'TABLE';

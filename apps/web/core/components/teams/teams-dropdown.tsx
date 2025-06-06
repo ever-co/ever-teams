@@ -45,7 +45,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				setActiveTeam(item.data);
 			}
 		},
-		[setActiveTeam, timerStatus, stopTimer, activeTeam, t]
+		[setActiveTeam, stopTimer, t] // Removed timerStatus and activeTeam to prevent constant recreation
 	);
 
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
@@ -55,8 +55,16 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { isOpen, closeModal, openModal } = useModal();
 
 	React.useEffect(() => {
-		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
-	}, [activeTeam, items]);
+		// Only update teamItem when activeTeam.id changes, not when items change
+		if (activeTeam?.id) {
+			const foundItem = items.find((t) => t.key === activeTeam.id);
+			if (foundItem) {
+				setTeamItem(foundItem);
+			}
+		} else {
+			setTeamItem(null);
+		}
+	}, [activeTeam?.id]); // Removed items dependency to prevent infinite loop
 
 	return (
 		<div>

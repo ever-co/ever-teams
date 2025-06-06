@@ -10,7 +10,7 @@ import { TranslationHooks } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -23,7 +23,7 @@ interface ITimesheetFilter {
 	onChangeStatus?: (status: FilterStatus) => void;
 	filterStatus?: FilterStatus;
 	data?: Record<ETimesheetStatus, ITimeLog[]>;
-	user?: IUser | undefined;
+	user?: TUser | undefined;
 }
 
 export function TimesheetFilter({

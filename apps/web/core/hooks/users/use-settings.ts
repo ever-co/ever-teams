@@ -1,35 +1,60 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useQueryCall } from '../common/use-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/core/services/client/api';
+import { queryKeys } from '@/core/query/keys';
 
 export function useSettings() {
 	const [, setUser] = useAtom(userState);
-	const { queryCall: updateAvatarQueryCall, loading: updateLoading } = useQueryCall(userService.updateUserAvatar);
+	const queryClient = useQueryClient();
 
-	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } = useQueryCall(
-		userService.getAuthenticatedUserData
-	);
+	// Optimized invalidation function for user-related queries
+	const invalidateUserQueries = useCallback(() => {
+		// Invalidate all user-related queries to ensure fresh data
+		queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+	}, [queryClient]);
 
-	//Call API for update user profile
+	// React Query mutation for update user avatar
+	const updateAvatarMutation = useMutation({
+		mutationFn: ({ id, body }: { id: string; body: Partial<TUser> }) => userService.updateUserAvatar(id, body),
+		mutationKey: queryKeys.users.settings.updateAvatar(undefined), // Use undefined for mutation key
+		onSuccess: () => {
+			// Invalidate user queries to ensure UI reflects the updated avatar
+			invalidateUserQueries();
+		}
+	});
+
+	// React Query mutation for refresh user data
+	const refreshUserMutation = useMutation({
+		mutationFn: () => userService.getAuthenticatedUserData(),
+		mutationKey: queryKeys.users.settings.refreshUser,
+		onSuccess: (data) => {
+			// Update Jotai state with fresh user data
+			setUser(data);
+		}
+	});
+
+	// Preserve exact interface - update avatar function
 	const updateAvatar = useCallback(
-		(userData: Partial<IUser> & { id: string }) => {
-			return updateAvatarQueryCall(userData.id, userData).then((res) => {
-				refreshUserQueryCall().then((result) => {
-					setUser(result.data);
+		(userData: Partial<TUser> & { id: string }) => {
+			return updateAvatarMutation.mutateAsync({ id: userData.id, body: userData }).then((res) => {
+				// Chain the refresh user call to maintain existing behavior
+				refreshUserMutation.mutateAsync().then((result) => {
+					setUser(result);
 				});
 				return res;
 			});
 		},
-		[refreshUserQueryCall, setUser, updateAvatarQueryCall]
+		[updateAvatarMutation, refreshUserMutation, setUser]
 	);
 
 	return {
+		// Preserve exact interface names and behavior
 		updateAvatar,
 		setUser,
-		updateLoading,
-		refreshUserLoading
+		updateLoading: updateAvatarMutation.isPending,
+		refreshUserLoading: refreshUserMutation.isPending
 	};
 }

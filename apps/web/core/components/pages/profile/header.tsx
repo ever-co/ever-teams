@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import TimerCard from '@/core/components/timer/timer-card';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import capitalize from 'lodash/capitalize';
@@ -6,7 +6,7 @@ import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-export function Header({ user }: { user: IUser | undefined }) {
+export function Header({ user }: { user: TUser | undefined }) {
 	const t = useTranslations();
 
 	return (

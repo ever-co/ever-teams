@@ -33,7 +33,7 @@ import {
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
@@ -58,7 +58,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 
-export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: IUser | undefined }) {
+export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | undefined }) {
 	const accordionRef = React.useRef(null);
 	const modal = useModal();
 	const alertConfirmationModal = useModal();
@@ -405,7 +405,7 @@ const TaskActionMenu = ({
 }: {
 	dataTimesheet: ITimeLog;
 	isManage?: boolean;
-	user?: IUser | undefined;
+	user?: TUser | undefined;
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();

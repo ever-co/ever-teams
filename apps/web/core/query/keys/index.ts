@@ -7,12 +7,32 @@ export const queryKeys = {
 	// Keys related to users
 	users: {
 		auth: {
+			all: ['auth'] as const,
 			signIn: ['auth', 'sign-in'] as const,
 			signUp: ['auth', 'sign-up'] as const,
 			signOut: ['auth', 'sign-out'] as const,
 			refreshToken: ['auth', 'refresh-token'] as const,
 			verifyEmail: ['auth', 'verify-email'] as const,
 			resetPassword: ['auth', 'reset-password'] as const
+		},
+		emailReset: {
+			all: ['users', 'email-reset'] as const,
+			request: (email: string | undefined | null) =>
+				['users', 'email-reset', 'request', ...(email ? [email] : [])] as const,
+			verify: (code: string | undefined | null) =>
+				['users', 'email-reset', 'verify', ...(code ? [code] : [])] as const
+		},
+		operations: {
+			all: ['users', 'operations'] as const,
+			delete: (userId: string | undefined | null) =>
+				['users', 'operations', 'delete', ...(userId ? [userId] : [])] as const,
+			reset: ['users', 'operations', 'reset'] as const
+		},
+		settings: {
+			all: ['users', 'settings'] as const,
+			updateAvatar: (userId: string | undefined | null) =>
+				['users', 'settings', 'update-avatar', ...(userId ? [userId] : [])] as const,
+			refreshUser: ['users', 'settings', 'refresh-user'] as const
 		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,

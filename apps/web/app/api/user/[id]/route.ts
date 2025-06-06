@@ -2,7 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
 import { deleteUserRequest } from '@/core/services/server/requests/user';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, props: INextParams) {
@@ -41,7 +41,7 @@ export async function PUT(req: Request, props: INextParams) {
 		return $res('Unauthorized');
 	}
 
-	const body = (await req.json()) as unknown as IUser;
+	const body = (await req.json()) as unknown as TUser;
 
 	const response = await updateUserAvatarRequest(
 		{

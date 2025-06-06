@@ -2,12 +2,13 @@ import { ETimesheetStatus } from '../../generics/enums/timesheet';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { ITimeLog } from '../timer/time-log/time-log';
-import { IUser } from '../user/user';
+
+import { TUser } from '@/core/types/schemas';
 
 export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	employee: IEmployee;
 	employeeId?: ID;
-	approvedBy?: IUser;
+	approvedBy?: TUser;
 	approvedById?: ID;
 	timeLogs?: ITimeLog[];
 	duration?: number;

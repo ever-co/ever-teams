@@ -15,6 +15,7 @@ import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { TTag } from '@/core/types/schemas';
+import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -98,10 +99,10 @@ export default function FinalReview(props: IStepElementProps) {
 	}, [finalData, goToPrevious]);
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
-			<div className="w-full flex flex-col gap-6">
-				<h2 className=" text-xl font-medium">{t('common.REVIEW')}</h2>
-				<div className="w-full flex flex-col  gap-8">
+		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
+			<div className="flex flex-col w-full gap-6">
+				<h2 className="text-xl font-medium ">{t('common.REVIEW')}</h2>
+				<div className="flex flex-col w-full gap-8">
 					<BasicInformation
 						projectTitle={finalData?.name ?? '-'}
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
@@ -129,7 +130,7 @@ export default function FinalReview(props: IStepElementProps) {
 					/>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-between">
+			<div className="flex items-center justify-between w-full">
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
@@ -172,7 +173,7 @@ function Attribute(props: IAttribute) {
 	return (
 		<div className="flex min-w-[6rem] text-xs flex-col justify-between  gap-2 items-start">
 			<div className="font-medium">{_key}</div>
-			<div className="flex items-center text-gray-500  gap-1">
+			<div className="flex items-center gap-1 text-gray-500">
 				{value ? (
 					<>
 						{icon ? icon : null} <span>{value}</span>
@@ -201,8 +202,8 @@ function BasicInformation(props: IBasicInformationProps) {
 	const { projectTitle, projectImageUrl, description, startDate, endDate, websiteUrl } = props;
 	const t = useTranslations();
 	return (
-		<div className="w-full flex flex-col gap-8">
-			<div className="w-full flex gap-5">
+		<div className="flex flex-col w-full gap-8">
+			<div className="flex w-full gap-5">
 				<Attribute
 					_key={t('pages.projects.basicInformationForm.formFields.title')}
 					icon={<Thumbnail imgUrl={projectImageUrl} size={'20px'} identifier={projectTitle} />}
@@ -228,9 +229,9 @@ function BasicInformation(props: IBasicInformationProps) {
 				/>
 			</div>
 
-			<div className="w-full flex flex-col gap-2">
+			<div className="flex flex-col w-full gap-2">
 				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? <p className="border min-h-20 rounded-lg text-xs p-3">{description}</p> : <span>-</span>}
+				{description ? <p className="p-3 text-xs border rounded-lg min-h-20">{description}</p> : <span>-</span>}
 			</div>
 		</div>
 	);
@@ -274,7 +275,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 	];
 
 	return (
-		<div className="w-full flex gap-5">
+		<div className="flex w-full gap-5">
 			{data?.map(({ key, value }, index) => {
 				const isLastItem = index === data.length - 1;
 
@@ -311,10 +312,10 @@ function Categorization(props: ICategorizationProps) {
 	);
 
 	return (
-		<div className="w-full flex items-center gap-8 flex-wrap">
+		<div className="flex flex-wrap items-center w-full gap-8">
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">{t('pages.projects.categorizationForm.formFields.tags')}</p>
-				<div className="w-full flex wrap items-center gap-2">
+				<p className="text-xs font-medium ">{t('pages.projects.categorizationForm.formFields.tags')}</p>
+				<div className="flex items-center w-full gap-2 wrap">
 					{tags?.length ? (
 						tags?.map((el) => {
 							return <ItemWithColor key={el.name} label={el.name} color={el.color} />;
@@ -325,7 +326,7 @@ function Categorization(props: ICategorizationProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
+				<p className="text-xs font-medium ">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
 				<ItemWithColor color={colorCode ?? 'black'} label={colorCode ?? '-'} />
 			</div>
 		</div>
@@ -355,15 +356,15 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	const Item = ({ name, imgUrl }: { name: string; imgUrl?: string }) => (
 		<div className="flex items-center gap-2">
 			<Thumbnail className="rounded-full" size={'24px'} identifier={name} imgUrl={imgUrl} />
-			<span className=" font-medium text-xs">{name}</span>
+			<span className="text-xs font-medium ">{name}</span>
 		</div>
 	);
 
 	return (
-		<div className="w-full flex gap-8 flex-col">
+		<div className="flex flex-col w-full gap-8">
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">{t('common.MANAGERS')}</p>
-				<div className="w-full flex wrap items-center gap-2">
+				<p className="text-xs font-medium ">{t('common.MANAGERS')}</p>
+				<div className="flex items-center w-full gap-2 wrap">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
 							const member = members?.find((el) => el?.employeeId === managerId);
@@ -372,7 +373,13 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 
 							const memberName = member?.employee?.fullName;
 
-							return <Item key={member?.id} name={memberName ?? '-'} imgUrl={memberImgUrl} />;
+							return (
+								<Item
+									key={member?.id}
+									name={memberName ?? '-'}
+									imgUrl={memberImgUrl ?? DEFAULT_USER_IMAGE_URL}
+								/>
+							);
 						})
 					) : (
 						<span>-</span>
@@ -382,9 +389,9 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 			{
 				// Will be implemented later on the api side (we keep this here)
 			}
-			<div className="hidden flex-col gap-2">
+			<div className="flex-col hidden gap-2">
 				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.relations')}</p>
-				<div className="w-full flex-col flex gap-2">
+				<div className="flex flex-col w-full gap-2">
 					{relations?.length ? (
 						relations?.map((relation) => {
 							const project = organizationProjects?.find((el) => el.id === relation.projectId);

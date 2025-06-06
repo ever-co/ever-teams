@@ -26,6 +26,10 @@ export * from './timer/timer-status.schema';
 export * from './timer/time-limit-report.schema';
 export * from './timer/time-log.schema';
 
+// User schemas
+export * from './user/email-reset.schema';
+export * from './user/user.schema';
+
 // Integration schemas
 export * from './integrations/integration-type.schema';
 export * from './integrations/integration.schema';

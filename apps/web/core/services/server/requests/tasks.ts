@@ -1,7 +1,7 @@
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ICreateTask } from '@/core/types/interfaces/task/task';
 import { serverFetch } from '../fetch';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@/core/types/interfaces/common/data-response';
 import qs from 'qs';
 
@@ -137,7 +137,7 @@ export function deleteTaskRequest({
 }
 
 export function getTaskCreator({ userId, bearer_token }: { userId: string; bearer_token: string }) {
-	return serverFetch<SingleDataResponse<IUser>>({
+	return serverFetch<SingleDataResponse<TUser>>({
 		path: `/user/${userId}`,
 		method: 'GET',
 		bearer_token
