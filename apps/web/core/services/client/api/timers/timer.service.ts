@@ -2,7 +2,8 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { IUser } from '@/core/types/interfaces/user/user';
+
+import { TUser } from '@/core/types/schemas';
 import {
 	getActiveTaskIdCookie,
 	getActiveTeamIdCookie,
@@ -94,7 +95,7 @@ class TimerService extends APIService {
 		});
 	};
 
-	syncTimer = async (source: ETimeLogSource, user: IUser | undefined) => {
+	syncTimer = async (source: ETimeLogSource, user: TUser | undefined) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 

@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import qs from 'qs';
@@ -7,8 +7,7 @@ import {
 	deleteResponseSchema,
 	userSchema,
 	ZodValidationError,
-	TDeleteResponse,
-	TUser
+	TDeleteResponse
 } from '@/core/types/schemas';
 
 class UserService extends APIService {
@@ -91,11 +90,11 @@ class UserService extends APIService {
 	};
 
 	savePersonalSettings = async (id: string, data: any) => {
-		return this.post<IUser>(`/user/${id}`, { ...data });
+		return this.post<TUser>(`/user/${id}`, { ...data });
 	};
 
 	// update/delete profile avatar for user setting
-	updateUserAvatar = async (id: string, body: Partial<IUser>): Promise<TUser> => {
+	updateUserAvatar = async (id: string, body: Partial<TUser>): Promise<TUser> => {
 		try {
 			const response = await this.put<TUser>(`/user/${id}`, body);
 

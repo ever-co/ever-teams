@@ -8,7 +8,7 @@ import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	ISocialAccount,
@@ -29,7 +29,7 @@ export function registerUserRequest(data: IRegisterDataRequest) {
 		appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
 	};
 
-	return serverFetch<IUser>({
+	return serverFetch<TUser>({
 		path: '/auth/register',
 		method: 'POST',
 		body
@@ -123,7 +123,7 @@ type IUEmployeeParam = {
  * Fetches details of the currently authenticated user, including specified relations.
  *
  * @param {IUEmployeeParam} employeeParams - The employee parameters, including bearer token and optional relations.
- * @returns A Promise resolving to the IUser object with the desired relations.
+ * @returns A Promise resolving to the TUser object with the desired relations.
  */
 export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
 	// Construct the query string with 'qs', including the includeEmployee parameter
@@ -133,7 +133,7 @@ export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['ro
 	});
 
 	// Construct and return the server fetch request
-	return serverFetch<IUser>({
+	return serverFetch<TUser>({
 		path: `/user/me?${query}`,
 		method: 'GET',
 		bearer_token

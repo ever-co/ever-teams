@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { serverFetch } from '../fetch';
 
 export function getUserByIdRequest({
@@ -10,7 +10,7 @@ export function getUserByIdRequest({
 	bearer_token: string | any;
 	tenantId?: string;
 }) {
-	return serverFetch<IUser>({
+	return serverFetch<TUser>({
 		path: `/user/${id}`,
 		method: 'GET',
 		bearer_token,

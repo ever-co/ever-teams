@@ -1,6 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
@@ -48,7 +48,7 @@ export function estimatedTotalTime(data: any) {
 	return { timesEstimated, totalTasks };
 }
 
-export const getTotalTasks = (plans: IDailyPlan[], user?: IUser): number => {
+export const getTotalTasks = (plans: IDailyPlan[], user?: TUser): number => {
 	if (!plans || plans.length === 0) {
 		return 0;
 	}

@@ -8,13 +8,13 @@ import { ScreenCalendar } from '../../activities/screen-calendar';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
 	paginateTasks?: boolean;
-	user?: IUser;
+	user?: TUser;
 };
 
 /**

@@ -27,7 +27,7 @@ import {
 } from '@/core/constants/config/constants';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
@@ -60,7 +60,7 @@ export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Ta
 type FilterOutstanding = 'ALL' | 'DATE';
 
 interface IUserProfilePlansProps {
-	user?: IUser;
+	user?: TUser;
 }
 
 export function UserProfilePlans(props: IUserProfilePlansProps) {
@@ -343,7 +343,7 @@ function AllPlans({
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
-	user?: IUser;
+	user?: TUser;
 }) {
 	// Filter plans
 	const filteredPlans = useRef<IDailyPlan[]>([]);

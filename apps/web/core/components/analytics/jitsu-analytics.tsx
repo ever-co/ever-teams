@@ -1,11 +1,11 @@
 'use client';
 
+import { TUser } from '@/core/types/schemas';
 import { useJitsu } from '@jitsu/jitsu-react';
-import { IUser } from '@/core/types/interfaces/user/user';
 import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-export function JitsuAnalytics({ user }: { user?: IUser }) {
+export function JitsuAnalytics({ user }: { user?: TUser }) {
 	const { analytics } = useJitsu();
 	const pathname = usePathname();
 

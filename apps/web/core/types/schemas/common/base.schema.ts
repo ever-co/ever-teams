@@ -57,7 +57,8 @@ export const relationalOrganizationTeamSchema = z.object({
 // Relational image asset schema
 export const relationalImageAssetSchema = z.object({
 	image: z.any().optional().nullable(), // Will be properly typed when image asset schema is created
-	imageId: idSchema.optional().nullable()
+	imageId: idSchema.optional().nullable(),
+	imageUrl: z.string().nullable().optional()
 });
 
 // Relational organization project schema

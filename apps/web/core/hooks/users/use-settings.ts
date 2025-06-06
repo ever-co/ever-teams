@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
@@ -18,7 +18,7 @@ export function useSettings() {
 
 	// React Query mutation for update user avatar
 	const updateAvatarMutation = useMutation({
-		mutationFn: ({ id, body }: { id: string; body: Partial<IUser> }) => userService.updateUserAvatar(id, body),
+		mutationFn: ({ id, body }: { id: string; body: Partial<TUser> }) => userService.updateUserAvatar(id, body),
 		mutationKey: queryKeys.users.settings.updateAvatar(undefined), // Use undefined for mutation key
 		onSuccess: () => {
 			// Invalidate user queries to ensure UI reflects the updated avatar
@@ -38,7 +38,7 @@ export function useSettings() {
 
 	// Preserve exact interface - update avatar function
 	const updateAvatar = useCallback(
-		(userData: Partial<IUser> & { id: string }) => {
+		(userData: Partial<TUser> & { id: string }) => {
 			return updateAvatarMutation.mutateAsync({ id: userData.id, body: userData }).then((res) => {
 				// Chain the refresh user call to maintain existing behavior
 				refreshUserMutation.mutateAsync().then((result) => {

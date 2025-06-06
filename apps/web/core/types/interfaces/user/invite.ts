@@ -3,7 +3,9 @@ import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-int
 import { IOrganizationProject } from '../project/organization-project';
 import { IRelationalRole } from '../role/role';
 import { IOrganizationTeam } from '../team/organization-team';
-import { IRelationalUser, IUser } from './user';
+import { IRelationalUser } from './user';
+
+import { TUser } from '@/core/types/schemas';
 
 interface IInviteBase extends IBasePerTenantAndOrganizationEntityModel {
 	email: string;
@@ -24,7 +26,7 @@ interface IInviteAssociations extends IRelationalUser, IRelationalRole {
 }
 
 export interface IInvite extends IInviteBase, IInviteAssociations {
-	invitedByUser?: IUser;
+	invitedByUser?: TUser;
 	invitedByUserId?: ID;
 }
 export interface IInviteCreate {
