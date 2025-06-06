@@ -57,13 +57,13 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	}, [goToPrevious, members, relations]);
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
-			<div className="w-full flex flex-col gap-2">
+		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
+			<div className="flex flex-col w-full gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
 				</label>
-				<div className="w-full flex flex-col gap-2">
-					<div className="w-full flex flex-col gap-1">
+				<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-col w-full gap-1">
 						{members.length ? (
 							members.map((el) => (
 								<PairingItem
@@ -73,7 +73,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										?.map((el) => ({
 											id: el?.employeeId || '',
 											value: el?.employee?.fullName || '',
-											imgUrl: el?.employee?.user?.imageUrl
+											imgUrl: el?.employee?.user?.imageUrl || undefined
 										}))}
 									values={roles
 										?.filter((el) => el.name == ERoleName.EMPLOYEE || el.name == ERoleName.MANAGER)
@@ -109,7 +109,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className=" text-xs ">
+							<span className="text-xs ">
 								{t('pages.projects.teamAndRelationsForm.formFields.noMembers')}
 							</span>
 						)}
@@ -127,12 +127,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			{
 				// Will be implemented later on the api side (we keep this here)
 			}
-			<div className="w-full hidden flex-col gap-2">
+			<div className="flex-col hidden w-full gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
 				</label>
-				<div className="w-full flex flex-col gap-2">
-					<div className="w-full flex flex-col gap-1">
+				<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-col w-full gap-1">
 						{relations.length ? (
 							relations.map((el) => (
 								<PairingItem
@@ -174,7 +174,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className=" text-xs ">
+							<span className="text-xs ">
 								{t('pages.projects.teamAndRelationsForm.formFields.noRelations')}
 							</span>
 						)}
@@ -191,7 +191,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="w-full flex items-center justify-between">
+			<div className="flex items-center justify-between w-full">
 				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
 					{t('common.BACK')}
 				</Button>
@@ -221,7 +221,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
 	return (
-		<div className="w-full flex items-center gap-3">
+		<div className="flex items-center w-full gap-3">
 			<div className="w-full">
 				<Select
 					placeholder={keysLabel}
@@ -243,7 +243,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 								{isSelected && <CheckIcon size={10} />}
 								<span className={cn('  flex items-center gap-2', keyId && !isSelected && 'pl-[18px]')}>
 									<Thumbnail
-										className="rounded-full z-20 bg-white text-gray-700"
+										className="z-20 text-gray-700 bg-white rounded-full"
 										imgUrl={item?.imgUrl}
 										size={'20px'}
 										identifier={String(item?.value)}

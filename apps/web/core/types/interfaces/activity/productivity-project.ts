@@ -3,7 +3,7 @@ import { IOrganizationTeamEmployee } from '../team/organization-team-employee';
 import { IActivityItem } from './activity-report';
 
 export interface ActivityData {
-	employee: IOrganizationTeamEmployee & { fullName: string; user: { imageUrl?: string } };
+	employee: IOrganizationTeamEmployee & { fullName: string; user: { imageUrl?: string | null } };
 	activity: IActivityItem;
 }
 

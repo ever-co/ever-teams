@@ -2,7 +2,7 @@ import Link from 'next/link';
 import ProfileInfo from './profile-info';
 
 type Props = {
-	profilePicSrc?: string;
+	profilePicSrc?: string | null;
 	names?: string;
 	profileInfoWrapperClassName?: string;
 	time: string;
@@ -11,7 +11,7 @@ type Props = {
 
 const ProfileInfoWithTime = ({ profilePicSrc, names, profileInfoWrapperClassName, time, userId }: Props) => {
 	return (
-		<div className="flex justify-between items-center w-full">
+		<div className="flex items-center justify-between w-full">
 			<Link href={`/profile/${userId}`} target="_blank">
 				<ProfileInfo
 					profilePicSrc={profilePicSrc}

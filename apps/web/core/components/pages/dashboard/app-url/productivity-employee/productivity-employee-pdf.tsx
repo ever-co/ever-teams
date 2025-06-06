@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { IActivityItem, IEmployee } from './productivity-employee-table';
+import { IActivityItem } from './productivity-employee-table';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 interface IEmployeeGroup {
 	employee: IEmployee;

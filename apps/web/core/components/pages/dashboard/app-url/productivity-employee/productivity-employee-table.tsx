@@ -1,5 +1,4 @@
 'use client';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { Skeleton } from '@/core/components/common/skeleton';
@@ -11,7 +10,6 @@ import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { TUser } from '@/core/types/schemas';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -23,12 +21,14 @@ const formatDuration = (seconds: number): string => {
 	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
-const getInitials = (name: string): string =>
+const getInitials = (name?: string | null): string =>
 	name
-		.split(' ')
-		.map((n) => n?.[0] || '')
-		.join('')
-		.toUpperCase();
+		? name
+				.split(' ')
+				.map((n) => n?.[0] || '')
+				.join('')
+				.toUpperCase()
+		: '';
 
 const formatDate = (dateStr: string): string => {
 	const date = new Date(dateStr);
@@ -120,9 +120,9 @@ const TableLoadingSkeleton: React.FC = () => (
 	</Card>
 );
 
-const EmployeeAvatar: React.FC<{ employee: TUser }> = React.memo(({ employee }) => (
+const EmployeeAvatar: React.FC<{ employee: IEmployee }> = React.memo(({ employee }) => (
 	<Avatar className="w-8 h-8">
-		<AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />
+		<AvatarImage src={employee.user.imageUrl ?? ''} alt={employee.fullName ?? ''} />
 		<AvatarFallback className="dark:text-gray-300">{getInitials(employee.fullName)}</AvatarFallback>
 	</Avatar>
 ));

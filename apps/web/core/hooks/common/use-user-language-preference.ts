@@ -1,3 +1,4 @@
+import { TUser } from '@/core/types/schemas';
 import { useEffect } from 'react';
 
 /**
@@ -5,10 +6,7 @@ import { useEffect } from 'react';
  * @param user - Current user object
  * @param changeLanguage - Function to change language
  */
-export const useUserLanguagePreference = (
-	user: { preferredLanguage?: string } | null,
-	changeLanguage: (lang: string) => void
-) => {
+export const useUserLanguagePreference = (user: TUser | null, changeLanguage: (lang: string) => void) => {
 	useEffect(() => {
 		const language = (user?.preferredLanguage || window?.localStorage?.getItem('preferredLanguage')) ?? null;
 		if (language) {

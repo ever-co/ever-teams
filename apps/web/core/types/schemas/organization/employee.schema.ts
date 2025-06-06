@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, idSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { TUser, userSchema } from '../user/user.schema';
 
 /**
  * Zod schemas for Employee-related interfaces
@@ -13,7 +14,10 @@ export const employeeSchema = z
 		id: idSchema,
 		endWork: z.coerce.date().optional(),
 		startedWorkOn: z.coerce.date().optional(),
-		user: z.any(), // Will be properly typed when user schema is created
+		user: z
+			.lazy(() => userSchema)
+			.nullable()
+			.optional(), // Will be properly typed when user schema is created
 		userId: idSchema,
 		valueDate: z.coerce.date().optional(),
 		short_description: z.string().optional().nullable(),
@@ -101,3 +105,4 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateHours: z.number(),
 	estimateMinutes: z.number()
 });
+export type TEmployee = z.infer<typeof employeeSchema> & { user: TUser };
