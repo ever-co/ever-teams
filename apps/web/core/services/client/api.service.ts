@@ -361,9 +361,10 @@ export class APIService {
 			try {
 				return await fn();
 			} catch (error: any) {
-				lastError = error;
+				throw this._handleAxiosError(error);
 			}
 		}
+
 		for (let attempt = 1; attempt <= this.config.retries; attempt++) {
 			try {
 				return await fn();

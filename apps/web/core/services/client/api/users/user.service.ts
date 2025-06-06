@@ -2,7 +2,13 @@ import { IUser } from '@/core/types/interfaces/user/user';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { validateApiResponse, deleteResponseSchema, ZodValidationError, TDeleteResponse } from '@/core/types/schemas';
+import {
+	validateApiResponse,
+	deleteResponseSchema,
+	ZodValidationError,
+	TDeleteResponse,
+	TUser
+} from '@/core/types/schemas';
 
 class UserService extends APIService {
 	deleteUser = async (id: string): Promise<TDeleteResponse> => {
@@ -63,7 +69,7 @@ class UserService extends APIService {
 		});
 
 		// Execute the GET request to fetch the user data
-		return this.get<IUser>(`/user/me?${query}`);
+		return this.get<TUser>(`/user/me?${query}`);
 	};
 
 	savePersonalSettings = async (id: string, data: any) => {
