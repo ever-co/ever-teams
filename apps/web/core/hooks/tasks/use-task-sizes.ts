@@ -26,25 +26,20 @@ export function useTaskSizes() {
 		queryKey: queryKeys.taskSizes.byTeam(teamId),
 		queryFn: async () => {
 			const res = await taskSizeService.getTaskSizes();
-
-			setTaskSizes(res.items);
-
 			return res;
 		}
 	});
-
+	const invalidateTaskSizesData = useCallback(
+		() => teamId && queryClient.invalidateQueries({ queryKey: queryKeys.taskSizes.byTeam(teamId) }),
+		[queryClient, teamId]
+	);
 	// Mutations
 	const createTaskSizeMutation = useMutation({
 		mutationFn: (data: ITaskSizesCreate) => {
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.createTaskSize(requestData);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
 	const updateTaskSizeMutation = useMutation({
@@ -52,22 +47,12 @@ export function useTaskSizes() {
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.editTaskSize(id, requestData);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
 	const deleteTaskSizeMutation = useMutation({
 		mutationFn: (id: string) => taskSizeService.deleteTaskSize(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
 	useConditionalUpdateEffect(
@@ -81,20 +66,18 @@ export function useTaskSizes() {
 	);
 
 	const loadTaskSizes = useCallback(async () => {
-		try {
-			const res = taskSizesQuery.data;
-			return res;
-		} catch (error) {
-			console.error('Failed to load task sizes:', error);
-		}
-	}, [setTaskSizes]);
+		return taskSizesQuery.data;
+	}, [taskSizesQuery.data]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskSizes();
 
 		firstLoadTaskSizesData();
 	}, [firstLoadTaskSizesData, loadTaskSizes]);
-
+	const editTaskSize = useCallback(
+		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		[updateTaskSizeMutation]
+	);
 	return {
 		taskSizes,
 		loading: taskSizesQuery.isLoading,
@@ -104,7 +87,7 @@ export function useTaskSizes() {
 		createTaskSizeLoading: createTaskSizeMutation.isPending,
 		deleteTaskSizeLoading: deleteTaskSizeMutation.isPending,
 		editTaskSizeLoading: updateTaskSizeMutation.isPending,
-		editTaskSize: (id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		editTaskSize,
 		setTaskSizes,
 		loadTaskSizes
 	};

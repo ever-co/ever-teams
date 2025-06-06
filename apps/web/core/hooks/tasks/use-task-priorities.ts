@@ -32,20 +32,18 @@ export function useTaskPriorities() {
 		[authUser, user]
 	);
 	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
-
+	const isEnabled = useMemo(() => !!tenantId && !!organizationId && !!teamId, [tenantId, organizationId, teamId]);
 	// useQuery for fetching task priorities
 	const taskPrioritiesQuery = useQuery({
 		queryKey: queryKeys.taskPriorities.byTeam(teamId),
 		queryFn: async () => {
-			const isEnabled = !!tenantId && !!organizationId && !!teamId;
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 
-			const res = await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
-			return res;
+			return await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
 		},
-		enabled: !!tenantId && !!organizationId && !!teamId
+		enabled: isEnabled
 	});
 
 	const invalidateTaskPrioritiesData = useCallback(
