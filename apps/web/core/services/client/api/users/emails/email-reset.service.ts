@@ -1,15 +1,61 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
-import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
+import {
+	validateApiResponse,
+	emailResetSuccessResponseSchema,
+	ZodValidationError,
+	TEmailResetSuccessResponse
+} from '@/core/types/schemas';
 
 class EmailResetService extends APIService {
-	resetEmail = async (email: string) => {
-		return this.post<ISuccessResponse>(`/email-reset/request-change-email`, {
-			email
-		});
+	resetEmail = async (email: string): Promise<TEmailResetSuccessResponse> => {
+		try {
+			const response = await this.post<TEmailResetSuccessResponse>(`/email-reset/request-change-email`, {
+				email
+			});
+
+			// Validate API response using utility function
+			return validateApiResponse(emailResetSuccessResponseSchema, response.data, 'resetEmail API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Email reset validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'EmailResetService'
+				);
+			}
+			throw error;
+		}
 	};
-	verifyChangeEmail = async (code: string) => {
-		return this.post<ISuccessResponse>(`/email-reset/verify-change-email`, { code });
+
+	verifyChangeEmail = async (code: string): Promise<TEmailResetSuccessResponse> => {
+		try {
+			const response = await this.post<TEmailResetSuccessResponse>(`/email-reset/verify-change-email`, {
+				code
+			});
+
+			// Validate API response using utility function
+			return validateApiResponse(
+				emailResetSuccessResponseSchema,
+				response.data,
+				'verifyChangeEmail API response'
+			);
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Email verification validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'EmailResetService'
+				);
+			}
+			throw error;
+		}
 	};
 }
 

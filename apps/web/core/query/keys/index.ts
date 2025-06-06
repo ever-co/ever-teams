@@ -14,6 +14,13 @@ export const queryKeys = {
 			verifyEmail: ['auth', 'verify-email'] as const,
 			resetPassword: ['auth', 'reset-password'] as const
 		},
+		emailReset: {
+			all: ['users', 'email-reset'] as const,
+			request: (email: string | undefined | null) =>
+				['users', 'email-reset', 'request', ...(email ? [email] : [])] as const,
+			verify: (code: string | undefined | null) =>
+				['users', 'email-reset', 'verify', ...(code ? [code] : [])] as const
+		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,
 		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const
