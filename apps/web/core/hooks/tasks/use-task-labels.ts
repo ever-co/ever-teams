@@ -1,7 +1,7 @@
 'use client';
 
 import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -23,16 +23,22 @@ export function useTaskLabels() {
 	const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
 	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
 
-	const organizationId =
-		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
-	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
-	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = useMemo(
+		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
+		[authUser, user]
+	);
+	const tenantId = useMemo(
+		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
+		[authUser, user]
+	);
+	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 
 	// useQuery for fetching task labels
 	const taskLabelsQuery = useQuery({
 		queryKey: queryKeys.taskLabels.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId || !teamId) {
+			const isEnabled = !!tenantId && !!organizationId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId);
@@ -40,47 +46,37 @@ export function useTaskLabels() {
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId
 	});
-
+	const invalidateTaskLabelsData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.taskLabels.byTeam(teamId) }),
+		[queryClient, teamId]
+	);
 	// Mutations
 	const createTaskLabelMutation = useMutation({
 		mutationFn: (data: ITagCreate) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskLabelService.createTaskLabels(requestData, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskLabels.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskLabelsData
 	});
 
 	const updateTaskLabelMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITagCreate }) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskLabelService.editTaskLabels(id, data, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskLabels.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskLabelsData
 	});
 
 	const deleteTaskLabelMutation = useMutation({
 		mutationFn: (id: string) => taskLabelService.deleteTaskLabels(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskLabels.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskLabelsData
 	});
 
 	useConditionalUpdateEffect(
@@ -102,7 +98,10 @@ export function useTaskLabels() {
 		await loadTaskLabels();
 		firstLoadTaskLabelsData();
 	}, [firstLoadTaskLabelsData, loadTaskLabels]);
-
+	const editTaskLabels = useCallback(
+		(id: string, data: ITagCreate) => updateTaskLabelMutation.mutateAsync({ id, data }),
+		[updateTaskLabelMutation]
+	);
 	return {
 		loading: taskLabelsQuery.isLoading,
 		taskLabels,
@@ -111,7 +110,7 @@ export function useTaskLabels() {
 		createTaskLabelsLoading: createTaskLabelMutation.isPending,
 		deleteTaskLabelsLoading: deleteTaskLabelMutation.isPending,
 		deleteTaskLabels: deleteTaskLabelMutation.mutateAsync,
-		editTaskLabels: (id: string, data: ITagCreate) => updateTaskLabelMutation.mutateAsync({ id, data }),
+		editTaskLabels,
 		editTaskLabelsLoading: updateTaskLabelMutation.isPending,
 		setTaskLabels,
 		loadTaskLabels

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
+import { useCallback } from 'react';
 
 export const useRoles = () => {
 	const [roles, setRoles] = useAtom(rolesState);
@@ -11,33 +12,26 @@ export const useRoles = () => {
 
 	const rolesQuery = useQuery({
 		queryKey: queryKeys.roles.all,
-		queryFn: async () => {
-			const response = await roleService.getRoles();
-			if (response) {
-				return response;
-			}
-		}
+		queryFn: roleService.getRoles
 	});
 
+	const invalidateRolesData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all }),
+		[queryClient]
+	);
 	const createRoleMutation = useMutation({
 		mutationFn: roleService.createRole,
-		onSuccess: (role) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
-		}
+		onSuccess: invalidateRolesData
 	});
 
 	const updateRoleMutation = useMutation({
 		mutationFn: roleService.updateRole,
-		onSuccess: (role) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
-		}
+		onSuccess: invalidateRolesData
 	});
 
 	const deleteRoleMutation = useMutation({
 		mutationFn: roleService.deleteRole,
-		onSuccess: (_, id) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
-		}
+		onSuccess: invalidateRolesData
 	});
 
 	useConditionalUpdateEffect(
@@ -49,12 +43,11 @@ export const useRoles = () => {
 		[rolesQuery.data],
 		Boolean(roles?.length)
 	);
-
 	return {
 		roles,
 		setRoles,
 		loading: rolesQuery.isLoading,
-		getRoles: () => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all }),
+		getRoles: invalidateRolesData,
 
 		createRole: createRoleMutation.mutate,
 		createRoleLoading: createRoleMutation.isPending,
@@ -66,6 +59,6 @@ export const useRoles = () => {
 		deleteRoleLoading: deleteRoleMutation.isPending,
 
 		// For backward compatibility with existing code
-		firstLoadRolesData: () => queryClient.invalidateQueries({ queryKey: queryKeys.roles.all })
+		firstLoadRolesData: invalidateRolesData
 	};
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { userState, taskPrioritiesListState, activeTeamIdState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -23,16 +23,22 @@ export function useTaskPriorities() {
 	const [taskPriorities, setTaskPriorities] = useAtom(taskPrioritiesListState);
 	const { firstLoadData: firstLoadTaskPrioritiesData } = useFirstLoad();
 
-	const organizationId =
-		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
-	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
-	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = useMemo(
+		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
+		[authUser, user]
+	);
+	const tenantId = useMemo(
+		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
+		[authUser, user]
+	);
+	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 
 	// useQuery for fetching task priorities
 	const taskPrioritiesQuery = useQuery({
 		queryKey: queryKeys.taskPriorities.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId || !teamId) {
+			const isEnabled = !!tenantId && !!organizationId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 
@@ -42,46 +48,38 @@ export function useTaskPriorities() {
 		enabled: !!tenantId && !!organizationId && !!teamId
 	});
 
+	const invalidateTaskPrioritiesData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.taskPriorities.byTeam(teamId) }),
+		[queryClient, teamId]
+	);
+
 	// Mutations
 	const createTaskPriorityMutation = useMutation({
 		mutationFn: (data: ITaskPrioritiesCreate) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskPriorityService.createTaskPriority(requestData, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskPriorities.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskPrioritiesData
 	});
 
 	const updateTaskPriorityMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskPrioritiesCreate }) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskPriorityService.editTaskPriority(id, data, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskPriorities.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskPrioritiesData
 	});
 
 	const deleteTaskPriorityMutation = useMutation({
 		mutationFn: (id: string) => taskPriorityService.deleteTaskPriority(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskPriorities.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskPrioritiesData
 	});
 
 	useConditionalUpdateEffect(
@@ -102,7 +100,10 @@ export function useTaskPriorities() {
 		await loadTaskPriorities();
 		firstLoadTaskPrioritiesData();
 	}, [firstLoadTaskPrioritiesData, loadTaskPriorities]);
-
+	const editTaskPriorities = useCallback(
+		(id: string, data: ITaskPrioritiesCreate) => updateTaskPriorityMutation.mutateAsync({ id, data }),
+		[updateTaskPriorityMutation]
+	);
 	return {
 		// useQuery-based methods (recommended)
 		taskPriorities: taskPriorities,
@@ -114,8 +115,7 @@ export function useTaskPriorities() {
 		createTaskPrioritiesLoading: createTaskPriorityMutation.isPending,
 		deleteTaskPrioritiesLoading: deleteTaskPriorityMutation.isPending,
 		deleteTaskPriorities: deleteTaskPriorityMutation.mutateAsync,
-		editTaskPriorities: (id: string, data: ITaskPrioritiesCreate) =>
-			updateTaskPriorityMutation.mutateAsync({ id, data }),
+		editTaskPriorities,
 		editTaskPrioritiesLoading: updateTaskPriorityMutation.isPending,
 		setTaskPriorities,
 		loadTaskPriorities

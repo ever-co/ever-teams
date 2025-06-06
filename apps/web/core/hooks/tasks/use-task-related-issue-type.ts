@@ -1,7 +1,7 @@
 'use client';
 
 import { userState, taskRelatedIssueTypeListState, activeTeamIdState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -23,16 +23,22 @@ export function useTaskRelatedIssueType() {
 	const [taskRelatedIssueType, setTaskRelatedIssueType] = useAtom(taskRelatedIssueTypeListState);
 	const { firstLoadData: firstLoadTaskRelatedIssueTypeData } = useFirstLoad();
 
-	const organizationId =
-		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
-	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
-	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = useMemo(
+		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
+		[authUser, user]
+	);
+	const tenantId = useMemo(
+		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
+		[authUser, user]
+	);
+	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 
 	// useQuery for fetching task related issue types
 	const taskRelatedIssueTypesQuery = useQuery({
 		queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId || !teamId) {
+			const isEnabled = !!tenantId && !!organizationId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
@@ -40,46 +46,36 @@ export function useTaskRelatedIssueType() {
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId
 	});
-
+	const invalidateTaskRelatedIssueTypeData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId) }),
+		[queryClient, teamId]
+	);
 	const createTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: (data: ITaskRelatedIssueTypeCreate) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskRelatedIssueTypeService.createTaskRelatedIssueType(requestData, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskRelatedIssueTypeData
 	});
 
 	const deleteTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: (id: string) => taskRelatedIssueTypeService.deleteTaskRelatedIssueType(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskRelatedIssueTypeData
 	});
 
 	const editTaskRelatedIssueTypeMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ITaskRelatedIssueTypeCreate }) => {
-			if (!tenantId || !teamId) {
+			const isEnabled = !!tenantId && !!teamId;
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			return taskRelatedIssueTypeService.editTaskRelatedIssueType(id, data, tenantId);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskRelatedIssueTypeData
 	});
 
 	useConditionalUpdateEffect(
@@ -100,7 +96,10 @@ export function useTaskRelatedIssueType() {
 		await loadTaskRelatedIssueTypeData();
 		firstLoadTaskRelatedIssueTypeData();
 	}, [firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData]);
-
+	const editTaskRelatedIssueType = useCallback(
+		(id: string, data: ITaskRelatedIssueTypeCreate) => editTaskRelatedIssueTypeMutation.mutateAsync({ id, data }),
+		[editTaskRelatedIssueTypeMutation]
+	);
 	return {
 		taskRelatedIssueTypes: taskRelatedIssueType,
 		loading: taskRelatedIssueTypesQuery.isLoading,
@@ -110,8 +109,7 @@ export function useTaskRelatedIssueType() {
 		deleteTaskRelatedIssueTypeLoading: deleteTaskRelatedIssueTypeMutation.isPending,
 		deleteTaskRelatedIssueType: deleteTaskRelatedIssueTypeMutation.mutateAsync,
 		editTaskRelatedIssueTypeLoading: editTaskRelatedIssueTypeMutation.isPending,
-		editTaskRelatedIssueType: (id: string, data: ITaskRelatedIssueTypeCreate) =>
-			editTaskRelatedIssueTypeMutation.mutateAsync({ id, data }),
+		editTaskRelatedIssueType,
 		setTaskRelatedIssueType,
 		loadTaskRelatedIssueTypeData
 	};
