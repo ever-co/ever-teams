@@ -28,6 +28,12 @@ export const queryKeys = {
 				['users', 'operations', 'delete', ...(userId ? [userId] : [])] as const,
 			reset: ['users', 'operations', 'reset'] as const
 		},
+		settings: {
+			all: ['users', 'settings'] as const,
+			updateAvatar: (userId: string | undefined | null) =>
+				['users', 'settings', 'update-avatar', ...(userId ? [userId] : [])] as const,
+			refreshUser: ['users', 'settings', 'refresh-user'] as const
+		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,
 		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const

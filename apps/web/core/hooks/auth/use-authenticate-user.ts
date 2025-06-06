@@ -30,8 +30,8 @@ export const useAuthenticateUser = (defaultUser?: TUser) => {
 		if (refreshUserLoadingRef.current) {
 			return;
 		}
-		refreshUserQueryCall().then((res) => {
-			setUser(res.data);
+		refreshUserQueryCall().then((data) => {
+			setUser(data);
 		});
 	}, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
 
