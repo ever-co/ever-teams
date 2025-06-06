@@ -28,6 +28,7 @@ export * from './timer/time-log.schema';
 
 // User schemas
 export * from './user/email-reset.schema';
+export * from './user/user-operations.schema';
 
 // Integration schemas
 export * from './integrations/integration-type.schema';

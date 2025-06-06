@@ -7,6 +7,7 @@ export const queryKeys = {
 	// Keys related to users
 	users: {
 		auth: {
+			all: ['auth'] as const,
 			signIn: ['auth', 'sign-in'] as const,
 			signUp: ['auth', 'sign-up'] as const,
 			signOut: ['auth', 'sign-out'] as const,
@@ -20,6 +21,12 @@ export const queryKeys = {
 				['users', 'email-reset', 'request', ...(email ? [email] : [])] as const,
 			verify: (code: string | undefined | null) =>
 				['users', 'email-reset', 'verify', ...(code ? [code] : [])] as const
+		},
+		operations: {
+			all: ['users', 'operations'] as const,
+			delete: (userId: string | undefined | null) =>
+				['users', 'operations', 'delete', ...(userId ? [userId] : [])] as const,
+			reset: ['users', 'operations', 'reset'] as const
 		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,

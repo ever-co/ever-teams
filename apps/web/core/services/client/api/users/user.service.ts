@@ -2,15 +2,49 @@ import { IUser } from '@/core/types/interfaces/user/user';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { DeleteResponse } from '@/core/types/interfaces/common/data-response';
+import { validateApiResponse, deleteResponseSchema, ZodValidationError, TDeleteResponse } from '@/core/types/schemas';
 
 class UserService extends APIService {
-	deleteUser = async (id: string) => {
-		return this.delete<DeleteResponse>(`/user/${id}`);
+	deleteUser = async (id: string): Promise<TDeleteResponse> => {
+		try {
+			const response = await this.delete<TDeleteResponse>(`/user/${id}`);
+
+			// Validate API response using utility function
+			return validateApiResponse(deleteResponseSchema, response.data, 'deleteUser API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'User deletion validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'UserService'
+				);
+			}
+			throw error;
+		}
 	};
 
-	resetUser = async () => {
-		return this.delete<DeleteResponse>(`/user/reset`);
+	resetUser = async (): Promise<TDeleteResponse> => {
+		try {
+			const response = await this.delete<TDeleteResponse>(`/user/reset`);
+
+			// Validate API response using utility function
+			return validateApiResponse(deleteResponseSchema, response.data, 'resetUser API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'User reset validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'UserService'
+				);
+			}
+			throw error;
+		}
 	};
 
 	/**
