@@ -134,7 +134,7 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 			<SelectTrigger className={cn('w-full', error && 'border-red-500 focus:ring-red-500')}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
-			<SelectContent className="z-[10000]">
+			<SelectContent className="z-[1001]">
 				<SelectGroup>
 					<SelectLabel>{label}</SelectLabel>
 					{items.map((item) => (

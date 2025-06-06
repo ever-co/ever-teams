@@ -352,7 +352,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	return (
 		<>
 			<Sidebar
-				className={cn('z-[9999]', state === 'collapsed' ? 'items-center' : '')}
+				className={cn('z-[1000]', state === 'collapsed' ? 'items-center' : '')}
 				collapsible="icon"
 				{...props}
 			>

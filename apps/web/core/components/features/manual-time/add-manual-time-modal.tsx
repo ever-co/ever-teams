@@ -11,7 +11,10 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useAuthenticateUser } from '@/core/hooks/auth';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
@@ -51,6 +54,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [timeDifference, setTimeDifference] = useState<string>('');
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const { isTeamManager } = useIsMemberManager(user);
 
 	const { addManualTime, addManualTimeLoading, timeLog } = useManualTime();
 
@@ -88,15 +93,41 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				organizationId: team?.organizationId
 			};
 
-			if (date && startTime && endTime && team && taskId) {
-				if (endTime > startTime) {
-					addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
-				} else {
-					setErrorMsg('End time should be after than start time');
-				}
-			} else {
-				setErrorMsg("Please complete all required fields with a '*'");
+			// Improved validation with better error messages
+			const isValidForm = date && startTime && endTime && (team || activeTeam) && taskId;
+
+			// Debug validation in development
+			if (process.env.NODE_ENV === 'development') {
+				console.log('🔧 Form validation:', {
+					date: !!date,
+					startTime: !!startTime,
+					endTime: !!endTime,
+					team: !!team,
+					activeTeam: !!activeTeam,
+					taskId: !!taskId,
+					taskIdValue: taskId,
+					isValidForm
+				});
 			}
+
+			if (!isValidForm) {
+				const missingFields = [];
+				if (!date) missingFields.push('Date');
+				if (!startTime) missingFields.push('Start Time');
+				if (!endTime) missingFields.push('End Time');
+				if (!team && !activeTeam) missingFields.push('Team');
+				if (!taskId) missingFields.push('Task');
+
+				setErrorMsg(`Please complete: ${missingFields.join(', ')}`);
+				return;
+			}
+
+			if (endTime <= startTime) {
+				setErrorMsg('End time must be after start time');
+				return;
+			}
+
+			addManualTime(requestData);
 		},
 		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team]
 	);
@@ -128,14 +159,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		calculateTimeDifference();
 	}, [calculateTimeDifference, endTime, startTime]);
 
-	useEffect(() => {
-		if (activeTeamTask) {
-			setTaskId(activeTeamTask.id);
-		}
-		if (activeTeam) {
-			setTeam(activeTeam);
-		}
-	}, [activeTeamTask, activeTeam]);
+	// This useEffect will be moved after activeTeamTasks declaration
 
 	useEffect(() => {
 		if (!addManualTimeLoading && timeLog) {
@@ -145,14 +169,91 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
-	const memberItemsLists = useMemo(
-		() => ({
-			Project: activeTeam?.projects as [],
-			Employee: activeTeam?.members as [],
-			Task: tasks
-		}),
-		[activeTeam?.projects, activeTeam?.members, tasks]
+	// Simplified task validation for performance
+	const isValidTask = useCallback((task: any): task is ITask => {
+		return task?.id && task?.title && Array.isArray(task?.teams);
+	}, []);
+
+	// Simplified team filtering functions for performance
+	const isTaskInActiveTeam = useCallback((task: ITask, teamId: string | undefined): boolean => {
+		return Boolean(teamId && task.teams?.some((team: any) => team?.id === teamId));
+	}, []);
+
+	const isTaskInSelectedTeam = useCallback((task: ITask, selectedTeamId: string | undefined): boolean => {
+		return Boolean(selectedTeamId && task.teams?.some((team: any) => team?.id === selectedTeamId));
+	}, []);
+
+	const isTaskAssignedToUser = useCallback((task: ITask, userId: string | undefined): boolean => {
+		return Boolean(userId && task.members?.some((member: any) => member?.userId === userId));
+	}, []);
+
+	// Simplified validation functions for performance
+	const isValidProject = useCallback((project: any): boolean => {
+		return project?.id && project?.name;
+	}, []);
+
+	const isValidEmployee = useCallback((employee: any): boolean => {
+		return employee?.id && employee?.employee?.fullName;
+	}, []);
+	const filterTasksByTeamAndRole = useCallback(
+		(tasks: any[], teamId: string | undefined, filterByTeam: (task: ITask, teamId: string) => boolean) => {
+			if (!tasks || !Array.isArray(tasks) || !teamId) {
+				return [];
+			}
+
+			const validTasks = tasks.filter(isValidTask);
+			const teamFilteredTasks = validTasks.filter((task) => filterByTeam(task, teamId));
+
+			const finalFilteredTasks = isTeamManager
+				? teamFilteredTasks
+				: teamFilteredTasks.filter((task) => isTaskAssignedToUser(task, user?.id));
+
+			// Debug logging...
+
+			return finalFilteredTasks;
+		},
+		[isValidTask, isTeamManager, isTaskAssignedToUser, user?.id]
 	);
+
+	// Get tasks filtered by active team
+	const activeTeamTasks = useMemo(
+		() => filterTasksByTeamAndRole(tasks, activeTeam?.id, isTaskInActiveTeam),
+		[tasks, activeTeam?.id, filterTasksByTeamAndRole, isTaskInActiveTeam]
+	);
+
+	// Get tasks filtered by selected team and assigned to current user (for team selection mode)
+	const selectedTeamTasks = useMemo(
+		() => filterTasksByTeamAndRole(tasks, team?.id, isTaskInSelectedTeam),
+		[tasks, team?.id, filterTasksByTeamAndRole, isTaskInSelectedTeam]
+	);
+
+	// Initialize taskId when activeTeamTask changes (after activeTeamTasks is available)
+	useEffect(() => {
+		if (activeTeamTask) {
+			// Only set taskId if the task is valid and available in filtered tasks
+			const isTaskAvailable = activeTeamTasks.some((task) => task.id === activeTeamTask.id);
+			if (isTaskAvailable) {
+				setTaskId(activeTeamTask.id);
+			} else if (process.env.NODE_ENV === 'development') {
+				console.warn('🚨 activeTeamTask not available in filtered tasks:', {
+					activeTeamTaskId: activeTeamTask.id,
+					activeTeamTaskTitle: activeTeamTask.title,
+					availableTaskIds: activeTeamTasks.map((t) => t.id)
+				});
+			}
+		}
+		if (activeTeam) {
+			setTeam(activeTeam);
+		}
+	}, [activeTeamTask, activeTeam, activeTeamTasks]);
+
+	const memberItemsLists = useMemo(() => {
+		return {
+			Project: (activeTeam?.projects || []).filter(isValidProject),
+			Employee: (activeTeam?.members || []).filter(isValidEmployee),
+			Task: activeTeamTasks // ✅ Only tasks from active team
+		};
+	}, [activeTeam?.projects, activeTeam?.members, activeTeamTasks, isValidProject, isValidEmployee]);
 
 	const selectedValues = useMemo(
 		() => ({
@@ -219,11 +320,11 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
 			titleClass="font-bold"
 		>
-			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">
+			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-2.5">
 				<div className="flex flex-col">
-					<label className="block mb-1 text-gray-500">
+					<label className="block mb-1 text-xs text-gray-500">
 						{t('manualTime.DATE')}
-						<span className="text-[#de5505e1] ml-1">*</span>
+						<span className="text-[#de5505e1] ml-1 text-xs">*</span>
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
@@ -238,7 +339,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								<Button
 									variant={'outline'}
 									className={cn(
-										'w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent',
+										'w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent text-sm',
 										!date && 'text-muted-foreground'
 									)}
 								>
@@ -255,7 +356,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 
 				<div className="flex items-center">
-					<label className="block mr-2 text-gray-500">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
+					<label className="block mr-2 text-xs text-gray-500">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
 					<div
 						className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
 						onClick={() => setIsBillable(!isBillable)}
@@ -272,23 +373,23 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
-						<label className="block mb-1 text-gray-500">
+						<label className="block mb-1 text-xs text-gray-500">
 							{t('manualTime.START_TIME')}
-							<span className="text-[#de5505e1] ml-1">*</span>
+							<span className="text-[#de5505e1] ml-1 text-xs">*</span>
 						</label>
 						<input
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
 
 					<div className=" w-[48%]">
-						<label className="block mb-1 text-gray-500">
+						<label className="block mb-1 text-xs text-gray-500">
 							{t('manualTime.END_TIME')}
-							<span className="text-[#de5505e1] ml-1">*</span>
+							<span className="text-[#de5505e1] ml-1 text-xs">*</span>
 						</label>
 
 						<input
@@ -302,10 +403,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 
 				<div className="flex items-center">
-					<label className="block mb-1 text-primary">
+					<label className="block mb-1 text-xs text-primary">
 						{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}:{' '}
 					</label>
-					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
+					<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
 						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
 							<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
 						</div>
@@ -324,7 +425,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
-							<label className="block text-gray-500 shrink-0">
+							<label className="block text-xs text-gray-500 shrink-0">
 								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<textarea
@@ -338,60 +439,69 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				) : (
 					<>
 						<div className="">
-							<label className="block mb-1 text-gray-500">
+							<label className="block mb-1 text-xs text-gray-500">
 								{t('manualTime.TEAM')}
-								<span className="text-[#de5505e1] ml-1">*</span>
+								<span className="text-[#de5505e1] ml-1 text-xs">*</span>
 							</label>
 							<CustomSelect
 								valueKey="id"
 								defaultValue={activeTeam?.id ?? ''}
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="teams"
-								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
+								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={teams}
 								onChange={(value) => {
-									setTeam(value.id);
+									setTeam(value); // Set the full team object, not just ID
 								}}
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-gray-500">
+							<label className="block mb-1 text-xs text-gray-500">
 								{t('manualTime.TASK')}
-								<span className="text-[#de5505e1] ml-1">*</span>
+								<span className="text-[#de5505e1] ml-1 text-xs">*</span>
 							</label>
 							<CustomSelect
 								valueKey="id"
-								defaultValue={activeTeamTask?.id ?? ''}
+								defaultValue={taskId || ''}
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="task"
-								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
-								options={tasks}
+								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
+								options={team ? selectedTeamTasks : activeTeamTasks}
 								onChange={(value) => {
-									setTaskId(value.id);
+									// CustomSelect returns the ID directly when valueKey="id"
+									if (process.env.NODE_ENV === 'development') {
+										console.log('🔧 Task selected:', {
+											value,
+											type: typeof value,
+											availableOptions: (team ? selectedTeamTasks : activeTeamTasks).length,
+											optionIds: (team ? selectedTeamTasks : activeTeamTasks).map((t) => t.id)
+										});
+									}
+									setTaskId(value);
 								}}
 							/>
 						</div>
 
 						<div className="flex flex-col">
-							<label className="block text-gray-500 shrink-0">
+							<label className="block text-xs text-gray-500 shrink-0">
 								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<textarea
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 
 						<div className="">
-							<label className="block mb-1 text-gray-500">
+							<label className="block mb-1 text-xs text-gray-500">
 								{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<CustomSelect
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="REASON"
-								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
+								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={manualTimeReasons.map((reason) =>
 									t(`manualTime.reasons.${reason}` as DottedLanguageObjectStringPaths)
 								)}
@@ -414,7 +524,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							<Button
 								variant="outline"
 								type="button"
-								className="font-bold border-gray-300 dark:text-primary dark:border-slate-600 dark:bg-dark--theme-light"
+								className="text-sm font-medium border-gray-300 dark:text-primary dark:border-slate-600 dark:bg-dark--theme-light"
 							>
 								{t('common.VIEW_TIMESHEET')}
 							</Button>
@@ -424,7 +534,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							disabled={addManualTimeLoading}
 							type="submit"
 							className={clsxm(
-								'bg-[#3826A6] font-bold flex items-center text-white',
+								'bg-[#3826A6] font-medium flex items-center text-sm text-white',
 								`${params === 'AddManuelTime' && 'w-full'}`
 							)}
 						>
@@ -432,7 +542,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						</Button>
 					</>
 				</div>
-				{errorMsg && <div className="m-2 text-[#ff6a00de]">{errorMsg}</div>}
+				{errorMsg && <div className="m-2 text-[#ff6a00de] text-xs">{errorMsg}</div>}
 			</form>
 		</Modal>
 	);

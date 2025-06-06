@@ -10,13 +10,13 @@ import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { toast } from '@/core/hooks/common/use-toast';
 import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock7 } from 'lucide-react';
 import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { toast } from 'sonner';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -140,21 +140,15 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			};
 			updateTimesheet({ ...payload })
 				.then(() => {
-					toast({
-						title: 'Modification Confirmed',
+					toast.success('Modification Confirmed', {
 						description: 'The timesheet has been successfully modified.',
-						variant: 'default',
-						className: 'bg-green-50 text-green-600 border-green-500 z-[10000px]',
 						action: <ToastAction altText="Undo changes">Undo</ToastAction>
 					});
 					closeModal();
 				})
 				.catch((error) => {
-					toast({
-						title: 'Error during modification',
-						description: 'Failed to modify timesheet. Please try again.',
-						variant: 'destructive',
-						className: 'bg-red-50 text-red-600 border-red-500 z-[10000px]'
+					toast.error('Error during modification', {
+						description: 'Failed to modify timesheet. Please try again.'
 					});
 					if (!error) {
 						closeModal();
@@ -250,7 +244,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							renderOption={(option) => (
 								<div className="flex items-center gap-x-2">
 									<img
-										className="h-6 w-6 rounded-full"
+										className="w-6 h-6 rounded-full"
 										src={option.employee.user.imageUrl}
 										alt={option.employee.fullName}
 									/>
@@ -260,7 +254,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						/>
 					</div>
 				</div>
-				<div className="flex items-start flex-col justify-center gap-4">
+				<div className="flex flex-col items-start justify-center gap-4">
 					<div>
 						<span className="text-[#282048] dark:text-gray-500 capitalize ">
 							{t('dailyPlan.TASK_TIME')}
@@ -287,7 +281,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								max="23:59"
 								pattern="[0-9]{2}:[0-9]{2}"
 								onChange={(e) => updateTime('startTime', e.target.value)}
-								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+								className="w-full p-1 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 								required
 							/>
 						</div>
@@ -304,7 +298,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								type="time"
 								min={getMinEndTime()}
 								onChange={(e) => updateTime('endTime', e.target.value)}
-								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+								className="w-full p-1 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 								required
 							/>
 						</div>
@@ -313,7 +307,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						<span className="block text-[#282048] dark:text-gray-500   mr-2">{t('manualTime.DATE')}</span>
 						<DatePickerFilter date={dateRange.date} setDate={handleFromChange} label="Oct 01 2024" />
 					</div>
-					<div className="w-full flex flex-col">
+					<div className="flex flex-col w-full">
 						<ManageOrMemberComponent
 							classNameTitle={classNameTitle}
 							fields={fields}
@@ -325,7 +319,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							itemToValue={itemToValue}
 						/>
 					</div>
-					<div className=" flex flex-col items-center">
+					<div className="flex flex-col items-center ">
 						<label className="text-[#282048] dark:text-gray-500   mr-12 capitalize">
 							{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 						</label>
@@ -352,7 +346,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							/>
 						</div>
 					</div>
-					<div className="w-full flex flex-col">
+					<div className="flex flex-col w-full">
 						<span className="text-[#282048] dark:text-gray-400">{t('common.NOTES')}</span>
 						<textarea
 							value={timesheetData.notes}
@@ -378,7 +372,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							{timesheetData.notes.length}/{120}
 						</div>
 					</div>
-					<div className="border-t border-t-gray-200 dark:border-t-gray-700 w-full"></div>
+					<div className="w-full border-t border-t-gray-200 dark:border-t-gray-700"></div>
 					<div className="!flex items-center justify-between gap-2 w-full">
 						<div className="flex flex-col items-start justify-center ">
 							<CustomSelect
@@ -387,14 +381,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								className="ring-offset-sidebar-primary-foreground w-[150px]"
 								options={statusTable?.flatMap((status) => status.label)}
 								renderOption={(option) => (
-									<div className="flex items-center gap-x-2 cursor-pointer">
+									<div className="flex items-center cursor-pointer gap-x-2">
 										<div className={clsxm('p-2 rounded-full', statusColor(option).bg)}></div>
 										<span className={clsxm('ml-1', statusColor(option).text)}>{option}</span>
 									</div>
 								)}
 							/>
 						</div>
-						<div className="flex items-center gap-x-2 justify-end w-full">
+						<div className="flex items-center justify-end w-full gap-x-2">
 							<button
 								onClick={closeModal}
 								type="button"

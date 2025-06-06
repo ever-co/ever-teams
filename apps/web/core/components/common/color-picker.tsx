@@ -68,7 +68,7 @@ export const ColorPicker = ({
 
 	return fullWidthInput ? (
 		<Popover
-			className={'z-[9999] relative border-none no-underline w-full mt-3' + className}
+			className={'z-[1000] relative border-none no-underline w-full mt-3' + className}
 			onProgressCapture={(e) => e.stopPropagation()}
 		>
 			{() => (
@@ -149,8 +149,8 @@ export const ColorPicker = ({
 	) : (
 		<PopoverDropdown>
 			<PopoverTrigger asChild>
-				<div className="flex items-center space-x-2 dark:bg-dark--theme-light input-border rounded-xl cursor-pointer h-14 px-2">
-					<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
+				<div className="flex items-center px-2 space-x-2 cursor-pointer dark:bg-dark--theme-light input-border rounded-xl h-14">
+					<span className="block w-5 h-5 rounded-full" style={{ backgroundColor: color || '#000' }} />
 					<span className="font-normal">{color || 'Color'}</span>
 				</div>
 			</PopoverTrigger>

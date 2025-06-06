@@ -120,7 +120,7 @@ export function AddTaskToPlan({
 										{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
 									</Button>
 								</PopoverTrigger>
-								<PopoverContent className="w-full p-0 z-[9999]">
+								<PopoverContent className="w-full p-0 z-[1000]">
 									<Calendar
 										mode="single"
 										selected={date}

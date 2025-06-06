@@ -92,16 +92,16 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 
 	return (
 		<div className="flex items-center justify-between py-1">
-			<div className="flex items-center justify-between gap-1 w-full">
+			<div className="flex items-center justify-between w-full gap-1">
 				<div className="relative z-[999]">
 					<Select value={MONTHS[displayMonth.getMonth()]} onValueChange={handleMonthChange}>
-						<SelectTrigger className="h-8 text-sm font-medium bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 transition px-2 focus:ring-0 text-gray-700 dark:text-gray-300">
+						<SelectTrigger className="h-8 px-2 text-sm font-medium text-gray-700 transition bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Month" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[9999] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{MONTHS.map((month, index) => (
 								<CustomSelectItem
@@ -120,13 +120,13 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 				</div>
 				<div className="relative z-[999]">
 					<Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
-						<SelectTrigger className="h-8 text-sm font-medium bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 transition px-2 focus:ring-0 text-gray-700 dark:text-gray-300">
+						<SelectTrigger className="h-8 px-2 text-sm font-medium text-gray-700 transition bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Year" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[9999] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{years.map((year) => (
 								<CustomSelectItem
@@ -166,7 +166,7 @@ function Calendar({
 			captionLayout={captionLayout}
 			className={cn('p-4 rounded-lg   bg-white dark:bg-dark--theme-light', className)}
 			classNames={{
-				months: 'flex flex-col space-y-4',
+				months: 'flex gap-4',
 				month: 'space-y-4',
 				caption: 'flex justify-between pt-1 relative items-center px-2',
 				caption_label: 'text-sm font-medium dark:text-gray-300',
