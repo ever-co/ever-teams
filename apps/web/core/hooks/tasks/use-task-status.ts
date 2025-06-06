@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
-import { useCallbackRef, useSyncRef } from '../common';
+import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../common';
 import { TStatus, TStatusItem, useMapToTaskStatusValues } from '@/core/components/tasks/task-status';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { queryKeys } from '@/core/query/keys';
@@ -37,7 +37,8 @@ export function useTaskStatus() {
 				throw new Error('Required parameters missing: organizationId, teamId, and tenantId are required');
 			}
 			return taskStatusService.getTaskStatuses(tenantId, organizationId, teamId);
-		}
+		},
+		enabled: Boolean(organizationId) && Boolean(teamId) && Boolean(tenantId)
 	});
 
 	// Mutations using useQuery pattern
@@ -97,12 +98,25 @@ export function useTaskStatus() {
 		}
 	});
 
+	/**
+	 * This helper function prevents:
+	 *
+	 * - Setting state unnecessarily on mount.
+	 */
+	useConditionalUpdateEffect(
+		() => {
+			if (taskStatusesQuery.data) {
+				setTaskStatuses(taskStatusesQuery.data.items);
+			}
+		},
+		[taskStatusesQuery.data],
+		Boolean(taskStatuses?.length)
+	);
+
 	const loadTaskStatuses = useCallback(async () => {
 		try {
 			const res = taskStatusesQuery.data;
-			if (res) {
-				setTaskStatuses(res.items);
-			}
+			return res;
 		} catch (error) {
 			console.error('Failed to load task statuses:', error);
 		}

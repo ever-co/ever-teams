@@ -1,6 +1,6 @@
 'use client';
 import { userState, issueTypesListState, activeTeamIdState } from '@/core/stores';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -9,7 +9,7 @@ import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
-import isEqual from 'lodash/isEqual';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useIssueType() {
 	const [user] = useAtom(userState);
@@ -21,7 +21,7 @@ export function useIssueType() {
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
 	const { firstLoadData: firstLoadIssueTypeData } = useFirstLoad();
 
-	// PERFORMANCE OPTIMIZATION: Memoize derived values to avoid recalculation on every render
+	//  Memoize derived values to avoid recalculation on every render
 	const organizationId = useMemo(
 		() => authUser?.employee?.organizationId || user?.employee?.organizationId,
 		[authUser?.employee?.organizationId, user?.employee?.organizationId]
@@ -34,8 +34,7 @@ export function useIssueType() {
 
 	const teamId = useMemo(() => activeTeam?.id || activeTeamId, [activeTeam?.id, activeTeamId]);
 
-	// useQuery for fetching issue types
-	// PERFORMANCE OPTIMIZATION: Removed setState from queryFn to follow React Query best practices
+	//  Removed setState from queryFn to follow React Query best practices
 	const issueTypesQuery = useQuery({
 		queryKey: queryKeys.issueTypes.byTeam(teamId),
 		queryFn: async () => {
@@ -52,18 +51,17 @@ export function useIssueType() {
 		gcTime: 1000 * 60 * 15 // Keep in cache for 15 minutes
 	});
 
-	// PERFORMANCE OPTIMIZATION: Sync React Query data with Jotai state using useEffect
+	//  Sync React Query data with Jotai state using useEffect
 	// This replaces the setState in queryFn and follows React Query best practices
-	// DEEP EQUAL COMPARISON: Important for application context to avoid unnecessary updates
-	useEffect(() => {
-		if (issueTypesQuery.data?.items) {
-			// Deep comparison to prevent unnecessary state updates
-			// This is important for the application context as requested
-			if (!isEqual(issueTypesQuery.data.items, issueTypes)) {
+	useConditionalUpdateEffect(
+		() => {
+			if (issueTypesQuery.data) {
 				setIssueTypes(issueTypesQuery.data.items);
 			}
-		}
-	}, [issueTypesQuery.data?.items, issueTypes, setIssueTypes]);
+		},
+		[issueTypesQuery.data],
+		Boolean(issueTypes?.length)
+	);
 
 	// Mutations
 	const createIssueTypeMutation = useMutation({
