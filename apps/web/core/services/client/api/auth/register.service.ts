@@ -19,9 +19,8 @@ import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/orga
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 
-import { TUser } from '@/core/types/schemas';
+import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -158,7 +157,7 @@ class RegisterService extends APIService {
 		const response: AxiosResponse<{
 			loginRes: IAuthResponse;
 			team: IOrganizationTeam;
-			employee: IOrganizationTeamEmployee;
+			employee: TOrganizationTeamEmployee;
 		}> = {
 			data: { loginRes, team, employee },
 			status: 200,

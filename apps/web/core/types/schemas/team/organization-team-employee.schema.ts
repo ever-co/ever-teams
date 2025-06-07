@@ -59,3 +59,9 @@ export const organizationTeamEmployeeUpdateSchema = z
 		id: z.string()
 	})
 	.merge(organizationTeamEmployeeCreateSchema);
+
+// Inferred types
+export type TBaseOrganizationTeamEmployee = z.infer<typeof baseOrganizationTeamEmployeeSchema>;
+export type TOrganizationTeamEmployee = z.infer<typeof organizationTeamEmployeeSchema>;
+export type TOrganizationTeamEmployeeCreate = z.infer<typeof organizationTeamEmployeeCreateSchema>;
+export type TOrganizationTeamEmployeeUpdate = z.infer<typeof organizationTeamEmployeeUpdateSchema>;

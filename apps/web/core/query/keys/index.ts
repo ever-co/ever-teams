@@ -36,7 +36,26 @@ export const queryKeys = {
 		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,
-		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const
+		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const,
+		// Employee-related keys under users
+		employees: {
+			all: ['users', 'employees'] as const,
+			working: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				[
+					'users',
+					'employees',
+					'working',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : [])
+				] as const,
+			detail: (employeeId: string | undefined | null) =>
+				['users', 'employees', ...(employeeId ? [employeeId] : [])] as const,
+			operations: {
+				all: ['users', 'employees', 'operations'] as const,
+				update: (employeeId: string | undefined | null) =>
+					['users', 'employees', 'operations', 'update', ...(employeeId ? [employeeId] : [])] as const
+			}
+		}
 	},
 	roles: {
 		all: ['roles'] as const,
