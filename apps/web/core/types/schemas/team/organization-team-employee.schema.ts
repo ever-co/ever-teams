@@ -8,6 +8,7 @@ import {
 import { relationalRoleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { employeeSchema } from '../organization/employee.schema';
 
 /**
  * Zod schemas for Organization Team Employee-related interfaces
@@ -36,6 +37,7 @@ export const organizationTeamEmployeeSchema = z
 	})
 	.merge(baseOrganizationTeamEmployeeSchema)
 	.merge(relationalEmployeeSchema)
+	.merge(employeeSchema)
 	.merge(relationalRoleSchema)
 	.merge(timerStatusSchema)
 	.strict();

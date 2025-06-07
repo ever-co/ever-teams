@@ -6,7 +6,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad } from '../../common';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { queryKeys } from '@/core/query/keys';
 import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { toast } from 'sonner';
@@ -37,7 +36,7 @@ export const useEmployee = () => {
 	useEffect(() => {
 		if (employeesData?.items) {
 			const items = employeesData.items;
-			setWorkingEmployees(items as unknown as IEmployee[]);
+			setWorkingEmployees(items);
 			setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
 		}
 	}, [employeesData, setWorkingEmployees, setWorkingEmployeesEmail]);

@@ -1,7 +1,6 @@
 import qs from 'qs';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ICreateEmployee } from '@/core/types/interfaces/organization/employee';
 import {
@@ -59,7 +58,7 @@ class EmployeeService extends APIService {
 		data: TUpdateEmployee;
 	}): Promise<TOrganizationTeamEmployee> => {
 		try {
-			const response = await this.put<TUpdateEmployee>(`/employee/${id}`, data);
+			const response = await this.put<TOrganizationTeamEmployee>(`/employee/${id}`, data);
 
 			// Validate the response data using Zod schema
 			return validateApiResponse(organizationTeamEmployeeSchema, response.data, 'updateEmployee API response');
@@ -83,7 +82,7 @@ class EmployeeService extends APIService {
 		bearer_token: string
 	): Promise<TOrganizationTeamEmployee> => {
 		try {
-			const response = await this.post<IOrganizationTeamEmployee>('/employee', data, {
+			const response = await this.post<TOrganizationTeamEmployee>('/employee', data, {
 				tenantId: data.tenantId,
 				headers: { Authorization: `Bearer ${bearer_token}` }
 			});
