@@ -106,3 +106,4 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateMinutes: z.number()
 });
 export type TEmployee = z.infer<typeof employeeSchema> & { user: TUser };
+export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
