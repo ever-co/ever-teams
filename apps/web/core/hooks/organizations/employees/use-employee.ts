@@ -37,7 +37,7 @@ export const useEmployee = () => {
 		if (employeesData?.items) {
 			const items = employeesData.items;
 			setWorkingEmployees(items);
-			setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
+			setWorkingEmployeesEmail(items.map((item) => item.user?.email ?? ''));
 		}
 	}, [employeesData, setWorkingEmployees, setWorkingEmployeesEmail]);
 
