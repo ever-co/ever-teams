@@ -1,7 +1,7 @@
-import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
+import { TActivityFilter } from '@/core/types/schemas';
 import { atom } from 'jotai';
 
-export const activityTypeState = atom<IActivityFilter>({
+export const activityTypeState = atom<TActivityFilter>({
 	type: 'DATE',
 	member: null
 });

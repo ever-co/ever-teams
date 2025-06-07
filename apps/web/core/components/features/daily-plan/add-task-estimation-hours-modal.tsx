@@ -28,6 +28,7 @@ import { EverCard } from '../../common/ever-card';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { ID } from '@/core/types/interfaces/common/base-interfaces';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -318,14 +319,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
-						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
+						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}
 			});
 		} else {
 			if (isOpen && activeTeamTask) {
 				setDefaultTask(activeTeamTask);
-				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id);
+				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id!);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -799,7 +800,7 @@ function TaskCard(props: ITaskCardProps) {
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
 		// Update the detailed task state
-		getTaskById(task.id);
+		getTaskById(task.id!);
 		openTaskDetailsModal();
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
@@ -833,7 +834,7 @@ function TaskCard(props: ITaskCardProps) {
 						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
 						employeeId: user?.employee?.id,
-						organizationId: user?.employee?.organizationId
+						organizationId: user?.employee?.organizationId!
 					});
 					toast.success('Daily plan created', {
 						description: `Daily plan created with task "${task.title}"`,
@@ -874,7 +875,7 @@ function TaskCard(props: ITaskCardProps) {
 				onClick={() => {
 					if (isTaskRenderedInTodayPlan) {
 						setDefaultTask(task);
-						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
+						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}}
 				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
@@ -1108,7 +1109,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
  */
 
 interface IUnplanTaskProps {
-	taskId: string;
+	taskId: ID;
 	selectedPlanId: string;
 	planIds: string[];
 	closeActionPopover: () => void;
@@ -1147,7 +1148,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { activeTeamTask } = useTeamTasks();
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
-		() => todayPlan[0].tasks?.find((task: ITask) => task.id === activeTeamTask?.id),
+		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
 		[activeTeamTask?.id, todayPlan]
 	);
 
@@ -1163,7 +1164,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId!);
 						toast.success('Task removed from all plans', {
 							description: 'Task has been removed from all daily plans',
 							duration: 3000

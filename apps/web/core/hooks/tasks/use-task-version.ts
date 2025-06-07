@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { userState, taskVersionListState, activeTeamIdState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
@@ -24,21 +24,28 @@ export function useTaskVersion() {
 	const [taskVersion, setTaskVersion] = useAtom(taskVersionListState);
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
 
-	const organizationId =
-		authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
-	const tenantId = authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
-	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = useMemo(() => {
+		return authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
+	}, [authUser?.employee?.organizationId, user?.employee?.organizationId]);
+	const tenantId = useMemo(() => {
+		return authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
+	}, [authUser?.employee?.tenantId, user?.tenantId]);
+	const teamId = useMemo(() => {
+		return activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
+	}, [activeTeam?.id, activeTeamId]);
+	const isEnabled = useMemo(() => tenantId && organizationId && teamId, [tenantId, organizationId, teamId]);
 
 	// useQuery for fetching task versions
 	const taskVersionsQuery = useQuery({
 		queryKey: queryKeys.taskVersions.byTeam(teamId),
 		queryFn: async () => {
-			if (!tenantId || !organizationId || !teamId) {
+			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId);
 			return res.data;
-		}
+		},
+		enabled: Boolean(isEnabled)
 	});
 
 	const createTaskVersionMutation = useMutation({

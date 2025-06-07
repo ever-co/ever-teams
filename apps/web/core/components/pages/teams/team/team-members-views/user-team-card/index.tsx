@@ -1,5 +1,4 @@
 'use client';
-
 import { secondsToTime } from '@/core/lib/helpers/index';
 import {
 	useCollaborative,
@@ -41,7 +40,7 @@ import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
-import { IActivityFilter } from '@/core/types/interfaces/activity/activity';
+import { TActivityFilter } from '@/core/types/schemas';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -88,7 +87,7 @@ export function UserTeamCard({
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
 		setShowActivity((prev) => !prev);
 		setUserDetailAccordion('');
-		setActivityFilter((prev: IActivityFilter) => ({
+		setActivityFilter((prev: TActivityFilter) => ({
 			...prev,
 			type,
 			member

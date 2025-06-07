@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { ITime } from '@/core/types/interfaces/common/time';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -72,7 +72,7 @@ const TaskProgress = () => {
 	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
-		const matchingMembers: IOrganizationTeamEmployee[] | undefined = activeTeam?.members?.filter((member) =>
+		const matchingMembers: TOrganizationTeamEmployee[] | undefined = activeTeam?.members?.filter((member) =>
 			task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
@@ -188,7 +188,7 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 		task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
-	const findUserTotalWorked = (user: IOrganizationTeamEmployee, id: string | undefined) => {
+	const findUserTotalWorked = (user: TOrganizationTeamEmployee, id: string | undefined) => {
 		return user?.totalWorkedTasks?.find((task: any) => task?.id === id)?.duration || 0;
 	};
 

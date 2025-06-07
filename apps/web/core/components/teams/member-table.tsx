@@ -18,14 +18,12 @@ import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
-import { TRole } from '@/core/types/schemas';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 
-export const MemberTable = ({ members }: { members: IEmployee[] }) => {
+export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
-		usePagination<IEmployee>(members, 5);
+		usePagination<TOrganizationTeamEmployee>(members, 5);
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
@@ -33,17 +31,15 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
-	const editMemberRef = useRef<IOrganizationTeamEmployee | null>(null);
+	const editMemberRef = useRef<TOrganizationTeamEmployee | null>(null);
 
 	const updateTeamMember = useCallback(
-		(updatedMember: IOrganizationTeamEmployee) => {
+		(updatedMember: TOrganizationTeamEmployee) => {
 			const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 			if (teamIndex === -1) return;
 
 			const tempTeams = cloneDeep(organizationTeams);
-			const memberIndex = tempTeams?.[teamIndex].members?.findIndex(
-				(member: IOrganizationTeamEmployee) => member.id === updatedMember.id
-			);
+			const memberIndex = tempTeams?.[teamIndex].members?.findIndex((member) => member.id === updatedMember.id);
 
 			if (memberIndex === -1) return;
 
@@ -56,7 +52,7 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 		[activeTeamId, organizationTeams, setOrganizationTeams]
 	);
 
-	const handleEdit = useCallback((member: IOrganizationTeamEmployee) => {
+	const handleEdit = useCallback((member: TOrganizationTeamEmployee) => {
 		editMemberRef.current = member;
 	}, []);
 
@@ -67,8 +63,8 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					?.filter((member: IOrganizationTeamEmployee) => member.role?.name === 'MANAGER')
-					.map((manager: IOrganizationTeamEmployee) => manager.employee?.id || '') || [];
+					?.filter((member) => member.role?.name === 'MANAGER')
+					.map((manager) => manager.employee?.id || '') || [];
 
 			if (isPromotingToManager) {
 				// Add new manager
@@ -98,7 +94,7 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 			const { employeeId = '', role } = editMemberRef.current;
 
 			const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
-			handleManagerRoleUpdate(employeeId, isPromotingToManager);
+			handleManagerRoleUpdate(employeeId!, isPromotingToManager);
 
 			// Update Organization Team
 			// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };
@@ -116,7 +112,7 @@ export const MemberTable = ({ members }: { members: IEmployee[] }) => {
 		}
 
 		const names = name.split(' ');
-		const tempMember: IOrganizationTeamEmployee | null = cloneDeep(editMemberRef.current);
+		const tempMember: TOrganizationTeamEmployee | null = cloneDeep(editMemberRef.current);
 
 		if (tempMember?.employee?.user) {
 			tempMember.employee.fullName = name;

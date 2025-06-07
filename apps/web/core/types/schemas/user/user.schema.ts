@@ -4,9 +4,9 @@ import { tagSchema } from '../tag/tag.schema';
 import { roleSchema } from '../role/role.schema';
 import { userOrganizationSchema } from '../organization/user-organization.schema';
 import { organizationSchema } from '../organization/organization.schema';
-import { employeeSchema } from '../organization/employee.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
 import { inviteTypeSchema } from '../common/enums.schema';
+import { employeeBaseSchema } from '../common/employee.schema';
 
 /**
  * Zod schemas for User entity and operations (consolidated)
@@ -128,10 +128,7 @@ export const userSchema = basePerTenantEntityModelSchema
 		role: roleSchema.optional(),
 		roleId: z.string().nullable().optional(),
 		hash: z.string().nullable().optional(),
-		employee: z
-			.lazy((): any => employeeSchema)
-			.nullable()
-			.optional(),
+		employee: employeeBaseSchema,
 		employeeId: z.string().nullable().optional(),
 		candidateId: z.string().nullable().optional(),
 		defaultTeam: organizationTeamSchema.optional(),

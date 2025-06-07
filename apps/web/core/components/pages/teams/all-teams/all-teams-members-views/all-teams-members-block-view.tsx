@@ -1,12 +1,12 @@
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import UserTeamBlockCard from './users-teams-block/member-block';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
 
-interface Employee extends IOrganizationTeamEmployee {
-	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
+interface Employee extends TOrganizationTeamEmployee {
+	teams: { team: TOrganizationTeam; activeTaskId?: string | null }[];
 }
 
-export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizationTeam[] }) {
+export default function AllTeamsMembersBlockView({ teams }: { teams: TOrganizationTeam[] }) {
 	const employees: Employee[] = teams.flatMap(
 		(team) =>
 			team.members?.map((member) => ({
@@ -33,7 +33,7 @@ export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizati
 	return (
 		<>
 			{employeesArray.length > 0 ? (
-				<div className="flex w-full flex-wrap items-start justify-center">
+				<div className="flex flex-wrap items-start justify-center w-full">
 					{employeesArray.map((employee) => (
 						<div className="px-2" key={employee.id}>
 							<UserTeamBlockCard key={employee.id} member={employee} />
@@ -41,7 +41,7 @@ export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizati
 					))}
 				</div>
 			) : (
-				<div className="text-center font-medium w-full">There is no member for filtered value</div>
+				<div className="w-full font-medium text-center">There is no member for filtered value</div>
 			)}
 		</>
 	);

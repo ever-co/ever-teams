@@ -1,8 +1,8 @@
+import { TOrganizationTeamEmployee } from '../../schemas';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IImageAsset, IRelationalImageAsset } from '../common/image-asset';
 import { IOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';
-import { IOrganizationTeamEmployee } from './organization-team-employee';
 
 // Base interface for common properties
 interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, IRelationalImageAsset, ITaggable {
@@ -20,8 +20,8 @@ interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, 
 
 // Interface for team members and related entities
 interface ITeamAssociations {
-	members?: IOrganizationTeamEmployee[];
-	managers?: IOrganizationTeamEmployee[];
+	members?: TOrganizationTeamEmployee[];
+	managers?: TOrganizationTeamEmployee[];
 	projects?: IOrganizationProject[];
 	// modules?: IOrganizationProjectModule[];
 	// assignedComments?: IComment[];

@@ -1,0 +1,38 @@
+import { z } from 'zod';
+import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
+import { relationalOrganizationProjectSchema } from '../common/base.schema';
+import { taskSchema } from '../activities/activity.schema';
+
+const teamAssociationsSchema = z.object({
+	members: z.array(organizationTeamEmployeeSchema),
+	managers: z.array(organizationTeamEmployeeSchema),
+	projects: z.array(relationalOrganizationProjectSchema),
+	tasks: z.array(taskSchema)
+});
+export const teamSchema = z
+	.object({
+		name: z.string(),
+		color: z.string().optional(),
+		emoji: z.string().optional(),
+		teamSize: z.string().optional(),
+		logo: z.string().optional(),
+		prefix: z.string().optional(),
+		shareProfileView: z.boolean().optional(),
+		requirePlanToTrack: z.boolean().optional(),
+		public: z.boolean().optional(),
+		profile_link: z.string().optional(),
+		imageId: z.string().optional(),
+		image: z.any().optional(),
+		organizationId: z.string().optional(),
+		tenantId: z.string().optional(),
+		tags: z.array(z.any()).optional(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional()
+	})
+	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(teamAssociationsSchema)
+	.passthrough();
+
+export type TTeamAssociations = z.infer<typeof teamAssociationsSchema>;
+export type TOrganizationTeam = z.infer<typeof teamSchema>;

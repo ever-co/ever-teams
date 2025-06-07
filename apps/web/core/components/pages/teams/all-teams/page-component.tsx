@@ -17,6 +17,7 @@ import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { MemberFilter } from './all-teams-members-views/all-team-members-filter';
 import AllTeamsMembers from './all-teams-members-views/all-teams-members';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
 
 function AllTeamsPage() {
 	const t = useTranslations();
@@ -58,7 +59,7 @@ function AllTeamsPage() {
 			}
 		>
 			<Container fullWidth={fullWidth} className="mx-auto mt-5">
-				<AllTeamsMembers teams={filteredTeams} view={view} />
+				<AllTeamsMembers teams={filteredTeams as unknown as TOrganizationTeam[]} view={view} />
 			</Container>
 		</MainLayout>
 	);

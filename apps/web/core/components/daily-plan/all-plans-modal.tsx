@@ -165,7 +165,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id,
-				organizationId: user?.employee?.organizationId
+				organizationId: user?.employee?.organizationId!
 			});
 
 			handleCalendarSelect();
@@ -273,7 +273,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										setShowCustomPlan(false);
 										setShowCalendar(true);
 									}}
-									className="absolute left-0 flex items-center gap-3 -translate-y-1/2  top-1/2"
+									className="absolute left-0 flex items-center gap-3 -translate-y-1/2 top-1/2"
 								>
 									<span className="rotate-180">
 										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />

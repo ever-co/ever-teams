@@ -3,13 +3,13 @@ import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export default function UserTeamActiveTaskTimes({
 	member,
 	className
 }: {
-	member: IOrganizationTeamEmployee;
+	member: TOrganizationTeamEmployee;
 	className?: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);

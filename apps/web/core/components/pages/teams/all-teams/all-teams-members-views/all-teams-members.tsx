@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai';
 import { IssuesView } from '@/core/constants/config/constants';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
@@ -8,12 +7,13 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import TeamsMembersCardView from './all-teams-members-card-view';
 import AllTeamsMembersBlockView from './all-teams-members-block-view';
+import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
 
 export default function AllTeamsMembers({
 	teams,
 	view = IssuesView.CARDS
 }: {
-	teams: IOrganizationTeam[];
+	teams: TOrganizationTeam[];
 	view: IssuesView;
 }) {
 	const fullWidth = useAtomValue(fullWidthState);

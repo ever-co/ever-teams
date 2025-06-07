@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useTaskStatistics } from './use-task-statistics';
 import { useIntersectionObserver } from '@uidotdev/usehooks';
 
-export function useGetTasksStatsData(employeeId: string | undefined, triggerWithIObserver = true) {
+export function useGetTasksStatsData(employeeId?: string | null, triggerWithIObserver = true) {
 	const refMap = useRef(new Map());
 	const { getTasksStatsData } = useTaskStatistics();
 	const [IObserverRef, entry] = useIntersectionObserver({

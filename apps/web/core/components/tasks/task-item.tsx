@@ -4,7 +4,6 @@ import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 export function TaskItem({
@@ -33,7 +32,7 @@ export function TaskItem({
 							<BadgedTaskStatus status={item?.status || ETaskStatusName.TODO} />
 							<div className="flex items-center justify-center space-x-1">
 								{item.selectedTeam?.members &&
-									item.selectedTeam?.members.map((member: IOrganizationTeamEmployee, i: number) => (
+									item.selectedTeam?.members.map((member, i) => (
 										<div className="flex items-center justify-center" key={i}>
 											<Image
 												src={member.employee?.user?.imageUrl || ''}

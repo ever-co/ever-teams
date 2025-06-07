@@ -28,7 +28,7 @@ import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/da
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -71,12 +71,12 @@ export function CreateDailyPlanFormModal({
 	);
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
-	const [selectedEmployee, setSelectedEmployee] = useState<IOrganizationTeamEmployee | undefined>(
+	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
 		isManagerConnectedUser
 	);
 	const [isOpen, setIsOpen] = useState(false);
 
-	const handleMemberClick = useCallback((member: IOrganizationTeamEmployee) => {
+	const handleMemberClick = useCallback((member: TOrganizationTeamEmployee) => {
 		setSelectedEmployee(member);
 	}, []);
 
@@ -284,8 +284,8 @@ function MembersList({
 	selectedMember
 }: {
 	activeTeam: IOrganizationTeam | null;
-	selectedMember?: IOrganizationTeamEmployee;
-	handleMemberClick: (member: IOrganizationTeamEmployee) => void;
+	selectedMember?: TOrganizationTeamEmployee;
+	handleMemberClick: (member: TOrganizationTeamEmployee) => void;
 }) {
 	return (
 		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
@@ -294,7 +294,7 @@ function MembersList({
 				<CommandEmpty>No member founded</CommandEmpty>
 				<ScrollArea className="h-[15rem]">
 					<CommandGroup className="p-2">
-						{activeTeam?.members?.map((member: IOrganizationTeamEmployee) => (
+						{activeTeam?.members?.map((member) => (
 							<CommandItem
 								key={member?.id}
 								className="flex items-center px-2 cursor-pointer"

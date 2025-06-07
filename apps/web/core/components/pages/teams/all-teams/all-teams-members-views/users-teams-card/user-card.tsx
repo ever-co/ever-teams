@@ -12,12 +12,12 @@ import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export default function UserTeamCard({
 	member,
 	className = 'max-w-full'
-}: Readonly<{ member: IOrganizationTeamEmployee; className?: string }>) {
+}: Readonly<{ member: TOrganizationTeamEmployee; className?: string }>) {
 	return (
 		<Transition
 			as="div"
@@ -80,7 +80,7 @@ export default function UserTeamCard({
 	);
 }
 
-function UserActiveTaskMenu({ member }: { member: IOrganizationTeamEmployee }) {
+function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);

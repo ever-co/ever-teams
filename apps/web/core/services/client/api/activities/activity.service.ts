@@ -5,6 +5,8 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { IActivityReport } from '@/core/types/interfaces/activity/activity-report';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { activitySchema, TActivity } from '@/core/types/schemas/activities/activity.schema';
 
 class ActivityService extends APIService {
 	getActivities = async ({
@@ -19,25 +21,55 @@ class ActivityService extends APIService {
 		defaultRange?: string;
 		taskId?: string;
 		unitOfTime?: 'day';
-	}) => {
-		const params: {
-			tenantId: string;
-			organizationId: string;
-			defaultRange?: string;
-			'taskIds[0]'?: string;
-			unitOfTime?: 'day';
-		} = {
-			'taskIds[0]': taskId,
-			tenantId,
-			organizationId,
-			defaultRange,
-			unitOfTime
-		};
-		const query = qs.stringify(params);
+	}): Promise<TActivity[]> => {
+		try {
+			const params: {
+				tenantId: string;
+				organizationId: string;
+				defaultRange?: string;
+				'taskIds[0]'?: string;
+				unitOfTime?: 'day';
+			} = {
+				'taskIds[0]': taskId,
+				tenantId,
+				organizationId,
+				defaultRange,
+				unitOfTime
+			};
+			const query = qs.stringify(params);
 
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/activity?${query}` : `/timer/timesheet?${query}`;
+			const endpoint = GAUZY_API_BASE_SERVER_URL.value
+				? `/timesheet/activity?${query}`
+				: `/timer/timesheet?${query}`;
 
-		return this.get<IActivity[]>(endpoint);
+			const response = await this.get<TActivity[]>(endpoint);
+
+			// Validate each activity in the response array
+			if (Array.isArray(response.data)) {
+				const validatedActivities = response.data.map((activity, index) =>
+					validateApiResponse(activitySchema, activity, `getActivities API response item ${index}`)
+				);
+				return validatedActivities;
+			}
+
+			// If response.data is not an array, return empty array
+			return [];
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Get activities validation failed:',
+					{
+						message: error.message,
+						issues: error.issues,
+						taskId,
+						tenantId,
+						organizationId
+					},
+					'ActivityService'
+				);
+			}
+			throw error;
+		}
 	};
 
 	getDailyActivities = async ({

@@ -11,9 +11,9 @@ import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
 	const t = useTranslations();
@@ -196,7 +196,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITask; me
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: IOrganizationTeamEmployee[];
+	teamMembers: TOrganizationTeamEmployee[];
 	task: ITask;
 	key?: string;
 }
@@ -270,7 +270,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 
 interface ITeamMemberOptionProps {
 	isAssignee: boolean;
-	member: IOrganizationTeamEmployee;
+	member: TOrganizationTeamEmployee;
 	task: ITask;
 	key?: string;
 }

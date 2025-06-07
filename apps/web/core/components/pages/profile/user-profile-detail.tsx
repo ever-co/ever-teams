@@ -8,10 +8,10 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { TableActionPopover } from '@/core/components/settings/table-action-popover';
 import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
-export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmployee }) {
+export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmployee }) {
 	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
 
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
@@ -68,7 +68,7 @@ export function UserProfileDetail({ member }: { member?: IOrganizationTeamEmploy
 					<Text.Heading as="h3" className="text-2xl md:text-4xl">
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
-					<div className="h-8  w-8">
+					<div className="w-8 h-8">
 						{member ? <TableActionPopover member={member} status="profile" /> : <></>}
 					</div>
 				</div>

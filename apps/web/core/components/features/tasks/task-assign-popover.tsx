@@ -1,11 +1,11 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from '../../tasks/task-input';
 import { useTranslations } from 'next-intl';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export function TaskUnOrAssignPopover({
 	children,
@@ -23,7 +23,7 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];
-	userProfile: IOrganizationTeamEmployee | undefined;
+	userProfile?: TOrganizationTeamEmployee;
 }>) {
 	const t = useTranslations();
 	const { isOpen, openModal, closeModal } = useModal();
