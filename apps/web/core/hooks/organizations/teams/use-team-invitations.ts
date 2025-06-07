@@ -86,6 +86,11 @@ export function useTeamInvitations() {
 			if (result.items) {
 				setTeamInvitations(result.items);
 			}
+		},
+		onError: (error) => {
+			toast.error('Failed to remove invitation', {
+				description: error instanceof Error ? error.message : 'An error occurred'
+			});
 		}
 	});
 
@@ -94,6 +99,11 @@ export function useTeamInvitations() {
 		onSuccess: () => {
 			// Invalidate and refetch team invitations to get fresh data
 			invalidateTeamInvitations();
+		},
+		onError: (error) => {
+			toast.error('Failed to resend invitation', {
+				description: error instanceof Error ? error.message : 'An error occurred'
+			});
 		}
 	});
 
@@ -115,6 +125,11 @@ export function useTeamInvitations() {
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.invitations.my(tenantId) });
 			// Update Jotai state for backward compatibility
 			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== variables.invitationId));
+		},
+		onError: (error) => {
+			toast.error('Failed to process invitation', {
+				description: error instanceof Error ? error.message : 'An error occurred'
+			});
 		}
 	});
 
