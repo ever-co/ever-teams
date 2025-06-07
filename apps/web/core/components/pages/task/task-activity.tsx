@@ -1,14 +1,13 @@
 'use client';
-
 import React from 'react';
 import { UserTaskActivity } from '../../tasks/user-task-activity';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useTaskTimeSheets } from '@/core/hooks/tasks/use-task-activity';
 import { groupByTime } from '@/core/lib/helpers/array-data';
 
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { EverCard } from '../../common/ever-card';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export function TaskActivity({ task }: { task: ITask }) {
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
@@ -16,7 +15,7 @@ export function TaskActivity({ task }: { task: ITask }) {
 
 	// order activity arr by Time
 	// Type assertion needed due to React Query migration - TActivity vs IActivity compatibility
-	const groupedData = groupByTime(taskTimesheets as any);
+	const groupedData = groupByTime(taskTimesheets);
 
 	React.useEffect(() => {
 		getTaskTimesheets();

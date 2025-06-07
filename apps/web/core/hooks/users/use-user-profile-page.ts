@@ -1,5 +1,4 @@
 'use client';
-
 import { ITask } from '@/core/types/interfaces/task/task';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
@@ -24,7 +23,7 @@ export function useUserProfilePage() {
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam]);
 
 	const matchUser = useMemo(() => {
-		return members.find((m: any) => {
+		return members.find((m) => {
 			return m.employee?.userId === memberId;
 		});
 	}, [members, memberId]);

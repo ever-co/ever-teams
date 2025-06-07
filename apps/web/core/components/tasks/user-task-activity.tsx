@@ -2,12 +2,12 @@ import React from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { TActivity } from '@/core/types/schemas';
 
-export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
+export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	const [hidden, setHidden] = React.useState(true);
 	// TODO: fetch Apps et Sites Visited
 	return (
@@ -51,8 +51,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 							))}
 					</Tab.List>
 					<Tab.Panels>
-						<Tab.Panel className="w-full mx-4 py-4">
-							<div className="my-2 flex w-full overflow-x-auto">
+						<Tab.Panel className="w-full py-4 mx-4">
+							<div className="flex w-full my-2 overflow-x-auto">
 								{timesheet.timeSlot?.screenshots?.map((screenshot, i) => (
 									<div key={i} className="w-1/3 min-w-[20rem] p-2">
 										<Tooltip
@@ -73,15 +73,15 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 										</Tooltip>
 										<div className="bg-gray-100 dark:dark:bg-[#26272C] rounded-b-lg p-2">
 											<h5>Source</h5>
-											<div className="my-1 flex gap-1 flex-wrap">
-												<span className="rounded-lg px-1 mb-1 text-white bg-blue-600">
+											<div className="flex flex-wrap gap-1 my-1">
+												<span className="px-1 mb-1 text-white bg-blue-600 rounded-lg">
 													{timesheet.source}
 												</span>
 												{Array.isArray(screenshot.apps) &&
 													screenshot.apps.map((app: string, i: number) => (
 														<span
 															key={i}
-															className="rounded-lg px-1 mb-1 text-white bg-blue-600"
+															className="px-1 mb-1 text-white bg-blue-600 rounded-lg"
 														>
 															{app}
 														</span>
@@ -92,8 +92,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: IActivity }) => {
 								))}
 							</div>
 						</Tab.Panel>
-						<Tab.Panel className="w-full mx-4 py-4">{'Apps Tab'}</Tab.Panel>
-						<Tab.Panel className="w-full mx-4 py-4">{'VisitedSites Tab'}</Tab.Panel>
+						<Tab.Panel className="w-full py-4 mx-4">{'Apps Tab'}</Tab.Panel>
+						<Tab.Panel className="w-full py-4 mx-4">{'VisitedSites Tab'}</Tab.Panel>
 					</Tab.Panels>
 				</Tab.Group>
 			</div>
