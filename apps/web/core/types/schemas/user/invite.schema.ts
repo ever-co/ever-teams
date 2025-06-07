@@ -22,6 +22,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema.ex
 // Invite associations schema (IInviteAssociations interface)
 // Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
+	id: z.string(),
 	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
 	userId: idSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available
@@ -78,6 +79,13 @@ export const inviteRequestSchema = z.object({
 	organizationId: z.string()
 });
 
+// Invite resend operation result schema (TypeORM UpdateResult)
+export const inviteResendResultSchema = z.object({
+	generatedMaps: z.array(z.any()),
+	raw: z.array(z.any()),
+	affected: z.number().optional().nullable()
+});
+
 // Inferred TypeScript types from Zod schemas - use these for consistency with validation
 export type TBaseInvite = z.infer<typeof baseInviteSchema>;
 export type TInviteAssociations = z.infer<typeof inviteAssociationsSchema>;
@@ -86,3 +94,4 @@ export type TInviteCreate = z.infer<typeof inviteCreateSchema>;
 export type TInviteVerifyCode = z.infer<typeof inviteVerifyCodeSchema>;
 export type TInviteVerified = z.infer<typeof inviteVerifiedSchema>;
 export type TInviteRequest = z.infer<typeof inviteRequestSchema>;
+export type TInviteResendResult = z.infer<typeof inviteResendResultSchema>;

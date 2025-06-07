@@ -21,6 +21,7 @@ import {
 	inviteVerifiedSchema,
 	ZodValidationError
 } from '@/core/types/schemas';
+import { inviteResendResultSchema, TInviteResendResult } from '@/core/types/schemas/user/invite.schema';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IInviteRequest, tenantId: string): Promise<PaginationResponse<TInvite>> => {
@@ -143,38 +144,37 @@ class InviteService extends APIService {
 		}
 	};
 
-	resendTeamInvitations = async (inviteId: string): Promise<PaginationResponse<TInvite>> => {
+	/**
+	 * Resend team invitation
+	 *
+	 * @param inviteId - The invitation ID to resend
+	 * @returns Promise<void> - Operation success (no data returned)
+	 * @throws Error if resend fails
+	 */
+	resendTeamInvitations = async (inviteId: string): Promise<TInviteResendResult> => {
 		try {
-			const tenantId = getTenantIdCookie();
-			const organizationId = getOrganizationIdCookie();
+			const requestData = this.buildResendRequestData(inviteId);
+			const response = await this.post<TInviteResendResult>('/invite/resend', requestData);
 
-			const callbackUrl = INVITE_CALLBACK_URL || `${window.location.origin}${INVITE_CALLBACK_PATH}`;
-
-			const localData = {
-				tenantId,
-				inviteId,
-				inviteType: 'TEAM',
-				organizationId,
-				callbackUrl: INVITE_CALLBACK_URL || callbackUrl
-			};
-
-			const nData = {
-				inviteId
-			};
-
-			const data = GAUZY_API_BASE_SERVER_URL.value ? localData : nData;
-
-			const response = await this.post<PaginationResponse<TInvite>>(`/invite/resend`, data);
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(inviteSchema, response.data, 'resendTeamInvitations API response');
+			// Validate the TypeORM UpdateResult response
+			return validateApiResponse(inviteResendResultSchema, response.data, 'resendTeamInvitations API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
 					'Resend team invitations validation failed:',
 					{
 						message: error.message,
-						issues: error.issues
+						issues: error.issues,
+						inviteId
+					},
+					'InviteService'
+				);
+			} else {
+				this.logger.error(
+					'Failed to resend team invitation',
+					{
+						inviteId,
+						error: error instanceof Error ? error.message : 'Unknown error'
 					},
 					'InviteService'
 				);
@@ -182,6 +182,24 @@ class InviteService extends APIService {
 			throw error;
 		}
 	};
+
+	/**
+	 * Build request data for resend operation based on server configuration
+	 */
+	private buildResendRequestData(inviteId: string) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+
+		return GAUZY_API_BASE_SERVER_URL.value
+			? {
+					tenantId,
+					inviteId,
+					inviteType: 'TEAM' as const,
+					organizationId,
+					callbackUrl: INVITE_CALLBACK_URL || `${window.location.origin}${INVITE_CALLBACK_PATH}`
+				}
+			: { inviteId };
+	}
 
 	getMyInvitations = async (tenantId: string): Promise<PaginationResponse<TInvite>> => {
 		try {

@@ -91,7 +91,7 @@ export function useTeamInvitations() {
 	const resendInviteMutation = useMutation({
 		mutationFn: (inviteId: string) => inviteService.resendTeamInvitations(inviteId),
 		onSuccess: () => {
-			// Invalidate and refetch team invitations
+			// Invalidate and refetch team invitations to get fresh data
 			invalidateTeamInvitations();
 		}
 	});
@@ -139,7 +139,7 @@ export function useTeamInvitations() {
 	const transformInviteData = useCallback((invites: TInvite[]) => {
 		return invites.map((invite) => ({
 			...invite,
-			expireDate: new Date(invite.expireDate),
+			expireDate: new Date(invite.expireDate!),
 			actionDate: invite.actionDate ? new Date(invite.actionDate) : undefined
 		}));
 	}, []);

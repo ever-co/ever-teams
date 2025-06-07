@@ -7,10 +7,10 @@ import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import Input from '../../duplicated-components/input';
-import { IInvite } from '@/core/types/interfaces/user/invite';
 import { ITask } from '@/core/types/interfaces/task/task';
+import { TInvite } from '@/core/types/schemas';
 
-const initialValues: Pick<IInvite, 'email' | 'fullName'> = {
+const initialValues: Pick<TInvite, 'email' | 'fullName'> = {
 	email: '',
 	fullName: ''
 };
@@ -22,7 +22,7 @@ export interface IInviteProps {
 	task: ITask | null;
 }
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
-	const [formData, setFormData] = useState<Pick<IInvite, 'email' | 'fullName'>>(initialValues);
+	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName'>>(initialValues);
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
 

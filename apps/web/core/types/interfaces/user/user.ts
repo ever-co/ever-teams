@@ -7,9 +7,8 @@ import { ITag } from '../tag/tag';
 import { ISocialAccount } from './social-account';
 import { IUserOrganization } from '../organization/user-organization';
 import { IEmployee } from '../organization/employee';
-import { IInvite } from './invite';
 import { IRelationalImageAsset } from '../common/image-asset';
-import { TUser } from '../../schemas';
+import { TInvite, TUser } from '../../schemas';
 
 export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset {
 	thirdPartyId?: ID;
@@ -51,7 +50,7 @@ export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset 
 	lastLoginAt?: Date;
 	isEmailVerified?: boolean;
 	emailToken?: string;
-	invites?: IInvite[];
+	invites?: TInvite[];
 	socialAccounts?: ISocialAccount[];
 }
 
