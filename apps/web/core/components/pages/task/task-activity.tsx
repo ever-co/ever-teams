@@ -15,7 +15,8 @@ export function TaskActivity({ task }: { task: ITask }) {
 	const [hidden, setHidden] = React.useState(true);
 
 	// order activity arr by Time
-	const groupedData = groupByTime(taskTimesheets);
+	// Type assertion needed due to React Query migration - TActivity vs IActivity compatibility
+	const groupedData = groupByTime(taskTimesheets as any);
 
 	React.useEffect(() => {
 		getTaskTimesheets();
