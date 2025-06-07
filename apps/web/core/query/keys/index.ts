@@ -55,6 +55,42 @@ export const queryKeys = {
 				update: (employeeId: string | undefined | null) =>
 					['users', 'employees', 'operations', 'update', ...(employeeId ? [employeeId] : [])] as const
 			}
+		},
+		// Invitation-related keys under users
+		invitations: {
+			all: ['users', 'invitations'] as const,
+			team: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				teamId: string | undefined | null
+			) =>
+				[
+					'users',
+					'invitations',
+					'team',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : []),
+					...(teamId ? [teamId] : [])
+				] as const,
+			my: (tenantId: string | undefined | null) =>
+				['users', 'invitations', 'my', ...(tenantId ? [tenantId] : [])] as const,
+			operations: {
+				all: ['users', 'invitations', 'operations'] as const,
+				invite: (teamId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'invite', ...(teamId ? [teamId] : [])] as const,
+				remove: (invitationId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'remove', ...(invitationId ? [invitationId] : [])] as const,
+				resend: (invitationId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'resend', ...(invitationId ? [invitationId] : [])] as const,
+				acceptReject: (invitationId: string | undefined | null) =>
+					[
+						'users',
+						'invitations',
+						'operations',
+						'acceptReject',
+						...(invitationId ? [invitationId] : [])
+					] as const
+			}
 		}
 	},
 	roles: {

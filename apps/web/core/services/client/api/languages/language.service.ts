@@ -31,10 +31,12 @@ class LanguageService extends APIService {
 			return validatePaginationResponse(languageItemListSchema, response.data, 'getLanguages API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				console.error('Language validation failed:', error.message);
-				console.error('Validation issues:', error.issues);
-				// Log the actual data structure for debugging
-				console.log('Actual API response data:', JSON.stringify(response.data, null, 2));
+				this.logger.error('Language validation failed:',
+					{
+						message: error.message,
+						issues: error.issues,
+						data:response.data
+					},'LanguageService');
 			}
 			throw error;
 		}

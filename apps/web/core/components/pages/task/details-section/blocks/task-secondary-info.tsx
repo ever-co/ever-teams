@@ -361,39 +361,34 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<div>
 								<ListboxButton
 									className={clsxm(
-										`cursor-pointer outline-none w-full flex dark:text-white
+										`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
 									items-center justify-between h-fit p-1
 									border-solid border-color-[#F2F2F2]
 									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
 										styles?.value
 									)}
 								>
-									{selected && (
-										<div className="mx-1">
+									{selected ? (
+										<div className="flex items-center gap-1 mx-1 w-fit">
 											{selected.imageUrl && (
 												<Image
+													className="w-4 h-4 rounded-full"
 													src={selected.imageUrl}
 													alt={selected.name || ''}
 													width={25}
 													height={25}
-													className="rounded-full"
 												/>
 											)}
+											<span className="max-w-16 text-ellipsis">
+												{updateLoading ? (
+													<SpinnerLoader size={10} />
+												) : (
+													selected?.name || 'Project'
+												)}
+											</span>
 										</div>
-									)}
-									{updateLoading ? (
-										<SpinnerLoader size={10} />
 									) : (
-										<p
-											className={clsxm(
-												'truncate',
-												!selected &&
-													' text-slate-400 text-xs flex gap-1 dark:text-white font-light'
-											)}
-										>
-											{!selected && <CircleIcon className="w-4 h-4" />}
-											{selected?.name ?? 'Project'}
-										</p>
+										<CircleIcon className="w-4 h-4" />
 									)}
 									<ChevronDownIcon
 										className={clsxm(

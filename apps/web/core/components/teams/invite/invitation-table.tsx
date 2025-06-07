@@ -9,12 +9,12 @@ import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 import { Paginate } from '../../duplicated-components/_pagination';
 import { IJoinTeamResponse } from '@/core/types/interfaces/team/request-to-join';
-import { IInvite } from '@/core/types/interfaces/user/invite';
 import { ERequestStatus } from '@/core/types/generics/enums';
+import { TInvite } from '@/core/types/schemas';
 
-export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoinTeamResponse)[] }) => {
+export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
-		IInvite | IJoinTeamResponse
+		TInvite | IJoinTeamResponse
 	>(invitations);
 	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
@@ -53,7 +53,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoin
 							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700 max-w-" key={index}>
 								<th
 									scope="row"
-									className="flex items-center  py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									<div
 										className={clsxm(
@@ -90,7 +90,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvite | IJoin
 								<td className="text-xs font-semibold pl-2 py-4 text-[#1A79D0] dark:text-white">
 									{/* http:// www.borde.. */}-
 								</td>
-								<td className="py-4 text-xs font-semibold pl-2 ">
+								<td className="py-4 pl-2 text-xs font-semibold ">
 									<InvitationTableStatus
 										status={invitation.status}
 										acceptJoinRequest={() => {

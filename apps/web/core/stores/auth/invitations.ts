@@ -1,12 +1,12 @@
-import { IInvite } from '@/core/types/interfaces/user/invite';
 import { atom } from 'jotai';
 import { activeTeamState } from '../teams/organization-team';
+import { TInvite } from '@/core/types/schemas';
 
-export const teamInvitationsState = atom<IInvite[]>([]);
+export const teamInvitationsState = atom<TInvite[]>([]);
 
-export const myInvitationsState = atom<IInvite[]>([]);
+export const myInvitationsState = atom<TInvite[]>([]);
 
-export const getTeamInvitationsState = atom<IInvite[]>((get) => {
+export const getTeamInvitationsState = atom<TInvite[]>((get) => {
 	const invitations = get(teamInvitationsState);
 	const activeTeam = get(activeTeamState);
 	const members = activeTeam?.members || [];
