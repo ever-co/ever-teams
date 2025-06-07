@@ -12,8 +12,8 @@ import { TUser, userSchema } from '../user/user.schema';
 export const employeeSchema = z
 	.object({
 		id: idSchema,
-		endWork: z.coerce.date().optional(),
-		startedWorkOn: z.coerce.date().optional(),
+		endWork: z.coerce.date().optional().nullable(),
+		startedWorkOn: z.coerce.date().optional().nullable(),
 		user: z
 			.lazy(() => userSchema)
 			.nullable()
@@ -23,7 +23,7 @@ export const employeeSchema = z
 		short_description: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
 		teams: z.array(z.any()).optional(), // Will be properly typed when organization team schema is created
-		billRateValue: z.number().optional(),
+		billRateValue: z.number().optional().nullable(),
 		billRateCurrency: z.nativeEnum(ECurrencies).optional().nullable(),
 		minimumBillingRate: z.number().optional(),
 		reWeeklyLimit: z.number().optional(),
@@ -37,7 +37,7 @@ export const employeeSchema = z
 		tasks: z.array(z.any()).optional(), // Will be properly typed when task schema is created
 		timeSlots: z.array(z.any()).optional(), // Will be properly typed when time slot schema is created
 		averageIncome: z.number().optional().nullable(),
-		totalWorkHours: z.number().optional(),
+		totalWorkHours: z.number().optional().nullable(),
 		averageExpenses: z.number().optional().nullable(),
 		averageBonus: z.number().nullable().optional(),
 		show_anonymous_bonus: z.boolean().optional().nullable(),

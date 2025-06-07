@@ -5,10 +5,9 @@ import {
 	relationalEmployeeSchema,
 	idSchema
 } from '../common/base.schema';
-import { relationalRoleSchema } from '../role/role.schema';
+import { relationalRoleSchema, roleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
-import { userSchema } from '../user/user.schema';
 
 /**
  * Zod schemas for Organization Team Employee-related interfaces
@@ -41,7 +40,23 @@ export const organizationTeamEmployeeSchema = z
 		username: z.string().nullable().optional(),
 		timeZone: z.string().nullable().optional(),
 		user: z
-			.lazy(() => userSchema)
+			.object({
+				thirdPartyId: z.string().nullable().optional(),
+				name: z.string().nullable().optional(),
+				firstName: z.string().nullable().optional(),
+				lastName: z.string().nullable().optional(),
+				email: z.string().nullable().optional(),
+				phoneNumber: z.string().nullable().optional(),
+				username: z.string().nullable().optional(),
+				timeZone: z.string().nullable().optional(),
+				timeFormat: z
+					.union([z.literal(12), z.literal(24)])
+					.nullable()
+					.optional(),
+				role: roleSchema.optional(),
+				roleId: z.string().nullable().optional(),
+				hash: z.string().nullable().optional()
+			})
 			.nullable()
 			.optional(),
 		totalWorkedTasks: z.array(z.any()).optional(), // Will be properly typed when task statistics schema is created
@@ -51,7 +66,7 @@ export const organizationTeamEmployeeSchema = z
 	.merge(relationalEmployeeSchema)
 	.merge(relationalRoleSchema)
 	.merge(timerStatusSchema)
-	.strict();
+	.passthrough();
 
 // Organization team employee create schema
 export const organizationTeamEmployeeCreateSchema = z.object({

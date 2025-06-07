@@ -13,7 +13,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema.ex
 	token: z.string(),
 	code: z.string().optional(),
 	status: inviteStatusSchema,
-	expireDate: z.string(), // API returns string, keep as string for consistency
+	expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
 	actionDate: z.string().optional(), // API returns string, keep as string for consistency
 	fullName: z.string().optional(),
 	isExpired: z.boolean().optional()
@@ -23,7 +23,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema.ex
 // Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
 	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
-	userId: idSchema.optional(),
+	userId: idSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available
 	roleId: idSchema.optional(),
 	projects: z.array(z.any()).optional(), // IOrganizationProject[] - schema not created yet
