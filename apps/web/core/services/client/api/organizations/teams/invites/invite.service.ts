@@ -19,7 +19,8 @@ import {
 	validateApiResponse,
 	inviteSchema,
 	inviteVerifiedSchema,
-	ZodValidationError
+	ZodValidationError,
+	TRole
 } from '@/core/types/schemas';
 import { inviteResendResultSchema, TInviteResendResult } from '@/core/types/schemas/user/invite.schema';
 
@@ -38,7 +39,7 @@ class InviteService extends APIService {
 
 			const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
 
-			const employeeRole = await this.get<any>(getRoleEndpoint, { tenantId });
+			const employeeRole = await this.get<TRole>(getRoleEndpoint, { tenantId });
 
 			const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 				emailIds: [data.email],
@@ -148,7 +149,7 @@ class InviteService extends APIService {
 	 * Resend team invitation
 	 *
 	 * @param inviteId - The invitation ID to resend
-	 * @returns Promise<void> - Operation success (no data returned)
+	 * @returns Promise<TInviteResendResult> - Operation result with affected count
 	 * @throws Error if resend fails
 	 */
 	resendTeamInvitations = async (inviteId: string): Promise<TInviteResendResult> => {

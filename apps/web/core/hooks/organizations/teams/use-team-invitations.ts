@@ -1,5 +1,4 @@
 'use client';
-
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
@@ -16,7 +15,6 @@ import { useAuthenticateUser } from '../../auth';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
-import { TInvite } from '@/core/types/schemas';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
@@ -57,9 +55,13 @@ export function useTeamInvitations() {
 			invalidateTeamInvitations();
 			// Update Jotai state for backward compatibility with transformed data
 			if (result.items) {
-				const transformedData = transformInviteData(result.items);
-				setTeamInvitations((prev) => [...prev, ...transformedData] as any);
+				setTeamInvitations((prev) => [...prev, ...result.items]);
 			}
+		},
+		onError: (error) => {
+			toast.error('Failed to send invitation', {
+				description: error instanceof Error ? error.message : 'An error occurred'
+			});
 		}
 	});
 
@@ -82,8 +84,7 @@ export function useTeamInvitations() {
 			invalidateTeamInvitations();
 			// Update Jotai state for backward compatibility with transformed data
 			if (result.items) {
-				const transformedData = transformInviteData(result.items);
-				setTeamInvitations(transformedData as any);
+				setTeamInvitations(result.items);
 			}
 		}
 	});
@@ -135,29 +136,18 @@ export function useTeamInvitations() {
 		refetchOnWindowFocus: false
 	});
 
-	// Transform TInvite to IInvite for Jotai compatibility
-	const transformInviteData = useCallback((invites: TInvite[]) => {
-		return invites.map((invite) => ({
-			...invite,
-			expireDate: new Date(invite.expireDate!),
-			actionDate: invite.actionDate ? new Date(invite.actionDate) : undefined
-		}));
-	}, []);
-
 	// Synchronize React Query data with Jotai stores
 	useEffect(() => {
 		if (teamInvitationsData?.items) {
-			const transformedData = transformInviteData(teamInvitationsData.items);
-			setTeamInvitations(transformedData as any);
+			setTeamInvitations(teamInvitationsData.items);
 		}
-	}, [teamInvitationsData, setTeamInvitations, transformInviteData]);
+	}, [teamInvitationsData, setTeamInvitations]);
 
 	useEffect(() => {
 		if (myInvitationsData?.items) {
-			const transformedData = transformInviteData(myInvitationsData.items);
-			setMyInvitationsList(transformedData as any);
+			setMyInvitationsList(myInvitationsData.items);
 		}
-	}, [myInvitationsData, setMyInvitationsList, transformInviteData]);
+	}, [myInvitationsData, setMyInvitationsList]);
 
 	// Update fetching state for backward compatibility
 	useEffect(() => {
