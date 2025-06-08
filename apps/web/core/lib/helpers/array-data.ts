@@ -1,9 +1,8 @@
 import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { pad } from './number';
-import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
-import { TActivity } from '@/core/types/schemas';
-export function groupDataByHour(data: ITimeSlot[]) {
-	const groupedData: { startedAt: string; stoppedAt: string; items: ITimeSlot[] }[] = [];
+import { TActivity, TTimeSlot } from '@/core/types/schemas';
+export function groupDataByHour(data: TTimeSlot[]) {
+	const groupedData: { startedAt: string; stoppedAt: string; items: TTimeSlot[] }[] = [];
 
 	data.forEach((item) => {
 		const startHour = formatTime(String(item.startedAt), false);

@@ -20,7 +20,7 @@ export const addManualTimeRequestSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	isBillable: z.boolean().optional(),
 	logType: z.string(), // ETimeLogType
-	source: z.string()   // ETimeLogSource
+	source: z.string() // ETimeLogSource
 });
 
 // Time log response schema (for API responses)
@@ -28,8 +28,8 @@ export const addManualTimeRequestSchema = z.object({
 export const timeLogSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
-		updatedAt: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string(),
 		organizationId: z.string(),
 		employeeId: z.string(),

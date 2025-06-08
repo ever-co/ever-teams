@@ -90,7 +90,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 						: slot.stoppedAt
 					: undefined
 			}));
-			setTimeSlots(convertedTimeSlots as any);
+			setTimeSlots(convertedTimeSlots);
 		} else if (!isAuthorized) {
 			setTimeSlots([]);
 		}
@@ -125,9 +125,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 				setTimeSlots((currentTimeSlots) => currentTimeSlots.filter((slot) => !ids.includes(slot.id)));
 				invalidateTimeSlots();
 			} catch (error: any) {
-				toast.error('Failed to delete time slots', {
-					description: error?.message
-				});
+				console.log('==> ERROR ==>', error);
 			}
 		},
 		[user?.tenantId, user?.employee?.organizationId, deleteTimeSlotsMutation, setTimeSlots]

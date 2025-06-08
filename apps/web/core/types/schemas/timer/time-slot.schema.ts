@@ -39,8 +39,8 @@ export const timeSlotsDataSchema = z
 		// Base entity fields
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional(),
-		createdAt: z.string().optional(),
-		updatedAt: z.string().optional(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		// Related entities (optional for flexibility)
 		employee: z.any().optional(),
 		activities: z.array(z.any()).optional(),

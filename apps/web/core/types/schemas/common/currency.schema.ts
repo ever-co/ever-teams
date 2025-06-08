@@ -19,7 +19,7 @@ export const currencySchema = z
 export const currencyListSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
+		createdAt: z.coerce.date().optional(),
 		updatedAt: z.string(),
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional(),

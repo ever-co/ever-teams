@@ -19,6 +19,7 @@ class TimeSlotService extends APIService {
 	 */
 	deleteTimeSlots = async (params: TDeleteTimeSlotsRequest): Promise<TDeleteTimeSlotsResponse> => {
 		try {
+			console.log('==> PARAMS ==>', params);
 			// Build query parameters according to API documentation
 			const queryParams = {
 				tenantId: params.tenantId,

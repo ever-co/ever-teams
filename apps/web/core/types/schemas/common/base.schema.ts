@@ -10,8 +10,8 @@ export const idSchema = z.string().uuid('Invalid UUID');
 // Base entity action by user model schema
 export const baseDateSchema = z.object({
 	id: idSchema,
-	createdAt: z.coerce.date().optional().nullable(),
-	updatedAt: z.coerce.date().optional().nullable(),
+	createdAt: z.coerce.date().optional(),
+	updatedAt: z.coerce.date().optional(),
 	isActive: z.boolean().optional().nullable(),
 	isArchived: z.boolean().optional().nullable(),
 	archivedAt: z.coerce.date().optional().nullable()
