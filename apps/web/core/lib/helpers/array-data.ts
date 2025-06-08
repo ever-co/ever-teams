@@ -1,6 +1,7 @@
 import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { pad } from './number';
 import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { TActivity } from '@/core/types/schemas';
 export function groupDataByHour(data: ITimeSlot[]) {
 	const groupedData: { startedAt: string; stoppedAt: string; items: ITimeSlot[] }[] = [];
 
@@ -48,8 +49,8 @@ export function groupAppsByHour(apps: IActivity[]) {
 	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
 }
 
-export function groupByTime(data: IActivity[]) {
-	const groupedData: { date: string; items: IActivity[] }[] = [];
+export function groupByTime(data: TActivity[]) {
+	const groupedData: { date: string; items: TActivity[] }[] = [];
 
 	data.forEach((item) => {
 		const date = new Date(item.date).toDateString();

@@ -3,12 +3,12 @@ import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks
 import { useEffect, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export default function UserTeamActiveTaskEstimate({
 	member,
 	className
-}: Readonly<{ member: IOrganizationTeamEmployee; className?: string }>) {
+}: Readonly<{ member: TOrganizationTeamEmployee; className?: string }>) {
 	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);

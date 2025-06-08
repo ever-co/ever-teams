@@ -19,15 +19,13 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 interface IOption {
 	name: string;
 	handleClick: any;
 	extramenu?: boolean;
 }
-
-type IMember = IOrganizationTeamEmployee;
 
 interface IDropdownUserProps {
 	setEdit: Dispatch<SetStateAction<boolean>>;
@@ -152,7 +150,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 	);
 }
 
-const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { member: IMember }) => {
+const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { member: TOrganizationTeamEmployee }) => {
 	const {
 		editMode,
 		setQuery,

@@ -1,5 +1,4 @@
 'use client';
-
 /* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	getActiveTaskIdCookie,
@@ -33,7 +32,7 @@ import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -471,7 +470,7 @@ export function useTeamTasks() {
 			if (task) {
 				// Update Current user's active task to sync across multiple devices
 				const currentEmployeeDetails = activeTeam?.members?.find(
-					(member: IOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
+					(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {

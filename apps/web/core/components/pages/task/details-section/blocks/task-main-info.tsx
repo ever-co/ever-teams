@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -215,9 +215,9 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (memberList: IOrganizationTeamEmployee[], task: ITask | null) => {
+const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: ITask | null) => {
 	const t = useTranslations();
-	const [member, setMember] = useState<IOrganizationTeamEmployee>();
+	const [member, setMember] = useState<TOrganizationTeamEmployee>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
 

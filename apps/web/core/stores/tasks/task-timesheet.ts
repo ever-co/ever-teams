@@ -1,4 +1,4 @@
-import { IActivity } from '@/core/types/interfaces/activity/activity';
+import { TActivity } from '@/core/types/schemas';
 import { atom } from 'jotai';
 
-export const taskTimesheetState = atom<IActivity[]>([]);
+export const taskTimesheetState = atom<TActivity[]>([]);
