@@ -78,10 +78,7 @@ export const minimalTimeSlotsDataSchema = z
 	.passthrough();
 
 // Schema for delete time slots response
-export const deleteTimeSlotsResponseSchema = z.object({
-	success: z.boolean(),
-	message: z.string()
-});
+export const deleteTimeSlotsResponseSchema = z.boolean();
 
 // Types inferred from schemas
 export type TGetTimerLogsRequest = z.infer<typeof getTimerLogsRequestSchema>;

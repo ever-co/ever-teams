@@ -19,7 +19,6 @@ class TimeSlotService extends APIService {
 	 */
 	deleteTimeSlots = async (params: TDeleteTimeSlotsRequest): Promise<TDeleteTimeSlotsResponse> => {
 		try {
-			console.log('==> PARAMS ==>', params);
 			// Build query parameters according to API documentation
 			const queryParams = {
 				tenantId: params.tenantId,
@@ -27,8 +26,8 @@ class TimeSlotService extends APIService {
 				ids: params.ids,
 				forceDelete: params.forceDelete ?? false
 			};
+			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
-			const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
 			const endpoint = `/timesheet/time-slot?${query}`;
 
 			const response = await this.delete<TDeleteTimeSlotsResponse>(endpoint);

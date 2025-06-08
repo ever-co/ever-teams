@@ -7,6 +7,8 @@ import { TrashIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { useState } from 'react';
+import { Spinner } from '@/core/components/common/spinner';
 
 const ScreenshotItem = ({
 	idSlot,
@@ -21,6 +23,12 @@ const ScreenshotItem = ({
 	const t = useTranslations();
 	const { deleteTimeSlots } = useTimeSlots();
 	const { isOpen, openModal, closeModal } = useModal();
+	const [isLoading, setIsLoading] = useState(false);
+	const handleDelete = async () => {
+		setIsLoading(true);
+		await deleteTimeSlots([idSlot]);
+		setIsLoading(false);
+	};
 	return (
 		<div
 			className={clsxm(
@@ -111,7 +119,8 @@ const ScreenshotItem = ({
 					<p className="text-center ">{t('timeSlot.DELETE_MESSAGE')}</p>
 					<div className="flex gap-2">
 						<Button onClick={closeModal}>{t('common.CANCEL')}</Button>
-						<Button onClick={() => deleteTimeSlots([idSlot])} className="bg-red-500 dark:bg-red-600">
+						<Button onClick={handleDelete} className="bg-red-500 dark:bg-red-600">
+							{isLoading && <Spinner className="w-4 h-4 mr-2" />}
 							{t('common.DELETE')}
 						</Button>
 					</div>

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { idSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
-import { employeeSchema } from '../organization/employee.schema';
+import { employeeBaseSchema } from '../common/employee.schema';
 
 /**
  * Zod schemas for Activity-related interfaces
@@ -30,7 +30,7 @@ export const timeSlotSchema = z
 	.object({
 		id: idSchema,
 		employeeId: idSchema,
-		employee: employeeSchema.optional(),
+		employee: employeeBaseSchema.optional(),
 		activities: z.array(z.any()).optional(), // IActivity[] - circular reference
 		screenshots: z.array(z.any()).optional(),
 		timeLogs: z.array(z.any()).optional(),
