@@ -53,8 +53,8 @@ const inviteSchema = z.object({
 	status: z.string().optional(),
 	tenantId: z.string().optional(),
 	organizationId: z.string().optional(),
-	createdAt: z.string().optional(),
-	updatedAt: z.string().optional()
+	createdAt: z.coerce.date().optional(),
+	updatedAt: z.coerce.date().optional()
 });
 
 // Social account schema (simplified)
@@ -63,8 +63,8 @@ export const socialAccountSchema = z.object({
 	provider: z.string(),
 	providerAccountId: z.string(),
 	userId: z.string(),
-	createdAt: z.string().optional(),
-	updatedAt: z.string().optional()
+	createdAt: z.coerce.date().optional(),
+	updatedAt: z.coerce.date().optional()
 });
 
 export const extendableUserSchema = basePerTenantEntityModelSchema

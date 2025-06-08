@@ -1,12 +1,15 @@
+import { SVGProps } from 'react';
+
 export function Spinner({
 	dark = true,
 	height = '20px',
-	width = '20px'
+	width = '20px',
+	...props
 }: {
 	dark?: boolean;
 	height?: string;
 	width?: string;
-}) {
+} & SVGProps<SVGSVGElement>) {
 	return (
 		<svg
 			className={`animate-spin mr-3 ${dark ? 'text-white dark:text-primary' : 'dark:text-white text-primary'}`}
@@ -15,6 +18,7 @@ export function Spinner({
 			width={width}
 			fill="none"
 			viewBox="0 0 24 24"
+			{...props}
 		>
 			<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 			<path
