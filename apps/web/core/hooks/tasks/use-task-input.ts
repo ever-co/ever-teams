@@ -9,7 +9,7 @@ import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITag } from '@/core/types/interfaces/tag/tag';
+import { TTag } from '@/core/types/schemas';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -58,7 +58,7 @@ export function useTaskInput({
 	const taskPriority = useRef<null | string>(null);
 	const taskSize = useRef<null | string>(null);
 	const taskDescription = useRef<null | string>(null);
-	const taskLabels = useRef<[] | ITag[]>([]);
+	const taskLabels = useRef<TTag[]>([]);
 	const taskProject = useRef<null | string>(null);
 	const taskAssignees = useRef<{ id: string }[]>([]);
 
