@@ -43,7 +43,9 @@ export function useTimeSlots(hasFilter?: boolean) {
 			activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() === 'MANAGER'
 		);
 	}, [activityFilter.member?.employeeId, user?.employee?.id, user?.role?.name]);
-
+	const invalidateTimeSlots = useCallback(() => {
+		queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
+	}, [queryClient]);
 	// React Query for time slots data
 	const timeSlotsQuery = useQuery({
 		queryKey: queryKeys.timer.timeSlots.byParams(queryParams),
@@ -55,8 +57,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 			return response;
 		},
 		enabled: !!(queryParams && isAuthorized),
-		staleTime: 1000 * 60 * 2, // 2 minutes - time slots change frequently
-		gcTime: 1000 * 60 * 10 // 10 minutes in cache
+		staleTime: 1000 * 60 * 3, // 3 minutes - time slots change frequently
+		gcTime: 1000 * 60 * 15 // 15 minutes in cache
 	});
 
 	// React Query mutation for deleting time slots
@@ -64,8 +66,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 		mutationFn: (params: TDeleteTimeSlotsRequest) => timeSlotService.deleteTimeSlots(params),
 		mutationKey: queryKeys.timer.timeSlots.operations.delete(undefined),
 		onSuccess: () => {
-			// Invalidate time slots queries to refresh data
-			queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
+			invalidateTimeSlots();
+			toast.success('Time slots deleted successfully');
 		},
 		onError: (error, variables) => {
 			toast.error(`Failed to delete time slots ${variables.ids.length}`, {
@@ -121,8 +123,11 @@ export function useTimeSlots(hasFilter?: boolean) {
 				await deleteTimeSlotsMutation.mutateAsync(deleteParams);
 				// Update local state immediately for better UX
 				setTimeSlots((currentTimeSlots) => currentTimeSlots.filter((slot) => !ids.includes(slot.id)));
-			} catch (error) {
-				console.error('Failed to delete time slots:', error);
+				invalidateTimeSlots();
+			} catch (error: any) {
+				toast.error('Failed to delete time slots', {
+					description: error?.message
+				});
 			}
 		},
 		[user?.tenantId, user?.employee?.organizationId, deleteTimeSlotsMutation, setTimeSlots]

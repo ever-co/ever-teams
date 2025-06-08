@@ -13,7 +13,7 @@ export const getTimerLogsRequestSchema = z.object({
 	todayStart: z.date()
 });
 
-// Schema for delete time slots request parameters
+// Schema for delete time slots request parameters (for TypeScript typing only)
 export const deleteTimeSlotsRequestSchema = z.object({
 	tenantId: z.string().min(1, 'Tenant ID is required'),
 	organizationId: z.string().min(1, 'Organization ID is required'),
@@ -77,9 +77,16 @@ export const minimalTimeSlotsDataSchema = z
 	})
 	.passthrough();
 
+// Schema for delete time slots response
+export const deleteTimeSlotsResponseSchema = z.object({
+	success: z.boolean(),
+	message: z.string()
+});
+
 // Types inferred from schemas
 export type TGetTimerLogsRequest = z.infer<typeof getTimerLogsRequestSchema>;
 export type TDeleteTimeSlotsRequest = z.infer<typeof deleteTimeSlotsRequestSchema>;
+export type TDeleteTimeSlotsResponse = z.infer<typeof deleteTimeSlotsResponseSchema>;
 export type TTimeSlotsData = z.infer<typeof timeSlotsDataSchema>;
 export type TTimerSlotDataRequest = z.infer<typeof timerSlotDataRequestSchema>;
 export type TMinimalTimeSlotsData = z.infer<typeof minimalTimeSlotsDataSchema>;
