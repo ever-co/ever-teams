@@ -60,7 +60,7 @@ export const issueTypeEntitySchema = basePerTenantAndOrganizationEntitySchema.ex
 	isSystem: z.boolean().optional(),
 	imageId: z.string().nullable().optional(),
 	projectId: z.string().nullable().optional(),
-	organizationTeamId: z.string().optional(),
+	organizationTeamId: idSchema.optional(),
 	image: z.string().nullable().optional(),
 	fullIconUrl: z.string().optional(),
 	template: z.string().optional()

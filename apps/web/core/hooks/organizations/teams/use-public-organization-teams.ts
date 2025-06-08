@@ -6,7 +6,7 @@ import { useAtom } from 'jotai';
 import { useTeamTasks } from './use-team-tasks';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useTaskLabels, useTaskPriorities, useTaskSizes, useTaskStatus } from '../../tasks';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
 
@@ -28,7 +28,7 @@ export function usePublicOrganizationTeams() {
 	const memoizedTeamId = useMemo(() => queryParams?.teamId, [queryParams?.teamId]);
 	const memoizedMiscProfileLink = useMemo(() => miscQueryParams?.profileLink, [miscQueryParams?.profileLink]);
 	const memoizedMiscTeamId = useMemo(() => miscQueryParams?.teamId, [miscQueryParams?.teamId]);
-
+	const queryClient = useQueryClient();
 	// React Query: Get Public Team Data
 	const { data: publicTeamData, isLoading: publicTeamLoading } = useQuery({
 		queryKey: queryKeys.teams.public.byProfileAndTeam(memoizedProfileLink, memoizedTeamId),
@@ -123,12 +123,8 @@ export function usePublicOrganizationTeams() {
 				setQueryParams({ profileLink, teamId });
 			}
 
-			// Return a promise for backward compatibility - don't depend on changing data
-			return new Promise((resolve) => {
-				// Use a timeout to allow React Query to fetch and update
-				setTimeout(() => {
-					resolve({ data: publicTeamData });
-				}, 0);
+			return queryClient.ensureQueryData({
+				queryKey: queryKeys.teams.public.byProfileAndTeam(profileLink, teamId)
 			});
 		},
 		[setQueryParams, queryParams?.profileLink, queryParams?.teamId]
@@ -141,12 +137,8 @@ export function usePublicOrganizationTeams() {
 				setMiscQueryParams({ profileLink, teamId });
 			}
 
-			// Return a promise for backward compatibility - don't depend on changing data
-			return new Promise((resolve) => {
-				// Use a timeout to allow React Query to fetch and update
-				setTimeout(() => {
-					resolve({ data: publicTeamMiscData });
-				}, 0);
+			return queryClient.ensureQueryData({
+				queryKey: queryKeys.teams.public.miscData(profileLink, teamId)
 			});
 		},
 		[setMiscQueryParams, miscQueryParams?.profileLink, miscQueryParams?.teamId]
