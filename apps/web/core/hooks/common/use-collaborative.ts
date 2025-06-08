@@ -1,4 +1,3 @@
-import { IUser } from '@/core/types/interfaces/user/user';
 import { collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
@@ -8,8 +7,9 @@ import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';
 import { useOrganizationTeams } from '../organizations';
 import { useAuthenticateUser } from '../auth';
+import { TUser } from '@/core/types/schemas';
 
-export function useCollaborative(user?: IUser) {
+export function useCollaborative(user?: TUser) {
 	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
 
 	const { activeTeam } = useOrganizationTeams();

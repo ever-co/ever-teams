@@ -1,5 +1,4 @@
 'use client';
-
 import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import {
 	I_TeamMemberCardHook,
@@ -25,7 +24,6 @@ import {
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -56,6 +54,7 @@ import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 type Props = {
 	active?: boolean;
@@ -96,7 +95,7 @@ export function TaskCard(props: Props) {
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentMember = useMemo(
 		() =>
-			members.find((m: IOrganizationTeamEmployee) => {
+			members.find((m) => {
 				return m.employee?.user?.id === profile?.userProfile?.id;
 			}),
 		[members, profile?.userProfile?.id]
@@ -349,7 +348,7 @@ function TimerButtonCall({
 	className
 }: {
 	task: ITask;
-	currentMember: IOrganizationTeamEmployee | undefined;
+	currentMember: TOrganizationTeamEmployee | undefined;
 	activeTeam: IOrganizationTeam | null;
 	className?: string;
 }) {
@@ -898,7 +897,7 @@ export function RemoveTaskFromPlan({
 	member
 }: {
 	task: ITask;
-	member?: IOrganizationTeamEmployee;
+	member?: TOrganizationTeamEmployee;
 	plan?: IDailyPlan;
 }) {
 	const t = useTranslations();
@@ -923,7 +922,7 @@ export function RemoveTaskFromPlan({
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: IOrganizationTeamEmployee }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: TOrganizationTeamEmployee }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {

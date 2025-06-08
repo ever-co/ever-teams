@@ -18,9 +18,9 @@ import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/aut
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
-import { IUser } from '@/core/types/interfaces/user/user';
+
+import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -36,7 +36,7 @@ class RegisterService extends APIService {
 			appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
 		};
 
-		return this.post<IUser>('/auth/register', body).then(({ data }) => data);
+		return this.post<TUser>('/auth/register', body).then(({ data }) => data);
 	};
 
 	loginUser = async (email: string, password: string) => {
@@ -157,7 +157,7 @@ class RegisterService extends APIService {
 		const response: AxiosResponse<{
 			loginRes: IAuthResponse;
 			team: IOrganizationTeam;
-			employee: IOrganizationTeamEmployee;
+			employee: TOrganizationTeamEmployee;
 		}> = {
 			data: { loginRes, team, employee },
 			status: 200,

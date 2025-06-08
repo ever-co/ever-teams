@@ -10,6 +10,7 @@ import { taskSizeService } from '@/core/services/client/api/tasks/task-size.serv
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { queryKeys } from '@/core/query/keys';
 import { useOrganizationTeams } from '../organizations';
+import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -25,25 +26,20 @@ export function useTaskSizes() {
 		queryKey: queryKeys.taskSizes.byTeam(teamId),
 		queryFn: async () => {
 			const res = await taskSizeService.getTaskSizes();
-
-			setTaskSizes(res.items);
-
 			return res;
 		}
 	});
-
+	const invalidateTaskSizesData = useCallback(
+		() => teamId && queryClient.invalidateQueries({ queryKey: queryKeys.taskSizes.byTeam(teamId) }),
+		[queryClient, teamId]
+	);
 	// Mutations
 	const createTaskSizeMutation = useMutation({
 		mutationFn: (data: ITaskSizesCreate) => {
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.createTaskSize(requestData);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
 	const updateTaskSizeMutation = useMutation({
@@ -51,42 +47,37 @@ export function useTaskSizes() {
 			const requestData = { ...data, organizationTeamId: teamId };
 			return taskSizeService.editTaskSize(id, requestData);
 		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
 	const deleteTaskSizeMutation = useMutation({
 		mutationFn: (id: string) => taskSizeService.deleteTaskSize(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskSizes.byTeam(teamId)
-				});
-		}
+		onSuccess: invalidateTaskSizesData
 	});
 
-	const loadTaskSizes = useCallback(async () => {
-		try {
-			const res = taskSizesQuery.data;
-
-			if (res?.items) {
-				setTaskSizes(res?.items || []);
+	useConditionalUpdateEffect(
+		() => {
+			if (taskSizesQuery.data) {
+				setTaskSizes(taskSizesQuery.data.items);
 			}
-		} catch (error) {
-			console.error('Failed to load task sizes:', error);
-		}
-	}, [setTaskSizes]);
+		},
+		[taskSizesQuery.data],
+		Boolean(taskSizes?.length)
+	);
+
+	const loadTaskSizes = useCallback(async () => {
+		return taskSizesQuery.data;
+	}, [taskSizesQuery.data]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskSizes();
 
 		firstLoadTaskSizesData();
 	}, [firstLoadTaskSizesData, loadTaskSizes]);
-
+	const editTaskSize = useCallback(
+		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		[updateTaskSizeMutation]
+	);
 	return {
 		taskSizes,
 		loading: taskSizesQuery.isLoading,
@@ -96,7 +87,7 @@ export function useTaskSizes() {
 		createTaskSizeLoading: createTaskSizeMutation.isPending,
 		deleteTaskSizeLoading: deleteTaskSizeMutation.isPending,
 		editTaskSizeLoading: updateTaskSizeMutation.isPending,
-		editTaskSize: (id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		editTaskSize,
 		setTaskSizes,
 		loadTaskSizes
 	};

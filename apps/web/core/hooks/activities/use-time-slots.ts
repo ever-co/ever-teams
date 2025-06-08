@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
-import { useQueryCall } from '../common/use-query';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue } from 'jotai';
 import { timeSlotsState } from '@/core/stores/timer/time-slot';
 import moment from 'moment';
@@ -9,59 +9,139 @@ import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot.service';
 import { useAuthenticateUser } from '../auth';
-import { useUserProfilePage } from '../users';
+
+import { queryKeys } from '@/core/query/keys';
+import { TGetTimerLogsRequest, TDeleteTimeSlotsRequest } from '@/core/types/schemas';
+import { toast } from 'sonner';
 
 export function useTimeSlots(hasFilter?: boolean) {
 	const { user } = useAuthenticateUser();
 	const [timeSlots, setTimeSlots] = useAtom(timeSlotsState);
 	const activityFilter = useAtomValue(activityTypeState);
-	const profile = useUserProfilePage();
+	const queryClient = useQueryClient();
 
-	const { loading, queryCall } = useQueryCall(statisticsService.getTimerLogsRequest);
-	const { loading: loadingDelete, queryCall: queryDeleteCall } = useQueryCall(timeSlotService.deleteTimeSlots);
+	// Memoized parameters to avoid unnecessary re-renders
+	const queryParams = useMemo(() => {
+		if (!user?.tenantId || !user?.employee?.organizationId) return null;
 
-	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
-		if (activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
-			queryCall({
-				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee?.organizationId ?? '',
-				employeeId: employeeId ?? '',
-				todayEnd,
-				todayStart
-			}).then((response) => {
-				if (response?.data && Array.isArray(response.data)) {
-					setTimeSlots(response.data[0]?.timeSlots || []);
-				}
-			});
-		} else setTimeSlots([]);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [hasFilter, activityFilter.member?.employeeId, profile.member?.employeeId, user?.id, queryCall, setTimeSlots]);
 
-	const deleteTimeSlots = useCallback(
-		(ids: string[]) => {
-			queryDeleteCall({
-				tenantId: user?.tenantId ?? '',
-				organizationId: user?.employee?.organizationId ?? '',
-				ids: ids
-			}).then(() => {
-				setTimeSlots((timeSlots) => timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null)));
-			});
+		return {
+			tenantId: user.tenantId,
+			organizationId: user.employee.organizationId,
+			employeeId: employeeId ?? '',
+			todayEnd,
+			todayStart
+		} as TGetTimerLogsRequest;
+	}, [user?.tenantId, user?.employee?.organizationId, user?.employee?.id, activityFilter.member?.employeeId]);
+
+	// Check if user is authorized to view time slots
+	const isAuthorized = useMemo(() => {
+		return (
+			activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() === 'MANAGER'
+		);
+	}, [activityFilter.member?.employeeId, user?.employee?.id, user?.role?.name]);
+	const invalidateTimeSlots = useCallback(() => {
+		queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
+	}, [queryClient]);
+	// React Query for time slots data
+	const timeSlotsQuery = useQuery({
+		queryKey: queryKeys.timer.timeSlots.byParams(queryParams),
+		queryFn: async () => {
+			if (!queryParams) {
+				throw new Error('Time slots parameters are required');
+			}
+			const response = await statisticsService.getTimerLogsRequest(queryParams);
+			return response;
 		},
-		[queryDeleteCall, setTimeSlots, user]
+		enabled: !!(queryParams && isAuthorized),
+		staleTime: 1000 * 60 * 3, // 3 minutes - time slots change frequently
+		gcTime: 1000 * 60 * 15 // 15 minutes in cache
+	});
+
+	// React Query mutation for deleting time slots
+	const deleteTimeSlotsMutation = useMutation({
+		mutationFn: (params: TDeleteTimeSlotsRequest) => timeSlotService.deleteTimeSlots(params),
+		mutationKey: queryKeys.timer.timeSlots.operations.delete(undefined),
+		onSuccess: () => {
+			invalidateTimeSlots();
+			toast.success('Time slots deleted successfully');
+		},
+		onError: (error, variables) => {
+			toast.error(`Failed to delete time slots ${variables.ids.length}`, {
+				description: error.message
+			});
+		}
+	});
+
+	// Sync React Query data with Jotai state for backward compatibility
+	useEffect(() => {
+		if (timeSlotsQuery.data && Array.isArray(timeSlotsQuery.data)) {
+			const extractedTimeSlots = timeSlotsQuery.data[0]?.timeSlots || [];
+			// Convert string dates to Date objects for compatibility with ITimeSlot interface
+			const convertedTimeSlots = extractedTimeSlots.map((slot) => ({
+				...slot,
+				startedAt: typeof slot.startedAt === 'string' ? new Date(slot.startedAt) : slot.startedAt,
+				stoppedAt: slot.stoppedAt
+					? typeof slot.stoppedAt === 'string'
+						? new Date(slot.stoppedAt)
+						: slot.stoppedAt
+					: undefined
+			}));
+			setTimeSlots(convertedTimeSlots);
+		} else if (!isAuthorized) {
+			setTimeSlots([]);
+		}
+	}, [timeSlotsQuery.data, isAuthorized, setTimeSlots]);
+
+	// Preserve exact interface - getTimeSlots function
+	const getTimeSlots = useCallback(() => {
+		if (!queryParams || !isAuthorized) {
+			setTimeSlots([]);
+			return;
+		}
+
+		// React Query will handle the actual fetching automatically
+	}, [queryParams, isAuthorized, setTimeSlots]);
+
+	// Preserve exact interface - deleteTimeSlots function
+	const deleteTimeSlots = useCallback(
+		async (ids: string[]) => {
+			if (!user?.tenantId || !user?.employee?.organizationId) {
+				return;
+			}
+
+			const deleteParams: TDeleteTimeSlotsRequest = {
+				tenantId: user.tenantId,
+				organizationId: user.employee.organizationId,
+				ids
+			};
+
+			try {
+				await deleteTimeSlotsMutation.mutateAsync(deleteParams);
+				// Update local state immediately for better UX
+				setTimeSlots((currentTimeSlots) => currentTimeSlots.filter((slot) => !ids.includes(slot.id)));
+				invalidateTimeSlots();
+			} catch (error: any) {
+				console.log('==> ERROR ==>', error);
+			}
+		},
+		[user?.tenantId, user?.employee?.organizationId, deleteTimeSlotsMutation, setTimeSlots]
 	);
 
+	// Auto-fetch on mount and dependency changes
 	useEffect(() => {
 		getTimeSlots();
 	}, [getTimeSlots]);
 
 	return {
+		// Preserve exact interface names and behavior
 		timeSlots,
 		getTimeSlots,
 		deleteTimeSlots,
-		loadingDelete,
-		loading
+		loadingDelete: deleteTimeSlotsMutation.isPending,
+		loading: timeSlotsQuery.isLoading
 	};
 }

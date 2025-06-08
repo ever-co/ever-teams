@@ -39,6 +39,7 @@ interface HttpClientConfig {
 	withCredentials?: boolean;
 	directAPI?: boolean;
 	loggerConfig?: any;
+	enableRetry?: boolean;
 }
 
 /**
@@ -74,7 +75,8 @@ export class APIService {
 		},
 		withCredentials: false,
 		directAPI: true,
-		loggerConfig: {}
+		loggerConfig: {},
+		enableRetry: false
 	};
 
 	/**
@@ -355,6 +357,13 @@ export class APIService {
 	 */
 	private async executeWithRetry<T>(fn: () => Promise<AxiosResponse<T>>): Promise<AxiosResponse<T>> {
 		let lastError: any;
+		if (!this.config.enableRetry) {
+			try {
+				return await fn();
+			} catch (error: any) {
+				throw this._handleAxiosError(error);
+			}
+		}
 
 		for (let attempt = 1; attempt <= this.config.retries; attempt++) {
 			try {

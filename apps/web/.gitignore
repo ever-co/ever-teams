@@ -37,5 +37,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Personal AI Guides
+guide-1.md
+
 # Sentry Config File with Auth Token
 .sentryclirc

@@ -1,6 +1,6 @@
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
-import { IUser } from '@/core/types/interfaces/user/user';
-import Image from 'next/legacy/image';
+import { TUser } from '@/core/types/schemas';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChangeEventHandler } from 'react';
 
@@ -11,7 +11,7 @@ export function MemberInfo({
 	onSubmitName,
 	onChangeName
 }: {
-	member: IUser | undefined;
+	member: TUser | undefined;
 	editMode: boolean;
 	editable: MemberCardEditableValues;
 	onSubmitName?: () => void;
@@ -19,7 +19,7 @@ export function MemberInfo({
 }) {
 	return (
 		<div className="w-[235px] h-[48px] flex items-center justify-center">
-			<div className="flex justify-center items-center">
+			<div className="flex items-center justify-center">
 				<Link href={`/profile/${member?.id}`}>
 					<div className="relative w-[48px] h-[48px]">
 						<Image

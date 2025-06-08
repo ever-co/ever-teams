@@ -31,8 +31,8 @@ export const integrationSchema = z
 export const integrationListSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
-		updatedAt: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional(),
 		name: z.string(),

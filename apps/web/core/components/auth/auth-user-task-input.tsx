@@ -58,7 +58,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					{activeTeamTask && (
 						<ProjectDropDown
 							styles={{
-								container: 'rounded-xl grow text-xs !max-w-[10.625rem]',
+								container: 'rounded-xl grow text-xs !max-w-fit',
 								listCard: 'rounded-xl'
 							}}
 							task={activeTeamTask}

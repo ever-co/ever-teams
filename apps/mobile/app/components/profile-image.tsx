@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-unused-styles */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { IUser } from '../services/interfaces/IUserData';
@@ -69,10 +69,10 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 								status === 'online'
 									? '#6EE7B7'
 									: status === 'pause'
-									? '#EFCF9E'
-									: status === 'idle'
-									? '#F5BEBE'
-									: '#DCD6D6'
+										? '#EFCF9E'
+										: status === 'idle'
+											? '#F5BEBE'
+											: '#DCD6D6'
 						}}
 						source={{
 							uri: imageUrl
@@ -90,10 +90,10 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 								status === 'online'
 									? '#6EE7B7'
 									: status === 'pause'
-									? '#EFCF9E'
-									: status === 'idle'
-									? '#F5BEBE'
-									: '#DCD6D6'
+										? '#EFCF9E'
+										: status === 'idle'
+											? '#F5BEBE'
+											: '#DCD6D6'
 						}}
 						labelStyle={styles.prefix}
 					/>
@@ -110,10 +110,10 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 							status === 'online'
 								? '#6EE7B7'
 								: status === 'pause'
-								? '#EFCF9E'
-								: status === 'idle'
-								? '#F5BEBE'
-								: '#DCD6D6',
+									? '#EFCF9E'
+									: status === 'idle'
+										? '#F5BEBE'
+										: '#DCD6D6',
 						alignItems: 'center',
 						justifyContent: 'center',
 						borderColor: colors.background,

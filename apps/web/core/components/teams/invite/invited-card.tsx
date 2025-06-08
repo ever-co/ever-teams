@@ -1,15 +1,15 @@
 import { imgTitle } from '@/core/lib/helpers/img-title';
-import { IInvite } from '@/core/types/interfaces/user/invite';
 import Separator from '@/core/components/common/separator';
+import { TInvite } from '@/core/types/schemas';
 
-export function InvitedCard({ invitation }: { invitation: IInvite }) {
+export function InvitedCard({ invitation }: { invitation: TInvite }) {
 	return (
 		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary border border-white dark:border-[#202023] font-bold py-[24px] dark:text-[#FFFFFF]">
 			<div className="w-[60px] flex justify-center items-center">
 				<div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8] opacity-40"></div>
 			</div>
 			<div className="w-[235px] h-[48px] flex items-center justify-start">
-				<div className="flex justify-center items-center">
+				<div className="flex items-center justify-center">
 					<div className="flex items-center justify-center space-x-4">
 						<div className="w-[42px] h-[42px] opacity-40 rounded-full bg-slate-100 dark:bg-white text-primary flex justify-center items-center text-[10px]">
 							{imgTitle(invitation.email)}

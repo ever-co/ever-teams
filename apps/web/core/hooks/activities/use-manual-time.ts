@@ -1,39 +1,57 @@
 import { useCallback, useState } from 'react';
-import { useQueryCall } from '../common/use-query';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
-import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { TAddManualTimeRequest, TTimeLog } from '@/core/types/schemas';
+import { queryKeys } from '@/core/query/keys';
+import { toast } from 'sonner';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
+	const queryClient = useQueryClient();
+	const [timeLog, setTimeLog] = useState<TTimeLog>();
 
-	const { loading: addManualTimeLoading, queryCall: queryAddManualTime } = useQueryCall(timeLogService.addManualTime);
-	const [timeLog, setTimeLog] = useState<ITimeLog>();
+	// React Query mutation for adding manual time
+	const addManualTimeMutation = useMutation({
+		mutationFn: async (request: TAddManualTimeRequest) => {
+			return await timeLogService.addManualTime(request);
+		},
+		onSuccess: (data) => {
+			setTimeLog(data);
+			// Invalidate related queries to refresh data
+			queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeLogs.all });
+			toast.success('Time added successfully', {
+				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${data.date} from ${data.startTime} to ${data.endTime}`
+			});
+		},
+		onError: (error) => {
+			console.log(error);
+			toast.error('Add manual time failed', {
+				description: error.message
+			});
+		}
+	});
 
+	// Preserve exact same interface for existing consumers
 	const addManualTime = useCallback(
-		(data: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
-			queryAddManualTime({
+		(data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
+			const requestData: TAddManualTimeRequest = {
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id ?? '',
 				logType: ETimeLogType.MANUAL,
 				source: ETimeLogSource.BROWSER,
 				...data
-			})
-				.then((response) => {
-					setTimeLog(response.data);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			};
+
+			addManualTimeMutation.mutate(requestData);
 		},
-		[queryAddManualTime, user?.employee?.id, user?.tenantId]
+		[addManualTimeMutation, user?.employee?.id, user?.tenantId]
 	);
 
 	return {
-		addManualTimeLoading,
+		addManualTimeLoading: addManualTimeMutation.isPending,
 		addManualTime,
 		timeLog
 	};

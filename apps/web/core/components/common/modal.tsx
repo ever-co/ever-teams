@@ -46,7 +46,7 @@ export function Modal({
 		>
 			<Dialog
 				as="div"
-				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999] w-full h-full"
+				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[1000] w-full h-full"
 				onClose={closeOnOutsideClick ? closeModal : () => null}
 				initialFocus={refDiv}
 			>

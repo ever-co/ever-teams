@@ -1,4 +1,4 @@
-import { IUser } from '../user/user';
+import { TUser } from '@/core/types/schemas';
 import { IOrganization } from '../organization/organization';
 import { ITag } from '../tag/tag';
 import { ITenant } from '../tenant/tenant';
@@ -6,13 +6,13 @@ import { ITenant } from '../tenant/tenant';
 export type ID = string;
 
 export interface IBaseEntityActionByUserModel {
-	createdByUser?: IUser;
+	createdByUser?: TUser;
 	createdByUserId?: ID;
 
-	updatedByUser?: IUser;
+	updatedByUser?: TUser;
 	updatedByUserId?: ID;
 
-	deletedByUser?: IUser;
+	deletedByUser?: TUser;
 	deletedByUserId?: ID;
 }
 

@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import {
 	Command,
@@ -50,7 +50,7 @@ const Collaborate = () => {
 	}, [collaborativeMembers]);
 
 	const handleMemberClick = useCallback(
-		(member: IUser) => {
+		(member: TUser) => {
 			if (collaborativeMembers.includes(member)) {
 				return setCollaborativeMembers(
 					collaborativeMembers.filter((selectedMember) => selectedMember !== member)
@@ -58,7 +58,7 @@ const Collaborate = () => {
 			}
 
 			return setCollaborativeMembers(
-				[...members].filter((u: any) => [...collaborativeMembers, member].includes(u)) as IUser[]
+				[...members].filter((u: any) => [...collaborativeMembers, member].includes(u)) as TUser[]
 			);
 		},
 		[collaborativeMembers, members, setCollaborativeMembers]

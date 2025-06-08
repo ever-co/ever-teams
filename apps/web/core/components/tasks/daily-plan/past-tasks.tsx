@@ -10,7 +10,7 @@ import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useEffect, useState } from 'react';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
@@ -23,7 +23,7 @@ export function PastTasks({
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
-	user?: IUser;
+	user?: TUser;
 }) {
 	const { pastPlans: _pastPlans } = useDailyPlan();
 
@@ -68,14 +68,14 @@ export function PastTasks({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between gap-3 w-full">
+									<div className="flex items-center justify-between w-full gap-3">
 										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="border-none dark:bg-dark--theme pb-6">
+								<AccordionContent className="pb-6 border-none dark:bg-dark--theme">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (

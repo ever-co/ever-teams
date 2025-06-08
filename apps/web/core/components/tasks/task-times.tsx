@@ -9,7 +9,7 @@ import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 type Props = {
 	task: Nullable<ITask>;
@@ -100,7 +100,7 @@ function TimeInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IOrganizationTeamEmployee | undefined;
+	currentUser: TOrganizationTeamEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();
@@ -159,7 +159,7 @@ function TimeBlockInfo({
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
-	currentUser: IOrganizationTeamEmployee | undefined;
+	currentUser: TOrganizationTeamEmployee | undefined;
 	task: Nullable<ITask>;
 }) {
 	const t = useTranslations();

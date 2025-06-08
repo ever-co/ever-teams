@@ -43,7 +43,7 @@ export const organizationSchema = z
 		status: z.string().optional(),
 		imageUrl: z.string().optional(),
 		banner: z.string(),
-		short_description: z.string(),
+		short_description: z.string().optional().nullable(),
 		client_focus: z.string(),
 		show_income: z.boolean().optional(),
 		show_profits: z.boolean().optional(),

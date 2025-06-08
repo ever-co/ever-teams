@@ -5,16 +5,24 @@ import { z } from 'zod';
  */
 
 // ID type schema
-export const idSchema = z.string();
+export const idSchema = z.string().uuid('Invalid UUID');
 
 // Base entity action by user model schema
+export const baseDateSchema = z.object({
+	id: idSchema,
+	createdAt: z.coerce.date().optional(),
+	updatedAt: z.coerce.date().optional(),
+	isActive: z.boolean().optional().nullable(),
+	isArchived: z.boolean().optional().nullable(),
+	archivedAt: z.coerce.date().optional().nullable()
+});
 export const baseEntityActionByUserModelSchema = z.object({
 	createdByUser: z.any().optional().nullable(),
-	createdByUserId: z.string().optional().nullable(),
+	createdByUserId: idSchema.optional().nullable(),
 	updatedByUser: z.any().optional().nullable(),
-	updatedByUserId: z.string().optional().nullable(),
+	updatedByUserId: idSchema.optional().nullable(),
 	deletedByUser: z.any().optional().nullable(),
-	deletedByUserId: z.string().optional().nullable()
+	deletedByUserId: idSchema.optional().nullable()
 });
 
 // Base soft delete entity model schema
@@ -23,15 +31,7 @@ export const baseSoftDeleteEntityModelSchema = z.object({
 });
 
 // Base entity schema
-export const baseEntitySchema = z
-	.object({
-		id: idSchema,
-		createdAt: z.coerce.date().optional().nullable(),
-		updatedAt: z.coerce.date().optional().nullable(),
-		isActive: z.boolean().optional().nullable(),
-		isArchived: z.boolean().optional().nullable(),
-		archivedAt: z.coerce.date().optional().nullable()
-	})
+export const baseEntitySchema = baseDateSchema
 	.merge(baseEntityActionByUserModelSchema)
 	.merge(baseSoftDeleteEntityModelSchema);
 
@@ -57,7 +57,8 @@ export const relationalOrganizationTeamSchema = z.object({
 // Relational image asset schema
 export const relationalImageAssetSchema = z.object({
 	image: z.any().optional().nullable(), // Will be properly typed when image asset schema is created
-	imageId: idSchema.optional().nullable()
+	imageId: idSchema.optional().nullable(),
+	imageUrl: z.string().optional().nullable()
 });
 
 // Relational organization project schema
@@ -74,6 +75,6 @@ export const managerAssignableSchema = z.object({
 
 // Relational employee schema
 export const relationalEmployeeSchema = z.object({
-	employeeId: idSchema.optional().nullable(),
+	employeeId: idSchema,
 	employee: z.any().optional().nullable() // Will be properly typed when employee schema is created
 });

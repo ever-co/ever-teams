@@ -7,6 +7,7 @@ export const queryKeys = {
 	// Keys related to users
 	users: {
 		auth: {
+			all: ['auth'] as const,
 			signIn: ['auth', 'sign-in'] as const,
 			signUp: ['auth', 'sign-up'] as const,
 			signOut: ['auth', 'sign-out'] as const,
@@ -14,9 +15,83 @@ export const queryKeys = {
 			verifyEmail: ['auth', 'verify-email'] as const,
 			resetPassword: ['auth', 'reset-password'] as const
 		},
+		emailReset: {
+			all: ['users', 'email-reset'] as const,
+			request: (email: string | undefined | null) =>
+				['users', 'email-reset', 'request', ...(email ? [email] : [])] as const,
+			verify: (code: string | undefined | null) =>
+				['users', 'email-reset', 'verify', ...(code ? [code] : [])] as const
+		},
+		operations: {
+			all: ['users', 'operations'] as const,
+			delete: (userId: string | undefined | null) =>
+				['users', 'operations', 'delete', ...(userId ? [userId] : [])] as const,
+			reset: ['users', 'operations', 'reset'] as const
+		},
+		settings: {
+			all: ['users', 'settings'] as const,
+			updateAvatar: (userId: string | undefined | null) =>
+				['users', 'settings', 'update-avatar', ...(userId ? [userId] : [])] as const,
+			refreshUser: ['users', 'settings', 'refresh-user'] as const
+		},
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,
-		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const
+		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const,
+		// Employee-related keys under users
+		employees: {
+			all: ['users', 'employees'] as const,
+			working: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				[
+					'users',
+					'employees',
+					'working',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : [])
+				] as const,
+			detail: (employeeId: string | undefined | null) =>
+				['users', 'employees', ...(employeeId ? [employeeId] : [])] as const,
+			operations: {
+				all: ['users', 'employees', 'operations'] as const,
+				update: (employeeId: string | undefined | null) =>
+					['users', 'employees', 'operations', 'update', ...(employeeId ? [employeeId] : [])] as const
+			}
+		},
+		// Invitation-related keys under users
+		invitations: {
+			all: ['users', 'invitations'] as const,
+			team: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				teamId: string | undefined | null
+			) =>
+				[
+					'users',
+					'invitations',
+					'team',
+					...(tenantId ? [tenantId] : []),
+					...(organizationId ? [organizationId] : []),
+					...(teamId ? [teamId] : [])
+				] as const,
+			my: (tenantId: string | undefined | null) =>
+				['users', 'invitations', 'my', ...(tenantId ? [tenantId] : [])] as const,
+			operations: {
+				all: ['users', 'invitations', 'operations'] as const,
+				invite: (teamId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'invite', ...(teamId ? [teamId] : [])] as const,
+				remove: (invitationId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'remove', ...(invitationId ? [invitationId] : [])] as const,
+				resend: (invitationId: string | undefined | null) =>
+					['users', 'invitations', 'operations', 'resend', ...(invitationId ? [invitationId] : [])] as const,
+				acceptReject: (invitationId: string | undefined | null) =>
+					[
+						'users',
+						'invitations',
+						'operations',
+						'acceptReject',
+						...(invitationId ? [invitationId] : [])
+					] as const
+			}
+		}
 	},
 	roles: {
 		all: ['roles'] as const,
@@ -37,7 +112,28 @@ export const queryKeys = {
 	},
 	teams: {
 		all: ['teams'] as const,
-		detail: (teamId: string | undefined | null) => ['teams', ...(teamId ? [teamId] : [])] as const
+		detail: (teamId: string | undefined | null) => ['teams', ...(teamId ? [teamId] : [])] as const,
+
+		// Public teams keys
+		public: {
+			all: ['teams', 'public'] as const,
+			byProfileAndTeam: (profileLink: string | undefined | null, teamId: string | undefined | null) =>
+				[
+					'teams',
+					'public',
+					'by-profile-team',
+					...(profileLink ? [profileLink] : []),
+					...(teamId ? [teamId] : [])
+				] as const,
+			miscData: (profileLink: string | undefined | null, teamId: string | undefined | null) =>
+				[
+					'teams',
+					'public',
+					'misc-data',
+					...(profileLink ? [profileLink] : []),
+					...(teamId ? [teamId] : [])
+				] as const
+		}
 	},
 
 	// Keys related to Daily Plans
@@ -76,6 +172,48 @@ export const queryKeys = {
 			['tasks', 'statistics', ...(teamId ? [teamId] : [])] as const,
 		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
 		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
+	},
+
+	// Keys related to activities
+	activities: {
+		all: ['activities'] as const,
+		byTask: (
+			taskId: string | undefined | null,
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			defaultRange?: string | undefined | null,
+			unitOfTime?: string | undefined | null
+		) =>
+			[
+				'activities',
+				'by-task',
+				...(taskId ? [taskId] : []),
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(defaultRange ? [defaultRange] : []),
+				...(unitOfTime ? [unitOfTime] : [])
+			] as const,
+		daily: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null,
+			startDate: string | undefined | null,
+			endDate: string | undefined | null,
+			type?: string | undefined | null,
+			title?: string | undefined | null
+		) =>
+			[
+				'activities',
+				'daily',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(employeeId ? [employeeId] : []),
+				...(startDate ? [startDate] : []),
+				...(endDate ? [endDate] : []),
+				...(type ? [type] : []),
+				...(title ? [title] : [])
+			] as const,
+		report: (params: Record<string, any>) => ['activities', 'report', params] as const
 	},
 
 	// Keys related to task statuses
@@ -146,6 +284,33 @@ export const queryKeys = {
 		dailyReport: (date: string | null | undefined) =>
 			['timesheet', 'daily-report', ...(date ? [date] : [])] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
+	},
+
+	// Keys related to Timer activities and limits
+	timer: {
+		all: ['timer'] as const,
+		timeLimits: {
+			all: ['timer', 'time-limits'] as const,
+			byParams: (params: Record<string, any> | null) =>
+				['timer', 'time-limits', 'by-params', ...(params ? [params] : [])] as const
+		},
+		timeLogs: {
+			all: ['timer', 'time-logs'] as const,
+			byEmployee: (employeeId: string | undefined | null) =>
+				['timer', 'time-logs', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+			byParams: (params: Record<string, any> | null) =>
+				['timer', 'time-logs', 'by-params', ...(params ? [params] : [])] as const
+		},
+		timeSlots: {
+			all: ['timer', 'time-slots'] as const,
+			byParams: (params: Record<string, any> | null) =>
+				['timer', 'time-slots', 'by-params', ...(params ? [params] : [])] as const,
+			operations: {
+				all: ['timer', 'time-slots', 'operations'] as const,
+				delete: (ids: string[] | undefined | null) =>
+					['timer', 'time-slots', 'operations', 'delete', ...(ids ? [ids.join(',')] : [])] as const
+			}
+		}
 	},
 
 	// Keys related to languages

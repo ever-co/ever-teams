@@ -1,23 +1,21 @@
 'use client';
-
-import { IUser } from '@/core/types/interfaces/user/user';
 import { activeTeamState } from '@/core/stores';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 
-export function useIsMemberManager(user: IUser | undefined | null) {
+export function useIsMemberManager(user?: TUser | null) {
 	const [isTeamManager, setTeamManager] = useState(false);
 	const [isTeamCreator, setTeamCreator] = useState(false);
-	const [activeManager, setActiveManager] = useState<IOrganizationTeamEmployee>();
+	const [activeManager, setActiveManager] = useState<TOrganizationTeamEmployee>();
 	const activeTeam = useAtomValue(activeTeamState);
 
 	useEffect(() => {
 		if (activeTeam && user) {
 			// Team manager
-			const isM = activeTeam?.members?.find((member: IOrganizationTeamEmployee) => {
+			const isM = activeTeam?.members?.find((member) => {
 				const isUser = member.employee?.userId === user?.id;
 
 				return (

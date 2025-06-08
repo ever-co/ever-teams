@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import stc from 'string-to-color';
 
 type Props = {
-	profilePicSrc?: string;
+	profilePicSrc?: string | null;
 	names?: string;
 	fullName?: string;
 	wrapperClassName?: string;

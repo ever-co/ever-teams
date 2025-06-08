@@ -12,7 +12,8 @@ import {
 	IOrganizationTeamUpdate,
 	ITeamRequestParams
 } from '@/core/types/interfaces/team/organization-team';
-import { IUser } from '@/core/types/interfaces/user/user';
+
+import { TUser } from '@/core/types/schemas';
 
 class OrganizationTeamService extends APIService {
 	/**
@@ -64,7 +65,7 @@ class OrganizationTeamService extends APIService {
 		});
 	};
 
-	createOrganizationTeam = async (name: string, user: IUser) => {
+	createOrganizationTeam = async (name: string, user: TUser) => {
 		const $name = name.trim();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {

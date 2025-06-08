@@ -1,5 +1,5 @@
 import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { DataTableTimeSheet } from '@/core/components/integration/calendar';
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
@@ -14,7 +14,7 @@ export function TimesheetView({
 }: {
 	data?: GroupedTimesheet[];
 	loading?: boolean;
-	user?: IUser | undefined;
+	user?: TUser | undefined;
 }) {
 	const t = useTranslations();
 	const isToastShown = useRef(false);

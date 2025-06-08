@@ -12,7 +12,9 @@ html {
 html.dark {
 	--tooltipBackground: #000;
 }
-
+.go2812612974 {
+	z-index: 99999;
+}
 .font-poppins {
 	font-family: 'Poppins', sans-serif !important;
 }

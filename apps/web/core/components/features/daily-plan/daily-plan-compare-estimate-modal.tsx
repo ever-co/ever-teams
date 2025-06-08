@@ -1,5 +1,4 @@
 'use client';
-
 import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
@@ -16,7 +15,6 @@ import { TimePicker, TimePickerValue } from '../../duplicated-components/time-pi
 import { EverCard } from '../../common/ever-card';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -114,7 +112,7 @@ export function DailyPlanCompareEstimatedModal({
 
 export function DailyPlanTask({ task, profile }: { task?: ITask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
-	const member = task?.selectedTeam?.members?.find((member: IOrganizationTeamEmployee) => {
+	const member = task?.selectedTeam?.members?.find((member) => {
 		return member?.employee?.user?.id === profile?.userProfile?.id;
 	});
 

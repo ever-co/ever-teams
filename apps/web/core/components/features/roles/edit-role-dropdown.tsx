@@ -1,16 +1,15 @@
 import { Dropdown } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapRoleItems, RoleItem } from '@/core/components/roles/role-item';
 import { useRoles } from '@/core/hooks/roles';
-import { TRole } from '@/core/types/schemas';
+import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 
 export const EditUserRoleDropdown = ({
 	member,
 	handleRoleChange
 }: {
-	member: IOrganizationTeamEmployee;
+	member: TOrganizationTeamEmployee;
 	handleRoleChange: (newRole: TRole) => void;
 }) => {
 	const { roles } = useRoles();

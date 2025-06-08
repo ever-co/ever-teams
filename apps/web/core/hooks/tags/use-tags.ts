@@ -3,45 +3,50 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tagsState } from '@/core/stores/tags/tags';
 import { tagService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common';
+import { useCallback } from 'react';
 
 export const useTags = () => {
-	const [, setTags] = useAtom(tagsState);
+	const [tags, setTags] = useAtom(tagsState);
 	const queryClient = useQueryClient();
 
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
-		queryFn: () =>
-			tagService.getTags().then((response) => {
-				setTags(response.items);
-				return response;
-			})
+		queryFn: tagService.getTags
 	});
-
+	const invalidateTagsData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.tags.all }),
+		[queryClient]
+	);
 	const createTagMutation = useMutation({
 		mutationFn: tagService.createTag,
-		onSuccess: (tag) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tags.all });
-		}
+		onSuccess: invalidateTagsData
 	});
 
 	const updateTagMutation = useMutation({
 		mutationFn: tagService.updateTag,
-		onSuccess: (tag) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tags.all });
-		}
+		onSuccess: invalidateTagsData
 	});
 
 	const deleteTagMutation = useMutation({
 		mutationFn: tagService.deleteTag,
-		onSuccess: (_, id) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.tags.all });
-		}
+		onSuccess: invalidateTagsData
 	});
 
+	useConditionalUpdateEffect(
+		() => {
+			if (tagsQuery.data) {
+				setTags(tagsQuery.data.items);
+			}
+		},
+		[tagsQuery.data],
+		Boolean(tags?.length)
+	);
+
 	return {
-		tags: tagsQuery.data?.items || [],
+		tags,
 		loading: tagsQuery.isLoading,
-		getTags: () => queryClient.invalidateQueries({ queryKey: queryKeys.tags.all }),
+		getTags: invalidateTagsData,
 
 		createTag: createTagMutation.mutate,
 		createTagLoading: createTagMutation.isPending,

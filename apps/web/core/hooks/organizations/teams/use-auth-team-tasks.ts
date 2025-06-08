@@ -1,4 +1,3 @@
-import { IUser } from '@/core/types/interfaces/user/user';
 import { tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -6,16 +5,14 @@ import { useOrganizationTeams } from './use-organization-teams';
 import { useDailyPlan } from '../../daily-plans/use-daily-plan';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TUser } from '@/core/types/schemas';
 
-export function useAuthTeamTasks(user: IUser | undefined) {
+export function useAuthTeamTasks(user: TUser | undefined) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { outstandingPlans, todayPlan, futurePlans } = useDailyPlan();
 
 	const { activeTeam } = useOrganizationTeams();
-	const currentMember = activeTeam?.members?.find(
-		(member: IOrganizationTeamEmployee) => member.employee?.userId === user?.id
-	);
+	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];

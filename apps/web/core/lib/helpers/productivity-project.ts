@@ -72,7 +72,7 @@ export const groupActivitiesByProjectAndDate = (data: IActivityReportGroupByDate
 							id: employee.id,
 							fullName: employee.fullName || 'Unknown',
 							user: {
-								imageUrl: employee.user?.imageUrl
+								imageUrl: employee.user?.imageUrl ?? undefined
 							}
 						},
 						activity: {

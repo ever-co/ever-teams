@@ -1,5 +1,4 @@
 'use client';
-
 import {
 	getActiveTeamIdCookie,
 	getOrganizationIdCookie,
@@ -26,7 +25,6 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -127,11 +125,11 @@ function useUpdateOrganizationTeam() {
 			const body: Partial<IOrganizationTeamUpdate> = {
 				id: team.id,
 				memberIds: members
-					?.map((t: IOrganizationTeamEmployee) => t.employee?.id || '')
+					?.map((t) => t.employee?.id || '')
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				managerIds: members
 					?.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t: IOrganizationTeamEmployee) => t.employee?.id || '')
+					.map((t) => t.employee?.id || '')
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				name: team.name,
 				tenantId: team.tenantId,
@@ -303,13 +301,13 @@ export function useOrganizationTeams() {
 	// const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
 
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
-	const currentUser = members.find((member: IOrganizationTeamEmployee) => member.employee?.userId === user?.id);
+	const currentUser = members.find((member) => member.employee?.userId === user?.id);
 
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
 	const isTrackingEnabled = activeTeam?.members?.find(
-		(member: IOrganizationTeamEmployee) => member.employee?.userId === user?.id && member.isTrackingEnabled
+		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
 		: false;
@@ -333,7 +331,7 @@ export function useOrganizationTeams() {
 
 	const isManager = useCallback(() => {
 		const $u = user;
-		const isM = members.find((member: IOrganizationTeamEmployee) => {
+		const isM = members.find((member) => {
 			const isUser = member.employee?.userId === $u?.id;
 			return isUser && member.role && member.role.name === 'MANAGER';
 		});
@@ -353,7 +351,10 @@ export function useOrganizationTeams() {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
 			window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, team.id);
-			if (user) updateUserLastTeam({ id: user.id, lastTeamId: team.id });
+			// Only update user last team if it's different to avoid unnecessary API calls
+			if (user && user.lastTeamId !== team.id) {
+				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
+			}
 		},
 		[setActiveTeamId, updateUserLastTeam, user]
 	);
@@ -487,7 +488,7 @@ export function useOrganizationTeams() {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
 		isManager();
-	}, [activeTeam, isManager]);
+	}, [activeTeam]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
