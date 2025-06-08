@@ -1,5 +1,4 @@
 'use client';
-
 import { Modal } from '@/core/components';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
@@ -8,9 +7,9 @@ import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
-import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 import { ITask } from '@/core/types/interfaces/task/task';
+import { TTimeSlot } from '@/core/types/schemas';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -19,7 +18,7 @@ const ScreenshotDetailsModal = ({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	slot?: ITimeSlot | null;
+	slot?: TTimeSlot | null;
 }) => {
 	const t = useTranslations();
 
@@ -81,9 +80,9 @@ const ScreenshotDetailsModal = ({
 			closeModal={closeModal}
 			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border rounded-[1rem] h-[44rem] lg:w-[50rem]"
 		>
-			<div className="w-full h-full p-5 flex flex-col gap-5 overflow-x-auto">
-				<div className="w-full flex flex-col gap-2">
-					<h4 className="font-semibold space-x-2 text-lg">
+			<div className="flex flex-col w-full h-full gap-5 p-5 overflow-x-auto">
+				<div className="flex flex-col w-full gap-2">
+					<h4 className="space-x-2 text-lg font-semibold">
 						<span>
 							{new Date(slot?.startedAt ?? '').toLocaleDateString('en-US', {
 								weekday: 'long',
@@ -98,8 +97,8 @@ const ScreenshotDetailsModal = ({
 					<span>{timeInterval}</span>
 				</div>
 
-				<div className="w-full flex flex-col gap-3">
-					<h4 className=" font-medium text-lg">{t('common.SCREENSHOTS')}</h4>
+				<div className="flex flex-col w-full gap-3">
+					<h4 className="text-lg font-medium ">{t('common.SCREENSHOTS')}</h4>
 
 					<div className="flex w-full gap-2 overflow-x-auto">
 						{slot?.screenshots?.map((screenshot, i) => (
@@ -134,12 +133,12 @@ const ScreenshotDetailsModal = ({
 					</div>
 				</div>
 
-				<div className="w-full flex flex-col   gap-3">
-					<h4 className=" font-medium text-lg">{t('common.TIME_LOG')}</h4>
+				<div className="flex flex-col w-full gap-3">
+					<h4 className="text-lg font-medium ">{t('common.TIME_LOG')}</h4>
 
 					<div className="w-full bg-[#E9E9E9] dark:bg-[#e9e9e90b] p-4 rounded-lg flex-col flex gap-3">
 						{/* Source */}
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col w-full gap-2">
 							<p className="text-[#707070] font-medium">{t('common.SOURCE')} : </p>
 							<div className="flex gap-1 ">
 								{slot?.timeLogs?.[0]?.source && (
@@ -157,7 +156,7 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* Client */}
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col w-full gap-2">
 							<p className="text-[#707070] font-medium">{t('common.CLIENT')} : </p>
 							<div className="flex gap-1 ">
 								{project?.owner ? (
@@ -173,7 +172,7 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* Project */}
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col w-full gap-2">
 							<p className="text-[#707070] font-medium">{t('pages.taskDetails.PROJECT')} : </p>
 							{project ? (
 								<div className="flex gap-1 ">
@@ -190,7 +189,7 @@ const ScreenshotDetailsModal = ({
 													alt={project?.name ?? ''}
 													width={400}
 													height={400}
-													className="w-full h-full object-cover"
+													className="object-cover w-full h-full"
 												/>
 											) : (
 												project?.name
@@ -198,7 +197,7 @@ const ScreenshotDetailsModal = ({
 										</div>
 
 										<div className=" h-full flex flex-col  justify-center gap-[.4rem]">
-											<p className=" font-xs leading-3 font-medium">{project?.name}</p>
+											<p className="font-medium leading-3  font-xs">{project?.name}</p>
 											<p className=" text-[.6rem] leading-[.5rem]">
 												{t('common.MEMBERS_COUNT')} : {project?.membersCount ?? '-'}
 											</p>
@@ -213,7 +212,7 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* To do */}
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col w-full gap-2">
 							<p className="text-[#707070] font-medium">{t('common.TO_DO')}</p>
 							<div className="flex gap-1 text-xs">{task?.title}</div>
 						</div>

@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQueryCall } from '@/core/hooks';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -63,7 +63,7 @@ export function UnverifiedEmail() {
 						<button
 							type="button"
 							className="cursor-pointer text-primary dark:text-primary-light"
-							onClick={() => user && resendLinkQueryCall(user)}
+							onClick={() => user && resendLinkQueryCall(user as TUser)}
 						>
 							{t('common.HERE')}
 						</button>
@@ -82,7 +82,7 @@ export function UnverifiedEmail() {
 	);
 }
 
-export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
+export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: TUser; closeModal: () => void }) {
 	const { loading, queryCall } = useQueryCall(emailVerificationService.verifyUserEmailByCode);
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
 		authService.resendVerifyUserLink

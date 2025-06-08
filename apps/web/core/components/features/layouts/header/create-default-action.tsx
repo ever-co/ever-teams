@@ -57,7 +57,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
-					className="right-0 w-56 z-[9999] dark:bg-black/80 backdrop-blur-md"
+					className="right-0 w-56 z-[1000] dark:bg-black/80 backdrop-blur-md"
 					side="right"
 					align="start"
 				>

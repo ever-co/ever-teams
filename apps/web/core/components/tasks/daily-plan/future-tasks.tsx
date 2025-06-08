@@ -13,7 +13,7 @@ import { AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
@@ -21,7 +21,7 @@ import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ITask } from '@/core/types/interfaces/task/task';
 
-export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
+export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);

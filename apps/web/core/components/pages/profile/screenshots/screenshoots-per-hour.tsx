@@ -1,11 +1,10 @@
 'use client';
-
 import { clsxm } from '@/core/lib/utils';
 import ScreenshotDetailsModal from './screenshot-details';
 import { useModal } from '@/core/hooks';
 import ScreenshotItem from './screenshot-item';
 import React, { useCallback, useEffect } from 'react';
-import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { TTimeSlot } from '@/core/types/schemas';
 
 export const ScreenshotPerHour = ({
 	timeSlots,
@@ -13,16 +12,16 @@ export const ScreenshotPerHour = ({
 	stoppedAt,
 	isTeamPage = false
 }: {
-	timeSlots: ITimeSlot[];
+	timeSlots: TTimeSlot[];
 	startedAt: string;
 	stoppedAt: string;
 	isTeamPage?: boolean;
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
-	const [selectedElement, setSelectedElement] = React.useState<ITimeSlot | null>(null);
+	const [selectedElement, setSelectedElement] = React.useState<TTimeSlot | null>(null);
 
 	const openScreenModal = useCallback(
-		(el: ITimeSlot) => {
+		(el: TTimeSlot) => {
 			setSelectedElement(el);
 			openModal();
 		},
@@ -90,6 +89,6 @@ export const ScreenshotPerHour = ({
 	);
 };
 
-export const ScreenshotPerHourTeam = (props: { timeSlots: ITimeSlot[]; startedAt: string; stoppedAt: string }) => {
+export const ScreenshotPerHourTeam = (props: { timeSlots: TTimeSlot[]; startedAt: string; stoppedAt: string }) => {
 	return <ScreenshotPerHour {...props} isTeamPage={true} />;
 };

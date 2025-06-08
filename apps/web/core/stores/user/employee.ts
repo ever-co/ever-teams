@@ -1,8 +1,9 @@
 import { atom } from 'jotai';
-import { IEmployee, IUpdateEmployee } from '@/core/types/interfaces/organization/employee';
+import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas/team/organization-team-employee.schema';
 
-export const workingEmployeesState = atom<IEmployee[]>([]);
+export const workingEmployeesState = atom<TOrganizationTeamEmployee[]>([]);
 
 export const workingEmployeesEmailState = atom<string[]>([]);
 
-export const employeeUpdateState = atom<IUpdateEmployee>();
+export const employeeUpdateState = atom<TUpdateEmployee>();

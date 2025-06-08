@@ -1,7 +1,8 @@
 import { ECurrencies } from '../../generics/enums/currency';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IOrganizationTeam } from '../team/organization-team';
-import { IUser } from '../user/user';
+
+import { TUser } from '@/core/types/schemas';
 import { IOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';
 import { ITimesheet } from '../timesheet/timesheet';
@@ -12,7 +13,7 @@ export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITa
 	[x: string]: any;
 	endWork?: Date;
 	startedWorkOn?: Date;
-	user: IUser;
+	user: TUser;
 	userId: ID;
 	valueDate?: Date;
 	short_description?: string;

@@ -21,8 +21,8 @@ export const integrationTenantSchema = z
 export const integrationTenantListSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
-		updatedAt: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string(),
 		organizationId: z.string(),
 		name: z.string(),

@@ -5,13 +5,14 @@ import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { WeeklyLimitPDFDocument } from './export-formats/pdf';
 import { WeeklyLimitByEmployeePDFDocument } from './export-formats/pdf/grouped-by-employee';
+import { TTimeLimitReportByEmployee } from '@/core/types/schemas';
+import { TTimeLimitReportList } from '@/core/types/schemas';
 
 interface IProps {
-	data: ITimeLimitReport[];
-	dataByEmployee: ITimeLimitReportByEmployee[];
+	data: TTimeLimitReportList[];
+	dataByEmployee: TTimeLimitReportByEmployee[];
 	activeTeam: IOrganizationTeam | null;
 	displayMode: 'week' | 'date';
 	organizationLimits: {

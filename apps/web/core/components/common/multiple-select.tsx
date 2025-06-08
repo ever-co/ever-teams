@@ -127,14 +127,64 @@ export function CustomSelect({
 			</SelectTrigger>
 			<SelectContent className="z-[10000] dark:bg-dark--theme-light w-auto">
 				<SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
-					{options?.map((option, index) => {
-						const optionValue = typeof option === 'object' ? option[valueKey] : option;
-						return (
-							<SelectItem key={optionValue || index} value={optionValue}>
-								{renderOption ? renderOption(option) : option.label || option.name || option.toString()}
-							</SelectItem>
-						);
-					})}
+					{options
+						?.map((option, index) => {
+							// Handle both string and object options
+							if (typeof option === 'string') {
+								// String option (like manualTimeReasons)
+								return (
+									<SelectItem key={`${option}-${index}`} value={option}>
+										{option}
+									</SelectItem>
+								);
+							}
+
+							// Object option validation
+							if (!option || typeof option !== 'object') {
+								if (process.env.NODE_ENV === 'development') {
+									console.warn('🚨 Invalid option in CustomSelect:', option);
+								}
+								return null;
+							}
+
+							const optionValue = option[valueKey];
+
+							// Ensure we have a valid value for object options
+							if (!optionValue || typeof optionValue !== 'string') {
+								if (process.env.NODE_ENV === 'development') {
+									console.warn('🚨 Invalid option value in CustomSelect:', {
+										option,
+										valueKey,
+										optionValue
+									});
+								}
+								return null;
+							}
+
+							// Get display text with fallback for object options
+							let displayText: string = '';
+							if (renderOption) {
+								const rendered = renderOption(option);
+								displayText = typeof rendered === 'string' ? rendered : String(rendered || '');
+							} else {
+								displayText = option.label || option.name || option.title || optionValue;
+							}
+
+							// Ensure display text is valid
+							if (!displayText || typeof displayText !== 'string') {
+								if (process.env.NODE_ENV === 'development') {
+									console.warn('🚨 Invalid display text in CustomSelect:', { option, displayText });
+								}
+								return null;
+							}
+
+							return (
+								<SelectItem key={`${optionValue}-${index}`} value={optionValue}>
+									{displayText}
+								</SelectItem>
+							);
+						})
+						.filter(Boolean)}
 				</SelectGroup>
 			</SelectContent>
 		</Select>

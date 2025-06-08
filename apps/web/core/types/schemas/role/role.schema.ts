@@ -10,7 +10,10 @@ import { roleNameSchema } from '../common/enums.schema';
 export const roleSchema = z
 	.object({
 		name: z.string(),
-		isSystem: z.boolean().optional()
+		isSystem: z.boolean().optional(),
+		tenantId: z.string().optional(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional()
 		// rolePermissions: z.array(z.lazy(() => rolePermissionSchema)).optional()
 	})
 	.merge(basePerTenantEntityModelSchema)
@@ -26,8 +29,8 @@ export const relationalRoleSchema = z.object({
 export const roleListSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
-		updatedAt: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string(),
 		name: z.string(),
 		isSystem: z.boolean(),

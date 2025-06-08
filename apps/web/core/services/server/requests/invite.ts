@@ -1,10 +1,11 @@
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { IInvite, IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
+import { IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { TInvite } from '@/core/types/schemas';
 
 /**
  * Invite user using email request
@@ -17,7 +18,7 @@ export function inviteByEmailsRequest(
 	{ tenantId, ...body }: IInviteCreate & { tenantId: string },
 	bearer_token: string
 ) {
-	return serverFetch<PaginationResponse<IInvite>>({
+	return serverFetch<PaginationResponse<TInvite>>({
 		path: '/invite/emails',
 		method: 'POST',
 		body,
@@ -75,7 +76,7 @@ export function getTeamInvitationsRequest(
 		'where[status]': 'INVITED'
 	});
 
-	return serverFetch<PaginationResponse<IInvite>>({
+	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite?${query}`,
 		method: 'GET',
 		bearer_token,
@@ -99,7 +100,7 @@ type ResetInviteParams = {
  * @returns
  */
 export function resendInvitationEmailRequest(params: ResetInviteParams, bearer_token: string) {
-	return serverFetch<PaginationResponse<IInvite>>({
+	return serverFetch<PaginationResponse<TInvite>>({
 		path: '/invite/resend',
 		method: 'POST',
 		body: params,
@@ -155,7 +156,7 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
  * @returns
  */
 export function getMyInvitationsRequest(tenantId: string, bearer_token: string) {
-	return serverFetch<PaginationResponse<IInvite>>({
+	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite/me`,
 		method: 'GET',
 		bearer_token,
@@ -169,7 +170,7 @@ export function acceptRejectMyInvitationsRequest(
 	invitationId: string,
 	action: EInviteAction
 ) {
-	return serverFetch<PaginationResponse<IInvite>>({
+	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite/${invitationId}/${action}`,
 		method: 'PUT',
 		bearer_token,

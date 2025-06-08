@@ -18,9 +18,9 @@ import {
 	ISigninEmailConfirmResponse,
 	IUserSigninWorkspaceResponse
 } from '@/core/types/interfaces/auth/auth';
-import { IUser } from '@/core/types/interfaces/user/user';
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { TUser } from '@/core/types/schemas';
 
 class AuthService extends APIService {
 	refreshToken = async () => {
@@ -66,7 +66,7 @@ class AuthService extends APIService {
 		});
 	};
 
-	resendVerifyUserLink = async (user: IUser) => {
+	resendVerifyUserLink = async (user: TUser) => {
 		const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 		const registerDefaultValue = {
 			appName: APP_NAME,

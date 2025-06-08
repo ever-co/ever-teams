@@ -11,7 +11,7 @@ import hasOwn from 'lodash/has';
 type Props = {
 	className?: string;
 	size: number;
-	imageUrl?: string;
+	imageUrl?: string | null;
 	shape?: 'circle' | 'square';
 	alt?: string;
 	imageTitle?: string;
@@ -67,7 +67,7 @@ export function Avatar({
 					: {})
 			}}
 		>
-			{imageTitle && !imgUrl && <span className="uppercase font-normal text-lg">{imageTitle[0] || ''}</span>}
+			{imageTitle && !imgUrl && <span className="text-lg font-normal uppercase">{imageTitle[0] || ''}</span>}
 
 			{imgUrl && (
 				<Image

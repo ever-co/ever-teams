@@ -1,5 +1,4 @@
 'use client';
-
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
@@ -14,7 +13,7 @@ import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -22,7 +21,7 @@ import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organiza
  * @param {IOrganizationTeam['members'][number] | undefined} member -
  * IOrganizationTeamList['members'][number] | undefined
  */
-export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined) {
+export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined) {
 	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
@@ -105,8 +104,8 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
-				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
+				?.filter((r: TOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
+				?.map((r: TOrganizationTeamEmployee) => r.employee?.id || '')
 				.concat(employeeId)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
@@ -122,9 +121,9 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
-				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
-				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
+				?.filter((r) => r.role && r.role.name === 'MANAGER')
+				?.filter((r) => r.employee?.id !== employeeId)
+				?.map((r) => r.employee?.id || '')
 				?.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
@@ -141,15 +140,13 @@ export function useTeamMemberCard(member: IOrganizationTeamEmployee | undefined)
 		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
 		updateOrganizationTeam(activeTeamRef.current, {
 			// remove from members
-			memberIds: team.members
-				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || ''),
+			memberIds: team.members?.filter((r) => r.employee?.id !== employeeId)?.map((r) => r.employee?.id || ''),
 
 			// remove from managers
 			managerIds: team.members
-				?.filter((r: IOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
-				?.filter((r: IOrganizationTeamEmployee) => r.employee?.id !== employeeId)
-				?.map((r: IOrganizationTeamEmployee) => r.employee?.id || '')
+				?.filter((r) => r.role && r.role.name === 'MANAGER')
+				?.filter((r) => r.employee?.id !== employeeId)
+				?.map((r) => r.employee?.id || '')
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 

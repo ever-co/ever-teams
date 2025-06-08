@@ -1,5 +1,4 @@
 'use client';
-
 import {
 	HostKeys,
 	RTuseTaskInput,
@@ -39,7 +38,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -558,7 +557,7 @@ function TaskCard({
 									/>
 
 									<TaskLabels
-										className="min-w-fit lg:max-w-[170px] text-xs z-[9999]"
+										className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
 										forDetails={true}
 										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
@@ -717,7 +716,7 @@ function TaskCard({
  */
 
 interface ITeamMemberSelectProps {
-	teamMembers: IOrganizationTeamEmployee[];
+	teamMembers: TOrganizationTeamEmployee[];
 	assignees?: RefObject<
 		{
 			id: string;

@@ -1,11 +1,11 @@
-import { ITimeLimitReport, ITimeLimitReportByEmployee } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { DataTableWeeklyLimits } from './data-table';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { JSX } from 'react';
+import { TTimeLimitReportByEmployee, TTimeLimitReportList } from '@/core/types/schemas';
 
 export interface ITimeReportTableProps {
-	report: ITimeLimitReport;
+	report: TTimeLimitReportList;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
 	indexTitle: string;
@@ -32,7 +32,7 @@ export const TimeReportTable = ({
 	header
 }: ITimeReportTableProps) => (
 	<div className="w-full p-1" key={report.date}>
-		<div className="h-12 px-4 bg-slate-100 dark:bg-gray-800 dark:text-white rounded-md flex border items-center">
+		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
 			{header}
 		</div>
 		<div>
@@ -57,7 +57,7 @@ export const TimeReportTable = ({
 );
 
 interface ITimeReportTableByMemberProps {
-	report: ITimeLimitReportByEmployee;
+	report: TTimeLimitReportByEmployee;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
 	indexTitle: string;
@@ -84,7 +84,7 @@ export const TimeReportTableByMember = ({
 	header
 }: ITimeReportTableByMemberProps) => (
 	<div className="w-full p-1" key={report.employee.id}>
-		<div className="h-12 px-4 bg-slate-100 dark:bg-gray-800 dark:text-white rounded-md flex border items-center">
+		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
 			{header}
 		</div>
 		<div>
@@ -120,8 +120,8 @@ export const TimeReportTableByMember = ({
  * @returns {ITimeLimitReportByEmployee[]} - An array of grouped employee reports, each containing the employee details and their corresponding reports.
 
  */
-export function groupDataByEmployee(data: ITimeLimitReport[]): ITimeLimitReportByEmployee[] {
-	const grouped = new Map<string, ITimeLimitReportByEmployee>();
+export function groupDataByEmployee(data: TTimeLimitReportList[]): TTimeLimitReportByEmployee[] {
+	const grouped = new Map<string, TTimeLimitReportByEmployee>();
 
 	data.forEach((day) => {
 		const date = day.date;
@@ -131,7 +131,10 @@ export function groupDataByEmployee(data: ITimeLimitReport[]): ITimeLimitReportB
 			if (!grouped.has(empId)) {
 				// Initialize new employee entry in the Map
 				grouped.set(empId, {
-					employee: emp.employee,
+					employee: {
+						...emp.employee,
+						isTrackingEnabled: emp.employee.isTrackingEnabled ?? false
+					},
 					reports: []
 				});
 			}

@@ -22,8 +22,8 @@ export const languageSchema = z
 export const languageItemListSchema = z
 	.object({
 		id: z.string(),
-		createdAt: z.string(),
-		updatedAt: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
 		code: z.string(),
 		name: z.string(),

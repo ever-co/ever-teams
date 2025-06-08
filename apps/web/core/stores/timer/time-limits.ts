@@ -1,4 +1,4 @@
 import { atom } from 'jotai';
-import { ITimeLimitReport } from '@/core/types/interfaces/timesheet/time-limit-report';
+import { TTimeLimitReportList } from '@/core/types/schemas';
 
-export const timeLimitsAtom = atom<ITimeLimitReport[]>([]);
+export const timeLimitsAtom = atom<TTimeLimitReportList[]>([]);

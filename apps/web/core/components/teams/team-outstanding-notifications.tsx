@@ -10,7 +10,7 @@ import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 interface IEmployeeWithOutstanding {
@@ -40,7 +40,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	user
 }: {
 	outstandingPlans: IDailyPlan[];
-	user?: IUser;
+	user?: TUser;
 }) {
 	const t = useTranslations();
 
@@ -84,7 +84,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	return (
 		<>
 			{visible && (
-				<div className="rounded-2xl dark:border-dark--theme-light border py-2 px-6 flex justify-between items-center text-xs mb-2">
+				<div className="flex items-center justify-between px-6 py-2 mb-2 text-xs border rounded-2xl dark:border-dark--theme-light">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {outStandingTasksCount}{' '}
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.USER_LABEL')}{' '}
@@ -96,7 +96,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 						<div>
 							<Link
 								href={`/profile/${user?.id}?name=${name || ''}`}
-								className="bg-primary text-white py-2 px-4 flex gap-2 items-center rounded-xl"
+								className="flex items-center gap-2 px-4 py-2 text-white bg-primary rounded-xl"
 								onClick={() => {
 									onClose();
 									window && window.localStorage.setItem('task-tab', 'dailyplan');
@@ -191,7 +191,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	return (
 		<>
 			{uniqueEmployees?.length > 0 && visible && (
-				<div className="rounded-2xl dark:border-dark--theme-light border py-4 px-6 flex justify-between items-center text-xs mb-2">
+				<div className="flex items-center justify-between px-6 py-4 mb-2 text-xs border rounded-2xl dark:border-dark--theme-light">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees?.length} team member(s)
 						with uncompleted tasks, please see{' '}
@@ -200,7 +200,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 								<Link
 									href={`/profile/${em.employee?.user?.id}?name=${em.employee?.user?.name || em.employee?.user?.firstName || em.employee?.user?.lastName || em.employee?.user?.username}`}
 									key={em.employeeId}
-									className="text-primary font-semibold underline"
+									className="font-semibold underline text-primary"
 								>
 									{em.employee?.fullName},{' '}
 								</Link>

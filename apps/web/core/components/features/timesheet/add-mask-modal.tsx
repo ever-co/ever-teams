@@ -346,7 +346,7 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
 			<SelectTrigger className="w-full bg-white border-transparent rounded-none text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
-			<SelectContent className="z-[10000] max-h-60 overflow-y-auto">
+			<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
 				<SelectGroup>
 					{timeOptions.map((time) => (
 						<SelectItem

@@ -1,7 +1,7 @@
 import { serverFetch } from '../fetch';
 
-export function updateUserAvatarRequest<IUser>(
-	{ data, id, tenantId }: { data: IUser; id: string; tenantId: string },
+export function updateUserAvatarRequest<TUser>(
+	{ data, id, tenantId }: { data: TUser; id: string; tenantId: string },
 	bearer_token: string
 ) {
 	// const init = {};

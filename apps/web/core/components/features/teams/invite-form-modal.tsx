@@ -76,7 +76,9 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		});
 	};
 
-	const handleResend = async (invitationId: string, email: string) => {
+	const handleResend = async (invitationId: string | null | undefined, email: string) => {
+		if (!invitationId) return;
+
 		await resendTeamInvitation(invitationId);
 		showSuccessToast(email);
 	};

@@ -1,4 +1,4 @@
-import { IUser } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
@@ -34,7 +34,7 @@ export function useTimelogFilterOptions() {
 	const project = projectState;
 	const task = taskState;
 
-	const isUserAllowedToAccess = (user: IUser | null | undefined): boolean => {
+	const isUserAllowedToAccess = (user: TUser | null | undefined): boolean => {
 		const allowedRoles: ERoleName[] = [ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN];
 		return user?.role?.name ? allowedRoles.includes(user.role.name as ERoleName) : false;
 	};
