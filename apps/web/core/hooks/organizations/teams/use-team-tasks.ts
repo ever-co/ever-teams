@@ -31,7 +31,7 @@ import { useTaskStatus } from '../../tasks';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
