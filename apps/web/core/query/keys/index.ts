@@ -112,7 +112,28 @@ export const queryKeys = {
 	},
 	teams: {
 		all: ['teams'] as const,
-		detail: (teamId: string | undefined | null) => ['teams', ...(teamId ? [teamId] : [])] as const
+		detail: (teamId: string | undefined | null) => ['teams', ...(teamId ? [teamId] : [])] as const,
+
+		// Public teams keys
+		public: {
+			all: ['teams', 'public'] as const,
+			byProfileAndTeam: (profileLink: string | undefined | null, teamId: string | undefined | null) =>
+				[
+					'teams',
+					'public',
+					'by-profile-team',
+					...(profileLink ? [profileLink] : []),
+					...(teamId ? [teamId] : [])
+				] as const,
+			miscData: (profileLink: string | undefined | null, teamId: string | undefined | null) =>
+				[
+					'teams',
+					'public',
+					'misc-data',
+					...(profileLink ? [profileLink] : []),
+					...(teamId ? [teamId] : [])
+				] as const
+		}
 	},
 
 	// Keys related to Daily Plans

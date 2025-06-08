@@ -5,16 +5,24 @@ import { z } from 'zod';
  */
 
 // ID type schema
-export const idSchema = z.string();
+export const idSchema = z.string().uuid('Invalid UUID');
 
 // Base entity action by user model schema
+export const baseDateSchema = z.object({
+	id: idSchema,
+	createdAt: z.coerce.date().optional().nullable(),
+	updatedAt: z.coerce.date().optional().nullable(),
+	isActive: z.boolean().optional().nullable(),
+	isArchived: z.boolean().optional().nullable(),
+	archivedAt: z.coerce.date().optional().nullable()
+});
 export const baseEntityActionByUserModelSchema = z.object({
 	createdByUser: z.any().optional().nullable(),
-	createdByUserId: z.string().optional().nullable(),
+	createdByUserId: idSchema.optional().nullable(),
 	updatedByUser: z.any().optional().nullable(),
-	updatedByUserId: z.string().optional().nullable(),
+	updatedByUserId: idSchema.optional().nullable(),
 	deletedByUser: z.any().optional().nullable(),
-	deletedByUserId: z.string().optional().nullable()
+	deletedByUserId: idSchema.optional().nullable()
 });
 
 // Base soft delete entity model schema
@@ -23,15 +31,7 @@ export const baseSoftDeleteEntityModelSchema = z.object({
 });
 
 // Base entity schema
-export const baseEntitySchema = z
-	.object({
-		id: idSchema,
-		createdAt: z.coerce.date().optional().nullable(),
-		updatedAt: z.coerce.date().optional().nullable(),
-		isActive: z.boolean().optional().nullable(),
-		isArchived: z.boolean().optional().nullable(),
-		archivedAt: z.coerce.date().optional().nullable()
-	})
+export const baseEntitySchema = baseDateSchema
 	.merge(baseEntityActionByUserModelSchema)
 	.merge(baseSoftDeleteEntityModelSchema);
 
