@@ -27,6 +27,7 @@ export * from './team/public-organization-team.schema';
 export * from './timer/timer-status.schema';
 export * from './timer/time-limit-report.schema';
 export * from './timer/time-log.schema';
+export * from './timer/time-slot.schema';
 
 // User schemas
 export * from './user/email-reset.schema';

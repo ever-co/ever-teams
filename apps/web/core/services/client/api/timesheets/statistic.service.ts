@@ -4,45 +4,58 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
-import { ITimerSlotDataRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
+import {
+	validateApiResponse,
+	timerSlotDataRequestSchema,
+	ZodValidationError,
+	TGetTimerLogsRequest,
+	TTimerSlotDataRequest
+} from '@/core/types/schemas';
 
 class StatisticsService extends APIService {
-	getTimerLogsRequest = async ({
-		tenantId,
-		organizationId,
-		employeeId,
-		todayEnd,
-		todayStart
-	}: {
-		tenantId: string;
-		organizationId: string;
-		employeeId: string;
-		todayEnd: Date;
-		todayStart: Date;
-	}) => {
-		const params = {
-			tenantId: tenantId,
-			organizationId: organizationId,
-			employeeId,
-			todayEnd: todayEnd.toISOString(),
-			todayStart: todayStart.toISOString()
-		} as Record<string, string>;
+	getTimerLogsRequest = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
+		try {
+			const queryParams = {
+				tenantId: params.tenantId,
+				organizationId: params.organizationId,
+				employeeId: params.employeeId,
+				todayEnd: params.todayEnd.toISOString(),
+				todayStart: params.todayStart.toISOString()
+			} as Record<string, string>;
 
-		const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
+			const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
 
-		relations.forEach((rl, i) => {
-			params[`relations[${i}]`] = rl;
-		});
+			relations.forEach((rl, i) => {
+				queryParams[`relations[${i}]`] = rl;
+			});
 
-		const query = qs.stringify(params);
+			const query = qs.stringify(queryParams);
 
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/timesheet/statistics/time-slots?${query}`
-			: `/timer/slots?${query}`;
+			const endpoint = GAUZY_API_BASE_SERVER_URL.value
+				? `/timesheet/statistics/time-slots?${query}`
+				: `/timer/slots?${query}`;
 
-		return this.get<ITimerSlotDataRequest | ITimerSlotDataRequest[]>(endpoint);
+			const response = await this.get<TTimerSlotDataRequest | TTimerSlotDataRequest[]>(endpoint);
+
+			// Validate the response data
+			const responseData = Array.isArray(response.data) ? response.data : [response.data];
+
+			return validateApiResponse(
+				timerSlotDataRequestSchema.array(),
+				responseData,
+				'getTimerLogsRequest API response'
+			);
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Timer logs request validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
 	};
 
 	getStatisticsForTasks = async (queries: Record<string, string>, tenantId: string) => {
