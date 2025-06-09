@@ -75,6 +75,6 @@ export const managerAssignableSchema = z.object({
 
 // Relational employee schema
 export const relationalEmployeeSchema = z.object({
-	employeeId: idSchema,
+	employeeId: idSchema.optional().nullable(), // Make employeeId optional to handle API inconsistencies
 	employee: z.any().optional().nullable() // Will be properly typed when employee schema is created
 });

@@ -92,7 +92,7 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 								</td>
 								<td className="py-4 pl-2 text-xs font-semibold ">
 									<InvitationTableStatus
-										status={invitation.status}
+										status={invitation.status || undefined} // Handle null status
 										acceptJoinRequest={() => {
 											acceptRejectRequestToJoin(invitation.id, ERequestStatus.ACCEPTED);
 										}}
