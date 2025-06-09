@@ -283,6 +283,22 @@ export const queryKeys = {
 		all: ['timesheet'] as const,
 		dailyReport: (date: string | null | undefined) =>
 			['timesheet', 'daily-report', ...(date ? [date] : [])] as const,
+		timerLogsDailyReport: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			employeeIds: string[] | null | undefined,
+			startDate: string | null | undefined,
+			endDate: string | null | undefined
+		) =>
+			[
+				'timesheet',
+				'timer-logs-daily-report',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(employeeIds && employeeIds.length ? [employeeIds.join(',')] : []),
+				...(startDate ? [startDate] : []),
+				...(endDate ? [endDate] : [])
+			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
 	},
 
@@ -387,5 +403,18 @@ export const queryKeys = {
 					...(integrationId ? [integrationId] : [])
 				] as const
 		}
+	},
+
+	// Keys related to API health check
+	apiCheck: {
+		all: ['api-check'] as const,
+		health: ['api-check', 'health'] as const
+	},
+
+	// Keys related to email verification
+	emailVerification: {
+		all: ['email-verification'] as const,
+		verifyToken: (email: string | undefined | null, token: string | undefined | null) =>
+			['email-verification', 'verify-token', ...(email ? [email] : []), ...(token ? [token] : [])] as const
 	}
 };

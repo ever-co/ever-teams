@@ -73,7 +73,25 @@ export const minimalTimeLogSchema = z
 	})
 	.passthrough(); // Allow any additional fields
 
+// Schema for time log daily report (ITimeLogReportDaily interface)
+export const timeLogReportDailySchema = z.object({
+	activity: z.coerce.number(),
+	date: z.coerce.date(),
+	sum: z.coerce.number()
+});
+
+// Schema for get timer logs daily report request parameters
+export const getTimerLogsDailyReportRequestSchema = z.object({
+	tenantId: z.string().min(1, 'Tenant ID is required'),
+	organizationId: z.string().min(1, 'Organization ID is required'),
+	employeeIds: z.array(z.string().min(1, 'Employee ID is required')).min(1, 'At least one employee ID is required'),
+	startDate: z.date(),
+	endDate: z.date()
+});
+
 // Inferred TypeScript types from Zod schemas
 export type TAddManualTimeRequest = z.infer<typeof addManualTimeRequestSchema>;
 export type TTimeLog = z.infer<typeof timeLogSchema>;
 export type TMinimalTimeLog = z.infer<typeof minimalTimeLogSchema>;
+export type TTimeLogReportDaily = z.infer<typeof timeLogReportDailySchema>;
+export type TGetTimerLogsDailyReportRequest = z.infer<typeof getTimerLogsDailyReportRequestSchema>;
