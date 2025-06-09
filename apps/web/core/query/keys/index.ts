@@ -403,5 +403,11 @@ export const queryKeys = {
 					...(integrationId ? [integrationId] : [])
 				] as const
 		}
+	},
+
+	// Keys related to API health check
+	apiCheck: {
+		all: ['api-check'] as const,
+		health: ['api-check', 'health'] as const
 	}
 };
