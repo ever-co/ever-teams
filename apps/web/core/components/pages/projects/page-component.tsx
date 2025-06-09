@@ -164,8 +164,7 @@ function PageComponent() {
 		 when the api is ready
 		*/
 
-		if (queries && Object.keys(queries).length > 0) {
-			console.log('first', queries);
+		if (Object.keys(queries).length > 0) {
 			getOrganizationProjects({ queries }).then((data) => {
 				if (data && data.items && data.items.length > 0) {
 					const projects = (data.items as IOrganizationProject[])
@@ -177,7 +176,6 @@ function PageComponent() {
 				}
 			});
 		} else {
-			console.log('second');
 			setProjects(
 				organizationProjects
 					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))

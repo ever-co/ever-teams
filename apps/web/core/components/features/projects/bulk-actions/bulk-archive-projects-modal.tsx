@@ -43,7 +43,7 @@ export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 					return await editOrganizationProject(projectId, {
 						isArchived: true,
 						isActive: false,
-						archivedAt: moment(Date.now()).toISOString()
+						archivedAt: moment(Date.now()).format()
 					});
 				})
 			);

@@ -68,7 +68,7 @@ export const organizationProjectBaseSchema = z
 		billable: z.boolean().optional().nullable(),
 		billingFlat: z.boolean().optional().nullable(),
 		openSource: z.boolean().optional().nullable(),
-		projectUrl: z.string().optional().nullable().nullable(),
+		projectUrl: z.string().optional().nullable(),
 		openSourceProjectUrl: z.string().optional().nullable(),
 		budget: z.coerce.number().optional(),
 		budgetType: z.nativeEnum(EProjectBudgetType).optional(),
