@@ -113,7 +113,7 @@
         "webpack": "^5.88.2",
         "webpack-bundle-analyzer": "^4.9.1",
         "webpack-cli": "^5.1.4",
-        "webpack-dev-server": "^4.15.1",
+        "webpack-dev-server": "^5.2.1",
         "webpack-merge": "^5.9.0",
         "postcss-loader": "^8.1.1",
         "custom-electron-titlebar": "^4.2.8"
