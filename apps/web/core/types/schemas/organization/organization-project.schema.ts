@@ -7,7 +7,6 @@ import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
  * Zod schemas for Organization Project-related interfaces
  */
 
-// Base project setting schema
 export const organizationProjectSettingSchema = z
 	.object({
 		id: z.string().optional(),
@@ -48,7 +47,6 @@ export const organizationProjectRepositorySchema = z
 	})
 	.passthrough();
 
-// Base organization project schema
 export const organizationProjectBaseSchema = z
 	.object({
 		id: z.string(),
@@ -96,13 +94,10 @@ export const organizationProjectBaseSchema = z
 	})
 	.passthrough();
 
-// Organization project schema (main entity)
 export const organizationProjectSchema = organizationProjectBaseSchema.extend({
 	name: z.string().min(1, 'Project name is required')
 });
-// .passthrough();
 
-// Create project request schema
 export const createProjectRequestSchema = z
 	.object({
 		name: z.string().min(1, 'Project name is required'),
@@ -134,17 +129,14 @@ export const createProjectRequestSchema = z
 	})
 	.passthrough();
 
-// Edit project request schema (partial of create)
 export const editProjectRequestSchema = createProjectRequestSchema.partial().passthrough();
 
-// Get organization projects request schema
 export const getOrganizationProjectsRequestSchema = z
 	.object({
 		queries: z.record(z.string()).optional()
 	})
 	.passthrough();
 
-// Get organization project request schema
 export const getOrganizationProjectRequestSchema = z
 	.object({
 		id: z.string().min(1, 'Project ID is required'),
@@ -152,7 +144,6 @@ export const getOrganizationProjectRequestSchema = z
 	})
 	.passthrough();
 
-// Minimal organization project schema for fallback
 export const minimalOrganizationProjectSchema = z
 	.object({
 		id: z.string(),
@@ -162,7 +153,6 @@ export const minimalOrganizationProjectSchema = z
 	})
 	.passthrough();
 
-// ✅ OBLIGATOIRE - Types inférés des schémas
 export type TOrganizationProjectSetting = z.infer<typeof organizationProjectSettingSchema>;
 export type TProjectRelation = z.infer<typeof projectRelationSchema>;
 export type TOrganizationProjectRepository = z.infer<typeof organizationProjectRepositorySchema>;
