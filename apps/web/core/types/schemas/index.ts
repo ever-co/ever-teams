@@ -34,6 +34,9 @@ export * from './user/email-reset.schema';
 export * from './user/user.schema';
 export * from './user/invite.schema';
 
+// Auth schemas
+export * from './auth/email-verification.schema';
+
 // Activity schemas
 export * from './activities/activity.schema';
 

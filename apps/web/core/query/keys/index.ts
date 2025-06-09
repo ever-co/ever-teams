@@ -409,5 +409,12 @@ export const queryKeys = {
 	apiCheck: {
 		all: ['api-check'] as const,
 		health: ['api-check', 'health'] as const
+	},
+
+	// Keys related to email verification
+	emailVerification: {
+		all: ['email-verification'] as const,
+		verifyToken: (email: string | undefined | null, token: string | undefined | null) =>
+			['email-verification', 'verify-token', ...(email ? [email] : []), ...(token ? [token] : [])] as const
 	}
 };
