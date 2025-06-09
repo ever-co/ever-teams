@@ -76,7 +76,7 @@ export const minimalTimeLogSchema = z
 // Schema for time log daily report (ITimeLogReportDaily interface)
 export const timeLogReportDailySchema = z.object({
 	activity: z.coerce.number(),
-	date: z.coerce.date(),
+	date: z.string(),
 	sum: z.coerce.number()
 });
 
