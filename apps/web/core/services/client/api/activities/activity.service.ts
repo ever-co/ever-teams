@@ -106,7 +106,7 @@ class ActivityService extends APIService {
 			};
 			if (params.type) queryParams['types[0]'] = params.type;
 			if (params.title) queryParams['title[0]'] = params.title;
-			const query = qs.stringify(queryParams);
+			const query = qs.stringify(queryParams, { encode: false });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/timesheet/activity/daily?${query}`

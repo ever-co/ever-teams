@@ -295,7 +295,7 @@ export const queryKeys = {
 				'timer-logs-daily-report',
 				...(tenantId ? [tenantId] : []),
 				...(organizationId ? [organizationId] : []),
-				...(employeeIds ? [employeeIds.join(',')] : []),
+				...(employeeIds && employeeIds.length ? [employeeIds.join(',')] : []),
 				...(startDate ? [startDate] : []),
 				...(endDate ? [endDate] : [])
 			] as const,

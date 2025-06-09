@@ -55,8 +55,8 @@ export function useTimeDailyActivity(type?: string) {
 			baseParams?.tenantId,
 			baseParams?.organizationId,
 			baseParams?.employeeId,
-			baseParams?.todayStart.toISOString(),
-			baseParams?.todayEnd.toISOString(),
+			baseParams?.todayStart?.toISOString(),
+			baseParams?.todayEnd?.toISOString(),
 			baseParams?.type,
 			currentTitle
 		),
