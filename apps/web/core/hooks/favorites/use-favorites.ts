@@ -71,7 +71,7 @@ export const useFavorites = () => {
 
 	const loadFavorites = useCallback(async () => {
 		try {
-			const res = await getFavoritesByEmployee(user?.employee?.id ?? '');
+			const res = await getFavoritesByEmployee(user?.employee?.id || user?.employeeId || '');
 
 			if (res) {
 				setFavorites(res.data.items);
@@ -100,7 +100,10 @@ export const useFavorites = () => {
 		} else {
 			await createFavorite({
 				entity: EBaseEntityEnum.Task,
-				entityId: task.id
+				entityId: task.id,
+				...(user?.employee?.id || user?.employeeId
+					? { employeeId: user?.employee?.id || user?.employeeId }
+					: {})
 			});
 		}
 	};

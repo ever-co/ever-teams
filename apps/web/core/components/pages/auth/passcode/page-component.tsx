@@ -448,7 +448,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 												onClick={() => setExpandedWorkspace(index)}
 												className="flex items-center justify-center gap-1 cursor-pointer"
 											>
-												<span>{worksace.user.tenant.name}</span>
+												<span>{worksace.user?.tenant?.name}</span>
 												<span
 													className={cn(
 														'h-6 w-6 flex items-center justify-center transition-transform',

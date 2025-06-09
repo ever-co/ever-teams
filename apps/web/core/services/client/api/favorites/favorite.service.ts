@@ -56,7 +56,7 @@ class FavoriteService extends APIService {
 		} as Record<string, string>;
 
 		const query = qs.stringify(obj);
-		const endpoint = `/favorite/${favoriteId}`;
+		const endpoint = `/favorite/${favoriteId}?${query}`;
 
 		return this.delete<DeleteResponse>(endpoint, { tenantId });
 	};
