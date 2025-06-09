@@ -8,6 +8,7 @@ import { cn } from '@/core/lib/helpers';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
+import { ECurrencies } from '@/core/types/generics/enums/currency';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -33,7 +34,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode,
+			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType
@@ -46,7 +47,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 
 	const handlePrevious = useCallback(() => {
 		goToPrevious({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode,
+			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType

@@ -43,6 +43,7 @@ import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { CreateProjectModal } from '../../features/projects/create-project-modal';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -70,6 +71,7 @@ function PageComponent() {
 	});
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
+	const showArchivedProjects = Boolean(params.get('archived'));
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -97,7 +99,25 @@ function PageComponent() {
 
 	const handleBack = () => router.back();
 
-	const showArchivedProjects = Boolean(params.get('archived'));
+	const mapProjectToViewDataType = useCallback((project: IOrganizationProject): ProjectViewDataType => {
+		return {
+			project: {
+				name: project.name,
+				imageUrl: project.imageUrl,
+				color: project.color,
+				id: project.id
+			},
+			status: project.status,
+			archivedAt: project.archivedAt,
+			isArchived: project.isArchived,
+			startDate: project.startDate,
+			endDate: project.endDate,
+			members: project.members,
+			managers: project.members,
+			teams: project.teams
+		};
+	}, []);
+
 	const activeTeamProjects = useMemo(
 		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
 		[activeTeam, projects]
@@ -144,31 +164,26 @@ function PageComponent() {
 		 when the api is ready
 		*/
 
-		getOrganizationProjects({ queries }).then((data) => {
-			if (data && data?.items?.length > 0) {
-				const projects = data.items
-					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
-					.map((el) => ({
-						project: {
-							name: el.name,
-							imageUrl: el.imageUrl,
-							color: el.color,
-							id: el.id
-						},
-						status: el.status,
-						archivedAt: el.archivedAt,
-						isArchived: el.isArchived,
-						startDate: el.startDate,
-						endDate: el.endDate,
-						members: el.members,
-						managers: el.members,
-						teams: el.teams
-					}));
+		if (queries && Object.keys(queries).length > 0) {
+			console.log('first', queries);
+			getOrganizationProjects({ queries }).then((data) => {
+				if (data && data.items && data.items.length > 0) {
+					const projects = (data.items as IOrganizationProject[])
+						?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
+						.map(mapProjectToViewDataType);
 
-				setProjects(projects);
-				setSelectedProjects({}); // Reset projects selection
-			}
-		});
+					setProjects(projects);
+					setSelectedProjects({}); // Reset projects selection
+				}
+			});
+		} else {
+			console.log('second');
+			setProjects(
+				organizationProjects
+					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
+					.map(mapProjectToViewDataType)
+			);
+		}
 	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
 
 	// Handle archived / active - table columns visibility

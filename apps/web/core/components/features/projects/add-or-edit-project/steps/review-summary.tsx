@@ -10,12 +10,13 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/orga
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { ICreateProjectRequest, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
+import { IOrganizationProject, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
-import { TTag } from '@/core/types/schemas';
+import { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
+import { ECurrencies } from '@/core/types/generics/enums/currency';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -33,7 +34,7 @@ export default function FinalReview(props: IStepElementProps) {
 	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
-	const newProject: Partial<ICreateProjectRequest> = {
+	const newProject: Partial<TCreateProjectRequest> = {
 		name: finalData?.name,
 		startDate: finalData?.startDate,
 		endDate: finalData?.endDate,
@@ -84,12 +85,12 @@ export default function FinalReview(props: IStepElementProps) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return { ...project.data };
+							return project.data as IOrganizationProject;
 						}
 						return el;
 					})
 				);
-				finish(project.data);
+				finish(project.data as TOrganizationProject);
 			}
 		}
 	};
@@ -107,14 +108,14 @@ export default function FinalReview(props: IStepElementProps) {
 						projectTitle={finalData?.name ?? '-'}
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
-						websiteUrl={finalData?.projectUrl}
+						websiteUrl={finalData?.projectUrl ?? undefined}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						description={finalData?.description}
 					/>
 					<FinancialSettings
 						budgetAmount={finalData?.budget}
-						billingType={finalData?.billing}
-						budgetCurrency={finalData?.currency}
+						billingType={finalData?.billing as EProjectBilling}
+						budgetCurrency={finalData?.currency as ECurrencies}
 						budgetType={finalData?.budgetType}
 					/>
 					<Categorization tags={finalData?.tags} colorCode={finalData?.color} />

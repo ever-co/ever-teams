@@ -26,7 +26,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const { teams } = useOrganizationTeams();
 	const { organizationProjects } = useOrganizationProjects();
 	const teamMembers = useMemo(
-		() => organizationProjects.flatMap((project) => project.members ?? []),
+		() => organizationProjects?.flatMap((project) => project.members ?? []),
 		[organizationProjects]
 	);
 	const budgetTypes: {

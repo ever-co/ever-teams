@@ -1,15 +1,15 @@
 import { useOrganizationProjects } from '@/core/hooks';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { InputField } from '../../duplicated-components/_input';
 import { EverCard } from '../../common/ever-card';
+import { TOrganizationProject } from '@/core/types/schemas';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
-	onSuccess?: (project: IOrganizationProject) => void;
+	onSuccess?: (project: TOrganizationProject) => void;
 }
 /**
  * A modal that allow to create a new project
