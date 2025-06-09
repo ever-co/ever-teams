@@ -104,7 +104,7 @@ export const useFavorites = () => {
 				...(user?.employee?.id || user?.employeeId
 					? { employeeId: user?.employee?.id || user?.employeeId }
 					: {})
-			});
+			} as IFavoriteCreateRequest);
 		}
 	};
 
