@@ -95,12 +95,21 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);
-	const [, setActiveLanguageId] = useAtom(activeLanguageIdState);
+	const [activeLanguageCode, setActiveLanguageCode] = useAtom(activeLanguageIdState);
 	const [languagesFetching, setLanguagesFetching] = useAtom(languagesFetchingState);
 	const { firstLoadData: firstLoadLanguagesData } = useFirstLoad();
 
-	const isSystem = useMemo(() => user?.role?.isSystem ?? false, [user]);
-	const queryFn = useCallback(async () => await languageService.getLanguages(isSystem), [isSystem]);
+	// ✅ SENIOR FIX - Stable memoization of isSystem to prevent infinite API calls
+	// Only recalculate when the actual role.isSystem value changes, not when user object changes
+	const isSystem = useMemo(() => {
+		return user?.role?.isSystem ?? false;
+	}, [user?.role?.isSystem]); // ✅ Only depend on the specific property, not entire user object
+
+	// ✅ Stable query key using memoized isSystem
+	const queryKey = useMemo(() => {
+		return queryKeys.languages.system(isSystem);
+	}, [isSystem]); // Only changes when isSystem actually changes
+
 	/**
 	 * React Query for languages data with optimized caching strategy
 	 *
@@ -111,34 +120,48 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 * - Only fetches when user is authenticated
 	 */
 	const languagesQuery = useQuery({
-		queryKey: queryKeys.languages.system(isSystem),
-		queryFn,
+		queryKey, // ✅ Use stable memoized query key
+		queryFn: () => languageService.getLanguages(isSystem),
 		enabled: !!user, // Only fetch when user is available
 		staleTime: 1000 * 60 * 60, // Languages are stable, cache for 1 hour
 		gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
 		select: filterLanguagesByCode
 	});
-
+	const activeLanguageId = useMemo(() => getActiveLanguageIdCookie(), []);
 	// Use custom hooks to reduce complexity
 	useLanguageStateSync(languagesQuery, setLanguages, setLanguagesFetching);
 	useUserLanguagePreference(user, changeLanguage);
 
 	/**
-	 * Loads languages data from the API and updates the active language ID cookie
+	 * Loads languages data intelligently - uses cache if fresh, fetches if stale
 	 * @returns Promise resolving to the API response data
 	 */
 	const loadLanguagesData = useCallback(async () => {
-		setActiveLanguageId(getActiveLanguageIdCookie());
+		setActiveLanguageCode(activeLanguageId);
 		try {
-			// Trigger a refetch of the React Query data
-			const result = await languagesQuery.refetch();
+			// ✅ SMART LOADING - Check cache first, only fetch if needed
+			let result;
+
+			// Check if we have fresh data in cache
+			if (languagesQuery.data && !languagesQuery.isStale) {
+				// Data is fresh, use cache
+				result = { data: languagesQuery.data };
+			} else {
+				// Data is stale or missing, fetch from API
+				const queryResult = await languagesQuery.refetch();
+				result = queryResult;
+			}
 
 			// Return the data in the expected format with proper PaginationResponse structure
 			return result.data ? { data: result.data } : { data: { items: [], total: 0 } };
 		} catch (error) {
+			// Fallback to cached data if available, even if stale
+			if (languagesQuery.data) {
+				return { data: languagesQuery.data };
+			}
 			return { data: { items: [], total: 0 } };
 		}
-	}, [languagesQuery, setActiveLanguageId]);
+	}, [languagesQuery.data, languagesQuery.isStale]);
 
 	/**
 	 * Sets the active language and persists the selection
@@ -146,11 +169,13 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 */
 	const setActiveLanguage = useCallback(
 		(languageId: ILanguageItemList) => {
-			changeLanguage(languageId.code);
-			setActiveLanguageIdCookie(languageId.code);
-			setActiveLanguageId(languageId.code);
+			if (activeLanguageId !== languageId.code && languageId.code !== activeLanguageCode) {
+				changeLanguage(languageId.code);
+				setActiveLanguageIdCookie(languageId.code);
+				setActiveLanguageCode(languageId.code);
+			}
 		},
-		[setActiveLanguageId, changeLanguage]
+		[activeLanguageId, activeLanguageCode, setActiveLanguageCode, changeLanguage]
 	);
 
 	return {
