@@ -5,7 +5,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
 
-import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
 import { ERequestStatus } from '@/core/types/generics/enums';
 import { queryKeys } from '@/core/query/keys';
 import { TJoinTeamRequest, TValidateRequestToJoinTeam } from '@/core/types/schemas';
@@ -117,24 +116,24 @@ export const useRequestToJoinTeam = () => {
 	}, [requestToJoinQuery]);
 
 	const requestToJoinTeam = useCallback(
-		async (data: IJoinTeamRequest) => {
-			const result = await requestToJoinMutation.mutateAsync(data as TJoinTeamRequest);
+		async (data: TJoinTeamRequest) => {
+			const result = await requestToJoinMutation.mutateAsync(data);
 			return result;
 		},
 		[requestToJoinMutation]
 	);
 
 	const validateRequestToJoinTeam = useCallback(
-		async (data: IValidateRequestToJoinTeam) => {
-			const result = await validateRequestToJoinMutation.mutateAsync(data as TValidateRequestToJoinTeam);
+		async (data: TValidateRequestToJoinTeam) => {
+			const result = await validateRequestToJoinMutation.mutateAsync(data);
 			return result;
 		},
 		[validateRequestToJoinMutation]
 	);
 
 	const resendCodeRequestToJoinTeam = useCallback(
-		async (data: IJoinTeamRequest) => {
-			const result = await resendCodeMutation.mutateAsync(data as TJoinTeamRequest);
+		async (data: TJoinTeamRequest) => {
+			const result = await resendCodeMutation.mutateAsync(data);
 			return result;
 		},
 		[resendCodeMutation]
@@ -163,24 +162,24 @@ export const useRequestToJoinTeam = () => {
 
 	// ✅ Backward compatible queryCall functions (deprecated but maintained)
 	const requestToJoinQueryCall = useCallback(
-		async (data: IJoinTeamRequest) => {
-			const result = await requestToJoinMutation.mutateAsync(data as TJoinTeamRequest);
+		async (data: TJoinTeamRequest) => {
+			const result = await requestToJoinMutation.mutateAsync(data);
 			return { data: result };
 		},
 		[requestToJoinMutation]
 	);
 
 	const validateRequestToJoinQueryCall = useCallback(
-		async (data: IValidateRequestToJoinTeam) => {
-			const result = await validateRequestToJoinMutation.mutateAsync(data as TValidateRequestToJoinTeam);
+		async (data: TValidateRequestToJoinTeam) => {
+			const result = await validateRequestToJoinMutation.mutateAsync(data);
 			return { data: result };
 		},
 		[validateRequestToJoinMutation]
 	);
 
 	const resendCodeRequestToJoinQueryCall = useCallback(
-		async (data: IJoinTeamRequest) => {
-			const result = await resendCodeMutation.mutateAsync(data as TJoinTeamRequest);
+		async (data: TJoinTeamRequest) => {
+			const result = await resendCodeMutation.mutateAsync(data);
 			return { data: result };
 		},
 		[resendCodeMutation]
