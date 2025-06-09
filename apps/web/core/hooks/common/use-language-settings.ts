@@ -161,7 +161,7 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 			}
 			return { data: { items: [], total: 0 } };
 		}
-	}, [languagesQuery, setActiveLanguageCode]);
+	}, [languagesQuery.data, languagesQuery.isStale]);
 
 	/**
 	 * Sets the active language and persists the selection
@@ -175,7 +175,7 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 				setActiveLanguageCode(languageId.code);
 			}
 		},
-		[setActiveLanguageCode, changeLanguage]
+		[activeLanguageId, activeLanguageCode, setActiveLanguageCode, changeLanguage]
 	);
 
 	return {
