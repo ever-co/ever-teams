@@ -50,10 +50,12 @@ export const validateResponseSchema = z
 // Success response schema for resend code
 export const resendCodeResponseSchema = z
 	.object({
-		data: z.object({
-			message: z.string().optional(),
-			success: z.boolean().optional()
-		}).passthrough()
+		data: z
+			.object({
+				message: z.string().optional(),
+				success: z.boolean().optional()
+			})
+			.passthrough()
 	})
 	.passthrough();
 
@@ -92,7 +94,7 @@ export const acceptRejectParamsSchema = z
 	})
 	.passthrough();
 
-// ✅ OBLIGATOIRE - Types inférés des schémas
+//  Types inferred from schemas - use these for consistency with validation
 export type TJoinTeamRequest = z.infer<typeof joinTeamRequestSchema>;
 export type TValidateRequestToJoinTeam = z.infer<typeof validateRequestToJoinTeamSchema>;
 export type TJoinTeamResponse = z.infer<typeof joinTeamResponseSchema>;
