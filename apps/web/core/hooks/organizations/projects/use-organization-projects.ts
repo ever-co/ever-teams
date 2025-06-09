@@ -8,7 +8,6 @@ import { TCreateProjectRequest, TEditProjectRequest } from '@/core/types/schemas
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../../common';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
@@ -64,7 +63,9 @@ export function useOrganizationProjects() {
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
 		() => {
-			setOrganizationProjects(organizationProjectsQuery.data?.items as IOrganizationProject[]);
+			if (organizationProjectsQuery.data?.items) {
+				setOrganizationProjects(organizationProjectsQuery.data.items);
+			}
 		},
 		[organizationProjectsQuery.data],
 		Boolean(organizationProjects?.length)
@@ -108,7 +109,7 @@ export function useOrganizationProjects() {
 				console.error('Failed to get the organization projects', error);
 			}
 		},
-		[organizationProjectsQuery.data]
+		[organizationProjectsQuery]
 	);
 
 	const createOrganizationProject = useCallback(
