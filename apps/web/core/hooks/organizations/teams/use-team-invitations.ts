@@ -193,7 +193,7 @@ export function useTeamInvitations() {
 	// Legacy useEffect removed - React Query handles data fetching automatically
 
 	const removeTeamInvitation = useCallback(
-		(invitationId: string, email?: string) => {
+		(invitationId: string, email?: string | null) => {
 			if (!(activeTeamId && isTeamManager && user?.tenantId && user?.employee?.organizationId)) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}

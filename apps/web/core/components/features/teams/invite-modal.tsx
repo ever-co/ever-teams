@@ -128,7 +128,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										label={t('pages.invite.TEAM_MEMBER_EMAIL')}
 										placeholder="example@domain.com"
 										required={true}
-										value={formData.email}
+										value={formData.email ?? ''}
 										onChange={handleChange}
 										errors={errors}
 									/>
