@@ -1,4 +1,3 @@
-import { IActivity } from '@/core/types/interfaces/activity/activity';
 import { pad } from './number';
 import { TActivity, TTimeSlot } from '@/core/types/schemas';
 export function groupDataByHour(data: TTimeSlot[]) {
@@ -25,8 +24,8 @@ export function groupDataByHour(data: TTimeSlot[]) {
 	return groupedData.sort((a, b) => (new Date(a.stoppedAt) < new Date(b.stoppedAt) ? 1 : -1));
 }
 
-export function groupAppsByHour(apps: IActivity[]) {
-	const groupedData: { hour: string; totalMilliseconds: number; apps: IActivity[] }[] = [];
+export function groupAppsByHour(apps: TActivity[]) {
+	const groupedData: { hour: string; totalMilliseconds: number; apps: TActivity[] }[] = [];
 
 	apps.forEach((app) => {
 		const time = app.time.slice(0, 5);

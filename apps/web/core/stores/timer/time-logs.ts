@@ -6,20 +6,20 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import {
 	IActivityReport,
 	ITimeLogGroupedDailyReport,
-	ITimeLogReportDaily,
 	ITimeLogReportDailyChart
 } from '@/core/types/interfaces/activity/activity-report';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
+import { TTimeLogReportDaily } from '@/core/types/schemas';
 
 interface IFilterOption {
 	value: string;
 	label: string;
 }
 
-export const timerLogsDailyReportState = atom<ITimeLogReportDaily[]>([]);
+export const timerLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
 
 export const timesheetRapportState = atom<ITimeLog[]>([]);
 

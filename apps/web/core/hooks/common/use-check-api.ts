@@ -27,7 +27,7 @@ export function useCheckAPI() {
 	);
 
 	const logApiCheckError = useCallback(
-		(error: any) => {
+		(error: unknown) => {
 			const apiErrorService = ApiErrorService.fromAxiosError(error);
 			logger.logToFile({
 				level: LogLevel.ERROR,

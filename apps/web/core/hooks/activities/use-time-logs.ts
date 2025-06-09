@@ -70,7 +70,7 @@ export function useTimeLogs() {
 	// Jotai synchronization
 	useEffect(() => {
 		if (timerLogsDailyReportQuery.data && Array.isArray(timerLogsDailyReportQuery.data)) {
-			setTimerLogsDailyReport(timerLogsDailyReportQuery.data as any[]);
+			setTimerLogsDailyReport(timerLogsDailyReportQuery.data);
 		}
 	}, [timerLogsDailyReportQuery.data, setTimerLogsDailyReport]);
 

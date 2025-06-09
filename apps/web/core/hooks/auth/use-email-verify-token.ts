@@ -2,7 +2,7 @@
 
 import { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import { queryKeys } from '@/core/query/keys';
@@ -13,7 +13,6 @@ export function useEmailVerifyToken() {
 	const email = searchParams?.get('email');
 	const token = searchParams?.get('token');
 
-	const infiniteLoading = useRef(false);
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
 	// SECURE - Memoized parameters to prevent infinite re-renders
@@ -59,7 +58,6 @@ export function useEmailVerifyToken() {
 
 	return {
 		errors,
-		infiniteLoading,
 		loading: emailVerificationQuery.isLoading
 	};
 }

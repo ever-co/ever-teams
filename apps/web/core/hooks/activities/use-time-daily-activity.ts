@@ -78,7 +78,7 @@ export function useTimeDailyActivity(type?: string) {
 	useEffect(() => {
 		if (dailyActivitiesQuery.data && Array.isArray(dailyActivitiesQuery.data)) {
 			// Cast TActivity[] to IActivity[] for compatibility with existing Jotai stores
-			const activities = dailyActivitiesQuery.data as any[];
+			const activities = dailyActivitiesQuery.data;
 			if (type === 'APP') {
 				setVisitedApps(activities);
 			} else {
