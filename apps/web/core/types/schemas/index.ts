@@ -37,6 +37,9 @@ export * from './user/invite.schema';
 // Auth schemas
 export * from './auth/email-verification.schema';
 
+// Team schemas
+export * from './team/request-to-join.schema';
+
 // Activity schemas
 export * from './activities/activity.schema';
 
