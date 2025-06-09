@@ -152,7 +152,19 @@ export const queryKeys = {
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
-			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const
+			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const,
+
+		// ✅ Request to join operations (consolidated from separate 'team' namespace)
+		requestToJoin: {
+			all: ['organization-teams', 'request-to-join'] as const,
+			list: () => ['organization-teams', 'request-to-join', 'list'] as const,
+			mutations: {
+				request: ['organization-teams', 'request-to-join', 'request'] as const,
+				validate: ['organization-teams', 'request-to-join', 'validate'] as const,
+				resendCode: ['organization-teams', 'request-to-join', 'resend-code'] as const,
+				acceptReject: ['organization-teams', 'request-to-join', 'accept-reject'] as const
+			}
+		}
 	},
 
 	tags: {

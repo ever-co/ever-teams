@@ -1,74 +1,192 @@
 import { requestToJoinState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useAtom } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
-import { useQueryCall } from '../../common';
-import { IJoinTeamRequest, IValidateRequestToJoinTeam } from '@/core/types/interfaces/team/request-to-join';
+
 import { ERequestStatus } from '@/core/types/generics/enums';
+import { queryKeys } from '@/core/query/keys';
+import { TJoinTeamRequest, TValidateRequestToJoinTeam } from '@/core/types/schemas';
+import { toast } from 'sonner';
 
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
+	const queryClient = useQueryClient();
 
-	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQueryCall(
-		requestToJoinTeamService.requestToJoin
-	);
-	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } = useQueryCall(
-		requestToJoinTeamService.validateRequestToJoin
-	);
-	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } = useQueryCall(
-		requestToJoinTeamService.resendCodeRequestToJoin
-	);
+	// React Query for GET operation
+	const requestToJoinQuery = useQuery({
+		queryKey: queryKeys.organizationTeams.requestToJoin.list(),
+		queryFn: async () => {
+			return await requestToJoinTeamService.getRequestToJoin();
+		},
+		staleTime: 1000 * 60 * 5, // 5 minutes - request data changes moderately
+		gcTime: 1000 * 60 * 15, // 15 minutes - useful for navigation
+		retry: 2
+	});
 
-	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQueryCall(
-		requestToJoinTeamService.getRequestToJoin
-	);
+	//Synchronize React Query data with Jotai state
+	useEffect(() => {
+		if (requestToJoinQuery.data?.items) {
+			setRequestToJoin(requestToJoinQuery.data.items);
+		}
+	}, [requestToJoinQuery.data?.items, setRequestToJoin]);
 
-	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } = useQueryCall(
-		requestToJoinTeamService.acceptRejectRequestToJoin
-	);
+	// React Query mutations
+	const requestToJoinMutation = useMutation({
+		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.request,
+		mutationFn: async (data: TJoinTeamRequest) => {
+			return await requestToJoinTeamService.requestToJoin(data);
+		},
+		onSuccess: () => {
+			// Invalidate and refetch request list
+			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.requestToJoin.list() });
+		}
+	});
 
-	const getRequestToJoin = useCallback(() => {
-		return getRequestToJoinQueryCall().then((res) => {
-			setRequestToJoin(res.data.items);
-		});
-	}, [getRequestToJoinQueryCall, setRequestToJoin]);
+	const validateRequestToJoinMutation = useMutation({
+		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.validate,
+		mutationFn: async (data: TValidateRequestToJoinTeam) => {
+			return await requestToJoinTeamService.validateRequestToJoin(data);
+		},
+		onSuccess: () => {
+			toast.success('Request validated successfully', {
+				description: 'You can now join the team'
+			});
+		},
+		onError: (error: any) => {
+			toast.error('Failed to validate request', {
+				description: error instanceof Error ? error.message : 'Please try again later'
+			});
+		}
+	});
+
+	const resendCodeMutation = useMutation({
+		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.resendCode,
+		mutationFn: async (data: TJoinTeamRequest) => {
+			return await requestToJoinTeamService.resendCodeRequestToJoin(data);
+		},
+		onSuccess: () => {
+			toast.success('Code resent successfully', {
+				description: 'The code has been successfully resent.'
+			});
+		},
+		onError: () => {
+			toast.error('Failed to resend code. Please try again later.');
+		}
+	});
+
+	const acceptRejectMutation = useMutation({
+		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.acceptReject,
+		mutationFn: async ({ id, action }: { id: string; action: ERequestStatus }) => {
+			return await requestToJoinTeamService.acceptRejectRequestToJoin(id, action);
+		},
+		onSuccess: () => {
+			// Invalidate and refetch request list
+			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.requestToJoin.list() });
+			toast.success('Request accepted/rejected successfully', {
+				description: 'The request has been successfully processed.'
+			});
+		},
+		onError: () => {
+			toast.error('Failed to accept/reject request', {
+				description: 'Please try again later'
+			});
+		}
+	});
+
+	// Backward compatible wrapper functions
+	const getRequestToJoin = useCallback(async () => {
+		try {
+			// Check if data is fresh, use cache if available
+			if (requestToJoinQuery.data && !requestToJoinQuery.isStale) {
+				return { data: requestToJoinQuery.data };
+			}
+
+			// Refetch if stale or missing
+			const result = await requestToJoinQuery.refetch();
+			return { data: result.data };
+		} catch (error) {
+			// Fallback to cached data if available
+			if (requestToJoinQuery.data) {
+				return { data: requestToJoinQuery.data };
+			}
+			throw error;
+		}
+	}, [requestToJoinQuery]);
 
 	const requestToJoinTeam = useCallback(
-		(data: IJoinTeamRequest) => {
-			return requestToJoinQueryCall(data).then((res) => {
-				return res.data;
-			});
+		async (data: TJoinTeamRequest) => {
+			const result = await requestToJoinMutation.mutateAsync(data);
+			return result;
 		},
-		[requestToJoinQueryCall]
+		[requestToJoinMutation]
 	);
+
 	const validateRequestToJoinTeam = useCallback(
-		(data: IValidateRequestToJoinTeam) => {
-			return validateRequestToJoinQueryCall(data).then((res) => {
-				return res.data;
-			});
+		async (data: TValidateRequestToJoinTeam) => {
+			const result = await validateRequestToJoinMutation.mutateAsync(data);
+			return result;
 		},
-		[validateRequestToJoinQueryCall]
+		[validateRequestToJoinMutation]
 	);
+
 	const resendCodeRequestToJoinTeam = useCallback(
-		(data: IJoinTeamRequest) => {
-			return resendCodeRequestToJoinQueryCall(data).then((res) => {
-				return res.data;
-			});
+		async (data: TJoinTeamRequest) => {
+			const result = await resendCodeMutation.mutateAsync(data);
+			return result;
 		},
-		[resendCodeRequestToJoinQueryCall]
+		[resendCodeMutation]
 	);
 
 	const acceptRejectRequestToJoin = useCallback(
-		(id: string, action: ERequestStatus) => {
-			acceptRejectRequestToJoinQueryCall(id, action).then(() => {
-				getRequestToJoin();
-			});
+		async (id: string, action: ERequestStatus) => {
+			await acceptRejectMutation.mutateAsync({ id, action });
+			// Data will be automatically refetched due to onSuccess invalidation
 		},
-		[acceptRejectRequestToJoinQueryCall, getRequestToJoin]
+		[acceptRejectMutation]
+	);
+
+	// Memoized loading states for backward compatibility
+	const requestToJoinLoading = useMemo(() => requestToJoinMutation.isPending, [requestToJoinMutation.isPending]);
+	const validateRequestToJoinLoading = useMemo(
+		() => validateRequestToJoinMutation.isPending,
+		[validateRequestToJoinMutation.isPending]
+	);
+	const resendCodeRequestToJoinLoading = useMemo(() => resendCodeMutation.isPending, [resendCodeMutation.isPending]);
+	const getRequestToJoinLoading = useMemo(() => requestToJoinQuery.isLoading, [requestToJoinQuery.isLoading]);
+	const acceptRejectRequestToJoinLoading = useMemo(
+		() => acceptRejectMutation.isPending,
+		[acceptRejectMutation.isPending]
+	);
+
+	// ✅ Backward compatible queryCall functions (deprecated but maintained)
+	const requestToJoinQueryCall = useCallback(
+		async (data: TJoinTeamRequest) => {
+			const result = await requestToJoinMutation.mutateAsync(data);
+			return { data: result };
+		},
+		[requestToJoinMutation]
+	);
+
+	const validateRequestToJoinQueryCall = useCallback(
+		async (data: TValidateRequestToJoinTeam) => {
+			const result = await validateRequestToJoinMutation.mutateAsync(data);
+			return { data: result };
+		},
+		[validateRequestToJoinMutation]
+	);
+
+	const resendCodeRequestToJoinQueryCall = useCallback(
+		async (data: TJoinTeamRequest) => {
+			const result = await resendCodeMutation.mutateAsync(data);
+			return { data: result };
+		},
+		[resendCodeMutation]
 	);
 
 	return {
+		// ✅ Backward compatible interface - exact same as before
 		requestToJoinLoading,
 		requestToJoinQueryCall,
 		validateRequestToJoinLoading,
@@ -82,6 +200,13 @@ export const useRequestToJoinTeam = () => {
 		getRequestToJoinLoading,
 		requestToJoin,
 		acceptRejectRequestToJoin,
-		acceptRejectRequestToJoinLoading
+		acceptRejectRequestToJoinLoading,
+
+		// ✅ Additional React Query states for advanced usage
+		requestToJoinQuery,
+		requestToJoinMutation,
+		validateRequestToJoinMutation,
+		resendCodeMutation,
+		acceptRejectMutation
 	};
 };

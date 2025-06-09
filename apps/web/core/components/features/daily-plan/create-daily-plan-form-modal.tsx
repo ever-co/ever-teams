@@ -110,7 +110,7 @@ export function CreateDailyPlanFormModal({
 							: new Date(moment(date).format('YYYY-MM-DD')),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: employeeId ?? selectedEmployee?.employeeId,
+				employeeId: employeeId ?? selectedEmployee?.employeeId ?? undefined,
 				organizationId: user?.employee?.organizationId
 			}).then(() => {
 				reset();

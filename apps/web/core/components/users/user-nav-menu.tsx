@@ -99,7 +99,6 @@ export function UserNavAvatar() {
 			</PopoverButton>
 
 			<Transition
-				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -323,7 +322,7 @@ function UserNavMenu() {
 					</li>
 				</ul>
 			</div>
-			<div className="w-10 h-10 bg-inherit border-inherit border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-5 right-8 rounded-xl rotate-[135deg] " />
+			<div className="w-8 h-8 bg-inherit border-inherit rounded-none border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-[0.95rem] right-8 rotate-[135deg] rounded-bl-md" />
 		</EverCard>
 	);
 }
@@ -355,7 +354,6 @@ function ThemeDropdown() {
 				<ChevronDown className="w-4 h-4 ml-2 opacity-50" />
 			</PopoverButton>
 			<Transition
-				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

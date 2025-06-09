@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader } from '@/core/components';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
+import { toast } from 'sonner';
 
 /**
  * GitHub integration page component.
@@ -17,6 +18,9 @@ const GitHub = () => {
 	const setup_action = searchParams?.get('setup_action');
 	const initialLoad = useRef<boolean>(false);
 	const installing = useRef<boolean>(false);
+
+	// Add state to track installation completion
+	const [installationCompleted, setInstallationCompleted] = useState<boolean>(false);
 
 	const t = useTranslations();
 
@@ -31,8 +35,8 @@ const GitHub = () => {
 
 	// Memoize the installation parameters
 	const canInstall = useMemo(() => {
-		return !installing.current && installation_id && setup_action;
-	}, [installation_id, setup_action]);
+		return !installing.current && !installationCompleted && installation_id && setup_action;
+	}, [installation_id, setup_action, installationCompleted]);
 
 	/**
 	 * Handle GitHub installation.
@@ -44,10 +48,13 @@ const GitHub = () => {
 		setTimeout(() => {
 			installGitHub(installation_id as string, setup_action as string)
 				.then(() => {
+					// Mark installation as completed and reset installing flag
+					setInstallationCompleted(true);
+					installing.current = false;
 					router.replace('/settings/team#integrations');
 				})
 				.catch((error) => {
-					console.error('Failed to install GitHub:', error);
+					toast.error('Failed to install GitHub:', { description: error.message });
 					installing.current = false;
 				});
 		}, 100);

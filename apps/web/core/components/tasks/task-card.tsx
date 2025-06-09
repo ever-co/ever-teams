@@ -904,7 +904,7 @@ export function RemoveTaskFromPlan({
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
 		taskId: task.id,
-		employeeId: member?.employeeId
+		employeeId: member?.employeeId ?? undefined
 	};
 	const onClick = () => {
 		removeTaskFromPlan(data, plan?.id ?? '');
@@ -927,7 +927,7 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?:
 	const { removeManyTaskPlans } = useDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
-		employeeId: member?.employeeId
+		employeeId: member?.employeeId ?? ''
 	};
 	const onClick = () => {
 		removeManyTaskPlans(data, task.id ?? '');
