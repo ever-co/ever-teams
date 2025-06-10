@@ -40,17 +40,20 @@ export const useBoard = () => {
 		window.localStorage.setItem('board-files', JSON.stringify(files));
 	}, []);
 
-	const onLiveCollaborationQuery = async () =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.board.liveCollaboration,
-			queryFn: async () => {
-				return await exportToBackend(
-					excalidrawAPI?.getSceneElements() || [],
-					excalidrawAPI?.getAppState() || ({} as AppState),
-					excalidrawAPI?.getFiles() || {}
-				);
-			}
-		});
+	const onLiveCollaborationQuery = useCallback(
+		async () =>
+			queryClient.fetchQuery({
+				queryKey: queryKeys.board.liveCollaboration,
+				queryFn: async () => {
+					return await exportToBackend(
+						excalidrawAPI?.getSceneElements() || [],
+						excalidrawAPI?.getAppState() || ({} as AppState),
+						excalidrawAPI?.getFiles() || {}
+					);
+				}
+			}),
+		[queryClient, excalidrawAPI]
+	);
 
 	const onLiveCollaboration = useCallback(async () => {
 		if (excalidrawAPI) {
@@ -62,7 +65,7 @@ export const useBoard = () => {
 				window.open(uri.toString(), '_blank', 'noreferrer');
 			}
 		}
-	}, [excalidrawAPI]);
+	}, [onLiveCollaborationQuery]);
 
 	return { setExcalidrawAPI, excalidrawAPI, saveChanges, onLiveCollaboration };
 };
