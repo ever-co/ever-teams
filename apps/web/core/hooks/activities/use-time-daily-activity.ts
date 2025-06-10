@@ -51,15 +51,15 @@ export function useTimeDailyActivity(type?: string) {
 
 	// React Query for daily activities data with dynamic title
 	const dailyActivitiesQuery = useQuery({
-		queryKey: queryKeys.activities.daily(
-			baseParams?.tenantId,
-			baseParams?.organizationId,
-			baseParams?.employeeId,
-			baseParams?.todayStart?.toISOString(),
-			baseParams?.todayEnd?.toISOString(),
-			baseParams?.type,
+		queryKey: queryKeys.activities.daily({
+			tenantId: baseParams?.tenantId,
+			organizationId: baseParams?.organizationId,
+			employeeId: baseParams?.employeeId,
+			todayStart: baseParams?.todayStart?.toISOString(),
+			todayEnd: baseParams?.todayEnd?.toISOString(),
+			type: baseParams?.type,
 			currentTitle
-		),
+		}),
 		queryFn: async () => {
 			if (!baseParams) {
 				throw new Error('Daily activities parameters are required');
