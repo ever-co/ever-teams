@@ -205,27 +205,10 @@ export const queryKeys = {
 				...(defaultRange ? [defaultRange] : []),
 				...(unitOfTime ? [unitOfTime] : [])
 			] as const,
-		daily: (
-			tenantId: string | undefined | null,
-			organizationId: string | undefined | null,
-			employeeId: string | undefined | null,
-			startDate: string | undefined | null,
-			endDate: string | undefined | null,
-			type?: string | undefined | null,
-			title?: string | undefined | null
-		) =>
-			[
-				'activities',
-				'daily',
-				...(tenantId ? [tenantId] : []),
-				...(organizationId ? [organizationId] : []),
-				...(employeeId ? [employeeId] : []),
-				...(startDate ? [startDate] : []),
-				...(endDate ? [endDate] : []),
-				...(type ? [type] : []),
-				...(title ? [title] : [])
-			] as const,
-		report: (params: Record<string, any>) => ['activities', 'report', params] as const
+		dailyChart: (params: Record<string, any>) => ['activities', 'daily-activity-report-chart', params] as const,
+		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
+		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
+		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 
 	// Keys related to task statuses

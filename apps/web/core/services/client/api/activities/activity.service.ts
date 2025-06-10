@@ -2,9 +2,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
-
-import { IActivityReport } from '@/core/types/interfaces/activity/activity-report';
-import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { IActivitiesReportRequest, IActivityReport } from '@/core/types/interfaces/activity/activity-report';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 import { activitySchema, TActivity } from '@/core/types/schemas/activities/activity.schema';
 
@@ -169,19 +167,7 @@ class ActivityService extends APIService {
 		employeeIds = [],
 		source = [],
 		logType = []
-	}: {
-		activityLevel?: { start: number; end: number };
-		organizationId: string;
-		tenantId: string;
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		groupBy?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		source?: string[];
-		logType?: ETimeLogType[];
-	}) => {
+	}: IActivitiesReportRequest) => {
 		const queryString = qs.stringify(
 			{
 				activityLevel,

@@ -13,7 +13,13 @@ import { statisticsService } from '@/core/services/client/api/timesheets/statist
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
-import { ITimeLogReportDailyChartProps } from '@/core/services/server/requests/timesheet';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import {
+	IActivitiesReportRequest,
+	ITimeLogReportDailyChartProps,
+	ITimeLogReportDailyRequest
+} from '@/core/types/interfaces/activity/activity-report';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -75,6 +81,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const { user } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
+	const queryClient = useQueryClient();
 
 	// State management
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
@@ -83,7 +90,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const [statisticsCounts, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
 	const [activityReport, setActivityReport] = useAtom(activityReportState);
 
-	// API queries
+	// API request
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQueryCall(
 		timeLogService.getTimeLogReportDailyChart
 	);
@@ -96,6 +103,67 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQueryCall(
 		activityService.getActivitiesReport
 	);
+
+	// React-queries
+	const timeLogReportDailyChartQuery = async (requestParams: ITimeLogReportDailyChartProps) => {
+		return await queryClient.fetchQuery({
+			queryKey: [
+				queryKeys.activities.dailyChart({
+					tenantId: user?.tenantId,
+					organizationId: user?.employee?.organizationId,
+					...currentFilters
+				})
+			],
+			queryFn: async () => await queryTimeLogReportDailyChart(requestParams),
+			staleTime: 1000 * 60 * 10,
+			gcTime: 1000 * 60 * 30
+		});
+	};
+
+	const timeLogReportDailyQuery = async (requestParams: ITimeLogReportDailyRequest) => {
+		return await queryClient.fetchQuery({
+			queryKey: [
+				queryKeys.activities.daily({
+					tenantId: user?.tenantId,
+					organizationId: user?.employee?.organizationId,
+					...currentFilters
+				})
+			],
+			queryFn: async () => await queryTimeLogReportDaily(requestParams),
+			staleTime: 1000 * 60 * 10,
+			gcTime: 1000 * 60 * 30
+		});
+	};
+
+	const timesheetStatisticsCountsQuery = async (requestParams: ITimeLogReportDailyRequest) => {
+		return await queryClient.fetchQuery({
+			queryKey: [
+				queryKeys.activities.statisticsCounts({
+					tenantId: user?.tenantId,
+					organizationId: user?.employee?.organizationId,
+					...currentFilters
+				})
+			],
+			queryFn: async () => await queryTimesheetStatisticsCounts(requestParams),
+			staleTime: 1000 * 60 * 10,
+			gcTime: 1000 * 60 * 30
+		});
+	};
+
+	const activityReportQuery = async (requestParams: IActivitiesReportRequest) => {
+		return await queryClient.fetchQuery({
+			queryKey: [
+				queryKeys.activities.activityReport({
+					tenantId: user?.tenantId,
+					organizationId: user?.employee?.organizationId,
+					...currentFilters
+				})
+			],
+			queryFn: async () => await queryActivityReport(requestParams),
+			staleTime: 1000 * 60 * 10,
+			gcTime: 1000 * 60 * 30
+		});
+	};
 
 	// Memoized employee and team IDs
 	const employeeIds = useMemo(
@@ -177,10 +245,10 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const fetchReport = useCallback(
 		async <T>(
 			queryFn:
-				| typeof queryTimeLogReportDailyChart
-				| typeof queryTimeLogReportDaily
-				| typeof queryTimesheetStatisticsCounts
-				| typeof queryActivityReport,
+				| typeof timeLogReportDailyChartQuery
+				| typeof timeLogReportDailyQuery
+				| typeof timesheetStatisticsCountsQuery
+				| typeof activityReportQuery,
 			setData: ((data: T[]) => void) | null,
 			customProps?: Partial<UseReportActivityProps>
 		) => {
@@ -224,21 +292,24 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	// Specific fetch functions
 	const fetchReportActivity = useCallback(
-		(customProps?: Partial<UseReportActivityProps>) =>
-			fetchReport(queryTimeLogReportDailyChart, setRapportChartActivity, customProps),
-		[fetchReport, queryTimeLogReportDailyChart, setRapportChartActivity]
+		(customProps?: Partial<UseReportActivityProps>) => {
+			return fetchReport(timeLogReportDailyChartQuery, setRapportChartActivity, customProps);
+		},
+		[fetchReport, timeLogReportDailyChartQuery, setRapportChartActivity]
 	);
 
 	const fetchDailyReport = useCallback(
-		(customProps?: Partial<UseReportActivityProps>) =>
-			fetchReport(queryTimeLogReportDaily, setRapportDailyActivity, customProps),
-		[fetchReport, queryTimeLogReportDaily, setRapportDailyActivity]
+		(customProps?: Partial<UseReportActivityProps>) => {
+			return fetchReport(timeLogReportDailyQuery, setRapportDailyActivity, customProps);
+		},
+		[fetchReport, timeLogReportDailyQuery, setRapportDailyActivity]
 	);
 
 	const fetchActivityReport = useCallback(
-		(customProps?: Partial<UseReportActivityProps>) =>
-			fetchReport(queryActivityReport, setActivityReport, customProps),
-		[fetchReport, queryActivityReport, setActivityReport]
+		(customProps?: Partial<UseReportActivityProps>) => {
+			return fetchReport(activityReportQuery, setActivityReport, customProps);
+		},
+		[fetchReport, activityReportQuery, setActivityReport]
 	);
 
 	const fetchStatisticsCounts = useCallback(
@@ -248,7 +319,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 			}
 			try {
 				const mergedProps = getMergedProps(customProps);
-				const response = await queryTimesheetStatisticsCounts({
+				const response = await timesheetStatisticsCountsQuery({
 					...mergedProps,
 					logType: [ETimeLogType.TRACKED]
 				});
@@ -264,7 +335,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				setStatisticsCounts(null);
 			}
 		},
-		[user, getMergedProps, queryTimesheetStatisticsCounts, setStatisticsCounts]
+		[user, getMergedProps, timesheetStatisticsCountsQuery, setStatisticsCounts]
 	);
 
 	// Update handlers
