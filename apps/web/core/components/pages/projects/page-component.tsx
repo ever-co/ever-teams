@@ -206,7 +206,7 @@ function PageComponent() {
 					filteredProjects?.map((el) => {
 						return [el.project.id, true];
 					})
-				)
+				) ?? {}
 			);
 		}
 	}, [filteredProjects, selectedProjects]);

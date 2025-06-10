@@ -17,7 +17,6 @@ export function useOrganizationProjects() {
 	const queryClient = useQueryClient();
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
-	const [projectId, setProjectId] = useState<string | null>(null);
 
 	// React Query for fetching organization projects
 	const organizationProjectsQuery = useQuery({
@@ -36,12 +35,6 @@ export function useOrganizationProjects() {
 				queries: memoizedSearchQueries ?? undefined
 			}),
 		enabled: !!memoizedSearchQueries
-	});
-
-	const projectQuery = useQuery({
-		queryKey: [queryKeys.organizationProjects.all, projectId],
-		queryFn: () => organizationProjectService.getOrganizationProject(projectId!),
-		enabled: !!projectId
 	});
 
 	// Invalidation helper
@@ -142,15 +135,19 @@ export function useOrganizationProjects() {
 		[deleteOrganizationProjectMutation]
 	);
 
-	const getOrganizationproject = useCallback(
+	const getOrganizationProject = useCallback(
 		async (id: string) => {
 			try {
-				return await projectQuery.refetch();
+				const result = await queryClient.fetchQuery({
+					queryKey: [queryKeys.organizationProjects.all, id],
+					queryFn: () => organizationProjectService.getOrganizationProject(id)
+				});
+				return result;
 			} catch (error) {
 				console.error('Failed to get the organization project', error);
 			}
 		},
-		[projectQuery]
+		[queryClient]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
@@ -184,8 +181,7 @@ export function useOrganizationProjects() {
 		setOrganizationProjects,
 		firstLoadOrganizationProjectsData: handleFirstLoad,
 		setSearchQueries,
-		setProjectId,
 		filteredOrganizations,
-		getOrganizationproject
+		getOrganizationProject
 	};
 }
