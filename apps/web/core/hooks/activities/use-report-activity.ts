@@ -295,21 +295,21 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		(customProps?: Partial<UseReportActivityProps>) => {
 			return fetchReport(timeLogReportDailyChartQuery, setRapportChartActivity, customProps);
 		},
-		[fetchReport, timeLogReportDailyChartQuery, setRapportChartActivity]
+		[fetchReport, setRapportChartActivity]
 	);
 
 	const fetchDailyReport = useCallback(
 		(customProps?: Partial<UseReportActivityProps>) => {
 			return fetchReport(timeLogReportDailyQuery, setRapportDailyActivity, customProps);
 		},
-		[fetchReport, timeLogReportDailyQuery, setRapportDailyActivity]
+		[fetchReport, setRapportDailyActivity]
 	);
 
 	const fetchActivityReport = useCallback(
 		(customProps?: Partial<UseReportActivityProps>) => {
 			return fetchReport(activityReportQuery, setActivityReport, customProps);
 		},
-		[fetchReport, activityReportQuery, setActivityReport]
+		[fetchReport, setActivityReport]
 	);
 
 	const fetchStatisticsCounts = useCallback(
@@ -335,7 +335,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				setStatisticsCounts(null);
 			}
 		},
-		[user, getMergedProps, timesheetStatisticsCountsQuery, setStatisticsCounts]
+		[user, getMergedProps, setStatisticsCounts]
 	);
 
 	// Update handlers
