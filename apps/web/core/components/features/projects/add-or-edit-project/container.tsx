@@ -1,6 +1,6 @@
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 import { TModalMode } from '.';
-import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
+import { TImageAsset } from '@/core/types/schemas';
 import { TCreateProjectRequest, TOrganizationProject } from '@/core/types/schemas';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
@@ -14,7 +14,7 @@ interface IAddOrEditContainerProps extends PropsWithChildren {
 
 export type TStepData = Partial<
 	TCreateProjectRequest & {
-		projectImage?: IImageAsset;
+		projectImage?: TImageAsset;
 		members?: { memberId: string; roleId: string; id: string }[];
 		id?: string;
 	}

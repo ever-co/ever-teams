@@ -444,5 +444,9 @@ export const queryKeys = {
 		all: ['email-verification'] as const,
 		verifyToken: (email: string | undefined | null, token: string | undefined | null) =>
 			['email-verification', 'verify-token', ...(email ? [email] : []), ...(token ? [token] : [])] as const
+	},
+
+	board: {
+		liveCollaboration: ['live-collaboration'] as const
 	}
 };

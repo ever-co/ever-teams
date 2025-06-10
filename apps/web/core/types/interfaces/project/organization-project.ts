@@ -84,7 +84,7 @@ export interface ICreateProjectRequest {
 	description?: string;
 	color?: string;
 	tags?: TTag[];
-	imageUrl?: string;
+	imageUrl?: string | null;
 	imageId?: string;
 	budget?: number;
 	budgetType?: EProjectBudgetType;
