@@ -1,5 +1,5 @@
 import { userState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
@@ -15,12 +15,33 @@ export function useOrganizationProjects() {
 	const [organizationProjects, setOrganizationProjects] = useAtom(organizationProjectsState);
 	const [user] = useAtom(userState);
 	const queryClient = useQueryClient();
+	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
+	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
+	const [projectId, setProjectId] = useState<string | null>(null);
 
 	// React Query for fetching organization projects
 	const organizationProjectsQuery = useQuery({
 		queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId),
 		queryFn: () => organizationProjectService.getOrganizationProjects(),
 		enabled: !!organizationId && !!tenantId
+	});
+
+	const filteredOrganizations = useQuery({
+		queryKey: [
+			queryKeys.organizationProjects.all,
+			queryKeys.organizationProjects.withQueries(memoizedSearchQueries)
+		],
+		queryFn: () =>
+			organizationProjectService.getOrganizationProjects({
+				queries: memoizedSearchQueries ?? undefined
+			}),
+		enabled: !!memoizedSearchQueries
+	});
+
+	const projectQuery = useQuery({
+		queryKey: [queryKeys.organizationProjects.all, projectId],
+		queryFn: () => organizationProjectService.getOrganizationProject(projectId!),
+		enabled: !!projectId
 	});
 
 	// Invalidation helper
@@ -94,23 +115,9 @@ export function useOrganizationProjects() {
 		[editOrganizationProjectMutation]
 	);
 
-	const getOrganizationProjects = useCallback(
-		async ({ queries }: { queries?: Record<string, string> } = {}) => {
-			try {
-				// For queries, we can use the service directly or invalidate and refetch
-				if (queries && Object.keys(queries).length > 0) {
-					const res = await organizationProjectService.getOrganizationProjects({ queries });
-
-					if (res) {
-						return res;
-					}
-				}
-			} catch (error) {
-				console.error('Failed to get the organization projects', error);
-			}
-		},
-		[organizationProjectsQuery]
-	);
+	const getOrganizationProjects = useCallback(async () => {
+		return organizationProjectsQuery.data;
+	}, [organizationProjectsQuery]);
 
 	const createOrganizationProject = useCallback(
 		async (data: Partial<TCreateProjectRequest>) => {
@@ -133,6 +140,17 @@ export function useOrganizationProjects() {
 			}
 		},
 		[deleteOrganizationProjectMutation]
+	);
+
+	const getOrganizationproject = useCallback(
+		async (id: string) => {
+			try {
+				return await projectQuery.refetch();
+			} catch (error) {
+				console.error('Failed to get the organization project', error);
+			}
+		},
+		[projectQuery]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
@@ -164,6 +182,10 @@ export function useOrganizationProjects() {
 		deleteOrganizationProject,
 		deleteOrganizationProjectLoading: deleteOrganizationProjectMutation.isPending,
 		setOrganizationProjects,
-		firstLoadOrganizationProjectsData: handleFirstLoad
+		firstLoadOrganizationProjectsData: handleFirstLoad,
+		setSearchQueries,
+		setProjectId,
+		filteredOrganizations,
+		getOrganizationproject
 	};
 }

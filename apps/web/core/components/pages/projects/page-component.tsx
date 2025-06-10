@@ -64,7 +64,8 @@ function PageComponent() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
-	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
+	const { getOrganizationProjectsLoading, organizationProjects, filteredOrganizations, setSearchQueries } =
+		useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
 		to: endOfMonth(new Date())
@@ -165,24 +166,21 @@ function PageComponent() {
 		*/
 
 		if (Object.keys(queries).length > 0) {
-			getOrganizationProjects({ queries }).then((data) => {
-				if (data && data.items && data.items.length > 0) {
-					const projects = (data.items as IOrganizationProject[])
-						?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
-						.map(mapProjectToViewDataType);
+			setSearchQueries(queries);
+			const projects = filteredOrganizations?.data?.items
+				?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
+				.map(mapProjectToViewDataType);
 
-					setProjects(projects);
-					setSelectedProjects({}); // Reset projects selection
-				}
-			});
+			setProjects(projects as ProjectViewDataType[]);
+			setSelectedProjects({}); // Reset projects selection
 		} else {
 			setProjects(
 				organizationProjects
-					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
+					?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
 					.map(mapProjectToViewDataType)
 			);
 		}
-	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
+	}, [params, organizationProjects, showArchivedProjects]);
 
 	// Handle archived / active - table columns visibility
 	useEffect(() => {
@@ -198,14 +196,14 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
+		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects?.length;
 
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {
 			setSelectedProjects(
 				Object.fromEntries(
-					filteredProjects.map((el) => {
+					filteredProjects?.map((el) => {
 						return [el.project.id, true];
 					})
 				)

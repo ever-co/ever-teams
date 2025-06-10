@@ -1,5 +1,4 @@
 import { NullableGridSize } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
-import { ECurrencies } from '../../generics/enums/currency';
 import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { TTag } from '../../schemas';
@@ -22,7 +21,7 @@ export interface IOrganizationProjectBase
 	startDate?: Date | null;
 	endDate?: Date | null;
 	billing?: EProjectBilling | null;
-	currency?: ECurrencies | null;
+	currency?: string | null;
 	members?: IOrganizationProjectEmployee[];
 	public?: boolean | null;
 	owner?: EProjectOwner | null;

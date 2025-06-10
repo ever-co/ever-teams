@@ -58,7 +58,13 @@ export const organizationProjectBaseSchema = z
 		startDate: z.coerce.date().optional(),
 		endDate: z.coerce.date().optional(),
 		billing: z.nativeEnum(EProjectBilling).optional().nullable(),
-		currency: z.nativeEnum(ECurrencies).optional().nullable(),
+		currency: z
+			.union([
+				z.nativeEnum(ECurrencies),
+				z.string() // fallback to any string
+			])
+			.optional()
+			.nullable(),
 		public: z.boolean().nullable(),
 		owner: z.nativeEnum(EProjectOwner).nullable().nullable(),
 		taskListType: z.nativeEnum(ETaskListType).optional().nullable(),

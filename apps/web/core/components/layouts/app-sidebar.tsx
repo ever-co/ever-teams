@@ -51,8 +51,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		() =>
 			activeTeam
 				? organizationProjects
-						?.filter((el) => !el.isArchived)
-						?.filter((el) => activeTeam?.projects?.map((el) => el.id).includes(el.id))
+						?.filter((el) => !el?.isArchived)
+						?.filter((el) => activeTeam?.projects?.map((el) => el.id).includes(el?.id))
 				: [],
 		[activeTeam, organizationProjects]
 	); // Consider projects for the active team
@@ -242,26 +242,26 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						...(projects
 							? projects.map((project) => {
 									return {
-										title: project.name ?? '',
+										title: project?.name ?? '',
 										label: 'project',
-										url: `/projects/${project.id}`,
+										url: `/projects/${project?.id}`,
 										icon: (
 											<div
-												key={project.name}
-												style={{ backgroundColor: project.color || undefined }}
+												key={project?.name}
+												style={{ backgroundColor: project?.color || undefined }}
 												className={cn(
 													'flex overflow-hidden justify-center items-center w-8 h-8 rounded-full border'
 												)}
 											>
-												{!project.imageUrl ? (
-													project.name?.substring(0, 2)
+												{!project?.imageUrl ? (
+													project?.name?.substring(0, 2)
 												) : (
 													<Image
-														alt={project.name ?? ''}
+														alt={project?.name ?? ''}
 														height={40}
 														width={40}
 														className="w-full h-full"
-														src={project.imageUrl}
+														src={project?.imageUrl}
 													/>
 												)}
 											</div>
