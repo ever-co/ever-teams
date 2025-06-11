@@ -35,6 +35,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -138,7 +139,7 @@ export const ProjectsTable = memo(
 						<div className="">
 							<div className="flex items-center font-medium gap-2">
 								<div
-									style={{ backgroundColor: row.original?.project?.color }}
+									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
 										'w-10 h-10  border overflow-hidden flex items-center justify-center rounded-xl'
 									)}
@@ -200,7 +201,8 @@ export const ProjectsTable = memo(
 								style={{
 									backgroundColor:
 										resolvedTheme == 'light'
-											? (statusColorsMap.get(row.original?.status) ?? 'transparent')
+											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
+												'transparent')
 											: '#6A7280'
 								}}
 								className="rounded text-xs px-4 py-1"

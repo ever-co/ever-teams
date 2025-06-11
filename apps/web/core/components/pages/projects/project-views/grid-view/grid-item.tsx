@@ -80,7 +80,7 @@ export default function GridItem(props: IGridItemProps) {
 					<div className="w-full flex items-center justify-between">
 						<div className="flex items-center font-medium gap-2">
 							<div
-								style={{ backgroundColor: data?.project?.color }}
+								style={{ backgroundColor: data?.project?.color ?? undefined }}
 								className={cn(
 									'w-9 h-9 border overflow-hidden flex items-center justify-center rounded-lg'
 								)}

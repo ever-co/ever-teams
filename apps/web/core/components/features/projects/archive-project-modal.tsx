@@ -7,6 +7,7 @@ import { clsxm } from '@/core/lib/utils';
 import moment from 'moment';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -68,9 +69,9 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 				setOrganizationProjects(
 					organizationProjects.map((project) => {
 						if (project.id === projectId) {
-							return res.data;
+							return res.data as IOrganizationProject;
 						}
-						return project;
+						return project as IOrganizationProject;
 					})
 				);
 			}

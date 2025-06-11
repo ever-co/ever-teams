@@ -290,6 +290,22 @@ export const queryKeys = {
 		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
 	},
 
+	// Keys related to organization projects
+	organizationProjects: {
+		all: ['organization-projects'] as const,
+		detail: (projectId: string | undefined | null) =>
+			['organization-projects', ...(projectId ? [projectId] : [])] as const,
+		byOrganization: (organizationId: string | undefined | null, tenantId: string | undefined | null) =>
+			[
+				'organization-projects',
+				'by-organization',
+				...(organizationId ? [organizationId] : []),
+				...(tenantId ? [tenantId] : [])
+			] as const,
+		withQueries: (queries: Record<string, string> | undefined | null) =>
+			['organization-projects', 'with-queries', ...(queries ? [queries] : [])] as const
+	},
+
 	// Keys related to the Timesheet / Timer
 	timesheet: {
 		all: ['timesheet'] as const,

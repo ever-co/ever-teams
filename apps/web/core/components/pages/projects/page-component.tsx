@@ -43,6 +43,7 @@ import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { CreateProjectModal } from '../../features/projects/create-project-modal';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -63,13 +64,15 @@ function PageComponent() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
-	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
+	const { getOrganizationProjectsLoading, organizationProjects, filteredOrganizations, setSearchQueries } =
+		useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
 		to: endOfMonth(new Date())
 	});
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
+	const showArchivedProjects = Boolean(params.get('archived'));
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -97,7 +100,25 @@ function PageComponent() {
 
 	const handleBack = () => router.back();
 
-	const showArchivedProjects = Boolean(params.get('archived'));
+	const mapProjectToViewDataType = useCallback((project: IOrganizationProject): ProjectViewDataType => {
+		return {
+			project: {
+				name: project.name,
+				imageUrl: project.imageUrl,
+				color: project.color,
+				id: project.id
+			},
+			status: project.status,
+			archivedAt: project.archivedAt,
+			isArchived: project.isArchived,
+			startDate: project.startDate,
+			endDate: project.endDate,
+			members: project.members,
+			managers: project.members,
+			teams: project.teams
+		};
+	}, []);
+
 	const activeTeamProjects = useMemo(
 		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
 		[activeTeam, projects]
@@ -144,32 +165,22 @@ function PageComponent() {
 		 when the api is ready
 		*/
 
-		getOrganizationProjects({ queries }).then((data) => {
-			if (data && data?.items?.length > 0) {
-				const projects = data.items
-					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
-					.map((el) => ({
-						project: {
-							name: el.name,
-							imageUrl: el.imageUrl,
-							color: el.color,
-							id: el.id
-						},
-						status: el.status,
-						archivedAt: el.archivedAt,
-						isArchived: el.isArchived,
-						startDate: el.startDate,
-						endDate: el.endDate,
-						members: el.members,
-						managers: el.members,
-						teams: el.teams
-					}));
+		if (Object.keys(queries).length > 0) {
+			setSearchQueries(queries);
+			const projects = filteredOrganizations?.data?.items
+				?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
+				.map(mapProjectToViewDataType);
 
-				setProjects(projects);
-				setSelectedProjects({}); // Reset projects selection
-			}
-		});
-	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
+			setProjects(projects as ProjectViewDataType[]);
+			setSelectedProjects({}); // Reset projects selection
+		} else {
+			setProjects(
+				organizationProjects
+					?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
+					.map(mapProjectToViewDataType)
+			);
+		}
+	}, [params, organizationProjects, showArchivedProjects]);
 
 	// Handle archived / active - table columns visibility
 	useEffect(() => {
@@ -185,17 +196,17 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
+		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects?.length;
 
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {
 			setSelectedProjects(
 				Object.fromEntries(
-					filteredProjects.map((el) => {
+					filteredProjects?.map((el) => {
 						return [el.project.id, true];
 					})
-				)
+				) ?? {}
 			);
 		}
 	}, [filteredProjects, selectedProjects]);

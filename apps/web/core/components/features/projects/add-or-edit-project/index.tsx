@@ -8,14 +8,14 @@ import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
-import { ICreateProjectRequest } from '@/core/types/interfaces/project/organization-project';
 import { EverCard } from '@/core/components/common/ever-card';
+import { TCreateProjectRequest } from '@/core/types/schemas';
 
 export type TModalMode = 'edit' | 'create';
 
 interface IAddOrEditProjectFormProps {
 	mode?: TModalMode;
-	projectData: ICreateProjectRequest | object;
+	projectData: TCreateProjectRequest | object;
 	onFinish?: VoidFunction;
 }
 

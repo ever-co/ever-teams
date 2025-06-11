@@ -42,16 +42,18 @@ const ScreenshotDetailsModal = ({
 	const [project, setProject] = useState<IOrganizationProject | null>(null);
 	const [task, setTask] = useState<ITask | null>(null);
 
-	const { getOrganizationProject } = useOrganizationProjects();
+	const { organizationProjects } = useOrganizationProjects();
 	const { getTaskById } = useTeamTasks();
 
 	const getProject = useCallback(
 		async (projectId: string) => {
-			const project = await getOrganizationProject(projectId);
+			const project = organizationProjects?.find((p) => p.id === projectId);
 
-			project?.data && setProject(project?.data);
+			if (!project) return null;
+
+			setProject(project);
 		},
-		[getOrganizationProject]
+		[organizationProjects]
 	);
 
 	const getTask = useCallback(

@@ -298,7 +298,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	const [selected, setSelected] = useState<IOrganizationProject | null>(() => {
 		if (task && task.projectId) {
-			return organizationProjects.find((project) => project.id === task.projectId) || null;
+			return organizationProjects?.find((project) => project.id === task.projectId) || null;
 		}
 		return null;
 	});
@@ -428,7 +428,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										>
 											<ScrollArea className="w-full h-full">
 												<div className="flex flex-col gap-2.5 w-full p-4">
-													{organizationProjects.map((item) => {
+													{organizationProjects?.map((item) => {
 														return (
 															<ListboxOption key={item.id} value={item} as="div">
 																<li className="relative border  flex items-center gap-2 p-1.5  rounded-lg outline-none cursor-pointer dark:text-white">
@@ -480,10 +480,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {
-					setSelected(project);
-					onChange?.(project);
+					setSelected(project as IOrganizationProject);
+					onChange?.(project as IOrganizationProject);
 					if (!controlled) {
-						handleUpdateProject(project);
+						handleUpdateProject(project as IOrganizationProject);
 					}
 				}}
 				open={isOpen}

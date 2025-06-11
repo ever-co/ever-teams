@@ -18,7 +18,7 @@ export function ActivityCalendar() {
 			.filter((item) => new Date(item.date).getFullYear() === selectedYear)
 			.map((el) => ({
 				value: Number((el.sum / 3600).toPrecision(2)),
-				day: el.date
+				day: String(el.date)
 			}));
 	}, [timerLogsDailyReport, selectedYear]);
 

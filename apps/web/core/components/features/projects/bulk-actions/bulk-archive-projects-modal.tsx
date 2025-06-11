@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import moment from 'moment';
 import { EverCard } from '@/core/components/common/ever-card';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 interface IBulkArchiveProjectModalProps {
 	open: boolean;
@@ -52,7 +53,7 @@ export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 
 				if (updatedProjects?.items) {
 					closeModal();
-					setOrganizationProjects(updatedProjects?.items);
+					setOrganizationProjects(updatedProjects?.items as IOrganizationProject[]);
 				}
 			}
 		} catch (error) {

@@ -4,20 +4,20 @@ import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
-import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { TProjectRelation } from '@/core/types/schemas';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
 	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>(() =>
 		getInitialValue(currentData, 'members', [])
 	);
-	const [relations, setRelations] = useState<(IProjectRelation & { id: string })[]>([]);
+	const [relations, setRelations] = useState<(TProjectRelation & { id: string })[]>([]);
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
 	const { roles } = useRoles();

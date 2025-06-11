@@ -4,6 +4,7 @@ import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '@/core/components/common/ever-card';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 interface IBulkRestoreProjectModalProps {
 	open: boolean;
@@ -52,7 +53,7 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 
 				if (updatedProjects?.items) {
 					closeModal();
-					setOrganizationProjects(updatedProjects?.items);
+					setOrganizationProjects(updatedProjects?.items as IOrganizationProject[]);
 				}
 			}
 		} catch (error) {

@@ -14,6 +14,7 @@ import {
 } from '@/core/types/interfaces/team/organization-team';
 
 import { TUser } from '@/core/types/schemas';
+import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 class OrganizationTeamService extends APIService {
 	/**
@@ -57,7 +58,7 @@ class OrganizationTeamService extends APIService {
 			organizationId: data.organizationId
 		});
 
-		data.projects = [project.data];
+		data.projects = [project.data as IOrganizationProject];
 
 		return this.post<IOrganizationTeam>('/organization-team', data, {
 			tenantId: data.tenantId,
