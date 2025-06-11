@@ -154,6 +154,20 @@ export const queryKeys = {
 		joinRequests: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const,
 
+		// ✅ Mutation keys for team operations
+		mutations: {
+			create: (params: any | undefined | null) =>
+				['organization-teams', 'mutations', 'create', ...(params ? [params] : [])] as const,
+			update: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'update', ...(teamId ? [teamId] : [])] as const,
+			edit: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'edit', ...(teamId ? [teamId] : [])] as const,
+			delete: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'delete', ...(teamId ? [teamId] : [])] as const,
+			removeUser: (userId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'remove-user', ...(userId ? [userId] : [])] as const
+		},
+
 		// ✅ Request to join operations (consolidated from separate 'team' namespace)
 		requestToJoin: {
 			all: ['organization-teams', 'request-to-join'] as const,

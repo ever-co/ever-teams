@@ -16,7 +16,7 @@ import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-
 // Base organization team employee schema
 export const baseOrganizationTeamEmployeeSchema = z
 	.object({
-		order: z.number().optional(),
+		order: z.number().optional().nullable(),
 		isTrackingEnabled: z.boolean().optional()
 	})
 	.merge(basePerTenantAndOrganizationEntityModelSchema)
@@ -27,7 +27,7 @@ export const baseOrganizationTeamEmployeeSchema = z
 // Organization team employee schema
 export const organizationTeamEmployeeSchema = z
 	.object({
-		activeTaskId: idSchema.optional(),
+		activeTaskId: idSchema.optional().nullable(),
 		activeTask: z.any().optional(), // Will be properly typed when task schema is created
 		isManager: z.boolean().optional(),
 		isActive: z.boolean().optional(),
@@ -77,8 +77,8 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 	employeeId: z.string().optional(),
 	roleId: z.string().optional(),
 	isTrackingEnabled: z.boolean().optional(),
-	activeTaskId: z.string().optional(),
-	order: z.number().optional()
+	activeTaskId: z.string().optional().nullable(),
+	order: z.number().optional().nullable()
 });
 
 // Organization team employee update schema
