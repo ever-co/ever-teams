@@ -218,7 +218,6 @@ export const teamRequestParamsSchema = z.object({
 	relations: z.array(z.string()).optional()
 });
 
-// Interfaces types inférés des schémas Zod
 export type TOrganizationTeam = z.infer<typeof organizationTeamSchema>;
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
