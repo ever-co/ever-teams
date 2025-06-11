@@ -13,13 +13,13 @@ import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -49,7 +49,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [endTime, setEndTime] = useState<string>('');
 	const [date, setDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState<string>('');
-	const [team, setTeam] = useState<IOrganizationTeam>();
+	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();

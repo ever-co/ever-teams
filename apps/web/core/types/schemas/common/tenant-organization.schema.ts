@@ -4,7 +4,7 @@ import { organizationSchema } from '../organization/organization.schema';
 
 export const basePerTenantAndOrganizationEntityModelSchema = z
 	.object({
-		organizationId: z.string().optional().nullable(),
+		organizationId: z.string().optional(),
 		organization: organizationSchema.optional().nullable()
 	})
 	.merge(basePerTenantEntityModelSchema);

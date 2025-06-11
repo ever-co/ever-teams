@@ -46,7 +46,7 @@ const Team = () => {
 							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 						>
 							<div className="flex flex-col">
-								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
+								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color || ''} />
 								<TeamSettingForm />
 							</div>
 						</Accordian>

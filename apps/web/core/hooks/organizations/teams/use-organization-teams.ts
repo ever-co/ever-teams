@@ -7,7 +7,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
+import { TOrganizationTeam } from '@/core/types/schemas';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -22,7 +22,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
+import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -137,7 +137,7 @@ function useUpdateOrganizationTeam() {
 	const queryClient = useQueryClient();
 
 	const updateTeamMutation = useMutation({
-		mutationFn: async (params: { teamId: string; data: Partial<TOrganizationTeamUpdate> }) => {
+		mutationFn: async (params: { teamId: string; data: Partial<TOrganizationTeam> }) => {
 			return organizationTeamService.updateOrganizationTeam(params.teamId, params.data);
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.update(undefined),
@@ -159,10 +159,10 @@ function useUpdateOrganizationTeam() {
 	});
 
 	const updateOrganizationTeam = useCallback(
-		(team: TOrganizationTeam, data: Partial<TOrganizationTeamUpdate> = {}) => {
+		(team: TOrganizationTeam, data: Partial<TOrganizationTeam> = {}) => {
 			const members = team.members;
 
-			const body: Partial<TOrganizationTeamUpdate> = {
+			const body: Partial<TOrganizationTeam> = {
 				id: team.id,
 				memberIds: members
 					?.map((t) => t.employee?.id || '')
@@ -239,7 +239,7 @@ function useUpdateOrganizationTeam() {
  * @property {any} firstLoadTeamsData
  * Initial data loaded when the hook is first initialized
  *
- * @property {(data: TOrganizationTeamUpdate) => Promise<any>} editOrganizationTeam
+ * @property {(data: Partial<TOrganizationTeam>) => Promise<any>} editOrganizationTeam
  * Updates existing team information with full validation
  *
  * @property {boolean} editOrganizationTeamLoading
@@ -254,7 +254,7 @@ function useUpdateOrganizationTeam() {
  * @property {any[]} activeTeamManagers
  * List of managers for the active team with their roles and permissions
  *
- * @property {(team: TOrganizationTeam, data?: Partial<TOrganizationTeamUpdate>) => void} updateOrganizationTeam
+ * @property {(team: TOrganizationTeam, data?: Partial<TOrganizationTeam>) => void} updateOrganizationTeam
  * Updates team details with partial data support
  *
  * @property {boolean} updateOTeamLoading
@@ -411,7 +411,7 @@ export function useOrganizationTeams() {
 
 	// Edit organization team mutation
 	const editTeamMutation = useMutation({
-		mutationFn: async (data: TOrganizationTeamUpdate) => {
+		mutationFn: async (data: Partial<TOrganizationTeam>) => {
 			return organizationTeamService.editOrganizationTeam(data);
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.edit(undefined),
@@ -573,7 +573,7 @@ export function useOrganizationTeams() {
 
 	// Wrapper functions for backward compatibility with mutation promises
 	const editOrganizationTeam = useCallback(
-		(data: TOrganizationTeamUpdate) => {
+		(data: Partial<TOrganizationTeam>) => {
 			// Use mutateAsync for Promise-based API compatibility
 			return editTeamMutation.mutateAsync(data);
 		},

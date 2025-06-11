@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { relationalImageAssetSchema, relationalOrganizationProjectSchema, taggableSchema } from '../common/base.schema';
+import { idSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
@@ -8,13 +8,13 @@ import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
 
 export const baseProjectSchema = z.object({
-	deletedAt: z.string().datetime(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	deletedAt: z.coerce.date().optional().nullable(),
+	createdAt: z.coerce.date().optional().nullable(),
+	updatedAt: z.coerce.date().optional().nullable(),
 	id: z.string(),
 	isActive: z.boolean(),
 	isArchived: z.boolean(),
-	archivedAt: z.string().datetime(),
+	archivedAt: z.coerce.date().optional().nullable(),
 	tenantId: z.string(),
 	organizationId: z.string(),
 	name: z.string(),
@@ -45,7 +45,14 @@ export const baseProjectSchema = z.object({
 	closeTasksIn: z.number(),
 	organizationContactId: z.string(),
 	imageId: z.string(),
-	defaultAssigneeId: z.string()
+	defaultAssigneeId: z.string(),
+	repository: z
+		.object({
+			repositoryId: z.string().optional().nullable(),
+			repositoryName: z.string().optional().nullable()
+		})
+		.optional()
+		.nullable()
 });
 
 // Organization team update schema
@@ -56,7 +63,7 @@ export const organizationTeamUpdateSchema = z.object({
 		})
 		.optional()
 		.nullable(),
-	tenantId: z.string(),
+	tenantId: z.string().optional(),
 	organization: organizationSchema
 		.merge(
 			z.object({
@@ -67,7 +74,7 @@ export const organizationTeamUpdateSchema = z.object({
 		)
 		.optional()
 		.nullable(),
-	organizationId: z.string(),
+	organizationId: z.string().optional(),
 	sentTo: z.string(),
 	tags: z.array(z.null()), // ou z.array(z.string().nullable()) si mix
 	memberIds: z.array(z.string()),
@@ -76,12 +83,13 @@ export const organizationTeamUpdateSchema = z.object({
 	prefix: z.string(),
 	shareProfileView: z.boolean(),
 	requirePlanToTrack: z.boolean(),
-	imageId: z.string(),
+	imageId: z.string().optional().nullable(),
+	image: z.any().optional().nullable(),
 	public: z.boolean(),
 	color: z.string(),
 	emoji: z.string(),
 	teamSize: z.string(),
-	projects: z.array(baseProjectSchema),
+	projects: z.array(baseProjectSchema).optional(),
 	id: z.string(),
 	name: z.string()
 });
@@ -93,6 +101,7 @@ export const organizationTeamUpdateSchema = z.object({
 // Base team properties schema
 export const baseTeamPropertiesSchema = z
 	.object({
+		id: idSchema,
 		name: z.string(),
 		color: z.string().optional().nullable(),
 		emoji: z.string().optional().nullable(),
@@ -113,7 +122,7 @@ export const baseTeamPropertiesSchema = z
 export const teamAssociationsSchema = z.object({
 	members: z.array(organizationTeamEmployeeSchema).optional().nullable(),
 	managers: z.array(organizationTeamEmployeeSchema).optional().nullable(),
-	projects: z.array(relationalOrganizationProjectSchema).optional().nullable(),
+	projects: z.array(baseProjectSchema).optional(),
 	tasks: z.array(z.any()).optional()
 });
 
@@ -144,12 +153,12 @@ export const organizationTeamCreateResponseSchema = z.object({
 	deletedByUserId: z.string().uuid().nullable(),
 	isActive: z.boolean(),
 	isArchived: z.boolean(),
-	archivedAt: z.string().datetime().nullable(),
-	startDate: z.string().datetime().nullable(),
-	endDate: z.string().datetime().nullable(),
+	archivedAt: z.coerce.date().optional().nullable(),
+	startDate: z.coerce.date().optional().nullable(),
+	endDate: z.coerce.date().optional().nullable(),
 	billing: z.any().nullable(),
 	currency: z.any().nullable().optional(),
-	public: z.boolean().optional().nullable(),
+	public: z.boolean(),
 	owner: z.any().optional().nullable(),
 	code: z.string().optional().nullable(),
 	description: z.string().optional().nullable(),
@@ -178,10 +187,10 @@ export const organizationTeamCreateResponseSchema = z.object({
 			fix_relational_custom_fields: z.any().nullable()
 		})
 		.optional(),
-	deletedAt: z.string().datetime().optional().nullable(),
-	createdAt: z.string().datetime().optional().nullable(),
-	updatedAt: z.string().datetime().optional().nullable(),
-	id: z.string().uuid().optional().nullable(),
+	deletedAt: z.coerce.date().optional().nullable(),
+	createdAt: z.coerce.date().optional(),
+	updatedAt: z.coerce.date().optional(),
+	id: idSchema,
 	taskListType: z.enum(['GRID', 'KANBAN', 'LIST']).optional().nullable(),
 
 	emoji: z.string().optional().nullable(),
@@ -209,8 +218,8 @@ export const teamRequestParamsSchema = z.object({
 	relations: z.array(z.string()).optional()
 });
 
+// Interfaces types inférés des schémas Zod
 export type TOrganizationTeam = z.infer<typeof organizationTeamSchema>;
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
-export type TOrganizationTeamUpdate = z.infer<typeof organizationTeamUpdateSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;

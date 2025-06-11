@@ -13,7 +13,6 @@ import {
 	ZodValidationError,
 	TOrganizationTeam,
 	TOrganizationTeamCreate,
-	TOrganizationTeamUpdate,
 	TTeamRequestParams,
 	TUser,
 	TOrganizationProject,
@@ -235,7 +234,7 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	editOrganizationTeam = async (data: TOrganizationTeamUpdate) => {
+	editOrganizationTeam = async (data: Partial<TOrganizationTeam>) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
@@ -243,7 +242,7 @@ class OrganizationTeamService extends APIService {
 			let response = await this.put<TOrganizationTeam>(`/organization-team/${data.id}`, data);
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(data.id, organizationId, tenantId);
+				response = await this.getOrganizationTeam(data.id!, organizationId, tenantId);
 			} else {
 				// Validate the response data for non-Gauzy API
 				const validatedData = validateApiResponse(
@@ -273,7 +272,7 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeamUpdate>) => {
+	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeam>) => {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 

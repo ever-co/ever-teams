@@ -7,7 +7,7 @@ import { taskSchema } from '../activities/activity.schema';
 export const teamAssociationsSchema = z.object({
 	members: z.array(organizationTeamEmployeeSchema),
 	managers: z.array(organizationTeamEmployeeSchema),
-	projects: z.array(relationalOrganizationProjectSchema),
+	projects: z.array(relationalOrganizationProjectSchema).optional(),
 	tasks: z.array(taskSchema)
 });
 export const teamSchema = z

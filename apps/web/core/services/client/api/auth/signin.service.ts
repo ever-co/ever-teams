@@ -11,6 +11,7 @@ import { userOrganizationService } from '../users/user-organization.service';
 import { organizationTeamService } from '../organizations/teams';
 import { IAuthResponse, ISigninEmailConfirmResponse, ISigninWorkspaceInput } from '@/core/types/interfaces/auth/auth';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
 class SigninService extends APIService {
 	signInEmailConfirm = async (data: { code: string; email: string }) => {
@@ -105,7 +106,7 @@ class SigninService extends APIService {
 				userId
 			});
 
-			const response: AxiosResponse<{ loginResponse: IAuthResponse; team: IOrganizationTeam }> = {
+			const response: AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam }> = {
 				data: { team, loginResponse },
 				status: 200,
 				statusText: '',

@@ -6,11 +6,11 @@ import { useTranslations } from 'next-intl';
 import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
 interface IProps {
 	projects: ProjectViewDataType[];
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 }
 
 export function ProjectExportMenu(props: IProps) {
@@ -69,7 +69,7 @@ export function ProjectExportMenu(props: IProps) {
 															el.members?.map((el) => el.employee?.fullName || '') ?? [],
 														managers:
 															el.managers?.map((el) => el.employee?.fullName || '') ?? [],
-														teams: el.teams?.map((el: IOrganizationTeam) => el.name) ?? []
+														teams: el.teams?.map((el) => el.name) ?? []
 													};
 												})}
 												headers={{

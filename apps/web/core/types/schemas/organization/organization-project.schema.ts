@@ -52,6 +52,7 @@ export const organizationProjectBaseSchema = z
 		id: z.string(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
+		archivedAt: z.coerce.string().nullable().optional(),
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional(),
 		name: z.string(),

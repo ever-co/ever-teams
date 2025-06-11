@@ -477,7 +477,7 @@ export function useTeamTasks() {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId
+						tenantId: activeTeam?.tenantId ?? ''
 					});
 				}
 			}

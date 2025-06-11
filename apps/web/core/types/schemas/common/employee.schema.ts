@@ -31,7 +31,7 @@ export const employeeBaseSchema = z
 		billRateCurrency: z.nativeEnum(ECurrencies).optional().nullable(),
 		minimumBillingRate: z.number().optional().nullable(),
 		reWeeklyLimit: z.number().optional().nullable(),
-		projects: z.array(relationalOrganizationProjectSchema).optional().nullable(),
+		projects: z.array(relationalOrganizationProjectSchema).optional(),
 		offerDate: z.coerce.date().optional().nullable(),
 		acceptDate: z.coerce.date().optional().nullable(),
 		rejectDate: z.coerce.date().optional().nullable(),

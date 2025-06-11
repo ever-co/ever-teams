@@ -43,7 +43,7 @@ import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { CreateProjectModal } from '../../features/projects/create-project-modal';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { TOrganizationProject } from '@/core/types/schemas';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -100,7 +100,7 @@ function PageComponent() {
 
 	const handleBack = () => router.back();
 
-	const mapProjectToViewDataType = useCallback((project: IOrganizationProject): ProjectViewDataType => {
+	const mapProjectToViewDataType = useCallback((project: TOrganizationProject): ProjectViewDataType => {
 		return {
 			project: {
 				name: project.name,
@@ -109,10 +109,10 @@ function PageComponent() {
 				id: project.id
 			},
 			status: project.status,
-			archivedAt: project.archivedAt,
+			archivedAt: project.archivedAt || null,
 			isArchived: project.isArchived,
-			startDate: project.startDate,
-			endDate: project.endDate,
+			startDate: project.startDate || undefined,
+			endDate: project.endDate || undefined,
 			members: project.members,
 			managers: project.members,
 			teams: project.teams
@@ -202,15 +202,16 @@ function PageComponent() {
 			setSelectedProjects({});
 		} else {
 			setSelectedProjects(
-				Object.fromEntries(
-					filteredProjects?.map((el) => {
-						return [el.project.id, true];
-					})
-				) ?? {}
+				filteredProjects
+					? Object.fromEntries(
+							filteredProjects.map((el) => {
+								return [el.project.id, true];
+							})
+						)
+					: {}
 			);
 		}
 	}, [filteredProjects, selectedProjects]);
-
 	/**
 	 * --- Bulk actions -------
 	 */

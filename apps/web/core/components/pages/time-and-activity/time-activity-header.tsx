@@ -6,17 +6,16 @@ import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-acti
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
 	onViewOptionsChange?: (options: ViewOption[]) => void;
-	userManagedTeams?: IOrganizationTeam[];
-	projects?: IOrganizationProject[];
+	userManagedTeams?: TOrganizationTeam[];
+	projects?: TOrganizationProject[];
 	tasks?: ITask[];
-	activeTeam?: IOrganizationTeam | null;
+	activeTeam?: TOrganizationTeam | null;
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onGroupByChange?: (value: GroupByType) => void;
 	groupByType?: GroupByType;
@@ -57,14 +56,14 @@ function TimeActivityHeader({
 	const currentViewOptions = externalViewOptions || internalViewOptions;
 
 	return (
-		<div className="flex justify-between items-center w-full dark:bg-dar">
+		<div className="flex items-center justify-between w-full dark:bg-dar">
 			<h1 className="text-2xl font-semibold">Time and Activity</h1>
-			<div className="flex gap-4 items-center">
+			<div className="flex items-center gap-4">
 				<GroupBySelectTimeActivity onGroupByChange={props.onGroupByChange} groupByType={props.groupByType} />
 				<TimeActivityFilterPopover {...props} />
 				<ViewSelect viewOptions={currentViewOptions} onChange={handleViewOptionsChange} />
 				<DateRangePickerTimeActivity onDateRangeChange={handleDateRangeChange} />
-				<div className="flex gap-2 items-center">
+				<div className="flex items-center gap-2">
 					<Select defaultValue="export">
 						<SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 							<SelectValue placeholder="Export" />

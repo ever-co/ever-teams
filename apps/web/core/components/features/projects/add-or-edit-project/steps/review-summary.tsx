@@ -10,7 +10,7 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/orga
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { IOrganizationProject, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
+import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
@@ -85,7 +85,7 @@ export default function FinalReview(props: IStepElementProps) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return project.data as IOrganizationProject;
+							return project.data as TOrganizationProject;
 						}
 						return el;
 					})

@@ -225,7 +225,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="z-10 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
-										defaultColor={activeTeam?.color}
+										defaultColor={activeTeam?.color || ''}
 										onChange={(color: any | null) => {
 											setValue('color', color);
 											debounceHandleColorChange();

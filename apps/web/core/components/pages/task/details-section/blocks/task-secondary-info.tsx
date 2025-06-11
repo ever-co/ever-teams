@@ -35,7 +35,7 @@ import { QuickCreateProjectModal } from '@/core/components/features/projects/qui
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { TOrganizationProject } from '@/core/types/schemas';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -269,7 +269,7 @@ const EpicParent = ({ task }: { task: ITask }) => {
 interface ITaskProjectDropdownProps {
 	task?: ITask;
 	controlled?: boolean;
-	onChange?: (project: IOrganizationProject) => void;
+	onChange?: (project: TOrganizationProject) => void;
 	styles?: {
 		container?: string; // The dropdown element
 		value?: string;
@@ -296,7 +296,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<IOrganizationProject | null>(() => {
+	const [selected, setSelected] = useState<TOrganizationProject | null>(() => {
 		if (task && task.projectId) {
 			return organizationProjects?.find((project) => project.id === task.projectId) || null;
 		}
@@ -313,7 +313,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	// Update the project
 	const handleUpdateProject = useCallback(
-		async (project: IOrganizationProject) => {
+		async (project: TOrganizationProject) => {
 			try {
 				if (task) {
 					await updateTask({ ...task, projectId: project.id });
@@ -347,7 +347,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			>
 				<Listbox
 					value={selected || undefined}
-					onChange={(project: IOrganizationProject) => {
+					onChange={(project: TOrganizationProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {
@@ -480,10 +480,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {
-					setSelected(project as IOrganizationProject);
-					onChange?.(project as IOrganizationProject);
+					setSelected(project);
+					onChange?.(project);
 					if (!controlled) {
-						handleUpdateProject(project as IOrganizationProject);
+						handleUpdateProject(project);
 					}
 				}}
 				open={isOpen}
