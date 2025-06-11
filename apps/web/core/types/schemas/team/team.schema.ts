@@ -20,7 +20,7 @@ export const teamSchema = z
 		prefix: z.string().optional(),
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
-		public: z.boolean().optional(),
+		public: z.boolean().nullable(),
 		profile_link: z.string().optional(),
 		imageId: z.string().optional(),
 		image: z.any().optional(),

@@ -110,7 +110,7 @@ export default function FinalReview(props: IStepElementProps) {
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
 						websiteUrl={finalData?.projectUrl ?? undefined}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						description={finalData?.description}
+						description={finalData?.description ?? undefined}
 					/>
 					<FinancialSettings
 						budgetAmount={finalData?.budget}
@@ -298,7 +298,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 
 interface ICategorizationProps {
 	tags?: TTag[];
-	colorCode?: string;
+	colorCode?: string | null;
 }
 
 function Categorization(props: ICategorizationProps) {

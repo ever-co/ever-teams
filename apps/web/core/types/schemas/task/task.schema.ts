@@ -21,7 +21,7 @@ export const organizationTeamSchema = basePerTenantAndOrganizationEntitySchema.e
 	logo: z.string().optional(),
 	imageId: z.string().optional(),
 	color: z.string().optional(),
-	public: z.boolean().optional(),
+	public: z.boolean().nullable(),
 	profile_link: z.string().optional(),
 	tags: z.array(tagSchema).optional().nullable(),
 	members: z.array(employeeSchema).optional().nullable(),
@@ -78,7 +78,7 @@ export const taskLinkedIssueSchema = z.object({
 export const baseTaskPropertiesSchema = basePerTenantAndOrganizationEntitySchema.extend({
 	title: z.string(),
 	number: z.number().optional(),
-	public: z.boolean().optional(),
+	public: z.boolean().nullable(),
 	prefix: z.string().optional(),
 	description: z.string().optional(),
 	status: taskStatusNameSchema.optional(),
@@ -104,7 +104,7 @@ export const taskAssociationsSchema = z.object({
 const baseTaskSchema = z.object({
 	title: z.string(),
 	number: z.number().optional(),
-	public: z.boolean().optional(),
+	public: z.boolean().nullable(),
 	prefix: z.string().optional(),
 	description: z.string().optional(),
 	status: taskStatusNameSchema.optional(),
