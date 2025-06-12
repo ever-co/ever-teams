@@ -21,8 +21,8 @@ export const roleSchema = z
 
 // Relational role schema
 export const relationalRoleSchema = z.object({
-	role: roleSchema.optional(),
-	roleId: idSchema.optional()
+	role: roleSchema.optional().nullable(),
+	roleId: idSchema.optional().nullable()
 });
 
 // Role list schema (for API responses)

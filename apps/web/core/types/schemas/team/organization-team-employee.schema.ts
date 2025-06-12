@@ -5,7 +5,7 @@ import {
 	relationalEmployeeSchema,
 	idSchema
 } from '../common/base.schema';
-import { relationalRoleSchema, roleSchema } from '../role/role.schema';
+import { relationalRoleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 
@@ -22,7 +22,7 @@ export const baseOrganizationTeamEmployeeSchema = z
 	.merge(basePerTenantAndOrganizationEntityModelSchema)
 	.merge(relationalOrganizationTeamSchema)
 	.merge(managerAssignableSchema)
-	.strict();
+	.passthrough();
 
 // Organization team employee schema
 export const organizationTeamEmployeeSchema = z
@@ -53,7 +53,7 @@ export const organizationTeamEmployeeSchema = z
 					.union([z.literal(12), z.literal(24)])
 					.nullable()
 					.optional(),
-				role: roleSchema.optional(),
+				role: z.string().optional().nullable(),
 				roleId: z.string().nullable().optional(),
 				hash: z.string().nullable().optional()
 			})
@@ -75,7 +75,7 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 	organizationTeamId: z.string().optional(),
 	tenantId: z.string().optional(),
 	employeeId: z.string().optional(),
-	roleId: z.string().optional(),
+	roleId: z.string().optional().nullable(),
 	isTrackingEnabled: z.boolean().optional(),
 	activeTaskId: z.string().optional().nullable(),
 	order: z.number().optional().nullable()

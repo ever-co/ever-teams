@@ -28,7 +28,7 @@ export const employeeBaseSchema = z
 		teams: z.array(organizationTeamSchema).optional(),
 		// payPeriod?: PayPeriodEnum;
 		billRateValue: z.number().optional().nullable(),
-		billRateCurrency: z.nativeEnum(ECurrencies).optional().nullable(),
+		billRateCurrency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 		minimumBillingRate: z.number().optional().nullable(),
 		reWeeklyLimit: z.number().optional().nullable(),
 		projects: z.array(relationalOrganizationProjectSchema).optional(),

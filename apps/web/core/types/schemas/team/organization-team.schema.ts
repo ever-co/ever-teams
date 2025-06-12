@@ -21,7 +21,7 @@ export const baseProjectSchema = z.object({
 	startDate: z.string().or(z.coerce.date()).optional().nullable(),
 	endDate: z.string().or(z.coerce.date()).optional().nullable(),
 	billing: z.nativeEnum(EProjectBilling).optional().nullable(),
-	currency: z.nativeEnum(ECurrencies).optional().nullable(), // idem
+	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(), // idem
 	public: z.boolean().nullable(),
 	owner: z.nativeEnum(EProjectOwner).optional().nullable(),
 	taskListType: z.nativeEnum(ETaskListType).optional().nullable(),
@@ -68,7 +68,7 @@ export const organizationTeamUpdateSchema = z.object({
 		.merge(
 			z.object({
 				name: z.string(),
-				currency: z.nativeEnum(ECurrencies).optional().nullable(),
+				currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 				isDefault: z.boolean().optional().nullable()
 			})
 		)
@@ -157,7 +157,7 @@ export const organizationTeamCreateResponseSchema = z.object({
 	startDate: z.coerce.date().optional().nullable(),
 	endDate: z.coerce.date().optional().nullable(),
 	billing: z.any().nullable(),
-	currency: z.any().nullable().optional(),
+	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 	public: z.boolean().nullable(),
 	owner: z.any().optional().nullable(),
 	code: z.string().nullable(),

@@ -110,7 +110,7 @@ export const customFieldsObjectSchema = z.record(z.any());
 // Organization create schema
 export const organizationCreateSchema = z.object({
 	name: z.string(),
-	currency: z.string(),
+	currency: z.string().nullable(),
 	tenantId: z.string(),
 	invitesAllowed: z.boolean()
 });

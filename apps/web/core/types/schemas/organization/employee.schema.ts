@@ -25,7 +25,7 @@ export const employeeSchema = z
 		description: z.string().optional().nullable(),
 		teams: z.array(teamSchema).optional(), // Will be properly typed when organization team schema is created
 		billRateValue: z.number().optional(),
-		billRateCurrency: z.nativeEnum(ECurrencies).optional().nullable(),
+		billRateCurrency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 		minimumBillingRate: z.number().optional(),
 		reWeeklyLimit: z.number().optional(),
 		projects: z.array(z.any()).optional(), // Will be properly typed when organization project schema is created
