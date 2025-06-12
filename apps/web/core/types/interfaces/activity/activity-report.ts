@@ -228,6 +228,20 @@ export interface ITimeLogReportDailyChartProps {
 	userId?: string;
 }
 
+export interface IActivitiesReportRequest {
+	activityLevel?: { start: number; end: number };
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	groupBy?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	source?: string[];
+	logType?: ETimeLogType[];
+}
+
 export interface ITimeLogReportDaily {
 	activity: number;
 	date: string; // '2024-07-19'
