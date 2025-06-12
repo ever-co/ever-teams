@@ -1,6 +1,6 @@
-import { TOrganizationTeamEmployee } from '../../schemas';
+import { TImageAsset, TOrganizationTeamEmployee } from '../../schemas';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
-import { IImageAsset, IRelationalImageAsset } from '../common/image-asset';
+import { IRelationalImageAsset } from '../common/image-asset';
 import { IOrganizationProject } from '../project/organization-project';
 import { ITask } from '../task/task';
 
@@ -49,7 +49,7 @@ export interface IOrganizationTeamCreate {
 	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
-	image?: IImageAsset | null;
+	image?: TImageAsset | null;
 	projects?: IOrganizationProject[];
 }
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };

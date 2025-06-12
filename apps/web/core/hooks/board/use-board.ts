@@ -1,13 +1,16 @@
 import { exportToBackend } from '@/core/lib/helpers/export-to-backend';
+import { queryKeys } from '@/core/query/keys';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
 import { AppState, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 export const useBoard = () => {
 	const loaded = useRef(false);
 	// const { user } = useAuthenticateUser();
 	const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
+	const queryClient = useQueryClient();
 
 	useEffect(() => {
 		if (!excalidrawAPI || loaded.current) {
@@ -37,21 +40,32 @@ export const useBoard = () => {
 		window.localStorage.setItem('board-files', JSON.stringify(files));
 	}, []);
 
+	const onLiveCollaborationQuery = useCallback(
+		async () =>
+			queryClient.fetchQuery({
+				queryKey: queryKeys.board.liveCollaboration,
+				queryFn: async () => {
+					return await exportToBackend(
+						excalidrawAPI?.getSceneElements() || [],
+						excalidrawAPI?.getAppState() || ({} as AppState),
+						excalidrawAPI?.getFiles() || {}
+					);
+				}
+			}),
+		[queryClient, excalidrawAPI]
+	);
+
 	const onLiveCollaboration = useCallback(async () => {
 		if (excalidrawAPI) {
-			await exportToBackend(
-				excalidrawAPI.getSceneElements(),
-				excalidrawAPI.getAppState(),
-				excalidrawAPI.getFiles()
-			).then((res) => {
-				if (res.url) {
-					const uri = new URL(res.url);
-					uri.searchParams.set('live', 'true');
-					window.open(uri.toString(), '_blank', 'noreferrer');
-				}
-			});
+			const response = await onLiveCollaborationQuery();
+
+			if (response.url) {
+				const uri = new URL(response.url);
+				uri.searchParams.set('live', 'true');
+				window.open(uri.toString(), '_blank', 'noreferrer');
+			}
 		}
-	}, [excalidrawAPI]);
+	}, [onLiveCollaborationQuery]);
 
 	return { setExcalidrawAPI, excalidrawAPI, saveChanges, onLiveCollaboration };
 };

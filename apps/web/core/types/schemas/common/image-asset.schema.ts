@@ -34,3 +34,7 @@ export const createImageAssetsSchema = z.object({
 	organizationId: z.string(),
 	file: z.any() // File object
 });
+
+// Export TypeScript types
+export type TImageAsset = z.infer<typeof imageAssetSchema>;
+export type TCreateImageAssets = z.infer<typeof createImageAssetsSchema>;
