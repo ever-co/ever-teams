@@ -27,6 +27,7 @@ import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { toast } from 'sonner';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -98,11 +99,17 @@ function useCreateOrganizationTeam() {
 				 * Refresh Token needed for the first time when new Organization is created,
 				 * As in backend permissions are getting updated
 				 */
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.all
+				});
+				toast.success('Organization team created successfully', {
+					description: 'You can now start using your new team'
+				});
 				await refreshToken();
 			}
 		},
 		onError: (error) => {
-			console.error('Create organization team failed:', error);
+			toast.error('Create organization team failed:', { description: error.message });
 		}
 	});
 
@@ -152,9 +159,12 @@ function useUpdateOrganizationTeam() {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
+			toast.success('Organization team updated successfully', {
+				description: 'Your team has been updated successfully'
+			});
 		},
 		onError: (error) => {
-			console.error('Update organization team failed:', error);
+			toast.error('Update organization team failed:', { description: error.message });
 		}
 	});
 
@@ -426,7 +436,7 @@ export function useOrganizationTeams() {
 			});
 		},
 		onError: (error) => {
-			console.error('Edit organization team failed:', error);
+			toast.error('Edit organization team failed:', { description: error.message });
 		}
 	});
 
@@ -441,9 +451,12 @@ export function useOrganizationTeams() {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
+			toast.success('Organization team deleted successfully', {
+				description: 'Your team has been deleted successfully'
+			});
 		},
 		onError: (error) => {
-			console.error('Delete organization team failed:', error);
+			toast.error('Delete organization team failed:', { description: error.message });
 		}
 	});
 
@@ -463,9 +476,12 @@ export function useOrganizationTeams() {
 			refreshToken().then(() => {
 				updateUserFromAPI();
 			});
+			toast.success('User removed from all teams successfully', {
+				description: 'You have been removed from all teams'
+			});
 		},
 		onError: (error) => {
-			console.error('Remove user from all teams failed:', error);
+			toast.error('Remove user from all teams failed:', { description: error.message });
 		}
 	});
 

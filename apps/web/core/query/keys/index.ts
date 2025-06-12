@@ -147,7 +147,7 @@ export const queryKeys = {
 	// Keys related to teams (organization-team)
 	organizationTeams: {
 		all: ['organization-teams'] as const,
-		paginated: (params: Record<string, any>) => ['organization-teams', 'paginated', params] as const,
+		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
@@ -156,7 +156,7 @@ export const queryKeys = {
 
 		// ✅ Mutation keys for team operations
 		mutations: {
-			create: (params: any | undefined | null) =>
+			create: (params: Record<string, string> | undefined | null) =>
 				['organization-teams', 'mutations', 'create', ...(params ? [params] : [])] as const,
 			update: (teamId: string | undefined | null) =>
 				['organization-teams', 'mutations', 'update', ...(teamId ? [teamId] : [])] as const,
@@ -239,7 +239,7 @@ export const queryKeys = {
 				...(type ? [type] : []),
 				...(title ? [title] : [])
 			] as const,
-		report: (params: Record<string, any>) => ['activities', 'report', params] as const
+		report: (params: Record<string, string>) => ['activities', 'report', params] as const
 	},
 
 	// Keys related to task statuses
@@ -349,19 +349,19 @@ export const queryKeys = {
 		all: ['timer'] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
-			byParams: (params: Record<string, any> | null) =>
+			byParams: (params: Record<string, string> | null) =>
 				['timer', 'time-limits', 'by-params', ...(params ? [params] : [])] as const
 		},
 		timeLogs: {
 			all: ['timer', 'time-logs'] as const,
 			byEmployee: (employeeId: string | undefined | null) =>
 				['timer', 'time-logs', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
-			byParams: (params: Record<string, any> | null) =>
+			byParams: (params: Record<string, string> | null) =>
 				['timer', 'time-logs', 'by-params', ...(params ? [params] : [])] as const
 		},
 		timeSlots: {
 			all: ['timer', 'time-slots'] as const,
-			byParams: (params: Record<string, any> | null) =>
+			byParams: (params: Record<string, string> | null) =>
 				['timer', 'time-slots', 'by-params', ...(params ? [params] : [])] as const,
 			operations: {
 				all: ['timer', 'time-slots', 'operations'] as const,
