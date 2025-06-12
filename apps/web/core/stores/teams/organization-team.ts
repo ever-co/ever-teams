@@ -24,7 +24,7 @@ export const activeTeamState = atom<TOrganizationTeam | null>((get) => {
 });
 export const memberActiveTaskIdState = atom<string | null>(null);
 
-export const publicactiveTeamState = atom<TOrganizationTeam | undefined>(undefined);
+export const publicActiveTeamState = atom<TOrganizationTeam | undefined>(undefined);
 
 export const activeTeamManagersState = atom<TOrganizationTeamEmployee[]>((get) => {
 	const activeTeam = get(activeTeamState);
