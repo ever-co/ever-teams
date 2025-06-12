@@ -44,7 +44,7 @@ export const organizationSchema = z
 		imageUrl: z.string().optional(),
 		banner: z.string(),
 		short_description: z.string().optional().nullable(),
-		client_focus: z.string(),
+		client_focus: z.string().optional().nullable(),
 		show_income: z.boolean().optional(),
 		show_profits: z.boolean().optional(),
 		show_bonuses_paid: z.boolean().optional(),
@@ -53,8 +53,8 @@ export const organizationSchema = z
 		show_projects_count: z.boolean().optional(),
 		show_clients_count: z.boolean().optional(),
 		show_employees_count: z.boolean().optional(),
-		overview: z.string(),
-		currency: z.string(),
+		overview: z.string().optional().nullable(),
+		currency: z.string().optional().nullable(),
 		defaultValueDateType: defaultValueDateTypeSchema,
 		defaultAlignmentType: z.string().optional(),
 		dateFormat: z.string().optional(),
@@ -110,7 +110,7 @@ export const customFieldsObjectSchema = z.record(z.any());
 // Organization create schema
 export const organizationCreateSchema = z.object({
 	name: z.string(),
-	currency: z.string(),
+	currency: z.string().nullable(),
 	tenantId: z.string(),
 	invitesAllowed: z.boolean()
 });

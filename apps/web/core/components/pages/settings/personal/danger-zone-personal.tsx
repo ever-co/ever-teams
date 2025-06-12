@@ -45,7 +45,7 @@ export const DangerZone = () => {
 			<div className="flex flex-col items-center justify-between">
 				<div className="w-full mt-5">
 					<div className="">
-						<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-6">
+						<div className="flex flex-col items-center justify-between w-full gap-6 lg:flex-row">
 							<div className="flex items-center justify-center flex-auto opacity-50 sm:w-32">
 								<Image alt="Danger zone" src="/assets/svg/danger-zones.svg" width={150} height={150} />
 							</div>
@@ -80,7 +80,7 @@ export const DangerZone = () => {
 										<Button
 											variant="danger"
 											type="submit"
-											className="float-right w-full bg-[#DE5536]"
+											className="float-right w-full bg-[#DE5536] text-nowrap whitespace-nowrap min-w-32 px-3.5"
 											onClick={() => {
 												setRemoveModalType('DELETE');
 												openModal();
@@ -100,7 +100,7 @@ export const DangerZone = () => {
 										<Button
 											variant="danger"
 											type="submit"
-											className="float-right w-full bg-[#DE5536]"
+											className="float-right w-full bg-[#DE5536] text-nowrap whitespace-nowrap min-w-32 px-3.5"
 											onClick={() => {
 												setRemoveModalType('DELETE_ALL');
 												openModal();

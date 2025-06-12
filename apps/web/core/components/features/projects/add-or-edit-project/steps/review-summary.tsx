@@ -10,7 +10,7 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/orga
 import { useRoles } from '@/core/hooks/roles';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { IOrganizationProject, IProjectRelation } from '@/core/types/interfaces/project/organization-project';
+import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
@@ -85,7 +85,7 @@ export default function FinalReview(props: IStepElementProps) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return project.data as IOrganizationProject;
+							return project.data as TOrganizationProject;
 						}
 						return el;
 					})
@@ -110,7 +110,7 @@ export default function FinalReview(props: IStepElementProps) {
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
 						websiteUrl={finalData?.projectUrl ?? undefined}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						description={finalData?.description}
+						description={finalData?.description ?? undefined}
 					/>
 					<FinancialSettings
 						budgetAmount={finalData?.budget}
@@ -298,7 +298,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 
 interface ICategorizationProps {
 	tags?: TTag[];
-	colorCode?: string;
+	colorCode?: string | null;
 }
 
 function Categorization(props: ICategorizationProps) {

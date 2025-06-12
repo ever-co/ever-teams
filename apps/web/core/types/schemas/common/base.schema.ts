@@ -18,11 +18,11 @@ export const baseDateSchema = z.object({
 });
 export const baseEntityActionByUserModelSchema = z.object({
 	createdByUser: z.any().optional().nullable(),
-	createdByUserId: idSchema.optional().nullable(),
+	createdByUserId: z.string().optional().nullable(),
 	updatedByUser: z.any().optional().nullable(),
-	updatedByUserId: idSchema.optional().nullable(),
+	updatedByUserId: z.string().optional().nullable(),
 	deletedByUser: z.any().optional().nullable(),
-	deletedByUserId: idSchema.optional().nullable()
+	deletedByUserId: z.string().optional().nullable()
 });
 
 // Base soft delete entity model schema
@@ -38,7 +38,7 @@ export const baseEntitySchema = baseDateSchema
 // Base per tenant entity model schema
 export const basePerTenantEntityModelSchema = z
 	.object({
-		tenantId: idSchema.optional().nullable(),
+		tenantId: z.string().optional(),
 		tenant: z.any().optional().nullable() // Will be properly typed when tenant schema is created
 	})
 	.merge(baseEntitySchema);
@@ -51,30 +51,30 @@ export const taggableSchema = z.object({
 // Relational organization team schema
 export const relationalOrganizationTeamSchema = z.object({
 	organizationTeam: z.any().optional().nullable(), // Will be properly typed when organization team schema is created
-	organizationTeamId: idSchema.optional().nullable()
+	organizationTeamId: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 
 // Relational image asset schema
 export const relationalImageAssetSchema = z.object({
 	image: z.any().optional().nullable(), // Will be properly typed when image asset schema is created
-	imageId: idSchema.optional().nullable(),
-	imageUrl: z.string().optional().nullable()
+	imageId: z.string().optional().nullable(), // API can return null
+	imageUrl: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 
 // Relational organization project schema
 export const relationalOrganizationProjectSchema = z.object({
 	project: z.any().optional().nullable(), // Will be properly typed when organization project schema is created
-	projectId: idSchema.optional().nullable()
+	projectId: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 
 // Manager assignable schema
 export const managerAssignableSchema = z.object({
-	isManager: z.boolean().optional().nullable(),
+	isManager: z.boolean().optional().nullable(), // Restored .nullable() - API can return null
 	assignedAt: z.coerce.date().optional().nullable()
 });
 
 // Relational employee schema
 export const relationalEmployeeSchema = z.object({
-	employeeId: idSchema.optional().nullable(), // Make employeeId optional to handle API inconsistencies
+	employeeId: z.string().optional().nullable(), // Restored .nullable() - API can return null
 	employee: z.any().optional().nullable() // Will be properly typed when employee schema is created
 });

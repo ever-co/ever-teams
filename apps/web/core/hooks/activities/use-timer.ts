@@ -328,7 +328,7 @@ export function useTimer() {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
-					tenantId: activeTeam?.tenantId
+					tenantId: activeTeam?.tenantId ?? ''
 				});
 			}
 		}

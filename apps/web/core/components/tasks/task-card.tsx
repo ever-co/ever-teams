@@ -22,7 +22,6 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
@@ -54,7 +53,7 @@ import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 type Props = {
 	active?: boolean;
@@ -349,7 +348,7 @@ function TimerButtonCall({
 }: {
 	task: ITask;
 	currentMember: TOrganizationTeamEmployee | undefined;
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 	className?: string;
 }) {
 	const [loading, setLoading] = useState(false);

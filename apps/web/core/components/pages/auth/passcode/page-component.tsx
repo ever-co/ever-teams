@@ -433,96 +433,104 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					</Text.Heading>
 					<ScrollArea className="relative w-full h-64 pr-2 ">
 						<div className="flex flex-col gap-y-4 ">
-							{props.workspaces?.map((worksace, index) => (
-								<div
-									key={index}
-									className={`w-full overflow-hidden h-16 ${expandedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-										props.selectedWorkspace === index
-											? 'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]'
-											: ''
-									} hover:bg-[#FCFCFC]  dark:hover:bg-[#1F2024] rounded-xl`}
-								>
-									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
-										<div className="flex justify-between">
-											<div
-												onClick={() => setExpandedWorkspace(index)}
-												className="flex items-center justify-center gap-1 cursor-pointer"
-											>
-												<span>{worksace.user.tenant.name}</span>
-												<span
-													className={cn(
-														'h-6 w-6 flex items-center justify-center transition-transform',
-														expandedWorkspace === index && 'rotate-180'
-													)}
+							{props.workspaces
+								?.filter((workspace) => workspace && workspace.user)
+								.map((worksace, index) => (
+									<div
+										key={index}
+										className={`w-full overflow-hidden h-16 ${expandedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+											props.selectedWorkspace === index
+												? 'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]'
+												: ''
+										} hover:bg-[#FCFCFC]  dark:hover:bg-[#1F2024] rounded-xl`}
+									>
+										<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
+											<div className="flex justify-between">
+												<div
+													onClick={() => setExpandedWorkspace(index)}
+													className="flex items-center justify-center gap-1 cursor-pointer"
 												>
-													<ChevronDown />
+													<span>
+														{worksace.user.tenant?.name ||
+															worksace.user.name ||
+															'Workspace'}
+													</span>
+													<span
+														className={cn(
+															'h-6 w-6 flex items-center justify-center transition-transform',
+															expandedWorkspace === index && 'rotate-180'
+														)}
+													>
+														<ChevronDown />
+													</span>
+												</div>
+												<span
+													className="hover:cursor-pointer"
+													onClick={() => {
+														props.setSelectedWorkspace(index);
+														if (
+															props.selectedTeam &&
+															!worksace.current_teams
+																?.map((team) => team.team_id)
+																.includes(props.selectedTeam)
+														) {
+															props.setSelectedTeam(worksace.current_teams[0].team_id);
+														}
+													}}
+												>
+													{props.selectedWorkspace === index ? (
+														<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
+													) : (
+														<CircleIcon className="w-6 h-6" />
+													)}
 												</span>
 											</div>
 											<span
-												className="hover:cursor-pointer"
-												onClick={() => {
-													props.setSelectedWorkspace(index);
-													if (
-														props.selectedTeam &&
-														!worksace.current_teams
-															?.map((team) => team.team_id)
-															.includes(props.selectedTeam)
-													) {
-														props.setSelectedTeam(worksace.current_teams[0].team_id);
-													}
-												}}
-											>
-												{props.selectedWorkspace === index ? (
-													<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
-												) : (
-													<CircleIcon className="w-6 h-6" />
-												)}
-											</span>
-										</div>
-										<span
-											className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
-										></span>
-										{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
-										<div className="flex flex-col gap-4 px-5 py-1.5">
-											{worksace.current_teams?.map((team) => (
-												<div
-													key={`${index}-${team.team_id}`}
-													className="flex items-center justify-between gap-4 min-h-[2.875rem]"
-												>
-													<span className="flex items-center justify-between gap-4">
-														<Avatar
-															imageTitle={team.team_name}
-															size={34}
-															backgroundColor={`${stc(team.team_name)}80`}
-														/>
-														<div className="flex justify-between">
-															<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
-																{team.team_name}
+												className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
+											></span>
+											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+											<div className="flex flex-col gap-4 px-5 py-1.5">
+												{worksace.current_teams
+													?.filter((team) => team && team.team_name)
+													.map((team) => (
+														<div
+															key={`${index}-${team.team_id}`}
+															className="flex items-center justify-between gap-4 min-h-[2.875rem]"
+														>
+															<span className="flex items-center justify-between gap-4">
+																<Avatar
+																	imageTitle={team.team_name}
+																	size={34}
+																	backgroundColor={`${stc(team.team_name)}80`}
+																/>
+																<div className="flex justify-between">
+																	<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
+																		{team.team_name}
+																	</span>
+																	<span>({team.team_member_count})</span>
+																</div>
 															</span>
-															<span>({team.team_member_count})</span>
+															<span
+																className="hover:cursor-pointer"
+																onClick={() => {
+																	props.setSelectedTeam(team.team_id);
+																	if (props.selectedWorkspace !== index) {
+																		props.setSelectedWorkspace(index);
+																	}
+																}}
+															>
+																{props.selectedTeam === team.team_id ? (
+																	<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
+																) : (
+																	<CircleIcon className="w-5 h-5" />
+																)}
+															</span>
 														</div>
-													</span>
-													<span
-														className="hover:cursor-pointer"
-														onClick={() => {
-															props.setSelectedTeam(team.team_id);
-															if (props.selectedWorkspace !== index) {
-																props.setSelectedWorkspace(index);
-															}
-														}}
-													>
-														{props.selectedTeam === team.team_id ? (
-															<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
-														) : (
-															<CircleIcon className="w-5 h-5" />
-														)}
-													</span>
-												</div>
-											))}
+													))}
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
+								))}
 						</div>
 						<ScrollBar className="-pr-20" />
 					</ScrollArea>

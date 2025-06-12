@@ -164,7 +164,7 @@ export const TeamSettingForm = () => {
 
 	return (
 		<>
-			<form className=" lg:w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
@@ -225,7 +225,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="z-10 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
-										defaultColor={activeTeam?.color}
+										defaultColor={activeTeam?.color || ''}
 										onChange={(color: any | null) => {
 											setValue('color', color);
 											debounceHandleColorChange();
@@ -298,7 +298,7 @@ export const TeamSettingForm = () => {
 												/>
 
 												<Text.Label
-													className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+													className="mt-px text-nowrap whitespace-nowrap inline-block pl-[0.15rem] hover:cursor-pointer"
 													htmlFor="team-type-radio-public"
 												>
 													{t('team.PUBLIC_TEAM')}
@@ -318,7 +318,7 @@ export const TeamSettingForm = () => {
 													disabled={!isTeamManager}
 												/>
 												<Text.Label
-													className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+													className="mt-px text-nowrap whitespace-nowrap inline-block pl-[0.15rem] hover:cursor-pointer"
 													htmlFor="team-type-radio-private"
 												>
 													{t('team.PRIVATE_TEAM')}

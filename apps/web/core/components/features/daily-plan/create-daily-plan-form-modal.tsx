@@ -27,8 +27,7 @@ import { Avatar } from '../../duplicated-components/avatar';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -283,7 +282,7 @@ function MembersList({
 	handleMemberClick,
 	selectedMember
 }: {
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 	selectedMember?: TOrganizationTeamEmployee;
 	handleMemberClick: (member: TOrganizationTeamEmployee) => void;
 }) {

@@ -43,10 +43,10 @@ export const IntegrationSetting = () => {
 
 	useEffect(() => {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
-			setIsTasksAutoSync(activeTeam?.projects[0].isTasksAutoSync);
-			setIsTasksAutoSyncOnLabel(activeTeam?.projects[0].isTasksAutoSyncOnLabel);
+			setIsTasksAutoSync(activeTeam?.projects?.[0]?.isTasksAutoSync || false);
+			setIsTasksAutoSyncOnLabel(activeTeam?.projects?.[0]?.isTasksAutoSyncOnLabel || false);
 
-			if (activeTeam?.projects[0].syncTag) {
+			if (activeTeam?.projects?.[0]?.syncTag) {
 				setSyncTag(activeTeam?.projects[0].syncTag);
 			}
 			if (activeTeam?.projects[0]?.repository?.repositoryId) {
@@ -172,7 +172,7 @@ export const IntegrationSetting = () => {
 	return (
 		<div className="flex flex-col gap-5 mt-5">
 			<>
-				<div className="flex flex-row items-center gap-2 w-full justify-between">
+				<div className="flex flex-row items-center justify-between w-full gap-2">
 					<div className="flex flex-row items-center gap-2">
 						<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
 							<GitHubLogoIcon width={40} height={40} className="text-white dark:text-black" />
@@ -204,7 +204,7 @@ export const IntegrationSetting = () => {
 						<Button
 							variant="outline-danger"
 							onClick={handleDeleteIntegrationTenant}
-							className="w-28 h-8 min-w-0"
+							className="h-8 min-w-0 w-28"
 						>
 							Remove
 						</Button>
@@ -213,7 +213,7 @@ export const IntegrationSetting = () => {
 					{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) && (
 						<Link
 							href={url}
-							className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
+							className="flex flex-row items-center justify-center w-24 min-w-0 gap-3 px-4 py-3 text-sm text-white rounded-md bg-primary dark:bg-primary-light"
 						>
 							{t('pages.settingsTeam.INSTALL')}
 						</Link>
@@ -282,8 +282,8 @@ export const IntegrationSetting = () => {
 							</div>
 						</div>
 
-						<div className="w-full flex flex-row h-10 justify-end">
-							<div className="flex flex-row items-center gap-2 w-1/2">
+						<div className="flex flex-row justify-end w-full h-10">
+							<div className="flex flex-row items-center w-1/2 gap-2">
 								<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
 									<SelectTrigger className="w-96 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
 										<SelectValue
@@ -312,7 +312,7 @@ export const IntegrationSetting = () => {
 							</div>
 
 							{integrationGithubRepositories?.total_count > 0 && (
-								<div className="flex flex-row items-center gap-2 w-1/2">
+								<div className="flex flex-row items-center w-1/2 gap-2">
 									<InputField
 										onChange={debounce(handleEditSyncTag, 1000)}
 										defaultValue={syncTag}

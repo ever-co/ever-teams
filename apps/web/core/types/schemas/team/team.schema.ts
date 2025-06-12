@@ -4,23 +4,23 @@ import { organizationTeamEmployeeSchema } from './organization-team-employee.sch
 import { relationalOrganizationProjectSchema } from '../common/base.schema';
 import { taskSchema } from '../activities/activity.schema';
 
-const teamAssociationsSchema = z.object({
+export const teamAssociationsSchema = z.object({
 	members: z.array(organizationTeamEmployeeSchema),
 	managers: z.array(organizationTeamEmployeeSchema),
-	projects: z.array(relationalOrganizationProjectSchema),
+	projects: z.array(relationalOrganizationProjectSchema).optional(),
 	tasks: z.array(taskSchema)
 });
 export const teamSchema = z
 	.object({
 		name: z.string(),
-		color: z.string().optional(),
-		emoji: z.string().optional(),
-		teamSize: z.string().optional(),
+		color: z.string().optional().nullable(),
+		emoji: z.string().optional().nullable(),
+		teamSize: z.string().optional().nullable(),
 		logo: z.string().optional(),
 		prefix: z.string().optional(),
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
-		public: z.boolean().optional(),
+		public: z.boolean().nullable(),
 		profile_link: z.string().optional(),
 		imageId: z.string().optional(),
 		image: z.any().optional(),

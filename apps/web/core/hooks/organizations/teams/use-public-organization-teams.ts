@@ -1,4 +1,4 @@
-import { publicactiveTeamState } from '@/core/stores';
+import { publicActiveTeamState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -17,7 +17,7 @@ export function usePublicOrganizationTeams() {
 	const { setTaskSizes } = useTaskSizes();
 	const { setTaskPriorities } = useTaskPriorities();
 	const { setTaskLabels } = useTaskLabels();
-	const [publicTeam, setPublicTeam] = useAtom(publicactiveTeamState);
+	const [publicTeam, setPublicTeam] = useAtom(publicActiveTeamState);
 
 	// State for query parameters - enables React Query when parameters are set
 	const [queryParams, setQueryParams] = useState<{ profileLink: string; teamId: string } | null>(null);

@@ -65,7 +65,7 @@ export const DangerZoneTeam = () => {
 								<Button
 									variant="danger"
 									type="submit"
-									className="float-right w-full bg-[#DE5536]"
+									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
 									onClick={openModal}
 									disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
 								>
@@ -90,7 +90,7 @@ export const DangerZoneTeam = () => {
 								<Button
 									variant="danger"
 									type="submit"
-									className="float-right w-full bg-[#DE5536]"
+									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
 									onClick={() => {
 										setRemoveModalType('DISPOSE');
 										dangerOpenaModal();
@@ -117,7 +117,7 @@ export const DangerZoneTeam = () => {
 								<Button
 									variant="danger"
 									type="submit"
-									className="float-right w-full bg-[#DE5536]"
+									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
 									onClick={() => {
 										setRemoveModalType('QUIT');
 										dangerOpenaModal();

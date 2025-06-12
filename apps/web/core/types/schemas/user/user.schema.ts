@@ -82,7 +82,7 @@ export const extendableUserSchema = basePerTenantEntityModelSchema
 			.union([z.literal(12), z.literal(24)])
 			.nullable()
 			.optional(),
-		role: roleSchema.optional(),
+		role: roleSchema.optional().nullable(),
 		roleId: z.string().nullable().optional(),
 		defaultTeam: organizationTeamSchema.optional(),
 		defaultTeamId: z.string().nullable().optional(),
@@ -125,7 +125,7 @@ export const userSchema = basePerTenantEntityModelSchema
 			.union([z.literal(12), z.literal(24)])
 			.nullable()
 			.optional(),
-		role: roleSchema.optional(),
+		role: roleSchema.optional().nullable(),
 		roleId: z.string().nullable().optional(),
 		hash: z.string().nullable().optional(),
 		employee: employeeBaseSchema,
