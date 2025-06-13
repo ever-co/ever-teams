@@ -64,7 +64,7 @@ export function useDailyPlan() {
 			const res = await dailyPlanService.getPlansByTask(taskId);
 			return res;
 		},
-		enabled: taskId ? true : false
+		enabled: !!taskId
 	});
 
 	// Mutations
@@ -280,7 +280,7 @@ export function useDailyPlan() {
 				return await createDailyplanMutation.mutateAsync({ ...data, organizationTeamId: activeTeam?.id });
 			}
 		},
-		[createDailyplanMutation, user?.tenantId]
+		[createDailyplanMutation, user?.tenantId, activeTeam?.id]
 	);
 
 	const updateDailyPlan = useCallback(
