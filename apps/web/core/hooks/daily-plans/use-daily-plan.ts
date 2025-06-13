@@ -21,6 +21,7 @@ import { dailyPlanService } from '../../services/client/api';
 import { useAuthenticateUser } from '../auth';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -33,7 +34,7 @@ export function useDailyPlan() {
 
 	// Queries
 	const getDayPlansByEmployeeQuery = useQuery({
-		queryKey: ['getDayPlansByEmployee', employeeId, activeTeam?.id],
+		queryKey: queryKeys.dailyPlans.byEmployee(user?.employee?.id, activeTeam?.id),
 		queryFn: async () => {
 			const res = await dailyPlanService.getDayPlansByEmployee(user?.employee?.id, activeTeam?.id);
 			return res;
@@ -42,7 +43,7 @@ export function useDailyPlan() {
 	});
 
 	const getMyDailyPlansQuery = useQuery({
-		queryKey: ['getMyDailyPlans', activeTeam?.id],
+		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
 		queryFn: async () => {
 			const res = await dailyPlanService.getMyDailyPlans();
 			return res;
@@ -50,7 +51,7 @@ export function useDailyPlan() {
 	});
 
 	const getAllDayPlansQuery = useQuery({
-		queryKey: ['getAllDayPlans', activeTeam?.id],
+		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
 		queryFn: async () => {
 			const res = await dailyPlanService.getAllDayPlans();
 			return res;
@@ -58,9 +59,9 @@ export function useDailyPlan() {
 	});
 
 	const getPlansByTaskQuery = useQuery({
-		queryKey: ['getPlansByTask', taskId],
+		queryKey: queryKeys.dailyPlans.byTask(taskId),
 		queryFn: async () => {
-			const res = await dailyPlanService.getPlansByTask();
+			const res = await dailyPlanService.getPlansByTask(taskId);
 			return res;
 		},
 		enabled: taskId ? true : false
@@ -129,13 +130,13 @@ export function useDailyPlan() {
 
 	const invalidateDailyPlanData = useCallback(() => {
 		queryClient.invalidateQueries({
-			queryKey: ['getMyDailyPlans', activeTeam?.id]
+			queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
 		});
 		queryClient.invalidateQueries({
-			queryKey: ['getAllDayPlans', activeTeam?.id]
+			queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
 		});
 		queryClient.invalidateQueries({
-			queryKey: ['getDayPlansByEmployee', employeeId, activeTeam?.id]
+			queryKey: queryKeys.dailyPlans.byEmployee(employeeId, activeTeam?.id)
 		});
 	}, [activeTeam?.id, employeeId, queryClient]);
 
@@ -225,7 +226,6 @@ export function useDailyPlan() {
 	}, [getMyDailyPlans, setMyDailyPlans]);
 
 	// Employee day plans
-
 	const getEmployeeDayPlans = useCallback(
 		async (employeeId: string) => {
 			try {
