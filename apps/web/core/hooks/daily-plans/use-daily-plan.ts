@@ -32,7 +32,7 @@ export function useDailyPlan() {
 	const queryClient = useQueryClient();
 
 	// Queries
-	const getDayPlansbyEmployeeQuery = useQuery({
+	const getDayPlansByEmployeeQuery = useQuery({
 		queryKey: ['getDayPlansByEmployee', employeeId, activeTeam?.id],
 		queryFn: async () => {
 			const res = await dailyPlanService.getDayPlansByEmployee(user?.employee?.id, activeTeam?.id);
@@ -148,10 +148,10 @@ export function useDailyPlan() {
 
 	// Sync jotai state
 	useEffect(() => {
-		if (getDayPlansbyEmployeeQuery.data?.data?.items) {
-			setEmployeePlans(getDayPlansbyEmployeeQuery.data.data.items);
+		if (getDayPlansByEmployeeQuery.data?.data?.items) {
+			setEmployeePlans(getDayPlansByEmployeeQuery.data.data.items);
 		}
-	}, [getDayPlansbyEmployeeQuery.data?.data?.items, setEmployeePlans]);
+	}, [getDayPlansByEmployeeQuery.data?.data?.items, setEmployeePlans]);
 
 	useEffect(() => {
 		if (getMyDailyPlansQuery.data?.data) {
@@ -231,7 +231,7 @@ export function useDailyPlan() {
 			try {
 				if (employeeId && typeof employeeId === 'string') {
 					setEmployeeId(employeeId);
-					const res = await getDayPlansbyEmployeeQuery.refetch();
+					const res = await getDayPlansByEmployeeQuery.refetch();
 
 					if (res) {
 						return res.data;
@@ -245,7 +245,7 @@ export function useDailyPlan() {
 				console.error(`Error when fetching day plans for employee: ${employeeId}`, error);
 			}
 		},
-		[getDayPlansbyEmployeeQuery]
+		[getDayPlansByEmployeeQuery]
 	);
 
 	const loadCurrentEmployeeDayPlans = useCallback(async () => {
@@ -433,7 +433,7 @@ export function useDailyPlan() {
 		getMyDailyPlansLoading: getMyDailyPlansQuery.isLoading,
 
 		getEmployeeDayPlans,
-		getDayPlansByEmployeeLoading: getDayPlansbyEmployeeQuery.isLoading,
+		getDayPlansByEmployeeLoading: getDayPlansByEmployeeQuery.isLoading,
 
 		getPlansByTask,
 		getPlansByTaskLoading: getPlansByTaskQuery.isLoading,
