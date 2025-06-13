@@ -139,9 +139,15 @@ export const queryKeys = {
 	// Keys related to Daily Plans
 	dailyPlans: {
 		all: ['daily-plans'] as const,
-		myPlan: (date: string | undefined | null) => ['daily-plans', 'my-plan', ...(date ? [date] : [])] as const, // Key for the user's plan at a given date
+		myPlans: (teamId: string | undefined | null) =>
+			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
 		detail: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : [])] as const,
-		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const
+		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const,
+		allPlans: (teamId: string | undefined | null) =>
+			['daily-plans', 'all-plans', ...(teamId ? [teamId] : [])] as const,
+		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
+			['daily-plans', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
+		byTask: (taskId: string | undefined | null) => ['daily-plans', 'by-task', ...(taskId ? [taskId] : [])] as const
 	},
 
 	// Keys related to teams (organization-team)
