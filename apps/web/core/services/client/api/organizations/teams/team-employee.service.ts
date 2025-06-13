@@ -4,13 +4,11 @@ import { APIService } from '@/core/services/client/api.service';
 import {
 	validateApiResponse,
 	organizationTeamEmployeeSchema,
-	organizationTeamEmployeeUpdateSchema,
 	organizationTeamSchema,
 	ZodValidationError,
 	TOrganizationTeam,
 	TOrganizationTeamEmployee,
-	TOrganizationTeamEmployeeUpdate,
-	TDeleteResponse
+	TOrganizationTeamEmployeeUpdate
 } from '@/core/types/schemas';
 
 class OrganizationTeamEmployeeService extends APIService {
