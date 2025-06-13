@@ -23,7 +23,7 @@ interface ITimesheetFilter {
 	onChangeStatus?: (status: FilterStatus) => void;
 	filterStatus?: FilterStatus;
 	data?: Record<ETimesheetStatus, ITimeLog[]>;
-	user?: TUser | undefined;
+	user?: TUser | null;
 }
 
 export function TimesheetFilter({

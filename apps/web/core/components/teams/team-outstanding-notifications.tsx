@@ -40,7 +40,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	user
 }: {
 	outstandingPlans: IDailyPlan[];
-	user?: TUser;
+	user?: TUser | null;
 }) {
 	const t = useTranslations();
 

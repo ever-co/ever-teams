@@ -95,7 +95,7 @@ class TimerService extends APIService {
 		});
 	};
 
-	syncTimer = async (source: ETimeLogSource, user: TUser | undefined) => {
+	syncTimer = async (source: ETimeLogSource, user?: TUser | null) => {
 		const organizationId = getOrganizationIdCookie();
 		const tenantId = getTenantIdCookie();
 
