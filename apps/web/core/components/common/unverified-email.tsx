@@ -82,7 +82,15 @@ export function UnverifiedEmail() {
 	);
 }
 
-export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: TUser; closeModal: () => void }) {
+export function ConfirmUserModal({
+	open,
+	user,
+	closeModal
+}: {
+	open: boolean;
+	user?: TUser | null;
+	closeModal: () => void;
+}) {
 	const { loading, queryCall } = useQueryCall(emailVerificationService.verifyUserEmailByCode);
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
 		authService.resendVerifyUserLink

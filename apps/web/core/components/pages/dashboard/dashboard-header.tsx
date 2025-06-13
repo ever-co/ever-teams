@@ -23,7 +23,7 @@ const formatDate = (date: Date | undefined): string => {
 interface DashboardHeaderProps {
 	onUpdateDateRangeAction: (startDate: Date, endDate: Date) => void;
 	title?: string;
-	isManage?: boolean;
+	isManage?: boolean | null;
 	showGroupBy?: boolean;
 	groupByType?: GroupByType;
 	onGroupByChange?: (value: GroupByType) => void;
@@ -77,9 +77,9 @@ export function DashboardHeader({
 				/>
 			)}
 
-			<div className="flex justify-between items-center w-full">
+			<div className="flex items-center justify-between w-full">
 				<h1 className="text-2xl font-semibold">{title}</h1>
-				<div className="flex gap-4 items-center">
+				<div className="flex items-center gap-4">
 					{showGroupBy && (
 						<GroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}

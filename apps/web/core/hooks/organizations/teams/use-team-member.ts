@@ -1,41 +1,33 @@
 'use client';
-import { activeTeamState } from '@/core/stores';
-import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 
+import { activeTeamState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
+import { TUser } from '@/core/types/schemas';
 
 export function useIsMemberManager(user?: TUser | null) {
-	const [isTeamManager, setTeamManager] = useState(false);
-	const [isTeamCreator, setTeamCreator] = useState(false);
-	const [activeManager, setActiveManager] = useState<TOrganizationTeamEmployee>();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	useEffect(() => {
-		if (activeTeam && user) {
-			// Team manager
-			const isM = activeTeam?.members?.find((member) => {
-				const isUser = member.employee?.userId === user?.id;
+	const activeManager = useMemo(() => {
+		if (!user || !activeTeam?.members) return undefined;
 
-				return (
-					isUser &&
-					member.role &&
-					(member.role.name === ERoleName.MANAGER ||
-						member.role.name === ERoleName.SUPER_ADMIN ||
-						member.role.name === ERoleName.ADMIN)
-				);
-			});
-			setActiveManager(isM);
-			setTeamManager(!!isM);
+		return activeTeam.members.find((member) => {
+			const isUser = member.employee?.userId === user.id;
+			const roleName = member.role?.name;
+			return (
+				isUser &&
+				(roleName === ERoleName.MANAGER || roleName === ERoleName.SUPER_ADMIN || roleName === ERoleName.ADMIN)
+			);
+		});
+	}, [user?.id, activeTeam?.members]);
 
-			// Team creatoe
-			setTeamCreator(activeTeam.createdByUserId === user.id);
-		} else {
-			setTeamManager(false);
-			setTeamCreator(false);
-		}
-	}, [activeTeam, user]);
+	const isTeamManager = !!activeManager;
+
+	const isTeamCreator = useMemo(() => {
+		if (!user || !activeTeam?.createdByUserId) return false;
+		return activeTeam.createdByUserId === user.id;
+	}, [user?.id, activeTeam?.createdByUserId]);
 
 	return {
 		isTeamManager,

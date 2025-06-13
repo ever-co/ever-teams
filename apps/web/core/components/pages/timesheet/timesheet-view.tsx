@@ -14,7 +14,7 @@ export function TimesheetView({
 }: {
 	data?: GroupedTimesheet[];
 	loading?: boolean;
-	user?: TUser | undefined;
+	user?: TUser | null;
 }) {
 	const t = useTranslations();
 	const isToastShown = useRef(false);
