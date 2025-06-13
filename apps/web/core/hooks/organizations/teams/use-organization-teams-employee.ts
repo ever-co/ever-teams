@@ -13,7 +13,7 @@ export function useOrganizationEmployeeTeams() {
 	const [user] = useAtom(userState);
 	const queryClient = useQueryClient();
 
-	// ✅ React Query mutation for delete organization employee team
+	// React Query mutation for delete organization employee team
 	const deleteOrganizationEmployeeTeamMutation = useMutation({
 		mutationFn: ({
 			id,
