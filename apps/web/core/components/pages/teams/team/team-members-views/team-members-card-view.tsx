@@ -1,11 +1,11 @@
 import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import { InviteFormModal } from '../../../../features/teams/invite-form-modal';
-import { InvitedCard, InviteUserTeamCard } from '../../../../teams/invite/user-invite-card';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import React, { useCallback, useEffect } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 
 interface Props {
 	teamMembers: any[];
@@ -33,7 +33,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 	useEffect(() => setMemberOrdereds(members), [members]);
 
 	const handleChangeOrder = useCallback(
-		(employee: IOrganizationTeamEmployee, order: number) => {
+		(employee: TOrganizationTeamEmployee, order: number) => {
 			updateOrganizationTeamEmployeeOrderOnList(employee, order);
 		},
 		[updateOrganizationTeamEmployeeOrderOnList]
@@ -52,7 +52,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<ul className="mt-7 overflow-y-auto">
+			<ul className="overflow-y-auto mt-7">
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}

@@ -165,7 +165,43 @@ export const queryKeys = {
 			delete: (teamId: string | undefined | null) =>
 				['organization-teams', 'mutations', 'delete', ...(teamId ? [teamId] : [])] as const,
 			removeUser: (userId: string | undefined | null) =>
-				['organization-teams', 'mutations', 'remove-user', ...(userId ? [userId] : [])] as const
+				['organization-teams', 'mutations', 'remove-user', ...(userId ? [userId] : [])] as const,
+			// ✅ New keys for employee operations
+			employee: {
+				all: ['organization-teams', 'mutations', 'employee'] as const,
+				delete: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'delete',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				update: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				updateOrder: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update-order',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				updateActiveTask: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update-active-task',
+						...(employeeId ? [employeeId] : [])
+					] as const
+			}
 		},
 
 		// ✅ Request to join operations (consolidated from separate 'team' namespace)
