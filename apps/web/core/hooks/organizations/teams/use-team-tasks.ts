@@ -26,12 +26,14 @@ import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
+import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
 import { useTaskStatus } from '../../tasks';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -69,6 +71,7 @@ import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
+	const queryClient = useQueryClient();
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
@@ -92,29 +95,89 @@ export function useTeamTasks() {
 	const setDailyPlan = useSetAtom(dailyPlanListState);
 	const setMyDailyPlans = useSetAtom(myDailyPlanListState);
 
-	// Queries hooks
-	const { queryCall, loading, loadingRef } = useQueryCall(taskService.getTasks);
-	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQueryCall(taskService.getTaskById);
-	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } = useQueryCall(
-		taskService.getTasksByEmployeeId
-	);
+	// React Query for team tasks
+	const teamTasksQuery = useQuery({
+		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
+		queryFn: async () => {
+			if (!user?.employee?.organizationId || !user?.employee?.tenantId || !activeTeam?.id) {
+				throw new Error('Required parameters missing');
+			}
+			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
+			return await taskService.getTasks(
+				user.employee.organizationId,
+				user.employee.tenantId,
+				projectId,
+				activeTeam.id
+			);
+		},
+		enabled: !!user?.employee?.organizationId && !!user?.employee?.tenantId && !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60
+	});
 
-	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQueryCall(taskService.deleteTask);
+	// Mutations
+	const createTaskMutation = useMutation({
+		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
+			return await taskService.createTask(taskData);
+		},
+		onSuccess: () => {
+			invalidateTeamTasksData();
+		}
+	});
 
-	const { queryCall: createQueryCall, loading: createLoading } = useQueryCall(taskService.createTask);
+	const updateTaskMutation = useMutation({
+		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<ITask> }) => {
+			return await taskService.updateTask(taskId, taskData);
+		},
+		onSuccess: () => {
+			invalidateTeamTasksData();
+		}
+	});
 
-	const { queryCall: updateQueryCall, loading: updateLoading } = useQueryCall(taskService.updateTask);
+	const deleteTaskMutation = useMutation({
+		mutationFn: async (taskId: string) => {
+			return await taskService.deleteTask(taskId);
+		},
+		onSuccess: () => {
+			invalidateTeamTasksData();
+		}
+	});
 
-	const { queryCall: getAllQueryCall } = useQueryCall(dailyPlanService.getAllDayPlans);
-	const { queryCall: getMyDailyPlansQueryCall } = useQueryCall(dailyPlanService.getMyDailyPlans);
+	const deleteEmployeeFromTasksMutation = useMutation({
+		mutationFn: async ({ employeeId, organizationTeamId }: { employeeId: string; organizationTeamId: string }) => {
+			return await taskService.deleteEmployeeFromTasks(employeeId, organizationTeamId);
+		},
+		onSuccess: () => {
+			invalidateTeamTasksData();
+		}
+	});
 
-	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } = useQueryCall(
-		taskService.deleteEmployeeFromTasks
+	// Invalidation function
+	const invalidateTeamTasksData = useCallback(() => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
+		});
+		// queryClient.invalidateQueries({
+		// 	queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
+		// });
+		// queryClient.invalidateQueries({
+		// 	queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
+		// });
+	}, [activeTeam?.id, queryClient]);
+
+	// Sync React Query data with Jotai state
+	useConditionalUpdateEffect(
+		() => {
+			if (teamTasksQuery.data?.data?.items) {
+				deepCheckAndUpdateTasks(teamTasksQuery.data.data.items, true);
+			}
+		},
+		[teamTasksQuery.data?.data?.items],
+		Boolean(tasks?.length)
 	);
 
 	const getAllDayPlans = useCallback(async () => {
 		try {
-			const response = await getAllQueryCall();
+			const response = await dailyPlanService.getAllDayPlans(activeTeam?.id);
 
 			if (response?.data?.items?.length) {
 				const { items, total } = response.data;
@@ -123,11 +186,11 @@ export function useTeamTasks() {
 		} catch (error) {
 			console.error('Error fetching all day plans:', error);
 		}
-	}, [getAllQueryCall, setDailyPlan]);
+	}, [activeTeam?.id, setDailyPlan]);
 
 	const getMyDailyPlans = useCallback(async () => {
 		try {
-			const response = await getMyDailyPlansQueryCall();
+			const response = await dailyPlanService.getMyDailyPlans(activeTeam?.id);
 
 			if (response?.data?.items?.length) {
 				const { items, total } = response.data;
@@ -136,33 +199,38 @@ export function useTeamTasks() {
 		} catch (error) {
 			console.error('Error fetching my daily plans:', error);
 		}
-	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
+	}, [activeTeam?.id, setMyDailyPlans]);
 
 	const getTaskById = useCallback(
-		(taskId: string) => {
+		async (taskId: string) => {
 			tasksRef.current.forEach((task) => {
 				if (task.id === taskId) {
 					setDetailedTask(task);
 				}
 			});
 
-			return getTasksByIdQueryCall(taskId).then((res) => {
+			try {
+				const res = await taskService.getTaskById(taskId);
 				setDetailedTask(res?.data || null);
 				return res;
-			});
+			} catch (error) {
+				console.error('Error fetching task by ID:', error);
+				return null;
+			}
 		},
-		[getTasksByIdQueryCall, setDetailedTask, tasksRef]
+		[setDetailedTask, tasksRef]
 	);
 
-	const getTasksByEmployeeId = useCallback(
-		(employeeId: string, organizationTeamId: string) => {
-			return getTasksByEmployeeIdQueryCall(employeeId, organizationTeamId).then((res) => {
-				// setEmployeeState(res?.data || []);
-				return res.data;
-			});
-		},
-		[getTasksByEmployeeIdQueryCall]
-	);
+	const getTasksByEmployeeId = useCallback(async (employeeId: string, organizationTeamId: string) => {
+		try {
+			const res = await taskService.getTasksByEmployeeId(employeeId, organizationTeamId);
+			// setEmployeeState(res?.data || []);
+			return res.data;
+		} catch (error) {
+			console.error('Error fetching tasks by employee ID:', error);
+			return [];
+		}
+	}, []);
 
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: ITask[], deepCheck?: boolean) => {
@@ -203,34 +271,31 @@ export function useTeamTasks() {
 	);
 
 	const loadTeamTasksData = useCallback(
-		(deepCheck?: boolean) => {
-			if (loadingRef.current || !user || !activeTeamRef.current?.id) {
-				return new Promise((response) => {
-					response(true);
-				});
+		async (deepCheck?: boolean) => {
+			if (teamTasksQuery.isLoading || !user || !activeTeamRef.current?.id) {
+				return Promise.resolve(true);
 			}
 
-			return queryCall(
-				user?.employee?.organizationId ?? '',
-				user?.employee?.tenantId ?? '',
-				activeTeamRef.current?.projects && activeTeamRef.current?.projects.length
-					? activeTeamRef.current?.projects[0].id
-					: '',
-				activeTeamRef.current?.id || ''
-			).then((res) => {
-				deepCheckAndUpdateTasks(res?.data?.items || [], deepCheck);
+			try {
+				const res = await teamTasksQuery.refetch();
+				if (res.data?.data?.items) {
+					deepCheckAndUpdateTasks(res.data.data.items, deepCheck);
+				}
 				return res;
-			});
+			} catch (error) {
+				console.error('Error loading team tasks data:', error);
+				return null;
+			}
 		},
-		[queryCall, deepCheckAndUpdateTasks, loadingRef, user, activeTeamRef]
+		[teamTasksQuery, deepCheckAndUpdateTasks, user, activeTeamRef]
 	);
 
 	// Global loading state
 	useEffect(() => {
 		if (firstLoad) {
-			setTasksFetching(loading);
+			setTasksFetching(teamTasksQuery.isLoading);
 		}
-	}, [loading, firstLoad]);
+	}, [teamTasksQuery.isLoading, firstLoad, setTasksFetching]);
 
 	const setActiveUserTaskCookieCb = useCallback(
 		(task: ITask | null) => {
@@ -270,10 +335,11 @@ export function useTeamTasks() {
 		}
 	}, [tasks, firstLoad, authUser]);
 
-	// Queries calls
+	// CRUD operations using React Query mutations
 	const deleteTask = useCallback(
-		(task: (typeof tasks)[0]) => {
-			return deleteQueryCall(task.id).then((res) => {
+		async (task: (typeof tasks)[0]) => {
+			try {
+				const res = await deleteTaskMutation.mutateAsync(task.id);
 				const affected = res.data?.affected || 0;
 				if (affected > 0) {
 					setAllTasks((ts) => {
@@ -281,13 +347,16 @@ export function useTeamTasks() {
 					});
 				}
 				return res;
-			});
+			} catch (error) {
+				console.error('Error deleting task:', error);
+				throw error;
+			}
 		},
-		[deleteQueryCall, setAllTasks]
+		[deleteTaskMutation, setAllTasks]
 	);
 
 	const createTask = useCallback(
-		({
+		async ({
 			title,
 			issueType,
 			taskStatusId,
@@ -310,32 +379,40 @@ export function useTeamTasks() {
 			projectId?: string | null;
 			members?: { id: string }[];
 		}) => {
-			return createQueryCall({
-				title,
-				issueType,
-				status,
-				priority,
-				size,
-				tags,
-				// Set Project Id to cookie
-				// TODO: Make it dynamic when we add Dropdown in Navbar
-
-				projectId,
-				...(description ? { description: `<p>${description}</p>` } : {}),
-				members,
-				taskStatusId: taskStatusId
-			}).then((res) => {
-				deepCheckAndUpdateTasks(res?.data?.items || [], true);
+			try {
+				const res = await createTaskMutation.mutateAsync({
+					title,
+					issueType,
+					status,
+					priority,
+					size,
+					tags,
+					// Set Project Id to cookie
+					// TODO: Make it dynamic when we add Dropdown in Navbar
+					projectId,
+					...(description ? { description: `<p>${description}</p>` } : {}),
+					members,
+					taskStatusId: taskStatusId
+				});
+				if (res?.data?.items) {
+					deepCheckAndUpdateTasks(res.data.items, true);
+				}
 				return res;
-			});
+			} catch (error) {
+				console.error('Error creating task:', error);
+				throw error;
+			}
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[createQueryCall, deepCheckAndUpdateTasks, activeTeam]
+		[createTaskMutation, deepCheckAndUpdateTasks, taskStatuses]
 	);
 
 	const updateTask = useCallback(
-		(task: Partial<ITask> & { id: string }) => {
-			return updateQueryCall(task.id, task).then((res) => {
+		async (task: Partial<ITask> & { id: string }) => {
+			try {
+				const res = await updateTaskMutation.mutateAsync({
+					taskId: task.id,
+					taskData: task
+				});
 				setActive({
 					id: ''
 				});
@@ -347,9 +424,12 @@ export function useTeamTasks() {
 				}
 
 				return res;
-			});
+			} catch (error) {
+				console.error('Error updating task:', error);
+				throw error;
+			}
 		},
-		[updateQueryCall, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
+		[updateTaskMutation, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
@@ -496,10 +576,15 @@ export function useTeamTasks() {
 	);
 
 	const deleteEmployeeFromTasks = useCallback(
-		(employeeId: string, organizationTeamId: string) => {
-			deleteEmployeeFromTasksQueryCall(employeeId, organizationTeamId);
+		async (employeeId: string, organizationTeamId: string) => {
+			try {
+				await deleteEmployeeFromTasksMutation.mutateAsync({ employeeId, organizationTeamId });
+			} catch (error) {
+				console.error('Error deleting employee from tasks:', error);
+				throw error;
+			}
 		},
-		[deleteEmployeeFromTasksQueryCall]
+		[deleteEmployeeFromTasksMutation]
 	);
 
 	const unassignAuthActiveTask = useCallback(() => {
@@ -516,14 +601,14 @@ export function useTeamTasks() {
 
 	return {
 		tasks,
-		loading,
+		loading: teamTasksQuery.isLoading,
 		tasksFetching,
 		deleteTask,
-		deleteLoading,
+		deleteLoading: deleteTaskMutation.isPending,
 		createTask,
-		createLoading,
+		createLoading: createTaskMutation.isPending,
 		updateTask,
-		updateLoading,
+		updateLoading: updateTaskMutation.isPending,
 		setActiveTask,
 		activeTeamTask,
 		firstLoadTasksData,
@@ -533,16 +618,16 @@ export function useTeamTasks() {
 		handleStatusUpdate,
 		// employeeState,
 		getTasksByEmployeeId,
-		getTasksByEmployeeIdLoading,
+		getTasksByEmployeeIdLoading: false, // Since we're not using React Query for this
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		unassignAuthActiveTask,
 		setAllTasks,
 		loadTeamTasksData,
 		deleteEmployeeFromTasks,
-		deleteEmployeeFromTasksLoading,
+		deleteEmployeeFromTasksLoading: deleteEmployeeFromTasksMutation.isPending,
 		getTaskById,
-		getTasksByIdLoading,
+		getTasksByIdLoading: false, // Since we're not using React Query for this
 		detailedTask
 	};
 }
