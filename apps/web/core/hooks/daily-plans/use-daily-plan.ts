@@ -39,23 +39,28 @@ export function useDailyPlan() {
 			const res = await dailyPlanService.getDayPlansByEmployee(user?.employee?.id, activeTeam?.id);
 			return res;
 		},
-		enabled: !!user?.employee?.id && !!activeTeam?.id
+		enabled: !!user?.employee?.id && !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60
 	});
 
 	const getMyDailyPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans();
+			const res = await dailyPlanService.getMyDailyPlans(activeTeam?.id);
 			return res;
-		}
+		},
+		enabled: !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60
 	});
 
 	const getAllDayPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans();
+			const res = await dailyPlanService.getAllDayPlans(activeTeam?.id);
 			return res;
-		}
+		},
+		enabled: !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60
 	});
 
 	const getPlansByTaskQuery = useQuery({
@@ -64,7 +69,8 @@ export function useDailyPlan() {
 			const res = await dailyPlanService.getPlansByTask(taskId);
 			return res;
 		},
-		enabled: !!taskId
+		enabled: !!taskId,
+		gcTime: 1000 * 60 * 60
 	});
 
 	// Mutations
