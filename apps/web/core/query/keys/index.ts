@@ -231,8 +231,8 @@ export const queryKeys = {
 	tasks: {
 		all: ['tasks'] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
-		byEmployee: (employeeId: string | undefined | null) =>
-			['tasks', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
+			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
 		byTeamAndProject: (teamId: string | undefined | null, projectId: string | undefined | null) =>
 			['tasks', 'by-team', ...(teamId ? [teamId] : []), 'project', ...(projectId ? [projectId] : [])] as const,

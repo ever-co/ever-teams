@@ -16,12 +16,14 @@ export default function UserTeamActiveTaskInfo({
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(member.activeTaskId || '')
-			.then((response) => setActiveTask(response.data))
-			.catch((_) => console.log(_));
+		if (member.activeTaskId) {
+			getTaskById(member.activeTaskId)
+				.then((response) => setActiveTask(response as ITask))
+				.catch((_) => console.log(_));
+		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [member.activeTaskId, getTaskById]);
 
 	return (
 		<>

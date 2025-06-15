@@ -215,18 +215,18 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 											taskPriorities.map((priority) => (
 												<StatusesListCard
 													statusTitle={
-														priority.name ? priority.name?.split('-').join(' ') : ''
+														priority?.name ? priority?.name?.split('-').join(' ') : ''
 													}
-													bgColor={priority.color || ''}
-													statusIcon={priority.fullIconUrl || ''}
+													bgColor={priority?.color || ''}
+													statusIcon={priority?.fullIconUrl || ''}
 													onEdit={() => {
 														setCreateNew(false);
 														setEdit(priority);
 													}}
 													onDelete={() => {
-														deleteTaskPriorities(priority.id);
+														deleteTaskPriorities(priority?.id);
 													}}
-													key={priority.id}
+													key={priority?.id}
 												/>
 											))
 										) : (
