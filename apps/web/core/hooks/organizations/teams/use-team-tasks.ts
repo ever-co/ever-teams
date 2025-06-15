@@ -226,7 +226,7 @@ export function useTeamTasks() {
 			try {
 				const res = await getTaskByIdQuery.refetch();
 				setDetailedTask((res?.data as ITask) || null);
-				return res.data;
+				return res?.data;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
 				return null;
@@ -235,22 +235,25 @@ export function useTeamTasks() {
 		[setDetailedTask, tasksRef]
 	);
 
-	const getTasksByEmployeeId = useCallback(async (employeeId: string, organizationTeamId: string) => {
-		try {
-			if (!employeeId || !organizationTeamId) {
-				throw new Error('Required parameters missing : employeeId or organizationTeamId');
+	const getTasksByEmployeeId = useCallback(
+		async (employeeId: string, organizationTeamId: string) => {
+			try {
+				if (!employeeId || !organizationTeamId) {
+					throw new Error('Required parameters missing : employeeId or organizationTeamId');
+				}
+
+				setSelectedEmployeeId(employeeId);
+				setSelectedOrganizationTeamId(organizationTeamId);
+
+				const res = await getTasksByEmployeeIdQuery.refetch();
+				return res.data;
+			} catch (error) {
+				console.error('Error fetching tasks by employee ID:', error);
+				return [];
 			}
-
-			setSelectedEmployeeId(employeeId);
-			setSelectedOrganizationTeamId(organizationTeamId);
-
-			const res = await getTasksByEmployeeIdQuery.refetch();
-			return res.data;
-		} catch (error) {
-			console.error('Error fetching tasks by employee ID:', error);
-			return [];
-		}
-	}, []);
+		},
+		[getTasksByEmployeeIdQuery]
+	);
 
 	const loadTeamTasksData = useCallback(
 		async (deepCheck?: boolean) => {
