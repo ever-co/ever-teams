@@ -268,7 +268,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
 	const isManage = user && isUserAllowedToAccess(user);
-	const [timesheetparams, setTimesheetParams] = useState<{
+	const [timesheetParams, setTimesheetParams] = useState<{
 		organizationId: string;
 		tenantId: string;
 		startDate: string | Date;
@@ -283,23 +283,23 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	// React Query for timesheet logs
 	const timesheetLogsQuery = useQuery({
 		queryKey: queryKeys.timesheet.logs(
-			timesheetparams?.tenantId,
-			timesheetparams?.organizationId,
-			String(timesheetparams?.startDate),
-			String(timesheetparams?.endDate),
-			timesheetparams?.employeeIds,
-			timesheetparams?.projectIds,
-			timesheetparams?.taskIds,
-			timesheetparams?.status
+			timesheetParams?.tenantId,
+			timesheetParams?.organizationId,
+			String(timesheetParams?.startDate),
+			String(timesheetParams?.endDate),
+			timesheetParams?.employeeIds,
+			timesheetParams?.projectIds,
+			timesheetParams?.taskIds,
+			timesheetParams?.status
 		),
 		queryFn: async () => {
-			if (!timesheetparams) {
+			if (!timesheetParams) {
 				throw new Error('Timesheet query parameters are required');
 			}
-			const response = await timeLogService.getTaskTimesheetLogs(timesheetparams);
+			const response = await timeLogService.getTaskTimesheetLogs(timesheetParams);
 			return response.data as unknown as ITimeLog[];
 		},
-		enabled: !!timesheetparams && !!timesheetparams.startDate && !!timesheetparams.endDate,
+		enabled: !!timesheetParams && !!timesheetParams.startDate && !!timesheetParams.endDate,
 		staleTime: 1000 * 60 * 3, // 3 minutes - timesheet data changes moderately
 		gcTime: 1000 * 60 * 15 // 15 minutes in cache
 	});
@@ -317,7 +317,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			});
 		},
 		onSuccess: () => {
-			invalidateTimesheetData(timesheetparams);
+			invalidateTimesheetData(timesheetParams);
 		}
 	});
 
@@ -327,7 +327,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status });
 		},
 		onSuccess: () => {
-			invalidateTimesheetData(timesheetparams);
+			invalidateTimesheetData(timesheetParams);
 		}
 	});
 
@@ -336,7 +336,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeLogService.createTimesheetFrom(timesheetParams);
 		},
 		onSuccess: () => {
-			invalidateTimesheetData(timesheetparams);
+			invalidateTimesheetData(timesheetParams);
 		}
 	});
 
@@ -345,13 +345,13 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeLogService.updateTimesheetFrom(timesheet);
 		},
 		onSuccess: () => {
-			invalidateTimesheetData(timesheetparams);
+			invalidateTimesheetData(timesheetParams);
 		}
 	});
 
 	// Invalidate timesheet data
 	const invalidateTimesheetData = useCallback(
-		(params: typeof timesheetparams) => {
+		(params: typeof timesheetParams) => {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.timesheet.logs(
 					params?.tenantId,
