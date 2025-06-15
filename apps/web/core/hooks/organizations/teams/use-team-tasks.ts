@@ -6,23 +6,19 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { dailyPlanService, taskService } from '@/core/services/client/api';
+import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
 	activeTeamTaskId,
-	dailyPlanListState,
 	detailedTaskState,
-	// employeeTasksState,
 	memberActiveTaskIdState,
-	myDailyPlanListState,
 	userState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	tasksFetchingState,
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
@@ -34,6 +30,7 @@ import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-
 import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -76,24 +73,19 @@ export function useTeamTasks() {
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
-	// const allTaskStatistics = useAtomValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
-	const [tasksFetching, setTasksFetching] = useAtom(tasksFetchingState);
 	const authUser = useSyncRef(useAtomValue(userState));
+	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	// const [employeeState, setEmployeeState] = useAtom(employeeTasksState);
 	const { taskStatuses } = useTaskStatus();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
-
+	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
+	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
-
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
-
-	const setDailyPlan = useSetAtom(dailyPlanListState);
-	const setMyDailyPlans = useSetAtom(myDailyPlanListState);
 
 	// React Query for team tasks
 	const teamTasksQuery = useQuery({
@@ -114,6 +106,29 @@ export function useTeamTasks() {
 		gcTime: 1000 * 60 * 60
 	});
 
+	const getTaskByIdQuery = useQuery({
+		queryKey: queryKeys.tasks.detail(detailedTask?.id),
+		queryFn: async () => {
+			if (!detailedTask?.id) {
+				throw new Error('Task ID is required');
+			}
+			return await taskService.getTaskById(detailedTask?.id);
+		},
+		enabled: !!detailedTask?.id
+	});
+
+	const getTasksByEmployeeIdQuery = useQuery({
+		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
+		queryFn: async () => {
+			if (!activeTeam?.id) {
+				throw new Error('Required parameters missing');
+			}
+			return await taskService.getTasksByEmployeeId(selectedEmployeeId!, selectedOrganizationTeamId!);
+		},
+		enabled: !!selectedEmployeeId && !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60
+	});
+
 	// Mutations
 	const createTaskMutation = useMutation({
 		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
@@ -125,7 +140,7 @@ export function useTeamTasks() {
 	});
 
 	const updateTaskMutation = useMutation({
-		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<ITask> }) => {
+		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
 			return await taskService.updateTask(taskId, taskData);
 		},
 		onSuccess: () => {
@@ -156,84 +171,17 @@ export function useTeamTasks() {
 		queryClient.invalidateQueries({
 			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
 		});
-		// queryClient.invalidateQueries({
-		// 	queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
-		// });
-		// queryClient.invalidateQueries({
-		// 	queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
-		// });
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
+		});
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
+		});
 	}, [activeTeam?.id, queryClient]);
 
-	// Sync React Query data with Jotai state
-	useConditionalUpdateEffect(
-		() => {
-			if (teamTasksQuery.data?.data?.items) {
-				deepCheckAndUpdateTasks(teamTasksQuery.data.data.items, true);
-			}
-		},
-		[teamTasksQuery.data?.data?.items],
-		Boolean(tasks?.length)
-	);
-
-	const getAllDayPlans = useCallback(async () => {
-		try {
-			const response = await dailyPlanService.getAllDayPlans(activeTeam?.id);
-
-			if (response?.data?.items?.length) {
-				const { items, total } = response.data;
-				setDailyPlan({ items, total });
-			}
-		} catch (error) {
-			console.error('Error fetching all day plans:', error);
-		}
-	}, [activeTeam?.id, setDailyPlan]);
-
-	const getMyDailyPlans = useCallback(async () => {
-		try {
-			const response = await dailyPlanService.getMyDailyPlans(activeTeam?.id);
-
-			if (response?.data?.items?.length) {
-				const { items, total } = response.data;
-				setMyDailyPlans({ items, total });
-			}
-		} catch (error) {
-			console.error('Error fetching my daily plans:', error);
-		}
-	}, [activeTeam?.id, setMyDailyPlans]);
-
-	const getTaskById = useCallback(
-		async (taskId: string) => {
-			tasksRef.current.forEach((task) => {
-				if (task.id === taskId) {
-					setDetailedTask(task);
-				}
-			});
-
-			try {
-				const res = await taskService.getTaskById(taskId);
-				setDetailedTask(res?.data || null);
-				return res;
-			} catch (error) {
-				console.error('Error fetching task by ID:', error);
-				return null;
-			}
-		},
-		[setDetailedTask, tasksRef]
-	);
-
-	const getTasksByEmployeeId = useCallback(async (employeeId: string, organizationTeamId: string) => {
-		try {
-			const res = await taskService.getTasksByEmployeeId(employeeId, organizationTeamId);
-			// setEmployeeState(res?.data || []);
-			return res.data;
-		} catch (error) {
-			console.error('Error fetching tasks by employee ID:', error);
-			return [];
-		}
-	}, []);
-
+	// Deep update function
 	const deepCheckAndUpdateTasks = useCallback(
-		(responseTasks: ITask[], deepCheck?: boolean) => {
+		(responseTasks: TTask[], deepCheck?: boolean) => {
 			if (responseTasks && responseTasks.length) {
 				responseTasks.forEach((task) => {
 					if (task.tags && task.tags?.length) {
@@ -258,17 +206,51 @@ export function useTeamTasks() {
 				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
-					// Fetch plans with updated task(s)
-					getMyDailyPlans();
-					getAllDayPlans();
-					setAllTasks(responseTasks);
+					setAllTasks(responseTasks as ITask[]);
 				}
 			} else {
-				setAllTasks(responseTasks);
+				setAllTasks(responseTasks as ITask[]);
 			}
 		},
-		[activeTeamRef, getAllDayPlans, getMyDailyPlans, setAllTasks, tasksRef]
+		[activeTeamRef, setAllTasks, tasksRef]
 	);
+
+	const getTaskById = useCallback(
+		async (taskId: string) => {
+			tasksRef.current.forEach((task) => {
+				if (task.id === taskId) {
+					setDetailedTask(task);
+				}
+			});
+
+			try {
+				const res = await getTaskByIdQuery.refetch();
+				setDetailedTask((res?.data as ITask) || null);
+				return res.data;
+			} catch (error) {
+				console.error('Error fetching task by ID:', error);
+				return null;
+			}
+		},
+		[setDetailedTask, tasksRef]
+	);
+
+	const getTasksByEmployeeId = useCallback(async (employeeId: string, organizationTeamId: string) => {
+		try {
+			if (!employeeId || !organizationTeamId) {
+				throw new Error('Required parameters missing : employeeId or organizationTeamId');
+			}
+
+			setSelectedEmployeeId(employeeId);
+			setSelectedOrganizationTeamId(organizationTeamId);
+
+			const res = await getTasksByEmployeeIdQuery.refetch();
+			return res.data;
+		} catch (error) {
+			console.error('Error fetching tasks by employee ID:', error);
+			return [];
+		}
+	}, []);
 
 	const loadTeamTasksData = useCallback(
 		async (deepCheck?: boolean) => {
@@ -278,8 +260,8 @@ export function useTeamTasks() {
 
 			try {
 				const res = await teamTasksQuery.refetch();
-				if (res.data?.data?.items) {
-					deepCheckAndUpdateTasks(res.data.data.items, deepCheck);
+				if (res.data?.items) {
+					deepCheckAndUpdateTasks(res.data.items, deepCheck);
 				}
 				return res;
 			} catch (error) {
@@ -289,13 +271,6 @@ export function useTeamTasks() {
 		},
 		[teamTasksQuery, deepCheckAndUpdateTasks, user, activeTeamRef]
 	);
-
-	// Global loading state
-	useEffect(() => {
-		if (firstLoad) {
-			setTasksFetching(teamTasksQuery.isLoading);
-		}
-	}, [teamTasksQuery.isLoading, firstLoad, setTasksFetching]);
 
 	const setActiveUserTaskCookieCb = useCallback(
 		(task: ITask | null) => {
@@ -314,39 +289,10 @@ export function useTeamTasks() {
 		[authUser]
 	);
 
-	// Reload tasks after active team changed
-	useEffect(() => {
-		if (activeTeam?.id && firstLoad) {
-			loadTeamTasksData();
-		}
-	}, [activeTeam?.id, firstLoad]);
-	const setActive = useSetAtom(activeTeamTaskId);
-
-	// Get the active task from cookie and put on global store
-	useEffect(() => {
-		if (firstLoad) {
-			const active_user_task = getActiveUserTaskCookie();
-			const active_taskid =
-				active_user_task?.userId === authUser.current?.id
-					? active_user_task?.taskId
-					: getActiveTaskIdCookie() || '';
-
-			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
-		}
-	}, [tasks, firstLoad, authUser]);
-
-	// CRUD operations using React Query mutations
 	const deleteTask = useCallback(
 		async (task: (typeof tasks)[0]) => {
 			try {
-				const res = await deleteTaskMutation.mutateAsync(task.id);
-				const affected = res.data?.affected || 0;
-				if (affected > 0) {
-					setAllTasks((ts) => {
-						return ts.filter((t) => t.id !== task.id);
-					});
-				}
-				return res;
+				return await deleteTaskMutation.mutateAsync(task.id);
 			} catch (error) {
 				console.error('Error deleting task:', error);
 				throw error;
@@ -394,9 +340,6 @@ export function useTeamTasks() {
 					members,
 					taskStatusId: taskStatusId
 				});
-				if (res?.data?.items) {
-					deepCheckAndUpdateTasks(res.data.items, true);
-				}
 				return res;
 			} catch (error) {
 				console.error('Error creating task:', error);
@@ -411,16 +354,14 @@ export function useTeamTasks() {
 			try {
 				const res = await updateTaskMutation.mutateAsync({
 					taskId: task.id,
-					taskData: task
+					taskData: task as TTask
 				});
 				setActive({
 					id: ''
 				});
-				const updatedTasks = res?.data?.items || [];
-				deepCheckAndUpdateTasks(updatedTasks, true);
 
 				if (detailedTask) {
-					getTaskById(detailedTask.id);
+					getTaskByIdQuery.refetch();
 				}
 
 				return res;
@@ -435,52 +376,38 @@ export function useTeamTasks() {
 	const updateTitle = useCallback(
 		(newTitle: string, task?: ITask | null, loader?: boolean) => {
 			if (task && newTitle !== task.title) {
-				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
 					title: newTitle
-				}).then((res) => {
-					setTasksFetching(false);
-					return res;
 				});
 			}
 			return Promise.resolve();
 		},
-		[updateTask, setTasksFetching]
+		[updateTask]
 	);
 
 	const updateDescription = useCallback(
 		(newDescription: string, task?: ITask | null, loader?: boolean) => {
 			if (task && newDescription !== task.description) {
-				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
 					description: newDescription
-				}).then((res) => {
-					setTasksFetching(false);
-					return res;
 				});
 			}
-			return Promise.resolve();
 		},
-		[updateTask, setTasksFetching]
+		[updateTask]
 	);
 
 	const updatePublicity = useCallback(
 		(publicity: boolean, task?: ITask | null, loader?: boolean) => {
 			if (task && publicity !== task.public) {
-				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
 					public: publicity
-				}).then((res) => {
-					setTasksFetching(false);
-					return res;
 				});
 			}
-			return Promise.resolve();
 		},
-		[updateTask, setTasksFetching]
+		[updateTask]
 	);
 
 	const handleStatusUpdate = useCallback(
@@ -492,8 +419,6 @@ export function useTeamTasks() {
 			loader?: boolean
 		) => {
 			if (task && status !== (task as any)[field]) {
-				loader && setTasksFetching(true);
-
 				if (field === 'status' && status === 'closed') {
 					const active_user_task = getActiveUserTaskCookie();
 					if (active_user_task?.taskId === task.id) {
@@ -512,15 +437,10 @@ export function useTeamTasks() {
 					...task,
 					taskStatusId: taskStatusId ?? task.taskStatusId,
 					[field]: status
-				}).then((res) => {
-					setTasksFetching(false);
-					return res;
 				});
 			}
-
-			return Promise.resolve();
 		},
-		[updateTask, setTasksFetching]
+		[updateTask]
 	);
 
 	/**
@@ -599,10 +519,41 @@ export function useTeamTasks() {
 		}
 	}, [activeTeam, tasks, memberActiveTaskId]);
 
+	// Reload tasks after active team changed
+	useEffect(() => {
+		if (activeTeam?.id && firstLoad) {
+			loadTeamTasksData();
+		}
+	}, [activeTeam?.id, firstLoad]);
+
+	// Get the active task from cookie and put on global store
+	useEffect(() => {
+		if (firstLoad) {
+			const active_user_task = getActiveUserTaskCookie();
+			const active_taskid =
+				active_user_task?.userId === authUser.current?.id
+					? active_user_task?.taskId
+					: getActiveTaskIdCookie() || '';
+
+			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+		}
+	}, [tasks, firstLoad, authUser]);
+
+	// Sync React Query data with Jotai state
+	useConditionalUpdateEffect(
+		() => {
+			if (teamTasksQuery.data?.items) {
+				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
+			}
+		},
+		[teamTasksQuery.data?.items],
+		Boolean(tasks?.length)
+	);
+
 	return {
 		tasks,
 		loading: teamTasksQuery.isLoading,
-		tasksFetching,
+		tasksFetching: updateTaskMutation.isPending,
 		deleteTask,
 		deleteLoading: deleteTaskMutation.isPending,
 		createTask,
@@ -616,9 +567,8 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
-		// employeeState,
 		getTasksByEmployeeId,
-		getTasksByEmployeeIdLoading: false, // Since we're not using React Query for this
+		getTasksByEmployeeIdLoading: getTasksByEmployeeIdQuery.isLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		unassignAuthActiveTask,
@@ -627,7 +577,7 @@ export function useTeamTasks() {
 		deleteEmployeeFromTasks,
 		deleteEmployeeFromTasksLoading: deleteEmployeeFromTasksMutation.isPending,
 		getTaskById,
-		getTasksByIdLoading: false, // Since we're not using React Query for this
+		getTasksByIdLoading: getTaskByIdQuery.isLoading,
 		detailedTask
 	};
 }

@@ -68,7 +68,8 @@ export const taskStatus: TStatus<ETaskStatusName> = {
 		icon: <TickCircleIcon className="w-full max-w-[17px]" />,
 		bgColor: '#D4EFDF'
 	},
-	custom: {}
+	custom: {},
+	cancelled: {}
 };
 
 export const taskPriorities: TStatus = {

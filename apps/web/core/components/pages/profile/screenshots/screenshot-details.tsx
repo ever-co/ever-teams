@@ -58,7 +58,7 @@ const ScreenshotDetailsModal = ({
 	const getTask = useCallback(
 		async (taskId: string) => {
 			const task = await getTaskById(taskId);
-			task?.data && setTask(task?.data);
+			task && setTask(task as ITask);
 		},
 		[getTaskById]
 	);

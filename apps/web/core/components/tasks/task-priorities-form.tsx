@@ -217,8 +217,8 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 													statusTitle={
 														priority.name ? priority.name?.split('-').join(' ') : ''
 													}
-													bgColor={priority.color || ''}
-													statusIcon={priority.fullIconUrl || ''}
+													bgColor={priority?.color || ''}
+													statusIcon={priority?.fullIconUrl || ''}
 													onEdit={() => {
 														setCreateNew(false);
 														setEdit(priority);
