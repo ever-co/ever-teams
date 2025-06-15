@@ -1,7 +1,6 @@
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/timer/time-logs';
-import { useQueryCall } from '../common/use-query';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
@@ -11,6 +10,9 @@ import { useAuthenticateUser } from '../auth';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common/use-has-mounted';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -250,6 +252,7 @@ const groupByMonth = createGroupingFunction(getMonthKey);
 export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearch }: TimesheetParams) {
 	const { user } = useAuthenticateUser();
 	const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
+	const queryClient = useQueryClient();
 	const {
 		employee,
 		project,
@@ -264,19 +267,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowByStatusAndDate,
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
-	const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQueryCall(timeLogService.getTaskTimesheetLogs);
-	const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQueryCall(
-		timeLogService.deleteTaskTimesheetLogs
-	);
-	const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQueryCall(
-		timeSheetService.updateStatusTimesheetFrom
-	);
-	const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQueryCall(
-		timeLogService.createTimesheetFrom
-	);
-	const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQueryCall(
-		timeLogService.updateTimesheetFrom
-	);
 	const isManage = user && isUserAllowedToAccess(user);
 
 	/**
@@ -300,6 +290,126 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			endDate: parseDate(endDate, defaultEnd)
 		};
 	}, [startDate, endDate]);
+
+	/**
+	 * Memoized query parameters for timesheet logs
+	 */
+	const timesheetQueryParams = useMemo(() => {
+		if (!user) return null;
+
+		const from = moment(currentDateRange.startDate).format('YYYY-MM-DD');
+		const to = moment(currentDateRange.endDate).format('YYYY-MM-DD');
+
+		return {
+			startDate: from,
+			endDate: to,
+			organizationId: user.employee?.organizationId || '',
+			tenantId: user.tenantId ?? '',
+			timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
+			employeeIds: isManage
+				? employee?.map(({ employee }) => employee?.id || '').filter(Boolean)
+				: [user.employee?.id || ''],
+			projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
+			taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
+			status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
+		};
+	}, [user, currentDateRange, isManage, employee, project, task, statusState]);
+
+	// React Query for timesheet logs
+	const timesheetLogsQuery = useQuery({
+		queryKey: queryKeys.timesheet.logs(
+			timesheetQueryParams?.tenantId,
+			timesheetQueryParams?.organizationId,
+			timesheetQueryParams?.startDate,
+			timesheetQueryParams?.endDate,
+			timesheetQueryParams?.employeeIds,
+			timesheetQueryParams?.projectIds,
+			timesheetQueryParams?.taskIds,
+			timesheetQueryParams?.status
+		),
+		queryFn: async () => {
+			if (!timesheetQueryParams) {
+				throw new Error('Timesheet query parameters are required');
+			}
+			const response = await timeLogService.getTaskTimesheetLogs(timesheetQueryParams);
+			return response.data as unknown as ITimeLog[];
+		},
+		enabled: !!timesheetQueryParams,
+		staleTime: 1000 * 60 * 3, // 3 minutes - timesheet data changes moderately
+		gcTime: 1000 * 60 * 15 // 15 minutes in cache
+	});
+
+	// Mutations
+	const deleteTimesheetMutation = useMutation({
+		mutationFn: async ({ logIds }: { logIds: string[] }) => {
+			if (!user) {
+				throw new Error('User not authenticated');
+			}
+			return await timeLogService.deleteTaskTimesheetLogs({
+				organizationId: user.employee?.organizationId || '',
+				tenantId: user.tenantId ?? '',
+				logIds
+			});
+		},
+		onSuccess: () => {
+			invalidateTimesheetData();
+		}
+	});
+
+	const updateTimesheetStatusMutation = useMutation({
+		mutationFn: async ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => {
+			const idsArray = Array.isArray(ids) ? ids : [ids];
+			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status });
+		},
+		onSuccess: () => {
+			invalidateTimesheetData();
+		}
+	});
+
+	const createTimesheetMutation = useMutation({
+		mutationFn: async (timesheetParams: IUpdateTimesheetRequest) => {
+			return await timeLogService.createTimesheetFrom(timesheetParams);
+		},
+		onSuccess: () => {
+			invalidateTimesheetData();
+		}
+	});
+
+	const updateTimesheetMutation = useMutation({
+		mutationFn: async (timesheet: IUpdateTimesheetRequest) => {
+			return await timeLogService.updateTimesheetFrom(timesheet);
+		},
+		onSuccess: () => {
+			invalidateTimesheetData();
+		}
+	});
+
+	// Invalidate timesheet data
+	const invalidateTimesheetData = useCallback(() => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.timesheet.logs(
+				timesheetQueryParams?.tenantId,
+				timesheetQueryParams?.organizationId,
+				timesheetQueryParams?.startDate,
+				timesheetQueryParams?.endDate,
+				timesheetQueryParams?.employeeIds,
+				timesheetQueryParams?.projectIds,
+				timesheetQueryParams?.taskIds,
+				timesheetQueryParams?.status
+			)
+		});
+	}, [queryClient, timesheetQueryParams]);
+
+	// Sync React Query data with Jotai state
+	useConditionalUpdateEffect(
+		() => {
+			if (timesheetLogsQuery.data) {
+				setTimesheet(timesheetLogsQuery.data);
+			}
+		},
+		[timesheetLogsQuery.data],
+		Boolean(timesheet?.length)
+	);
 
 	/**
 	 * Format date to YYYY-MM-DD ensuring valid date input
@@ -329,41 +439,15 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	}, []);
 
 	const getTaskTimesheet = useCallback(
-		({ startDate, endDate }: TimesheetParams) => {
-			if (!user) return;
-
-			const from = moment(startDate).format('YYYY-MM-DD');
-			const to = moment(endDate).format('YYYY-MM-DD');
-
-			// Get current filter values at the time of the call, not as dependencies
-			const currentEmployee = employee;
-			const currentProject = project;
-			const currentTask = task;
-			const currentStatusState = statusState;
-
-			const queryParams = {
-				startDate: from,
-				endDate: to,
-				organizationId: user.employee?.organizationId || '',
-				tenantId: user.tenantId ?? '',
-				timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
-				employeeIds: isManage
-					? currentEmployee?.map(({ employee }) => employee?.id || '').filter(Boolean)
-					: [user.employee?.id || ''],
-				projectIds: currentProject?.map((project) => project.id).filter((id) => id !== undefined),
-				taskIds: currentTask?.map((task) => task.id).filter((id) => id !== undefined),
-				status: currentStatusState?.map((status) => status.value).filter((value) => value !== undefined)
-			};
-
-			queryTimesheet(queryParams)
-				.then((response) => {
-					setTimesheet(response.data as unknown as ITimeLog[]);
-				})
-				.catch((error) => {
-					console.error('Error fetching timesheet:', error);
-				});
+		async (_params?: TimesheetParams) => {
+			try {
+				const result = await timesheetLogsQuery.refetch();
+				return result.data;
+			} catch (error) {
+				console.error('Error fetching timesheet:', error);
+			}
 		},
-		[user, queryTimesheet, isManage, setTimesheet, employee, project, task, statusState] // Removed filter dependencies
+		[timesheetLogsQuery, setTimesheet]
 	);
 
 	// Removed duplicate useEffect - using the one below that handles all dependencies
@@ -374,10 +458,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw new Error('User not authenticated');
 			}
 			try {
-				const response = queryCreateTimesheet(timesheetParams).then((res) => {
-					return res.data;
-				});
-				return response;
+				const response = await createTimesheetMutation.mutateAsync(timesheetParams);
+				return response.data;
 			} catch (error) {
 				if (axios.isAxiosError(error)) {
 					console.error('Axios Error:', {
@@ -391,7 +473,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw error;
 			}
 		},
-		[queryCreateTimesheet, user]
+		[createTimesheetMutation, user]
 	);
 
 	const updateTimesheet = useCallback(
@@ -401,22 +483,14 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				return;
 			}
 			try {
-				const response = await queryUpdateTimesheet(timesheet);
-				if (response?.data?.id) {
-					setTimesheet((prevTimesheet) =>
-						prevTimesheet.map((item) =>
-							item.id === response.data.id ? { ...item, ...response.data } : item
-						)
-					);
-				} else {
-					console.warn('Unexpected structure of the response. No update performed.', response);
-				}
+				const response = await updateTimesheetMutation.mutateAsync(timesheet);
+				return response.data;
 			} catch (error) {
 				console.error('Error updating the timesheet:', error);
 				throw error;
 			}
 		},
-		[queryUpdateTimesheet, setTimesheet, user]
+		[updateTimesheetMutation, setTimesheet, user]
 	);
 
 	const updateTimesheetStatus = useCallback(
@@ -424,29 +498,12 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			if (!user) return;
 			const idsArray = Array.isArray(ids) ? ids : [ids];
 			try {
-				const response = await queryUpdateTimesheetStatus({ ids: idsArray, status });
-				const responseMap = new Map(response.data.map((item) => [item.id, item]));
-				setTimesheet((prevTimesheet) =>
-					prevTimesheet.map((item: any) => {
-						const updatedItem = responseMap.get(item.timesheet?.id);
-						if (updatedItem) {
-							return {
-								...item,
-								timesheet: {
-									...item.timesheet,
-									status: updatedItem.status
-								}
-							};
-						}
-						return item;
-					})
-				);
-				console.log('Timesheet status updated successfully!');
+				await updateTimesheetStatusMutation.mutateAsync({ status, ids: idsArray });
 			} catch (error) {
 				console.error('Error updating timesheet status:', error);
 			}
 		},
-		[queryUpdateTimesheetStatus, setTimesheet, user]
+		[updateTimesheetStatusMutation, setTimesheet, user]
 	);
 
 	const getStatusTimesheet = (items: ITimeLog[] = []) => {
@@ -486,18 +543,13 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw new Error('No timesheet IDs provided for deletion');
 			}
 			try {
-				await queryDeleteTimesheet({
-					organizationId: user.employee?.organizationId || '',
-					tenantId: user.tenantId ?? '',
-					logIds
-				});
-				setTimesheet((prevTimesheet) => prevTimesheet.filter((item) => !logIds.includes(item.id)));
+				await deleteTimesheetMutation.mutateAsync({ logIds });
 			} catch (error) {
 				console.error('Failed to delete timesheets:', error);
 				throw error;
 			}
 		},
-		[user, queryDeleteTimesheet, setTimesheet]
+		[user, deleteTimesheetMutation, setTimesheet]
 	);
 
 	const groupedByTimesheetIds = ({ rows }: { rows: ITimeLog[] }): Record<string, ITimeLog[]> => {
@@ -586,29 +638,25 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		);
 	};
 
-	// Single effect for all changes - dates, search, and filters
-	useEffect(() => {
-		if (startDate && endDate) {
-			getTaskTimesheet({ startDate, endDate });
-		}
-	}, [getTaskTimesheet, startDate, endDate, inputSearch, employee, project, task, statusState]);
+	// React Query automatically handles refetching when query key changes
+	// No manual useEffect needed for data fetching
 
 	return {
-		loadingTimesheet,
+		loadingTimesheet: timesheetLogsQuery.isLoading,
 		timesheet: timesheetElementGroup,
 		getTaskTimesheet,
-		loadingDeleteTimesheet,
+		loadingDeleteTimesheet: deleteTimesheetMutation.isPending,
 		deleteTaskTimesheet,
 		getStatusTimesheet,
 		timesheetGroupByDays,
 		statusTimesheet: getStatusTimesheet((filterDataTimesheet as ITimeLog[]) || []),
 		updateTimesheetStatus,
-		loadingUpdateTimesheetStatus,
+		loadingUpdateTimesheetStatus: updateTimesheetStatusMutation.isPending,
 		puTimesheetStatus,
 		createTimesheet,
-		loadingCreateTimesheet,
+		loadingCreateTimesheet: createTimesheetMutation.isPending,
 		updateTimesheet,
-		loadingUpdateTimesheet,
+		loadingUpdateTimesheet: updateTimesheetMutation.isPending,
 		groupByDate,
 		isManage,
 		normalizeText,

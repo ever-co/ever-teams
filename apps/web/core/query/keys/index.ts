@@ -360,7 +360,29 @@ export const queryKeys = {
 				...(startDate ? [startDate] : []),
 				...(endDate ? [endDate] : [])
 			] as const,
-		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
+		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		logs: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			startDate: string | null | undefined,
+			endDate: string | null | undefined,
+			employeeIds?: string[] | null | undefined,
+			projectIds?: string[] | null | undefined,
+			taskIds?: string[] | null | undefined,
+			status?: string[] | null | undefined
+		) =>
+			[
+				'timesheet',
+				'logs',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(startDate ? [startDate] : []),
+				...(endDate ? [endDate] : []),
+				...(employeeIds && employeeIds.length ? [employeeIds.join(',')] : []),
+				...(projectIds && projectIds.length ? [projectIds.join(',')] : []),
+				...(taskIds && taskIds.length ? [taskIds.join(',')] : []),
+				...(status && status.length ? [status.join(',')] : [])
+			] as const
 	},
 
 	// Keys related to Timer activities and limits
