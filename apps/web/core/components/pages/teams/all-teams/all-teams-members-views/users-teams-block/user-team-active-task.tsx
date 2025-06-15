@@ -18,12 +18,13 @@ export default function UserTeamActiveBlockTaskInfo({
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(activeTaskId || '')
-			.then((response) => setActiveTask(response as ITask))
-			.catch((_) => console.log(_));
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		if (!activeTaskId) {
+			return;
+		}
+		getTaskById(activeTaskId)
+			.then((task) => setActiveTask(task as ITask))
+			.catch(console.error);
+	}, [activeTaskId, getTaskById]);
 
 	return (
 		<>
