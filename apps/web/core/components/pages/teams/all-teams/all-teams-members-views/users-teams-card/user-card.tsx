@@ -89,7 +89,7 @@ function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 
 	useEffect(() => {
 		getTaskById(member.activeTaskId || '')
-			.then((response) => setActiveTask(response.data))
+			.then((response) => setActiveTask(response as ITask))
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -39,6 +39,7 @@ import { ITask } from '@/core/types/interfaces/task/task';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -104,7 +105,7 @@ export function TaskInput(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: TTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task as any),
 		[$onTaskCreated]
 	);
 

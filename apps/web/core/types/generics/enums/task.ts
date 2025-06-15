@@ -48,7 +48,8 @@ export enum ETaskStatusName {
 	CUSTOM = 'custom',
 	READY_FOR_REVIEW = 'ready-for-review',
 	IN_REVIEW_STATUS = 'in-review',
-	DONE = 'done'
+	DONE = 'done',
+	CANCELLED = 'cancelled'
 }
 export enum ETaskSizeName {
 	X_LARGE = 'X-Large',
