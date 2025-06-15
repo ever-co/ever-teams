@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/timer/time-logs';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import moment from 'moment';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
@@ -268,73 +268,38 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
 	const isManage = user && isUserAllowedToAccess(user);
-
-	/**
-	 * Memoized date range with fallback to defaults
-	 * Ensures all dates are converted to Date objects
-	 */
-	const currentDateRange = useMemo(() => {
-		const now = moment();
-		// Default to Today (start and end of current day)
-		const defaultStart = now.clone().startOf('day').toDate();
-		const defaultEnd = now.clone().endOf('day').toDate();
-
-		const parseDate = (date: Date | string | undefined, defaultValue: Date) => {
-			if (!date) return defaultValue;
-			const parsed = moment(date);
-			return parsed.isValid() ? parsed.toDate() : defaultValue;
-		};
-
-		return {
-			startDate: parseDate(startDate, defaultStart),
-			endDate: parseDate(endDate, defaultEnd)
-		};
-	}, [startDate, endDate]);
-
-	/**
-	 * Memoized query parameters for timesheet logs
-	 */
-	const timesheetQueryParams = useMemo(() => {
-		if (!user) return null;
-
-		const from = moment(currentDateRange.startDate).format('YYYY-MM-DD');
-		const to = moment(currentDateRange.endDate).format('YYYY-MM-DD');
-
-		return {
-			startDate: from,
-			endDate: to,
-			organizationId: user.employee?.organizationId || '',
-			tenantId: user.tenantId ?? '',
-			timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
-			employeeIds: isManage
-				? employee?.map(({ employee }) => employee?.id || '').filter(Boolean)
-				: [user.employee?.id || ''],
-			projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
-			taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
-			status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
-		};
-	}, [user, currentDateRange, isManage, employee, project, task, statusState]);
+	const [timesheetparams, setTimesheetParams] = useState<{
+		organizationId: string;
+		tenantId: string;
+		startDate: string | Date;
+		endDate: string | Date;
+		timeZone?: string | undefined;
+		projectIds?: string[] | undefined;
+		employeeIds?: string[] | undefined;
+		taskIds?: string[] | undefined;
+		status?: string[] | undefined;
+	} | null>(null);
 
 	// React Query for timesheet logs
 	const timesheetLogsQuery = useQuery({
 		queryKey: queryKeys.timesheet.logs(
-			timesheetQueryParams?.tenantId,
-			timesheetQueryParams?.organizationId,
-			timesheetQueryParams?.startDate,
-			timesheetQueryParams?.endDate,
-			timesheetQueryParams?.employeeIds,
-			timesheetQueryParams?.projectIds,
-			timesheetQueryParams?.taskIds,
-			timesheetQueryParams?.status
+			timesheetparams?.tenantId,
+			timesheetparams?.organizationId,
+			String(timesheetparams?.startDate),
+			String(timesheetparams?.endDate),
+			timesheetparams?.employeeIds,
+			timesheetparams?.projectIds,
+			timesheetparams?.taskIds,
+			timesheetparams?.status
 		),
 		queryFn: async () => {
-			if (!timesheetQueryParams) {
+			if (!timesheetparams) {
 				throw new Error('Timesheet query parameters are required');
 			}
-			const response = await timeLogService.getTaskTimesheetLogs(timesheetQueryParams);
+			const response = await timeLogService.getTaskTimesheetLogs(timesheetparams);
 			return response.data as unknown as ITimeLog[];
 		},
-		enabled: !!timesheetQueryParams,
+		enabled: !!timesheetparams && !!timesheetparams.startDate && !!timesheetparams.endDate,
 		staleTime: 1000 * 60 * 3, // 3 minutes - timesheet data changes moderately
 		gcTime: 1000 * 60 * 15 // 15 minutes in cache
 	});
@@ -388,17 +353,17 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	const invalidateTimesheetData = useCallback(() => {
 		queryClient.invalidateQueries({
 			queryKey: queryKeys.timesheet.logs(
-				timesheetQueryParams?.tenantId,
-				timesheetQueryParams?.organizationId,
-				timesheetQueryParams?.startDate,
-				timesheetQueryParams?.endDate,
-				timesheetQueryParams?.employeeIds,
-				timesheetQueryParams?.projectIds,
-				timesheetQueryParams?.taskIds,
-				timesheetQueryParams?.status
+				timesheetparams?.tenantId,
+				timesheetparams?.organizationId,
+				String(timesheetparams?.startDate),
+				String(timesheetparams?.endDate),
+				timesheetparams?.employeeIds,
+				timesheetparams?.projectIds,
+				timesheetparams?.taskIds,
+				timesheetparams?.status
 			)
 		});
-	}, [queryClient, timesheetQueryParams]);
+	}, [queryClient, timesheetparams]);
 
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
@@ -410,6 +375,28 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		[timesheetLogsQuery.data],
 		Boolean(timesheet?.length)
 	);
+
+	/**
+	 * Memoized date range with fallback to defaults
+	 * Ensures all dates are converted to Date objects
+	 */
+	const currentDateRange = useMemo(() => {
+		const now = moment();
+		// Default to Today (start and end of current day)
+		const defaultStart = now.clone().startOf('day').toDate();
+		const defaultEnd = now.clone().endOf('day').toDate();
+
+		const parseDate = (date: Date | string | undefined, defaultValue: Date) => {
+			if (!date) return defaultValue;
+			const parsed = moment(date);
+			return parsed.isValid() ? parsed.toDate() : defaultValue;
+		};
+
+		return {
+			startDate: parseDate(startDate, defaultStart),
+			endDate: parseDate(endDate, defaultEnd)
+		};
+	}, [startDate, endDate]);
 
 	/**
 	 * Format date to YYYY-MM-DD ensuring valid date input
@@ -439,15 +426,44 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 	}, []);
 
 	const getTaskTimesheet = useCallback(
-		async (_params?: TimesheetParams) => {
+		async (params: TimesheetParams) => {
 			try {
+				if (!user) return;
+
+				const { startDate, endDate } = params;
+
+				const from = moment(startDate).format('YYYY-MM-DD');
+				const to = moment(endDate).format('YYYY-MM-DD');
+
+				// Get current filter values at the time of the call, not as dependencies
+				const currentEmployee = employee;
+				const currentProject = project;
+				const currentTask = task;
+				const currentStatusState = statusState;
+
+				const queryParams = {
+					startDate: from,
+					endDate: to,
+					organizationId: user.employee?.organizationId || '',
+					tenantId: user.tenantId ?? '',
+					timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
+					employeeIds: isManage
+						? currentEmployee?.map(({ employee }) => employee?.id || '').filter(Boolean)
+						: [user.employee?.id || ''],
+					projectIds: currentProject?.map((project) => project.id).filter((id) => id !== undefined),
+					taskIds: currentTask?.map((task) => task.id).filter((id) => id !== undefined),
+					status: currentStatusState?.map((status) => status.value).filter((value) => value !== undefined)
+				};
+
+				setTimesheetParams(queryParams);
+
 				const result = await timesheetLogsQuery.refetch();
 				return result.data;
 			} catch (error) {
 				console.error('Error fetching timesheet:', error);
 			}
 		},
-		[timesheetLogsQuery, setTimesheet]
+		[timesheetLogsQuery, setTimesheetParams, user, employee, project, task, statusState, isManage]
 	);
 
 	// Removed duplicate useEffect - using the one below that handles all dependencies
@@ -490,7 +506,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw error;
 			}
 		},
-		[updateTimesheetMutation, setTimesheet, user]
+		[updateTimesheetMutation, user]
 	);
 
 	const updateTimesheetStatus = useCallback(
@@ -503,7 +519,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				console.error('Error updating timesheet status:', error);
 			}
 		},
-		[updateTimesheetStatusMutation, setTimesheet, user]
+		[updateTimesheetStatusMutation, user]
 	);
 
 	const getStatusTimesheet = (items: ITimeLog[] = []) => {
@@ -549,7 +565,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw error;
 			}
 		},
-		[user, deleteTimesheetMutation, setTimesheet]
+		[user, deleteTimesheetMutation]
 	);
 
 	const groupedByTimesheetIds = ({ rows }: { rows: ITimeLog[] }): Record<string, ITimeLog[]> => {
