@@ -317,7 +317,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			});
 		},
 		onSuccess: () => {
-			invalidateTimesheetData();
+			invalidateTimesheetData(timesheetparams);
 		}
 	});
 
@@ -327,7 +327,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status });
 		},
 		onSuccess: () => {
-			invalidateTimesheetData();
+			invalidateTimesheetData(timesheetparams);
 		}
 	});
 
@@ -336,7 +336,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeLogService.createTimesheetFrom(timesheetParams);
 		},
 		onSuccess: () => {
-			invalidateTimesheetData();
+			invalidateTimesheetData(timesheetparams);
 		}
 	});
 
@@ -345,25 +345,28 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeLogService.updateTimesheetFrom(timesheet);
 		},
 		onSuccess: () => {
-			invalidateTimesheetData();
+			invalidateTimesheetData(timesheetparams);
 		}
 	});
 
 	// Invalidate timesheet data
-	const invalidateTimesheetData = useCallback(() => {
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.timesheet.logs(
-				timesheetparams?.tenantId,
-				timesheetparams?.organizationId,
-				String(timesheetparams?.startDate),
-				String(timesheetparams?.endDate),
-				timesheetparams?.employeeIds,
-				timesheetparams?.projectIds,
-				timesheetparams?.taskIds,
-				timesheetparams?.status
-			)
-		});
-	}, [queryClient, timesheetparams]);
+	const invalidateTimesheetData = useCallback(
+		(params: typeof timesheetparams) => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.timesheet.logs(
+					params?.tenantId,
+					params?.organizationId,
+					String(params?.startDate),
+					String(params?.endDate),
+					params?.employeeIds,
+					params?.projectIds,
+					params?.taskIds,
+					params?.status
+				)
+			});
+		},
+		[queryClient]
+	);
 
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
