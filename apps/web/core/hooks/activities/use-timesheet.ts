@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/timer/time-logs';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import moment from 'moment';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
@@ -25,6 +25,22 @@ export interface GroupedTimesheet {
 	date: string;
 	tasks: ITimeLog[];
 }
+
+// Helper function for deep array comparison to prevent infinite loops
+const areArraysEqual = <T>(
+	arr1: T[] | undefined,
+	arr2: T[] | undefined,
+	keyExtractor: (item: T) => string | number
+): boolean => {
+	if (!arr1 && !arr2) return true;
+	if (!arr1 || !arr2) return false;
+	if (arr1.length !== arr2.length) return false;
+
+	const keys1 = arr1.map(keyExtractor).sort();
+	const keys2 = arr2.map(keyExtractor).sort();
+
+	return keys1.every((key, index) => key === keys2[index]);
+};
 
 const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 	if (!items?.length) {
@@ -368,7 +384,77 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		[queryClient]
 	);
 
-	// Sync React Query data with Jotai state
+	// Memoized filter IDs to prevent infinite loops from array reference changes
+	const memoizedFilterIds = useMemo(
+		() => ({
+			employeeIds: isManage
+				? employee?.map(({ employee }) => employee?.id || '').filter(Boolean) || []
+				: [user?.employee?.id || ''].filter(Boolean),
+			projectIds: project?.map((project) => project.id).filter((id) => id !== undefined) || [],
+			taskIds: task?.map((task) => task.id).filter((id) => id !== undefined) || [],
+			status: statusState?.map((status) => status.value).filter((value) => value !== undefined) || []
+		}),
+		[employee, project, task, statusState, isManage, user?.employee?.id]
+	);
+
+	// Previous filter IDs reference for comparison (prevent unnecessary API calls)
+	const prevFilterIdsRef = useRef(memoizedFilterIds);
+
+	// Synchronize props and filters with timesheetParams (restore filter reactivity)
+	useEffect(() => {
+		if (!user || !startDate || !endDate) return;
+
+		const from = moment(startDate).format('YYYY-MM-DD');
+		const to = moment(endDate).format('YYYY-MM-DD');
+
+		const newParams = {
+			startDate: from,
+			endDate: to,
+			organizationId: user.employee?.organizationId || '',
+			tenantId: user.tenantId ?? '',
+			timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
+			employeeIds: memoizedFilterIds.employeeIds,
+			projectIds: memoizedFilterIds.projectIds,
+			taskIds: memoizedFilterIds.taskIds,
+			status: memoizedFilterIds.status
+		};
+
+		// Deep comparison to prevent unnecessary updates and infinite API calls
+		const filtersChanged =
+			!areArraysEqual(prevFilterIdsRef.current.employeeIds, memoizedFilterIds.employeeIds, (id) => id) ||
+			!areArraysEqual(prevFilterIdsRef.current.projectIds, memoizedFilterIds.projectIds, (id) => id) ||
+			!areArraysEqual(prevFilterIdsRef.current.taskIds, memoizedFilterIds.taskIds, (id) => id) ||
+			!areArraysEqual(prevFilterIdsRef.current.status, memoizedFilterIds.status, (val) => val);
+
+		const paramsChanged =
+			!timesheetParams ||
+			timesheetParams.startDate !== from ||
+			timesheetParams.endDate !== to ||
+			timesheetParams.organizationId !== newParams.organizationId ||
+			timesheetParams.tenantId !== newParams.tenantId ||
+			filtersChanged;
+
+		if (paramsChanged) {
+			console.log('🔄 Timesheet params updated:', {
+				dateChanged: !timesheetParams || timesheetParams.startDate !== from || timesheetParams.endDate !== to,
+				filtersChanged,
+				newParams
+			});
+
+			setTimesheetParams(newParams);
+			prevFilterIdsRef.current = memoizedFilterIds;
+		}
+	}, [
+		startDate, // Date props changes
+		endDate, // Date props changes
+		user?.employee?.organizationId, // User org changes
+		user?.tenantId, // Tenant changes
+		user?.timeZone, // Timezone changes
+		memoizedFilterIds, // Memoized filter changes (stable reference)
+		timesheetParams // Current params for comparison
+	]);
+
+	// Fixed: Sync React Query data with Jotai state (removed problematic condition)
 	useConditionalUpdateEffect(
 		() => {
 			if (timesheetLogsQuery.data) {
@@ -376,7 +462,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			}
 		},
 		[timesheetLogsQuery.data],
-		Boolean(timesheet?.length)
+		() => timesheetLogsQuery.isLoading // Only skip during loading, not based on existing data
 	);
 
 	/**
@@ -428,21 +514,15 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		}
 	}, []);
 
+	// Simplified getTaskTimesheet - now just updates params, React Query handles the rest automatically
 	const getTaskTimesheet = useCallback(
 		async (params: TimesheetParams) => {
 			try {
 				if (!user) return;
 
 				const { startDate, endDate } = params;
-
 				const from = moment(startDate).format('YYYY-MM-DD');
 				const to = moment(endDate).format('YYYY-MM-DD');
-
-				// Get current filter values at the time of the call, not as dependencies
-				const currentEmployee = employee;
-				const currentProject = project;
-				const currentTask = task;
-				const currentStatusState = statusState;
 
 				const queryParams = {
 					startDate: from,
@@ -450,23 +530,22 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					organizationId: user.employee?.organizationId || '',
 					tenantId: user.tenantId ?? '',
 					timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
-					employeeIds: isManage
-						? currentEmployee?.map(({ employee }) => employee?.id || '').filter(Boolean)
-						: [user.employee?.id || ''],
-					projectIds: currentProject?.map((project) => project.id).filter((id) => id !== undefined),
-					taskIds: currentTask?.map((task) => task.id).filter((id) => id !== undefined),
-					status: currentStatusState?.map((status) => status.value).filter((value) => value !== undefined)
+					employeeIds: memoizedFilterIds.employeeIds,
+					projectIds: memoizedFilterIds.projectIds,
+					taskIds: memoizedFilterIds.taskIds,
+					status: memoizedFilterIds.status
 				};
 
+				// React Query will automatically refetch when queryKey changes (no manual refetch needed)
 				setTimesheetParams(queryParams);
 
-				const result = await timesheetLogsQuery.refetch();
-				return result.data;
+				// Return current data immediately, new data will be available via React Query
+				return timesheetLogsQuery.data;
 			} catch (error) {
-				console.error('Error fetching timesheet:', error);
+				console.error('Error updating timesheet params:', error);
 			}
 		},
-		[timesheetLogsQuery, setTimesheetParams, user, employee, project, task, statusState, isManage]
+		[user, memoizedFilterIds, timesheetLogsQuery.data] // Stable dependencies prevent infinite loops
 	);
 
 	// Removed duplicate useEffect - using the one below that handles all dependencies
@@ -657,8 +736,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		);
 	};
 
-	// React Query automatically handles refetching when query key changes
-	// No manual useEffect needed for data fetching
+	// React Query now automatically refetches when timesheetParams changes (queryKey dependency)
+	// Date filters (Today, Last 7 days, etc.) work automatically through props → timesheetParams sync
 
 	return {
 		loadingTimesheet: timesheetLogsQuery.isLoading,
