@@ -80,42 +80,6 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 						</Tab.Group>
 					</div>
 				</div>
-				<div className="flex-1 w-full overflow-hidden">
-					<Tab.Group>
-						<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
-							{Object.values(ActivityFilters).map((filter: string) => (
-								<Tab
-									key={filter}
-									className={({ selected }) =>
-										clsxm(
-											'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-											'focus:outline-none focus:ring-2',
-											selected
-												? 'bg-white dark:bg-dark text-blue-700 shadow'
-												: 'hover:bg-white/[0.50]'
-										)
-									}
-								>
-									{filter}
-								</Tab>
-							))}
-						</Tab.List>
-						<Tab.Panels className="w-full mt-2">
-							<Tab.Panel className="w-full overflow-hidden">
-								<UserWorkedTaskTab member={member} />
-							</Tab.Panel>
-							<Tab.Panel className="w-full">
-								<ScreenshootTeamTab />
-							</Tab.Panel>
-							<Tab.Panel className="w-full">
-								<AppsTab />
-							</Tab.Panel>
-							<Tab.Panel className="w-full">
-								<VisitedSitesTab />
-							</Tab.Panel>
-						</Tab.Panels>
-					</Tab.Group>
-				</div>
 			</div>
 		</Transition>
 	);
