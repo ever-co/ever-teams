@@ -23,7 +23,7 @@ import {
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { timerSecondsState } from '@/core/stores';
+import { activeTeamState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, SpinnerLoader, Text } from '@/core/components';
@@ -90,21 +90,25 @@ export function TaskCard(props: Props) {
 	const [loading, setLoading] = useState(false);
 	const seconds = useAtomValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
-	const currentMember = useMemo(
+
+	const { user } = useAuthenticateUser();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const isTrackingEnabled = useMemo(
 		() =>
-			members.find((m) => {
-				return m.employee?.user?.id === profile?.userProfile?.id;
-			}),
-		[members, profile?.userProfile?.id]
+			activeTeam?.members?.find((member) => member.employee?.userId === user?.id && member.isTrackingEnabled)
+				? true
+				: false,
+		[activeTeam?.members, user?.id]
 	);
+	const members = activeTeam?.members || [];
+	const currentMember = members.find((m) => m.employee?.user?.id === profile?.userProfile?.id);
 
 	const { h, m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
-				<div className={clsxm('flex space-x-2 items-center font-normal')}>
+				<div className={clsxm('flex items-center space-x-2 font-normal')}>
 					<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
 					<Text>
 						{h}h : {m}m
@@ -168,7 +172,7 @@ export function TaskCard(props: Props) {
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="w-full px-4"
+						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 						dayPlanTab={planMode}
@@ -225,9 +229,9 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className="flex items-center justify-center ">
+					<div className="flex justify-center items-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load: boolean) => setLoading(load)}
@@ -235,7 +239,7 @@ export function TaskCard(props: Props) {
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
+					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
 						{task && currentMember && (
 							<TaskCardMenu
 								task={task}
@@ -266,8 +270,8 @@ export function TaskCard(props: Props) {
 						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 					)} */}
 				</div>
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end py-4 mx-auto space-x-2">
@@ -284,10 +288,10 @@ export function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<>
-						<UsersTaskAssigned className="w-full px-3 py-4 mx-auto" task={task} />
+						<UsersTaskAssigned className="px-3 py-4 mx-auto w-full" task={task} />
 					</>
 				)}
-				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -315,11 +319,11 @@ export function TaskCard(props: Props) {
 
 function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & IClassName) {
 	const t = useTranslations();
-	const members = useMemo(() => task?.members || [], [task?.members]);
+	const members = task?.members || [];
 
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
-			<div className="flex flex-col items-center justify-center">
+			<div className="flex flex-col justify-center items-center">
 				{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
 				<span className="text-sm font-medium text-center">
 					{members.length > 0
@@ -412,7 +416,7 @@ function TimerButtonCall({
 				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
 				running={activeTaskStatus?.running}
 				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-				className={clsxm('h-14 w-14', className)}
+				className={clsxm('w-14 h-14', className)}
 			/>
 
 			<SuggestDailyPlanModal
@@ -484,10 +488,10 @@ export function TaskInfo({
 			{/* task */}
 			{!task && <div className="self-center py-1 text-center">--</div>}
 			{task && (
-				<div className="w-full h-10 overflow-hidden">
-					<div className={clsxm('h-full flex flex-col items-start justify-start')}>
+				<div className="overflow-hidden w-full h-10">
+					<div className={clsxm('flex flex-col justify-start items-start h-full')}>
 						<div
-							className={clsxm('text-sm text-ellipsis h-full overflow-hidden w-full cursor-pointer')}
+							className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
 							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
 							<TaskNameInfoDisplay
@@ -642,7 +646,7 @@ export function TaskCardMenu({
 											onClick={handleToggleFavorite}
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all cursor-pointer'
+												'cursor-pointer hover:font-semibold hover:transition-all'
 											)}
 										>
 											{isFavorite(task)
@@ -654,7 +658,7 @@ export function TaskCardMenu({
 										<span
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
-												'hover:font-semibold hover:transition-all cursor-pointer'
+												'cursor-pointer hover:font-semibold hover:transition-all'
 											)}
 											onClick={handleAssignment}
 										>
@@ -844,7 +848,7 @@ export function PlanTask({
 			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
-					'hover:font-semibold hover:transition-all cursor-pointer h-auto'
+					'h-auto cursor-pointer hover:font-semibold hover:transition-all'
 				)}
 				onClick={handleOpenModal}
 				disabled={planMode === 'today' && createDailyPlanLoading}
@@ -852,7 +856,7 @@ export function PlanTask({
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TODAY')
 						)}
@@ -861,7 +865,7 @@ export function PlanTask({
 				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TOMORROW')
 						)}
@@ -880,7 +884,7 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employ
 		<span
 			className={clsxm(
 				'font-normal whitespace-nowrap transition-all',
-				'hover:font-semibold hover:transition-all cursor-pointer'
+				'cursor-pointer hover:font-semibold hover:transition-all'
 			)}
 			onClick={openModal}
 		>
@@ -911,8 +915,8 @@ export function RemoveTaskFromPlan({
 	return (
 		<span
 			className={clsxm(
-				'font-normal whitespace-nowrap transition-all text-red-600',
-				'hover:font-semibold hover:transition-all cursor-pointer'
+				'font-normal text-red-600 whitespace-nowrap transition-all',
+				'cursor-pointer hover:font-semibold hover:transition-all'
 			)}
 			onClick={onClick}
 		>
@@ -934,8 +938,8 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?:
 	return (
 		<span
 			className={clsxm(
-				'font-normal whitespace-nowrap transition-all text-red-600',
-				'hover:font-semibold hover:transition-all cursor-pointer'
+				'font-normal text-red-600 whitespace-nowrap transition-all',
+				'cursor-pointer hover:font-semibold hover:transition-all'
 			)}
 			onClick={onClick}
 		>
