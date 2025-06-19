@@ -65,3 +65,15 @@ export interface IInviteRequest {
 	teamId: string;
 	organizationId: string;
 }
+
+// Types for better security and performance
+export interface InviteUserParams extends IInviteRequest {
+	tenantId: string;
+}
+
+export interface TeamInvitationsQueryParams {
+	tenantId: string;
+	organizationId: string;
+	role: string;
+	teamId: string;
+}
