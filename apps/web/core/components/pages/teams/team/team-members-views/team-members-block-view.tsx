@@ -17,24 +17,17 @@ interface Props {
 const TeamMembersBlockView: React.FC<Props> = React.memo(
 	({ teamMembers: members, publicTeam = false, currentUser, teamsFetching }) => {
 		const activeFilter = useAtomValue(taskBlockFilterState);
-
-		let emptyMessage = '';
 		const t = useTranslations();
-
-		switch (activeFilter) {
-			case 'online':
-				emptyMessage = t('common.NO_USERS_ONLINE');
-				break;
-			case 'running':
-				emptyMessage = t('common.NO_USERS_WORKING');
-				break;
-			case 'pause':
-				emptyMessage = t('common.NO_USERS_PAUSED_WORK');
-				break;
-			case 'idle':
-				emptyMessage = t('common.NO_USERS_IDLE');
-				break;
-		}
+		const objectEmptyMessage = React.useMemo(
+			() => ({
+				online: t('common.NO_USERS_ONLINE'),
+				running: t('common.NO_USERS_WORKING'),
+				pause: t('common.NO_USERS_PAUSED_WORK'),
+				idle: t('common.NO_USERS_IDLE')
+			}),
+			[t]
+		);
+		const emptyMessage = objectEmptyMessage[activeFilter as keyof typeof objectEmptyMessage];
 
 		return (
 			<>
