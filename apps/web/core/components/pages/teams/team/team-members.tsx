@@ -13,16 +13,9 @@ import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 // Types for better performance and security
-interface TeamMember {
-	id: string;
-	employee?: {
-		userId: string;
-	} | null;
-	timerStatus?: ETimerStatus;
-	order?: number;
-}
 
 interface TeamMembersProps {
 	publicTeam?: boolean;
@@ -31,17 +24,17 @@ interface TeamMembersProps {
 
 interface TeamMembersViewProps {
 	fullWidth?: boolean;
-	members: TeamMember[];
-	currentUser?: TeamMember;
+	members: TOrganizationTeamEmployee[];
+	currentUser?: TOrganizationTeamEmployee;
 	teamsFetching: boolean;
 	view: IssuesView;
-	blockViewMembers: TeamMember[];
+	blockViewMembers: TOrganizationTeamEmployee[];
 	publicTeam: boolean;
 	isMemberActive?: boolean;
 }
 
 // Constants to avoid re-creations
-const EMPTY_ARRAY: TeamMember[] = [];
+const EMPTY_ARRAY: TOrganizationTeamEmployee[] = [];
 const TIMER_STATUS_PRIORITY = {
 	[ETimerStatus.RUNNING]: 4,
 	[ETimerStatus.ONLINE]: 3,
@@ -52,13 +45,13 @@ const TIMER_STATUS_PRIORITY = {
 } as const;
 
 // Utility functions optimized and cached
-const sortByWorkStatus = (a: TeamMember, b: TeamMember): number => {
+const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
 	const priorityA = TIMER_STATUS_PRIORITY[a.timerStatus as keyof typeof TIMER_STATUS_PRIORITY] ?? 0;
 	const priorityB = TIMER_STATUS_PRIORITY[b.timerStatus as keyof typeof TIMER_STATUS_PRIORITY] ?? 0;
 	return priorityB - priorityA;
 };
 
-const sortByOrder = (a: TeamMember, b: TeamMember): number => {
+const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
 	if (a.order && b.order) return b.order - a.order;
 	if (a.order) return -1;
 	if (b.order) return 1;
@@ -78,7 +71,9 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 		const rawMembers = activeTeam?.members || EMPTY_ARRAY;
 
 		// Filtering and sorting in one pass to optimize performance
-		const validMembers = rawMembers.filter((member): member is TeamMember => member?.employee !== null);
+		const validMembers = rawMembers.filter(
+			(member): member is TOrganizationTeamEmployee => member?.employee !== null
+		);
 
 		// Sorting with optimized function
 		const sortedMembers = validMembers.sort(sortByWorkStatus);
@@ -99,8 +94,8 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 
 		const filterCondition =
 			activeFilter === 'idle'
-				? (m: TeamMember) => !m.timerStatus || m.timerStatus === ETimerStatus.IDLE
-				: (m: TeamMember) => m.timerStatus === activeFilter;
+				? (m: TOrganizationTeamEmployee) => !m.timerStatus || m.timerStatus === ETimerStatus.IDLE
+				: (m: TOrganizationTeamEmployee) => m.timerStatus === activeFilter;
 
 		return processedMembers.orderedMembers.filter(filterCondition);
 	}, [processedMembers.orderedMembers, activeFilter]);
