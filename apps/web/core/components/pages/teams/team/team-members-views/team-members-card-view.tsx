@@ -1,11 +1,11 @@
 import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import React, { memo, useCallback } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];

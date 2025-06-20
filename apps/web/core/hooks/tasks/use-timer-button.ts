@@ -4,6 +4,7 @@ import { useTimerView } from '@/core/hooks';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
+import { toast } from 'sonner';
 
 export function useTimerButton({
 	task,
@@ -27,7 +28,10 @@ export function useTimerButton({
 	);
 
 	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') return;
+		if (task.status === 'closed') {
+			toast.error('Task is closed');
+			return;
+		}
 		if (timerStatus?.running) {
 			setLoading(true);
 			await stopTimer().finally(() => setLoading(false));
@@ -45,7 +49,7 @@ export function useTimerButton({
 		}
 
 		setTimeout(startTimer, 100);
-		scrollTo({ top: 0, behavior: 'smooth' });
+		window?.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [task, timerStatus?.running, setActiveTask, startTimer, stopTimer, currentMember, activeTeam]);
 
 	return {

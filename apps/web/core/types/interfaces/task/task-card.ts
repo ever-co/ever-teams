@@ -29,7 +29,7 @@ export interface TaskCardProps extends IClassName {
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';
-	profile?: any;
+	profile?: I_UserProfilePage;
 	plan?: IDailyPlan;
 	planMode?: FilterTabs;
 	taskBadgeClassName?: string;

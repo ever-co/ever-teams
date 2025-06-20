@@ -73,7 +73,7 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
 
 	return (
 		<>
-			<section className="relative flex flex-col items-center pb-2">
+			<section className="flex relative flex-col items-center pb-2">
 				{Array.isArray(items) &&
 					items.length > 0 &&
 					items.map((item: ITask, index: number) => (
@@ -107,7 +107,7 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
 							onClick={openModal}
 							className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
 						>
-							<AddIcon className="w-5 h-5 " />
+							<AddIcon className="w-5 h-5" />
 							<p>{t('common.CREATE_TASK')}</p>
 						</div>
 					</div>
@@ -261,13 +261,13 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row h-40 px-2 w-fit"
+							className="flex flex-row px-2 h-40 w-fit"
 						>
 							{title.length > 0 ? (
 								<>
 									<header
 										className={
-											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed min-h-[20rem]'
+											'flex relative flex-col gap-8 px-2 py-4 h-full text-center rounded-lg items-between w-fit bg-indianRed min-h-[20rem]'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
@@ -404,7 +404,7 @@ const KanbanDraggableHeader = ({
 							{items?.length ?? '0'}
 						</div>
 					</div>
-					<div className="flex flex-row items-center gap-2">
+					<div className="flex flex-row gap-2 items-center">
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
@@ -517,7 +517,7 @@ const KanbanDraggable = ({
 											backgroundColor={backgroundColor}
 										/>
 									</div>
-									<div className="flex flex-col ">
+									<div className="flex flex-col">
 										<KanbanDroppable
 											isLoading={isLoading}
 											title={title}
@@ -527,9 +527,9 @@ const KanbanDraggable = ({
 										/>
 										<button
 											onClick={() => openModal()}
-											className="flex flex-row items-center gap-4 p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
+											className="flex flex-row gap-4 items-center p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
 										>
-											<AddIcon className="w-5 h-5 " />
+											<AddIcon className="w-5 h-5" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>

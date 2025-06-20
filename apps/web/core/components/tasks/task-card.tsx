@@ -94,10 +94,7 @@ export function TaskCard(props: Props) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const isTrackingEnabled = useMemo(
-		() =>
-			activeTeam?.members?.find((member) => member.employee?.userId === user?.id && member.isTrackingEnabled)
-				? true
-				: false,
+		() => !!activeTeam?.members?.find((member) => member.employee?.userId === user?.id && member.isTrackingEnabled),
 		[activeTeam?.members, user?.id]
 	);
 	const members = activeTeam?.members || [];
@@ -371,7 +368,10 @@ function TimerButtonCall({
 
 	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') return;
+		if (task.status === 'closed') {
+			toast.error('Task is closed');
+			return;
+		}
 
 		if (timerStatus?.running) {
 			setLoading(true);

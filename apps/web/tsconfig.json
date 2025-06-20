@@ -53,8 +53,7 @@
 		"**/*.tsx",
 		"**/*.js",
 		"**/*.jsx",
-		".next/types/**/*.ts",
-		"core/types/interfaces/task/task-card.tx"
+		".next/types/**/*.ts"
 	],
 	"exclude": [
 		"node_modules"

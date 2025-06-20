@@ -14,6 +14,7 @@ import TeamMembersTableView from './team-members-views/user-team-table/team-memb
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
 
 // Types for better performance and security
 
@@ -124,21 +125,21 @@ const VIEW_COMPONENTS_CONFIG = {
 		containerProps: { className: '!overflow-x-auto !mx-0 px-0' },
 		useTransition: false,
 		useBlockMembers: false,
-		additionalProps: () => ({}) as any
+		additionalProps: (): Partial<TaskCardProps> => ({})
 	},
 	[IssuesView.TABLE]: {
 		component: TeamMembersTableView,
 		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
 		useTransition: true,
 		useBlockMembers: false,
-		additionalProps: (isMemberActive: boolean | undefined) => ({ active: isMemberActive }) as any
+		additionalProps: (isMemberActive: boolean | undefined): Partial<TaskCardProps> => ({ active: isMemberActive })
 	},
 	[IssuesView.BLOCKS]: {
 		component: TeamMembersBlockView,
 		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
 		useTransition: false,
 		useBlockMembers: true,
-		additionalProps: () => ({}) as any
+		additionalProps: (): Partial<TaskCardProps> => ({})
 	}
 } as const;
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
-import { Column, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
@@ -24,7 +24,7 @@ const TeamMembersTableView = memo(
 	}) => {
 		const t = useTranslations();
 
-		const columns = React.useMemo<ColumnDef<any>[]>(
+		const columns = React.useMemo<ColumnDef<TOrganizationTeamEmployee>[]>(
 			() => [
 				{
 					id: 'name',
@@ -64,10 +64,10 @@ const TeamMembersTableView = memo(
 				}
 			],
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[]
+			[t]
 		);
 
-		const sortedTeamMembers: any[] = [];
+		const sortedTeamMembers: TOrganizationTeamEmployee[] = [];
 		if (currentUser) {
 			sortedTeamMembers.push(currentUser);
 		}
@@ -77,7 +77,7 @@ const TeamMembersTableView = memo(
 			<>
 				<DataTable
 					isHeader={false}
-					columns={columns as Column<any>[]}
+					columns={columns}
 					data={sortedTeamMembers}
 					isScrollable
 					noResultsMessage={{

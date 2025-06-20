@@ -67,7 +67,7 @@ const TeamMembersBlockView: React.FC<Props> = React.memo(
 						})}
 					</div>
 					<Transition
-						as="div"
+						as="ul"
 						show={teamsFetching}
 						enter="transition-opacity duration-75"
 						enterFrom="opacity-0"
