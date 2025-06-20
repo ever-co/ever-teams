@@ -42,8 +42,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
-		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[isManagerConnectedUser, profile?.userProfile?.id, user?.id]
 	);
 	const path = usePathname();
 
