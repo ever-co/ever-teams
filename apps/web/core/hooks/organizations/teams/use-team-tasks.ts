@@ -18,7 +18,7 @@ import {
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
@@ -125,7 +125,7 @@ export function useTeamTasks() {
 			}
 			return await taskService.getTasksByEmployeeId(selectedEmployeeId!, selectedOrganizationTeamId!);
 		},
-		enabled: !!selectedEmployeeId && !!activeTeam?.id,
+		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
 		gcTime: 1000 * 60 * 60
 	});
 
@@ -515,32 +515,44 @@ export function useTeamTasks() {
 		setActiveTeamTask(null);
 	}, [setActiveTeamTask]);
 
-	useEffect(() => {
-		const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
-		if (memberActiveTask) {
-			setActiveTeamTask(memberActiveTask);
-		}
-	}, [activeTeam, tasks, memberActiveTaskId]);
+	useConditionalUpdateEffect(
+		() => {
+			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
+			if (memberActiveTask) {
+				setActiveTeamTask(memberActiveTask);
+			}
+		},
+		[activeTeam, tasks, memberActiveTaskId],
+		Boolean(activeTeamTask)
+	);
 
 	// Reload tasks after active team changed
-	useEffect(() => {
-		if (activeTeam?.id && firstLoad) {
-			loadTeamTasksData();
-		}
-	}, [activeTeam?.id, firstLoad]);
+	useConditionalUpdateEffect(
+		() => {
+			if (activeTeam?.id && firstLoad) {
+				loadTeamTasksData();
+			}
+		},
+		[activeTeam?.id, firstLoad],
+		true
+	);
 
 	// Get the active task from cookie and put on global store
-	useEffect(() => {
-		if (firstLoad) {
-			const active_user_task = getActiveUserTaskCookie();
-			const active_taskid =
-				active_user_task?.userId === authUser.current?.id
-					? active_user_task?.taskId
-					: getActiveTaskIdCookie() || '';
+	useConditionalUpdateEffect(
+		() => {
+			if (firstLoad) {
+				const active_user_task = getActiveUserTaskCookie();
+				const active_taskid =
+					active_user_task?.userId === authUser.current?.id
+						? active_user_task?.taskId
+						: getActiveTaskIdCookie() || '';
 
-			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
-		}
-	}, [tasks, firstLoad, authUser]);
+				setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+			}
+		},
+		[tasks, firstLoad, authUser],
+		Boolean(activeTeamTask)
+	);
 
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
