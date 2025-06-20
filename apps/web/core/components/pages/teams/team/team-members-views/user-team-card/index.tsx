@@ -146,7 +146,7 @@ export function UserTeamCard({
 		},
 		[setActivity]
 	);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+	const canSeeActivity = profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	return (
 		<div
@@ -156,7 +156,7 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
-			ref={profile.loadTaskStatsIObserverRef}
+			ref={profile?.loadTaskStatsIObserverRef}
 		>
 			<EverCard
 				shadow="bigger"
@@ -268,7 +268,7 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
-				memberInfo.memberUser.id == profile.userProfile?.id &&
+				memberInfo.memberUser.id == profile?.userProfile?.id &&
 				!showActivity ? (
 					<div className="overflow-y-auto h-96">
 						{canSeeActivity && (

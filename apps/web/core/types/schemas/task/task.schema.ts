@@ -6,26 +6,11 @@ import { taskStatusNameSchema, taskTypeSchema } from '../common/enums.schema';
 import { taskPrioritySchema } from './task-priority.schema';
 import { taskSizeSchema } from './task-size.schema';
 import { taskStatusSchema } from './task-status.schema';
+import { organizationTeamSchema } from '../team/organization-team.schema';
 
 export const basePerTenantAndOrganizationEntitySchema = baseEntitySchema.extend({
 	tenantId: idSchema.optional(),
 	organizationId: idSchema.optional()
-});
-
-// schema for IOrganizationTeam
-export const organizationTeamSchema = basePerTenantAndOrganizationEntitySchema.extend({
-	name: z.string(),
-	prefix: z.string().optional(),
-	emoji: z.string().optional(),
-	teamSize: z.string().optional(),
-	logo: z.string().optional(),
-	imageId: z.string().optional(),
-	color: z.string().optional(),
-	public: z.boolean().nullable(),
-	profile_link: z.string().optional(),
-	tags: z.array(tagSchema).optional().nullable(),
-	members: z.array(employeeSchema).optional().nullable(),
-	managers: z.array(employeeSchema).optional().nullable()
 });
 
 // schema for ITaskSize
@@ -79,25 +64,25 @@ export const baseTaskPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 	title: z.string(),
 	number: z.number().optional(),
 	public: z.boolean().nullable(),
-	prefix: z.string().optional(),
+	prefix: z.string().optional().nullable(),
 	description: z.string().optional(),
-	status: taskStatusNameSchema.optional(),
-	priority: taskPrioritySchema.optional(),
-	size: taskSizeSchema.optional(),
-	issueType: taskTypeSchema.optional(),
-	startDate: z.date().optional(),
-	resolvedAt: z.date().optional(),
-	dueDate: z.date().optional(),
+	status: z.any().optional(),
+	priority: z.any().optional().nullable(),
+	size: z.any().optional().nullable(),
+	issueType: z.any().optional(),
+	startDate: z.any().optional(),
+	resolvedAt: z.any().optional(),
+	dueDate: z.any().optional(),
 	estimate: z.number().optional(),
 	isDraft: z.boolean().optional(),
 	isScreeningTask: z.boolean().optional(),
-	version: z.string().optional()
+	version: z.string().optional().nullable()
 });
 
 // schema for ITaskAssociations
 export const taskAssociationsSchema = z.object({
 	tags: z.array(tagSchema).optional(),
-	projectId: idSchema.optional(),
+	projectId: z.string().optional().nullable(),
 	members: z.array(employeeSchema).optional(),
 	teams: z.array(organizationTeamSchema).optional()
 });
@@ -105,36 +90,36 @@ const baseTaskSchema = z.object({
 	title: z.string(),
 	number: z.number().optional(),
 	public: z.boolean().nullable(),
-	prefix: z.string().optional(),
+	prefix: z.string().optional().nullable(),
 	description: z.string().optional(),
-	status: taskStatusNameSchema.optional(),
-	priority: taskPrioritySchema.optional(),
-	size: taskSizeSchema.optional(),
-	issueType: taskTypeSchema.optional(),
-	startDate: z.date().optional(),
-	resolvedAt: z.date().optional(),
-	dueDate: z.date().optional(),
+	status: z.any().optional(),
+	priority: z.any().optional().nullable(),
+	size: z.any().optional().nullable(),
+	issueType: z.any().optional().nullable(),
+	startDate: z.any().optional().nullable(),
+	resolvedAt: z.any().optional().nullable(),
+	dueDate: z.any().optional().nullable(),
 	estimate: z.number().optional(),
 	isDraft: z.boolean().optional(),
 	isScreeningTask: z.boolean().optional(),
-	version: z.string().optional(),
+	version: z.string().optional().nullable(),
 	tags: z.array(tagSchema).optional().nullable(),
-	projectId: idSchema.optional(),
-	members: z.array(employeeSchema).optional(),
+	projectId: z.string().optional().nullable(),
+	members: z.array(z.any()).optional(),
 	teams: z.array(organizationTeamSchema).optional(),
 
-	parentId: idSchema.optional(),
+	parentId: z.string().optional().nullable(),
 	children: z.array(z.any()).optional().nullable(),
 	rootEpic: z.any().optional().nullable(),
 	// Relations with the entities of status, size, priority and type
 	taskStatus: taskStatusSchema.optional(),
-	taskStatusId: idSchema.optional(),
+	taskStatusId: z.string().optional().nullable(),
 	taskSize: taskSizeEntitySchema.optional(),
-	taskSizeId: idSchema.optional(),
+	taskSizeId: z.string().optional().nullable(),
 	taskPriority: taskPriorityEntitySchema.optional(),
-	taskPriorityId: idSchema.optional(),
+	taskPriorityId: z.string().optional().nullable(),
 	taskType: issueTypeEntitySchema.optional(),
-	taskTypeId: idSchema.optional(),
+	taskTypeId: z.string().optional().nullable(),
 
 	// Additional properties specific to tasks
 	taskNumber: z.string().optional(),
@@ -148,28 +133,28 @@ const baseTaskSchema = z.object({
 // schema for ITask
 export const taskSchema = baseTaskPropertiesSchema
 	.merge(baseTaskSchema)
-	.merge(taskAssociationsSchema)
+	// .merge(taskAssociationsSchema)
 	.extend({
 		// Relations with other tasks
 		parent: baseTaskSchema.optional().nullable(),
-		parentId: idSchema.optional(),
+		parentId: z.string().optional().nullable(),
 		children: z.array(baseTaskSchema).optional().nullable(),
 		rootEpic: baseTaskSchema.optional().nullable(),
 
 		// Relations with the entities of status, size, priority and type
 		taskStatus: taskStatusSchema.optional(),
-		taskStatusId: idSchema.optional(),
+		taskStatusId: z.string().optional().nullable(),
 		taskSize: taskSizeEntitySchema.optional(),
-		taskSizeId: idSchema.optional(),
+		taskSizeId: z.string().optional().nullable(),
 		taskPriority: taskPriorityEntitySchema.optional(),
-		taskPriorityId: idSchema.optional(),
+		taskPriorityId: z.string().optional().nullable(),
 		taskType: issueTypeEntitySchema.optional(),
-		taskTypeId: idSchema.optional(),
+		taskTypeId: z.string().optional().nullable(),
 
 		// Additional properties specific to tasks
 		taskNumber: z.string().optional(),
 		totalWorkedTime: z.number().optional(),
-		selectedTeam: organizationTeamSchema.optional(),
+		// selectedTeam: organizationTeamSchema.optional(),
 		linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 		label: z.string().optional(),
 		estimateHours: z.number().optional(),
@@ -210,6 +195,12 @@ export const createTaskSchema = z.object({
 	organizationId: z.string(),
 	tenantId: z.string(),
 	projectId: z.string().nullable().optional()
+});
+
+export const updateActiveTaskSchema = z.object({
+	affected: z.number(),
+	generatedMaps: z.array(z.any()),
+	raw: z.array(z.any())
 });
 
 // ===== TYPES TYPESCRIPT EXPORTED =====

@@ -10,6 +10,7 @@ import { useAuthenticateUser } from '../auth';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -158,9 +159,9 @@ export function useTaskInput({
 			setQuery('');
 			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
 			setTaskIssue('');
-			const items = res.data?.items || [];
-			const created = items.find((t: ITask) => t.title === query.trim());
-			if (created && autoActiveTask) setActiveTask(created);
+			const items = res?.items || [];
+			const created = items.find((t: TTask) => t.title === query.trim());
+			if (created && autoActiveTask) setActiveTask(created as any);
 
 			return created;
 		});

@@ -26,6 +26,7 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
 import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
 	task?: Nullable<ITask>;
@@ -85,7 +86,7 @@ export function TaskInputKanban(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: TTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task as any),
 		[$onTaskCreated]
 	);
 

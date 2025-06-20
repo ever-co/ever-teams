@@ -14,22 +14,22 @@ const UserWorkedTaskTab = ({ member }: { member?: any }) => {
 	const t = useTranslations();
 
 	const tasks = hook.tasksFiltered;
-	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
+	const canSeeActivity = profile?.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
 	const otherTasks = tasks.filter((t) =>
-		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
+		profile?.member?.running == true ? t.id !== profile?.activeUserTeamTask?.id : t
 	);
 
 	return (
 		<div>
-			{profile.activeUserTeamTask && canSeeActivity && (
+			{profile?.activeUserTeamTask && canSeeActivity && (
 				<TaskCard
 					active
-					task={profile.activeUserTeamTask}
-					isAuthUser={profile.isAuthUser}
+					task={profile?.activeUserTeamTask}
+					isAuthUser={profile?.isAuthUser}
 					activeAuthTask={true}
 					profile={profile}
 					taskBadgeClassName={`	${
-						profile.activeUserTeamTask?.issueType === 'Bug'
+						profile?.activeUserTeamTask?.issueType === 'Bug'
 							? '!px-[0.3312rem] py-[0.2875rem]'
 							: '!px-[0.375rem] py-[0.375rem]'
 					} rounded-sm`}
@@ -53,7 +53,7 @@ const UserWorkedTaskTab = ({ member }: { member?: any }) => {
 							<li key={task.id}>
 								<TaskCard
 									task={task}
-									isAuthUser={profile.isAuthUser}
+									isAuthUser={profile?.isAuthUser}
 									activeAuthTask={false}
 									viewType={hook.tab === 'unassigned' ? 'unassign' : 'default'}
 									profile={profile}

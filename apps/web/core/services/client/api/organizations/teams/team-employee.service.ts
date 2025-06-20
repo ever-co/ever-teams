@@ -10,6 +10,7 @@ import {
 	TOrganizationTeamEmployee,
 	TOrganizationTeamEmployeeUpdate
 } from '@/core/types/schemas';
+import { updateActiveTaskSchema } from '@/core/types/schemas/task/task.schema';
 
 class OrganizationTeamEmployeeService extends APIService {
 	deleteOrganizationEmployeeTeam = async ({
@@ -79,10 +80,7 @@ class OrganizationTeamEmployeeService extends APIService {
 		}
 	};
 
-	updateOrganizationTeamEmployeeActiveTask = async (
-		id: string,
-		data: Partial<TOrganizationTeamEmployeeUpdate>
-	): Promise<TOrganizationTeamEmployee> => {
+	updateOrganizationTeamEmployeeActiveTask = async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
 		try {
 			const response = await this.put<TOrganizationTeamEmployee>(
 				`/organization-team-employee/${id}/active-task`,
@@ -91,7 +89,7 @@ class OrganizationTeamEmployeeService extends APIService {
 
 			// Validate API response using utility function
 			return validateApiResponse(
-				organizationTeamEmployeeSchema,
+				updateActiveTaskSchema,
 				response.data,
 				'updateOrganizationTeamEmployeeActiveTask API response'
 			);

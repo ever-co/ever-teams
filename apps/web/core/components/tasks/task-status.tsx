@@ -159,7 +159,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true).finally(() => {
+			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)?.finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
 			});
 		}, $task);
@@ -443,7 +443,7 @@ export function EpicPropertiesDropdown({
 
 export function useTaskPrioritiesValue() {
 	const { taskPriorities } = useTaskPriorities();
-	return useMapToTaskStatusValues(taskPriorities, false);
+	return useMapToTaskStatusValues(taskPriorities as TTaskStatus[], false);
 }
 
 /**
@@ -537,7 +537,7 @@ export function TaskPriorityStatus({
 
 export function useTaskSizesValue() {
 	const { taskSizes } = useTaskSizes();
-	return useMapToTaskStatusValues(taskSizes, false);
+	return useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 }
 
 /**
