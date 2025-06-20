@@ -8,6 +8,7 @@ import {
 import { relationalRoleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { imageAssetSchema } from '../common/image-asset.schema';
 
 /**
  * Zod schemas for Organization Team Employee-related interfaces
@@ -78,7 +79,12 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 	roleId: z.string().optional().nullable(),
 	isTrackingEnabled: z.boolean().optional(),
 	activeTaskId: z.string().optional().nullable(),
-	order: z.number().optional().nullable()
+	memberIds: z.array(z.string()).optional(),
+	managerIds: z.array(z.string()).optional(),
+	tags: z.array(z.string()).optional(),
+	order: z.number().optional().nullable(),
+	imageId: z.string().optional().nullable(),
+	image: z.object({}).merge(imageAssetSchema).optional().nullable()
 });
 
 // Organization team employee update schema
