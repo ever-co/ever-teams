@@ -705,7 +705,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 							'input-border',
 							'py-2 px-4 rounded-[10px]',
 							'text-sm outline-none ',
-							'h-[50px] w-full',
+							'h-12 w-full',
 							'h-full z-50 w-full px-3 focus:outline-none'
 						)}
 						required

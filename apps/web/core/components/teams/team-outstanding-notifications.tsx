@@ -23,7 +23,7 @@ export function TeamOutstandingNotifications() {
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	return (
-		<div className="flex flex-col gap-4">
+		<div className="flex flex-col gap-1">
 			{outstandingPlans.length > 0 && (
 				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
@@ -84,7 +84,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	return (
 		<>
 			{visible && (
-				<div className="flex items-center justify-between px-6 py-2 mb-2 text-xs border rounded-2xl dark:border-dark--theme-light">
+				<div className="flex justify-between items-center px-4 py-2 text-xs rounded-xl border dark:border-dark--theme-light">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {outStandingTasksCount}{' '}
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.USER_LABEL')}{' '}
@@ -92,11 +92,11 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 							{t('pages.home.OUTSTANDING_NOTIFICATIONS.OUTSTANDING_VIEW')}
 						</span>
 					</div>
-					<div className="flex items-center gap-5">
+					<div className="flex gap-5 items-center">
 						<div>
 							<Link
 								href={`/profile/${user?.id}?name=${name || ''}`}
-								className="flex items-center gap-2 px-4 py-2 text-white bg-primary rounded-xl"
+								className="flex gap-2 items-center px-2.5 py-1 text-white rounded-xl bg-primary"
 								onClick={() => {
 									onClose();
 									window && window.localStorage.setItem('task-tab', 'dailyplan');
@@ -191,7 +191,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	return (
 		<>
 			{uniqueEmployees?.length > 0 && visible && (
-				<div className="flex items-center justify-between px-6 py-4 mb-2 text-xs border rounded-2xl dark:border-dark--theme-light">
+				<div className="flex justify-between items-center px-4 py-2.5 mb-2 text-xs rounded-xl border dark:border-dark--theme-light">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees?.length} team member(s)
 						with uncompleted tasks, please see{' '}
@@ -207,7 +207,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 							))}
 						</span>
 					</div>
-					<div className="flex items-center gap-5">
+					<div className="flex gap-5 items-center">
 						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" onClick={onClose} />
 						</Tooltip>

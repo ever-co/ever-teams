@@ -343,7 +343,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -516,7 +516,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<ActiveTaskStatusDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
@@ -667,7 +667,7 @@ function TaskCard({
 											className="overflow-y-auto cursor-pointer"
 										/>
 										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
-										{!last && <Divider className="my-5" />}
+										{!last && <Divider className="my-3.5" />}
 									</li>
 								);
 							}}
@@ -750,9 +750,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative h-full my-auto">
-					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',
@@ -790,7 +790,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
-									<span className="text-xs text-nowrap whitespace-nowrap">
+									<span className="text-xs whitespace-nowrap text-nowrap">
 										{authMember.employee?.fullName}
 									</span>
 								</Combobox.Option>
@@ -833,7 +833,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 											</span>
 										)}
 
-										<span className="text-xs text-nowrap whitespace-nowrap">
+										<span className="text-xs whitespace-nowrap text-nowrap">
 											{member.employee?.fullName}
 										</span>
 									</Combobox.Option>

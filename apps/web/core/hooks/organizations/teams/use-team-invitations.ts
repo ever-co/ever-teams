@@ -1,6 +1,6 @@
 'use client';
+
 import {
-	activeTeamIdState,
 	fetchingTeamInvitationsState,
 	getTeamInvitationsState,
 	myInvitationsState,
@@ -15,148 +15,193 @@ import { useAuthenticateUser } from '../../auth';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
 
 export function useTeamInvitations() {
-	const setTeamInvitations = useSetAtom(teamInvitationsState);
-	const [myInvitationsList, setMyInvitationsList] = useAtom(myInvitationsState);
-
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
-	const [, setFetchingInvitations] = useAtom(fetchingTeamInvitationsState);
-
-	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
-
-	const { isTeamManager, refreshToken, user } = useAuthenticateUser();
 	const queryClient = useQueryClient();
 
-	// Memoized parameters for React Query
-	const tenantId = useMemo(() => user?.tenantId, [user?.tenantId]);
-	const organizationId = useMemo(() => user?.employee?.organizationId, [user?.employee?.organizationId]);
-	const invalidateTeamInvitations = useCallback(() => {
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.users.invitations.team(tenantId, organizationId, activeTeamId)
-		});
-	}, [queryClient, tenantId, organizationId, activeTeamId]);
-	const isEnabled = useMemo(
-		() => !!(tenantId && organizationId && activeTeamId && isTeamManager),
-		[tenantId, organizationId, activeTeamId, isTeamManager]
-	);
-	// React Query Mutations
-	const inviteMutation = useMutation({
-		mutationFn: ({
-			data,
-			tenantId
-		}: {
-			data: { email: string; name: string; organizationId: string; teamId: string };
-			tenantId: string;
-		}) => inviteService.inviteByEmails(data, tenantId),
-		onSuccess: (result) => {
-			// Invalidate and refetch team invitations
-			invalidateTeamInvitations();
-			// Update Jotai state for backward compatibility with transformed data
-			if (result.items) {
-				setTeamInvitations((prev) => [...prev, ...result.items]);
-			}
+	const setTeamInvitations = useSetAtom(teamInvitationsState);
+	const [myInvitationsList, setMyInvitationsList] = useAtom(myInvitationsState);
+	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const [fetchingInvitations, setFetchingInvitations] = useAtom(fetchingTeamInvitationsState);
+
+	const activeTeamId = getActiveTeamIdCookie();
+	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
+	const { isTeamManager, refreshToken, user } = useAuthenticateUser();
+
+	// Request params memoized
+	const teamInvitationsParams: TeamInvitationsQueryParams | null =
+		activeTeamId && user?.tenantId && user?.employee?.organizationId
+			? {
+					tenantId: user.tenantId,
+					organizationId: user.employee.organizationId,
+					role: 'EMPLOYEE',
+					teamId: activeTeamId
+				}
+			: null;
+
+	// ===== QUERIES =====
+
+	// Query for team invitations
+	const {
+		data: teamInvitationsData,
+		isLoading: teamInvitationsLoading,
+		isSuccess: teamInvitationsSuccess,
+		dataUpdatedAt: teamInvitationsUpdatedAt
+	} = useQuery({
+		queryKey: queryKeys.users.invitations.team(
+			user?.tenantId || '',
+			user?.employee?.organizationId || '',
+			activeTeamId || ''
+		),
+		queryFn: async () => {
+			if (!teamInvitationsParams) return { items: [] };
+
+			return await inviteService.getTeamInvitations(
+				teamInvitationsParams.tenantId,
+				teamInvitationsParams.organizationId,
+				teamInvitationsParams.role,
+				teamInvitationsParams.teamId
+			);
 		},
-		onError: (error) => {
-			toast.error('Failed to send invitation', {
-				description: error instanceof Error ? error.message : 'An error occurred'
+		enabled: !!(activeTeamId && isTeamManager && user?.tenantId)
+	});
+
+	// Query for my invitations
+	const {
+		data: myInvitationsData,
+		isLoading: myInvitationsLoadingQuery,
+		refetch: refetchMyInvitations
+	} = useQuery({
+		queryKey: queryKeys.users.invitations.all,
+
+		queryFn: async () => {
+			if (!user?.tenantId) return { items: [] };
+			return await inviteService.getMyInvitations(user.tenantId);
+		},
+		enabled: !!user?.tenantId, // Disabled by default, enabled manually via refetch
+		staleTime: 2 * 60 * 1000, // 2 minutes
+		gcTime: 5 * 60 * 1000 // 5 minutes
+	});
+
+	// ===== MUTATIONS =====
+
+	// Mutation to invite a user
+	const inviteUserMutation = useMutation({
+		mutationFn: async (params: InviteUserParams) => {
+			return await inviteService.inviteByEmails(
+				{
+					email: params.email,
+					name: params.name,
+					organizationId: params.organizationId,
+					teamId: params.teamId
+				},
+				params.tenantId
+			);
+		},
+		onSuccess: (data) => {
+			// Optimistic update of the cache
+			const items = data.items || [];
+			setTeamInvitations((prev) => [...prev, ...items]);
+
+			// Invalidation of the cache for refetch
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.users.invitations.team(
+					user?.tenantId || '',
+					user?.employee?.organizationId || '',
+					activeTeamId || ''
+				)
 			});
 		}
 	});
 
-	const removeInviteMutation = useMutation({
-		mutationFn: ({
-			invitationId,
-			tenantId,
-			organizationId,
-			role,
-			teamId
-		}: {
-			invitationId: string;
-			tenantId: string;
-			organizationId: string;
-			role: string;
-			teamId: string;
-		}) => inviteService.removeTeamInvitations(invitationId, tenantId, organizationId, role, teamId),
-		onSuccess: (result) => {
-			// Invalidate and refetch team invitations
-			invalidateTeamInvitations();
-			// Update Jotai state for backward compatibility with transformed data
-			if (result.items) {
-				setTeamInvitations(result.items);
-			}
+	// Mutation to remove an invitation
+	const removeInvitationMutation = useMutation({
+		mutationFn: async ({ invitationId, email }: { invitationId: string; email?: string }) => {
+			if (!teamInvitationsParams) throw new Error('Missing parameters');
+
+			const result = await inviteService.removeTeamInvitations(
+				invitationId,
+				teamInvitationsParams.tenantId,
+				teamInvitationsParams.organizationId,
+				teamInvitationsParams.role,
+				teamInvitationsParams.teamId
+			);
+
+			return { result, email };
 		},
-		onError: (error) => {
-			toast.error('Failed to remove invitation', {
-				description: error instanceof Error ? error.message : 'An error occurred'
-			});
-		}
-	});
-
-	const resendInviteMutation = useMutation({
-		mutationFn: (inviteId: string) => inviteService.resendTeamInvitations(inviteId),
-		onSuccess: () => {
-			// Invalidate and refetch team invitations to get fresh data
-			invalidateTeamInvitations();
-		},
-		onError: (error) => {
-			toast.error('Failed to resend invitation', {
-				description: error instanceof Error ? error.message : 'An error occurred'
-			});
-		}
-	});
-
-	const acceptRejectMutation = useMutation({
-		mutationFn: ({ invitationId, action }: { invitationId: string; action: EInviteAction }) =>
-			inviteService.acceptRejectMyInvitations(invitationId, action),
-		onSuccess: (result, variables) => {
-			if (result.message) {
-				return result;
-			}
-
-			if (variables.action === EInviteAction.ACCEPTED) {
-				refreshToken().then(() => {
-					window.location.reload();
+		onSuccess: ({ result, email }) => {
+			if (email) {
+				toast.success('Invitation removed', {
+					description: `Invitation removed for ${email}`,
+					duration: 5000
 				});
 			}
 
-			// Invalidate my invitations
-			queryClient.invalidateQueries({ queryKey: queryKeys.users.invitations.my(tenantId) });
-			// Update Jotai state for backward compatibility
-			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== variables.invitationId));
-		},
-		onError: (error) => {
-			toast.error('Failed to process invitation', {
-				description: error instanceof Error ? error.message : 'An error occurred'
+			setTeamInvitations(result.items || []);
+
+			// Invalidation of the cache
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.users.invitations.team(
+					user?.tenantId || '',
+					user?.employee?.organizationId || '',
+					activeTeamId || ''
+				)
 			});
 		}
 	});
 
-	// React Query: Get Team Invitations
-	const { data: teamInvitationsData, isLoading: teamInvitationsLoading } = useQuery({
-		queryKey: queryKeys.users.invitations.team(tenantId, organizationId, activeTeamId),
-		queryFn: () => inviteService.getTeamInvitations(tenantId!, organizationId!, 'EMPLOYEE', activeTeamId!),
-		enabled: isEnabled,
-		staleTime: 30000, // 30 seconds
-		refetchOnWindowFocus: false
+	// Mutation to resend an invitation
+	const resendInvitationMutation = useMutation({
+		mutationFn: async (invitationId: string) => {
+			return await inviteService.resendTeamInvitations(invitationId);
+		},
+		onSuccess: () => {
+			// Invalidation of the cache for refetch
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.users.invitations.all
+			});
+		}
 	});
 
-	// React Query: Get My Invitations
-	const { data: myInvitationsData, isLoading: myInvitationsLoading } = useQuery({
-		queryKey: queryKeys.users.invitations.my(tenantId),
-		queryFn: () => inviteService.getMyInvitations(tenantId!),
-		enabled: !!tenantId,
-		staleTime: 30000, // 30 seconds
-		refetchOnWindowFocus: false
+	// Mutation to accept/reject an invitation
+	const acceptRejectInvitationMutation = useMutation({
+		mutationFn: async ({ id, action }: { id: string; action: EInviteAction }) => {
+			return await inviteService.acceptRejectMyInvitations(id, action);
+		},
+		onSuccess: async (res, { id, action }) => {
+			if (res.message) {
+				return res.message;
+			}
+
+			if (action === EInviteAction.ACCEPTED) {
+				await refreshToken();
+				window.location.reload();
+				return res;
+			}
+
+			// Optimistic update of the cache
+			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== id));
+
+			// Invalidation of the cache
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.users.invitations.all
+			});
+
+			return res;
+		}
 	});
 
-	// Synchronize React Query data with Jotai stores
+	// ===== EFFECTS =====
+
+	// Synchronization with the Jotai stores for compatibility
+
 	useEffect(() => {
-		if (teamInvitationsData?.items) {
+		if (teamInvitationsSuccess && teamInvitationsData?.items) {
 			setTeamInvitations(teamInvitationsData.items);
 		}
-	}, [teamInvitationsData, setTeamInvitations]);
+	}, [teamInvitationsSuccess, teamInvitationsUpdatedAt]);
 
 	useEffect(() => {
 		if (myInvitationsData?.items) {
@@ -164,118 +209,93 @@ export function useTeamInvitations() {
 		}
 	}, [myInvitationsData, setMyInvitationsList]);
 
-	// Update fetching state for backward compatibility
 	useEffect(() => {
 		if (firstLoad) {
 			setFetchingInvitations(teamInvitationsLoading);
 		}
 	}, [teamInvitationsLoading, firstLoad, setFetchingInvitations]);
 
+	// ===== INTERFACE FUNCTIONS =====
+
 	const inviteUser = useCallback(
 		(email: string, name: string) => {
-			if (!user?.tenantId || !user?.employee?.organizationId || !activeTeamId) {
+			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
 
-			return inviteMutation.mutateAsync({
-				data: {
-					email,
-					name,
-					organizationId: user.employee.organizationId,
-					teamId: activeTeamId
-				},
+			return inviteUserMutation.mutateAsync({
+				email,
+				name,
+				organizationId: user.employee.organizationId,
+				teamId: activeTeamId,
 				tenantId: user.tenantId
 			});
 		},
-		[inviteMutation, user?.tenantId, user?.employee?.organizationId, activeTeamId]
+		[inviteUserMutation, user, activeTeamId]
 	);
 
-	// Legacy useEffect removed - React Query handles data fetching automatically
-
 	const removeTeamInvitation = useCallback(
-		(invitationId: string, email?: string | null) => {
-			if (!(activeTeamId && isTeamManager && user?.tenantId && user?.employee?.organizationId)) {
-				return Promise.reject(new Error('Missing required parameters'));
+		(invitationId: string, email?: string) => {
+			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
+				return;
 			}
 
-			return removeInviteMutation
-				.mutateAsync({
-					invitationId,
-					tenantId: user.tenantId,
-					organizationId: user.employee.organizationId,
-					role: 'EMPLOYEE',
-					teamId: activeTeamId
-				})
-				.then((result) => {
-					if (email) {
-						toast.success('Invitation removed', {
-							description: `Invitation removed for ${email}`,
-							duration: 5000
-						});
-					}
-					return result;
-				});
+			removeInvitationMutation.mutate({ invitationId, email });
 		},
-		[removeInviteMutation, activeTeamId, isTeamManager, user?.tenantId, user?.employee?.organizationId]
+		[removeInvitationMutation, activeTeamId, isTeamManager, user]
 	);
 
 	const resendTeamInvitation = useCallback(
 		(invitationId: string) => {
-			return resendInviteMutation.mutateAsync(invitationId);
+			return resendInvitationMutation.mutateAsync(invitationId);
 		},
-		[resendInviteMutation]
+		[resendInvitationMutation]
 	);
 
 	const myInvitations = useCallback(() => {
-		// React Query handles this automatically - this function is kept for backward compatibility
-		// Data is already available in myInvitationsData and synchronized with myInvitationsList
-		if (!tenantId) {
+		if (myInvitationsLoadingQuery || !user?.tenantId) {
 			return;
 		}
-		// Trigger a refetch if needed
-		queryClient.invalidateQueries({ queryKey: queryKeys.users.invitations.my(tenantId) });
-	}, [queryClient, tenantId]);
+
+		refetchMyInvitations();
+	}, [refetchMyInvitations, user?.tenantId, myInvitationsLoadingQuery]);
+
 	const removeMyInvitation = useCallback(
 		(id: string) => {
-			setMyInvitationsList(myInvitationsList.filter((invitation) => invitation.id !== id));
+			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== id));
 		},
-		[myInvitationsList, setMyInvitationsList]
+		[setMyInvitationsList]
 	);
+
 	const acceptRejectMyInvitation = useCallback(
 		(id: string, action: EInviteAction) => {
-			return acceptRejectMutation.mutateAsync({
-				invitationId: id,
-				action
-			});
+			return acceptRejectInvitationMutation.mutateAsync({ id, action });
 		},
-		[acceptRejectMutation]
+		[acceptRejectInvitationMutation]
 	);
-
+	const hydratedInvitations = useMemo(() => {
+		return teamInvitationsData?.items ?? teamInvitations;
+	}, [teamInvitationsData?.items, teamInvitations]);
+	const hydratedMyInvitations = useMemo(() => {
+		return myInvitationsData?.items ?? myInvitationsList;
+	}, [myInvitationsData?.items, myInvitationsList]);
+	// ===== RETURN =====
 	return {
-		// Data from React Query (preferred)
-		teamInvitations: teamInvitationsData?.items || teamInvitations, // Fallback to Jotai for backward compatibility
-		myInvitationsList: myInvitationsData?.items || myInvitationsList, // Fallback to Jotai for backward compatibility
-
-		// Loading states from React Query
-		fetchingInvitations: teamInvitationsLoading,
-		myInvitationsLoading,
-
-		// Legacy compatibility
+		teamInvitations: hydratedInvitations,
+		myInvitationsList: hydratedMyInvitations,
 		firstLoadTeamInvitationsData,
-
-		// Mutation functions with React Query
-		inviteLoading: inviteMutation.isPending,
+		fetchingInvitations,
+		inviteLoading: inviteUserMutation.isPending,
 		inviteUser,
 		removeTeamInvitation,
 		resendTeamInvitation,
-		removeInviteLoading: removeInviteMutation.isPending,
-		resendInviteLoading: resendInviteMutation.isPending,
+		removeInviteLoading: removeInvitationMutation.isPending,
+		resendInviteLoading: resendInvitationMutation.isPending,
+		myInvitationsQueryCall: refetchMyInvitations,
+		myInvitationsLoading: myInvitationsLoadingQuery,
 		myInvitations,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading: acceptRejectMutation.isPending,
-
-		// Legacy function kept for backward compatibility
-		myInvitationsQueryCall: myInvitations
+		acceptRejectMyInvitationsLoading: acceptRejectInvitationMutation.isPending
 	};
 }

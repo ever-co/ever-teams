@@ -121,7 +121,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 												style={{ backgroundColor: statusColor(status).bgOpacity }}
 												type="button"
 												className={cn(
-													'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+													'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 													statusColor(status).text
 												)}
 											>

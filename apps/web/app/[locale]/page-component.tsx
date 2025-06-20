@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
+
 import { useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -69,13 +70,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex items-center justify-center h-10 gap-8">
+									<div className="flex gap-8 justify-center items-center h-10">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex items-center justify-center h-10 gap-1 w-max">
+									<div className="flex gap-1 justify-center items-center w-max h-10">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>
