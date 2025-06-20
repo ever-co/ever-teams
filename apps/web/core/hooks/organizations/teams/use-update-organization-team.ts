@@ -1,9 +1,8 @@
 'use client';
-import { IOrganizationTeam, IOrganizationTeamUpdate } from '@/core/types/interfaces/team/organization-team';
 import { useCallback } from 'react';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useQueryCall } from '../../common';
-import { TOrganizationTeamEmployeeUpdate } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamEmployeeUpdate } from '@/core/types/schemas';
 import { useTeamsState } from './use-teams-state';
 
 /**
@@ -14,7 +13,7 @@ export function useUpdateOrganizationTeam() {
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
-		(team: IOrganizationTeam, data: Partial<IOrganizationTeamUpdate> = {}) => {
+		(team: TOrganizationTeam, data: Partial<TOrganizationTeamEmployeeUpdate> = {}) => {
 			const members = team.members;
 
 			const body: Partial<TOrganizationTeamEmployeeUpdate> = {

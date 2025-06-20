@@ -330,7 +330,7 @@ export function useOrganizationTeams() {
 	// ]);
 
 	const editOrganizationTeam = useCallback(
-		(data: TOrganizationTeam) => {
+		(data: Partial<TOrganizationTeam>) => {
 			return editQueryCall(data).then((res) => {
 				setTeamsUpdate(res.data);
 				return res;
