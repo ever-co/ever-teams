@@ -40,7 +40,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		>
 			<div
 				className={clsxm(
-					'w-[50px] h-[50px]',
+					'w-[50px] h-12',
 					'flex justify-center items-center relative',
 					'rounded-full text-white',
 					'shadow-md text-[2.063rem] font-thin font-PlusJakartaSans'
@@ -52,7 +52,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar size={50} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar" />
 				) : (
-					<div className="w-[50px] h-[50px] flex justify-center items-center rounded-full">
+					<div className="w-[50px] h-12 flex justify-center items-center rounded-full">
 						{imgTitle(fullname).charAt(0)}
 					</div>
 				)}

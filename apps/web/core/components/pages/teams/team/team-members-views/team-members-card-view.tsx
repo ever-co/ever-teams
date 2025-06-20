@@ -44,7 +44,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		return (
 			<>
-				<ul className="overflow-y-auto mt-7">
+				<ul className="flex overflow-y-auto flex-col gap-3 mt-7">
 					{/* Current authenticated user members */}
 					<Transition
 						show={!!currentUser}
@@ -55,7 +55,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<li className="mb-4">
+						<li className="flex flex-col gap-4">
 							<UserTeamCard
 								member={currentUser}
 								active
@@ -83,7 +83,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 								leaveFrom="opacity-100"
 								leaveTo="opacity-0"
 							>
-								<li className="mb-4">
+								<li>
 									<UserTeamCard
 										member={member}
 										publicTeam={publicTeam}
@@ -105,7 +105,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 					{members.length > 0 &&
 						teamInvitations.map((invitation) => (
-							<li key={invitation.id} className="mb-4">
+							<li key={invitation.id}>
 								<InvitedCard invitation={invitation} />
 							</li>
 						))}
@@ -141,7 +141,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<li className="mb-4">
+						<li>
 							<Invite />
 						</li>
 					</Transition>

@@ -101,7 +101,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 							<AccordionTrigger
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-12 hover:no-underline'
 								)}
 							>
 								<div className="flex items-center justify-between w-full">
@@ -141,7 +141,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -272,7 +272,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 								}}
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-12 hover:no-underline'
 								)}
 							>
 								<div className="flex items-center justify-between w-full">
@@ -318,7 +318,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>

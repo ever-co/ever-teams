@@ -38,7 +38,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				{/* User info */}
 				<div className="flex items-center space-x-4 2xl:w-[20.625rem] w-1/4 opacity-40">
 					<div
-						className="'w-[50px] h-[50px]',
+						className="'w-[50px] h-12',
 					'flex justify-center items-center',
 					'rounded-full text-2xl text-default dark:text-white',
 					'shadow-md font-normal'"
