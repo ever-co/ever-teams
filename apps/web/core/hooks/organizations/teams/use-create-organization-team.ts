@@ -26,10 +26,16 @@ export function useCreateOrganizationTeam() {
 		(name: string) => {
 			const teams = teamsRef.current;
 			const $name = name.trim();
-			const exits = teams.find((t: TOrganizationTeam) => t.name.toLowerCase() === $name.toLowerCase());
+			const teamExists = teams.find((t: TOrganizationTeam) => t.name.toLowerCase() === $name.toLowerCase());
 
-			if (exits || $name.length < 2 || !$user.current) {
-				return Promise.reject(new Error('Invalid team name !'));
+			if (teamExists) {
+				return Promise.reject(new Error('Team with this name already exists'));
+			}
+			if ($name.length < 2) {
+				return Promise.reject(new Error('Team name must be at least 2 characters long'));
+			}
+			if (!$user.current) {
+				return Promise.reject(new Error('User authentication required'));
 			}
 
 			return queryCall($name, $user.current).then(async (res) => {

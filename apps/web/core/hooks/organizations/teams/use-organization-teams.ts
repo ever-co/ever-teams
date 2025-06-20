@@ -27,6 +27,7 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { useTeamsState } from './use-teams-state';
 import { useCreateOrganizationTeam } from './use-create-organization-team';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
+import { toast } from 'sonner';
 
 /**
  * A powerful hook for managing organization teams with complete CRUD operations and state management.
@@ -353,9 +354,14 @@ export function useOrganizationTeams() {
 		(userId: string) => {
 			return removeUserFromAllTeamQueryCall(userId).then((res) => {
 				loadTeamsData();
-				refreshToken().then(() => {
-					updateUserFromAPI();
-				});
+				refreshToken()
+					.then(() => {
+						updateUserFromAPI();
+					})
+					.catch((error) => {
+						console.error('Failed to refresh token after removing user from team:', error);
+						toast.error('Failed to refresh token after removing user from team');
+					});
 
 				return res;
 			});
