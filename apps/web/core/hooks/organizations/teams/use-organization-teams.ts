@@ -7,198 +7,26 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
-import { TOrganizationTeam } from '@/core/types/schemas';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
-	organizationTeamsState,
 	timerStatusState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad, useSyncRef } from '../../common';
+import { useFirstLoad, useQueryCall, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/core/query/keys';
-import { toast } from 'sonner';
-
-/**
- * It updates the `teams` state with the `members` status from the `team` status API
- * @returns An object with three properties:
- * teams: The current value of the teams state.
- * setTeams: A function that can be used to update the teams state.
- * setTeamUpdate: A function that can be used to update the teams state.
- */
-function useTeamsState() {
-	const [teams, setTeams] = useAtom(organizationTeamsState);
-	const teamsRef = useSyncRef(teams);
-
-	const setTeamsUpdate = useCallback(
-		(team: TOrganizationTeam) => {
-			// Update active teams fields with from team Status API
-			setTeams((tms) => {
-				return [...tms.filter((t) => t.id != team.id), team];
-			});
-		},
-		[setTeams]
-	);
-
-	return {
-		teams,
-		setTeams,
-		setTeamsUpdate,
-		teamsRef
-	};
-}
-
-/**
- * Create Organization Team
- * Migrated from useQueryCall to useMutation for better performance and cache management
- */
-function useCreateOrganizationTeam() {
-	const [teams, setTeams] = useAtom(organizationTeamsState);
-	const teamsRef = useSyncRef(teams);
-	const setActiveTeamId = useSetAtom(activeTeamIdState);
-	const { refreshToken, $user } = useAuthenticateUser();
-	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
-	const queryClient = useQueryClient();
-
-	const createTeamMutation = useMutation({
-		mutationFn: async (params: { name: string; user: any }) => {
-			return organizationTeamService.createOrganizationTeam(params.name, params.user);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.create(undefined),
-		onSuccess: async (res, variables) => {
-			// Invalidate and refetch teams after creation
-			await queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-
-			const dt = res.data?.items || [];
-			setTeams(dt);
-			const created = dt.find((t: TOrganizationTeam) => t.name === variables.name);
-
-			if (created) {
-				setActiveTeamIdCookie(created.id);
-				setOrganizationIdCookie(created.organizationId || '');
-				setActiveTeamId(created.id);
-
-				if (!isTeamMember) {
-					setIsTeamMember(true);
-				}
-
-				/**
-				 * DO NOT REMOVE
-				 * Refresh Token needed for the first time when new Organization is created,
-				 * As in backend permissions are getting updated
-				 */
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.all
-				});
-				toast.success('Organization team created successfully', {
-					description: 'You can now start using your new team'
-				});
-				await refreshToken();
-			}
-		},
-		onError: (error) => {
-			toast.error('Create organization team failed:', { description: error.message });
-		}
-	});
-
-	const createOrganizationTeam = useCallback(
-		(name: string) => {
-			const teams = teamsRef.current;
-			const $name = name.trim();
-			const exits = teams.find((t: TOrganizationTeam) => t.name.toLowerCase() === $name.toLowerCase());
-
-			if (exits || $name.length < 2 || !$user.current) {
-				return Promise.reject(new Error('Invalid team name !'));
-			}
-
-			// Use mutateAsync for Promise-based API
-			return createTeamMutation.mutateAsync({ name: $name, user: $user.current });
-		},
-		[createTeamMutation, teamsRef, $user]
-	);
-
-	return {
-		createOrganizationTeam,
-		loading: createTeamMutation.isPending
-	};
-}
-
-/**
- * Update Organization Team
- * Migrated from useQueryCall to useMutation for better performance and cache management
- */
-function useUpdateOrganizationTeam() {
-	const { setTeamsUpdate } = useTeamsState();
-	const queryClient = useQueryClient();
-
-	const updateTeamMutation = useMutation({
-		mutationFn: async (params: { teamId: string; data: Partial<TOrganizationTeam> }) => {
-			return organizationTeamService.updateOrganizationTeam(params.teamId, params.data);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.update(undefined),
-		onSuccess: (res, variables) => {
-			// Update team state with new data
-			setTeamsUpdate(res.data);
-
-			// Invalidate relevant queries
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.detail(variables.teamId)
-			});
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-			toast.success('Organization team updated successfully', {
-				description: 'Your team has been updated successfully'
-			});
-		},
-		onError: (error) => {
-			toast.error('Update organization team failed:', { description: error.message });
-		}
-	});
-
-	const updateOrganizationTeam = useCallback(
-		(team: TOrganizationTeam, data: Partial<TOrganizationTeam> = {}) => {
-			const members = team.members;
-
-			const body: Partial<TOrganizationTeam> = {
-				id: team.id,
-				memberIds: members
-					?.map((t) => t.employee?.id || '')
-					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				managerIds: members
-					?.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t) => t.employee?.id || '')
-					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				name: team.name,
-				tenantId: team.tenantId!,
-				organizationId: team.organizationId!,
-				tags: [],
-				...data
-			};
-
-			// Return Promise for backward compatibility
-			return updateTeamMutation.mutateAsync({ teamId: team.id, data: body });
-		},
-		[updateTeamMutation]
-	);
-
-	return {
-		updateOrganizationTeam,
-		loading: updateTeamMutation.isPending
-	};
-}
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { useTeamsState } from './use-teams-state';
+import { useCreateOrganizationTeam } from './use-create-organization-team';
+import { useUpdateOrganizationTeam } from './use-update-organization-team';
 
 /**
  * A powerful hook for managing organization teams with complete CRUD operations and state management.
@@ -216,7 +44,7 @@ function useUpdateOrganizationTeam() {
  * @property {boolean} loading
  * Global loading state for team operations
  *
- * @property {TOrganizationTeam[]} teams
+ * @property {IOrganizationTeamList[]} teams
  * Array containing all teams in the organization. Each team includes:
  * - Team details (id, name, etc.)
  * - Member information
@@ -226,10 +54,10 @@ function useUpdateOrganizationTeam() {
  * @property {boolean} teamsFetching
  * Specific loading state for team fetching operations
  *
- * @property {TOrganizationTeam} activeTeam
+ * @property {IOrganizationTeamList} activeTeam
  * Currently selected team with all its details
  *
- * @property {(team: TOrganizationTeam) => void} setActiveTeam
+ * @property {(team: IOrganizationTeamList) => void} setActiveTeam
  * Sets the active team and handles:
  * - Cookie updates
  * - Local storage sync
@@ -249,7 +77,7 @@ function useUpdateOrganizationTeam() {
  * @property {any} firstLoadTeamsData
  * Initial data loaded when the hook is first initialized
  *
- * @property {(data: Partial<TOrganizationTeam>) => Promise<any>} editOrganizationTeam
+ * @property {(data: IOrganizationTeamUpdate) => Promise<any>} editOrganizationTeam
  * Updates existing team information with full validation
  *
  * @property {boolean} editOrganizationTeamLoading
@@ -261,16 +89,16 @@ function useUpdateOrganizationTeam() {
  * @property {boolean} deleteOrganizationTeamLoading
  * Loading state for team deletion
  *
- * @property {any[]} activeTeamManagers
+ * @property {ITeamManager[]} activeTeamManagers
  * List of managers for the active team with their roles and permissions
  *
- * @property {(team: TOrganizationTeam, data?: Partial<TOrganizationTeam>) => void} updateOrganizationTeam
+ * @property {(team: IOrganizationTeamList, data?: Partial<IOrganizationTeamUpdate>) => void} updateOrganizationTeam
  * Updates team details with partial data support
  *
  * @property {boolean} updateOTeamLoading
  * Loading state for team updates
  *
- * @property {(teams: TOrganizationTeam[]) => void} setTeams
+ * @property {(teams: IOrganizationTeamList[]) => void} setTeams
  * Updates the entire teams list with proper state management
  *
  * @property {boolean} isTeamMember
@@ -321,16 +149,28 @@ function useUpdateOrganizationTeam() {
  */
 
 export function useOrganizationTeams() {
+	const {
+		loading: getOrganizationTeamsLoading,
+		queryCall: getOrganizationTeamsQueryCall,
+		loadingRef: getOrganizationTeamsLoadingRef
+	} = useQueryCall(organizationTeamService.getOrganizationTeams);
+	const {
+		loading: loadingTeam,
+		queryCall: queryCallTeam,
+		loadingRef: loadingRefTeam
+	} = useQueryCall(organizationTeamService.getOrganizationTeam);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
-	const queryClient = useQueryClient();
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
+	const loadingTeamsRef = useSyncRef(getOrganizationTeamsLoading);
+
 	const [activeTeamId, setActiveTeamId] = useAtom(activeTeamIdState);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
+	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useAtom(isTeamJustDeletedState);
 	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
@@ -338,70 +178,7 @@ export function useOrganizationTeams() {
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const [isTeamManager, setIsTeamManager] = useState(false);
-
-	// React Query for organization teams (GET operations)
-	const organizationTeamsQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.paginated({
-			organizationId: organizationId || '',
-			tenantId: tenantId || ''
-		}),
-		queryFn: async () => {
-			if (!organizationId || !tenantId) {
-				throw new Error('Organization ID and Tenant ID are required');
-			}
-			return organizationTeamService.getOrganizationTeams(organizationId, tenantId);
-		},
-		enabled: !!organizationId && !!tenantId,
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		gcTime: 1000 * 60 * 15 // 15 minutes
-	});
-
-	// React Query for single organization team (GET operations)
-	const organizationTeamQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.detail(activeTeamId),
-		queryFn: async () => {
-			if (!activeTeamId || !organizationId || !tenantId) {
-				throw new Error('Team ID, Organization ID and Tenant ID are required');
-			}
-			return organizationTeamService.getOrganizationTeam(activeTeamId, organizationId, tenantId);
-		},
-		enabled: !!activeTeamId && !!organizationId && !!tenantId,
-		staleTime: 1000 * 60 * 2, // 2 minutes - more volatile data
-		gcTime: 1000 * 60 * 10 // 10 minutes
-	});
-
-	// Sync React Query data with Jotai state for backward compatibility
-	useEffect(() => {
-		if (organizationTeamsQuery.data?.data?.items) {
-			const latestTeams = organizationTeamsQuery.data.data.items;
-			const latestTeamsSorted = latestTeams
-				.slice()
-				.sort((a: TOrganizationTeam, b: TOrganizationTeam) => a.name.localeCompare(b.name));
-			const teamsRefSorted = teamsRef.current.slice().sort((a, b) => a.name.localeCompare(b.name));
-
-			// Only update if there are actual changes to prevent unnecessary re-renders
-			if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
-				setTeams(latestTeamsSorted);
-			}
-		}
-	}, [organizationTeamsQuery.data, setTeams]); // Removed teamsRef from deps to prevent infinite loops
-
-	// Sync single team data with Jotai state
-	useEffect(() => {
-		if (organizationTeamQuery.data?.data) {
-			const newTeam = organizationTeamQuery.data.data;
-			const currentTeams = teamsRef.current;
-
-			// Update teams list with the new team data
-			if (newTeam && currentTeams.length > 0) {
-				const updatedTeams: TOrganizationTeam[] = [
-					newTeam,
-					...currentTeams.filter((team: TOrganizationTeam) => team.id !== newTeam.id)
-				];
-				setTeams(updatedTeams);
-			}
-		}
-	}, [organizationTeamQuery.data, setTeams]); // Removed teamsRef from deps to prevent infinite loops
+	// const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
 
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentUser = members.find((member) => member.employee?.userId === user?.id);
@@ -415,75 +192,22 @@ export function useOrganizationTeams() {
 		? true
 		: false;
 
-	// REACT QUERY MUTATIONS - Team CRUD operations
+	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
+
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
-	// Edit organization team mutation
-	const editTeamMutation = useMutation({
-		mutationFn: async (data: Partial<TOrganizationTeam>) => {
-			return organizationTeamService.editOrganizationTeam(data);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.edit(undefined),
-		onSuccess: (res) => {
-			setTeamsUpdate(res.data);
-			// Invalidate relevant queries
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.detail(res.data.id)
-			});
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-		},
-		onError: (error) => {
-			toast.error('Edit organization team failed:', { description: error.message });
-		}
-	});
+	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } = useQueryCall(
+		organizationTeamService.editOrganizationTeam
+	);
 
-	// Delete organization team mutation
-	const deleteTeamMutation = useMutation({
-		mutationFn: async (teamId: string) => {
-			return organizationTeamService.deleteOrganizationTeam(teamId);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.delete(undefined),
-		onSuccess: () => {
-			// Invalidate and refetch teams data after deletion
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-			toast.success('Organization team deleted successfully', {
-				description: 'Your team has been deleted successfully'
-			});
-		},
-		onError: (error) => {
-			toast.error('Delete organization team failed:', { description: error.message });
-		}
-	});
+	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } = useQueryCall(
+		organizationTeamService.deleteOrganizationTeam
+	);
 
-	// Remove user from all teams mutation
-	const removeUserMutation = useMutation({
-		mutationFn: async (userId: string) => {
-			return organizationTeamService.removeUserFromAllTeams(userId);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.removeUser(undefined),
-		onSuccess: () => {
-			// Invalidate and refetch teams data after user removal
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-
-			// Handle authentication and user data refresh
-			refreshToken().then(() => {
-				updateUserFromAPI();
-			});
-			toast.success('User removed from all teams successfully', {
-				description: 'You have been removed from all teams'
-			});
-		},
-		onError: (error) => {
-			toast.error('Remove user from all teams failed:', { description: error.message });
-		}
-	});
+	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } = useQueryCall(
+		organizationTeamService.removeUserFromAllTeams
+	);
 
 	const isManager = useCallback(() => {
 		const $u = user;
@@ -495,7 +219,7 @@ export function useOrganizationTeams() {
 	}, [user, members]);
 
 	const setActiveTeam = useCallback(
-		(team: TOrganizationTeam) => {
+		(team: (typeof teams)[0]) => {
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
 			// This must be called at the end (Update store)
@@ -515,109 +239,128 @@ export function useOrganizationTeams() {
 		[setActiveTeamId, updateUserLastTeam, user]
 	);
 
-	// Backward compatible loadTeamsData using React Query best practices
-	const loadTeamsData = useCallback(async () => {
+	const loadTeamsData = useCallback(() => {
 		if (
-			organizationTeamsQuery.isLoading ||
-			organizationTeamQuery.isLoading ||
+			getOrganizationTeamsLoadingRef.current ||
+			loadingRefTeam.current ||
 			!user?.employee?.organizationId ||
 			!user?.employee?.tenantId
 		) {
 			return;
 		}
 
-		// Ensure we have the required values (handle null values)
-		const orgId = user.employee.organizationId;
-		const tenId = user.employee.tenantId;
+		let teamId = getActiveTeamIdCookie();
+		setActiveTeamId(teamId);
 
-		if (!orgId || !tenId) {
-			return;
-		}
-
-		// Use fetchQuery to get fresh data immediately (preserves original behavior)
-		const teamsResult = await queryClient.fetchQuery({
-			queryKey: queryKeys.organizationTeams.paginated({
-				organizationId: orgId,
-				tenantId: tenId
-			}),
-			queryFn: async () => {
-				return organizationTeamService.getOrganizationTeams(orgId, tenId);
-			}
-		});
-
-		if (teamsResult?.data?.items) {
-			const latestTeams = teamsResult.data.items;
-
-			if (latestTeams.length === 0) {
+		return getOrganizationTeamsQueryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
+			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
 				setIsTeamMemberJustDeleted(true);
-				return teamsResult;
+			}
+			const latestTeams = res.data?.items || [];
+
+			const latestTeamsSorted = latestTeams.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+			const teamsRefSorted = teamsRef.current.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+			/**
+			 * Check deep equality,
+			 * No need to update state if all the Team details are same
+			 * (It prevents unnecessary re-rendering)
+			 *
+			 * Use teamsRef to make we always get the lastest value
+			 */
+			if (!teamId && !isEqual(latestTeamsSorted, teamsRefSorted)) {
+				setTeams(latestTeams);
 			}
 
-			let teamId = getActiveTeamIdCookie();
-			setActiveTeamId(teamId);
-
-			// Handle case where user might Remove Account from all teams
-			if (!latestTeams.find((team: TOrganizationTeam) => team.id === teamId) && latestTeams.length) {
+			// Handle case where user might Remove Account from all teams,
+			// In such case need to update active team with Latest list of Teams
+			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
 				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
 			}
 
-			// Invalidate single team query if we have a team ID
-			if (teamId) {
-				await queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.detail(teamId)
+			teamId &&
+				user?.employee?.organizationId &&
+				user?.employee.tenantId &&
+				queryCallTeam(teamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
+					const newTeam = res.data;
+
+					/**
+					 * Check deep equality,
+					 * No need to update state if all the Team details are same
+					 * (It prevents unnecessary re-rendering)
+					 */
+					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
+						setTeams([newTeam, ...latestTeams.filter((team: any) => team.id !== newTeam.id)]);
+
+						// Set Project Id to cookie
+						// TODO: Make it dynamic when we add Dropdown in Navbar
+						if (newTeam && newTeam.projects && newTeam.projects.length) {
+							setActiveProjectIdCookie(newTeam.projects[0].id);
+						}
+					}
 				});
-			}
-		}
 
-		return teamsResult;
-	}, [
-		organizationTeamsQuery.isLoading,
-		organizationTeamsQuery.data,
-		organizationTeamQuery.isLoading,
-		user?.employee?.organizationId,
-		user?.employee?.tenantId,
-		queryClient,
-		setActiveTeam,
-		setActiveTeamId,
-		setIsTeamMember,
-		setIsTeamMemberJustDeleted
-	]);
+			return res;
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [getOrganizationTeamsQueryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams]);
 
-	// Wrapper functions for backward compatibility with mutation promises
+	// /**
+	//  * Get active team profile from api
+	//  */
+	// useEffect(() => {
+	// 	if (activeTeamId && firstLoad && user?.employee.organizationId && user?.employee.tenantId) {
+	// 		getOrganizationTeamAPI(activeTeamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
+	// 			!loadingTeamsRef.current && setTeamsUpdate(res.data);
+	// 		});
+	// 	}
+	// }, [
+	// 	activeTeamId,
+	// 	firstLoad,
+	// 	loadingTeamsRef,
+	// 	setTeams,
+	// 	setTeamsUpdate,
+	// 	user?.employee?.organizationId,
+	// 	user?.employee?.tenantId
+	// ]);
+
 	const editOrganizationTeam = useCallback(
-		(data: Partial<TOrganizationTeam>) => {
-			// Use mutateAsync for Promise-based API compatibility
-			return editTeamMutation.mutateAsync(data);
+		(data: TOrganizationTeam) => {
+			return editQueryCall(data).then((res) => {
+				setTeamsUpdate(res.data);
+				return res;
+			});
 		},
-		[editTeamMutation]
+		[editQueryCall, setTeamsUpdate]
 	);
 
 	const deleteOrganizationTeam = useCallback(
 		(id: string) => {
-			// Use mutateAsync for Promise-based API compatibility
-			return deleteTeamMutation.mutateAsync(id).then((res) => {
-				// Additional operations after deletion if needed
+			return deleteQueryCall(id).then((res) => {
 				loadTeamsData();
 				return res;
 			});
 		},
-		[deleteTeamMutation, loadTeamsData]
+		[deleteQueryCall, loadTeamsData]
 	);
 
 	const removeUserFromAllTeam = useCallback(
 		(userId: string) => {
-			// Use mutateAsync for Promise-based API compatibility
-			return removeUserMutation.mutateAsync(userId).then((res) => {
-				// Additional operations after user removal if needed
+			return removeUserFromAllTeamQueryCall(userId).then((res) => {
 				loadTeamsData();
+				refreshToken().then(() => {
+					updateUserFromAPI();
+				});
+
 				return res;
 			});
 		},
-		[removeUserMutation, loadTeamsData]
+		[loadTeamsData, removeUserFromAllTeamQueryCall, refreshToken, updateUserFromAPI]
 	);
 
 	useEffect(() => {
@@ -625,7 +368,7 @@ export function useOrganizationTeams() {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
 		isManager();
-	}, [activeTeam, isManager]);
+	}, [activeTeam]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
@@ -634,16 +377,16 @@ export function useOrganizationTeams() {
 			const res = await organizationTeamService.getOrganizationTeam(activeTeamId, organizationId, tenantId);
 
 			if (res) {
-				setTeamsUpdate(res.data);
+				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			}
 		}
 
 		firstLoadTeamsData();
-	}, [activeTeamId, firstLoadTeamsData, loadTeamsData, organizationId, setTeamsUpdate, tenantId]);
+	}, [activeTeamId, firstLoadTeamsData, loadTeamsData, loadingTeamsRef, organizationId, setTeamsUpdate, tenantId]);
 
 	return {
 		loadTeamsData,
-		getOrganizationTeamsLoading: organizationTeamsQuery.isLoading,
+		getOrganizationTeamsLoading,
 		teams,
 		activeTeam,
 		setActiveTeam,
@@ -651,19 +394,19 @@ export function useOrganizationTeams() {
 		createOTeamLoading,
 		firstLoadTeamsData: handleFirstLoad,
 		editOrganizationTeam,
-		editOrganizationTeamLoading: editTeamMutation.isPending,
+		editOrganizationTeamLoading,
 		deleteOrganizationTeam,
-		deleteOrganizationTeamLoading: deleteTeamMutation.isPending,
+		deleteOrganizationTeamLoading,
 		activeTeamManagers,
 		updateOrganizationTeam,
 		updateOTeamLoading,
 		setTeams,
 		isTeamMember,
 		isTeamManager,
-		removeUserFromAllTeamLoading: removeUserMutation.isPending,
-		removeUserFromAllTeamQueryCall: removeUserMutation.mutateAsync,
+		removeUserFromAllTeamLoading,
+		removeUserFromAllTeamQueryCall,
 		removeUserFromAllTeam,
-		loadingTeam: organizationTeamQuery.isLoading,
+		loadingTeam,
 		isTrackingEnabled,
 		memberActiveTaskId,
 		isTeamMemberJustDeleted,
