@@ -8,7 +8,7 @@ import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useMemo, memo, Fragment } from 'react';
+import { useMemo, memo } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
@@ -193,7 +193,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		// Rendering with or without transition according to the configuration
 		const containerContent = viewConfig.useTransition ? (
 			<Transition
-				as={Fragment}
+				as="div"
 				show={!!currentUser}
 				enter="transition-opacity duration-75"
 				enterFrom="opacity-0"

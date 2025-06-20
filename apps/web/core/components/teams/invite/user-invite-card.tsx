@@ -27,7 +27,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex hidden items-center py-3 min-h-[7rem] border-[0.1875rem] border-transparent',
+					'relative sm:flex hidden items-center py-2.5 min-h-24 border-[0.1875rem] border-transparent',
 					className
 				)}
 			>
@@ -240,7 +240,7 @@ export function InviteUserTeamCard({
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
+					'relative hidden sm:flex items-center py-2.5 min-h-24 dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
 					'dark:border dark:border-[#FFFFFF14] w-full',
 					className
 				)}
