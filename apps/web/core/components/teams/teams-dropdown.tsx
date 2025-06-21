@@ -118,7 +118,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 			{!publicTeam && isOpen && !!user?.isEmailVerified && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
-					<LazyCreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
 		</div>

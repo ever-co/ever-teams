@@ -406,9 +406,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarRail />
 			</Sidebar>
 
-			{!publicTeam && isOpen && !!user?.isEmailVerified && (
+			{!publicTeam && isOpen && user?.isEmailVerified && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
-					<LazyCreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
 		</>
