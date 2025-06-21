@@ -21,8 +21,7 @@ import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
-import TeamMemberHeader from '@/core/components/teams/team-member-header';
-import NoTeam from '@/core/components/common/no-team';
+// TeamMemberHeader and NoTeam now lazy-loaded below
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 // Import skeleton components
@@ -32,45 +31,64 @@ import TeamNotificationsSkeleton from '@/core/components/common/skeleton/team-no
 import UnverifiedEmailSkeleton from '@/core/components/common/skeleton/unverified-email-skeleton';
 import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task-timer-section-skeleton';
 import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
+import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
+import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
+// Optimized lazy loading according to Medium article - unified loading states
 export const TeamOutstandingNotifications = dynamic(
 	() =>
 		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({
 			default: mod.TeamOutstandingNotifications
 		})),
 	{
-		ssr: false,
-		loading: () => <TeamNotificationsSkeleton />
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
 	}
 );
-// Lazy loaded components with appropriate loading states
+
 const TeamMembers = dynamic(
 	() => import('@/core/components/pages/teams/team/team-members').then((mod) => ({ default: mod.TeamMembers })),
 	{
-		ssr: false,
-		loading: () => <TeamMembersSkeleton />
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
 	}
 );
 
 const ChatwootWidget = dynamic(() => import('@/core/components/integration/chatwoot'), {
-	ssr: false,
-	loading: () => <div /> // No visible loading for chat widget
+	ssr: false
+	// Note: No loading needed for chat widget - renders invisibly
 });
 
 const TeamInvitations = dynamic(
 	() => import('@/core/components/teams/team-invitations').then((mod) => ({ default: mod.TeamInvitations })),
 	{
-		ssr: false,
-		loading: () => <TeamInvitationsSkeleton />
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
 	}
 );
 
 const UnverifiedEmail = dynamic(
 	() => import('@/core/components/common/unverified-email').then((mod) => ({ default: mod.UnverifiedEmail })),
 	{
-		ssr: false,
-		loading: () => <UnverifiedEmailSkeleton />
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
 	}
 );
+
+const LazyTeamMemberHeader = dynamic(() => import('@/core/components/teams/team-member-header'), {
+	ssr: false
+	// Note: Removed loading here to avoid double loading states
+	// Suspense fallback will handle all loading states uniformly
+});
+
+const LazyNoTeam = dynamic(() => import('@/core/components/common/no-team'), {
+	ssr: false
+	// Note: Removed loading here to avoid double loading states
+	// Suspense fallback will handle all loading states uniformly
+});
 
 function MainPage() {
 	const t = useTranslations();
@@ -165,7 +183,9 @@ function MainPage() {
 										</Suspense>
 									) : null}
 								</div>
-								<TeamMemberHeader view={view} />
+								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} fullWidth={fullWidth} />}>
+									<LazyTeamMemberHeader view={view} />
+								</Suspense>
 							</div>
 						</div>
 					}
@@ -173,13 +193,17 @@ function MainPage() {
 				>
 					<ChatwootWidget />
 					<div className="h-full">
-						{isTeamMember ? (
-							<Container fullWidth={fullWidth} className="mx-auto">
-								<TeamMembers kanbanView={view} />
-							</Container>
-						) : (
-							<NoTeam />
-						)}
+						<Container fullWidth={fullWidth} className="mx-auto">
+							{isTeamMember ? (
+								<Suspense fallback={<TeamMembersSkeleton view={view} fullWidth={fullWidth} />}>
+									<TeamMembers kanbanView={view} />
+								</Suspense>
+							) : (
+								<Suspense fallback={<NoTeamSkeleton fullWidth={fullWidth} />}>
+									<LazyNoTeam />
+								</Suspense>
+							)}
+						</Container>
 					</div>
 				</MainLayout>
 			</div>
