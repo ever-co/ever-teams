@@ -19,7 +19,6 @@ import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton'
 const LazyRequestToJoinModal = dynamic(
 	() => import('../../features/teams/request-to-join-modal').then((mod) => ({ default: mod.RequestToJoinModal })),
 	{
-		loading: () => <ModalSkeleton size="md" />,
 		ssr: false
 	}
 );

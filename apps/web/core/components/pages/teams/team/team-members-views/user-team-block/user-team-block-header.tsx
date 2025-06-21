@@ -135,7 +135,7 @@ export function UserTeamBlockHeader() {
 					))}
 				</div>
 
-				<div className="3/12 flex justify-end gap-2 items-center pr-4">
+				<div className="w-3/12 flex justify-end gap-2 items-center pr-4">
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
 							fullWidth={true}

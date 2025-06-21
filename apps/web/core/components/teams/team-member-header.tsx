@@ -44,7 +44,7 @@ const viewRenderMap = {
 };
 function TeamMemberHeader({ view }: { view: IssuesView }) {
 	const fullWidth = useAtomValue(fullWidthState);
-	const HeaderComponent = viewRenderMap[view as keyof typeof viewRenderMap];
+	const HeaderComponent = viewRenderMap[view as keyof typeof viewRenderMap] || LazyUserTeamCardHeader;
 	return (
 		<Container fullWidth={fullWidth} className="!p-0">
 			<HeaderComponent />

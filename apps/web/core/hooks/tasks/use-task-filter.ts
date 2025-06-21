@@ -226,7 +226,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		statusFilter,
 		onChangeStatusFilter,
 		onResetStatusFilter,
-		applyStatusFilder: applyStatusFilter,
+		applyStatusFilter: applyStatusFilter,
 		tasksGrouped: profile?.tasksGrouped,
 		outclickFilterCard,
 		profileDailyPlans

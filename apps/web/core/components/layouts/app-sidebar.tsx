@@ -390,7 +390,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						<Suspense
 							fallback={<div className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-md" />}
 						>
-							<LazySidebarCommandModal publicTeam={publicTeam!} />
+							<LazySidebarCommandModal publicTeam={publicTeam || false} />
 						</Suspense>
 					)}
 					<NavHome homeData={data.home} />

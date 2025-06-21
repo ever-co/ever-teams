@@ -15,7 +15,7 @@ export function TeamMemberHeaderSkeleton({
 	// Note: Removed useAtomValue hook to prevent rendering issues in Suspense fallbacks
 
 	const renderCardHeaderSkeleton = () => (
-		<div className="w-full h-12 dark:bg-dark-high px-8 m-0">
+		<div className="px-8 m-0 w-full h-12 dark:bg-dark-high">
 			<div className="px-4 ml-4 w-full h-full md:px-8">
 				<div className="flex relative items-center m-0 w-full h-full">
 					{/* Team Member column */}
@@ -60,7 +60,7 @@ export function TeamMemberHeaderSkeleton({
 	const renderTableHeaderSkeleton = () => (
 		<div className="!overflow-x-auto !mx-0 px-[3.2rem]">
 			<div className="font-normal h-14 dark:bg-dark-high py-3 mb-[11px]">
-				<div className="text-center flex w-full items-center">
+				<div className="flex items-center w-full text-center">
 					<div className="w-[29.2%] shrink-0">
 						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
@@ -82,11 +82,11 @@ export function TeamMemberHeaderSkeleton({
 	);
 
 	const renderBlockHeaderSkeleton = () => (
-		<div className="hidden sm:flex dark:bg-dark-high font-normal pt-4 justify-between">
+		<div className="hidden justify-between pt-4 font-normal sm:flex dark:bg-dark-high">
 			<div className="flex items-center w-9/12">
 				{/* Status filter buttons skeleton */}
 				{Array.from({ length: 5 }, (_, index) => (
-					<div key={index} className="w-1/6 text-center flex items-center justify-center gap-2 py-4">
+					<div key={index} className="flex gap-2 justify-center items-center py-4 w-1/6 text-center">
 						<div className="w-7 h-7 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-md" />
@@ -94,7 +94,7 @@ export function TeamMemberHeaderSkeleton({
 				))}
 			</div>
 
-			<div className="3/12 flex justify-end gap-2 items-center pr-4">
+			<div className="flex gap-2 justify-end items-center pr-4 w-3/12">
 				<div className="flex gap-6">
 					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-1 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse" />

@@ -38,9 +38,10 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 				onClick={() => setShowInput((p) => !p)}
 				className="border dark:border-[#26272C] w-full rounded p-2 md:hidden flex justify-center mt-2"
 			>
-				<ChevronDown className={clsxm('h-12  transition-all', showInput && 'rotate-180')}>
-					{showInput ? 'hide the issue input' : 'show the issue input'}
-				</ChevronDown>
+				<ChevronDown
+					className={clsxm('h-12  transition-all', showInput && 'rotate-180')}
+					aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
+				/>
 			</div>
 			{isTrackingEnabled ? (
 				<div className="w-full max-w-fit lg:basis-1/4 grow">
