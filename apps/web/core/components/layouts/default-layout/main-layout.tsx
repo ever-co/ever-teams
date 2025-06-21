@@ -1,6 +1,7 @@
 'use client';
 import { cn } from '@/core/lib/helpers';
-import { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useEffect, useRef, useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
@@ -11,10 +12,17 @@ import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
 import { PATH_WITH_MORE_THAN_ONE_TIMER } from '@/core/constants/config/constants';
 import AppContainer from './app-container';
-import { AppSidebar } from '../app-sidebar';
 import GlobalHeader from './global-header';
 import MainSidebarTrigger from './main-sidebar-trigger';
 import GlobalFooter from './global-footer';
+
+// Lazy load AppSidebar for performance optimization
+import { AppSidebarSkeleton } from '@/core/components/common/skeleton/app-sidebar-skeleton';
+
+const LazyAppSidebar = dynamic(() => import('../app-sidebar').then((mod) => ({ default: mod.AppSidebar })), {
+	loading: () => <AppSidebarSkeleton />,
+	ssr: false // Client-only to avoid hydration issues with heavy hooks
+});
 
 /**
  * Props interface for the MainLayout component
@@ -155,8 +163,10 @@ export function MainLayout({
 	return (
 		<AppContainer title={title}>
 			<SidebarProvider className="flex-1 w-full h-full">
-				{/* Left sidebar structure implementation */}
-				<AppSidebar publicTeam={publicTeam || false} />
+				{/* Left sidebar structure implementation - Lazy loaded for performance */}
+				<Suspense fallback={<AppSidebarSkeleton />}>
+					<LazyAppSidebar publicTeam={publicTeam || false} />
+				</Suspense>
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
 					<ResizablePanelGroup direction="vertical" className="min-h-full">
