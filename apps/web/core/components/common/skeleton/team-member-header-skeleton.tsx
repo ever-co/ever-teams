@@ -103,18 +103,12 @@ export function TeamMemberHeaderSkeleton({
 			</div>
 		</div>
 	);
-
-	const renderHeaderSkeleton = () => {
-		switch (view) {
-			case IssuesView.TABLE:
-				return renderTableHeaderSkeleton();
-			case IssuesView.BLOCKS:
-				return renderBlockHeaderSkeleton();
-			case IssuesView.CARDS:
-			default:
-				return renderCardHeaderSkeleton();
-		}
+	const renderMap = {
+		[IssuesView.TABLE]: renderTableHeaderSkeleton,
+		[IssuesView.BLOCKS]: renderBlockHeaderSkeleton,
+		[IssuesView.CARDS]: renderCardHeaderSkeleton
 	};
+	const renderHeaderSkeleton = renderMap[view as keyof typeof renderMap] || renderCardHeaderSkeleton;
 
 	return (
 		<Container fullWidth={fullWidth} className={className}>

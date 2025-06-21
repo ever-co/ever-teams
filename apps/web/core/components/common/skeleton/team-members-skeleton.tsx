@@ -63,17 +63,13 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className, fullWidth = t
 		</div>
 	);
 
-	const renderContent = () => {
-		switch (view) {
-			case IssuesView.TABLE:
-				return renderTableView();
-			case IssuesView.BLOCKS:
-				return renderBlockView();
-			case IssuesView.CARDS:
-			default:
-				return renderCardView();
-		}
+	const renderMap = {
+		[IssuesView.TABLE]: renderTableView,
+		[IssuesView.BLOCKS]: renderBlockView,
+		[IssuesView.CARDS]: renderCardView
 	};
+
+	const renderContent = renderMap[view as keyof typeof renderMap] || renderCardView;
 
 	return (
 		<Container fullWidth={fullWidth} className={className}>
