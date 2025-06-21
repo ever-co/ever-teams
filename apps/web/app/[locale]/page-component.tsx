@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 
 import { useOrganizationTeams } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
@@ -10,7 +11,6 @@ import { IssuesView } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
-import ChatwootWidget from '@/core/components/integration/chatwoot';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
@@ -23,15 +23,63 @@ import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from '@/core/components/teams/team-member-header';
-import { TeamOutstandingNotifications } from '@/core/components/teams/team-outstanding-notifications';
-import { TeamInvitations } from '@/core/components/teams/team-invitations';
 import NoTeam from '@/core/components/common/no-team';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { UnverifiedEmail } from '@/core/components/common/unverified-email';
-import { TeamMembers } from '@/core/components/pages/teams/team/team-members';
 import { EverCard } from '@/core/components/common/ever-card';
-import { Timer } from '@/core/components/timer/timer';
 import { AuthUserTaskInput } from '@/core/components/auth/auth-user-task-input';
+
+// Import skeleton components
+import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
+import TimerSkeleton from '@/core/components/common/skeleton/timer-skeleton';
+import TeamInvitationsSkeleton from '@/core/components/common/skeleton/team-invitations-skeleton';
+import TeamNotificationsSkeleton from '@/core/components/common/skeleton/team-notifications-skeleton';
+import UnverifiedEmailSkeleton from '@/core/components/common/skeleton/unverified-email-skeleton';
+
+// Lazy loaded components with appropriate loading states
+const TeamMembers = dynamic(
+	() => import('@/core/components/pages/teams/team/team-members').then((mod) => ({ default: mod.TeamMembers })),
+	{
+		ssr: false,
+		loading: () => <TeamMembersSkeleton />
+	}
+);
+
+const Timer = dynamic(() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })), {
+	ssr: false,
+	loading: () => <TimerSkeleton />
+});
+
+const ChatwootWidget = dynamic(() => import('@/core/components/integration/chatwoot'), {
+	ssr: false,
+	loading: () => <div /> // No visible loading for chat widget
+});
+
+const TeamInvitations = dynamic(
+	() => import('@/core/components/teams/team-invitations').then((mod) => ({ default: mod.TeamInvitations })),
+	{
+		ssr: false,
+		loading: () => <TeamInvitationsSkeleton />
+	}
+);
+
+const TeamOutstandingNotifications = dynamic(
+	() =>
+		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({
+			default: mod.TeamOutstandingNotifications
+		})),
+	{
+		ssr: false,
+		loading: () => <TeamNotificationsSkeleton />
+	}
+);
+
+const UnverifiedEmail = dynamic(
+	() => import('@/core/components/common/unverified-email').then((mod) => ({ default: mod.UnverifiedEmail })),
+	{
+		ssr: false,
+		loading: () => <UnverifiedEmailSkeleton />
+	}
+);
 
 function MainPage() {
 	const t = useTranslations();
