@@ -18,10 +18,17 @@ interface IEmployeeWithOutstanding {
 	employee: IEmployee | undefined;
 }
 
-export function TeamOutstandingNotifications() {
-	const { dailyPlan, outstandingPlans } = useDailyPlan();
-	const { isTeamManager, user } = useAuthenticateUser();
-
+export function TeamOutstandingNotifications({
+	outstandingPlans,
+	dailyPlan,
+	isTeamManager,
+	user
+}: {
+	outstandingPlans: IDailyPlan[];
+	dailyPlan: { items: IDailyPlan[] };
+	isTeamManager: boolean;
+	user: TUser | null;
+}) {
 	return (
 		<div className="flex flex-col gap-1">
 			{outstandingPlans.length > 0 && (

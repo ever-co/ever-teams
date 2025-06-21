@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-import { useOrganizationTeams } from '@/core/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -34,6 +34,7 @@ import TimerSkeleton from '@/core/components/common/skeleton/timer-skeleton';
 import TeamInvitationsSkeleton from '@/core/components/common/skeleton/team-invitations-skeleton';
 import TeamNotificationsSkeleton from '@/core/components/common/skeleton/team-notifications-skeleton';
 import UnverifiedEmailSkeleton from '@/core/components/common/skeleton/unverified-email-skeleton';
+import { TeamOutstandingNotifications } from '@/core/components/teams/team-outstanding-notifications';
 
 // Lazy loaded components with appropriate loading states
 const TeamMembers = dynamic(
@@ -62,17 +63,6 @@ const TeamInvitations = dynamic(
 	}
 );
 
-const TeamOutstandingNotifications = dynamic(
-	() =>
-		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({
-			default: mod.TeamOutstandingNotifications
-		})),
-	{
-		ssr: false,
-		loading: () => <TeamNotificationsSkeleton />
-	}
-);
-
 const UnverifiedEmail = dynamic(
 	() => import('@/core/components/common/unverified-email').then((mod) => ({ default: mod.UnverifiedEmail })),
 	{
@@ -85,7 +75,9 @@ function MainPage() {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-
+	const { outstandingPlans, dailyPlan } = useDailyPlan();
+	const { user, isTeamManager } = useAuthenticateUser();
+	const { myInvitationsList, myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -133,9 +125,26 @@ function MainPage() {
 									<div className="w-full">
 										<UnverifiedEmail />
 
-										<TeamInvitations className="!m-0" />
-
-										<TeamOutstandingNotifications />
+										{/* TeamInvitations - Only render when user has pending invitations */}
+										{myInvitationsList && myInvitationsList.length > 0 && (
+											<Suspense fallback={<TeamInvitationsSkeleton />}>
+												<TeamInvitations
+													className="!m-0"
+													myInvitationsList={myInvitationsList}
+													myInvitations={myInvitations}
+												/>
+											</Suspense>
+										)}
+										{outstandingPlans && outstandingPlans.length > 0 && (
+											<Suspense fallback={<TeamNotificationsSkeleton />}>
+												<TeamOutstandingNotifications
+													outstandingPlans={outstandingPlans}
+													dailyPlan={dailyPlan}
+													isTeamManager={isTeamManager}
+													user={user}
+												/>
+											</Suspense>
+										)}
 									</div>
 
 									{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
