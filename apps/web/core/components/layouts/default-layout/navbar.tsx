@@ -30,7 +30,6 @@ import { CollaborateSkeleton } from '@/core/components/common/skeleton/collabora
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 
-// Optimized lazy loading according to Medium article - unified loading states
 const LazyMinTimerFrame = dynamic(() => import('../../timer/timer').then((mod) => ({ default: mod.MinTimerFrame })), {
 	ssr: false
 	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly

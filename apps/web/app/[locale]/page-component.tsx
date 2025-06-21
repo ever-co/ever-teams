@@ -33,7 +33,6 @@ import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task
 import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
 import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
 import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
-// Optimized lazy loading according to Medium article - unified loading states
 export const TeamOutstandingNotifications = dynamic(
 	() =>
 		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({

@@ -16,7 +16,6 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
-// Optimized according to Medium article - unified loading state
 const LazyCreateTeamModal = dynamic(
 	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
 	{
@@ -111,7 +110,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							disabled={!user?.isEmailVerified}
 						>
 							<PlusIcon className="w-4 h-4" />
-							<span className="text-nowrap whitespace-nowrap">{t('common.CREATE_TEAM')}</span>
+							<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
 						</Button>
 					</Tooltip>
 				)}

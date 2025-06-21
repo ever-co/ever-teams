@@ -4,7 +4,6 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import dynamic from 'next/dynamic';
 
-// Optimized lazy loading according to Medium article - unified loading states
 const LazyUserTeamCardHeader = dynamic(
 	() =>
 		import('../pages/teams/team/team-members-views/team-members-header').then((mod) => ({

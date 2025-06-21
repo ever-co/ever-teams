@@ -48,7 +48,6 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
-// Optimized according to Medium article - unified loading state
 const LazyCreateTeamModal = dynamic(
 	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
 	{
