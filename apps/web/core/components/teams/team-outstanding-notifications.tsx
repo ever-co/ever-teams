@@ -1,10 +1,9 @@
 'use client';
-import { useAuthenticateUser, useDailyPlan } from '@/core/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { memo, useEffect, useMemo, useState } from 'react';
-import { estimatedTotalTime } from '../tasks/daily-plan';
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
@@ -57,25 +56,42 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 
 	const [visible, setVisible] = useState(false);
 
-	const outStandingTasksCount = useMemo(
-		() => estimatedTotalTime(outstandingPlans.map((plan) => plan.tasks?.map((task) => task))).totalTasks,
-		[outstandingPlans]
-	);
+	const outStandingTasksCount = useMemo(() => {
+		// Fixed version: Filter out undefined/null tasks before processing
+		const validTasks = outstandingPlans.flatMap((plan) => plan.tasks || []).filter((task) => task && task.id);
+
+		console.log('🔍 UserOutstandingNotification Debug:', {
+			outstandingPlans: outstandingPlans.length,
+			totalValidTasks: validTasks.length,
+			validTasks: validTasks.map((task) => ({ id: task.id, status: task.status }))
+		});
+
+		// Count unique tasks (same logic as estimatedTotalTime but safer)
+		const uniqueTaskIds = new Set(validTasks.map((task) => task.id));
+		const totalTasks = uniqueTaskIds.size;
+
+		console.log('🔍 Final count:', totalTasks);
+		return totalTasks;
+	}, [outstandingPlans]);
 
 	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
 	useEffect(() => {
-		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
-			setVisible(false);
-		} else {
-			setVisible(true);
-			if (!lastVisited) {
-				window?.localStorage.setItem(
-					HAS_VISITED_OUTSTANDING_TASKS,
-					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
-				);
-			}
-		}
+		// TEMPORARY: Force visibility for testing conditional rendering optimization
+		setVisible(true);
+
+		// Original logic (commented for testing):
+		// if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
+		// 	setVisible(false);
+		// } else {
+		// 	setVisible(true);
+		// 	if (!lastVisited) {
+		// 		window?.localStorage.setItem(
+		// 			HAS_VISITED_OUTSTANDING_TASKS,
+		// 			new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
+		// 		);
+		// 	}
+		// }
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -90,7 +106,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 
 	return (
 		<>
-			{visible && (
+			{visible && outStandingTasksCount > 0 && (
 				<div className="flex justify-between items-center px-4 py-2 text-xs rounded-xl border dark:border-dark--theme-light">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {outStandingTasksCount}{' '}
@@ -173,17 +189,21 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
 	useEffect(() => {
-		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
-			setVisible(false);
-		} else {
-			setVisible(true);
-			if (!lastVisited) {
-				window?.localStorage.setItem(
-					HAS_VISITED_OUTSTANDING_TASKS,
-					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
-				);
-			}
-		}
+		// TEMPORARY: Force visibility for testing conditional rendering optimization
+		setVisible(true);
+
+		// Original logic (commented for testing):
+		// if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
+		// 	setVisible(false);
+		// } else {
+		// 	setVisible(true);
+		// 	if (!lastVisited) {
+		// 		window?.localStorage.setItem(
+		// 			HAS_VISITED_OUTSTANDING_TASKS,
+		// 			new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
+		// 		);
+		// 	}
+		// }
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

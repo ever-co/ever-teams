@@ -17,7 +17,6 @@ import '@/styles/globals.css';
 
 import { useAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
@@ -25,17 +24,24 @@ import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from '@/core/components/teams/team-member-header';
 import NoTeam from '@/core/components/common/no-team';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { EverCard } from '@/core/components/common/ever-card';
-import { AuthUserTaskInput } from '@/core/components/auth/auth-user-task-input';
 
 // Import skeleton components
 import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
-import TimerSkeleton from '@/core/components/common/skeleton/timer-skeleton';
 import TeamInvitationsSkeleton from '@/core/components/common/skeleton/team-invitations-skeleton';
 import TeamNotificationsSkeleton from '@/core/components/common/skeleton/team-notifications-skeleton';
 import UnverifiedEmailSkeleton from '@/core/components/common/skeleton/unverified-email-skeleton';
-import { TeamOutstandingNotifications } from '@/core/components/teams/team-outstanding-notifications';
-
+import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task-timer-section-skeleton';
+import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
+export const TeamOutstandingNotifications = dynamic(
+	() =>
+		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({
+			default: mod.TeamOutstandingNotifications
+		})),
+	{
+		ssr: false,
+		loading: () => <TeamNotificationsSkeleton />
+	}
+);
 // Lazy loaded components with appropriate loading states
 const TeamMembers = dynamic(
 	() => import('@/core/components/pages/teams/team/team-members').then((mod) => ({ default: mod.TeamMembers })),
@@ -44,11 +50,6 @@ const TeamMembers = dynamic(
 		loading: () => <TeamMembersSkeleton />
 	}
 );
-
-const Timer = dynamic(() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })), {
-	ssr: false,
-	loading: () => <TimerSkeleton />
-});
 
 const ChatwootWidget = dynamic(() => import('@/core/components/integration/chatwoot'), {
 	ssr: false,
@@ -123,7 +124,12 @@ function MainPage() {
 
 								<div className="mx-8-container">
 									<div className="w-full">
-										<UnverifiedEmail />
+										{/* UnverifiedEmail - Only render when user email is not verified */}
+										{user && !user.isEmailVerified && (
+											<Suspense fallback={<UnverifiedEmailSkeleton />}>
+												<UnverifiedEmail user={user} />
+											</Suspense>
+										)}
 
 										{/* TeamInvitations - Only render when user has pending invitations */}
 										{myInvitationsList && myInvitationsList.length > 0 && (
@@ -135,7 +141,9 @@ function MainPage() {
 												/>
 											</Suspense>
 										)}
-										{outstandingPlans && outstandingPlans.length > 0 && (
+										{/* TeamOutstandingNotifications - Only render when there are outstanding plans or manager notifications */}
+										{((outstandingPlans && outstandingPlans.length > 0) ||
+											(dailyPlan?.items && dailyPlan.items.length > 0 && isTeamManager)) && (
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
 												<TeamOutstandingNotifications
 													outstandingPlans={outstandingPlans}
@@ -147,7 +155,15 @@ function MainPage() {
 										)}
 									</div>
 
-									{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+									{isTeamMember ? (
+										<Suspense
+											fallback={
+												<TaskTimerSectionSkeleton isTrackingEnabled={isTrackingEnabled} />
+											}
+										>
+											<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
+										</Suspense>
+									) : null}
 								</div>
 								<TeamMemberHeader view={view} />
 							</div>
@@ -169,40 +185,6 @@ function MainPage() {
 			</div>
 			<Analytics />
 		</>
-	);
-}
-
-function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
-	const [showInput, setShowInput] = React.useState(false);
-	return (
-		<EverCard
-			shadow="bigger"
-			className={clsxm(
-				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
-				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
-			)}
-		>
-			<AuthUserTaskInput
-				className={clsxm(
-					'w-full lg:basis-3/4 grow max-w-[72%]',
-					!showInput && '!hidden md:!flex',
-					!isTrackingEnabled && 'md:w-full'
-				)}
-			/>
-			<div
-				onClick={() => setShowInput((p) => !p)}
-				className="border dark:border-[#26272C] w-full rounded p-2 md:hidden flex justify-center mt-2"
-			>
-				<ChevronDown className={clsxm('h-12  transition-all', showInput && 'rotate-180')}>
-					{showInput ? 'hide the issue input' : 'show the issue input'}
-				</ChevronDown>
-			</div>
-			{isTrackingEnabled ? (
-				<div className="w-full max-w-fit lg:basis-1/4 grow">
-					<Timer />
-				</div>
-			) : null}
-		</EverCard>
 	);
 }
 
