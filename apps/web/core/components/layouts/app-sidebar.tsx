@@ -32,10 +32,31 @@ import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-import { SidebarCommandModal } from './default-layout/header/sidebar-command-modal';
+// Lazy load SidebarCommandModal for performance optimization - unified loading state
+const LazySidebarCommandModal = dynamic(
+	() => import('./default-layout/header/sidebar-command-modal').then((mod) => ({ default: mod.SidebarCommandModal })),
+	{
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
+	}
+);
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
-import { CreateTeamModal } from '../features/teams/create-team-modal';
+// Lazy load CreateTeamModal for performance optimization
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+// Optimized according to Medium article - unified loading state
+const LazyCreateTeamModal = dynamic(
+	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
+	{
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
+	}
+);
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -168,7 +189,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 												)}
 												asChild
 											>
-												<span className="flex items-center justify-between w-full min-w-fit">
+												<span className="flex justify-between items-center w-full min-w-fit">
 													<Link href={`/task/${task?.id}`} className="flex items-center">
 														{task && (
 															// Show task issue and task number
@@ -366,7 +387,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<WorkspacesSwitcher workspaces={data.workspaces} />
 
 					<SidebarSeparator />
-					{state !== 'collapsed' && <SidebarCommandModal publicTeam={publicTeam!} />}
+					{state !== 'collapsed' && (
+						<Suspense
+							fallback={<div className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-md" />}
+						>
+							<LazySidebarCommandModal publicTeam={publicTeam!} />
+						</Suspense>
+					)}
 					<NavHome homeData={data.home} />
 					<SidebarSeparator />
 				</SidebarHeader>
@@ -380,7 +407,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarRail />
 			</Sidebar>
 
-			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
+			{!publicTeam && isOpen && !!user?.isEmailVerified && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<LazyCreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</>
 	);
 }

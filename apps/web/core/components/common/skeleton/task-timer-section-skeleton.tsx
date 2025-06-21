@@ -1,4 +1,4 @@
-import TimerSkeleton from '@/core/components/common/skeleton/timer-skeleton';
+import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { EverCard } from '@/core/components/common/ever-card';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDown } from 'lucide-react';

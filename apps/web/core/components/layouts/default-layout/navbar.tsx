@@ -13,7 +13,16 @@ import { useAtom } from 'jotai';
 import dynamic from 'next/dynamic';
 import { DefaultCreateAction } from '../../features/layouts/header/create-default-action';
 import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
-import { RequestToJoinModal } from '../../features/teams/request-to-join-modal';
+// Lazy load RequestToJoinModal for performance optimization
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+const LazyRequestToJoinModal = dynamic(
+	() => import('../../features/teams/request-to-join-modal').then((mod) => ({ default: mod.RequestToJoinModal })),
+	{
+		loading: () => <ModalSkeleton size="md" />,
+		ssr: false
+	}
+);
 
 // Import skeletons
 import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
@@ -21,30 +30,30 @@ import { CollaborateSkeleton } from '@/core/components/common/skeleton/collabora
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 
-// Lazy load heavy components for performance optimization
+// Optimized lazy loading according to Medium article - unified loading states
 const LazyMinTimerFrame = dynamic(() => import('../../timer/timer').then((mod) => ({ default: mod.MinTimerFrame })), {
-	loading: () => <TimerSkeleton />,
 	ssr: false
+	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
 });
 
 const LazyCollaborate = dynamic(() => import('../../collaborate'), {
-	loading: () => <CollaborateSkeleton />,
 	ssr: false
+	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
 });
 
 const LazyTeamsDropDown = dynamic(
 	() => import('../../teams/teams-dropdown').then((mod) => ({ default: mod.TeamsDropDown })),
 	{
-		loading: () => <TeamsDropDownSkeleton />,
 		ssr: false
+		// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
 	}
 );
 
 const LazyUserNavAvatar = dynamic(
 	() => import('../../users/user-nav-menu').then((mod) => ({ default: mod.UserNavAvatar })),
 	{
-		loading: () => <UserNavAvatarSkeleton />,
 		ssr: false
+		// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
 	}
 );
 
@@ -133,7 +142,11 @@ export function Navbar({
 					)}
 				</div>
 			)}
-			<RequestToJoinModal open={isOpen} closeModal={closeModal} />
+			{isOpen && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<LazyRequestToJoinModal open={isOpen} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</nav>
 	);
 }

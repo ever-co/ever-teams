@@ -10,8 +10,21 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { CreateTeamModal } from '../features/teams/create-team-modal';
 import { toast } from 'sonner';
+// Lazy load CreateTeamModal for performance optimization
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+// Optimized according to Medium article - unified loading state
+const LazyCreateTeamModal = dynamic(
+	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
+	{
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
+	}
+);
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
@@ -104,7 +117,11 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				)}
 			</Dropdown>
 
-			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
+			{!publicTeam && isOpen && !!user?.isEmailVerified && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<LazyCreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</div>
 	);
 };
