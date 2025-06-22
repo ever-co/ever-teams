@@ -12,8 +12,14 @@ import { emailVerificationService } from '@/core/services/client/api/users/email
 import { AuthCodeInputField } from '../auth/auth-code-input';
 import { EverCard } from '../common/ever-card';
 
-export function UnverifiedEmail() {
-	const { user } = useAuthenticateUser();
+interface UnverifiedEmailProps {
+	user?: TUser | null; // Accept user as prop for conditional rendering optimization
+}
+
+export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
+	// Use prop user if provided, otherwise fallback to hook (for backward compatibility)
+	const { user: hookUser } = useAuthenticateUser();
+	const user = propUser !== undefined ? propUser : hookUser;
 	const t = useTranslations();
 	const [verified, setVerified] = useState(true);
 

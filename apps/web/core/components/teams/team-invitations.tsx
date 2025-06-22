@@ -10,21 +10,18 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { EverCard } from '../common/ever-card';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { TInvite } from '@/core/types/schemas';
 
 interface IProps {
 	className?: string;
+	myInvitationsList: TInvite[];
+	myInvitations: () => void;
 }
 
 export function TeamInvitations(props: IProps) {
-	const { className } = props;
+	const { className, myInvitationsList, myInvitations } = props;
 	const t = useTranslations();
-	const {
-		myInvitationsList,
-		myInvitations,
-		removeMyInvitation,
-		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading
-	} = useTeamInvitations();
+	const { removeMyInvitation, acceptRejectMyInvitation, acceptRejectMyInvitationsLoading } = useTeamInvitations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [action, setAction] = useState<EInviteAction>();
 	const [actionInvitationId, setActionInvitationId] = useState<string>();
@@ -85,7 +82,7 @@ export function TeamInvitations(props: IProps) {
 							<span className="font-semibold">{invitation.teams?.[0]?.name}</span>
 						</Text>
 
-						<div className="flex flex-row gap-3 ml-auto mr-5 justify-items-end">
+						<div className="flex flex-row gap-3 justify-items-end mr-5 ml-auto">
 							<Button
 								className="pt-2 pb-2 rounded-xl"
 								onClick={() => {
@@ -160,22 +157,22 @@ export const ConfirmModal = ({
 		<>
 			<Modal isOpen={open} closeModal={handleOnClose}>
 				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
 						</Text.Heading>
 
 						{notifyMessage && (
-							<Text.Error className="self-start mt-2 justify-self-start">{notifyMessage}</Text.Error>
+							<Text.Error className="justify-self-start self-start mt-2">{notifyMessage}</Text.Error>
 						)}
 
-						<div className="flex items-center justify-between w-full mt-10">
+						<div className="flex justify-between items-center mt-10 w-full">
 							<Button
 								variant="danger"
 								type="button"
 								onClick={handleOnClose}
 								className={
-									'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 dark:border-0 dark:bg-light--theme-dark rounded-lg md:min-w-[180px]'
+									'font-medium bg-transparent rounded-lg border border-gray-300 text-primary dark:text-dark--theme dark:border-0 dark:bg-light--theme-dark md:min-w-[180px]'
 								}
 							>
 								{t('common.DISCARD')}
