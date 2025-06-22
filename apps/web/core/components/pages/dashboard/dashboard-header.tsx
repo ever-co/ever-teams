@@ -1,15 +1,62 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 
-import { DateRangePicker } from '../../common/date-range-picker';
 import { DateRange } from 'react-day-picker';
-
-import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
-import { ExportMenu } from '@/core/components/pages/dashboard/export-menu';
-import { TeamStatsPDF } from './pdf';
-import { ExportDialog } from '@/core/components/pages/dashboard/export-dialog';
-import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-activity/group-by-select-time-activity';
+// Lazy load GroupBySelectTimeActivity for performance optimization
+const LazyGroupBySelectTimeActivity = dynamic(
+	() =>
+		import('@/core/components/pages/time-and-activity/group-by-select-time-activity').then((mod) => ({
+			default: mod.GroupBySelectTimeActivity
+		})),
+	{
+		ssr: false,
+		loading: () => <div className="w-[180px] h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+	}
+);
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+// Lazy load heavy components for performance optimization
+const LazyDateRangePicker = dynamic(
+	() => import('../../common/date-range-picker').then((mod) => ({ default: mod.DateRangePicker })),
+	{
+		ssr: false,
+		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+	}
+);
+
+const LazyTeamDashboardFilter = dynamic(
+	() => import('./team-dashboard-filter').then((mod) => ({ default: mod.TeamDashboardFilter })),
+	{
+		ssr: false,
+		loading: () => <div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+	}
+);
+
+const LazyExportMenu = dynamic(
+	() => import('@/core/components/pages/dashboard/export-menu').then((mod) => ({ default: mod.ExportMenu })),
+	{
+		ssr: false,
+		loading: () => <div className="w-[100px] h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+	}
+);
+
+// Medium article pattern for conditional ExportDialog
+const LazyExportDialog = dynamic(
+	() => import('@/core/components/pages/dashboard/export-dialog').then((mod) => ({ default: mod.ExportDialog })),
+	{
+		ssr: false
+		// Note: No loading property for conditional components
+	}
+);
+
+// Lazy load PDF component (heavy @react-pdf/renderer dependency)
+const LazyTeamStatsPDF = dynamic(() => import('./pdf').then((mod) => ({ default: mod.TeamStatsPDF })), {
+	ssr: false
+	// Note: No loading property as this is used inside ExportMenu
+});
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';
@@ -66,30 +113,32 @@ export function DashboardHeader({
 	return (
 		<>
 			{isOpen && (
-				<ExportDialog
-					reportData={reportData}
-					isOpen={isOpen!}
-					groupByType={groupByType}
-					onClose={closeModal}
-					startDate={formatDate(startDate)}
-					endDate={formatDate(endDate)}
-					exportType="pdf"
-				/>
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<LazyExportDialog
+						reportData={reportData}
+						isOpen={isOpen!}
+						groupByType={groupByType}
+						onClose={closeModal}
+						startDate={formatDate(startDate)}
+						endDate={formatDate(endDate)}
+						exportType="pdf"
+					/>
+				</Suspense>
 			)}
 
 			<div className="flex items-center justify-between w-full">
 				<h1 className="text-2xl font-semibold">{title}</h1>
 				<div className="flex items-center gap-4">
 					{showGroupBy && (
-						<GroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
+						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}
-					<DateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
-					<TeamDashboardFilter isManage={isManage} />
-					<ExportMenu
+					<LazyDateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
+					<LazyTeamDashboardFilter isManage={isManage} />
+					<LazyExportMenu
 						pdfDocument={
 							<>
 								{teamName === 'TEAM-DASHBOARD' && (
-									<TeamStatsPDF
+									<LazyTeamStatsPDF
 										rapportDailyActivity={reportData || []}
 										title={`${teamName.toLowerCase() || 'Team'} Activity Report for ${formatDate(startDate)} - ${formatDate(endDate)}`}
 										startDate={formatDate(startDate)}

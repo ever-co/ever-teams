@@ -15,7 +15,34 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { TeamStatsChart, TeamStatsGrid, TeamStatsTable } from '@/core/components/pages/dashboard/team-dashboard';
+import { TeamStatsGrid } from '@/core/components/pages/dashboard/team-dashboard';
+import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
+import dynamic from 'next/dynamic';
+import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
+
+// Lazy load TeamStatsChart (Recharts) for performance optimization
+const LazyTeamStatsChart = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard/team-stats-chart').then((mod) => ({
+			default: mod.TeamStatsChart
+		})),
+	{
+		ssr: false,
+		loading: () => <ChartSkeleton />
+	}
+);
+
+// Lazy load TeamStatsTable for performance optimization
+const LazyTeamStatsTable = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard/team-stats-table').then((mod) => ({
+			default: mod.TeamStatsTable
+		})),
+	{
+		ssr: false,
+		loading: () => <TeamStatsTableSkeleton />
+	}
+);
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
 
@@ -99,7 +126,7 @@ function TeamDashboard() {
 									<Card className="w-full overflow-hidden transition-all duration-300 ease-in-out origin-top transform dark:bg-dark--theme-light">
 										<div className="h-auto transition-all duration-300 ease-in-out origin-top transform scale-y-100 opacity-100">
 											<div className="relative">
-												<TeamStatsChart
+												<LazyTeamStatsChart
 													rapportChartActivity={rapportChartActivity}
 													isLoading={loading}
 												/>
@@ -127,7 +154,7 @@ function TeamDashboard() {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light">
-					<TeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
+					<LazyTeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
 				</Card>
 			</Container>
 		</MainLayout>
