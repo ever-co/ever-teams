@@ -1031,6 +1031,19 @@ export function StatusDropdown<T extends TStatusItem>({
 						}
 					};
 
+					if (showButtonOnly) {
+						return (
+							<div
+								className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+								style={{
+									width: largerWidth ? '160px' : ''
+								}}
+							>
+								{triggerContent}
+							</div>
+						);
+					}
+
 					return (
 						<CustomListboxDropdown
 							children={children}
