@@ -21,6 +21,7 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { ITask } from '@/core/types/interfaces/task/task';
 import dynamic from 'next/dynamic';
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { TStatusItem } from '@/core/components/tasks/task-status';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 
@@ -463,7 +464,7 @@ const Kanban = () => {
 				)}
 			</MainLayout>
 			{isOpen && !!user?.isEmailVerified && (
-				<Suspense fallback={<div />}>
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
 					<LazyInviteFormModal open={true} closeModal={closeModal} />
 				</Suspense>
 			)}

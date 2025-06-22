@@ -27,6 +27,7 @@ import { cn } from '../../lib/helpers';
 import { useKanban } from '../../hooks/tasks/use-kanban';
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 
 // Optimized lazy loading according to Medium article - unified loading states
 const LazyCreateTaskModal = dynamic(() => import('../features/tasks/create-task-modal'), {
@@ -126,8 +127,8 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
 					</div>
 				)}
 				{isOpen && (
-					<Modal isOpen={isOpen} closeModal={closeModal}>
-						<Suspense fallback={<div />}>
+					<Suspense fallback={<ModalSkeleton size="lg" />}>
+						<Modal isOpen={isOpen} closeModal={closeModal}>
 							<LazyCreateTaskModal
 								onClose={closeModal}
 								title={title}
@@ -135,8 +136,8 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
 								task={null}
 								tasks={[]}
 							/>
-						</Suspense>
-					</Modal>
+						</Modal>
+					</Suspense>
 				)}
 			</section>
 		</>
@@ -336,15 +337,15 @@ export const EmptyKanbanDroppable = ({
 											</Popover>
 										</div>
 										{isOpen && (
-											<Modal isOpen={isOpen} closeModal={closeModal}>
-												<Suspense fallback={<div />}>
+											<Suspense fallback={<ModalSkeleton size="md" />}>
+												<Modal isOpen={isOpen} closeModal={closeModal}>
 													<LazyEditStatusModal
 														status={status}
 														onClose={closeModal}
 														setColumn={setColumn}
 													/>
-												</Suspense>
-											</Modal>
+												</Modal>
+											</Suspense>
 										)}
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
@@ -374,8 +375,8 @@ export const EmptyKanbanDroppable = ({
 				</Draggable>
 			)}
 			{isOpen && (
-				<Modal isOpen={isOpen} closeModal={closeModal}>
-					<Suspense fallback={<div />}>
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
 						<LazyCreateTaskModal
 							onClose={closeModal}
 							title={title}
@@ -383,15 +384,15 @@ export const EmptyKanbanDroppable = ({
 							task={null}
 							tasks={[]}
 						/>
-					</Suspense>
-				</Modal>
+					</Modal>
+				</Suspense>
 			)}
 			{editIsOpen && (
-				<Modal className="z-[1002]" isOpen={editIsOpen} closeModal={editCloseModal}>
-					<Suspense fallback={<div />}>
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<Modal className="z-[1002]" isOpen={editIsOpen} closeModal={editCloseModal}>
 						<LazyEditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
-					</Suspense>
-				</Modal>
+					</Modal>
+				</Suspense>
 			)}
 		</>
 	);
@@ -483,11 +484,11 @@ const KanbanDraggableHeader = ({
 				</header>
 			)}
 			{isOpen && (
-				<Modal isOpen={isOpen} closeModal={closeModal}>
-					<Suspense fallback={<div />}>
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
 						<LazyEditStatusModal status={status} onClose={closeModal} setColumn={setColumn} />
-					</Suspense>
-				</Modal>
+					</Modal>
+				</Suspense>
 			)}
 		</>
 	);
@@ -585,8 +586,8 @@ const KanbanDraggable = ({
 				</Draggable>
 			)}
 			{isOpen && (
-				<Modal isOpen={isOpen} closeModal={closeModal}>
-					<Suspense fallback={<div />}>
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
 						<LazyCreateTaskModal
 							onClose={closeModal}
 							title={title}
@@ -594,8 +595,8 @@ const KanbanDraggable = ({
 							task={null}
 							tasks={[]}
 						/>
-					</Suspense>
-				</Modal>
+					</Modal>
+				</Suspense>
 			)}
 		</>
 	);
