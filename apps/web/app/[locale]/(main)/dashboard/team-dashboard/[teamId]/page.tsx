@@ -43,7 +43,6 @@ const LazyTeamStatsTable = dynamic(
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
-import { DashboardHeaderSkeleton } from '@/core/components/common/skeleton/dashboard-header-skeleton';
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
 
 function TeamDashboard() {
