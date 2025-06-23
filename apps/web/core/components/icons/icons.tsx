@@ -634,3 +634,15 @@ export const MoonIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+export const OnlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+	<svg width={24} height={24} viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path
+			d="M400 200C400 310.457 310.457 400 200 400C89.5431 400 0 310.457 0 200C0 89.5431 89.5431 0 200 0C310.457 0 400 89.5431 400 200Z"
+			fill="#9AE6B4"
+		/>
+		<path
+			d="M300 200C300 255.228 255.228 300 200 300C144.772 300 100 255.228 100 200C100 144.772 144.772 100 200 100C255.228 100 300 144.772 300 200Z"
+			fill="currentColor"
+		/>
+	</svg>
+);

@@ -7,6 +7,8 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import type { DocumentProps } from '@react-pdf/renderer';
 import { useTranslations } from 'next-intl';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
+import { Suspense } from 'react';
+import { ExportPDFSkeleton } from '../../common/skeleton/export-pdf-skeleton';
 
 /**
  * Props interface for the ExportMenu component
@@ -62,8 +64,8 @@ export function ExportMenu({
 }: ExportMenuProps) {
 	const t = useTranslations();
 	return (
-		<Menu as="div" className="relative inline-block text-left">
-			<Menu.Button className="w-full h-full items-center justify-between">
+		<Menu as="div" className="inline-block relative text-left">
+			<Menu.Button className="justify-between items-center w-full h-full">
 				<Button type="button" className={buttonClassName} variant="outline">
 					<span className="text-sm">{t('common.EXPORT')}</span> <ChevronDown size={15} />
 				</Button>
@@ -81,7 +83,7 @@ export function ExportMenu({
 					static
 					className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-[100px] origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark--theme-light shadow-lg ring-1 ring-black/5 focus:outline-none"
 				>
-					<div className="p-1 flex flex-col">
+					<div className="flex flex-col p-1">
 						<Menu.Item>
 							{({ active }) => (
 								<button
@@ -91,20 +93,22 @@ export function ExportMenu({
 									className={`${active && 'bg-primary/10'} data-[state=checked]:text-blue-600 group flex w-full items-center px-2 py-2 text-sm`}
 								>
 									{showModal && (
-										<PDFDownloadLink
-											className="w-full h-full text-left"
-											document={pdfDocument}
-											fileName={fileName}
-											download={true}
-										>
-											{({ loading }) =>
-												loading ? (
-													<p className="w-full h-full">{t('common.LOADING')}...</p>
-												) : (
-													<p className="w-full h-full">PDF</p>
-												)
-											}
-										</PDFDownloadLink>
+										<Suspense fallback={<ExportPDFSkeleton />}>
+											<PDFDownloadLink
+												className="w-full h-full text-left"
+												document={pdfDocument}
+												fileName={fileName}
+												download={true}
+											>
+												{({ loading }) =>
+													loading ? (
+														<p className="w-full h-full">{t('common.LOADING')}...</p>
+													) : (
+														<p className="w-full h-full">PDF</p>
+													)
+												}
+											</PDFDownloadLink>
+										</Suspense>
 									)}
 									{!showModal && <p className="w-full h-full text-left">PDF</p>}
 								</button>

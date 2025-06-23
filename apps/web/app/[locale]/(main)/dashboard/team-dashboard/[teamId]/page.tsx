@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
@@ -27,8 +27,7 @@ const LazyTeamStatsChart = dynamic(
 			default: mod.TeamStatsChart
 		})),
 	{
-		ssr: false,
-		loading: () => <ChartSkeleton />
+		ssr: false
 	}
 );
 
@@ -39,8 +38,7 @@ const LazyTeamStatsTable = dynamic(
 			default: mod.TeamStatsTable
 		})),
 	{
-		ssr: false,
-		loading: () => <TeamStatsTableSkeleton />
+		ssr: false
 	}
 );
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -87,7 +85,7 @@ function TeamDashboard() {
 						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<button
 								onClick={handleBack}
-								className="p-1 transition-colors rounded-full hover:bg-gray-100"
+								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
@@ -123,13 +121,15 @@ function TeamDashboard() {
 									</div>
 								)}
 								{showChart && (
-									<Card className="w-full overflow-hidden transition-all duration-300 ease-in-out origin-top transform dark:bg-dark--theme-light">
-										<div className="h-auto transition-all duration-300 ease-in-out origin-top transform scale-y-100 opacity-100">
+									<Card className="overflow-hidden w-full transition-all duration-300 ease-in-out transform origin-top dark:bg-dark--theme-light">
+										<div className="h-auto opacity-100 transition-all duration-300 ease-in-out transform origin-top scale-y-100">
 											<div className="relative">
-												<LazyTeamStatsChart
-													rapportChartActivity={rapportChartActivity}
-													isLoading={loading}
-												/>
+												<Suspense fallback={<ChartSkeleton />}>
+													<LazyTeamStatsChart
+														rapportChartActivity={rapportChartActivity}
+														isLoading={loading}
+													/>
+												</Suspense>
 												<div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
 													<Button
 														variant="ghost"
@@ -154,7 +154,9 @@ function TeamDashboard() {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light">
-					<LazyTeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
+					<Suspense fallback={<TeamStatsTableSkeleton />}>
+						<LazyTeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
+					</Suspense>
 				</Card>
 			</Container>
 		</MainLayout>

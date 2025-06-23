@@ -114,9 +114,9 @@ function TimeInfo({
 						daily.m
 					}m`}
 				>
-					<div className="flex items-center space-x-4 text-sm font-normal">
+					<div className="flex gap-x-4 items-center text-sm font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
-						<Text>
+						<Text className="text-[13px] text-nowrap whitespace-nowrap">
 							{daily.h}h : {daily.m}m
 						</Text>
 					</div>
@@ -132,12 +132,12 @@ function TimeInfo({
 				>
 					<div
 						className={clsxm(
-							'flex space-x-4 items-center font-normal text-sm'
+							'flex gap-x-4 items-center font-normal text-sm'
 							// showDaily && ['text-sm']
 						)}
 					>
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TOTAL')}</span>
-						<Text>
+						<Text className="whitespace-nowrap text-nowrap">
 							{total.h}h : {total.m}m
 						</Text>
 					</div>

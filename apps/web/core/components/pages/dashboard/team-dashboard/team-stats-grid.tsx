@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
+import { StatsCardSkeleton } from '@/core/components/common/skeleton/stats-card-skeleton';
 
 function formatPercentage(value: number | undefined): number {
 	if (!value) return 0;
@@ -84,7 +85,9 @@ export function TeamStatsGrid({
 		[timeValue, progress, statisticsCounts?.employeesCount, t]
 	);
 
-	return (
+	return loadingTimesheetStatisticsCounts ? (
+		<StatsCardSkeleton />
+	) : (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
 			{stats.map((stat) => (
 				<Card key={stat.title} className="p-6 dark:bg-dark--theme-light">

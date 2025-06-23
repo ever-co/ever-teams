@@ -15,8 +15,9 @@ const LazyGroupBySelectTimeActivity = dynamic(
 	}
 );
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
 
 // Lazy load heavy components for performance optimization
 const LazyDateRangePicker = dynamic(
@@ -52,10 +53,10 @@ const LazyExportDialog = dynamic(
 	}
 );
 
-// Lazy load PDF component (heavy @react-pdf/renderer dependency)
+// Lazy load PDF component conditionally for performance optimization
 const LazyTeamStatsPDF = dynamic(() => import('./pdf').then((mod) => ({ default: mod.TeamStatsPDF })), {
 	ssr: false
-	// Note: No loading property as this is used inside ExportMenu
+	// Note: No loading property for conditional components
 });
 
 const formatDate = (date: Date | undefined): string => {
@@ -99,6 +100,7 @@ export function DashboardHeader({
 	openModal,
 	isOpen
 }: DashboardHeaderProps) {
+	const [isExporting, setIsExporting] = useState(false);
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRangeAction(range.from, range.to);
@@ -126,37 +128,40 @@ export function DashboardHeader({
 				</Suspense>
 			)}
 
-			<div className="flex items-center justify-between w-full">
+			<div className="flex justify-between items-center w-full">
 				<h1 className="text-2xl font-semibold">{title}</h1>
-				<div className="flex items-center gap-4">
+				<div className="flex gap-4 items-center">
 					{showGroupBy && (
 						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}
 					<LazyDateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
 					<LazyTeamDashboardFilter isManage={isManage} />
-					<LazyExportMenu
-						pdfDocument={
-							<>
-								{teamName === 'TEAM-DASHBOARD' && (
-									<LazyTeamStatsPDF
-										rapportDailyActivity={reportData || []}
-										title={`${teamName.toLowerCase() || 'Team'} Activity Report for ${formatDate(startDate)} - ${formatDate(endDate)}`}
-										startDate={formatDate(startDate)}
-										endDate={formatDate(endDate)}
-									/>
-								)}
-							</>
-						}
-						fileName={`${teamName || 'team'}-activity-report-for-${formatDate(startDate)}-${formatDate(endDate)}.pdf`}
-						onCSVExport={handleCSVExport}
-						csvDisabled={true}
-						showModal={teamName === 'APPS-URLS' ? false : true}
-						openModal={openModal}
-						startDate={formatDate(startDate)}
-						endDate={formatDate(endDate)}
-						groupByType={groupByType}
-						reportData={reportData}
-					/>
+
+					<Suspense fallback={<ExportPDFSkeleton />}>
+						<LazyExportMenu
+							pdfDocument={
+								<>
+									{teamName === 'TEAM-DASHBOARD' && (
+										<LazyTeamStatsPDF
+											rapportDailyActivity={reportData || []}
+											title={`${teamName.toLowerCase() || 'Team'} Activity Report for ${formatDate(startDate)} - ${formatDate(endDate)}`}
+											startDate={formatDate(startDate)}
+											endDate={formatDate(endDate)}
+										/>
+									)}
+								</>
+							}
+							fileName={`${teamName || 'team'}-activity-report-for-${formatDate(startDate)}-${formatDate(endDate)}.pdf`}
+							onCSVExport={handleCSVExport}
+							csvDisabled={true}
+							showModal={teamName === 'APPS-URLS' ? false : true}
+							openModal={openModal}
+							startDate={formatDate(startDate)}
+							endDate={formatDate(endDate)}
+							groupByType={groupByType}
+							reportData={reportData}
+						/>
+					</Suspense>
 				</div>
 			</div>
 		</>
