@@ -216,7 +216,38 @@ const SummaryGroup = ({ title, children }: { title: string; children: React.Reac
 	</View>
 );
 
-export const ProductivityPDF = ({ data, title = 'Activity Report', startDate, endDate }: ProductivityPDFProps) => {
+export const ProductivityPDF = ({ data = [], title = 'Activity Report', startDate, endDate }: ProductivityPDFProps) => {
+	// Handle empty data gracefully
+	if (!Array.isArray(data) || data.length === 0) {
+		return (
+			<Document>
+				<Page size="A4" orientation="landscape" style={styles.page}>
+					<View style={styles.header}>
+						<View style={styles.titleSection}>
+							<Text style={styles.title}>{title}</Text>
+							{(startDate || endDate) && (
+								<Text style={styles.dateRange}>
+									{startDate && `From ${startDate}`}
+									{startDate && endDate && ' • '}
+									{endDate && `To ${endDate}`}
+								</Text>
+							)}
+						</View>
+					</View>
+					<View style={styles.contentWrapper}>
+						<View style={styles.dateHeader}>
+							<Text style={styles.dateText}>No Data Available</Text>
+						</View>
+						<TableHeader />
+						<View style={{ justifyContent: 'center', padding: 20, textAlign: 'center' }}>
+							<Text>No activity data available for the selected period.</Text>
+						</View>
+					</View>
+				</Page>
+			</Document>
+		);
+	}
+
 	// Calculate summary statistics
 	const calculateSummary = (data: IActivityReportGroupByDate[]) => {
 		let totalDuration = 0;

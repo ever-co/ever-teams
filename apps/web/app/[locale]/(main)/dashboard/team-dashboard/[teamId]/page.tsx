@@ -40,20 +40,11 @@ const LazyTeamStatsTable = dynamic(
 		ssr: false
 	}
 );
-const LazyDashboardHeader = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/dashboard-header').then((mod) => ({
-			default: mod.DashboardHeader
-		})),
-	{
-		ssr: false,
-		loading: () => <DashboardHeaderSkeleton />
-	}
-);
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 import { DashboardHeaderSkeleton } from '@/core/components/common/skeleton/dashboard-header-skeleton';
+import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
 
 function TeamDashboard() {
 	const t = useTranslations();

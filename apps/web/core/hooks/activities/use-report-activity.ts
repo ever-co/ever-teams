@@ -214,7 +214,6 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		gcTime: 1000 * 60 * 30,
 		retry: 3
 	});
-
 	// Sync React Query data with Jotai atoms (for compatibility)
 	useEffect(() => {
 		if (chartActivityQuery.data?.data) {
@@ -322,7 +321,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		rapportChartActivity: chartActivityQuery.data?.data || [],
 		rapportDailyActivity: dailyReportQuery.data?.data || [],
 		statisticsCounts: statisticsQuery.data?.data || null,
-		activityReport: activityReportQuery.data?.data || [],
+		activityReport: Array.isArray(activityReportQuery.data?.data) ? activityReportQuery.data.data : [],
 
 		// Update handlers
 		updateDateRange,
