@@ -1,10 +1,16 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import {
 	IActivityReportGroupByDate,
 	IEmployeeWithProjects,
 	IProjectWithActivity
 } from '@/core/types/interfaces/activity/activity-report';
+
+// Register font for PDF
+Font.register({
+	family: 'Helvetica',
+	src: 'https://fonts.gstatic.com/s/helveticaneue/v70/1Ptsg8zYS_SKggPNyC0IT0kLW-43aMEzIO6XUTLjad8.ttf'
+});
 
 // Create styles
 

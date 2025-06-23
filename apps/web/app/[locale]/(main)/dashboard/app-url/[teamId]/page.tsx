@@ -210,6 +210,11 @@ function AppUrls() {
 				<ProductivityEmployeeTable data={activityReport} isLoading={loading} />
 			</Suspense>
 		),
+		member: (
+			<Suspense fallback={<ProductivityEmployeeTableSkeleton />}>
+				<ProductivityEmployeeTable data={activityReport} isLoading={loading} />
+			</Suspense>
+		),
 		application: (
 			<Suspense fallback={<ProductivityApplicationTableSkeleton />}>
 				<ProductivityApplicationTable data={activityReport} isLoading={loading} />

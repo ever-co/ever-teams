@@ -16,7 +16,7 @@ Font.register({
 });
 
 const styles = StyleSheet.create({
-	page: { padding: 30, fontFamily: 'Inter' },
+	page: { padding: 30, fontFamily: 'Helvetica' },
 	header: { marginBottom: 20, borderBottom: '2 solid #E5E7EB', paddingBottom: 10 },
 	title: { fontSize: 24, fontWeight: 'bold', color: '#111827', textAlign: 'center' },
 	subtitle: { fontSize: 12, color: '#6B7280', textAlign: 'center', marginTop: 5 },
