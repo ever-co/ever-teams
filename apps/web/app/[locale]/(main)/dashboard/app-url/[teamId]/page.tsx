@@ -14,6 +14,7 @@ import { Container } from '@/core/components';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { Card } from '@/core/components/common/card';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
 import {
 	ProductivityApplicationTable,
@@ -60,6 +61,7 @@ function AppUrls() {
 	const { isTrackingEnabled } = useOrganizationTeams();
 	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type', 'date');
 	const { closeModal, isOpen, openModal } = useModal();
+	const { user } = useAuthenticateUser();
 
 	const { activityReport, handleGroupByChange, updateDateRange, updateFilters, currentFilters, isManage, loading } =
 		useReportActivity({ types: 'APPS-URLS' });
@@ -104,15 +106,32 @@ function AppUrls() {
 			return activityReport;
 		}
 
+		// Get real user information
+		const currentUser = user || null;
+		const userFullName =
+			currentUser?.fullName ||
+			(currentUser?.firstName && currentUser?.lastName
+				? `${currentUser.firstName} ${currentUser.lastName}`
+				: currentUser?.name || 'Unknown User');
+
+		const userFirstName = currentUser?.firstName || 'Unknown';
+		const userLastName = currentUser?.lastName || 'User';
+		const userId = currentUser?.id || 'unknown-user-id';
+		const employeeId = currentUser?.employee?.id || 'unknown-employee-id';
+
 		// Otherwise, create PDF-compatible data from UI data
 		return monthData.slice(0, 7).map((day) => ({
 			date: day.date,
 			employees: [
 				{
 					employee: {
-						id: 'ui-generated-employee',
-						fullName: 'Current User',
-						user: { firstName: 'Current', lastName: 'User' }
+						id: employeeId,
+						fullName: userFullName,
+						user: {
+							firstName: userFirstName,
+							lastName: userLastName,
+							id: userId
+						}
 					},
 					projects: [
 						{
@@ -125,11 +144,11 @@ function AppUrls() {
 										(day.productive / (day.productive + day.neutral + day.unproductive)) *
 										100
 									).toFixed(1),
-									employee: { fullName: 'Current User' },
+									employee: { fullName: userFullName },
 									date: day.date,
 									sessions: 1,
-									employeeId: 'ui-generated-employee',
-									projectId: 'ui-generated-project'
+									employeeId: employeeId,
+									projectId: 'productivity-project'
 								},
 								{
 									title: 'Neutral Activities',
@@ -138,11 +157,11 @@ function AppUrls() {
 										(day.neutral / (day.productive + day.neutral + day.unproductive)) *
 										100
 									).toFixed(1),
-									employee: { fullName: 'Current User' },
+									employee: { fullName: userFullName },
 									date: day.date,
 									sessions: 1,
-									employeeId: 'ui-generated-employee',
-									projectId: 'ui-generated-project'
+									employeeId: employeeId,
+									projectId: 'productivity-project'
 								},
 								{
 									title: 'Unproductive Time',
@@ -151,11 +170,11 @@ function AppUrls() {
 										(day.unproductive / (day.productive + day.neutral + day.unproductive)) *
 										100
 									).toFixed(1),
-									employee: { fullName: 'Current User' },
+									employee: { fullName: userFullName },
 									date: day.date,
 									sessions: 1,
-									employeeId: 'ui-generated-employee',
-									projectId: 'ui-generated-project'
+									employeeId: employeeId,
+									projectId: 'productivity-project'
 								}
 							]
 						}
@@ -166,6 +185,23 @@ function AppUrls() {
 	};
 
 	const pdfCompatibleData = createPDFCompatibleData();
+
+	// Debug what's being passed to PDF export
+	if (process.env.NODE_ENV === 'development') {
+		console.log('📄 PDF Export Data Debug:', {
+			originalActivityReport: activityReport?.length,
+			pdfCompatibleDataLength: pdfCompatibleData?.length,
+			pdfCompatibleDataStructure: pdfCompatibleData?.[0],
+			reportDataType: typeof pdfCompatibleData,
+			reportDataIsArray: Array.isArray(pdfCompatibleData),
+			userInfo: {
+				fullName: user?.fullName,
+				firstName: user?.firstName,
+				lastName: user?.lastName,
+				employeeId: user?.employee?.id
+			}
+		});
+	}
 
 	// Calculate current month and year from filters
 	const startDate = new Date(currentFilters.startDate || new Date());
