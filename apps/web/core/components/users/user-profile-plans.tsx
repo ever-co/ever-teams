@@ -556,7 +556,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-6 flex ${
+			className={`mb-5 flex ${
 				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
 			}  items-center gap-5`}
 		>

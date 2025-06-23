@@ -19,7 +19,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import UserTeamActivity from '@/core/components/activities/user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
@@ -41,6 +41,7 @@ import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
+import { cn } from '@/core/lib/helpers';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -146,8 +147,14 @@ export function UserTeamCard({
 		},
 		[setActivity]
 	);
-	const canSeeActivity = profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1;
-
+	const canSeeActivity = useMemo(
+		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[profile?.userProfile?.id, user?.id, isManagerConnectedUser]
+	);
+	const isUserDetailAccordion = useMemo(
+		() => userDetailAccordion == memberInfo.memberUser?.id,
+		[userDetailAccordion, memberInfo.memberUser?.id]
+	);
 	return (
 		<div
 			className={clsxm(!active && 'border-2 border-transparent')}
@@ -169,7 +176,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex relative items-center m-0">
+				<div
+					className={cn(
+						'flex relative items-center m-0 transition-all duration-300',
+						isUserDetailAccordion && !showActivity && 'pb-3 border-b'
+					)}
+				>
 					<div className="absolute left-0 cursor-pointer">
 						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
@@ -181,19 +193,14 @@ export function UserTeamCard({
 							<div
 								onClick={() => {
 									setUserDetailAccordion(
-										userDetailAccordion == memberInfo.memberUser?.id
-											? ''
-											: (memberInfo.memberUser?.id ?? '')
+										isUserDetailAccordion ? '' : (memberInfo.memberUser?.id ?? '')
 									);
 									setShowActivity(false);
 								}}
 								className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}
 							>
 								<ChevronDoubleDownIcon
-									className={clsxm(
-										'h-4 w-4 transition-all',
-										userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
-									)}
+									className={clsxm('h-4 w-4 transition-all', isUserDetailAccordion && 'rotate-180')}
 								/>
 							</div>
 						)}
@@ -267,12 +274,10 @@ export function UserTeamCard({
 					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{userDetailAccordion == memberInfo.memberUser?.id &&
-				memberInfo.memberUser.id == profile?.userProfile?.id &&
-				!showActivity ? (
+				{isUserDetailAccordion && memberInfo.memberUser.id == profile?.userProfile?.id && !showActivity ? (
 					<div className="overflow-y-auto h-96">
 						{canSeeActivity && (
-							<Container fullWidth={fullWidth} className="py-8">
+							<Container fullWidth={fullWidth} className="px-3 py-5">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
@@ -293,7 +298,7 @@ export function UserTeamCard({
 						)}
 						{activityScreens[activityFilter] ?? null}
 					</div>
-				) : userDetailAccordion == memberInfo.memberUser?.id ? (
+				) : isUserDetailAccordion ? (
 					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>

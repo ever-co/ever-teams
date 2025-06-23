@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import { DashboardHeader } from '@/core/components/pages/dashboard/dashboard-header';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
@@ -18,7 +17,6 @@ import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { TeamStatsGrid } from '@/core/components/pages/dashboard/team-dashboard';
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
 import dynamic from 'next/dynamic';
-import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 
 // Lazy load TeamStatsChart (Recharts) for performance optimization
 const LazyTeamStatsChart = dynamic(
@@ -27,7 +25,8 @@ const LazyTeamStatsChart = dynamic(
 			default: mod.TeamStatsChart
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <ChartSkeleton />
 	}
 );
 
@@ -41,8 +40,20 @@ const LazyTeamStatsTable = dynamic(
 		ssr: false
 	}
 );
+const LazyDashboardHeader = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/dashboard-header').then((mod) => ({
+			default: mod.DashboardHeader
+		})),
+	{
+		ssr: false,
+		loading: () => <DashboardHeaderSkeleton />
+	}
+);
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
+import { DashboardHeaderSkeleton } from '@/core/components/common/skeleton/dashboard-header-skeleton';
 
 function TeamDashboard() {
 	const t = useTranslations();
@@ -92,7 +103,7 @@ function TeamDashboard() {
 							<Breadcrumb paths={breadcrumbPath} />
 						</div>
 						<div className="flex flex-col gap-3">
-							<DashboardHeader
+							<LazyDashboardHeader
 								onUpdateDateRangeAction={updateDateRange}
 								title="Team Dashboard"
 								isManage={isManage}
@@ -124,12 +135,10 @@ function TeamDashboard() {
 									<Card className="overflow-hidden w-full transition-all duration-300 ease-in-out transform origin-top dark:bg-dark--theme-light">
 										<div className="h-auto opacity-100 transition-all duration-300 ease-in-out transform origin-top scale-y-100">
 											<div className="relative">
-												<Suspense fallback={<ChartSkeleton />}>
-													<LazyTeamStatsChart
-														rapportChartActivity={rapportChartActivity}
-														isLoading={loading}
-													/>
-												</Suspense>
+												<LazyTeamStatsChart
+													rapportChartActivity={rapportChartActivity}
+													isLoading={loading}
+												/>
 												<div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
 													<Button
 														variant="ghost"
@@ -153,11 +162,11 @@ function TeamDashboard() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<Card className="w-full dark:bg-dark--theme-light">
-					<Suspense fallback={<TeamStatsTableSkeleton />}>
+				<Suspense fallback={<TeamStatsTableSkeleton />}>
+					<Card className="w-full dark:bg-dark--theme-light">
 						<LazyTeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
-					</Suspense>
-				</Card>
+					</Card>
+				</Suspense>
 			</Container>
 		</MainLayout>
 	);

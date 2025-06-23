@@ -15,9 +15,12 @@ const LazyGroupBySelectTimeActivity = dynamic(
 	}
 );
 import dynamic from 'next/dynamic';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
+// import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
+import { ExportMenu } from './export-menu';
+import { TeamStatsPDF } from './pdf';
+import { ExportPDFSkeleton } from '../../common/skeleton/export-pdf-skeleton';
 
 // Lazy load heavy components for performance optimization
 const LazyDateRangePicker = dynamic(
@@ -36,14 +39,6 @@ const LazyTeamDashboardFilter = dynamic(
 	}
 );
 
-const LazyExportMenu = dynamic(
-	() => import('@/core/components/pages/dashboard/export-menu').then((mod) => ({ default: mod.ExportMenu })),
-	{
-		ssr: false,
-		loading: () => <div className="w-[100px] h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-	}
-);
-
 // Medium article pattern for conditional ExportDialog
 const LazyExportDialog = dynamic(
 	() => import('@/core/components/pages/dashboard/export-dialog').then((mod) => ({ default: mod.ExportDialog })),
@@ -52,12 +47,6 @@ const LazyExportDialog = dynamic(
 		// Note: No loading property for conditional components
 	}
 );
-
-// Lazy load PDF component conditionally for performance optimization
-const LazyTeamStatsPDF = dynamic(() => import('./pdf').then((mod) => ({ default: mod.TeamStatsPDF })), {
-	ssr: false
-	// Note: No loading property for conditional components
-});
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';
@@ -100,7 +89,6 @@ export function DashboardHeader({
 	openModal,
 	isOpen
 }: DashboardHeaderProps) {
-	const [isExporting, setIsExporting] = useState(false);
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRangeAction(range.from, range.to);
@@ -137,31 +125,31 @@ export function DashboardHeader({
 					<LazyDateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
 					<LazyTeamDashboardFilter isManage={isManage} />
 
-					<Suspense fallback={<ExportPDFSkeleton />}>
-						<LazyExportMenu
-							pdfDocument={
-								<>
-									{teamName === 'TEAM-DASHBOARD' && (
-										<LazyTeamStatsPDF
+					<ExportMenu
+						pdfDocument={
+							<>
+								{teamName === 'TEAM-DASHBOARD' && (
+									<Suspense fallback={<ExportPDFSkeleton />}>
+										<TeamStatsPDF
 											rapportDailyActivity={reportData || []}
 											title={`${teamName.toLowerCase() || 'Team'} Activity Report for ${formatDate(startDate)} - ${formatDate(endDate)}`}
 											startDate={formatDate(startDate)}
 											endDate={formatDate(endDate)}
 										/>
-									)}
-								</>
-							}
-							fileName={`${teamName || 'team'}-activity-report-for-${formatDate(startDate)}-${formatDate(endDate)}.pdf`}
-							onCSVExport={handleCSVExport}
-							csvDisabled={true}
-							showModal={teamName === 'APPS-URLS' ? false : true}
-							openModal={openModal}
-							startDate={formatDate(startDate)}
-							endDate={formatDate(endDate)}
-							groupByType={groupByType}
-							reportData={reportData}
-						/>
-					</Suspense>
+									</Suspense>
+								)}
+							</>
+						}
+						fileName={`${teamName || 'team'}-activity-report-for-${formatDate(startDate)}-${formatDate(endDate)}.pdf`}
+						onCSVExport={handleCSVExport}
+						csvDisabled={true}
+						showModal={teamName === 'APPS-URLS' ? false : true}
+						openModal={openModal}
+						startDate={formatDate(startDate)}
+						endDate={formatDate(endDate)}
+						groupByType={groupByType}
+						reportData={reportData}
+					/>
 				</div>
 			</div>
 		</>
