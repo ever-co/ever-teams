@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import { Card } from '@/core/components/common/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { Skeleton } from '@/core/components/common/skeleton';
@@ -50,7 +50,7 @@ export const ProductivityTableSkeleton: FC<ProductivityTableSkeletonProps> = ({ 
 				<TableBody>
 					{/* Date Groups */}
 					{[1, 2, 3].map((groupIndex) => (
-						<>
+						<Fragment key={`date-group-${groupIndex}`}>
 							{/* Date Header Row */}
 							<TableRow key={`date-group-${groupIndex}`} className="bg-gray-50/30 dark:bg-gray-800">
 								<TableCell colSpan={5} className="py-3">
@@ -90,7 +90,7 @@ export const ProductivityTableSkeleton: FC<ProductivityTableSkeletonProps> = ({ 
 									</TableCell>
 								</TableRow>
 							))}
-						</>
+						</Fragment>
 					))}
 				</TableBody>
 			</Table>
