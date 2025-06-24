@@ -25,9 +25,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 	const tasks = outstandingPlans.flatMap(
 		(plan) =>
 			(user
-				? plan.tasks?.filter((task: TTask) =>
-						task.members?.some((member: IEmployee) => member.userId === user.id)
-					)
+				? plan.tasks?.filter((task) => task.members?.some((member: IEmployee) => member.userId === user.id))
 				: plan.tasks) ?? []
 	);
 

@@ -1,15 +1,15 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
 	task: TTask;
-	plan: IDailyPlan;
+	plan: TDailyPlan;
 }
 
 /**
@@ -19,7 +19,7 @@ interface UnplanActiveTaskModalProps {
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
  * @param {TTask} props.task - The task to unplan
- * @param {IDailyPlan} props.plan - The today's plan
+ * @param {TDailyPlan} props.plan - The today's plan
  *
  * @returns {JSX.Element} The modal element
  */

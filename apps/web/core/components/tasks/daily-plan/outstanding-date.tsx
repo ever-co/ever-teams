@@ -9,11 +9,8 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -22,7 +19,7 @@ interface IOutstandingFilterDate {
 export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<IDailyPlan[]>(outstandingPlans);
+	const [plans, setPlans] = useState<TDailyPlan[]>(outstandingPlans);
 
 	useEffect(() => {
 		let data = [...outstandingPlans];
@@ -32,9 +29,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			data = data
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: TTask) =>
-						task.members?.some((member: IEmployee) => member.userId === user.id)
-					)
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 

@@ -13,14 +13,14 @@ import { IconsErrorWarningFill } from '@/core/components/icons';
 import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
 import { EverCard } from '../../common/ever-card';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
 	workTimePlanned?: number;
 	estimated?: boolean[] | undefined;
-	plan?: IDailyPlan | undefined;
+	plan?: TDailyPlan | undefined;
 }
 export function DailyPlanCompareEstimatedModal({
 	open,
@@ -30,7 +30,7 @@ export function DailyPlanCompareEstimatedModal({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	todayPlan: IDailyPlan[];
+	todayPlan: TDailyPlan[];
 	profile: any;
 }) {
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);

@@ -13,6 +13,7 @@ import {
 } from '@/core/components/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 const Timer = () => {
 	const t = useTranslations();
@@ -74,7 +75,7 @@ const Timer = () => {
 					isOpen={modals.isTasksEstimationHoursModalOpen}
 					closeModal={modals.tasksEstimationHoursCloseModal}
 					plan={hasPlan}
-					tasks={hasPlan.tasks}
+					tasks={hasPlan.tasks as ITask[]}
 				/>
 			)}
 

@@ -25,10 +25,10 @@ import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -182,16 +182,16 @@ export function useTimer() {
 	const lastActiveTaskId = useRef<string | null>(null);
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
-	const hasPlan = myDailyPlans.items.find(
-		(plan: IDailyPlan) =>
+	const hasPlan = myDailyPlans?.items.find(
+		(plan: TDailyPlan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
 			plan.tasks &&
 			plan.tasks?.length > 0
 	);
 
 	const tomorrow = moment().add(1, 'days');
-	const hasPlanForTomorrow = myDailyPlans.items.find(
-		(plan: IDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+	const hasPlanForTomorrow = myDailyPlans?.items.find(
+		(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
 	);
 
 	// Team setting that tells if each member must have a today plan for allowing tracking time
@@ -209,7 +209,7 @@ export function useTimer() {
 	const isPlanVerified = requirePlan
 		? hasPlan &&
 			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task: TTask) => task.estimate && task.estimate > 0)
+			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
 		: true;
 
 	const canRunTimer =

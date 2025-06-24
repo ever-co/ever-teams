@@ -1,11 +1,11 @@
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { DropResult } from '@hello-pangea/dnd';
 
 export const handleDragAndDrop = (
 	results: DropResult,
-	plans: IDailyPlan[],
-	setPlans: React.Dispatch<React.SetStateAction<IDailyPlan[]>>
+	plans: TDailyPlan[],
+	setPlans: React.Dispatch<React.SetStateAction<TDailyPlan[]>>
 ) => {
 	const { source, destination } = results;
 

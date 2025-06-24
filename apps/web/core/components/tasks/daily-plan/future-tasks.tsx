@@ -12,8 +12,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
@@ -29,7 +28,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 	// Use a safe default instead of direct localStorage access
 	const { setDate, date } = useDateRange('Future Tasks');
-	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
+	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);
 	useEffect(() => {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
 	}, [date, setDate, futurePlans]);
@@ -43,7 +42,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: TTask) =>
+					tasks: plan.tasks?.filter((task) =>
 						task.members?.some((member: IEmployee) => member.userId === user.id)
 					)
 				}))

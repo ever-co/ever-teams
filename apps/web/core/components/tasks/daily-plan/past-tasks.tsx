@@ -9,12 +9,12 @@ import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import { ITask } from '@/core/types/interfaces/task/task';
 
 export function PastTasks({
 	user,
@@ -28,7 +28,7 @@ export function PastTasks({
 	const { pastPlans: _pastPlans } = useDailyPlan();
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [pastPlans, setPastPlans] = useState<IDailyPlan[]>(_pastPlans);
+	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Past Tasks');
 
@@ -123,7 +123,7 @@ export function PastTasks({
 																			isAuthUser={true}
 																			activeAuthTask={true}
 																			viewType={'dailyplan'}
-																			task={task}
+																			task={task as ITask}
 																			profile={profile}
 																			plan={plan}
 																			type="HORIZONTAL"
@@ -155,7 +155,10 @@ export function PastTasks({
 																			marginBottom: 8
 																		}}
 																	>
-																		<TaskBlockCard key={task.id} task={task} />
+																		<TaskBlockCard
+																			key={task.id}
+																			task={task as ITask}
+																		/>
 																	</div>
 																)}
 															</Draggable>
