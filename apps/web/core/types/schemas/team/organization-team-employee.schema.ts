@@ -28,6 +28,7 @@ export const baseOrganizationTeamEmployeeSchema = z
 // Organization team employee schema
 export const organizationTeamEmployeeSchema = z
 	.object({
+		id: idSchema.optional().nullable(),
 		activeTaskId: idSchema.optional().nullable(),
 		activeTask: z.any().optional(), // Will be properly typed when task schema is created
 		isManager: z.boolean().optional(),
@@ -68,7 +69,6 @@ export const organizationTeamEmployeeSchema = z
 	.merge(relationalRoleSchema)
 	.merge(timerStatusSchema)
 	.passthrough();
-
 // Organization team employee create schema
 export const organizationTeamEmployeeCreateSchema = z.object({
 	name: z.string().optional(),
@@ -90,7 +90,7 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 // Organization team employee update schema
 export const organizationTeamEmployeeUpdateSchema = z
 	.object({
-		id: z.string()
+		id: z.string().optional()
 	})
 	.merge(organizationTeamEmployeeCreateSchema);
 

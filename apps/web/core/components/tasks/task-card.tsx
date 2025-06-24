@@ -337,31 +337,21 @@ const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITas
 	);
 });
 
-/**
- * "If the task is the active task, then use the timer handler, otherwise start the timer with the
- * task."
- *
- * The function is a bit more complicated than that, but that's the gist of it
- * @param  - `task` - the task that the timer button is for
- * @returns A TimerButton component that is either a spinner or a timer button.
- */
-function TimerButtonCall({
+// ✅ PERFORMANCE FIX: Custom hook to extract TimerButtonCall business logic
+function useTimerButtonLogic({
 	task,
 	currentMember,
-	activeTeam,
-	className
+	activeTeam
 }: {
 	task: ITask;
 	currentMember: TOrganizationTeamEmployee | undefined;
 	activeTeam: TOrganizationTeam | null;
-	className?: string;
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-
 	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
-
 	const { setActiveTask } = useTeamTasks();
+	const t = useTranslations();
 
 	const activeTaskStatus = useMemo(
 		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
@@ -369,9 +359,7 @@ function TimerButtonCall({
 	);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-	const t = useTranslations();
 
-	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
 		if (task.status === 'closed') {
 			toast.error('Task is closed');
@@ -397,7 +385,6 @@ function TimerButtonCall({
 		}
 
 		window.setTimeout(startTimer, 100);
-
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [
 		task,
@@ -412,62 +399,106 @@ function TimerButtonCall({
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
-	return loading ? (
-		<SpinnerLoader size={30} />
-	) : (
-		<>
-			<TimerButton
-				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-				running={activeTaskStatus?.running}
-				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-				className={clsxm('w-14 h-14', className)}
-			/>
-
-			<SuggestDailyPlanModal
-				isOpen={modals.isSuggestDailyPlanModalOpen}
-				closeModal={modals.suggestDailyPlanCloseModal}
-			/>
-
-			{/**
-			 * Track time on planned task (SOFT FLOW)
-			 */}
-			{hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-					closeModal={modals.enforceTaskSoftCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskSoftModalOpen}
-					task={activeTeamTask}
-				/>
-			)}
-
-			{hasPlan && hasPlan.tasks && (
-				<AddTasksEstimationHoursModal
-					isOpen={modals.isTasksEstimationHoursModalOpen}
-					closeModal={modals.tasksEstimationHoursCloseModal}
-					plan={hasPlan}
-					tasks={hasPlan.tasks}
-				/>
-			)}
-
-			{/**
-			 * Track time on planned task (REQUIRE PLAN)
-			 */}
-
-			{requirePlan && hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					onOK={startTimer}
-					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-					closeModal={modals.enforceTaskCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskModalOpen}
-					task={activeTeamTask}
-					openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-				/>
-			)}
-		</>
-	);
+	return {
+		loading,
+		activeTaskStatus,
+		requirePlan,
+		startTimerWithTask,
+		modals,
+		startStopTimerHandler,
+		canTrack,
+		disabled,
+		hasPlan,
+		activeTeamTask,
+		startTimer,
+		t
+	};
 }
+
+// ✅ PERFORMANCE FIX: Memoized TimerButtonCall component
+const TimerButtonCall = React.memo(
+	({
+		task,
+		currentMember,
+		activeTeam,
+		className
+	}: {
+		task: ITask;
+		currentMember: TOrganizationTeamEmployee | undefined;
+		activeTeam: TOrganizationTeam | null;
+		className?: string;
+	}) => {
+		const {
+			loading,
+			activeTaskStatus,
+			requirePlan,
+			startTimerWithTask,
+			modals,
+			startStopTimerHandler,
+			canTrack,
+			disabled,
+			hasPlan,
+			activeTeamTask,
+			startTimer,
+			t
+		} = useTimerButtonLogic({ task, currentMember, activeTeam });
+
+		return loading ? (
+			<SpinnerLoader size={30} />
+		) : (
+			<>
+				<TimerButton
+					onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
+					running={activeTaskStatus?.running}
+					disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+					className={clsxm('w-14 h-14', className)}
+				/>
+
+				<SuggestDailyPlanModal
+					isOpen={modals.isSuggestDailyPlanModalOpen}
+					closeModal={modals.suggestDailyPlanCloseModal}
+				/>
+
+				{/**
+				 * Track time on planned task (SOFT FLOW)
+				 */}
+				{hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+						closeModal={modals.enforceTaskSoftCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskSoftModalOpen}
+						task={activeTeamTask}
+					/>
+				)}
+
+				{hasPlan && hasPlan.tasks && (
+					<AddTasksEstimationHoursModal
+						isOpen={modals.isTasksEstimationHoursModalOpen}
+						closeModal={modals.tasksEstimationHoursCloseModal}
+						plan={hasPlan}
+						tasks={hasPlan.tasks}
+					/>
+				)}
+
+				{/**
+				 * Track time on planned task (REQUIRE PLAN)
+				 */}
+				{requirePlan && hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						onOK={startTimer}
+						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+						closeModal={modals.enforceTaskCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskModalOpen}
+						task={activeTeamTask}
+						openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
+					/>
+				)}
+			</>
+		);
+	}
+);
 
 //* Task Estimate info *
 //* Task Info FC *

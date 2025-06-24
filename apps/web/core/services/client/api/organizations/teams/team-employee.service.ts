@@ -8,7 +8,8 @@ import {
 	ZodValidationError,
 	TOrganizationTeam,
 	TOrganizationTeamEmployee,
-	TOrganizationTeamEmployeeUpdate
+	TOrganizationTeamEmployeeUpdate,
+	organizationTeamEmployeeUpdateSchema
 } from '@/core/types/schemas';
 import { updateActiveTaskSchema } from '@/core/types/schemas/task/task.schema';
 
@@ -55,13 +56,13 @@ class OrganizationTeamEmployeeService extends APIService {
 	updateOrganizationEmployeeTeam = async (
 		id: string,
 		data: Partial<TOrganizationTeamEmployeeUpdate>
-	): Promise<TOrganizationTeamEmployee> => {
+	): Promise<TOrganizationTeamEmployeeUpdate> => {
 		try {
-			const response = await this.put<TOrganizationTeamEmployee>(`/organization-team-employee/${id}`, data);
+			const response = await this.put<TOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}`, data);
 
 			// Validate API response using utility function
 			return validateApiResponse(
-				organizationTeamEmployeeSchema,
+				organizationTeamEmployeeUpdateSchema,
 				response.data,
 				'updateOrganizationEmployeeTeam API response'
 			);
