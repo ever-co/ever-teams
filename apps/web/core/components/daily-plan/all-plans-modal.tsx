@@ -64,10 +64,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	);
 	const nextPlan = useMemo(
 		() =>
-			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans?.items.length - 1
+			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans?.items?.length - 1
 				? sortedPlans[currentPlanIndex + 1]
 				: null,
-		[currentPlanIndex, myDailyPlans?.items.length, sortedPlans]
+		[currentPlanIndex, myDailyPlans?.items?.length, sortedPlans]
 	);
 	const previousPlan = useMemo(
 		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
@@ -76,19 +76,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => myDailyPlans?.items.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
+		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
 		[isSameDate, myDailyPlans?.items]
 	);
 
 	const tomorrowPlan = useMemo(
-		() => myDailyPlans?.items.find((plan: TDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
+		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
 		[isSameDate, myDailyPlans?.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			myDailyPlans?.items.find((plan: TDailyPlan) => {
+			myDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
 		[customDate, myDailyPlans?.items, isSameDate]
@@ -185,7 +185,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = myDailyPlans?.items.find((plan: TDailyPlan) => {
+			const existPlan = myDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 
