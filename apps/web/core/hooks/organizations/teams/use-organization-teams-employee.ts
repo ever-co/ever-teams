@@ -51,8 +51,12 @@ export function useOrganizationEmployeeTeams() {
 
 	// React Query mutation for update organization employee team
 	const updateOrganizationEmployeeTeamMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: Partial<TOrganizationTeamEmployeeUpdate> }) =>
-			organizationTeamEmployeeService.updateOrganizationEmployeeTeam(id, data),
+		mutationFn: ({ id, data }: { id: string; data: Partial<TOrganizationTeamEmployeeUpdate> }) => {
+			if (!id) {
+				throw new Error('Id is required');
+			}
+			return organizationTeamEmployeeService.updateOrganizationEmployeeTeam(id, data);
+		},
 		mutationKey: queryKeys.organizationTeams.mutations.employee.update(undefined),
 		onSuccess: async () => {
 			// Invalidate organization teams queries to refresh data

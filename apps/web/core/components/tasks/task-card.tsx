@@ -6,13 +6,11 @@ import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
+	useFavoritesTask,
 	useModal,
-	useOrganizationEmployeeTeams,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard,
-	useTeamTasks,
-	useTimerView
+	useTeamMemberCard
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
@@ -28,7 +26,7 @@ import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/re
 import { Divider, SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import React, { useCallback, useMemo, useState, useTransition } from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -41,10 +39,8 @@ import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { Nullable, SetAtom } from '@/core/types/generics';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
@@ -53,6 +49,7 @@ import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 
 type Props = {
 	active?: boolean;
@@ -71,7 +68,8 @@ type Props = {
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-export function TaskCard(props: Props) {
+// Memoize TaskCard to prevent unnecessary re-renders
+export const TaskCard = React.memo(function TaskCard(props: Props) {
 	const {
 		active,
 		className,
@@ -87,8 +85,11 @@ export function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
+	// Only get timer state for active auth task to prevent unnecessary re-renders
 	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(
+		isAuthUser && activeAuthTask ? seconds : 0
+	);
 
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -311,9 +312,10 @@ export function TaskCard(props: Props) {
 			</EverCard>
 		</>
 	);
-}
+});
 
-function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & IClassName) {
+// Memorize UsersTaskAssigned to prevent unnecessary re-renders
+const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITask> } & IClassName) => {
 	const t = useTranslations();
 	const members = task?.members || [];
 
@@ -330,186 +332,142 @@ function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & ICla
 			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
 		</div>
 	);
-}
+});
 
-/**
- * "If the task is the active task, then use the timer handler, otherwise start the timer with the
- * task."
- *
- * The function is a bit more complicated than that, but that's the gist of it
- * @param  - `task` - the task that the timer button is for
- * @returns A TimerButton component that is either a spinner or a timer button.
- */
-function TimerButtonCall({
-	task,
-	currentMember,
-	activeTeam,
-	className
-}: {
-	task: ITask;
-	currentMember: TOrganizationTeamEmployee | undefined;
-	activeTeam: TOrganizationTeam | null;
-	className?: string;
-}) {
-	const [loading, setLoading] = useState(false);
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-
-	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
-
-	const { setActiveTask } = useTeamTasks();
-
-	const activeTaskStatus = useMemo(
-		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
-		[activeTeamTask?.id, task.id, timerStatus]
-	);
-
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-	const t = useTranslations();
-
-	/* It's a function that is called when the timer button is clicked. */
-	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') {
-			toast.error('Task is closed');
-			return;
-		}
-
-		if (timerStatus?.running) {
-			setLoading(true);
-			await stopTimer().finally(() => setLoading(false));
-		}
-
-		setActiveTask(task);
-
-		// Update Current user's active task to sync across multiple devices
-		const currentEmployeeDetails = activeTeam?.members?.find((member) => member.id === currentMember?.id);
-		if (currentEmployeeDetails && currentEmployeeDetails.id) {
-			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-				organizationId: task.organizationId,
-				activeTaskId: task.id,
-				organizationTeamId: activeTeam?.id,
-				tenantId: activeTeam?.tenantId
-			});
-		}
-
-		window.setTimeout(startTimer, 100);
-
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [
+// Memoized TimerButtonCall component
+const TimerButtonCall = React.memo(
+	({
 		task,
-		timerStatus?.running,
-		setActiveTask,
+		currentMember,
 		activeTeam,
-		startTimer,
-		stopTimer,
-		currentMember?.id,
-		updateOrganizationTeamEmployee
-	]);
+		className
+	}: {
+		task: ITask;
+		currentMember: TOrganizationTeamEmployee | undefined;
+		activeTeam: TOrganizationTeam | null;
+		className?: string;
+	}) => {
+		const {
+			loading,
+			activeTaskStatus,
+			requirePlan,
+			startTimerWithTask,
+			modals,
+			startStopTimerHandler,
+			canTrack,
+			disabled,
+			hasPlan,
+			activeTeamTask,
+			startTimer,
+			t
+		} = useTimerButtonLogic({ task, currentMember, activeTeam });
 
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-
-	return loading ? (
-		<SpinnerLoader size={30} />
-	) : (
-		<>
-			<TimerButton
-				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-				running={activeTaskStatus?.running}
-				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-				className={clsxm('w-14 h-14', className)}
-			/>
-
-			<SuggestDailyPlanModal
-				isOpen={modals.isSuggestDailyPlanModalOpen}
-				closeModal={modals.suggestDailyPlanCloseModal}
-			/>
-
-			{/**
-			 * Track time on planned task (SOFT FLOW)
-			 */}
-			{hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-					closeModal={modals.enforceTaskSoftCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskSoftModalOpen}
-					task={activeTeamTask}
+		return loading ? (
+			<SpinnerLoader size={30} />
+		) : (
+			<>
+				<TimerButton
+					onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
+					running={activeTaskStatus?.running}
+					disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+					className={clsxm('w-14 h-14', className)}
 				/>
-			)}
 
-			{hasPlan && hasPlan.tasks && (
-				<AddTasksEstimationHoursModal
-					isOpen={modals.isTasksEstimationHoursModalOpen}
-					closeModal={modals.tasksEstimationHoursCloseModal}
-					plan={hasPlan}
-					tasks={hasPlan.tasks}
+				<SuggestDailyPlanModal
+					isOpen={modals.isSuggestDailyPlanModalOpen}
+					closeModal={modals.suggestDailyPlanCloseModal}
 				/>
-			)}
 
-			{/**
-			 * Track time on planned task (REQUIRE PLAN)
-			 */}
+				{/**
+				 * Track time on planned task (SOFT FLOW)
+				 */}
+				{hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+						closeModal={modals.enforceTaskSoftCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskSoftModalOpen}
+						task={activeTeamTask}
+					/>
+				)}
 
-			{requirePlan && hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					onOK={startTimer}
-					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-					closeModal={modals.enforceTaskCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskModalOpen}
-					task={activeTeamTask}
-					openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-				/>
-			)}
-		</>
-	);
-}
+				{hasPlan && hasPlan.tasks && (
+					<AddTasksEstimationHoursModal
+						isOpen={modals.isTasksEstimationHoursModalOpen}
+						closeModal={modals.tasksEstimationHoursCloseModal}
+						plan={hasPlan}
+						tasks={hasPlan.tasks}
+					/>
+				)}
+
+				{/**
+				 * Track time on planned task (REQUIRE PLAN)
+				 */}
+				{requirePlan && hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						onOK={startTimer}
+						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+						closeModal={modals.enforceTaskCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskModalOpen}
+						task={activeTeamTask}
+						openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
+					/>
+				)}
+			</>
+		);
+	}
+);
 
 //* Task Estimate info *
 //* Task Info FC *
-export function TaskInfo({
-	className,
-	task,
-	taskBadgeClassName,
-	taskTitleClassName,
-	tab = 'default',
-	dayPlanTab
-}: IClassName & {
-	tab?: 'default' | 'unassign' | 'dailyplan';
-	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITask>;
-	taskBadgeClassName?: string;
-	taskTitleClassName?: string;
-}) {
-	const router = useRouter();
+// Memoize TaskInfo to prevent unnecessary re-renders
+export const TaskInfo = React.memo(
+	({
+		className,
+		task,
+		taskBadgeClassName,
+		taskTitleClassName,
+		tab = 'default',
+		dayPlanTab
+	}: IClassName & {
+		tab?: 'default' | 'unassign' | 'dailyplan';
+		dayPlanTab?: FilterTabs;
+		task?: Nullable<ITask>;
+		taskBadgeClassName?: string;
+		taskTitleClassName?: string;
+	}) => {
+		const router = useRouter();
 
-	return (
-		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
-			{/* task */}
-			{!task && <div className="self-center py-1 text-center">--</div>}
-			{task && (
-				<div className="overflow-hidden w-full h-10">
-					<div className={clsxm('flex flex-col justify-start items-start h-full')}>
-						<div
-							className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
-							onClick={() => task && router.push(`/task/${task?.id}`)}
-						>
-							<TaskNameInfoDisplay
-								task={task}
-								taskIssueStatusClassName={clsxm(taskBadgeClassName)}
-								taskTitleClassName={clsxm(taskTitleClassName)}
-								className="h-full"
-							/>
+		return (
+			<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+				{/* task */}
+				{!task && <div className="self-center py-1 text-center">--</div>}
+				{task && (
+					<div className="overflow-hidden w-full h-10">
+						<div className={clsxm('flex flex-col justify-start items-start h-full')}>
+							<div
+								className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
+								onClick={() => task && router.push(`/task/${task?.id}`)}
+							>
+								<TaskNameInfoDisplay
+									task={task}
+									taskIssueStatusClassName={clsxm(taskBadgeClassName)}
+									taskTitleClassName={clsxm(taskTitleClassName)}
+									className="h-full"
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
 
-			{/* Task status */}
-			{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
-			{!task && <div className="self-center py-1 text-center">--</div>}
-		</div>
-	);
-}
+				{/* Task status */}
+				{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
+				{!task && <div className="self-center py-1 text-center">--</div>}
+			</div>
+		);
+	}
+);
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */

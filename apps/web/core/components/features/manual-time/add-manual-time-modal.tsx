@@ -251,7 +251,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return {
 			Project: (activeTeam?.projects || []).filter(isValidProject),
 			Employee: (activeTeam?.members || []).filter(isValidEmployee),
-			Task: activeTeamTasks // ✅ Only tasks from active team
+			Task: activeTeamTasks // Only tasks from active team
 		};
 	}, [activeTeam?.projects, activeTeam?.members, activeTeamTasks, isValidProject, isValidEmployee]);
 
@@ -381,7 +381,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="p-2 w-full text-sm font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -396,7 +396,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -432,7 +432,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What did you worked on..."
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 					</>
@@ -490,7 +490,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-2 w-full text-sm rounded-md border border-gray-300 resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 

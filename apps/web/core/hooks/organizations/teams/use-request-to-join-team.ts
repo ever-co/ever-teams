@@ -160,7 +160,7 @@ export const useRequestToJoinTeam = () => {
 		[acceptRejectMutation.isPending]
 	);
 
-	// ✅ Backward compatible queryCall functions (deprecated but maintained)
+	// Backward compatible queryCall functions (deprecated but maintained)
 	const requestToJoinQueryCall = useCallback(
 		async (data: TJoinTeamRequest) => {
 			const result = await requestToJoinMutation.mutateAsync(data);
@@ -186,7 +186,7 @@ export const useRequestToJoinTeam = () => {
 	);
 
 	return {
-		// ✅ Backward compatible interface - exact same as before
+		// Backward compatible interface - exact same as before
 		requestToJoinLoading,
 		requestToJoinQueryCall,
 		validateRequestToJoinLoading,
@@ -202,7 +202,7 @@ export const useRequestToJoinTeam = () => {
 		acceptRejectRequestToJoin,
 		acceptRejectRequestToJoinLoading,
 
-		// ✅ Additional React Query states for advanced usage
+		// Additional React Query states for advanced usage
 		requestToJoinQuery,
 		requestToJoinMutation,
 		validateRequestToJoinMutation,
