@@ -28,7 +28,7 @@ import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/re
 import { Divider, SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import React, { useCallback, useMemo, useState, useTransition } from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -71,7 +71,8 @@ type Props = {
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-export function TaskCard(props: Props) {
+// ✅ PERFORMANCE FIX: Memoize TaskCard to prevent unnecessary re-renders
+export const TaskCard = React.memo(function TaskCard(props: Props) {
 	const {
 		active,
 		className,
@@ -87,8 +88,11 @@ export function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
+	// ✅ PERFORMANCE FIX: Only get timer state for active auth task to prevent unnecessary re-renders
 	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(
+		isAuthUser && activeAuthTask ? seconds : 0
+	);
 
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -311,9 +315,10 @@ export function TaskCard(props: Props) {
 			</EverCard>
 		</>
 	);
-}
+}); // ✅ PERFORMANCE FIX: Close React.memo
 
-function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & IClassName) {
+// ✅ PERFORMANCE FIX: Memoize UsersTaskAssigned to prevent unnecessary re-renders
+const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITask> } & IClassName) => {
 	const t = useTranslations();
 	const members = task?.members || [];
 
@@ -330,7 +335,7 @@ function UsersTaskAssigned({ task, className }: { task: Nullable<ITask> } & ICla
 			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
 		</div>
 	);
-}
+});
 
 /**
  * "If the task is the active task, then use the timer handler, otherwise start the timer with the
@@ -466,50 +471,53 @@ function TimerButtonCall({
 
 //* Task Estimate info *
 //* Task Info FC *
-export function TaskInfo({
-	className,
-	task,
-	taskBadgeClassName,
-	taskTitleClassName,
-	tab = 'default',
-	dayPlanTab
-}: IClassName & {
-	tab?: 'default' | 'unassign' | 'dailyplan';
-	dayPlanTab?: FilterTabs;
-	task?: Nullable<ITask>;
-	taskBadgeClassName?: string;
-	taskTitleClassName?: string;
-}) {
-	const router = useRouter();
+// ✅ PERFORMANCE FIX: Memoize TaskInfo to prevent unnecessary re-renders
+export const TaskInfo = React.memo(
+	({
+		className,
+		task,
+		taskBadgeClassName,
+		taskTitleClassName,
+		tab = 'default',
+		dayPlanTab
+	}: IClassName & {
+		tab?: 'default' | 'unassign' | 'dailyplan';
+		dayPlanTab?: FilterTabs;
+		task?: Nullable<ITask>;
+		taskBadgeClassName?: string;
+		taskTitleClassName?: string;
+	}) => {
+		const router = useRouter();
 
-	return (
-		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
-			{/* task */}
-			{!task && <div className="self-center py-1 text-center">--</div>}
-			{task && (
-				<div className="overflow-hidden w-full h-10">
-					<div className={clsxm('flex flex-col justify-start items-start h-full')}>
-						<div
-							className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
-							onClick={() => task && router.push(`/task/${task?.id}`)}
-						>
-							<TaskNameInfoDisplay
-								task={task}
-								taskIssueStatusClassName={clsxm(taskBadgeClassName)}
-								taskTitleClassName={clsxm(taskTitleClassName)}
-								className="h-full"
-							/>
+		return (
+			<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+				{/* task */}
+				{!task && <div className="self-center py-1 text-center">--</div>}
+				{task && (
+					<div className="overflow-hidden w-full h-10">
+						<div className={clsxm('flex flex-col justify-start items-start h-full')}>
+							<div
+								className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
+								onClick={() => task && router.push(`/task/${task?.id}`)}
+							>
+								<TaskNameInfoDisplay
+									task={task}
+									taskIssueStatusClassName={clsxm(taskBadgeClassName)}
+									taskTitleClassName={clsxm(taskTitleClassName)}
+									className="h-full"
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
 
-			{/* Task status */}
-			{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
-			{!task && <div className="self-center py-1 text-center">--</div>}
-		</div>
-	);
-}
+				{/* Task status */}
+				{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
+				{!task && <div className="self-center py-1 text-center">--</div>}
+			</div>
+		);
+	}
+);
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */

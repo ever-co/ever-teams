@@ -56,6 +56,32 @@ type IUserTeamCard = {
 	currentExit: boolean;
 } & IClassName;
 
+// ✅ PERFORMANCE FIX: Memoized ChevronToggleButton to prevent unnecessary re-renders
+const ChevronToggleButton = React.memo(
+	({
+		isExpanded,
+		userId,
+		onToggle,
+		onActivityClose
+	}: {
+		isExpanded: boolean;
+		userId?: string;
+		onToggle: (value: string) => void;
+		onActivityClose: () => void;
+	}) => {
+		const handleClick = useCallback(() => {
+			onToggle(isExpanded ? '' : (userId ?? ''));
+			onActivityClose();
+		}, [isExpanded, userId, onToggle, onActivityClose]);
+
+		return (
+			<div onClick={handleClick} className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}>
+				<ChevronDoubleDownIcon className={clsxm('h-4 w-4 transition-all', isExpanded && 'rotate-180')} />
+			</div>
+		);
+	}
+);
+
 export function UserTeamCard({
 	className,
 	active,
@@ -85,15 +111,19 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
-		setShowActivity((prev) => !prev);
-		setUserDetailAccordion('');
-		setActivityFilter((prev: TActivityFilter) => ({
-			...prev,
-			type,
-			member
-		}));
-	};
+	// ✅ PERFORMANCE FIX: Memoize callback to prevent unnecessary re-renders
+	const showActivityFilter = useCallback(
+		(type: 'DATE' | 'TICKET', member: any | null) => {
+			setShowActivity((prev) => !prev);
+			setUserDetailAccordion('');
+			setActivityFilter((prev: TActivityFilter) => ({
+				...prev,
+				type,
+				member
+			}));
+		},
+		[setUserDetailAccordion, setActivityFilter]
+	);
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -190,19 +220,12 @@ export function UserTeamCard({
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
 						{!publicTeam && (
-							<div
-								onClick={() => {
-									setUserDetailAccordion(
-										isUserDetailAccordion ? '' : (memberInfo.memberUser?.id ?? '')
-									);
-									setShowActivity(false);
-								}}
-								className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}
-							>
-								<ChevronDoubleDownIcon
-									className={clsxm('h-4 w-4 transition-all', isUserDetailAccordion && 'rotate-180')}
-								/>
-							</div>
+							<ChevronToggleButton
+								isExpanded={isUserDetailAccordion}
+								userId={memberInfo.memberUser?.id}
+								onToggle={setUserDetailAccordion}
+								onActivityClose={() => setShowActivity(false)}
+							/>
 						)}
 					</div>
 					<VerticalSeparator />
