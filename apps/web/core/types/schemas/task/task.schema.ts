@@ -2,11 +2,12 @@ import { z } from 'zod';
 import { baseEntitySchema, idSchema } from '../common/base.schema';
 import { tagSchema } from '../tag/tag.schema';
 import { employeeSchema } from '../organization/employee.schema';
-import { taskStatusNameSchema, taskTypeSchema } from '../common/enums.schema';
+import { taskStatusNameSchema } from '../common/enums.schema';
 import { taskPrioritySchema } from './task-priority.schema';
 import { taskSizeSchema } from './task-size.schema';
 import { taskStatusSchema } from './task-status.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
+import { EIssueType } from '../../generics/enums/task';
 
 export const basePerTenantAndOrganizationEntitySchema = baseEntitySchema.extend({
 	tenantId: idSchema.optional(),
@@ -56,7 +57,10 @@ export const taskLinkedIssueSchema = z.object({
 	organizationId: z.string(),
 	taskToId: z.string(),
 	taskFromId: z.string(),
-	action: z.number()
+	action: z.number(),
+	taskFrom: z.any().optional(),
+	taskTo: z.any().optional(),
+	id: z.string()
 });
 
 // schema for IBaseTaskProperties
@@ -95,7 +99,7 @@ const baseTaskSchema = z.object({
 	status: z.any().optional(),
 	priority: z.any().optional().nullable(),
 	size: z.any().optional().nullable(),
-	issueType: z.any().optional().nullable(),
+	issueType: z.nativeEnum(EIssueType).optional().nullable(),
 	startDate: z.any().optional().nullable(),
 	resolvedAt: z.any().optional().nullable(),
 	dueDate: z.any().optional().nullable(),
@@ -130,7 +134,7 @@ const baseTaskSchema = z.object({
 	estimateHours: z.number().optional(),
 	estimateMinutes: z.number().optional()
 });
-// schema for ITask
+// schema for TTask
 export const taskSchema = baseTaskPropertiesSchema
 	.merge(baseTaskSchema)
 	// .merge(taskAssociationsSchema)
@@ -138,8 +142,14 @@ export const taskSchema = baseTaskPropertiesSchema
 		// Relations with other tasks
 		parent: baseTaskSchema.optional().nullable(),
 		parentId: z.string().optional().nullable(),
-		children: z.array(baseTaskSchema).optional().nullable(),
-		rootEpic: baseTaskSchema.optional().nullable(),
+		children: z
+			.array(baseTaskSchema.merge(z.object({ id: z.string() })))
+			.optional()
+			.nullable(),
+		rootEpic: baseTaskSchema
+			.merge(z.object({ id: z.string() }))
+			.optional()
+			.nullable(),
 
 		// Relations with the entities of status, size, priority and type
 		taskStatus: taskStatusSchema.optional(),
@@ -189,7 +199,7 @@ export const createTaskSchema = z.object({
 	estimateMinutes: z.string().optional(),
 	dueDate: z.string().optional(),
 	description: z.string(),
-	tags: z.array(z.object({ id: z.string() })),
+	tags: z.array(z.object({ id: z.string() })).nullable(),
 	teams: z.array(z.object({ id: z.string() })),
 	estimate: z.number(),
 	organizationId: z.string(),
@@ -221,7 +231,7 @@ export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;
 export type ETaskPriority = z.infer<typeof taskPrioritySchema>;
 export type ETaskSize = z.infer<typeof taskSizeSchema>;
-export type EIssueType = z.infer<typeof taskTypeSchema>;
+// export type EIssueType = z.infer<typeof taskTypeSchema>;
 
 // ===== UTILITIES FOR VALIDATION =====
 
@@ -259,13 +269,3 @@ export const validatePartialTask = (data: unknown) => {
 export const validateTaskStatistics = (data: unknown): TTaskStatistics => {
 	return taskStatisticsSchema.parse(data);
 };
-
-// ===== INTERFACE OF COMPATIBILITY (if necessary) =====
-
-/**
- * Interface ITask for retrocompatibility
- * Use the type TTask instead
- */
-export interface ITask extends z.infer<typeof taskSchema> {}
-
-export default taskSchema;

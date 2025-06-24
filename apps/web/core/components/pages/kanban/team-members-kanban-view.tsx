@@ -12,8 +12,8 @@ import {
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
 import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TTaskStatus } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -38,7 +38,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { taskStatuses } = useTaskStatus();
-	const reorderTask = (list: ITask[], startIndex: number, endIndex: number) => {
+	const reorderTask = (list: TTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
 		tasks.splice(endIndex, 0, removedTask);

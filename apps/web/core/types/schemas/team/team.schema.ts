@@ -2,13 +2,13 @@ import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { relationalOrganizationProjectSchema } from '../common/base.schema';
-import { taskSchema } from '../activities/activity.schema';
+// import { taskSchema } from '../task/task.schema';
 
 export const teamAssociationsSchema = z.object({
 	members: z.array(organizationTeamEmployeeSchema),
 	managers: z.array(organizationTeamEmployeeSchema),
 	projects: z.array(relationalOrganizationProjectSchema).optional(),
-	tasks: z.array(taskSchema)
+	tasks: z.array(z.any())
 });
 export const teamSchema = z
 	.object({

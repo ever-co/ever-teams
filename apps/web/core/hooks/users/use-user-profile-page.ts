@@ -1,5 +1,4 @@
 'use client';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -7,6 +6,7 @@ import { userDetailAccordion } from '@/core/stores';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams, useTeamTasks, useAuthTeamTasks } from '../organizations';
 import { useGetTasksStatsData } from '../tasks';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
@@ -42,7 +42,7 @@ export function useUserProfilePage() {
 	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (!matchUser?.employeeId) {
 				return Promise.resolve();
 			}

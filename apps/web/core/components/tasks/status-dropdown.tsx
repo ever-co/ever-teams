@@ -1,4 +1,3 @@
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -7,6 +6,7 @@ import { Spinner } from '../common/spinner';
 import { StatusIcon, statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
 import { useTeamTasks } from '@/core/hooks/organizations';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const statusKeys = Object.keys(statusIcons) as ETaskStatusName[];
 
@@ -16,7 +16,7 @@ const StatusDropdown = () => {
 	return <RawStatusDropdown task={activeTeamTask} />;
 };
 
-export function RawStatusDropdown({ task }: { task: ITask | null }) {
+export function RawStatusDropdown({ task }: { task: TTask | null }) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 	const [selected, setSelected] = useState<ETaskStatusName | null>(task?.status || null);

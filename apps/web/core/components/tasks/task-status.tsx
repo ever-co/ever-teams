@@ -31,10 +31,10 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type TStatusItem = {
 	id?: string;
@@ -78,7 +78,7 @@ export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
 	onChangeLoading?: (loading: boolean) => void;
 } & {
-	task?: Nullable<ITask>;
+	task?: Nullable<TTask>;
 	showIssueLabels?: boolean;
 	forDetails?: boolean;
 	sidebarUI?: boolean;
@@ -517,7 +517,7 @@ export function TaskPriorityStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<TTask>; showIssueLabels?: boolean } & IClassName) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
 	return task?.priority ? (

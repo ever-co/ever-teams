@@ -8,11 +8,11 @@ import {
 } from '@tanstack/react-table';
 import { cn } from '@/core/lib/helpers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ReactNode } from 'react';
 interface DataTableProps {
-	columns: ColumnDef<ITask>[];
-	data: ITask[];
+	columns: ColumnDef<TTask>[];
+	data: TTask[];
 	className?: string;
 	columnVisibility: VisibilityState;
 }

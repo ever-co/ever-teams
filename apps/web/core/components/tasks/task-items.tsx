@@ -15,13 +15,13 @@ import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task?: ITask;
-	onClick?: (task: ITask) => void;
+	task?: TTask;
+	onClick?: (task: TTask) => void;
 	selected?: boolean;
 } & IClassName;
 
@@ -127,7 +127,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-type PartialITeamTask = Partial<ITask> & { members?: IEmployee[] };
+type PartialITeamTask = Partial<TTask> & { members?: IEmployee[] };
 
 export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task.members;

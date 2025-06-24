@@ -1,15 +1,15 @@
 'use client';
 
 import { useCallbackRef, useTaskEstimation } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { RefObject, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
 import { Nullable } from '@/core/types/generics/utils';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	_task?: Nullable<ITask>;
+	_task?: Nullable<TTask>;
 	onCloseEdition?: () => void;
 	onOpenEdition?: () => void;
 	className?: string;

@@ -2,15 +2,15 @@ import { cn } from '@/core/lib/helpers';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamActiveTaskInfo({
 	member,
 	className
 }: Readonly<{ member: TOrganizationTeamEmployee; className?: string }>) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();
@@ -18,7 +18,7 @@ export default function UserTeamActiveTaskInfo({
 	useEffect(() => {
 		if (member.activeTaskId) {
 			getTaskById(member.activeTaskId)
-				.then((response) => setActiveTask(response as ITask))
+				.then((response) => setActiveTask(response as TTask))
 				.catch((_) => console.log(_));
 		}
 

@@ -9,10 +9,10 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 	className?: string;
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;

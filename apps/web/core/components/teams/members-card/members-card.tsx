@@ -1,6 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
 import Separator from '@/core/components/common/separator';
@@ -14,6 +13,7 @@ import { useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -29,7 +29,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 	const isManager = isAuthUser && isTeamManager;
 	const iuser = member.employee?.user;
 
-	const [memberTask, setMemberTask] = useState<ITask | null>(null);
+	const [memberTask, setMemberTask] = useState<TTask | null>(null);
 
 	// Can edit hooks
 	const hasEditMode = isManager || isAuthUser;

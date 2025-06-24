@@ -8,7 +8,7 @@ import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TTask, TUser } from '@/core/types/schemas';
+import { TUser } from '@/core/types/schemas';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import {
 	dismissNotification,
@@ -16,6 +16,7 @@ import {
 	shouldShowNotification
 } from '@/core/lib/helpers/notifications';
 import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TeamOutstandingNotifications({
 	outstandingPlans,

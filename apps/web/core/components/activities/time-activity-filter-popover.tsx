@@ -3,15 +3,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
 	projects?: TOrganizationProject[];
-	tasks?: ITask[];
+	tasks?: TTask[];
 	activeTeam?: TOrganizationTeam | null;
 }
 

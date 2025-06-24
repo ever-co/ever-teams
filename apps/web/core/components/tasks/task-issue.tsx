@@ -17,9 +17,9 @@ import { cn } from '@/core/lib/helpers';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<EIssueType> = {
@@ -170,7 +170,7 @@ export function TaskIssueStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<TTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
 			{...taskIssues[task?.issueType || EIssueType.TASK]}

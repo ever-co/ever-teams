@@ -1,11 +1,11 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useCallback } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
 import { useOrganizationTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function useUserDetails(memberId: string) {
 	const { activeTeam } = useOrganizationTeams();
@@ -33,7 +33,7 @@ export function useUserDetails(memberId: string) {
 	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (!matchUser?.employeeId) {
 				return Promise.resolve();
 			}

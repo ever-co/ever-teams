@@ -1,11 +1,11 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
 import { useOrganizationEmployeeTeams, useStartStopTimerHandler, useTeamTasks, useTimerView } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 // Custom hook to extract TimerButtonCall business logic
 export function useTimerButtonLogic({
@@ -13,7 +13,7 @@ export function useTimerButtonLogic({
 	currentMember,
 	activeTeam
 }: {
-	task: ITask;
+	task: TTask;
 	currentMember: TOrganizationTeamEmployee | undefined;
 	activeTeam: TOrganizationTeam | null;
 }) {

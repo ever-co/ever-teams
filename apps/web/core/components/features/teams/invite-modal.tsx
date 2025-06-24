@@ -7,8 +7,8 @@ import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import Input from '../../duplicated-components/input';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TInvite } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const initialValues: Pick<TInvite, 'email' | 'fullName'> = {
 	email: '',
@@ -19,7 +19,7 @@ export interface IInviteProps {
 	isOpen: boolean;
 	Fragment?: any;
 	closeModal: any;
-	task: ITask | null;
+	task: TTask | null;
 }
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName'>>(initialValues);

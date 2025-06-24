@@ -1,16 +1,16 @@
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IClassName } from '../common/class-name';
 import { IDailyPlan } from './daily-plan/daily-plan';
 import { I_UserProfilePage } from '@/core/hooks';
 import { Nullable, SetAtom } from '../../generics';
 import { SetStateAction } from 'jotai';
 import { TOrganizationTeam } from '../../schemas/team/organization-team.schema';
+import { TTask } from '../../schemas/task/task.schema';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export type TaskCardGlobal = {
 	active?: boolean;
-	task?: Nullable<ITask>;
+	task?: Nullable<TTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';
@@ -25,7 +25,7 @@ export type TaskCardGlobal = {
 
 export interface TaskCardProps extends IClassName {
 	active?: boolean;
-	task?: ITask | null;
+	task?: TTask | null;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';

@@ -19,9 +19,9 @@ import {
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
 import { useAuthenticateUser } from '../auth';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -393,13 +393,13 @@ export function useDailyPlan() {
 				.map((plan) => ({
 					...plan,
 					// Include only no completed tasks
-					tasks: plan.tasks?.filter((task: ITask) => task.status !== 'completed')
+					tasks: plan.tasks?.filter((task: TTask) => task.status !== 'completed')
 				}))
 				.map((plan) => ({
 					...plan,
 					// Include only tasks that are not added yet to the today plan or future plans
 					tasks: plan.tasks?.filter(
-						(_task: ITask) => ![...todayTasks, ...futureTasks].find((task: ITask) => task.id === _task.id)
+						(_task: TTask) => ![...todayTasks, ...futureTasks].find((task: TTask) => task.id === _task.id)
 					)
 				}))
 				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)

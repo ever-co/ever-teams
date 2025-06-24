@@ -12,7 +12,7 @@ import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -226,7 +226,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-type IAssignCall = (params: { task?: ITask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
+type IAssignCall = (params: { task?: TTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
 
 export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(

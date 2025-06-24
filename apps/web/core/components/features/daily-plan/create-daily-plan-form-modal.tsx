@@ -26,8 +26,8 @@ import { EverCard } from '../../common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -59,7 +59,7 @@ export function CreateDailyPlanFormModal({
 	const existingTaskPlanDates = useMemo(
 		() =>
 			profileDailyPlans?.items
-				?.filter((plan: IDailyPlan) => plan.tasks?.some((task: ITask) => task.id === taskId))
+				?.filter((plan: IDailyPlan) => plan.tasks?.some((task: TTask) => task.id === taskId))
 				.map((plan: IDailyPlan) => new Date(plan.date)),
 		[profileDailyPlans.items, taskId]
 	);

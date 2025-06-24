@@ -10,12 +10,12 @@ import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
-export default function MenuKanbanCard({ item: task, member }: { item: ITask; member: any }) {
+export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
@@ -197,7 +197,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITask; me
 
 interface ITeamMemberSelectProps {
 	teamMembers: TOrganizationTeamEmployee[];
-	task: ITask;
+	task: TTask;
 	key?: string;
 }
 
@@ -206,7 +206,7 @@ interface ITeamMemberSelectProps {
  *
  * @param {object} props - The props object
  * @param {IOrganizationTeamMember[]} props.teamMembers - Members of the current team
- * @param {ITask} props.task - The task
+ * @param {TTask} props.task - The task
  *
  * @return {ReactNode} The multi select component
  */
@@ -271,7 +271,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 interface ITeamMemberOptionProps {
 	isAssignee: boolean;
 	member: TOrganizationTeamEmployee;
-	task: ITask;
+	task: TTask;
 	key?: string;
 }
 
