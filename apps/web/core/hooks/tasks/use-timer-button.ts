@@ -1,46 +1,52 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
-import { useTimerView } from '@/core/hooks';
+import { useOrganizationEmployeeTeams, useStartStopTimerHandler, useTeamTasks, useTimerView } from '@/core/hooks';
 import { ITask } from '@/core/types/interfaces/task/task';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useTranslations } from 'next-intl';
 
-export function useTimerButton({
+// Custom hook to extract TimerButtonCall business logic
+export function useTimerButtonLogic({
 	task,
 	currentMember,
-	activeTeam,
-	setActiveTask,
-	updateTeamEmployee
+	activeTeam
 }: {
 	task: ITask;
-	currentMember: IEmployee;
-	activeTeam: TOrganizationTeam;
-	setActiveTask: (task: ITask) => void;
-	updateTeamEmployee: (id: string, data: any) => void;
+	currentMember: TOrganizationTeamEmployee | undefined;
+	activeTeam: TOrganizationTeam | null;
 }) {
 	const [loading, setLoading] = useState(false);
-	const { timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
+	const { setActiveTask } = useTeamTasks();
+	const t = useTranslations();
 
 	const activeTaskStatus = useMemo(
 		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
 		[activeTeamTask?.id, task.id, timerStatus]
 	);
 
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+
 	const startTimerWithTask = useCallback(async () => {
 		if (task.status === 'closed') {
 			toast.error('Task is closed');
 			return;
 		}
+
 		if (timerStatus?.running) {
 			setLoading(true);
 			await stopTimer().finally(() => setLoading(false));
 		}
 
 		setActiveTask(task);
-		const currentEmployee = activeTeam?.members?.find((m) => m.id === currentMember?.id);
-		if (currentEmployee?.id) {
-			updateTeamEmployee(currentEmployee.id, {
+
+		// Update Current user's active task to sync across multiple devices
+		const currentEmployeeDetails = activeTeam?.members?.find((member) => member.id === currentMember?.id);
+		if (currentEmployeeDetails && currentEmployeeDetails.id) {
+			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
 				organizationId: task.organizationId,
 				activeTaskId: task.id,
 				organizationTeamId: activeTeam?.id,
@@ -48,16 +54,33 @@ export function useTimerButton({
 			});
 		}
 
-		setTimeout(startTimer, 100);
-		window?.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [task, timerStatus?.running, setActiveTask, startTimer, stopTimer, currentMember, activeTeam]);
+		window.setTimeout(startTimer, 100);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [
+		task,
+		timerStatus?.running,
+		setActiveTask,
+		activeTeam,
+		startTimer,
+		stopTimer,
+		currentMember?.id,
+		updateOrganizationTeamEmployee
+	]);
+
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
 	return {
 		loading,
 		activeTaskStatus,
+		requirePlan,
 		startTimerWithTask,
-		stopTimer,
+		modals,
+		startStopTimerHandler,
+		canTrack,
+		disabled,
+		hasPlan,
+		activeTeamTask,
 		startTimer,
-		hasPlan
+		t
 	};
 }

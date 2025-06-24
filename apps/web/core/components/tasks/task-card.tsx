@@ -6,13 +6,11 @@ import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
+	useFavoritesTask,
 	useModal,
-	useOrganizationEmployeeTeams,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard,
-	useTeamTasks,
-	useTimerView
+	useTeamMemberCard
 } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
@@ -41,10 +39,8 @@ import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { Nullable, SetAtom } from '@/core/types/generics';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
@@ -53,6 +49,7 @@ import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 
 type Props = {
 	active?: boolean;
@@ -71,7 +68,7 @@ type Props = {
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-// ✅ PERFORMANCE FIX: Memoize TaskCard to prevent unnecessary re-renders
+// Memoize TaskCard to prevent unnecessary re-renders
 export const TaskCard = React.memo(function TaskCard(props: Props) {
 	const {
 		active,
@@ -88,7 +85,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-	// ✅ PERFORMANCE FIX: Only get timer state for active auth task to prevent unnecessary re-renders
+	// Only get timer state for active auth task to prevent unnecessary re-renders
 	const seconds = useAtomValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(
 		isAuthUser && activeAuthTask ? seconds : 0
@@ -315,9 +312,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 			</EverCard>
 		</>
 	);
-}); // ✅ PERFORMANCE FIX: Close React.memo
+});
 
-// ✅ PERFORMANCE FIX: Memoize UsersTaskAssigned to prevent unnecessary re-renders
+// Memorize UsersTaskAssigned to prevent unnecessary re-renders
 const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITask> } & IClassName) => {
 	const t = useTranslations();
 	const members = task?.members || [];
@@ -337,85 +334,7 @@ const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITas
 	);
 });
 
-// ✅ PERFORMANCE FIX: Custom hook to extract TimerButtonCall business logic
-function useTimerButtonLogic({
-	task,
-	currentMember,
-	activeTeam
-}: {
-	task: ITask;
-	currentMember: TOrganizationTeamEmployee | undefined;
-	activeTeam: TOrganizationTeam | null;
-}) {
-	const [loading, setLoading] = useState(false);
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
-	const t = useTranslations();
-
-	const activeTaskStatus = useMemo(
-		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
-		[activeTeamTask?.id, task.id, timerStatus]
-	);
-
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-
-	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') {
-			toast.error('Task is closed');
-			return;
-		}
-
-		if (timerStatus?.running) {
-			setLoading(true);
-			await stopTimer().finally(() => setLoading(false));
-		}
-
-		setActiveTask(task);
-
-		// Update Current user's active task to sync across multiple devices
-		const currentEmployeeDetails = activeTeam?.members?.find((member) => member.id === currentMember?.id);
-		if (currentEmployeeDetails && currentEmployeeDetails.id) {
-			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-				organizationId: task.organizationId,
-				activeTaskId: task.id,
-				organizationTeamId: activeTeam?.id,
-				tenantId: activeTeam?.tenantId
-			});
-		}
-
-		window.setTimeout(startTimer, 100);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [
-		task,
-		timerStatus?.running,
-		setActiveTask,
-		activeTeam,
-		startTimer,
-		stopTimer,
-		currentMember?.id,
-		updateOrganizationTeamEmployee
-	]);
-
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-
-	return {
-		loading,
-		activeTaskStatus,
-		requirePlan,
-		startTimerWithTask,
-		modals,
-		startStopTimerHandler,
-		canTrack,
-		disabled,
-		hasPlan,
-		activeTeamTask,
-		startTimer,
-		t
-	};
-}
-
-// ✅ PERFORMANCE FIX: Memoized TimerButtonCall component
+// Memoized TimerButtonCall component
 const TimerButtonCall = React.memo(
 	({
 		task,
@@ -502,7 +421,7 @@ const TimerButtonCall = React.memo(
 
 //* Task Estimate info *
 //* Task Info FC *
-// ✅ PERFORMANCE FIX: Memoize TaskInfo to prevent unnecessary re-renders
+// Memoize TaskInfo to prevent unnecessary re-renders
 export const TaskInfo = React.memo(
 	({
 		className,

@@ -7,18 +7,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
-import { TOrganizationTeam, organizationTeamSchema } from '@/core/types/schemas';
-import { validatePaginationResponse, ZodValidationError } from '@/core/types/schemas/utils/validation';
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
+import { toast } from 'sonner';
 
 /**
- * ✅ PHASE 2 MIGRATION: React Query implementation for creating organization teams
- * Maintains 100% backward compatibility while adding React Query benefits:
- * - Automatic cache invalidation
- * - Zod validation
- * - Better error handling
- * - Preserves all critical side-effects (cookies, refreshToken, setActiveTeam)
+ *Creates a custom hook for creating an organization team.
+ *
+ * @returns {Object} An object containing:
+ * - `loading`: A boolean indicating if team creation is in progress
+ * - `createOrganizationTeam`: A function to create a team with a given name
  */
+
 export function useCreateOrganizationTeam() {
 	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
@@ -27,22 +28,14 @@ export function useCreateOrganizationTeam() {
 	const { refreshToken, $user } = useAuthenticateUser();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 
-	// ✅ React Query mutation with full validation and critical side-effects preservation
+	// React Query mutation with full validation and critical side-effects preservation
 	const createOrganizationTeamMutation = useMutation({
 		mutationFn: ({ name, user }: { name: string; user: any }) => {
 			return organizationTeamService.createOrganizationTeam(name, user);
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.create(null),
 		onSuccess: async (response, { name }) => {
-			// ✅ Validate API response with Zod schema (pagination response)
-			const validatedData = validatePaginationResponse(
-				organizationTeamSchema,
-				response.data,
-				'createOrganizationTeam mutation response'
-			);
-
-			// ✅ Preserve all original side-effects - CRITICAL for team creation
-			const dt = validatedData.items || [];
+			const dt = response.data.items || [];
 			setTeams(dt);
 			const created = dt.find((t: TOrganizationTeam) => t.name === name);
 
@@ -64,24 +57,32 @@ export function useCreateOrganizationTeam() {
 				await refreshToken();
 			}
 
-			// ✅ Cache invalidation for consistency
+			// Cache invalidation for consistency
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
 		},
 		onError: (error) => {
-			// ✅ Enhanced error handling with Zod validation errors
+			// Enhanced error handling with Zod validation errors
 			if (error instanceof ZodValidationError) {
+				toast.error('Create team validation failed:', {
+					description: JSON.stringify({
+						message: error.message,
+						issues: error.issues
+					})
+				});
 				console.error('Create team validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
+				return;
 			}
+			toast.error('Create team validation failed');
 			// Original error will be thrown and handled by calling code
 		}
 	});
 
-	// ✅ Preserve exact same interface and logic as original
+	// Preserve exact same interface and logic as original
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
 			const teams = teamsRef.current;
@@ -98,7 +99,7 @@ export function useCreateOrganizationTeam() {
 				return Promise.reject(new Error('User authentication required'));
 			}
 
-			// ✅ Use React Query mutation with Promise interface preserved
+			// Use React Query mutation with Promise interface preserved
 			return createOrganizationTeamMutation.mutateAsync({ name: $name, user: $user.current });
 		},
 		[createOrganizationTeamMutation, teamsRef, $user]
@@ -106,6 +107,6 @@ export function useCreateOrganizationTeam() {
 
 	return {
 		createOrganizationTeam,
-		loading: createOrganizationTeamMutation.isPending // ✅ Map to legacy loading interface
+		loading: createOrganizationTeamMutation.isPending // Map to legacy loading interface
 	};
 }
