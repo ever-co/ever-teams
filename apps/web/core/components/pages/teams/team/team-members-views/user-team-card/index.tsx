@@ -185,6 +185,7 @@ export function UserTeamCard({
 		() => userDetailAccordion == memberInfo.memberUser?.id,
 		[userDetailAccordion, memberInfo.memberUser?.id]
 	);
+	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
 			className={clsxm(!active && 'border-2 border-transparent')}
@@ -224,7 +225,7 @@ export function UserTeamCard({
 								isExpanded={isUserDetailAccordion}
 								userId={memberInfo.memberUser?.id}
 								onToggle={setUserDetailAccordion}
-								onActivityClose={() => setShowActivity(false)}
+								onActivityClose={handleActivityClose}
 							/>
 						)}
 					</div>
