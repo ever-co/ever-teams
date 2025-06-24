@@ -56,7 +56,7 @@ type IUserTeamCard = {
 	currentExit: boolean;
 } & IClassName;
 
-// ✅ PERFORMANCE FIX: Memoized ChevronToggleButton to prevent unnecessary re-renders
+// Memoized ChevronToggleButton to prevent unnecessary re-renders
 const ChevronToggleButton = React.memo(
 	({
 		isExpanded,
@@ -111,7 +111,7 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	// ✅ PERFORMANCE FIX: Memoize callback to prevent unnecessary re-renders
+	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
 		(type: 'DATE' | 'TICKET', member: any | null) => {
 			setShowActivity((prev) => !prev);

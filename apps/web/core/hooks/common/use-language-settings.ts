@@ -99,13 +99,13 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	const [languagesFetching, setLanguagesFetching] = useAtom(languagesFetchingState);
 	const { firstLoadData: firstLoadLanguagesData } = useFirstLoad();
 
-	// ✅ SENIOR FIX - Stable memoization of isSystem to prevent infinite API calls
+	// Stable memoization of isSystem to prevent infinite API calls
 	// Only recalculate when the actual role.isSystem value changes, not when user object changes
 	const isSystem = useMemo(() => {
 		return user?.role?.isSystem ?? false;
-	}, [user?.role?.isSystem]); // ✅ Only depend on the specific property, not entire user object
+	}, [user?.role?.isSystem]); // Only depend on the specific property, not entire user object
 
-	// ✅ Stable query key using memoized isSystem
+	// Stable query key using memoized isSystem
 	const queryKey = useMemo(() => {
 		return queryKeys.languages.system(isSystem);
 	}, [isSystem]); // Only changes when isSystem actually changes
@@ -120,7 +120,7 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 * - Only fetches when user is authenticated
 	 */
 	const languagesQuery = useQuery({
-		queryKey, // ✅ Use stable memoized query key
+		queryKey, // Use stable memoized query key
 		queryFn: () => languageService.getLanguages(isSystem),
 		enabled: !!user, // Only fetch when user is available
 		staleTime: 1000 * 60 * 60, // Languages are stable, cache for 1 hour
@@ -139,7 +139,7 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	const loadLanguagesData = useCallback(async () => {
 		setActiveLanguageCode(activeLanguageId);
 		try {
-			// ✅ SMART LOADING - Check cache first, only fetch if needed
+			// SMART LOADING - Check cache first, only fetch if needed
 			let result;
 
 			// Check if we have fresh data in cache
