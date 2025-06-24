@@ -3,25 +3,85 @@ import { setActiveTeamIdCookie, setOrganizationIdCookie } from '@/core/lib/helpe
 import { activeTeamIdState, isTeamMemberState, organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useQueryCall, useSyncRef } from '../../common';
+import { useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
-import { TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationTeam, organizationTeamSchema } from '@/core/types/schemas';
+import { validatePaginationResponse, ZodValidationError } from '@/core/types/schemas/utils/validation';
+import { queryKeys } from '@/core/query/keys';
 
 /**
- * It creates a new team for the current organization
- * @returns An object with two properties:
- * 1. createOrganizationTeam: A function that takes a string as an argument and returns a promise.
- * 2. loading: A boolean value.
+ * ✅ PHASE 2 MIGRATION: React Query implementation for creating organization teams
+ * Maintains 100% backward compatibility while adding React Query benefits:
+ * - Automatic cache invalidation
+ * - Zod validation
+ * - Better error handling
+ * - Preserves all critical side-effects (cookies, refreshToken, setActiveTeam)
  */
 export function useCreateOrganizationTeam() {
-	const { loading, queryCall } = useQueryCall(organizationTeamService.createOrganizationTeam);
+	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
 	const { refreshToken, $user } = useAuthenticateUser();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 
+	// ✅ React Query mutation with full validation and critical side-effects preservation
+	const createOrganizationTeamMutation = useMutation({
+		mutationFn: ({ name, user }: { name: string; user: any }) => {
+			return organizationTeamService.createOrganizationTeam(name, user);
+		},
+		mutationKey: queryKeys.organizationTeams.mutations.create(null),
+		onSuccess: async (response, { name }) => {
+			// ✅ Validate API response with Zod schema (pagination response)
+			const validatedData = validatePaginationResponse(
+				organizationTeamSchema,
+				response.data,
+				'createOrganizationTeam mutation response'
+			);
+
+			// ✅ Preserve all original side-effects - CRITICAL for team creation
+			const dt = validatedData.items || [];
+			setTeams(dt);
+			const created = dt.find((t: TOrganizationTeam) => t.name === name);
+
+			if (created) {
+				setActiveTeamIdCookie(created.id);
+				setOrganizationIdCookie(created.organizationId || '');
+				// This must be called at the end (Update store)
+				setActiveTeamId(created.id);
+
+				if (!isTeamMember) {
+					setIsTeamMember(true);
+				}
+
+				/**
+				 * DO NOT REMOVE - CRITICAL
+				 * Refresh Token needed for the first time when new Organization is created,
+				 * As in backend permissions are getting updated
+				 */
+				await refreshToken();
+			}
+
+			// ✅ Cache invalidation for consistency
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
+			});
+		},
+		onError: (error) => {
+			// ✅ Enhanced error handling with Zod validation errors
+			if (error instanceof ZodValidationError) {
+				console.error('Create team validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			// Original error will be thrown and handled by calling code
+		}
+	});
+
+	// ✅ Preserve exact same interface and logic as original
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
 			const teams = teamsRef.current;
@@ -38,34 +98,14 @@ export function useCreateOrganizationTeam() {
 				return Promise.reject(new Error('User authentication required'));
 			}
 
-			return queryCall($name, $user.current).then(async (res) => {
-				const dt = res.data?.items || [];
-				setTeams(dt);
-				const created = dt.find((t) => t.name === $name);
-				if (created) {
-					setActiveTeamIdCookie(created.id);
-					setOrganizationIdCookie(created.organizationId || '');
-					// This must be called at the end (Update store)
-					setActiveTeamId(created.id);
-					if (!isTeamMember) {
-						setIsTeamMember(true);
-					}
-
-					/**
-					 * DO NOT REMOVE
-					 * Refresh Token needed for the first time when new Organization is created, As in backend permissions are getting updated
-					 * */
-					await refreshToken();
-				}
-				return res;
-			});
+			// ✅ Use React Query mutation with Promise interface preserved
+			return createOrganizationTeamMutation.mutateAsync({ name: $name, user: $user.current });
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[isTeamMember, queryCall, refreshToken, setActiveTeamId, setIsTeamMember, setTeams, teamsRef]
+		[createOrganizationTeamMutation, teamsRef, $user]
 	);
 
 	return {
 		createOrganizationTeam,
-		loading
+		loading: createOrganizationTeamMutation.isPending // ✅ Map to legacy loading interface
 	};
 }
