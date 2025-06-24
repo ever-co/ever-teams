@@ -201,15 +201,6 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-
-			{/* Custom shimmer keyframes - Add this to your global CSS or Tailwind config */}
-			<style jsx>{`
-				@keyframes shimmer {
-					100% {
-						transform: translateX(100%);
-					}
-				}
-			`}</style>
 		</div>
 	);
 }

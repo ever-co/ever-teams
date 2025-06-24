@@ -56,7 +56,7 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 	}, []);
 
 	return (
-		<div className="flex flex-col mt-12 w-full h-full">
+		<div className="flex flex-col mt-5 w-full h-full">
 			{tabFiltered.tab === 'worked' &&
 				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (

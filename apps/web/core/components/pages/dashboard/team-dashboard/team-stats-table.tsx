@@ -9,13 +9,34 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';
 import { ChartIcon } from '../../../common/team-icon';
-import { ActivityModal } from '../activity-modal';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+// Lazy load ActivityModal for performance optimization - Medium article pattern
+const LazyActivityModal = dynamic(() => import('../activity-modal').then((mod) => ({ default: mod.ActivityModal })), {
+	ssr: false
+	// Note: No loading property for conditional components
+});
 import { useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
-import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+// Lazy load AnimatedEmptyState for performance optimization
+const LazyAnimatedEmptyState = dynamic(
+	() => import('@/core/components/common/empty-state').then((mod) => ({ default: mod.AnimatedEmptyState })),
+	{
+		ssr: false,
+		loading: () => (
+			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
+				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mb-4" />
+				<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+				<div className="w-64 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			</div>
+		)
+	}
+);
 import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 
 const getProgressColor = (activityLevel: number) => {
@@ -135,7 +156,7 @@ export function TeamStatsTable({
 	if (!rapportDailyActivity?.length) {
 		return (
 			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
-				<AnimatedEmptyState
+				<LazyAnimatedEmptyState
 					title={t('common.NO_ACTIVITY_DATA')}
 					message={t('common.SELECT_DIFFERENT_DATE')}
 					showBorder={true}
@@ -146,9 +167,13 @@ export function TeamStatsTable({
 
 	return (
 		<>
-			{employeeLog && <ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />}
+			{employeeLog && (
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<LazyActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />
+				</Suspense>
+			)}
 			<div className="w-full dark:bg-dark--theme-light">
-				<div className="relative border rounded-md">
+				<div className="relative rounded-md border">
 					<div className="overflow-x-auto">
 						<div className="inline-block min-w-full align-middle">
 							<div className="overflow-hidden">
@@ -235,7 +260,7 @@ export function TeamStatsTable({
 														projectLog.employeeLogs?.map((employeeLog) => (
 															<TableRow key={`employee-${employeeLog.employee?.id}`}>
 																<TableCell className="w-[320px] font-normal">
-																	<div className="flex items-center gap-2">
+																	<div className="flex gap-2 items-center">
 																		<Avatar className="w-8 h-8 shrink-0">
 																			<AvatarImage
 																				src={
@@ -277,7 +302,7 @@ export function TeamStatsTable({
 																	{formatPercentage(0)}
 																</TableCell>
 																<TableCell className="w-[200px]">
-																	<div className="flex items-center gap-2">
+																	<div className="flex gap-2 items-center">
 																		<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
 																			<div
 																				className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
@@ -318,7 +343,7 @@ export function TeamStatsTable({
 						</div>
 					</div>
 				</div>
-				<div className="flex items-center justify-between gap-4 p-2 sm:flex-row">
+				<div className="flex gap-4 justify-between items-center p-2 sm:flex-row">
 					<div className="flex items-center space-x-2">
 						<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
 							<ChevronsLeft className="w-4 h-4" />
@@ -356,7 +381,7 @@ export function TeamStatsTable({
 							<ChevronsRight className="w-4 h-4" />
 						</Button>
 					</div>
-					<div className="flex items-center gap-4">
+					<div className="flex gap-4 items-center">
 						<PaginationDropdown
 							setValue={(value) => {
 								setPageSize(value);
@@ -397,7 +422,7 @@ const LoadingTable = () => {
 					{[...Array(7)].map((_, i) => (
 						<TableRow key={i}>
 							<TableCell className="w-[320px]">
-								<div className="flex items-center gap-2">
+								<div className="flex gap-2 items-center">
 									<Skeleton className="w-8 h-8 rounded-full" />
 									<Skeleton className="w-32 h-4" />
 								</div>

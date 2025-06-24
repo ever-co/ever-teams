@@ -746,3 +746,9 @@ export const TIMESHEET_RELATIONS = [
 	'timesheet'
 ] as const;
 export const PATH_WITH_MORE_THAN_ONE_TIMER = ['/', '/profile'];
+
+export const TIMER_STATUS_CONSTANTS = {
+	PAUSE: 'pause',
+	TEAMS_SOURCE: 'TEAMS',
+	HOURS_THRESHOLD: 24
+} as const;

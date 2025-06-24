@@ -3,35 +3,118 @@ import { KanbanTabs } from '@/core/constants/config/constants';
 import { useAuthenticateUser, useModal, useOrganizationTeams, useStatusValue } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
-import { KanbanView } from '@/core/components/pages/kanban/team-members-kanban-view';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
-import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import Separator from '@/core/components/common/separator';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { userTimezone } from '@/core/lib/helpers/index';
-import KanbanSearch from '@/core/components/pages/kanban/search-bar';
-import {
-	EpicPropertiesDropdown,
-	StatusDropdown,
-	TStatusItem,
-	TaskLabelsDropdown,
-	TaskPropertiesDropdown,
-	TaskSizesDropdown
-} from '@/core/components/tasks/task-status';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
-import KanbanBoardSkeleton from '@/core/components/common/skeleton/kanban-board-skeleton';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { ITask } from '@/core/types/interfaces/task/task';
+import dynamic from 'next/dynamic';
+import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { TStatusItem } from '@/core/components/tasks/task-status';
+import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
+
+// Next.js official patterns for always-rendered components
+const LazyKanbanView = dynamic(
+	() =>
+		import('@/core/components/pages/kanban/team-members-kanban-view').then((mod) => ({ default: mod.KanbanView })),
+	{
+		ssr: false,
+		loading: () => <KanbanViewSkeleton fullWidth={true} />
+	}
+);
+
+const LazyImageComponent = dynamic(() => import('@/core/components/common/image-overlapper'), {
+	ssr: false,
+	loading: () => <div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+});
+
+const LazyKanbanSearch = dynamic(() => import('@/core/components/pages/kanban/search-bar'), {
+	ssr: false,
+	loading: () => (
+		<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
+			<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		</div>
+	)
+});
+
+const LazyEpicPropertiesDropdown = dynamic(
+	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.EpicPropertiesDropdown })),
+	{
+		ssr: false,
+		loading: () => (
+			<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
+				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			</div>
+		)
+	}
+);
+
+const LazyStatusDropdown = dynamic(
+	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.StatusDropdown })),
+	{
+		ssr: false,
+		loading: () => <div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+	}
+);
+
+const LazyTaskLabelsDropdown = dynamic(
+	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskLabelsDropdown })),
+	{
+		ssr: false,
+		loading: () => (
+			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
+				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			</div>
+		)
+	}
+);
+
+const LazyTaskPropertiesDropdown = dynamic(
+	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskPropertiesDropdown })),
+	{
+		ssr: false,
+		loading: () => (
+			<div className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center">
+				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-2" />
+			</div>
+		)
+	}
+);
+
+const LazyTaskSizesDropdown = dynamic(
+	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskSizesDropdown })),
+	{
+		ssr: false,
+		loading: () => (
+			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
+				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			</div>
+		)
+	}
+);
+
+// Medium article pattern for conditional rendering (modals)
+const LazyInviteFormModal = dynamic(
+	() =>
+		import('@/core/components/features/teams/invite-form-modal').then((mod) => ({ default: mod.InviteFormModal })),
+	{
+		ssr: false
+		// Note: No loading property for conditional components
+		// Suspense fallback will handle loading states
+	}
+);
 
 const Kanban = () => {
 	// Get all required hooks and states
@@ -191,20 +274,20 @@ const Kanban = () => {
 						}
 					>
 						<Container fullWidth={fullWidth} className="!pt-0">
-							<div className="flex flex-row items-start justify-between mt-4 bg-white dark:bg-dark-high">
-								<div className="flex items-center justify-center h-10 gap-8">
+							<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
+								<div className="flex gap-8 justify-center items-center h-10">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
-								<div className="flex items-center justify-center h-10 gap-1 w-fit">
+								<div className="flex gap-1 justify-center items-center h-10 w-fit">
 									<HeaderTabs kanban={true} linkAll={true} />
 								</div>
 							</div>
-							<div className="flex items-center justify-between mt-4 bg-white dark:bg-dark-high">
+							<div className="flex justify-between items-center mt-4 bg-white dark:bg-dark-high">
 								<h1 className="text-4xl font-semibold">
 									{t('common.KANBAN')} {t('common.BOARD')}
 								</h1>
-								<div className="flex items-center gap-x-2 min-w-fit">
+								<div className="flex gap-x-2 items-center min-w-fit">
 									<strong className="text-gray-400">
 										{`(`}
 										{timezone.split('(')[1]}
@@ -212,7 +295,7 @@ const Kanban = () => {
 									<div className="mt-1">
 										<Separator />
 									</div>
-									<ImageComponent onAvatarClickRedirectTo="kanbanTasks" images={teamMembers} />
+									<LazyImageComponent onAvatarClickRedirectTo="kanbanTasks" images={teamMembers} />
 									<div className="mt-1">
 										<Separator />
 									</div>
@@ -225,7 +308,7 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="flex flex-col-reverse items-center justify-between pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
+							<div className="flex flex-col-reverse justify-between items-center pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
 								<div className="flex flex-row">
 									{tabs.map((tab) => (
 										<div
@@ -245,8 +328,8 @@ const Kanban = () => {
 										</div>
 									))}
 								</div>
-								<div className="flex gap-5 mt-4 lg:mt-0 min-h-8 max-h-10">
-									<EpicPropertiesDropdown
+								<div className="flex gap-5 mt-4 max-h-10 lg:mt-0 min-h-8">
+									<LazyEpicPropertiesDropdown
 										onValueChange={(_, values) => setEpics(values || [])}
 										className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
 										multiple
@@ -259,13 +342,13 @@ const Kanban = () => {
 													fill="none"
 													stroke="currentColor"
 													viewBox="0 0 17 18"
-													className="w-4 h-4 ml-2"
+													className="ml-2 w-4 h-4"
 												>
 													<path d="M8.5 16.5c4.125 0 7.5-3.375 7.5-7.5s-3.375-7.5-7.5-7.5S1 4.875 1 9s3.375 7.5 7.5 7.5Z" />
 												</svg>
 											)}
 
-											<StatusDropdown
+											<LazyStatusDropdown
 												taskStatusClassName="w-40 h-10 !bg-transparent"
 												showIssueLabels
 												className={cn(
@@ -274,7 +357,7 @@ const Kanban = () => {
 												)}
 												items={items}
 												value={issues}
-												onChange={(e) =>
+												onChange={(e: any) =>
 													setIssues(items.find((v) => v.name === e) as TStatusItem)
 												}
 												issueType="issue"
@@ -317,22 +400,22 @@ const Kanban = () => {
 										</div>
 									</div>
 
-									<TaskLabelsDropdown
-										onValueChange={(_, values) => setLabels(values || [])}
+									<LazyTaskLabelsDropdown
+										onValueChange={(_, values: any) => setLabels(values || [])}
 										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
 										dropdownContentClassName="top-10"
 										multiple
 									/>
 
-									<TaskPropertiesDropdown
+									<LazyTaskPropertiesDropdown
 										isMultiple={false}
-										onValueChange={(_, values) => setPriority(values || [])}
+										onValueChange={(_, values: any) => setPriority(values || [])}
 										className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center"
 										multiple
 									/>
 
-									<TaskSizesDropdown
-										onValueChange={(_, values) => setSizes(values || [])}
+									<LazyTaskSizesDropdown
+										onValueChange={(_, values: any) => setSizes(values || [])}
 										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
 										multiple
 									/>
@@ -340,7 +423,7 @@ const Kanban = () => {
 										className="inline-block mt-1 shrink-0 min-h-10 h-full w-0.5"
 										orientation="vertical"
 									/>
-									<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
+									<LazyKanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 								</div>
 							</div>
 							{/* <div className="w-full h-20 bg-red-500/50"></div> */}
@@ -351,19 +434,19 @@ const Kanban = () => {
 				{/** TODO:fetch teamtask based on days */}
 
 				{activeTab && (
-					<div className="container w-full px-0 mx-0 overflow-x-hidden">
+					<div className="container overflow-x-hidden px-0 mx-0 w-full">
 						{isLoading || !data ? (
 							<div className="flex flex-col gap-4">
-								<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
-									<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
+								<div className="p-6 bg-white rounded-xl shadow-md animate-pulse dark:bg-dark--theme-light">
+									<div className="mb-4 w-1/4 h-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
 									<div className="space-y-3">
 										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										<div className="w-2/3 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 									</div>
 								</div>
-								<div className="p-6 bg-white shadow-md dark:bg-dark--theme-light rounded-xl animate-pulse">
-									<div className="w-1/4 h-4 mb-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
+								<div className="p-6 bg-white rounded-xl shadow-md animate-pulse dark:bg-dark--theme-light">
+									<div className="mb-4 w-1/4 h-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
 									<div className="space-y-3">
 										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
 										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
@@ -371,16 +454,20 @@ const Kanban = () => {
 								</div>
 							</div>
 						) : Object.keys(filteredBoard).length > 0 ? (
-							<KanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+							<LazyKanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
-								<KanbanBoardSkeleton />
+								<KanbanViewSkeleton fullWidth={fullWidth} />
 							</div>
 						)}
 					</div>
 				)}
 			</MainLayout>
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			{isOpen && !!user?.isEmailVerified && (
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<LazyInviteFormModal open={true} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</>
 	);
 };

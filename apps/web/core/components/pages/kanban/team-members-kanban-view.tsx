@@ -248,6 +248,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 														)}
 														// @ts-ignore
 														containerRef={containerRef}
+														allColumnsData={items}
 													/>
 												)}
 											</Fragment>
