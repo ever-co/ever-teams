@@ -1,12 +1,12 @@
 'use client';
 
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useCallback, useEffect, useState } from 'react';
 
-export function useLinkedTasks(task?: ITask | null) {
-	const [tasks, setTasks] = useState<ITask[]>([]);
+export function useLinkedTasks(task?: TTask | null) {
+	const [tasks, setTasks] = useState<TTask[]>([]);
 
-	const loadRelatedTasks = useCallback<(taskId: string) => Promise<ITask[]>>((taskId: string) => {
+	const loadRelatedTasks = useCallback<(taskId: string) => Promise<TTask[]>>((taskId: string) => {
 		console.log(taskId);
 
 		return Promise.resolve([]);

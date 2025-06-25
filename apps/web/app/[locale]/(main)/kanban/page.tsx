@@ -18,7 +18,7 @@ import { cn } from '@/core/lib/helpers';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import dynamic from 'next/dynamic';
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
@@ -198,7 +198,7 @@ const Kanban = () => {
 		const tomorrow = new Date(today);
 		tomorrow.setDate(tomorrow.getDate() + 1);
 
-		const filterByDate = (tasks: ITask[], date: Date) => {
+		const filterByDate = (tasks: TTask[], date: Date) => {
 			const filtered = tasks.filter((task) => {
 				if (!task.createdAt) {
 					return false;
@@ -217,18 +217,18 @@ const Kanban = () => {
 			return filtered;
 		};
 
-		const board: Record<string, ITask[]> = {};
+		const board: Record<string, TTask[]> = {};
 		Object.entries(data).forEach(([status, tasks]) => {
 			let filteredStatusTasks;
 			switch (activeTab) {
 				case KanbanTabs.TODAY:
-					filteredStatusTasks = filterByDate(tasks as ITask[], today);
+					filteredStatusTasks = filterByDate(tasks as TTask[], today);
 					break;
 				case KanbanTabs.YESTERDAY:
-					filteredStatusTasks = filterByDate(tasks as ITask[], yesterday);
+					filteredStatusTasks = filterByDate(tasks as TTask[], yesterday);
 					break;
 				case KanbanTabs.TOMORROW:
-					filteredStatusTasks = filterByDate(tasks as ITask[], tomorrow);
+					filteredStatusTasks = filterByDate(tasks as TTask[], tomorrow);
 					break;
 				default:
 					filteredStatusTasks = tasks;

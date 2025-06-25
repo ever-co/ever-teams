@@ -1,7 +1,8 @@
+import { TTask } from '../../schemas/task/task.schema';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IManagerAssignable, IRelationalEmployee } from '../organization/employee';
 import { IRelationalRole } from '../role/role';
-import { ITask, ITasksStatistics } from '../task/task';
+import { ITasksStatistics } from '../task/task';
 import { ITimerStatus } from '../timer/timer-status';
 import { IRelationalOrganizationTeam } from './organization-team';
 
@@ -21,7 +22,7 @@ export interface IOrganizationTeamEmployee
 		IRelationalRole,
 		ITimerStatus {
 	activeTaskId?: ID; // Active Task of the team member
-	activeTask?: ITask;
+	activeTask?: TTask;
 	isManager?: boolean;
 	isActive?: boolean;
 	totalWorkedTasks?: ITasksStatistics[];
@@ -56,7 +57,7 @@ export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmploy
 // 	roleId?: string;
 // 	role?: OT_Role;
 // 	employee: IEmployee;
-// 	lastWorkedTask?: ITask;
+// 	lastWorkedTask?: TTask;
 // 	running?: boolean;
 // 	duration?: number;
 // 	isTrackingEnabled?: boolean;

@@ -1,6 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
@@ -9,10 +8,11 @@ import Separator from '@/core/components/common/separator';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
-	task: ITask | null;
+	task: TTask | null;
 	current?: string;
 }
 const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {

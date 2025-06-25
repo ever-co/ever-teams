@@ -1,4 +1,4 @@
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -19,9 +19,10 @@ import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface TaskItemProps {
-	task: ITask;
+	task: TTask;
 }
 
 export default function TaskBlockCard(props: TaskItemProps) {
@@ -37,7 +38,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === task?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === task?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
@@ -62,7 +63,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t: ITask) => t.id === task?.id)
+				.filter((t: TTask) => t.id === task?.id)
 				.reduce(
 					(previousValue: number, currentValue: ITasksStatistics) =>
 						previousValue + (currentValue.duration || 0),

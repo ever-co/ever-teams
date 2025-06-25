@@ -1,7 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -29,6 +28,7 @@ import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/t
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -38,12 +38,12 @@ const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
  *
  * The function is used in the `Timer` component
  * @param {ITimerStatus | null} timerStatus - ITimerStatus | null,
- * @param {ITask | null} activeTeamTask - ITask | null - the current active task
+ * @param {TTask | null} activeTeamTask - TTask | null - the current active task
  * @param {boolean} firstLoad - boolean - this is a flag that indicates that the component is loaded
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITask | null, firstLoad: boolean) {
+function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: TTask | null, firstLoad: boolean) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 
@@ -209,7 +209,7 @@ export function useTimer() {
 	const isPlanVerified = requirePlan
 		? hasPlan &&
 			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task: ITask) => task.estimate && task.estimate > 0)
+			!!hasPlan?.tasks?.every((task: TTask) => task.estimate && task.estimate > 0)
 		: true;
 
 	const canRunTimer =

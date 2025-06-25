@@ -35,20 +35,19 @@ import { EverCard } from '../common/ever-card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task?: Nullable<ITask>;
-	tasks?: ITask[];
-	onTaskClick?: (task: ITask) => void;
+	task?: Nullable<TTask>;
+	tasks?: TTask[];
+	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITask) => void;
+	onEnterKey?: (taskName: string, task: TTask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -64,7 +63,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITask | undefined) => void;
+	onTaskCreated?: (task: TTask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
@@ -110,7 +109,7 @@ export function TaskInput(props: Props) {
 	);
 
 	const onTaskClick = useCallback(
-		(task: ITask) => $onTaskClick.current && $onTaskClick.current(task),
+		(task: TTask) => $onTaskClick.current && $onTaskClick.current(task),
 		[$onTaskClick]
 	);
 
@@ -153,7 +152,7 @@ export function TaskInput(props: Props) {
 	 * set the active task for the authenticated user
 	 */
 	const setAuthActiveTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
 
@@ -179,7 +178,7 @@ export function TaskInput(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITask, title: string) => {
+		(task: TTask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -228,7 +227,7 @@ export function TaskInput(props: Props) {
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITask[] = [];
+		let updatedTaskList: TTask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
@@ -460,14 +459,14 @@ function TaskCard({
 	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
-	onItemClick?: (task: ITask) => void;
+	onItemClick?: (task: TTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
-	updatedTaskList?: ITask[];
+	updatedTaskList?: TTask[];
 	assignTaskPopup?: boolean;
 }) {
 	const [, setCount] = useState(0);

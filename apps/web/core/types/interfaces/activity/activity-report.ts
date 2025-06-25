@@ -1,8 +1,8 @@
 import { ETimeLogType } from '../../generics/enums/timer';
+import { TTask } from '../../schemas/task/task.schema';
 import { IEmployee } from '../organization/employee';
 import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';
-import { ITask } from '../task/task';
 import { TUser } from '@/core/types/schemas';
 
 /**
@@ -171,7 +171,7 @@ export interface ITimeLogGroupedDailyReport {
 }
 
 export interface ITimerTaskLog {
-	task: ITask;
+	task: TTask;
 	description: string;
 	duration: number;
 	client: IOrganizationContact;

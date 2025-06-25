@@ -12,8 +12,8 @@ import { useEffect, useState } from 'react';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -32,7 +32,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			data = data
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: ITask) =>
+					tasks: plan.tasks?.filter((task: TTask) =>
 						task.members?.some((member: IEmployee) => member.userId === user.id)
 					)
 				}))

@@ -3,7 +3,6 @@ import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	Command,
 	CommandEmpty,
@@ -24,6 +23,7 @@ import { Calendar } from '@/core/components/common/calendar';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function AddTaskToPlan({
 	open,
@@ -33,7 +33,7 @@ export function AddTaskToPlan({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	task: ITask;
+	task: TTask;
 	employee?: IEmployee;
 }) {
 	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =

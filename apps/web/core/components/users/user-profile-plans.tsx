@@ -26,7 +26,6 @@ import {
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TUser } from '@/core/types/schemas';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -55,6 +54,7 @@ import DailyPlanTasksTableView from '../tasks/daily-plan/table-view';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
 import { HorizontalSeparator, VerticalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -217,7 +217,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 															outstandingPlans.map((plan) => {
 																const tasks = plan.tasks ?? [];
 																if (user) {
-																	return tasks.filter((task: ITask) =>
+																	return tasks.filter((task: TTask) =>
 																		task.members?.some(
 																			(member) => member.userId === user.id
 																		)
@@ -372,7 +372,7 @@ function AllPlans({
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: ITask) =>
+					tasks: plan.tasks?.filter((task: TTask) =>
 						task.members?.some((member) => member.userId === user.id)
 					)
 				}))
@@ -527,7 +527,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
-	const sumTimes = useCallback((tasks: ITask[], key: any) => {
+	const sumTimes = useCallback((tasks: TTask[], key: any) => {
 		return (
 			tasks
 				?.map((task: any) => task[key])

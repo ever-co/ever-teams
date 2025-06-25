@@ -7,9 +7,9 @@ import { groupByTime } from '@/core/lib/helpers/array-data';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { EverCard } from '../../common/ever-card';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
-export function TaskActivity({ task }: { task: ITask }) {
+export function TaskActivity({ task }: { task: TTask }) {
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
 	const [hidden, setHidden] = React.useState(true);
 

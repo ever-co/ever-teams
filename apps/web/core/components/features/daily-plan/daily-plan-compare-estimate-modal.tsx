@@ -14,7 +14,7 @@ import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/use
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
 import { EverCard } from '../../common/ever-card';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -110,7 +110,7 @@ export function DailyPlanCompareEstimatedModal({
 	);
 }
 
-export function DailyPlanTask({ task, profile }: { task?: ITask; profile: any }) {
+export function DailyPlanTask({ task, profile }: { task?: TTask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
 	const member = task?.selectedTeam?.members?.find((member) => {
 		return member?.employee?.user?.id === profile?.userProfile?.id;

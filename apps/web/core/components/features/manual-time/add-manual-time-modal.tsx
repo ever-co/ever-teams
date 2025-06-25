@@ -13,13 +13,13 @@ import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -170,20 +170,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
 	// Simplified task validation for performance
-	const isValidTask = useCallback((task: any): task is ITask => {
+	const isValidTask = useCallback((task: any): task is TTask => {
 		return task?.id && task?.title && Array.isArray(task?.teams);
 	}, []);
 
 	// Simplified team filtering functions for performance
-	const isTaskInActiveTeam = useCallback((task: ITask, teamId: string | undefined): boolean => {
+	const isTaskInActiveTeam = useCallback((task: TTask, teamId: string | undefined): boolean => {
 		return Boolean(teamId && task.teams?.some((team: any) => team?.id === teamId));
 	}, []);
 
-	const isTaskInSelectedTeam = useCallback((task: ITask, selectedTeamId: string | undefined): boolean => {
+	const isTaskInSelectedTeam = useCallback((task: TTask, selectedTeamId: string | undefined): boolean => {
 		return Boolean(selectedTeamId && task.teams?.some((team: any) => team?.id === selectedTeamId));
 	}, []);
 
-	const isTaskAssignedToUser = useCallback((task: ITask, userId: string | undefined): boolean => {
+	const isTaskAssignedToUser = useCallback((task: TTask, userId: string | undefined): boolean => {
 		return Boolean(userId && task.members?.some((member: any) => member?.userId === userId));
 	}, []);
 
@@ -196,7 +196,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
 	const filterTasksByTeamAndRole = useCallback(
-		(tasks: any[], teamId: string | undefined, filterByTeam: (task: ITask, teamId: string) => boolean) => {
+		(tasks: any[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
 			if (!tasks || !Array.isArray(tasks) || !teamId) {
 				return [];
 			}

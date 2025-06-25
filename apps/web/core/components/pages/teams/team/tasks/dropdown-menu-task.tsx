@@ -9,14 +9,14 @@ import {
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { toast } from 'sonner';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
-const DropdownMenuTask: FC<{ task: ITask }> = ({ task }) => {
+const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();

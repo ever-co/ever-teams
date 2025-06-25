@@ -2,14 +2,14 @@ import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/components/tasks/task-status';
 import { TTaskStatus } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface IKanban {
-	[key: string]: ITask[];
+	[key: string]: TTask[];
 }
 
 export function useKanban() {
@@ -32,49 +32,49 @@ export function useKanban() {
 
 	// Memoized filter functions for better performance
 	const filterBySearch = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return task.title.toLowerCase().includes(searchTasks.toLowerCase());
 		},
 		[searchTasks]
 	);
 
 	const filterByPriority = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return priority.length ? priority.includes(task.priority as string) : true;
 		},
 		[priority]
 	);
 
 	const filterByIssue = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return issues.value ? task.issueType === issues.value : true;
 		},
 		[issues.value]
 	);
 
 	const filterBySize = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return sizes.length ? sizes.includes(task.size as string) : true;
 		},
 		[sizes]
 	);
 
 	const filterByLabels = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return labels.length ? labels.some((label) => task.tags?.some((tag) => tag.name === label)) : true;
 		},
 		[labels]
 	);
 
 	const filterByEpics = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			return epics.length ? epics.includes(task.id) : true;
 		},
 		[epics]
 	);
 
 	const filterByEmployee = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (employee) {
 				return task.members?.map((el) => el.fullName).includes(employee as string);
 			}
@@ -115,7 +115,7 @@ export function useKanban() {
 			setLoading(true);
 			let kanban = {};
 			const getTasksByStatus = (status: string | undefined) => {
-				return filteredTasks.filter((task: ITask) => {
+				return filteredTasks.filter((task: TTask) => {
 					return task.taskStatusId === status;
 				});
 			};
@@ -195,7 +195,7 @@ export function useKanban() {
 			}
 		}
 	};
-	const addNewTask = (task: ITask, status: string) => {
+	const addNewTask = (task: TTask, status: string) => {
 		const updatedBoard = {
 			...kanbanBoard,
 			[status]: [...kanbanBoard[status], task]

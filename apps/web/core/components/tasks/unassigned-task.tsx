@@ -2,16 +2,17 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
-	task: ITask | null;
+	task: TTask | null;
 	current: string;
 }
 const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {

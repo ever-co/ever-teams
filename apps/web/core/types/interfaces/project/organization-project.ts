@@ -6,10 +6,10 @@ import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../comm
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from '../organization/employee';
 import { ICustomFieldsObject } from '../organization/organization';
-import { ITask } from '../task/task';
-import { IOrganizationTeam } from '../team/organization-team';
 import { ITimeLog } from '../timer/time-log/time-log';
 import { IOrganizationProjectEmployee } from './organization-project-employee';
+import { TTask } from '../../schemas/task/task.schema';
+import { IOrganizationTeam } from '../team/organization-team';
 
 export interface IOrganizationProjectBase
 	extends IBasePerTenantAndOrganizationEntityModel,
@@ -25,7 +25,7 @@ export interface IOrganizationProjectBase
 	members?: IOrganizationProjectEmployee[];
 	public?: boolean | null;
 	owner?: EProjectOwner | null;
-	tasks?: ITask[];
+	tasks?: TTask[];
 	teams?: IOrganizationTeam[];
 	timeLogs?: ITimeLog[];
 	// organizationSprints?: IOrganizationSprint[];

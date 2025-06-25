@@ -1,11 +1,11 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from '../../tasks/task-input';
 import { useTranslations } from 'next-intl';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TaskUnOrAssignPopover({
 	children,
@@ -16,10 +16,10 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo,
 	userProfile
 }: PropsWithChildren<{
-	tasks?: ITask[];
-	onTaskClick?: (task: ITask, close: () => void) => void;
+	tasks?: TTask[];
+	onTaskClick?: (task: TTask, close: () => void) => void;
 	buttonClassName?: string;
-	onTaskCreated?: (task: ITask | undefined, close: () => void) => void;
+	onTaskCreated?: (task: TTask | undefined, close: () => void) => void;
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];

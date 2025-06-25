@@ -1,12 +1,12 @@
 import { ETimeLogSource, ETimerStatus } from '../../generics/enums/timer';
-import { ITask } from '../task/task';
+import { TTask } from '../../schemas/task/task.schema';
 import { ITimeLog } from './time-log/time-log';
 
 export interface ITimerStatus {
 	duration?: number;
 	running?: boolean;
 	lastLog?: ITimeLog;
-	lastWorkedTask?: ITask;
+	lastWorkedTask?: TTask;
 	timerStatus?: ETimerStatus;
 }
 

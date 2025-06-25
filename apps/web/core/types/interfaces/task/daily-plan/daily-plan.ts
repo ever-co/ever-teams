@@ -2,7 +2,7 @@ import { IBasePerTenantAndOrganizationEntityModel, ID } from '../../common/base-
 import { IRelationalOrganizationTeam } from '../../team/organization-team';
 import { EDailyPlanStatus } from '../../../generics/enums/daily-plan';
 import { IRelationalEmployee } from '../../organization/employee';
-import { ITask } from '../task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntityModel {
 	date: Date;
@@ -17,7 +17,7 @@ export interface IRemoveTaskFromManyPlansRequest {
 }
 
 export interface IDailyPlan extends IDailyPlanBase, IRelationalEmployee, IRelationalOrganizationTeam {
-	tasks?: ITask[];
+	tasks?: TTask[];
 }
 
 export interface ICreateDailyPlan extends Omit<IDailyPlanBase, 'id'>, IRelationalEmployee, IRelationalOrganizationTeam {

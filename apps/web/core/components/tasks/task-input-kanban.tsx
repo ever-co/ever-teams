@@ -10,7 +10,6 @@ import {
 	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -29,14 +28,14 @@ import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/generics/
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task?: Nullable<ITask>;
-	tasks?: ITask[];
+	task?: Nullable<TTask>;
+	tasks?: TTask[];
 	kanbanTitle?: string;
-	onTaskClick?: (task: ITask) => void;
+	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITask) => void;
+	onEnterKey?: (taskName: string, task: TTask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -51,7 +50,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITask | undefined) => void;
+	onTaskCreated?: (task: TTask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	onClose: any;
 
@@ -128,7 +127,7 @@ export function TaskInputKanban(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITask, title: string) => {
+		(task: TTask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -178,7 +177,7 @@ export function TaskInputKanban(props: Props) {
 	}, [datas, props, onTaskCreated]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITask[] = [];
+		let updatedTaskList: TTask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
@@ -331,7 +330,7 @@ function TaskCard({
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
-	updatedTaskList?: ITask[];
+	updatedTaskList?: TTask[];
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);

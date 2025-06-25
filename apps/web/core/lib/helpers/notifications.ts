@@ -1,7 +1,7 @@
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@/core/constants/config/constants';
 import { NOTIFICATION_CONFIG } from '@/core/constants/config/notification';
 import { INotificationState } from '@/core/types/interfaces/common/notification';
-import { TTask } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import moment from 'moment';
 import { toast } from 'sonner';
 

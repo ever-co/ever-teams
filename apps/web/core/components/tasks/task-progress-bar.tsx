@@ -1,10 +1,10 @@
 import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TaskProgressBar({
 	isAuthUser,
@@ -15,7 +15,7 @@ export function TaskProgressBar({
 }: // memberInfo,
 {
 	isAuthUser: boolean | undefined;
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 	activeAuthTask: boolean;
 	showPercents?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
@@ -31,7 +31,7 @@ export function TaskProgressBar({
 	// );
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((item: ITask) => item.id === task?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((item: TTask) => item.id === task?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}

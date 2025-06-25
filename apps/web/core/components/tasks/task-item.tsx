@@ -1,10 +1,10 @@
-import { ITask } from '@/core/types/interfaces/task/task';
 import Image from 'next/image';
 import { BadgedTaskStatus } from './status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '../common/spinner';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TaskItem({
 	selected,
@@ -14,7 +14,7 @@ export function TaskItem({
 	updateLoading
 }: {
 	selected: boolean;
-	item: ITask;
+	item: TTask;
 	active?: boolean;
 	onDelete: () => void;
 	onReopen: () => Promise<any>;

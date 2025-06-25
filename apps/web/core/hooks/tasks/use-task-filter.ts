@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '../auth';
 import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
@@ -57,7 +57,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const [taskName, setTaskName] = useState('');
 
-	const tasksFiltered: { [x in ITab]: ITask[] } = useMemo(
+	const tasksFiltered: { [x in ITab]: TTask[] } = useMemo(
 		() => ({
 			unassigned: profile.tasksGrouped.unassignedTasks,
 			assigned: profile.tasksGrouped.assignedTasks,

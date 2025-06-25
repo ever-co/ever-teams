@@ -4,8 +4,8 @@ import { useAtomValue } from 'jotai';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useDailyPlan } from '../../daily-plans/use-daily-plan';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TUser } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function useAuthTeamTasks(user: TUser | undefined) {
 	const tasks = useAtomValue(tasksByTeamState);
@@ -16,21 +16,21 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];
-		return tasks.filter((task: ITask) => {
+		return tasks.filter((task: TTask) => {
 			return task?.members?.some((m) => m.userId === user.id);
 		});
 	}, [tasks, user]);
 
 	const unassignedTasks = useMemo(() => {
 		if (!user) return [];
-		return tasks.filter((task: ITask) => {
+		return tasks.filter((task: TTask) => {
 			return !task?.members?.some((m) => m.userId === user.id);
 		});
 	}, [tasks, user]);
 
 	const planned = useMemo(() => {
 		const outStandingTasksCount = estimatedTotalTime(
-			outstandingPlans?.map((plan) => plan.tasks?.map((task: ITask) => task))
+			outstandingPlans?.map((plan) => plan.tasks?.map((task: TTask) => task))
 		).totalTasks;
 
 		const todayTasksCOunt = getTotalTasks(todayPlan);
@@ -43,13 +43,13 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	const totalTodayTasks = useMemo(
 		() =>
 			currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
-				? currentMember?.totalTodayTasks.map((task: ITask) => task.id)
+				? currentMember?.totalTodayTasks.map((task: TTask) => task.id)
 				: [],
 		[currentMember]
 	);
 
 	const workedTasks = useMemo(() => {
-		return tasks.filter((tsk: ITask) => {
+		return tasks.filter((tsk: TTask) => {
 			return totalTodayTasks.includes(tsk.id);
 		});
 	}, [tasks, totalTodayTasks]);

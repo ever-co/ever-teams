@@ -1,5 +1,4 @@
 import { pad } from '@/core/lib/helpers/number';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
 import Image from 'next/legacy/image';
@@ -7,9 +6,10 @@ import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 're
 import { EstimationProgress } from './estimation-progress';
 import { useTranslations } from 'next-intl';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	memberTask: ITask | null;
+	memberTask: TTask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
 	editable: MemberCardEditableValues;

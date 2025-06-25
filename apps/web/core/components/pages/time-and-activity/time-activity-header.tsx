@@ -6,15 +6,15 @@ import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-acti
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
 	onViewOptionsChange?: (options: ViewOption[]) => void;
 	userManagedTeams?: TOrganizationTeam[];
 	projects?: TOrganizationProject[];
-	tasks?: ITask[];
+	tasks?: TTask[];
 	activeTeam?: TOrganizationTeam | null;
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onGroupByChange?: (value: GroupByType) => void;

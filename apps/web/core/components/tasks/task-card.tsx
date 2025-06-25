@@ -19,7 +19,6 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { activeTeamState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -50,10 +49,11 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
 	active?: boolean;
-	task?: Nullable<ITask>;
+	task?: Nullable<TTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign' | 'dailyplan';
@@ -315,7 +315,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 });
 
 // Memorize UsersTaskAssigned to prevent unnecessary re-renders
-const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<ITask> } & IClassName) => {
+const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<TTask> } & IClassName) => {
 	const t = useTranslations();
 	const members = task?.members || [];
 
@@ -342,7 +342,7 @@ const TimerButtonCall = React.memo(
 		activeTeam,
 		className
 	}: {
-		task: ITask;
+		task: TTask;
 		currentMember: TOrganizationTeamEmployee | undefined;
 		activeTeam: TOrganizationTeam | null;
 		className?: string;
@@ -433,7 +433,7 @@ export const TaskInfo = React.memo(
 	}: IClassName & {
 		tab?: 'default' | 'unassign' | 'dailyplan';
 		dayPlanTab?: FilterTabs;
-		task?: Nullable<ITask>;
+		task?: Nullable<TTask>;
 		taskBadgeClassName?: string;
 		taskTitleClassName?: string;
 	}) => {
@@ -480,7 +480,7 @@ export function TaskCardMenu({
 	plan,
 	planMode
 }: {
-	task: ITask;
+	task: TTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
@@ -538,7 +538,7 @@ export function TaskCardMenu({
 	const { todayPlan, futurePlans } = useDailyPlan();
 
 	const taskPlannedToday = useMemo(
-		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask: ITask) => planTask.id === task.id),
+		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask: TTask) => planTask.id === task.id),
 		[task.id, todayPlan]
 	);
 
@@ -546,7 +546,7 @@ export function TaskCardMenu({
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
-				const taskCount = plan.tasks.filter((planTask: ITask) => planTask.id === task.id).length;
+				const taskCount = plan.tasks.filter((planTask: TTask) => planTask.id === task.id).length;
 				return count + taskCount;
 			}
 			return count;
@@ -561,7 +561,7 @@ export function TaskCardMenu({
 						?.toString()
 						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
 				)[0]
-				?.tasks?.find((planTask: ITask) => planTask.id === task.id),
+				?.tasks?.find((planTask: TTask) => planTask.id === task.id),
 		[futurePlans, task.id]
 	);
 
@@ -727,8 +727,8 @@ export function PlanTask({
 	planMode: EDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
-	taskPlannedToday?: ITask;
-	taskPlannedForTomorrow?: ITask;
+	taskPlannedToday?: TTask;
+	taskPlannedForTomorrow?: TTask;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -834,7 +834,7 @@ export function PlanTask({
 	);
 }
 
-export function AddTaskToPlanComponent({ task, employee }: { task: ITask; employee?: IEmployee }) {
+export function AddTaskToPlanComponent({ task, employee }: { task: TTask; employee?: IEmployee }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
@@ -856,7 +856,7 @@ export function RemoveTaskFromPlan({
 	plan,
 	member
 }: {
-	task: ITask;
+	task: TTask;
 	member?: TOrganizationTeamEmployee;
 	plan?: IDailyPlan;
 }) {
@@ -882,7 +882,7 @@ export function RemoveTaskFromPlan({
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITask; member?: TOrganizationTeamEmployee }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {

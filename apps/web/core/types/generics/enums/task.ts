@@ -19,11 +19,11 @@ export enum ETaskSize {
 }
 
 export enum ETaskType {
-	EPIC = 'epic',
-	STORY = 'story',
-	TASK = 'task',
-	BUG = 'bug',
-	MEMO = 'memo'
+	EPIC = 'Epic',
+	STORY = 'Story',
+	TASK = 'Task',
+	BUG = 'Bug',
+	MEMO = 'Memo'
 }
 
 export enum ERelatedIssuesRelation {

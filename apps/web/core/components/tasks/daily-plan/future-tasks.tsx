@@ -19,7 +19,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
@@ -43,7 +43,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: ITask) =>
+					tasks: plan.tasks?.filter((task: TTask) =>
 						task.members?.some((member: IEmployee) => member.userId === user.id)
 					)
 				}))

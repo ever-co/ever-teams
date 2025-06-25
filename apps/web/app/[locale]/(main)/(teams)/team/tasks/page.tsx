@@ -21,8 +21,8 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ColumnDef } from '@tanstack/react-table';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TeamTask = () => {
 	const t = useTranslations();
@@ -55,10 +55,10 @@ const TeamTask = () => {
 	});
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ITask>(filteredTasks);
-	useReactTable<ITask>({
+		usePagination<TTask>(filteredTasks);
+	useReactTable<TTask>({
 		data: currentItems,
-		columns: columns as ColumnDef<ITask, any>[],
+		columns: columns as ColumnDef<TTask, any>[],
 		state: {
 			columnVisibility: tableColumnsVisibility
 		},

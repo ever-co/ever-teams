@@ -32,10 +32,10 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -68,7 +68,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITask | undefined) => {
+		async (parentTask: TTask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 
@@ -121,7 +121,7 @@ const TaskSecondaryInfo = () => {
 						onValueChange={(d: string) => {
 							onTaskSelect({
 								id: d
-							} as ITask);
+							} as TTask);
 						}}
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
@@ -240,7 +240,7 @@ const TaskSecondaryInfo = () => {
 	);
 };
 
-const EpicParent = ({ task }: { task: ITask }) => {
+const EpicParent = ({ task }: { task: TTask }) => {
 	const t = useTranslations();
 
 	if (task?.issueType === EIssueType.STORY) {
@@ -267,7 +267,7 @@ const EpicParent = ({ task }: { task: ITask }) => {
 };
 
 interface ITaskProjectDropdownProps {
-	task?: ITask;
+	task?: TTask;
 	controlled?: boolean;
 	onChange?: (project: TOrganizationProject) => void;
 	styles?: {
@@ -283,7 +283,7 @@ export default TaskSecondaryInfo;
  * TaskProject dropdown
  *
  * @param {Object} props - The props object
- * @param {ITask} props.task - The ITask object which
+ * @param {TTask} props.task - The TTask object which
  * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
  * @param {(project: 	IOrganizationProject) => void} props.onChange - The function called when user selects a value (external handler)
  *

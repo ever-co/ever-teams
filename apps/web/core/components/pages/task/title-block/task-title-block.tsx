@@ -1,5 +1,4 @@
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { Button, CopyTooltip } from '@/core/components';
@@ -19,6 +18,7 @@ import { Heart } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { toast } from 'sonner';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -255,7 +255,7 @@ const TaskTitleBlock = () => {
 
 export default TaskTitleBlock;
 
-const ParentTaskBadge = ({ task }: { task: ITask | null }) => {
+const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 	return task?.parentId && task?.parent ? (
 		<HoverCard>
 			<HoverCardTrigger asChild>
@@ -308,7 +308,7 @@ const ParentTaskBadge = ({ task }: { task: ITask | null }) => {
 		<></>
 	);
 };
-const ParentTaskInput = ({ task }: { task: ITask | null }) => {
+const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 	const modal = useModal();
 	const t = useTranslations();
 

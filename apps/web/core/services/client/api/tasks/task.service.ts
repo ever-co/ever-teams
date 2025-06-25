@@ -8,8 +8,7 @@ import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { ITask } from '@/core/types/interfaces/task/task';
-import taskSchema, { createTaskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
+import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 
 /**
@@ -61,7 +60,7 @@ class TaskService extends APIService {
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
-			const response = await this.get<ITask>(endpoint);
+			const response = await this.get<TTask>(endpoint);
 
 			// Validate the response data using Zod schema
 			return validateApiResponse(taskSchema, response.data, 'getTaskById API response');
@@ -128,7 +127,7 @@ class TaskService extends APIService {
 			const query = qs.stringify(obj);
 			const endpoint = `/tasks/team?${query}`;
 
-			const response = await this.get<PaginationResponse<ITask>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskSchema, response.data, 'getTasks API response');
@@ -212,7 +211,7 @@ class TaskService extends APIService {
 				return this.getTasks(organizationId, tenantId, projectId, teamId);
 			}
 
-			const response = await this.put<PaginationResponse<ITask>>(`/tasks/${taskId}`, validatedInput);
+			const response = await this.put<PaginationResponse<TTask>>(`/tasks/${taskId}`, validatedInput);
 
 			// Validate the response data
 			return validatePaginationResponse(taskSchema, response.data, 'updateTask API response');
@@ -277,7 +276,7 @@ class TaskService extends APIService {
 			}
 
 			const api = await getFallbackAPI();
-			const response = await api.post<PaginationResponse<ITask>>('/tasks/team', body);
+			const response = await api.post<PaginationResponse<TTask>>('/tasks/team', body);
 
 			// Validate the response data
 			return validatePaginationResponse(taskSchema, response.data, 'createTask API response');
@@ -343,7 +342,7 @@ class TaskService extends APIService {
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
-			const response = await this.get<ITask[]>(`/tasks/employee/${employeeId}?${query}`);
+			const response = await this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`);
 
 			// Validate the response data using Zod schema
 			return response.data.map((task: any) =>

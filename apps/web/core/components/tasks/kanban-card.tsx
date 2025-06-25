@@ -1,6 +1,5 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
@@ -18,6 +17,8 @@ import { useAtom } from 'jotai';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 import dynamic from 'next/dynamic';
 
@@ -146,7 +147,7 @@ export function Priority({ level }: { level: ETaskPriority }) {
 	);
 }
 type ItemProps = {
-	item: ITask;
+	item: TTask;
 	isDragging: boolean;
 	isGroupedOver: boolean;
 	provided: DraggableProvided;
@@ -173,7 +174,7 @@ export default function Item(props: ItemProps) {
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === item?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === item?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
@@ -197,7 +198,7 @@ export default function Item(props: ItemProps) {
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t: ITask) => t.id === item?.id)
+				.filter((t: TTask) => t.id === item?.id)
 				.reduce(
 					(previousValue: number, currentValue: ITasksStatistics) =>
 						previousValue + (currentValue.duration || 0),

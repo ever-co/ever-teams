@@ -10,9 +10,9 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 import { EverCard } from '../common/ever-card';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TaskLinkedIssue({
 	task,
@@ -20,7 +20,7 @@ export function TaskLinkedIssue({
 	relatedTaskDropdown,
 	issue
 }: {
-	task: ITask;
+	task: TTask;
 	className?: string;
 	relatedTaskDropdown?: boolean;
 	issue?: ITaskLinkedIssue;

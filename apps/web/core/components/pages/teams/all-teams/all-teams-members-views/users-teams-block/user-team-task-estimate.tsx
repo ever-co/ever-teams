@@ -1,8 +1,8 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useEffect, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamActiveTaskEstimateBlock({
 	member,
@@ -12,14 +12,14 @@ export default function UserTeamActiveTaskEstimateBlock({
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
 		getTaskById(activeTaskId || '')
-			.then((response) => setActiveTask(response as ITask))
+			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

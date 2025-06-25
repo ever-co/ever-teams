@@ -1,8 +1,8 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { TaskBlockInfo } from '../../../team/team-members-views/user-team-block/task-info';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamActiveBlockTaskInfo({
 	member,
@@ -12,7 +12,7 @@ export default function UserTeamActiveBlockTaskInfo({
 	activeTaskId: string;
 }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();
@@ -22,7 +22,7 @@ export default function UserTeamActiveBlockTaskInfo({
 			return;
 		}
 		getTaskById(activeTaskId)
-			.then((task) => setActiveTask(task as ITask))
+			.then((task) => setActiveTask(task as TTask))
 			.catch(console.error);
 	}, [activeTaskId, getTaskById]);
 

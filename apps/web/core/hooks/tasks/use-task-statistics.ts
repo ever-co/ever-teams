@@ -17,8 +17,9 @@ import { statisticsService } from '@/core/services/client/api/timesheets/statist
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -73,7 +74,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get task timesheet statistics
 	 */
 	const getTaskStat = useCallback(
-		(task: Nullable<ITask>) => {
+		(task: Nullable<TTask>) => {
 			const stats = statTasksRef.current;
 			return {
 				taskTotalStat: stats.all.find((t) => t.id === task?.id),
@@ -157,7 +158,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<ITask>, addSeconds: number, estimate = 0) =>
+		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) =>
 			Math.min(
 				Math.floor(
 					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
@@ -172,7 +173,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		let totalWorkedTasksTimer = 0;
 		activeTeam?.members?.forEach((member: any) => {
 			const totalWorkedTasks =
-				member?.totalWorkedTasks?.find((item: ITask) => item.id === activeTeamTask?.id) || null;
+				member?.totalWorkedTasks?.find((item: TTask) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
 				totalWorkedTasksTimer += totalWorkedTasks?.duration || 0;
 			}

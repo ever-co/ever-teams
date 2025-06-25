@@ -12,7 +12,6 @@ import {
 } from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TaskStatus } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -42,6 +41,7 @@ const LazyEditStatusModal = dynamic(() => import('../features/tasks/edit-status-
 	// Note: Removed loading here to avoid double loading states
 	// Suspense fallback will handle all loading states uniformly
 });
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const grid = 8;
 
@@ -89,10 +89,10 @@ function InnerItemList({
 	allColumnsData
 }: {
 	title: string;
-	items: ITask[];
+	items: TTask[];
 	dropSnapshot: DroppableStateSnapshot;
 	isLoading: boolean;
-	allColumnsData?: { [key: string]: ITask[] };
+	allColumnsData?: { [key: string]: TTask[] };
 }) {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -107,7 +107,7 @@ function InnerItemList({
 				{!isActuallyLoading &&
 					Array.isArray(items) &&
 					items.length > 0 &&
-					items.map((item: ITask, index: number) => (
+					items.map((item: TTask, index: number) => (
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 								<Item
@@ -188,11 +188,11 @@ function InnerItemList({
  */
 function InnerList(props: {
 	title: string;
-	items: ITask[];
+	items: TTask[];
 	dropProvided: DroppableProvided;
 	dropSnapshot: DroppableStateSnapshot;
 	isLoading: boolean;
-	allColumnsData?: { [key: string]: ITask[] };
+	allColumnsData?: { [key: string]: TTask[] };
 }) {
 	const { items, dropProvided, dropSnapshot, title, isLoading, allColumnsData } = props;
 
@@ -261,8 +261,8 @@ export const KanbanDroppable = ({
 	isLoading: boolean;
 	droppableId: string;
 	type: string;
-	content: ITask[];
-	allColumnsData?: { [key: string]: ITask[] };
+	content: TTask[];
+	allColumnsData?: { [key: string]: TTask[] };
 }) => {
 	return (
 		<>
@@ -303,7 +303,7 @@ export const EmptyKanbanDroppable = ({
 	status: any;
 	setColumn: any;
 	backgroundColor: any;
-	items: ITask[];
+	items: TTask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
 	const t = useTranslations();
@@ -567,10 +567,10 @@ const KanbanDraggable = ({
 	icon: string;
 	isLoading: boolean;
 	backgroundColor: any;
-	items: ITask[];
+	items: TTask[];
 	containerRef?: RefObject<HTMLDivElement>;
-	addNewTask: (value: ITask, status: string) => void;
-	allColumnsData?: { [key: string]: ITask[] };
+	addNewTask: (value: TTask, status: string) => void;
+	allColumnsData?: { [key: string]: TTask[] };
 }) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();

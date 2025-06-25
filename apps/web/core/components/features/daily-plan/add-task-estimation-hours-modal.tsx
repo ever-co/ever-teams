@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
 import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
@@ -29,6 +28,7 @@ import { VerticalSeparator } from '../../duplicated-components/separator';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -37,7 +37,7 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
  * @param {IDailyPlan} props.plan - The selected plan
- * @param {ITask[]} props.tasks - The list of planned tasks
+ * @param {TTask[]} props.tasks - The list of planned tasks
  * @param {boolean} props.isRenderedInSoftFlow - If true use the soft flow logic.
  * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
@@ -47,7 +47,7 @@ interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
 	plan?: IDailyPlan;
-	tasks: ITask[];
+	tasks: TTask[];
 	isRenderedInSoftFlow?: boolean;
 	selectedDate?: Date;
 }
@@ -118,7 +118,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	);
 	const [warning, setWarning] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [defaultTask, setDefaultTask] = useState<ITask | null>(null);
+	const [defaultTask, setDefaultTask] = useState<TTask | null>(null);
 	const isActiveTaskPlanned = useMemo(
 		() => plan && plan.tasks && plan.tasks.some((task) => task.id == activeTeamTask?.id),
 		[activeTeamTask?.id, plan]
@@ -610,8 +610,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 interface ISearchTaskInputProps {
 	selectedPlan?: IDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
-	setDefaultTask: Dispatch<SetStateAction<ITask | null>>;
-	defaultTask: ITask | null;
+	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
+	defaultTask: TTask | null;
 	selectedDate?: Date;
 }
 
@@ -621,8 +621,8 @@ interface ISearchTaskInputProps {
  * @param {Object} props - The props object
  * @param {string} props.selectedPlan - The selected plan
  * @param {Dispatch<SetStateAction<boolean>>} props.setShowSearchInput - A setter for (showing / hiding) the input
- * @param {Dispatch<SetStateAction<ITask>>} props.setDefaultTask - A function that sets default planned task
- * @param {ITask} props.defaultTask - The default planned task
+ * @param {Dispatch<SetStateAction<TTask>>} props.setDefaultTask - A function that sets default planned task
+ * @param {TTask} props.defaultTask - The default planned task
  * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
  * @returns The Search input component
@@ -632,7 +632,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatuses } = useTaskStatus();
 	const [taskName, setTaskName] = useState('');
-	const [tasks, setTasks] = useState<ITask[]>([]);
+	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
 	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
 	const t = useTranslations();
@@ -770,8 +770,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
  */
 
 interface ITaskCardProps {
-	task: ITask;
-	setDefaultTask: Dispatch<SetStateAction<ITask | null>>;
+	task: TTask;
+	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
 	isDefaultTask: boolean;
 	plan?: IDailyPlan;
 	viewListMode?: 'planned' | 'searched';
@@ -939,7 +939,7 @@ function TaskCard(props: ITaskCardProps) {
  */
 
 interface ITaskCardActionsProps {
-	task: ITask;
+	task: TTask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
 	openUnplanActiveTaskModal: () => void;
@@ -949,7 +949,7 @@ interface ITaskCardActionsProps {
  * A Popover that contains task actions (view, edit, unplan)
  *
  * @param {object} props - The props object
- * @param {ITask} props.task - The task on which actions will be performed
+ * @param {TTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
  * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
@@ -968,7 +968,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			[...futurePlans, ...todayPlan]
 				// Remove selected plan
 				.filter((plan) => plan.id! !== selectedPlan.id)
-				.filter((plan) => plan.tasks && plan.tasks.find((_task: ITask) => _task.id == task.id))
+				.filter((plan) => plan.tasks && plan.tasks.find((_task: TTask) => _task.id == task.id))
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
