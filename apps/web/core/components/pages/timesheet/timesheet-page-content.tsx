@@ -157,7 +157,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		if (!isDefaultRange) {
 			setDateRange(defaultDateRange);
 		}
-	}, []); // Run only once on mount
+	}, [defaultDateRange]); // Run only once on mount
 
 	/**
 	 * Memoized date range for timesheet
