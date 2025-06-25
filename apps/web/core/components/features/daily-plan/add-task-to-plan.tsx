@@ -52,7 +52,7 @@ export function AddTaskToPlan({
 			? createDailyPlan({
 					workTimePlanned: workTimePlanned,
 					taskId: task.id,
-					date: String(new Date(moment(date).format('YYYY-MM-DD'))),
+					date: moment(date).format('YYYY-MM-DD'),
 					status: EDailyPlanStatus.OPEN,
 					tenantId: employee?.tenantId,
 					employeeId: employee?.employeeId,

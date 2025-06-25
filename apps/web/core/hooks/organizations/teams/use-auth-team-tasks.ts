@@ -33,11 +33,11 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 			outstandingPlans?.map((plan) => plan.tasks?.map((task) => task))
 		).totalTasks;
 
-		const todayTasksCOunt = getTotalTasks(todayPlan);
+		const todayTasksCount = getTotalTasks(todayPlan);
 
 		const futureTasksCount = getTotalTasks(futurePlans);
 
-		return outStandingTasksCount + futureTasksCount + todayTasksCOunt;
+		return outStandingTasksCount + futureTasksCount + todayTasksCount;
 	}, [futurePlans, outstandingPlans, todayPlan]);
 
 	const totalTodayTasks = useMemo(

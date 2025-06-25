@@ -337,16 +337,9 @@ class DailyPlanService extends APIService {
 			const organizationId = getOrganizationIdCookie();
 			const tenantId = getTenantIdCookie();
 
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				dailyPlanTasksUpdateSchema,
-				{ ...data, organizationId },
-				'removeTaskFromPlan input data'
-			);
-
 			const response = await this.put<TDailyPlan>(
 				`/daily-plan/${planId}/task`,
-				validatedInput as Record<string, any>,
+				{ ...data, organizationId },
 				{ tenantId }
 			);
 
@@ -384,17 +377,7 @@ class DailyPlanService extends APIService {
 		try {
 			const organizationId = getOrganizationIdCookie();
 
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				dailyPlanTasksUpdateSchema,
-				{ ...data, organizationId },
-				'removeManyTaskFromPlans input data'
-			);
-
-			const response = await this.put<TDailyPlan[]>(
-				`/daily-plan/${taskId}/remove`,
-				validatedInput as Record<string, any>
-			);
+			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 
 			// Validate the response data (array of daily plans)
 			const validatedPlans = response.data.map((plan, index) =>

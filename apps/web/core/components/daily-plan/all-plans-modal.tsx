@@ -52,7 +52,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
 		() =>
-			[...myDailyPlans?.items].sort((plan1, plan2) =>
+			[...(myDailyPlans?.items || [])].sort((plan1, plan2) =>
 				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
 			),
 		[myDailyPlans?.items]
@@ -162,7 +162,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		try {
 			await createDailyPlan({
 				workTimePlanned: 0,
-				date: String(new Date(moment(customDate).format('YYYY-MM-DD'))),
+				date: moment(customDate).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id,
