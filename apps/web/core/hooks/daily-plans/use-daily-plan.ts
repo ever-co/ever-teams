@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
 	activeTeamState,
 	dailyPlanListState,
@@ -26,13 +26,14 @@ import {
 	TRemoveTaskFromPlansRequest,
 	TUpdateDailyPlan
 } from '@/core/types/schemas/task/daily-plan.schema';
+import { useConditionalUpdateEffect, useQueryCall } from '../common';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
-	const [taskId, setTaskId] = useState('');
+	// const [taskId, setTaskId] = useState('');
 	const [employeeId, setEmployeeId] = useState('');
 	const queryClient = useQueryClient();
 
@@ -67,15 +68,16 @@ export function useDailyPlan() {
 		gcTime: 1000 * 60 * 60
 	});
 
-	const getPlansByTaskQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.byTask(taskId),
-		queryFn: async () => {
-			const res = await dailyPlanService.getPlansByTask(taskId);
-			return res;
-		},
-		enabled: !!taskId,
-		gcTime: 1000 * 60 * 60
-	});
+	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) =>
+		queryClient.fetchQuery({
+			queryKey: queryKeys.dailyPlans.byTask(taskId),
+			queryFn: async () => {
+				const res = await dailyPlanService.getPlansByTask(taskId);
+				return res;
+			},
+			gcTime: 1000 * 60 * 60
+		})
+	);
 
 	// Mutations
 	const createDailyplanMutation = useMutation({
@@ -158,35 +160,45 @@ export function useDailyPlan() {
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
 	// Sync jotai state
-	useEffect(() => {
-		if (getDayPlansByEmployeeQuery.data?.items) {
-			setEmployeePlans(getDayPlansByEmployeeQuery.data?.items);
-		}
-	}, [getDayPlansByEmployeeQuery.data?.items, setEmployeePlans]);
+	useConditionalUpdateEffect(
+		() => {
+			if (getDayPlansByEmployeeQuery.data?.items) {
+				setEmployeePlans(getDayPlansByEmployeeQuery.data?.items);
+			}
+		},
+		[getDayPlansByEmployeeQuery.data?.items, setEmployeePlans],
+		Boolean(employeePlans?.length)
+	);
 
-	useEffect(() => {
-		if (getMyDailyPlansQuery.data) {
-			setMyDailyPlans(getMyDailyPlansQuery.data);
-		}
-	}, [getMyDailyPlansQuery.data, setMyDailyPlans]);
+	useConditionalUpdateEffect(
+		() => {
+			if (getMyDailyPlansQuery.data) {
+				setMyDailyPlans(getMyDailyPlansQuery.data);
+			}
+		},
+		[getMyDailyPlansQuery.data, setMyDailyPlans],
+		Boolean(myDailyPlans?.items?.length)
+	);
 
-	useEffect(() => {
-		if (getAllDayPlansQuery.data) {
-			setDailyPlan(getAllDayPlansQuery.data);
-		}
-	}, [getAllDayPlansQuery.data, setDailyPlan]);
+	useConditionalUpdateEffect(
+		() => {
+			if (getAllDayPlansQuery.data) {
+				setDailyPlan(getAllDayPlansQuery.data);
+			}
+		},
+		[getAllDayPlansQuery.data, setDailyPlan],
+		Boolean(dailyPlan?.items?.length)
+	);
 
-	useEffect(() => {
-		if (getPlansByTaskQuery.data?.items) {
-			setTaskPlans(getPlansByTaskQuery.data.items);
-		}
-	}, [getPlansByTaskQuery.data?.items, setTaskPlans]);
-
-	useEffect(() => {
-		if (getMyDailyPlansQuery.data) {
-			setProfileDailyPlans(getMyDailyPlansQuery.data);
-		}
-	}, [getMyDailyPlansQuery.data, setProfileDailyPlans]);
+	useConditionalUpdateEffect(
+		() => {
+			if (getMyDailyPlansQuery.data) {
+				setProfileDailyPlans(getMyDailyPlansQuery.data);
+			}
+		},
+		[getMyDailyPlansQuery.data, setProfileDailyPlans],
+		Boolean(profileDailyPlans?.items?.length)
+	);
 
 	// All day plans
 	const getAllDayPlans = useCallback(async () => {
@@ -271,14 +283,17 @@ export function useDailyPlan() {
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
-			if (taskId) {
-				setTaskId(taskId);
-				const res = await getPlansByTaskQuery.refetch();
-				if (res?.data) {
-					setTaskPlans(res.data.items);
+			try {
+				if (taskId) {
+					const res = await getPlansByTaskQuery(taskId);
+					if (res) {
+						setTaskPlans(res.items);
+					}
+				} else {
+					return;
 				}
-			} else {
-				return;
+			} catch (error) {
+				console.error('Error fetching plans by task:', error);
 			}
 		},
 		[getPlansByTaskQuery, setTaskPlans]
@@ -446,7 +461,7 @@ export function useDailyPlan() {
 		getDayPlansByEmployeeLoading: getDayPlansByEmployeeQuery.isLoading,
 
 		getPlansByTask,
-		getPlansByTaskLoading: getPlansByTaskQuery.isLoading,
+		getPlansByTaskLoading: getPlansByTaskQueryLoading,
 
 		createDailyPlan,
 		createDailyPlanLoading: createDailyplanMutation.isPending,
