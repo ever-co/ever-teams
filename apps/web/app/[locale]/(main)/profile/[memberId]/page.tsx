@@ -94,16 +94,16 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					ref={profile.loadTaskStatsIObserverRef}
 					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
 				>
-					<div className="flex flex-col items-center justify-center gap-5">
+					<div className="flex flex-col gap-5 justify-center items-center">
 						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
 						</Text>
 
-						<Text className="font-light text-center text-gray-400 ">
+						<Text className="font-light text-center text-gray-400">
 							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 						</Text>
 
-						<Button className="m-auto font-normal rounded-lg ">
+						<Button className="m-auto font-normal rounded-lg">
 							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
 						</Button>
 					</div>
@@ -116,9 +116,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<MainLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
-					<div className="w-full space-y-4">
+					<div className="space-y-4 w-full">
 						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
+						<div className="flex gap-8 items-center">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>
@@ -127,7 +127,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</div>
 
 						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between md:flex-row">
+						<div className="flex flex-col justify-between items-center md:flex-row">
 							<UserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
@@ -151,9 +151,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</div> */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
-					<div className={cn('flex justify-start items-center gap-4 mt-3')}>
+					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
-							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(
@@ -169,7 +169,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</Container>
 			)}
-			<Container fullWidth={fullWidth} className="mb-10 -mt-6">
+			<Container fullWidth={fullWidth} className="mt-6 mb-10">
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
