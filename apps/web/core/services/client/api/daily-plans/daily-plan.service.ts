@@ -219,7 +219,7 @@ class DailyPlanService extends APIService {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
-				createDailyPlanSchema.partial(), // Allow partial data for creation
+				createDailyPlanSchema, // Allow partial data for creation
 				data,
 				'createDailyPlan input data'
 			);
