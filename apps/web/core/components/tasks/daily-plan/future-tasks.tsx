@@ -18,7 +18,6 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();

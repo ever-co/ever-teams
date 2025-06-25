@@ -14,7 +14,6 @@ import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStat
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/task';
 
 export function PastTasks({
 	user,
@@ -123,7 +122,7 @@ export function PastTasks({
 																			isAuthUser={true}
 																			activeAuthTask={true}
 																			viewType={'dailyplan'}
-																			task={task as ITask}
+																			task={task}
 																			profile={profile}
 																			plan={plan}
 																			type="HORIZONTAL"
@@ -155,10 +154,7 @@ export function PastTasks({
 																			marginBottom: 8
 																		}}
 																	>
-																		<TaskBlockCard
-																			key={task.id}
-																			task={task as ITask}
-																		/>
+																		<TaskBlockCard key={task.id} task={task} />
 																	</div>
 																)}
 															</Draggable>

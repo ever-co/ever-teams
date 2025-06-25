@@ -17,7 +17,6 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { ITask } from '@/core/types/interfaces/task/task';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -384,7 +383,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								{selectedPlan ? (
 									<AddTasksEstimationHoursModal
 										plan={plan}
-										tasks={(plan?.tasks as ITask[]) ?? []}
+										tasks={plan?.tasks ?? []}
 										isRenderedInSoftFlow={false}
 										isOpen={isOpen}
 										closeModal={handleCloseModal}

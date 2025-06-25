@@ -21,7 +21,6 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { ITask } from '@/core/types/interfaces/task/task';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
@@ -166,7 +165,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 								isOpen={modals.isTasksEstimationHoursModalOpen}
 								closeModal={modals.tasksEstimationHoursCloseModal}
 								plan={hasPlan}
-								tasks={hasPlan.tasks as ITask[]}
+								tasks={hasPlan.tasks}
 							/>
 						)}
 
@@ -260,7 +259,7 @@ export function MinTimerFrame({ className }: IClassName) {
 					isOpen={modals.isTasksEstimationHoursModalOpen}
 					closeModal={modals.tasksEstimationHoursCloseModal}
 					plan={hasPlan}
-					tasks={hasPlan.tasks as ITask[]}
+					tasks={hasPlan.tasks}
 				/>
 			)}
 
