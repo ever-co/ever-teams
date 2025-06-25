@@ -10,23 +10,22 @@ import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function TaskActivity({ task }: { task: TTask }) {
-	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
+	const { taskTimesheets } = useTaskTimeSheets(task?.id);
 	const [hidden, setHidden] = React.useState(true);
 
 	// order activity arr by Time
 	// Type assertion needed due to React Query migration - TActivity vs IActivity compatibility
 	const groupedData = groupByTime(taskTimesheets);
 
-	React.useEffect(() => {
-		getTaskTimesheets();
-	}, [task, getTaskTimesheets]);
+	// React Query in useTaskTimeSheets handles data fetching automatically
+	// No manual getTaskTimesheets() call needed
 	return (
 		<EverCard
 			className="w-full p-4 md:px-4 dark:bg-[#25272D] flex flex-col gap-6 border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
-				<div className="flex items-center gap-2 mb-2">
+				<div className="flex gap-2 items-center mb-2">
 					<h4 className="text-base font-semibold">{'Timesheet'}</h4>
 				</div>
 
@@ -42,7 +41,7 @@ export function TaskActivity({ task }: { task: TTask }) {
 			</div>
 			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
 				{groupedData.length < 1 ? (
-					<p className="mx-auto ">There is no Activity</p>
+					<p className="mx-auto">There is no Activity</p>
 				) : (
 					groupedData.map((timesheet, i) => (
 						<div

@@ -24,7 +24,6 @@ import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useCallback, useMemo, useState, useTransition } from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
@@ -437,8 +436,6 @@ export const TaskInfo = React.memo(
 		taskBadgeClassName?: string;
 		taskTitleClassName?: string;
 	}) => {
-		const router = useRouter();
-
 		return (
 			<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 				{/* task */}
@@ -447,8 +444,9 @@ export const TaskInfo = React.memo(
 					<div className="overflow-hidden w-full h-10">
 						<div className={clsxm('flex flex-col justify-start items-start h-full')}>
 							<div
-								className={clsxm('overflow-hidden w-full h-full text-sm cursor-pointer text-ellipsis')}
-								onClick={() => task && router.push(`/task/${task?.id}`)}
+								className={clsxm(
+									'overflow-hidden relative w-full h-full text-sm cursor-pointer text-ellipsis'
+								)}
 							>
 								<TaskNameInfoDisplay
 									task={task}
@@ -456,6 +454,7 @@ export const TaskInfo = React.memo(
 									taskTitleClassName={clsxm(taskTitleClassName)}
 									className="h-full"
 								/>
+								<Link href={`/task/${task?.id}`} className="absolute inset-0 opacity-0" />
 							</div>
 						</div>
 					</div>

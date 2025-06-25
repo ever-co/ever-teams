@@ -1,11 +1,61 @@
-import { ChildIssueCard } from '@/core/components/pages/task/child-issue-card';
-import RichTextEditor from '@/core/components/pages/task/description-block/task-description-editor';
-import { RelatedIssueCard } from '@/core/components/pages/task/issue-card';
-import TaskDetailsAside from '@/core/components/pages/task/task-details-aside';
-import TaskProperties from '@/core/components/pages/task/task-properties';
 import TaskTitleBlock from '@/core/components/pages/task/title-block/task-title-block';
-import { TaskActivity } from '@/core/components/pages/task/task-activity';
+import TaskProperties from '@/core/components/pages/task/task-properties';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import dynamic from 'next/dynamic';
+import {
+	RichTextEditorSkeleton,
+	TaskActivitySkeleton,
+	TaskDetailsAsideSkeleton,
+	IssueCardSkeleton
+} from '@/core/components/common/skeleton/rich-text-editor-skeleton';
+
+// Lazy load heavy components for Task Details page optimization
+// Priority 1: RichTextEditor (heaviest component with Slate.js)
+const LazyRichTextEditor = dynamic(
+	() =>
+		import('@/core/components/pages/task/description-block/task-description-editor').then((mod) => ({
+			default: mod.default
+		})),
+	{
+		ssr: false,
+		loading: () => <RichTextEditorSkeleton />
+	}
+);
+
+// Priority 2: TaskActivity (complex component with timesheets)
+const LazyTaskActivity = dynamic(
+	() => import('@/core/components/pages/task/task-activity').then((mod) => ({ default: mod.TaskActivity })),
+	{
+		ssr: false,
+		loading: () => <TaskActivitySkeleton />
+	}
+);
+
+// Priority 3: TaskDetailsAside (sidebar with multiple sections)
+const LazyTaskDetailsAside = dynamic(
+	() => import('@/core/components/pages/task/task-details-aside').then((mod) => ({ default: mod.default })),
+	{
+		ssr: false,
+		loading: () => <TaskDetailsAsideSkeleton />
+	}
+);
+
+// Priority 4: Issue cards (conditional components)
+const LazyChildIssueCard = dynamic(
+	() => import('@/core/components/pages/task/child-issue-card').then((mod) => ({ default: mod.ChildIssueCard })),
+	{
+		ssr: false,
+		loading: () => <IssueCardSkeleton title="Child Issues" />
+	}
+);
+
+const LazyRelatedIssueCard = dynamic(
+	() => import('@/core/components/pages/task/issue-card').then((mod) => ({ default: mod.RelatedIssueCard })),
+	{
+		ssr: false,
+		loading: () => <IssueCardSkeleton title="Related Issues" />
+	}
+);
 
 interface ITaskDetailsComponentProps {
 	task: TTask;
@@ -28,20 +78,21 @@ export function TaskDetailsComponent(props: ITaskDetailsComponentProps) {
 					<TaskTitleBlock />
 
 					<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
-						<RichTextEditor />
+						{/* Pass task prop to ensure proper state synchronization */}
+						<LazyRichTextEditor key={task?.id} />
 						{/* <TaskDescriptionBlock /> */}
-						<ChildIssueCard />
-						<RelatedIssueCard />
+						<LazyChildIssueCard key={`child-${task?.id}`} />
+						<LazyRelatedIssueCard key={`related-${task?.id}`} />
 
 						{/* <IssueCard related={true} /> */}
 
 						{/* <CompletionBlock /> */}
-						{task && <TaskActivity task={task} />}
+						{task && <LazyTaskActivity task={task} key={`activity-${task?.id}`} />}
 					</div>
 				</section>
 				<div className="flex flex-col my-4 lg:mt-0 3xl:min-w-[24rem] gap-3 w-full lg:w-[30%]">
-					<div className="flex flex-col bg-white dark:bg-dark--theme-light rounded-xl">
-						<TaskDetailsAside />
+					<div className="flex flex-col bg-white rounded-xl dark:bg-dark--theme-light">
+						<LazyTaskDetailsAside key={`aside-${task?.id}`} />
 					</div>
 					<TaskProperties task={task} />
 				</div>
