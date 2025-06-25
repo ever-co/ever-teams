@@ -3,7 +3,8 @@
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import {
 	Archive,
 	ArrowLeftIcon,
@@ -24,17 +25,12 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import FiltersCardModal from '../../projects/filters-card-modal';
-import { ProjectsListView } from './project-views/list-view';
 import { VisibilityState } from '@tanstack/react-table';
 import { ProjectViewDataType } from './project-views';
-import { ProjectsGridView } from './project-views/grid-view';
-import { ProjectExportMenu } from './project-export-menu';
 import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@/core/components/common/checkbox';
-import { BulkArchiveProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal';
-import { BulkRestoreProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal';
+
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -42,8 +38,76 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
-import { CreateProjectModal } from '../../features/projects/create-project-modal';
+
 import { TOrganizationProject } from '@/core/types/schemas';
+import { ProjectListSkeleton } from './project-views/list-view/list-skeleton';
+import { ProjectsGridSkeleton } from './project-views/grid-view/grid-skeleton';
+
+// Lazy load heavy components for Projects page optimization
+// Priority 1: Modals (conditional rendering)
+const LazyFiltersCardModal = dynamic(
+	() => import('../../projects/filters-card-modal').then((mod) => ({ default: mod.default })),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyCreateProjectModal = dynamic(
+	() => import('../../features/projects/create-project-modal').then((mod) => ({ default: mod.CreateProjectModal })),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyBulkArchiveProjectsModal = dynamic(
+	() =>
+		import('@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal').then((mod) => ({
+			default: mod.BulkArchiveProjectsModal
+		})),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyBulkRestoreProjectsModal = dynamic(
+	() =>
+		import('@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal').then((mod) => ({
+			default: mod.BulkRestoreProjectsModal
+		})),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals (Medium article pattern)
+	}
+);
+
+// Priority 2: Conditional views
+const LazyProjectsListView = dynamic(
+	() => import('./project-views/list-view').then((mod) => ({ default: mod.ProjectsListView })),
+	{
+		ssr: false,
+		loading: () => <ProjectListSkeleton />
+	}
+);
+
+const LazyProjectsGridView = dynamic(
+	() => import('./project-views/grid-view').then((mod) => ({ default: mod.ProjectsGridView })),
+	{
+		ssr: false,
+		loading: () => <ProjectsGridSkeleton />
+	}
+);
+
+// Priority 3: Heavy components
+const LazyProjectExportMenu = dynamic(
+	() => import('./project-export-menu').then((mod) => ({ default: mod.ProjectExportMenu })),
+	{
+		ssr: false,
+		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+	}
+);
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -236,18 +300,18 @@ function PageComponent() {
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
-						<button onClick={handleBack} className="p-1 transition-colors rounded-full hover:bg-gray-100">
+						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					</div>
-					<div className="flex flex-col items-start justify-between gap-3">
-						<div className="flex items-center justify-center h-10 gap-8">
-							<h3 className="text-3xl font-medium ">{t('pages.projects.projectTitle.PLURAL')}</h3>
+					<div className="flex flex-col gap-3 justify-between items-start">
+						<div className="flex gap-8 justify-center items-center h-10">
+							<h3 className="text-3xl font-medium">{t('pages.projects.projectTitle.PLURAL')}</h3>
 						</div>
-						<div className="flex items-center justify-between w-full h-14">
+						<div className="flex justify-between items-center w-full h-14">
 							<div className="w-[20rem] h-full flex items-end justify-center">
-								<ul className="relative flex w-full text-lg justify-evenly">
+								<ul className="flex relative justify-evenly w-full text-lg">
 									{viewItems.map((item, index) => (
 										<li
 											onClick={() => {
@@ -283,11 +347,11 @@ function PageComponent() {
 				</Container>
 			}
 		>
-			<Container fullWidth={fullWidth} className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme">
-				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
-					<div className="flex items-center justify-between font-light rounded ">
+			<Container fullWidth={fullWidth} className="flex flex-col gap-6 p-4 mt-6 w-full h-full dark:bg-dark--theme">
+				<div className="p-3 space-y-6 rounded-lg border bg-light--theme-light dark:bg-transparent">
+					<div className="flex justify-between items-center font-light rounded">
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
-							<Search size={15} className=" text-slate-300" />{' '}
+							<Search size={15} className="text-slate-300" />{' '}
 							<InputField
 								onChange={(e) => setSearchTerm(e.target.value)}
 								value={searchTerm}
@@ -312,9 +376,9 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 							</Button>
-							<ProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
+							<LazyProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
 							{selectedView == 'LIST' && (
-								<Menu as="div" className="relative inline-block text-left">
+								<Menu as="div" className="inline-block relative text-left">
 									<div>
 										<Menu.Button>
 											<Button
@@ -356,7 +420,7 @@ function PageComponent() {
 																		`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																	)}
 																>
-																	<div className="flex items-center justify-center w-5 h-full ">
+																	<div className="flex justify-center items-center w-5 h-full">
 																		{isVisible && <Check size={12} />}
 																	</div>
 																	<span className="capitalize">{column}</span>
@@ -391,14 +455,14 @@ function PageComponent() {
 									: 'hidden'
 							)}
 						>
-							<div className="flex items-center h-full gap-2">
+							<div className="flex gap-2 items-center h-full">
 								{selectedView == 'GRID' && (
 									<Checkbox
 										checked={
 											Object.keys(selectedProjects).length > 0 &&
 											Object.keys(selectedProjects).length == filteredProjects.length
 										}
-										className=" shrink-0"
+										className="shrink-0"
 										onCheckedChange={handleSelectAllProjects}
 									/>
 								)}
@@ -438,7 +502,7 @@ function PageComponent() {
 						</div>
 					</div>
 					{selectedView === 'LIST' ? (
-						<ProjectsListView
+						<LazyProjectsListView
 							projects={filteredProjects}
 							loading={getOrganizationProjectsLoading}
 							columnVisibility={tableColumnsVisibility}
@@ -447,7 +511,7 @@ function PageComponent() {
 							onColumnVisibilityChange={setTableColumnsVisibility}
 						/>
 					) : selectedView === 'GRID' ? (
-						<ProjectsGridView
+						<LazyProjectsGridView
 							loading={getOrganizationProjectsLoading}
 							projects={filteredProjects}
 							selectedProjects={selectedProjects}
@@ -455,23 +519,41 @@ function PageComponent() {
 						/>
 					) : null}
 				</div>
-				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
-				<CreateProjectModal key={'create-project'} open={isProjectModalOpen} closeModal={closeProjectModal} />
-				{isBulkAction && (
-					<>
-						<BulkArchiveProjectsModal
+				{/* Lazy loaded modals with conditional rendering (Medium article pattern) */}
+				{isFiltersCardModalOpen && (
+					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+						<LazyFiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
+					</Suspense>
+				)}
+				{isProjectModalOpen && (
+					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+						<LazyCreateProjectModal
+							key={'create-project'}
+							open={isProjectModalOpen}
+							closeModal={closeProjectModal}
+						/>
+					</Suspense>
+				)}
+				{/* Lazy loaded bulk action modals with conditional rendering */}
+				{isBulkAction && isBulkArchiveProjectsModalOpen && (
+					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+						<LazyBulkArchiveProjectsModal
 							key={`bulk-archive-project`}
 							projectIds={Object.keys(selectedProjects)}
 							open={isBulkArchiveProjectsModalOpen}
 							closeModal={closeBulkArchiveProjectsModal}
 						/>
-						<BulkRestoreProjectsModal
+					</Suspense>
+				)}
+				{isBulkAction && isBulkRestoreProjectsModalOpen && (
+					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+						<LazyBulkRestoreProjectsModal
 							key={`bulk-restore-project`}
 							projectIds={Object.keys(selectedProjects)}
 							open={isBulkRestoreProjectsModalOpen}
 							closeModal={closeBulkRestoreProjectsModal}
 						/>
-					</>
+					</Suspense>
 				)}
 			</Container>
 		</MainLayout>
