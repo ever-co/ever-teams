@@ -7,8 +7,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import moment from 'moment';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import {
 	dismissNotification,
@@ -24,8 +23,8 @@ export function TeamOutstandingNotifications({
 	isTeamManager,
 	user
 }: {
-	outstandingPlans: IDailyPlan[];
-	dailyPlan: { items: IDailyPlan[] };
+	outstandingPlans: TDailyPlan[];
+	dailyPlan: { items: TDailyPlan[] };
 	isTeamManager: boolean;
 	user: TUser | null;
 }) {
@@ -45,7 +44,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	outstandingPlans,
 	user
 }: {
-	outstandingPlans: IDailyPlan[];
+	outstandingPlans: TDailyPlan[];
 	user?: TUser | null;
 }) {
 	const t = useTranslations();
@@ -103,7 +102,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUsersNotification({
 	outstandingTasks
 }: {
-	outstandingTasks: IDailyPlan[];
+	outstandingTasks: TDailyPlan[];
 }) {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();

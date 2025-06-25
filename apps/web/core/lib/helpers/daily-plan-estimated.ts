@@ -1,14 +1,14 @@
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { convertHourToSeconds } from './date-and-time';
 
 export interface IDailyPlanCompareEstimated {
 	difference: boolean;
 	workTimePlanned?: number;
 	estimated?: boolean[] | undefined;
-	plan?: IDailyPlan | undefined;
+	plan?: TDailyPlan | undefined;
 }
 
-export const dailyPlanCompareEstimated = (plans: IDailyPlan[]): IDailyPlanCompareEstimated => {
+export const dailyPlanCompareEstimated = (plans: TDailyPlan[]): IDailyPlanCompareEstimated => {
 	const plan = plans.find((plan) => plan.date?.toString()?.startsWith(new Date().toISOString().split('T')[0]));
 
 	if (!plan) {

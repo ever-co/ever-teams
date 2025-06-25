@@ -6,12 +6,12 @@ import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
-	plan: IDailyPlan;
+	plan: TDailyPlan;
 }
 
 export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProps) {

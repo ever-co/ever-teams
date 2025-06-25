@@ -1,12 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	useAuthenticateUser,
-	useDailyPlan,
-	useLocalStorageState,
-	useOrganizationTeams,
-	useUserProfilePage
-} from '@/core/hooks';
+import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -38,7 +32,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
-	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
@@ -93,10 +86,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		}));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
-
-	React.useEffect(() => {
-		getEmployeeDayPlans(profile.member?.employeeId ?? '');
-	}, [getEmployeeDayPlans, profile.member?.employeeId]);
 
 	if (Array.isArray(members) && members.length && !profile.member) {
 		return (

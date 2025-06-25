@@ -1,9 +1,9 @@
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { formatDayPlanDate } from './date-and-time';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 export const planBadgeContent = (
-	plans: IDailyPlan[],
+	plans: TDailyPlan[],
 	taskId: TTask['id'],
 	tab?: 'default' | 'unassign' | 'dailyplan'
 ): string | null => {
@@ -30,7 +30,7 @@ export const planBadgeContent = (
 	}
 };
 
-export const planBadgeContPast = (dailyPlan: IDailyPlan[], taskId: TTask['id']): string | null => {
+export const planBadgeContPast = (dailyPlan: TDailyPlan[], taskId: TTask['id']): string | null => {
 	const today = new Date().toISOString().split('T')[0];
 	const dailyPlanDataPast = dailyPlan.filter((plan) => new Date(plan.date) < new Date(today));
 	const allTasks = dailyPlanDataPast.flatMap((plan) => plan.tasks);

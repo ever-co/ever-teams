@@ -96,11 +96,22 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		setTasksFetching(true);
 
+		if (
+			!user?.employee?.tenantId ||
+			!activeTeamTask?.id ||
+			!user?.employee?.organizationId ||
+			!user?.employee?.id
+		) {
+			return new Promise((resolve) => {
+				resolve(true);
+			});
+		}
+
 		const promise = statisticsService.activeTaskTimesheetStatistics(
 			user?.employee?.tenantId,
-			'',
+			activeTeamTask?.id || '',
 			user?.employee?.organizationId || '',
-			''
+			user?.employee?.id
 		);
 		promise.then(({ data }) => {
 			setStatActiveTask({

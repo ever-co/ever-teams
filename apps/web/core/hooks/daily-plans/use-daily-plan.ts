@@ -11,10 +11,8 @@ import {
 	taskPlans
 } from '@/core/stores';
 import {
-	ICreateDailyPlan,
 	IDailyPlanTasksUpdate,
-	IRemoveTaskFromManyPlansRequest,
-	IUpdateDailyPlan
+	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
@@ -22,6 +20,12 @@ import { useAuthenticateUser } from '../auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import {
+	TCreateDailyPlan,
+	TDailyPlanTasksUpdate,
+	TRemoveTaskFromPlansRequest,
+	TUpdateDailyPlan
+} from '@/core/types/schemas/task/daily-plan.schema';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -75,7 +79,7 @@ export function useDailyPlan() {
 
 	// Mutations
 	const createDailyplanMutation = useMutation({
-		mutationFn: async (data: ICreateDailyPlan) => {
+		mutationFn: async (data: TCreateDailyPlan) => {
 			const res = await dailyPlanService.createDailyPlan(data);
 			return res;
 		},
@@ -85,7 +89,7 @@ export function useDailyPlan() {
 	});
 
 	const updateDailyPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: IUpdateDailyPlan }) => {
+		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TUpdateDailyPlan }) => {
 			const res = await dailyPlanService.updateDailyPlan(data, dailyPlanId);
 			return res;
 		},
@@ -95,7 +99,7 @@ export function useDailyPlan() {
 	});
 
 	const addTaskToPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: IDailyPlanTasksUpdate }) => {
+		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TDailyPlanTasksUpdate }) => {
 			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
 			return res;
 		},
@@ -105,7 +109,7 @@ export function useDailyPlan() {
 	});
 
 	const removeTaskFromPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: IRemoveTaskFromManyPlansRequest }) => {
+		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TRemoveTaskFromPlansRequest }) => {
 			const res = await dailyPlanService.removeTaskFromPlan(data, dailyPlanId);
 			return res;
 		},
@@ -115,7 +119,7 @@ export function useDailyPlan() {
 	});
 
 	const removeTaskPlansMutation = useMutation({
-		mutationFn: async ({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlansRequest }) => {
+		mutationFn: async ({ taskId, data }: { taskId: string; data: TRemoveTaskFromPlansRequest }) => {
 			const res = await dailyPlanService.removeManyTaskFromPlans({ taskId, data });
 			return res;
 		},
@@ -155,34 +159,34 @@ export function useDailyPlan() {
 
 	// Sync jotai state
 	useEffect(() => {
-		if (getDayPlansByEmployeeQuery.data?.data?.items) {
-			setEmployeePlans(getDayPlansByEmployeeQuery.data.data.items);
+		if (getDayPlansByEmployeeQuery.data?.items) {
+			setEmployeePlans(getDayPlansByEmployeeQuery.data?.items);
 		}
-	}, [getDayPlansByEmployeeQuery.data?.data?.items, setEmployeePlans]);
+	}, [getDayPlansByEmployeeQuery.data?.items, setEmployeePlans]);
 
 	useEffect(() => {
-		if (getMyDailyPlansQuery.data?.data) {
-			setMyDailyPlans(getMyDailyPlansQuery.data.data);
+		if (getMyDailyPlansQuery.data) {
+			setMyDailyPlans(getMyDailyPlansQuery.data);
 		}
-	}, [getMyDailyPlansQuery.data?.data, setMyDailyPlans]);
+	}, [getMyDailyPlansQuery.data, setMyDailyPlans]);
 
 	useEffect(() => {
-		if (getAllDayPlansQuery.data?.data) {
-			setDailyPlan(getAllDayPlansQuery.data.data);
+		if (getAllDayPlansQuery.data) {
+			setDailyPlan(getAllDayPlansQuery.data);
 		}
-	}, [getAllDayPlansQuery.data?.data, setDailyPlan]);
+	}, [getAllDayPlansQuery.data, setDailyPlan]);
 
 	useEffect(() => {
-		if (getPlansByTaskQuery.data?.data?.items) {
-			setTaskPlans(getPlansByTaskQuery.data.data.items);
+		if (getPlansByTaskQuery.data?.items) {
+			setTaskPlans(getPlansByTaskQuery.data.items);
 		}
-	}, [getPlansByTaskQuery.data?.data?.items, setTaskPlans]);
+	}, [getPlansByTaskQuery.data?.items, setTaskPlans]);
 
 	useEffect(() => {
-		if (getMyDailyPlansQuery.data?.data) {
-			setProfileDailyPlans(getMyDailyPlansQuery.data.data);
+		if (getMyDailyPlansQuery.data) {
+			setProfileDailyPlans(getMyDailyPlansQuery.data);
 		}
-	}, [getMyDailyPlansQuery.data?.data, setProfileDailyPlans]);
+	}, [getMyDailyPlansQuery.data, setProfileDailyPlans]);
 
 	// All day plans
 	const getAllDayPlans = useCallback(async () => {
@@ -203,7 +207,7 @@ export function useDailyPlan() {
 		const allDayPlans = await getAllDayPlansQuery.refetch();
 
 		if (allDayPlans?.data) {
-			setDailyPlan(allDayPlans.data.data);
+			setDailyPlan(allDayPlans.data);
 		}
 	}, [getAllDayPlansQuery, setDailyPlan]);
 
@@ -227,7 +231,7 @@ export function useDailyPlan() {
 		const myDailyPlans = await getMyDailyPlans();
 
 		if (myDailyPlans) {
-			setMyDailyPlans(myDailyPlans.data);
+			setMyDailyPlans(myDailyPlans);
 		}
 	}, [getMyDailyPlans, setMyDailyPlans]);
 
@@ -259,8 +263,8 @@ export function useDailyPlan() {
 			const employeeDayPlans = await getEmployeeDayPlans(user?.employee?.id);
 
 			if (employeeDayPlans) {
-				setEmployeePlans(employeeDayPlans.data.items);
-				setProfileDailyPlans(employeeDayPlans.data);
+				setEmployeePlans(employeeDayPlans.items);
+				setProfileDailyPlans(employeeDayPlans);
 			}
 		}
 	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, user?.employee?.id]);
@@ -271,7 +275,7 @@ export function useDailyPlan() {
 				setTaskId(taskId);
 				const res = await getPlansByTaskQuery.refetch();
 				if (res?.data) {
-					setTaskPlans(res.data.data.items);
+					setTaskPlans(res.data.items);
 				}
 			} else {
 				return;
@@ -281,7 +285,7 @@ export function useDailyPlan() {
 	);
 
 	const createDailyPlan = useCallback(
-		async (data: ICreateDailyPlan) => {
+		async (data: TCreateDailyPlan) => {
 			if (user?.tenantId) {
 				return await createDailyplanMutation.mutateAsync({ ...data, organizationTeamId: activeTeam?.id });
 			}
@@ -290,7 +294,7 @@ export function useDailyPlan() {
 	);
 
 	const updateDailyPlan = useCallback(
-		async (data: IUpdateDailyPlan, planId: string) => {
+		async (data: TUpdateDailyPlan, planId: string) => {
 			return await updateDailyPlanMutation.mutateAsync({ data, dailyPlanId: planId });
 		},
 		[updateDailyPlanMutation]

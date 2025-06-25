@@ -15,7 +15,6 @@ import {
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
-	IDailyPlan,
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
@@ -47,7 +46,7 @@ import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
-import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -62,7 +61,7 @@ type Props = {
 	setEditTaskId?: SetAtom<[SetStateAction<string | null>], void>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
-	plan?: IDailyPlan;
+	plan?: TDailyPlan;
 	planMode?: FilterTabs;
 } & IClassName;
 
@@ -485,7 +484,7 @@ export function TaskCardMenu({
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
-	plan?: IDailyPlan;
+	plan?: TDailyPlan;
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
@@ -538,7 +537,7 @@ export function TaskCardMenu({
 	const { todayPlan, futurePlans } = useDailyPlan();
 
 	const taskPlannedToday = useMemo(
-		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask: TTask) => planTask.id === task.id),
+		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
 		[task.id, todayPlan]
 	);
 
@@ -546,7 +545,7 @@ export function TaskCardMenu({
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
-				const taskCount = plan.tasks.filter((planTask: TTask) => planTask.id === task.id).length;
+				const taskCount = plan.tasks.filter((planTask) => planTask.id === task.id).length;
 				return count + taskCount;
 			}
 			return count;
@@ -561,7 +560,7 @@ export function TaskCardMenu({
 						?.toString()
 						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
 				)[0]
-				?.tasks?.find((planTask: TTask) => planTask.id === task.id),
+				?.tasks?.find((planTask) => planTask.id === task.id),
 		[futurePlans, task.id]
 	);
 
@@ -747,7 +746,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: new Date(),
+							date: String(new Date()),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,
@@ -769,7 +768,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: tomorrowDate,
+							date: String(tomorrowDate),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,
@@ -858,7 +857,7 @@ export function RemoveTaskFromPlan({
 }: {
 	task: TTask;
 	member?: TOrganizationTeamEmployee;
-	plan?: IDailyPlan;
+	plan?: TDailyPlan;
 }) {
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();

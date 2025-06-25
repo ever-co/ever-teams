@@ -1,17 +1,17 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import DailyPlanTaskEstimationCell from './cells/task-estimation-cell';
 import DailyPlanTaskInfoCell from './cells/task-info-cell';
 import DailyPlanTaskTimesCell from './cells/task-times-cell';
 import TaskActionMenuCell from './cells/task-action-menu-cell';
 import { FilterTabs, I_UserProfilePage } from '@/core/hooks';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IDailyPlanTasksTableViewProps {
 	data: TTask[];
-	plan: IDailyPlan;
+	plan: TDailyPlan;
 	profile: I_UserProfilePage;
 	planMode?: FilterTabs;
 }

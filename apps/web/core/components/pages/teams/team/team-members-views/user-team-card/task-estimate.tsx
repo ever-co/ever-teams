@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 import { checkPastDate } from '@/core/lib/helpers';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -19,7 +19,7 @@ type Props = IClassName & {
 	activeAuthTask: boolean;
 	showTime?: boolean;
 	radial?: boolean;
-	plan?: IDailyPlan;
+	plan?: TDailyPlan;
 };
 
 export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, radial = false, ...rest }: Props) {

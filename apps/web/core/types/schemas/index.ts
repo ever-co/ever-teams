@@ -18,6 +18,7 @@ export * from './tag/tag.schema';
 export * from './task/task-status.schema';
 export * from './task/task-size.schema';
 export * from './task/task-priority.schema';
+export * from './task/daily-plan.schema';
 export * from './organization/organization.schema';
 export * from './organization/employee.schema';
 export * from './organization/user-organization.schema';

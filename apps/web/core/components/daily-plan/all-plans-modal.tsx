@@ -16,7 +16,7 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -51,22 +51,22 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
 		() =>
-			[...myDailyPlans.items].sort((plan1, plan2) =>
+			[...(myDailyPlans?.items || [])].sort((plan1, plan2) =>
 				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
 			),
-		[myDailyPlans.items]
+		[myDailyPlans?.items]
 	);
 	const currentPlanIndex = useMemo(
 		() => sortedPlans.findIndex((plan) => isSameDate(plan.date, moment(customDate).toDate())),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[customDate, myDailyPlans.items]
+		[customDate, myDailyPlans?.items]
 	);
 	const nextPlan = useMemo(
 		() =>
-			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans.items.length - 1
+			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans?.items?.length - 1
 				? sortedPlans[currentPlanIndex + 1]
 				: null,
-		[currentPlanIndex, myDailyPlans.items.length, sortedPlans]
+		[currentPlanIndex, myDailyPlans?.items?.length, sortedPlans]
 	);
 	const previousPlan = useMemo(
 		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
@@ -75,22 +75,22 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().toDate())),
-		[isSameDate, myDailyPlans.items]
+		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
+		[isSameDate, myDailyPlans?.items]
 	);
 
 	const tomorrowPlan = useMemo(
-		() => myDailyPlans.items.find((plan: IDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
-		[isSameDate, myDailyPlans.items]
+		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
+		[isSameDate, myDailyPlans?.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			myDailyPlans.items.find((plan: IDailyPlan) => {
+			myDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
-		[customDate, myDailyPlans.items, isSameDate]
+		[customDate, myDailyPlans?.items, isSameDate]
 	);
 
 	// Handle modal close
@@ -161,7 +161,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		try {
 			await createDailyPlan({
 				workTimePlanned: 0,
-				date: new Date(moment(customDate).format('YYYY-MM-DD')),
+				date: moment(customDate).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id,
@@ -184,7 +184,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = myDailyPlans.items.find((plan: IDailyPlan) => {
+			const existPlan = myDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 
@@ -208,7 +208,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				}
 			}
 		},
-		[isSameDate, myDailyPlans.items, navigationMode, selectedPlan]
+		[isSameDate, myDailyPlans?.items, navigationMode, selectedPlan]
 	);
 
 	// Handle navigation  between plans
@@ -236,7 +236,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	);
 
 	// A handler function to display the plan title
-	const displayPlanTitle = (selectedTab: TCalendarTab, selectedPlan?: IDailyPlan) => {
+	const displayPlanTitle = (selectedTab: TCalendarTab, selectedPlan?: TDailyPlan) => {
 		const isCalendarTab = selectedTab === 'Calendar';
 		const planDate = selectedPlan?.date ? new Date(selectedPlan.date).toLocaleDateString('en-GB') : '';
 		const hasTasks = selectedPlan?.tasks?.length;
@@ -341,7 +341,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 											<FuturePlansCalendar
 												selectedPlan={customDate}
 												setSelectedPlan={setCustomDate}
-												plans={myDailyPlans.items}
+												plans={myDailyPlans?.items}
 												pastPlans={pastPlans}
 												handleCalendarSelect={handleCalendarSelect}
 												createEmptyPlan={createEmptyPlan}
@@ -420,8 +420,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 interface ICalendarProps {
 	setSelectedPlan: Dispatch<SetStateAction<Date>>;
 	selectedPlan: Date | undefined;
-	plans: IDailyPlan[];
-	pastPlans: IDailyPlan[];
+	plans: TDailyPlan[];
+	pastPlans: TDailyPlan[];
 	handleCalendarSelect: () => void;
 	createEmptyPlan: () => Promise<void>;
 }
@@ -430,10 +430,10 @@ interface ICalendarProps {
  * The component that handles the selection of a plan
  *
  * @param {Object} props - The props object
- * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedPlan - A function that set the selected plan
- * @param {IDailyPlan} props.selectedPlan - The selected plan
- * @param {IDailyPlan[]} props.plans - Available plans
- * @param {IDailyPlan[]} props.pastPlans - Past plans
+ * @param {Dispatch<SetStateAction<TDailyPlan>>} props.setSelectedPlan - A function that set the selected plan
+ * @param {TDailyPlan} props.selectedPlan - The selected plan
+ * @param {TDailyPlan[]} props.plans - Available plans
+ * @param {TDailyPlan[]} props.pastPlans - Past plans
  * @param {() => void} props.handleCalendarSelect - Handle plan selection
  * @param {() => Promise<void>} props.createEmptyPlan - Create empty plan
  *

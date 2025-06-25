@@ -1,6 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
@@ -8,7 +7,7 @@ interface ITaskEstimatedCount {
 	outstandingPlans: any[];
 }
 export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
-	const element = outstandingPlans?.map((plan: IDailyPlan) => plan.tasks?.map((task) => task));
+	const element = outstandingPlans?.map((plan: TDailyPlan) => plan.tasks?.map((task) => task));
 	const { timesEstimated, totalTasks } = estimatedTotalTime(element || []);
 	const { h: hour, m: minute } = secondsToTime(timesEstimated || 0);
 	const t = useTranslations();
@@ -48,7 +47,7 @@ export function estimatedTotalTime(data: any) {
 	return { timesEstimated, totalTasks };
 }
 
-export const getTotalTasks = (plans: IDailyPlan[], user?: TUser): number => {
+export const getTotalTasks = (plans: TDailyPlan[], user?: TUser): number => {
 	if (!plans || plans.length === 0) {
 		return 0;
 	}

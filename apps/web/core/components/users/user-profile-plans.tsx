@@ -25,8 +25,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
@@ -96,9 +95,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		'All Tasks': <AllPlans profile={profile} user={user} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
-	const [filterFuturePlanData, setFilterFuturePlanData] = useState<IDailyPlan[]>(futurePlans);
-	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
-	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
+	const [filterFuturePlanData, setFilterFuturePlanData] = useState<TDailyPlan[]>(futurePlans);
+	const [filterPastPlanData, setFilteredPastPlanData] = useState<TDailyPlan[]>(pastPlans);
+	const [filterAllPlanData, setFilterAllPlanData] = useState<TDailyPlan[]>(sortedPlans);
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
@@ -217,7 +216,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 															outstandingPlans.map((plan) => {
 																const tasks = plan.tasks ?? [];
 																if (user) {
-																	return tasks.filter((task: TTask) =>
+																	return tasks.filter((task) =>
 																		task.members?.some(
 																			(member) => member.userId === user.id
 																		)
@@ -346,7 +345,7 @@ function AllPlans({
 	user?: TUser;
 }) {
 	// Filter plans
-	const filteredPlans = useRef<IDailyPlan[]>([]);
+	const filteredPlans = useRef<TDailyPlan[]>([]);
 	const { sortedPlans, todayPlan } = useDailyPlan();
 	const { date } = useDateRange(currentTab);
 
@@ -372,9 +371,7 @@ function AllPlans({
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: TTask) =>
-						task.members?.some((member) => member.userId === user.id)
-					)
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}
@@ -519,7 +516,7 @@ function AllPlans({
 	);
 }
 
-export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs }) {
+export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
