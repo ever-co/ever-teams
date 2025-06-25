@@ -830,7 +830,7 @@ function TaskCard(props: ITaskCardProps) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
-						date: String(new Date(moment(planDate).format('YYYY-MM-DD'))),
+						date: moment(planDate).format('YYYY-MM-DD'),
 						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
 						employeeId: user?.employee?.id,
