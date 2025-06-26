@@ -116,4 +116,7 @@ const Personal = () => {
 		</div>
 	);
 };
-export default withAuthentication(Personal, { displayName: 'Personal' });
+export default withAuthentication(Personal, {
+	displayName: 'Personal',
+	showPageSkeleton: true
+});

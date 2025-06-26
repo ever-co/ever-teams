@@ -1,7 +1,7 @@
 'use client';
 import { userState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import SettingsPersonalSkeleton from '@/core/components/common/skeleton/settings-personal-skeleton';
+import { SettingsPageSkeleton } from '@/core/components/common/skeleton/settings-page-skeleton';
 import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -31,18 +31,18 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	];
 
 	if (!user) {
-		return <SettingsPersonalSkeleton />;
+		return <SettingsPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
 	} else {
 		return (
 			<MainLayout
 				showTimer={isTrackingEnabled}
-				className="items-start w-full pb-1 overflow-hidden"
+				className="overflow-hidden items-start pb-1 w-full"
 				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
 				mainHeaderSlot={
-					<div className="w-full py-6 bg-white dark:bg-dark--theme">
+					<div className="py-6 w-full bg-white dark:bg-dark--theme">
 						<Container
 							fullWidth={fullWidth}
-							className={cn('w-full flex flex-row items-center justify-start gap-8')}
+							className={cn('flex flex-row gap-8 justify-start items-center w-full')}
 						>
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />

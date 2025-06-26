@@ -1,24 +1,100 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-
 import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { fetchingTeamInvitationsState, userState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';
 import { Accordian } from '@/core/components/common/accordian';
-import { IntegrationSetting } from '@/core/components/pages/settings/team/integration-setting';
-import { InvitationSetting } from '@/core/components/pages/settings/team/invitation-setting';
-import { IssuesSettings } from '@/core/components/pages/settings/team/issues-settings';
-import { MemberSetting } from '@/core/components/pages/settings/team/member-setting';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 import NoTeam from '@/core/components/common/no-team';
 import { TeamAvatar } from '@/core/components/teams/team-avatar';
-import { DangerZoneTeam } from '@/core/components/pages/settings/team/danger-zone-team';
-import { TeamSettingForm } from '@/core/components/pages/settings/team/team-setting-form';
 import { EverCard } from '@/core/components/common/ever-card';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import {
+	TeamSettingFormSkeleton,
+	InvitationSettingSkeleton,
+	MemberSettingSkeleton,
+	IntegrationSettingSkeleton,
+	IssuesSettingsSkeleton,
+	DangerZoneTeamSkeleton
+} from '@/core/components/common/skeleton/settings-skeletons';
+
+// ✅ OPTIMIZED: Lazy load heavy Settings Team components
+// Priority 1: TeamSettingForm (forms with validation)
+const LazyTeamSettingForm = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/team-setting-form').then((mod) => ({
+			default: mod.TeamSettingForm
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
+
+// Priority 2: InvitationSetting (tables with actions)
+const LazyInvitationSetting = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/invitation-setting').then((mod) => ({
+			default: mod.InvitationSetting
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
+
+// Priority 3: MemberSetting (member management tables)
+const LazyMemberSetting = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/member-setting').then((mod) => ({
+			default: mod.MemberSetting
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
+
+// Priority 4: IntegrationSetting (integration configurations)
+const LazyIntegrationSetting = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/integration-setting').then((mod) => ({
+			default: mod.IntegrationSetting
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
+
+// Priority 5: IssuesSettings (issue type configurations)
+const LazyIssuesSettings = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/issues-settings').then((mod) => ({
+			default: mod.IssuesSettings
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
+
+// Priority 6: DangerZoneTeam (danger actions with confirmations)
+const LazyDangerZoneTeam = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/danger-zone-team').then((mod) => ({
+			default: mod.DangerZoneTeam
+		})),
+	{
+		ssr: false
+		// Note: No loading property for accordion content (Medium article pattern)
+	}
+);
 
 const Team = () => {
 	const t = useTranslations();
@@ -47,7 +123,10 @@ const Team = () => {
 						>
 							<div className="flex flex-col">
 								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color || ''} />
-								<TeamSettingForm />
+								{/* ✅ OPTIMIZED: Use lazy loaded TeamSettingForm with Suspense */}
+								<Suspense fallback={<TeamSettingFormSkeleton />}>
+									<LazyTeamSettingForm />
+								</Suspense>
 							</div>
 						</Accordian>
 					</InteractionObserverVisible>
@@ -60,7 +139,10 @@ const Team = () => {
 								defaultOpen={teamInvitations.length ? true : false}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								<InvitationSetting />
+								{/* ✅ OPTIMIZED: Use lazy loaded InvitationSetting with Suspense */}
+								<Suspense fallback={<InvitationSettingSkeleton />}>
+									<LazyInvitationSetting />
+								</Suspense>
 							</Accordian>
 						</InteractionObserverVisible>
 					) : null}
@@ -72,7 +154,10 @@ const Team = () => {
 								title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								<MemberSetting />
+								{/* ✅ OPTIMIZED: Use lazy loaded MemberSetting with Suspense */}
+								<Suspense fallback={<MemberSettingSkeleton />}>
+									<LazyMemberSetting />
+								</Suspense>
 							</Accordian>
 						</InteractionObserverVisible>
 					) : null}
@@ -83,7 +168,10 @@ const Team = () => {
 								title={t('pages.settingsTeam.INTEGRATIONS')}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								<IntegrationSetting />
+								{/* ✅ OPTIMIZED: Use lazy loaded IntegrationSetting with Suspense */}
+								<Suspense fallback={<IntegrationSettingSkeleton />}>
+									<LazyIntegrationSetting />
+								</Suspense>
 							</Accordian>
 						</InteractionObserverVisible>
 					)}
@@ -94,7 +182,10 @@ const Team = () => {
 							title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
 							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 						>
-							<IssuesSettings />
+							{/* ✅ OPTIMIZED: Use lazy loaded IssuesSettings with Suspense */}
+							<Suspense fallback={<IssuesSettingsSkeleton />}>
+								<LazyIssuesSettings />
+							</Suspense>
 						</Accordian>
 					</InteractionObserverVisible>
 
@@ -114,7 +205,10 @@ const Team = () => {
 							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
 							isDanger={true}
 						>
-							<DangerZoneTeam />
+							{/* ✅ OPTIMIZED: Use lazy loaded DangerZoneTeam with Suspense */}
+							<Suspense fallback={<DangerZoneTeamSkeleton />}>
+								<LazyDangerZoneTeam />
+							</Suspense>
 						</Accordian>
 					</InteractionObserverVisible>
 				</>
@@ -129,4 +223,7 @@ const Team = () => {
 	);
 };
 
-export default withAuthentication(Team, { displayName: 'Team' });
+export default withAuthentication(Team, {
+	displayName: 'Team',
+	showPageSkeleton: true
+});
