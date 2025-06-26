@@ -45,6 +45,7 @@ import {
 	TimesheetCardSkeleton,
 	TimesheetPaginationSkeleton
 } from '@/core/components/common/skeleton/timesheet-skeletons';
+import TimesheetPageSkeleton from '../../common/skeleton/timesheet-page-skeleton';
 
 // Lazy load heavy timesheet components for performance optimization
 // Priority 1: CalendarView (heaviest component with complex calendar logic)
@@ -246,6 +247,10 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const fullWidth = useAtomValue(fullWidthState);
 
+	// Show unified skeleton while data is loading
+	if (loadingTimesheet && !filterDataTimesheet && !user) {
+		return <TimesheetPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl ? paramsUrl.locale : null;
 	const breadcrumbPath = useMemo(

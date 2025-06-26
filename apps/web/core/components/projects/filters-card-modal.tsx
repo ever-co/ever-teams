@@ -237,19 +237,19 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 
 	return (
 		<Modal className="w-[26rem]" isOpen={open} closeModal={closeModal}>
-			<EverCard className="w-full h-full border " shadow="custom">
+			<EverCard className="w-full h-full border" shadow="custom">
 				<div className="w-full flex gap-2 font-medium text-[1rem]">
 					<ListFilterPlus size={20} strokeWidth={2} /> <span>{t('common.FILTER')}</span>
 				</div>
-				<hr className="w-full my-4" />
-				<div className="flex flex-col w-full gap-5">
-					<div className="flex flex-col w-full gap-2">
-						<div className="flex items-center justify-between w-full text-sm">
+				<hr className="my-4 w-full" />
+				<div className="flex flex-col gap-5 w-full">
+					<div className="flex flex-col gap-2 w-full">
+						<div className="flex justify-between items-center w-full text-sm">
 							<span className="">{t('common.TEAM')}</span>
 							{selectedTeams.length > 0 && (
 								<button
 									onClick={() => setSelectedTeams([])}
-									className="flex items-center gap-1 text-xs text-primary"
+									className="flex gap-1 items-center text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedTeams.length})</span>
@@ -262,7 +262,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={teamOptions}
 							placeholder="Select a team..."
 						/>
-						<div className="flex flex-wrap w-full gap-1">
+						<div className="flex flex-wrap gap-1 w-full">
 							{selectedTeams.map((teamId) => (
 								<div
 									className=" rounded-md shrink-0 flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
@@ -278,13 +278,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							))}
 						</div>
 					</div>
-					<div className="flex flex-col w-full gap-2">
-						<div className="flex items-center justify-between w-full text-sm">
+					<div className="flex flex-col gap-2 w-full">
+						<div className="flex justify-between items-center w-full text-sm">
 							<span className="">{t('common.STATUS')}</span>
 							{selectedStatus.length > 0 && (
 								<button
 									onClick={() => setSelectedStatus([])}
-									className="flex items-center gap-1 text-xs text-primary"
+									className="flex gap-1 items-center text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedStatus.length})</span>
@@ -297,7 +297,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={statusOptions}
 							placeholder="Select a status..."
 						/>
-						<div className="flex w-full gap-1">
+						<div className="flex gap-1 w-full">
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
@@ -320,13 +320,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							))}
 						</div>
 					</div>
-					<div className="flex flex-col w-full gap-2">
-						<div className="flex items-center justify-between w-full text-sm">
+					<div className="flex flex-col gap-2 w-full">
+						<div className="flex justify-between items-center w-full text-sm">
 							<span className="">{t('common.MANAGER')}</span>
 							{selectedManagers.length > 0 && (
 								<button
 									onClick={() => setSelectedManagers([])}
-									className="flex items-center gap-1 text-xs text-primary"
+									className="flex gap-1 items-center text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedManagers.length})</span>
@@ -339,7 +339,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={managerOptions}
 							placeholder="Select a manager..."
 						/>
-						<div className="flex w-full gap-1">
+						<div className="flex gap-1 w-full">
 							{selectedManagers.map((managerId) => {
 								const manager = managers.find((manager) => manager.id === managerId);
 
@@ -376,13 +376,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							})}
 						</div>
 					</div>
-					<div className="flex flex-col w-full gap-2">
-						<div className="flex items-center justify-between w-full text-sm">
+					<div className="flex flex-col gap-2 w-full">
+						<div className="flex justify-between items-center w-full text-sm">
 							<span className="">{t('common.MEMBER')}</span>
 							{selectedMembers.length > 0 && (
 								<button
 									onClick={() => setSelectedMembers([])}
-									className="flex items-center gap-1 text-xs text-primary"
+									className="flex gap-1 items-center text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedMembers.length})</span>
@@ -396,7 +396,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							searchEnabled
 							placeholder="Select a member..."
 						/>
-						<div className="flex w-full gap-1">
+						<div className="flex gap-1 w-full">
 							{selectedMembers.map((memberId) => {
 								const member = members.find((member) => member.id === memberId);
 
@@ -432,13 +432,13 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							})}
 						</div>
 					</div>
-					<div className="flex flex-col w-full gap-2">
-						<div className="flex items-center justify-between w-full text-sm">
+					<div className="flex flex-col gap-2 w-full">
+						<div className="flex justify-between items-center w-full text-sm">
 							<span className="">{t('common.BUDGET_TYPE')}</span>
 							{selectedBudgetType.length > 0 && (
 								<button
 									onClick={() => setSelectedBudgetType([])}
-									className="flex items-center gap-1 text-xs text-primary"
+									className="flex gap-1 items-center text-xs text-primary"
 								>
 									<span>{t('common.CLEAR')}</span>
 									<span>({selectedBudgetType.length})</span>
@@ -451,7 +451,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={budgetTypeOptions}
 							placeholder="Select a budget type..."
 						/>
-						<div className="flex w-full gap-1">
+						<div className="flex gap-1 w-full">
 							{selectedBudgetType.map((typeId) => {
 								const type = budgetTypes.find((budget) => budget.id === typeId);
 
@@ -474,8 +474,8 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 						</div>
 					</div>
 				</div>
-				<hr className="w-full my-4" />
-				<div className="flex items-center justify-end w-full gap-2">
+				<hr className="my-4 w-full" />
+				<div className="flex gap-2 justify-end items-center w-full">
 					<Button onClick={handleClearAllFilters} variant="outline">
 						{t('common.CLEAR_FILTERS')}
 					</Button>
