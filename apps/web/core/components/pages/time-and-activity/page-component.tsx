@@ -13,11 +13,31 @@ import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/c
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { ViewOption } from '../../common/view-select';
-import { TimeActivityHeader } from './time-activity-header';
-import CardTimeAndActivity from './card-time-and-activity';
-import ActivityTable from './activity-table';
-import { TimeActivityTable } from './time-activity-table';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
+import dynamic from 'next/dynamic';
+import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
+
+const LazyTimeActivityHeader = dynamic(
+	() => import('./time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
+	{
+		ssr: false
+	}
+);
+
+const LazyCardTimeAndActivity = dynamic(() => import('./card-time-and-activity'), {
+	ssr: false
+});
+
+const LazyActivityTable = dynamic(() => import('./activity-table'), {
+	ssr: false
+});
+
+const LazyTimeActivityTable = dynamic(
+	() => import('./time-activity-table').then((mod) => ({ default: mod.TimeActivityTable })),
+	{
+		ssr: false
+	}
+);
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -80,6 +100,11 @@ const TimeActivityComponents = () => {
 
 	const handleBack = () => router.back();
 
+	// Show unified skeleton while data is loading
+	if (loading || !rapportDailyActivity) {
+		return <TimeActivityPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -88,17 +113,18 @@ const TimeActivityComponents = () => {
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
-						<div className="flex items-center w-full pt-6">
+						<div className="flex items-center pt-6 w-full">
 							<button
 								onClick={handleBack}
-								className="p-1 transition-colors rounded-full hover:bg-gray-100"
+								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
-						<div className="flex flex-col w-full gap-6">
-							<TimeActivityHeader
+						<div className="flex flex-col gap-6 w-full">
+							{/* TimeActivityHeader with filters */}
+							<LazyTimeActivityHeader
 								viewOptions={viewOptions}
 								onViewOptionsChange={handleViewOptionsChange}
 								userManagedTeams={userManagedTeams}
@@ -109,9 +135,11 @@ const TimeActivityComponents = () => {
 								onGroupByChange={handleGroupByChange}
 								groupByType={groupByType}
 							/>
+
+							{/* Statistics Cards */}
 							<div className="grid grid-cols-3 gap-[30px] w-full">
-								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
-								<CardTimeAndActivity
+								<LazyCardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
+								<LazyCardTimeAndActivity
 									title="Average Activity"
 									value="74%"
 									showProgress={true}
@@ -119,7 +147,11 @@ const TimeActivityComponents = () => {
 									progressColor="bg-[#0088CC]"
 									isLoading={false}
 								/>
-								<CardTimeAndActivity title="Total Earnings" value="1,200.00 USD" showProgress={false} />
+								<LazyCardTimeAndActivity
+									title="Total Earnings"
+									value="1,200.00 USD"
+									showProgress={false}
+								/>
 							</div>
 						</div>
 					</Container>
@@ -128,21 +160,22 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
+					{/* Conditional table rendering based on groupByType */}
 					{(() => {
 						switch (groupByType) {
 							case 'daily':
 								return (
-									<ActivityTable
+									<LazyActivityTable
 										rapportDailyActivity={rapportDailyActivity}
 										viewOptions={viewOptions}
 										isLoading={loading}
 									/>
 								);
 							case 'weekly':
-								return <TimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
+								return <LazyTimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
 							default:
 								return (
-									<ActivityTable
+									<LazyActivityTable
 										rapportDailyActivity={rapportDailyActivity}
 										viewOptions={viewOptions}
 										isLoading={loading}
