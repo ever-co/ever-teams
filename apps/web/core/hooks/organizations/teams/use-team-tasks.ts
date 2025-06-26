@@ -22,7 +22,7 @@ import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
+import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
 import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
@@ -105,16 +105,28 @@ export function useTeamTasks() {
 		gcTime: 1000 * 60 * 60
 	});
 
-	const getTaskByIdQuery = useQuery({
-		queryKey: queryKeys.tasks.detail(detailedTask?.id),
-		queryFn: async () => {
-			if (!detailedTask?.id) {
-				throw new Error('Task ID is required');
+	// const getTaskByIdQuery = useQuery({
+	// 	queryKey: queryKeys.tasks.detail(detailedTask?.id),
+	// 	queryFn: async () => {
+	// 		if (!detailedTask?.id) {
+	// 			throw new Error('Task ID is required');
+	// 		}
+	// 		return await taskService.getTaskById(detailedTask?.id);
+	// 	},
+	// 	enabled: !!detailedTask?.id
+	// });
+
+	const { queryCall: getTaskByIdQuery, loading: getTasksByIdLoading } = useQueryCall(async (taskId: string) =>
+		queryClient.fetchQuery({
+			queryKey: queryKeys.tasks.detail(taskId),
+			queryFn: async () => {
+				if (!taskId) {
+					throw new Error('Task ID is required');
+				}
+				return await taskService.getTaskById(taskId);
 			}
-			return await taskService.getTaskById(detailedTask?.id);
-		},
-		enabled: !!detailedTask?.id
-	});
+		})
+	);
 
 	const getTasksByEmployeeIdQuery = useQuery({
 		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
@@ -142,8 +154,10 @@ export function useTeamTasks() {
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
 			return await taskService.updateTask(taskId, taskData);
 		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
+		onSuccess: ({ id }) => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.tasks.detail(id)
+			});
 		}
 	});
 
@@ -223,9 +237,9 @@ export function useTeamTasks() {
 			});
 
 			try {
-				const res = await getTaskByIdQuery.refetch();
-				setDetailedTask(res?.data || null);
-				return res?.data;
+				const res = await getTaskByIdQuery(taskId);
+				setDetailedTask(res || null);
+				return res;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
 				return null;
@@ -363,7 +377,7 @@ export function useTeamTasks() {
 				});
 
 				if (detailedTask) {
-					getTaskByIdQuery.refetch();
+					await getTaskById(task.id);
 				}
 
 				return res;
@@ -591,7 +605,7 @@ export function useTeamTasks() {
 		deleteEmployeeFromTasks,
 		deleteEmployeeFromTasksLoading: deleteEmployeeFromTasksMutation.isPending,
 		getTaskById,
-		getTasksByIdLoading: getTaskByIdQuery.isLoading,
+		getTasksByIdLoading,
 		detailedTask
 	};
 }
