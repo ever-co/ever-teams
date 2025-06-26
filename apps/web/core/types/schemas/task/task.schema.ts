@@ -92,7 +92,7 @@ export const taskAssociationsSchema = z.object({
 });
 const baseTaskSchema = z.object({
 	title: z.string(),
-	number: z.number().optional(),
+	number: z.number().optional().nullable(),
 	public: z.boolean().nullable(),
 	prefix: z.string().optional().nullable(),
 	description: z.string().optional(),

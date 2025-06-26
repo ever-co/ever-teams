@@ -187,7 +187,7 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Updated tasks list or single task response
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
-	updateTask = async (taskId: string, body: Partial<TTask>): Promise<PaginationResponse<TTask>> => {
+	updateTask = async (taskId: string, body: Partial<TTask>): Promise<TTask> => {
 		try {
 			// Validate input data before sending (partial validation)
 			const validatedInput = validateApiResponse(
@@ -197,24 +197,19 @@ class TaskService extends APIService {
 			) as Partial<TTask>;
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const tenantId = getTenantIdCookie();
-				const organizationId = getOrganizationIdCookie();
-				const teamId = getActiveTeamIdCookie();
-				const projectId = getActiveProjectIdCookie();
-
 				const nBody = { ...validatedInput };
 				delete nBody.selectedTeam;
 				delete nBody.rootEpic;
 
-				await this.put(`/tasks/${taskId}`, nBody);
+				const response = await this.put<TTask>(`/tasks/${taskId}`, nBody);
 
-				return this.getTasks(organizationId, tenantId, projectId, teamId);
+				return validateApiResponse(taskSchema, response.data, 'updateTask API response');
 			}
 
-			const response = await this.put<PaginationResponse<TTask>>(`/tasks/${taskId}`, validatedInput);
+			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
 
 			// Validate the response data
-			return validatePaginationResponse(taskSchema, response.data, 'updateTask API response');
+			return validateApiResponse(taskSchema, response.data, 'updateTask API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -336,9 +331,11 @@ class TaskService extends APIService {
 	getTasksByEmployeeId = async (employeeId: string, organizationTeamId: string): Promise<TTask[]> => {
 		try {
 			const organizationId = getOrganizationIdCookie();
+			const tenantId = getTenantIdCookie();
 			const obj = {
-				'where[organizationTeamId]': organizationTeamId,
-				'where[organizationId]': organizationId
+				'where[tenantId]': tenantId,
+				'where[organizationId]': organizationId,
+				'teams[0]': organizationTeamId
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
