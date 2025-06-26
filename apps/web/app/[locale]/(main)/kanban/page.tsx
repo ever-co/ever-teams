@@ -22,6 +22,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import dynamic from 'next/dynamic';
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { KanbanPageSkeleton } from '@/core/components/layouts/skeletons/kanban-page-skeleton';
 import { TStatusItem } from '@/core/components/tasks/task-status';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 
@@ -259,6 +260,12 @@ const Kanban = () => {
 		}
 	}, [breadcrumbPath, currentLocale, employee]);
 
+	// Show unified skeleton while initial data is loading
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (isLoading || !data || !activeTeam) {
+		return <KanbanPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<>
 			<MainLayout
@@ -435,25 +442,7 @@ const Kanban = () => {
 
 				{activeTab && (
 					<div className="container overflow-x-hidden px-0 mx-0 w-full">
-						{isLoading || !data ? (
-							<div className="flex flex-col gap-4">
-								<div className="p-6 bg-white rounded-xl shadow-md animate-pulse dark:bg-dark--theme-light">
-									<div className="mb-4 w-1/4 h-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
-									<div className="space-y-3">
-										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										<div className="w-2/3 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-									</div>
-								</div>
-								<div className="p-6 bg-white rounded-xl shadow-md animate-pulse dark:bg-dark--theme-light">
-									<div className="mb-4 w-1/4 h-4 bg-gray-200 rounded dark:bg-dark--theme"></div>
-									<div className="space-y-3">
-										<div className="w-3/4 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-										<div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark--theme"></div>
-									</div>
-								</div>
-							</div>
-						) : Object.keys(filteredBoard).length > 0 ? (
+						{Object.keys(filteredBoard).length > 0 ? (
 							<LazyKanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
