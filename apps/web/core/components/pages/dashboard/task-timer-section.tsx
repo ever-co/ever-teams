@@ -5,6 +5,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AuthUserTaskInputSkeleton } from '../../common/skeleton/auth-user-task-input-skeleton';
+import { LazyTimer } from '../../tasks/optimized-tasks-components';
 
 const AuthUserTaskInput = dynamic(
 	() => import('@/core/components/auth/auth-user-task-input').then((mod) => ({ default: mod.AuthUserTaskInput })),
@@ -13,10 +14,6 @@ const AuthUserTaskInput = dynamic(
 		loading: () => <AuthUserTaskInputSkeleton />
 	}
 );
-const Timer = dynamic(() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })), {
-	ssr: false,
-	loading: () => <TimerSkeleton />
-});
 export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = useState(false);
 	return (
@@ -45,7 +42,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 			</div>
 			{isTrackingEnabled ? (
 				<div className="w-full max-w-fit lg:basis-1/4 grow">
-					<Timer />
+					<LazyTimer />
 				</div>
 			) : null}
 		</EverCard>

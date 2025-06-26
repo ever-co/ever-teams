@@ -78,7 +78,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	);
 
 	return (
-		<div className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative border border-[#F7F7F8]">
+		<div className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative border border-[#F7F7F8] dark:border-gray-700">
 			<div className="justify-between w-full h-fit">
 				<div className="flex justify-between w-full">
 					<span className="!w-64">

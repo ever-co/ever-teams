@@ -18,80 +18,17 @@ import { Timer } from '@/core/components/timer/timer';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
-import {
-	UserProfileDetailSkeleton,
-	UserProfileTaskSkeleton,
-	AppsTabSkeleton,
-	VisitedSitesTabSkeleton,
-	ScreenshootTabSkeleton,
-	TaskFilterSkeleton
-} from '@/core/components/common/skeleton/profile-component-skeletons';
-import dynamic from 'next/dynamic';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
+import {
+	LazyAppsTab,
+	LazyScreenshootTab,
+	LazyUserProfileTask,
+	LazyUserProfileDetail,
+	LazyVisitedSitesTab,
+	LazyTimer,
+	LazyTaskFilter
+} from '@/core/components/tasks/optimized-tasks-components';
 
-// All heavy components lazy loaded with pixel-perfect skeletons
-// Priority 1: Profile components
-const LazyUserProfileDetail = dynamic(
-	() =>
-		import('@/core/components/pages/profile/user-profile-detail').then((mod) => ({
-			default: mod.UserProfileDetail
-		})),
-	{
-		ssr: false,
-		loading: () => <UserProfileDetailSkeleton />
-	}
-);
-
-// Priority 2: Task components (CRITICAL - heaviest components)
-const LazyUserProfileTask = dynamic(
-	() =>
-		import('@/core/components/pages/profile/user-profile-tasks').then((mod) => ({
-			default: mod.UserProfileTask
-		})),
-	{
-		ssr: false,
-		loading: () => <UserProfileTaskSkeleton />
-	}
-);
-
-const LazyTaskFilter = dynamic(
-	() => import('@/core/components/pages/profile/task-filters').then((mod) => ({ default: mod.TaskFilter })),
-	{
-		ssr: false,
-		loading: () => <TaskFilterSkeleton />
-	}
-);
-
-// Priority 3: Activity tab components
-const LazyAppsTab = dynamic(
-	() => import('@/core/components/pages/profile/apps').then((mod) => ({ default: mod.AppsTab })),
-	{
-		ssr: false,
-		loading: () => <AppsTabSkeleton />
-	}
-);
-
-const LazyVisitedSitesTab = dynamic(
-	() => import('@/core/components/pages/profile/visited-sites').then((mod) => ({ default: mod.VisitedSitesTab })),
-	{
-		ssr: false,
-		loading: () => <VisitedSitesTabSkeleton />
-	}
-);
-
-const LazyScreenshootTab = dynamic(
-	() =>
-		import('@/core/components/pages/profile/screenshots/screenshoots').then((mod) => ({
-			default: mod.ScreenshootTab
-		})),
-	{
-		ssr: false,
-		loading: () => <ScreenshootTabSkeleton />
-	}
-);
-const LazyTimer = dynamic(() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })), {
-	ssr: false
-});
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
