@@ -357,10 +357,7 @@ export function useOrganizationTeams() {
 		try {
 			// Trigger React Query refetch for teams
 			const teamsResult = await queryClient.fetchQuery({
-				queryKey: queryKeys.organizationTeams.paginated({
-					organizationId: user.employee?.organizationId || '',
-					tenantId: user.employee?.tenantId || ''
-				}),
+				queryKey: queryKeys.organizationTeams.all,
 				queryFn: async () => {
 					if (!user.employee?.organizationId || !user.employee?.tenantId) {
 						throw new Error('Organization ID and Tenant ID are required');
