@@ -2,13 +2,14 @@ import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, useEffect, useMemo, useState } from 'react';
-import { ScreenCalendar } from '../../activities/screen-calendar';
+import { memo, Suspense, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
-import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
+import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
-import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
+import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
+import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -93,7 +94,11 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
-			{tabFiltered.tab === 'stats' && <ScreenCalendar />}
+			{tabFiltered.tab === 'stats' && (
+				<Suspense fallback={<ActivityCalendarSkeleton />}>
+					<LazyActivityCalendar />
+				</Suspense>
+			)}
 			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} />}
 
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (

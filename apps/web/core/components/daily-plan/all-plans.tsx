@@ -1,43 +1,60 @@
-import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { FilterTabs } from '@/core/types/interfaces/task/task-card';
-import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@/core/hooks';
+'use client';
 import { useAtomValue } from 'jotai';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
-import { clsxm } from '@/core/lib/utils';
-import TaskBlockCard from '../task-block-card';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { useEffect, useState } from 'react';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { useEffect, useRef, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
-import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import DailyPlanTasksTableView from './table-view';
-import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
-export function PastTasks({
-	user,
+import { formatDayPlanDate } from '@/core/lib/helpers/index';
+import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
+import { FilterTabs, useDailyPlan } from '@/core/hooks';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
+import { clsxm } from '@/core/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
+import TaskBlockCard from '@/core/components/tasks/task-block-card';
+import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
+import DailyPlanTasksTableView from '@/core/components/tasks/daily-plan/table-view';
+import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { PlanHeader } from './plan-header';
+import { EmptyPlans } from './empty-plans';
+
+/**
+ *
+ *
+ * @param {{ profile: any; currentTab?: FilterTabs }} { profile, currentTab = 'All Tasks' }
+ * @return {*}
+ */
+export function AllPlans({
 	profile,
-	currentTab = 'Past Tasks'
+	currentTab = 'All Tasks',
+	user
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
 }) {
-	const { pastPlans: _pastPlans } = useDailyPlan();
+	// Filter plans
+	const filteredPlans = useRef<TDailyPlan[]>([]);
+	const { sortedPlans, todayPlan } = useDailyPlan();
+	const { date } = useDateRange(currentTab);
+
+	if (currentTab === 'Today Tasks') {
+		filteredPlans.current = todayPlan;
+	} else {
+		filteredPlans.current = sortedPlans;
+	}
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);
-	// Use a safe default instead of direct localStorage access
-	const { date } = useDateRange('Past Tasks');
+
+	const [plans, setPlans] = useState(filteredPlans.current);
 
 	useEffect(() => {
-		setPastPlans(filterDailyPlan(date as any, pastPlans));
-	}, [date, pastPlans]);
+		setPlans(filterDailyPlan(date as any, filteredPlans.current));
+	}, [date, todayPlan]);
 
 	useEffect(() => {
-		let filteredData = pastPlans;
+		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
 
 		// Filter tasks for specific user if provided
 		if (user) {
@@ -49,19 +66,24 @@ export function PastTasks({
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}
 
-		setPastPlans(filteredData);
-	}, [date, pastPlans, user]);
+		setPlans(filteredData);
+	}, [date, todayPlan, user]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{pastPlans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastPlans)}>
+			{Array.isArray(plans) && plans?.length > 0 ? (
+				// @ts-ignore
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
+						defaultValue={
+							currentTab === 'Today Tasks'
+								? [new Date().toISOString().split('T')[0]]
+								: [plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+						}
 					>
-						{pastPlans?.map((plan) => (
+						{plans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -75,9 +97,9 @@ export function PastTasks({
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-6 border-none dark:bg-dark--theme">
-									{/* Plan header */}
-									<PlanHeader plan={plan} planMode="Outstanding" />
+								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
+									<PlanHeader plan={plan} planMode={currentTab as any} />
+
 									{view === 'TABLE' ? (
 										<DailyPlanTasksTableView
 											profile={profile}
@@ -85,6 +107,7 @@ export function PastTasks({
 											data={plan.tasks ?? []}
 										/>
 									) : (
+										// @ts-ignore
 										<Droppable
 											droppableId={plan.id as string}
 											key={plan.id}
@@ -96,18 +119,21 @@ export function PastTasks({
 													ref={provided.innerRef}
 													{...provided.droppableProps}
 													className={clsxm(
-														'flex-wrap',
+														'flex-wrap border border-transparent',
 														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem]',
+														'flex gap-2 pb-[1.5rem] flex-wrap',
 														view === 'BLOCKS' && 'overflow-x-auto',
-														snapshot.isDraggingOver
-															? 'border-[lightblue] lightblue'
-															: '#F7F7F8 border-[#F7F7F8]'
+														snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-transparent'
 													)}
 												>
 													{plan.tasks?.map((task, index) =>
 														view === 'CARDS' ? (
-															<Draggable key={index} draggableId={task.id} index={index}>
+															// @ts-ignore
+															<Draggable
+																key={task.id}
+																draggableId={task.id}
+																index={index}
+															>
 																{(provided) => (
 																	<div
 																		ref={provided.innerRef}
@@ -115,31 +141,31 @@ export function PastTasks({
 																		{...provided.dragHandleProps}
 																		style={{
 																			...provided.draggableProps.style,
-																			marginBottom: 4
+																			marginBottom: 6
 																		}}
 																	>
-																		<TaskCard
-																			key={`${task.id}${plan.id}`}
+																		<LazyTaskCard
 																			isAuthUser={true}
 																			activeAuthTask={true}
 																			viewType={'dailyplan'}
 																			task={task}
 																			profile={profile}
-																			plan={plan}
 																			type="HORIZONTAL"
 																			taskBadgeClassName={`rounded-sm`}
 																			taskTitleClassName="mt-[0.0625rem]"
 																			planMode={
-																				currentTab === 'Past Tasks'
-																					? 'Past Tasks'
+																				currentTab === 'Today Tasks'
+																					? 'Today Tasks'
 																					: undefined
 																			}
+																			plan={plan}
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>
 																)}
 															</Draggable>
 														) : (
+															///@ts-ignore
 															<Draggable
 																key={task.id}
 																draggableId={task.id}
@@ -155,12 +181,13 @@ export function PastTasks({
 																			marginBottom: 8
 																		}}
 																	>
-																		<TaskBlockCard key={task.id} task={task} />
+																		<TaskBlockCard task={task} />
 																	</div>
 																)}
 															</Draggable>
 														)
 													)}
+													{provided.placeholder as React.ReactElement}
 												</ul>
 											)}
 										</Droppable>

@@ -1,22 +1,9 @@
 'use client';
-import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
-import { AlertPopup, Container, NoData } from '@/core/components';
-import { checkPastDate } from '@/core/lib/helpers';
+import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
-
-import { formatDayPlanDate, formatIntegerToHour } from '@/core/lib/helpers/index';
-import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import {
-	useAuthenticateUser,
-	useCanSeeActivityScreen,
-	useDailyPlan,
-	useTeamTasks,
-	useTimer,
-	useUserProfilePage
-} from '@/core/hooks';
+import { useEffect, useMemo, useState } from 'react';
+import { useCanSeeActivityScreen, useDailyPlan, useTeamTasks, useTimer, useUserProfilePage } from '@/core/hooks';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -28,12 +15,10 @@ import {
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
 import { clsxm } from '@/core/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
-import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 
 import {
 	estimatedTotalTime,
@@ -45,15 +30,11 @@ import {
 } from '../tasks/daily-plan';
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
-import TaskBlockCard from '../tasks/task-block-card';
-import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
-import DailyPlanTasksTableView from '../tasks/daily-plan/table-view';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
-import { HorizontalSeparator, VerticalSeparator } from '../duplicated-components/separator';
-import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { VerticalSeparator } from '../duplicated-components/separator';
+import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -173,7 +154,23 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				break;
 		}
 	}, [currentTab, filteredData, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
-
+	const totalTasksDailyPlansMap = useMemo(() => {
+		return {
+			'Today Tasks': getTotalTasks(todayPlan, user),
+			'Future Tasks': getTotalTasks(filterFuturePlanData, user),
+			'Past Tasks': getTotalTasks(filterPastPlanData, user),
+			'All Tasks': getTotalTasks(filterAllPlanData, user),
+			Outstanding: estimatedTotalTime(
+				outstandingPlans.map((plan) => {
+					const tasks = plan.tasks ?? [];
+					if (user) {
+						return tasks.filter((task) => task.members?.some((member) => member.userId === user.id));
+					}
+					return tasks;
+				})
+			).totalTasks
+		};
+	}, [todayPlan, filterFuturePlanData, filterPastPlanData, filterAllPlanData, outstandingPlans, user]);
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
 			<Container fullWidth={fullWidth} className="">
@@ -206,25 +203,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 														currentTab == filter && 'dark:bg-gray-600'
 													)}
 												>
-													{filter === 'Today Tasks' && getTotalTasks(todayPlan, user)}
-													{filter === 'Future Tasks' &&
-														getTotalTasks(filterFuturePlanData, user)}
-													{filter === 'Past Tasks' && getTotalTasks(filterPastPlanData, user)}
-													{filter === 'All Tasks' && getTotalTasks(filterAllPlanData, user)}
-													{filter === 'Outstanding' &&
-														estimatedTotalTime(
-															outstandingPlans.map((plan) => {
-																const tasks = plan.tasks ?? [];
-																if (user) {
-																	return tasks.filter((task) =>
-																		task.members?.some(
-																			(member) => member.userId === user.id
-																		)
-																	);
-																}
-																return tasks;
-															})
-														).totalTasks}
+													{totalTasksDailyPlansMap[filter as FilterTabs]}
 												</span>
 											</div>
 										</div>
@@ -326,353 +305,6 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					)}
 				</>
 			</Container>
-		</div>
-	);
-}
-/**
- *
- *
- * @param {{ profile: any; currentTab?: FilterTabs }} { profile, currentTab = 'All Tasks' }
- * @return {*}
- */
-function AllPlans({
-	profile,
-	currentTab = 'All Tasks',
-	user
-}: {
-	profile: any;
-	currentTab?: FilterTabs;
-	user?: TUser;
-}) {
-	// Filter plans
-	const filteredPlans = useRef<TDailyPlan[]>([]);
-	const { sortedPlans, todayPlan } = useDailyPlan();
-	const { date } = useDateRange(currentTab);
-
-	if (currentTab === 'Today Tasks') {
-		filteredPlans.current = todayPlan;
-	} else {
-		filteredPlans.current = sortedPlans;
-	}
-
-	const view = useAtomValue(dailyPlanViewHeaderTabs);
-
-	const [plans, setPlans] = useState(filteredPlans.current);
-
-	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans.current));
-	}, [date, todayPlan]);
-
-	useEffect(() => {
-		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
-
-		// Filter tasks for specific user if provided
-		if (user) {
-			filteredData = filteredData
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				}))
-				.filter((plan) => plan.tasks && plan.tasks.length > 0);
-		}
-
-		setPlans(filteredData);
-	}, [date, todayPlan, user]);
-
-	return (
-		<div className="flex flex-col gap-6">
-			{Array.isArray(plans) && plans?.length > 0 ? (
-				// @ts-ignore
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
-					<Accordion
-						type="multiple"
-						className="text-sm"
-						defaultValue={
-							currentTab === 'Today Tasks'
-								? [new Date().toISOString().split('T')[0]]
-								: [plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
-						}
-					>
-						{plans.map((plan) => (
-							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
-								key={plan.id}
-								className="dark:border-slate-600 !border-none"
-							>
-								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
-											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
-										</div>
-										<HorizontalSeparator />
-									</div>
-								</AccordionTrigger>
-								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
-									<PlanHeader plan={plan} planMode={currentTab as any} />
-
-									{view === 'TABLE' ? (
-										<DailyPlanTasksTableView
-											profile={profile}
-											plan={plan}
-											data={plan.tasks ?? []}
-										/>
-									) : (
-										// @ts-ignore
-										<Droppable
-											droppableId={plan.id as string}
-											key={plan.id}
-											type="task"
-											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
-										>
-											{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-												<ul
-													ref={provided.innerRef}
-													{...provided.droppableProps}
-													className={clsxm(
-														'flex-wrap border border-transparent',
-														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem] flex-wrap',
-														view === 'BLOCKS' && 'overflow-x-auto',
-														snapshot.isDraggingOver
-															? 'border-[lightblue] lightblue'
-															: 'border-[#F7F7F8] border'
-													)}
-												>
-													{plan.tasks?.map((task, index) =>
-														view === 'CARDS' ? (
-															// @ts-ignore
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 6
-																		}}
-																	>
-																		<LazyTaskCard
-																			isAuthUser={true}
-																			activeAuthTask={true}
-																			viewType={'dailyplan'}
-																			task={task}
-																			profile={profile}
-																			type="HORIZONTAL"
-																			taskBadgeClassName={`rounded-sm`}
-																			taskTitleClassName="mt-[0.0625rem]"
-																			planMode={
-																				currentTab === 'Today Tasks'
-																					? 'Today Tasks'
-																					: undefined
-																			}
-																			plan={plan}
-																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
-																		/>
-																	</div>
-																)}
-															</Draggable>
-														) : (
-															///@ts-ignore
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 8
-																		}}
-																	>
-																		<TaskBlockCard task={task} />
-																	</div>
-																)}
-															</Draggable>
-														)
-													)}
-													{provided.placeholder as React.ReactElement}
-												</ul>
-											)}
-										</Droppable>
-									)}
-								</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</DragDropContext>
-			) : (
-				<EmptyPlans planMode="Past Tasks" />
-			)}
-		</div>
-	);
-}
-
-export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
-	const [editTime, setEditTime] = useState<boolean>(false);
-	const [time, setTime] = useState<number>(0);
-	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
-	const { isTeamManager } = useAuthenticateUser();
-	const t = useTranslations();
-	// Get all tasks's estimations time
-	// Helper function to sum times
-	const sumTimes = useCallback((tasks: TTask[], key: any) => {
-		return (
-			tasks
-				?.map((task: any) => task[key])
-				.filter((time): time is number => typeof time === 'number')
-				.reduce((acc, cur) => acc + cur, 0) ?? 0
-		);
-	}, []);
-
-	// Get all tasks' estimation and worked times
-	const estimatedTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0), [plan.tasks]);
-	const totalWorkTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0), [plan.tasks]);
-
-	// Get completed and ready tasks from a plan
-	const completedTasks = useMemo(
-		() => plan.tasks?.filter((task) => task.status === 'completed').length ?? 0,
-		[plan.tasks]
-	);
-
-	const readyTasks = useMemo(() => plan.tasks?.filter((task) => task.status === 'ready').length ?? 0, [plan.tasks]);
-
-	// Total tasks for the plan
-	const totalTasks = plan.tasks?.length ?? 0;
-
-	// Completion percent
-	const completionPercent = totalTasks > 0 ? ((completedTasks * 100) / totalTasks).toFixed(0) : '0.0';
-
-	return (
-		<div
-			className={`mb-5 flex ${
-				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
-			}  items-center gap-5`}
-		>
-			{/* Planned Time */}
-
-			<div className="flex gap-2 items-center">
-				{!editTime && !updateDailyPlanLoading ? (
-					<>
-						<div>
-							<span className="font-medium">{t('dailyPlan.PLANNED_TIME')} : </span>
-							<span className="font-semibold">{formatIntegerToHour(plan.workTimePlanned)}</span>
-						</div>
-						{(!checkPastDate(plan.date) || isTeamManager) && (
-							<EditPenBoxIcon
-								className={clsxm('cursor-pointer lg:h-4 lg:w-4 w-2 h-2', 'dark:stroke-[#B1AEBC]')}
-								onClick={() => setEditTime(true)}
-							/>
-						)}
-					</>
-				) : (
-					<div className="flex">
-						<input
-							min={0}
-							type="number"
-							className={clsxm(
-								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
-							)}
-							onChange={(e) => setTime(parseFloat(e.target.value))}
-						/>
-						<span>
-							{updateDailyPlanLoading ? (
-								<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
-							) : (
-								<TickSaveIcon
-									className="w-5 cursor-pointer"
-									onClick={() => {
-										updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
-										setEditTime(false);
-									}}
-								/>
-							)}
-						</span>
-					</div>
-				)}
-			</div>
-
-			{/* Total estimated time  based on tasks */}
-			<VerticalSeparator className="h-10" />
-
-			<div className="flex gap-2 items-center">
-				<span className="font-medium">{t('dailyPlan.ESTIMATED_TIME')} : </span>
-				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
-			</div>
-
-			{planMode !== 'Future Tasks' && <VerticalSeparator />}
-
-			{/* Total worked time for the plan */}
-			{planMode !== 'Future Tasks' && (
-				<div className="flex gap-2 items-center">
-					<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
-					<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
-				</div>
-			)}
-
-			{planMode !== 'Future Tasks' && <VerticalSeparator />}
-
-			{/*  Completed tasks */}
-			{planMode !== 'Future Tasks' && (
-				<div>
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.COMPLETED_TASKS')} : </span>
-						<span className="font-medium">{`${completedTasks}/${totalTasks}`}</span>
-					</div>
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.READY')}: </span>
-						<span className="font-medium">{readyTasks}</span>
-					</div>
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.LEFT')}: </span>
-						<span className="font-semibold">{totalTasks - completedTasks - readyTasks}</span>
-					</div>
-				</div>
-			)}
-
-			<VerticalSeparator />
-
-			{/*  Completion progress */}
-			{planMode !== 'Future Tasks' && (
-				<div className="flex flex-col gap-3">
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.COMPLETION')}: </span>
-						<span className="font-semibold">{completionPercent}%</span>
-					</div>
-					<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
-				</div>
-			)}
-
-			{/* Future tasks total plan */}
-			{planMode === 'Future Tasks' && (
-				<div>
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.PLANNED_TASKS')}: </span>
-						<span className="font-semibold">{totalTasks}</span>
-					</div>
-				</div>
-			)}
-		</div>
-	);
-}
-
-export function EmptyPlans({ planMode }: Readonly<{ planMode?: FilterTabs }>) {
-	const t = useTranslations();
-
-	return (
-		<div className="xl:mt-20">
-			<NoData
-				text={planMode == 'Today Tasks' ? t('dailyPlan.NO_TASK_PLANNED_TODAY') : t('dailyPlan.NO_TASK_PLANNED')}
-				component={<ReaderIcon className="w-14 h-14" />}
-			/>
 		</div>
 	);
 }

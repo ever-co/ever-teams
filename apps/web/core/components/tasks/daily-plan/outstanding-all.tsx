@@ -1,4 +1,4 @@
-import { EmptyPlans } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans } from '@/core/components/daily-plan';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';

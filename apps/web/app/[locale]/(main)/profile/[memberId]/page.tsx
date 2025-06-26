@@ -155,7 +155,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	// ✅ COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
+	// Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
 		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
@@ -223,7 +223,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				</MainHeader>
 			}
 		>
-			{/* ✅ OPTIMIZED: Activity Filter Tabs - Second tab system in the page */}
+			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
 					<div className={cn('flex gap-4 justify-start items-center mt-3')}>

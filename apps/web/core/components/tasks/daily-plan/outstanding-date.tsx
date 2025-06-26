@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import TaskBlockCard from '../task-block-card';
@@ -54,8 +54,8 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
