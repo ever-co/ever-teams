@@ -9,7 +9,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 import { FC } from 'react';
 import { Container } from './container';
-const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
+export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 	const fullWidth = useAtomValue(fullWidthState);
 	return (
 		<AppContainer title="Loading...">
@@ -83,4 +83,3 @@ const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
 		</AppContainer>
 	);
 };
-export default GlobalSkeleton;

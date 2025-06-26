@@ -1,3 +1,4 @@
+'use client';
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { useOrganizationTeams } from '@/core/hooks';
 import { useQueryCall } from '@/core/hooks/common/use-query';
@@ -9,6 +10,8 @@ import { useAtom } from 'jotai';
 import { userService } from '@/core/services/client/api';
 import { JoinTeamModal } from '../../features/teams/join-team-modal';
 import { CreateTeamModal } from '../../features/teams/create-team-modal';
+import { BackdropLoader } from '@/core/components';
+import GlobalSkeleton from '../../common/global-skeleton';
 
 type Params = {
 	displayName: string;
@@ -56,12 +59,16 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			fetchUserData();
 		}, [fetchUserData]);
 
+		// Show proper loading state instead of empty fragment
 		if (!user || loading) {
-			return <></>;
+			if (params.showPageSkeleton) {
+				// For pages that support page skeleton, show BackdropLoader
+				// This prevents blank pages and browser crashes during direct URL access
+				return <BackdropLoader show={true} title="Loading..." />;
+			}
+			// For pages without page skeleton support, show BackdropLoader
+			return <GlobalSkeleton />;
 		}
-		// if (showPageSkeleton) {
-		// 	return <TeamPageSkeleton />;
-		// }
 
 		return (
 			<div>

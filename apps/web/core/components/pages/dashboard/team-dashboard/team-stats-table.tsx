@@ -13,7 +13,6 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
-// Lazy load ActivityModal for performance optimization - Medium article pattern
 const LazyActivityModal = dynamic(() => import('../activity-modal').then((mod) => ({ default: mod.ActivityModal })), {
 	ssr: false
 	// Note: No loading property for conditional components

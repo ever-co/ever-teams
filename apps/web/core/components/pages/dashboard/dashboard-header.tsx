@@ -39,7 +39,6 @@ const LazyTeamDashboardFilter = dynamic(
 	}
 );
 
-// Medium article pattern for conditional ExportDialog
 const LazyExportDialog = dynamic(
 	() => import('@/core/components/pages/dashboard/export-dialog').then((mod) => ({ default: mod.ExportDialog })),
 	{

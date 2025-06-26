@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {
 	RichTextEditorSkeleton,
 	TaskActivitySkeleton,
-	TaskDetailsAsideSkeleton,
+	DetailsAsideSkeleton,
 	IssueCardSkeleton
 } from '@/core/components/common/skeleton/rich-text-editor-skeleton';
 
@@ -36,7 +36,7 @@ const LazyTaskDetailsAside = dynamic(
 	() => import('@/core/components/pages/task/task-details-aside').then((mod) => ({ default: mod.default })),
 	{
 		ssr: false,
-		loading: () => <TaskDetailsAsideSkeleton />
+		loading: () => <DetailsAsideSkeleton />
 	}
 );
 

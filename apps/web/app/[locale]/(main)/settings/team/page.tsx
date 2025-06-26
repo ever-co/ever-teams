@@ -1,7 +1,7 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { useAuthenticateUser, useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
 import { fetchingTeamInvitationsState, userState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -23,8 +23,7 @@ import {
 	DangerZoneTeamSkeleton
 } from '@/core/components/common/skeleton/settings-skeletons';
 
-// ✅ OPTIMIZED: Lazy load heavy Settings Team components
-// Priority 1: TeamSettingForm (forms with validation)
+// Lazy load heavy Settings Team components
 const LazyTeamSettingForm = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/team-setting-form').then((mod) => ({
@@ -32,11 +31,10 @@ const LazyTeamSettingForm = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
-// Priority 2: InvitationSetting (tables with actions)
+//  InvitationSetting (tables with actions)
 const LazyInvitationSetting = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/invitation-setting').then((mod) => ({
@@ -44,7 +42,6 @@ const LazyInvitationSetting = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
@@ -56,11 +53,10 @@ const LazyMemberSetting = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
-// Priority 4: IntegrationSetting (integration configurations)
+// IntegrationSetting (integration configurations)
 const LazyIntegrationSetting = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/integration-setting').then((mod) => ({
@@ -68,11 +64,10 @@ const LazyIntegrationSetting = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
-// Priority 5: IssuesSettings (issue type configurations)
+// IssuesSettings (issue type configurations)
 const LazyIssuesSettings = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/issues-settings').then((mod) => ({
@@ -84,7 +79,7 @@ const LazyIssuesSettings = dynamic(
 	}
 );
 
-// Priority 6: DangerZoneTeam (danger actions with confirmations)
+// DangerZoneTeam (danger actions with confirmations)
 const LazyDangerZoneTeam = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/danger-zone-team').then((mod) => ({
@@ -92,7 +87,6 @@ const LazyDangerZoneTeam = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
@@ -100,18 +94,33 @@ const Team = () => {
 	const t = useTranslations();
 
 	const setActiveTeam = useSetAtom(activeSettingTeamTab);
-	const [user] = useAtom(userState);
+	const { user, isTeamManager } = useAuthenticateUser();
+
+	if (!user) {
+		return (
+			<div className="overflow-hidden pb-16">
+				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
+					<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+						<div className="flex justify-center items-center p-8">
+							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+							<span className="ml-3 text-gray-600 dark:text-gray-400">Loading team settings...</span>
+						</div>
+					</EverCard>
+				</div>
+			</div>
+		);
+	}
+
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
-	const { isTeamManager } = useIsMemberManager(user);
 	const { teamInvitations } = useTeamInvitations();
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 
 	return (
-		<div className="pb-16 overflow-hidden">
+		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
-						<button className="w-full p-4 mt-2 border lg:hidden hover:bg-white rounded-xl border-dark text-dark">
+						<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
 							{t('pages.settingsTeam.GO_TO_PERSONAL_SETTINGS')}
 						</button>
 					</Link>
@@ -123,7 +132,7 @@ const Team = () => {
 						>
 							<div className="flex flex-col">
 								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color || ''} />
-								{/* ✅ OPTIMIZED: Use lazy loaded TeamSettingForm with Suspense */}
+								{/* Use lazy loaded TeamSettingForm with Suspense */}
 								<Suspense fallback={<TeamSettingFormSkeleton />}>
 									<LazyTeamSettingForm />
 								</Suspense>

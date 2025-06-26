@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+'use client';
+import { FC } from 'react';
 import { cn } from '@/core/lib/helpers';
-import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
+import { TitleBlockSkeleton } from './task-details-page-skeleton';
 
 interface SettingsPageSkeletonProps {
 	className?: string;
@@ -14,54 +15,41 @@ interface SettingsPageSkeletonProps {
  * Integrates seamlessly with MainLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot + LeftSideSettingMenu + content area
  */
-export const SettingsPageSkeleton: FC<SettingsPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+
+const SettingsPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className, fullWidth = false }) => {
 	return (
-		<MainLayout
-			showTimer={showTimer}
-			className="overflow-hidden items-start pb-1 w-full"
-			childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
-			mainHeaderSlot={
-				<div className="py-6 w-full bg-white dark:bg-dark--theme">
-					<Container fullWidth={fullWidth} className="flex flex-row gap-8 justify-start items-center w-full">
-						{/* Back Arrow Skeleton */}
-						<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		<div className={cn('flex flex-col w-full min-h-screen', className)}>
+			<section className="flex gap-2.5 lg:items-start 3xl:gap-8">
+				{/* Main Content Section */}
+				<section className="md:max-w-[80rem] w-full 3xl:max-w-none xl:w-full mb-4 md:mb-0">
+					{/* Task Title Block Skeleton */}
+					<TitleBlockSkeleton />
 
-						{/* Breadcrumb Skeleton */}
-						<div className="flex gap-2 items-center">
-							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-							<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						</div>
-					</Container>
-				</div>
-			}
-		>
-			<Container fullWidth={fullWidth} className="!p-0 w-full">
-				<div className="flex w-full">
-					{/* ✅ SKELETON: Left Side Setting Menu - matches exact structure */}
-					<LeftSideSettingMenuSkeleton />
-
-					{/* ✅ SKELETON: Main Content Area - matches exact structure */}
-					<div className={cn('overflow-y-auto px-5 mt-3 w-full h-[calc(100svh-_291px)]', className)}>
-						<SettingsContentSkeleton />
+					{/* Main Content Area */}
+					<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
+						<Container fullWidth={fullWidth} className="!p-0 w-full">
+							<div className="w-full">
+								<div
+									className={cn(
+										'overflow-y-auto px-5 mt-3 w-full h-[calc(100svh-_291px)]',
+										className
+									)}
+								>
+									<SettingsContentSkeleton />
+								</div>
+							</div>
+						</Container>
 					</div>
-				</div>
-			</Container>
-		</MainLayout>
+				</section>
+			</section>
+		</div>
 	);
 };
-
 /**
  * Skeleton for LeftSideSettingMenu component
  * Matches exact structure: Personal + Team sections with navigation items
  */
-const LeftSideSettingMenuSkeleton: FC = () => {
+export const LeftSideSettingMenuSkeleton: FC = () => {
 	return (
 		<div className="w-[320px] mt-[36px] mr-[56px]">
 			{/* Personal Settings Section */}
@@ -111,7 +99,7 @@ const SettingsContentSkeleton: FC = () => {
 		<div className="overflow-auto pb-16">
 			{/* Mobile Team Settings Button (lg:hidden) */}
 			<div className="mb-4 w-full lg:hidden">
-				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
+				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />
 			</div>
 
 			{/* Accordion Sections */}
@@ -130,10 +118,8 @@ const AccordionSectionSkeleton: FC<{ isDanger?: boolean }> = ({ isDanger = false
 	return (
 		<div
 			className={cn(
-				'p-4 mt-8 w-full rounded-lg border max-w-[96vw]',
-				isDanger
-					? 'bg-red-50 border-red-200 dark:border-red-800 dark:bg-red-900/10'
-					: 'bg-white border-gray-200 dark:border-gray-600 dark:bg-dark--theme'
+				'p-4 mt-8 w-full rounded-lg max-w-[96vw]',
+				isDanger ? 'bg-red-50 dark:bg-red-900/10' : 'bg-white dark:bg-dark--theme'
 			)}
 		>
 			{/* Accordion Header */}
@@ -191,7 +177,7 @@ export const SettingsContentPageSkeleton: FC<SettingsPageSkeletonProps> = ({ cla
 		<div className={cn('overflow-auto pb-16', className)}>
 			{/* Mobile Team Settings Button (lg:hidden) */}
 			<div className="mb-4 w-full lg:hidden">
-				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
+				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />
 			</div>
 
 			{/* Accordion Sections */}
