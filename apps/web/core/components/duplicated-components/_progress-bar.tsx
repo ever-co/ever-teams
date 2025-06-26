@@ -116,7 +116,7 @@ export const SegmentedProgressBar = memo(function SegmentedProgressBar({
 	const renderedSegments = useMemo(() => {
 		const segmentElements: JSX.Element[] = [];
 
-		for (const [index, { isActive, key }] of segments) {
+		for (const [, { isActive, key }] of segments) {
 			segmentElements.push(<ProgressSegment key={key} isActive={isActive} colorClass={colorClass} />);
 		}
 
