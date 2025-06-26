@@ -1,8 +1,8 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useAuthenticateUser, useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { fetchingTeamInvitationsState, userState } from '@/core/stores';
+import { useAuthenticateUser, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { fetchingTeamInvitationsState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAtom, useSetAtom } from 'jotai';

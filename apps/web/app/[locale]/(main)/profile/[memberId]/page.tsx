@@ -14,7 +14,6 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { cn } from '@/core/lib/helpers';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { Timer } from '@/core/components/timer/timer';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
@@ -27,7 +26,7 @@ import {
 	LazyVisitedSitesTab,
 	LazyTimer,
 	LazyTaskFilter
-} from '@/core/components/tasks/optimized-tasks-components';
+} from '@/core/components/optimized-components';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 

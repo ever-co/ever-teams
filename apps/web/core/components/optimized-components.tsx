@@ -1,4 +1,4 @@
-import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
+import { ActivityCalendarSkeleton } from './common/skeleton/activity-calendar-skeleton';
 import {
 	AppsTabSkeleton,
 	ScreenshootTabSkeleton,
@@ -7,9 +7,8 @@ import {
 	UserProfileDetailSkeleton,
 	UserProfileTaskSkeleton,
 	VisitedSitesTabSkeleton
-} from '../common/skeleton/profile-component-skeletons';
+} from './common/skeleton/profile-component-skeletons';
 import dynamic from 'next/dynamic';
-import { TimerSkeleton } from '../common/skeleton/timer-skeleton';
 
 export const LazyTaskCard = dynamic(
 	() => import('@/core/components/tasks/task-card').then((mod) => ({ default: mod.TaskCard })),
@@ -88,6 +87,21 @@ export const LazyScreenshootTab = dynamic(
 );
 export const LazyTimer = dynamic(
 	() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })),
+	{
+		ssr: false
+	}
+);
+
+export const LazyJoinTeamModal = dynamic(
+	() => import('@/core/components/features/teams/join-team-modal').then((mod) => ({ default: mod.JoinTeamModal })),
+	{
+		ssr: false
+	}
+);
+
+export const LazyCreateTeamModal = dynamic(
+	() =>
+		import('@/core/components/features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
 	{
 		ssr: false
 	}

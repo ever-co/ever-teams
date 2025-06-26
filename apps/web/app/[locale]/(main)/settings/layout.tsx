@@ -1,5 +1,4 @@
 'use client';
-import { userState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import SettingsPageSkeleton, {
 	LeftSideSettingMenuSkeleton
@@ -9,7 +8,7 @@ import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
 import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';

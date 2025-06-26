@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { formatIntegerToHour } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan } from '@/core/hooks';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 

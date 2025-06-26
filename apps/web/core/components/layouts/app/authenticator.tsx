@@ -5,13 +5,13 @@ import { useQueryCall } from '@/core/hooks/common/use-query';
 import { userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { userService } from '@/core/services/client/api';
-import { JoinTeamModal } from '../../features/teams/join-team-modal';
-import { CreateTeamModal } from '../../features/teams/create-team-modal';
 import { BackdropLoader } from '@/core/components';
 import GlobalSkeleton from '../../common/global-skeleton';
+import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
+import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
 
 type Params = {
 	displayName: string;
@@ -74,24 +74,28 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			<div>
 				<Component {...props} />
 				{!isTeamMember && showCreateTeamModal && (
-					<CreateTeamModal
-						open={showCreateTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-						joinTeamModal={() => {
-							setShowCreateTeamModal(false);
-							setShowJoinTeamModal(true);
-						}}
-					/>
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyCreateTeamModal
+							open={showCreateTeamModal}
+							closeModal={() => {
+								closeModalIfNewTeamCreated();
+							}}
+							joinTeamModal={() => {
+								setShowCreateTeamModal(false);
+								setShowJoinTeamModal(true);
+							}}
+						/>
+					</Suspense>
 				)}
 				{!isTeamMember && showJoinTeamModal && (
-					<JoinTeamModal
-						open={showJoinTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-					/>
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyJoinTeamModal
+							open={showJoinTeamModal}
+							closeModal={() => {
+								closeModalIfNewTeamCreated();
+							}}
+						/>
+					</Suspense>
 				)}
 			</div>
 		);

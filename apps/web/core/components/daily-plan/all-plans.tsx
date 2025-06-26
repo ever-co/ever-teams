@@ -13,7 +13,7 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
 import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import TaskBlockCard from '@/core/components/tasks/task-block-card';
-import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import DailyPlanTasksTableView from '@/core/components/tasks/daily-plan/table-view';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { PlanHeader } from './plan-header';

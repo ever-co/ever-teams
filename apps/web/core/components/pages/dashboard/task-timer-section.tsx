@@ -1,11 +1,10 @@
 import dynamic from 'next/dynamic';
-import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { EverCard } from '@/core/components/common/ever-card';
 import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { AuthUserTaskInputSkeleton } from '../../common/skeleton/auth-user-task-input-skeleton';
-import { LazyTimer } from '../../tasks/optimized-tasks-components';
+import { LazyTimer } from '../../optimized-components';
 
 const AuthUserTaskInput = dynamic(
 	() => import('@/core/components/auth/auth-user-task-input').then((mod) => ({ default: mod.AuthUserTaskInput })),

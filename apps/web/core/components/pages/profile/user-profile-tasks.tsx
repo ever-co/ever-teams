@@ -8,7 +8,7 @@ import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
 import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
-import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
+import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/optimized-components';
 import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
 
 type Props = {

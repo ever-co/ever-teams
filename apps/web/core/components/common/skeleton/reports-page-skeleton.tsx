@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 
 interface ReportsPageSkeletonProps {
@@ -13,10 +12,10 @@ interface ReportsPageSkeletonProps {
  * Integrates seamlessly with MainLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (2 sections: breadcrumb + title/filters) + main content (tables + pagination)
  */
-export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({ 
-	className, 
-	showTimer = false, 
-	fullWidth = false 
+export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
+	className,
+	showTimer = false,
+	fullWidth = false
 }) => {
 	return (
 		<MainLayout
@@ -26,10 +25,10 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 			mainHeaderSlot={
 				<div className="flex flex-col p-4 dark:bg-dark--theme">
 					{/* ✅ SKELETON: Section 1 - Breadcrumb Navigation */}
-					<div className="flex flex-row items-start justify-between">
-						<div className="flex items-center justify-center h-10 gap-8">
+					<div className="flex flex-row justify-between items-start">
+						<div className="flex gap-8 justify-center items-center h-10">
 							{/* Breadcrumb Skeleton */}
-							<div className="flex items-center gap-2">
+							<div className="flex gap-2 items-center">
 								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 								<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -42,18 +41,18 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 						<div className="flex h-[5rem] items-center justify-between">
 							{/* Title Skeleton */}
 							<div className="w-48 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							
+
 							{/* Filters Container */}
 							<div className="flex gap-4">
 								{/* MembersSelect Skeleton */}
 								<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-								
+
 								{/* DatePickerWithRange Skeleton */}
 								<div className="w-64 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-								
+
 								{/* GroupBySelect Skeleton */}
 								<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-								
+
 								{/* WeeklyLimitExportMenu Skeleton */}
 								<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 							</div>
@@ -63,25 +62,27 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 			}
 		>
 			{/* ✅ SKELETON: Main Content Area */}
-			<div className="flex flex-col w-full gap-6 p-4 mt-6 bg-white dark:bg-dark--theme">
+			<div className="flex flex-col gap-6 p-4 mt-6 w-full bg-white dark:bg-dark--theme">
 				{/* ✅ SKELETON: Multiple Report Tables */}
 				{[...Array(3)].map((_, tableIndex) => (
-					<div key={tableIndex} className="w-full p-1">
+					<div key={tableIndex} className="p-1 w-full">
 						{/* Table Header */}
-						<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
+						<div className="flex items-center px-4 h-12 rounded-md border bg-slate-100 dark:bg-gray-800 dark:text-white">
 							<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
-						
+
 						{/* Data Table */}
-						<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
+						<div className="bg-white rounded-lg border border-gray-200 dark:bg-dark--theme-light dark:border-gray-600">
 							{/* Table Header */}
-							<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600">
+							<div className="bg-gray-50 border-b border-gray-200 dark:bg-gray-800/50 dark:border-gray-600">
 								<div className="flex">
-									{['Member', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map((header, index) => (
-										<div key={index} className="px-6 py-3 flex-1">
-											<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										</div>
-									))}
+									{['Member', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map(
+										(header, index) => (
+											<div key={index} className="flex-1 px-6 py-3">
+												<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+											</div>
+										)
+									)}
 								</div>
 							</div>
 
@@ -90,25 +91,25 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 								<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
 									<div className="flex hover:bg-gray-50 dark:hover:bg-gray-800/50">
 										{/* Member Cell */}
-										<div className="px-6 py-4 flex-1">
-											<div className="flex items-center gap-3">
+										<div className="flex-1 px-6 py-4">
+											<div className="flex gap-3 items-center">
 												<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 												<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 											</div>
 										</div>
 
 										{/* Limit Cell */}
-										<div className="px-6 py-4 flex-1">
+										<div className="flex-1 px-6 py-4">
 											<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 										</div>
 
 										{/* Time Spent Cell */}
-										<div className="px-6 py-4 flex-1">
+										<div className="flex-1 px-6 py-4">
 											<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 										</div>
 
 										{/* Percentage Used Cell */}
-										<div className="px-6 py-4 flex-1">
+										<div className="flex-1 px-6 py-4">
 											<div className="flex gap-2 items-center">
 												<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 												<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -116,7 +117,7 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 										</div>
 
 										{/* Remaining Cell */}
-										<div className="px-6 py-4 flex-1">
+										<div className="flex-1 px-6 py-4">
 											<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 										</div>
 									</div>
@@ -128,16 +129,16 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 			</div>
 
 			{/* ✅ SKELETON: Pagination Section */}
-			<div className="flex items-center justify-between p-4 bg-white dark:bg-dark--theme">
+			<div className="flex justify-between items-center p-4 bg-white dark:bg-dark--theme">
 				{/* Left Info */}
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
-				
+
 				{/* Right Navigation */}
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
