@@ -105,7 +105,7 @@ export const SegmentedProgressBar = memo(function SegmentedProgressBar({
 		for (let i = 0; i < totalSegments; i++) {
 			segmentMap.set(i, {
 				isActive: i < activeSegments,
-				key: `segment-${i}-${activeSegments}` // Key stable qui change seulement quand nécessaire
+				key: `segment-${i}-${activeSegments}` // Stable key that only changes when necessary
 			});
 		}
 

@@ -71,8 +71,18 @@ const TeamTask = () => {
 
 	// COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
-	if (!activeTeam || !tasks || tasks.length === 0) {
+	if (!activeTeam || !tasks) {
 		return <TeamTasksPageSkeleton fullWidth={fullWidth} />;
+	}
+
+	if (tasks.length === 0) {
+		return (
+			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
+				<div className="flex flex-col p-4 pt-6 w-full min-h-full">
+					<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
+				</div>
+			</div>
+		);
 	}
 
 	return (

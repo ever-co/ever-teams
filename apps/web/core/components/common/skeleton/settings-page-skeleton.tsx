@@ -81,8 +81,8 @@ export const LeftSideSettingMenuSkeleton: FC = () => {
 					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-30 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-26 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
 			</div>

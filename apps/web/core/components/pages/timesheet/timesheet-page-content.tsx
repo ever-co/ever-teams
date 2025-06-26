@@ -248,7 +248,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// Show unified skeleton while data is loading
-	if (loadingTimesheet && !user && (!filterDataTimesheet || !activeTeam)) {
+	if (loadingTimesheet && (!filterDataTimesheet || !activeTeam)) {
 		return <TimesheetPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
 	}
 	const paramsUrl = useParams<{ locale: string }>();

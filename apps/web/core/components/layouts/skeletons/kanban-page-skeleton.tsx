@@ -24,7 +24,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 			showTimer={showTimer}
 			footerClassName="pr-20"
 			className="!px-0"
-			childrenClassName="flex flex-col h-hull w-full !mx-0 !px-0 overflow-x-auto"
+			childrenClassName="flex flex-col h-full w-full !mx-0 !px-0 overflow-x-auto"
 			mainHeaderSlot={
 				<div className="flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high">
 					<Container fullWidth={fullWidth} className="!pt-0">
