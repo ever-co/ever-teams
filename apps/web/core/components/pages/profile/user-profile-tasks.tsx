@@ -1,6 +1,5 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
-import { TaskCard } from '../../tasks/task-card';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -9,6 +8,7 @@ import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
 import { TUser } from '@/core/types/schemas';
+import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -16,7 +16,6 @@ type Props = {
 	paginateTasks?: boolean;
 	user?: TUser;
 };
-
 /**
  * It displays a list of tasks, the first task being the active task and the rest being the last 24 hours of tasks
  * @param  - `profile` - The user profile page data.
@@ -79,7 +78,7 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 
 			{tabFiltered.tab === 'worked' &&
 				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) && (
-					<TaskCard
+					<LazyTaskCard
 						active
 						task={profile.activeUserTeamTask}
 						isAuthUser={profile.isAuthUser}
@@ -112,7 +111,7 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 						? slicedItems.map((task) => {
 								return (
 									<li key={task.id}>
-										<TaskCard
+										<LazyTaskCard
 											key={task.id}
 											task={task}
 											isAuthUser={profile.isAuthUser}

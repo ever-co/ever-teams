@@ -6,24 +6,92 @@ import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
-import React, { useCallback, useMemo } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { AppsTab } from '@/core/components/pages/profile/apps';
-import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
-import { UserProfileDetail } from '@/core/components/pages/profile/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
 import { Timer } from '@/core/components/timer/timer';
-import { TaskFilter } from '@/core/components/pages/profile/task-filters';
-import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
+import {
+	UserProfileDetailSkeleton,
+	UserProfileTaskSkeleton,
+	AppsTabSkeleton,
+	VisitedSitesTabSkeleton,
+	ScreenshootTabSkeleton,
+	TaskFilterSkeleton
+} from '@/core/components/common/skeleton/profile-component-skeletons';
+import dynamic from 'next/dynamic';
+import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 
+// All heavy components lazy loaded with pixel-perfect skeletons
+// Priority 1: Profile components
+const LazyUserProfileDetail = dynamic(
+	() =>
+		import('@/core/components/pages/profile/user-profile-detail').then((mod) => ({
+			default: mod.UserProfileDetail
+		})),
+	{
+		ssr: false,
+		loading: () => <UserProfileDetailSkeleton />
+	}
+);
+
+// Priority 2: Task components (CRITICAL - heaviest components)
+const LazyUserProfileTask = dynamic(
+	() =>
+		import('@/core/components/pages/profile/user-profile-tasks').then((mod) => ({
+			default: mod.UserProfileTask
+		})),
+	{
+		ssr: false,
+		loading: () => <UserProfileTaskSkeleton />
+	}
+);
+
+const LazyTaskFilter = dynamic(
+	() => import('@/core/components/pages/profile/task-filters').then((mod) => ({ default: mod.TaskFilter })),
+	{
+		ssr: false,
+		loading: () => <TaskFilterSkeleton />
+	}
+);
+
+// Priority 3: Activity tab components
+const LazyAppsTab = dynamic(
+	() => import('@/core/components/pages/profile/apps').then((mod) => ({ default: mod.AppsTab })),
+	{
+		ssr: false,
+		loading: () => <AppsTabSkeleton />
+	}
+);
+
+const LazyVisitedSitesTab = dynamic(
+	() => import('@/core/components/pages/profile/visited-sites').then((mod) => ({ default: mod.VisitedSitesTab })),
+	{
+		ssr: false,
+		loading: () => <VisitedSitesTabSkeleton />
+	}
+);
+
+const LazyScreenshootTab = dynamic(
+	() =>
+		import('@/core/components/pages/profile/screenshots/screenshoots').then((mod) => ({
+			default: mod.ScreenshootTab
+		})),
+	{
+		ssr: false,
+		loading: () => <ScreenshootTabSkeleton />
+	}
+);
+const LazyTimer = dynamic(() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })), {
+	ssr: false
+});
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
@@ -60,10 +128,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const activityScreens = useMemo(
 		() => ({
-			Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
-			Screenshots: <ScreenshootTab />,
-			Apps: <AppsTab />,
-			'Visited Sites': <VisitedSitesTab />
+			Tasks: <LazyUserProfileTask profile={profile} tabFiltered={hook} />,
+			Screenshots: <LazyScreenshootTab />,
+			Apps: <LazyAppsTab />,
+			'Visited Sites': <LazyVisitedSitesTab />
 		}),
 		[hook, profile]
 	);
@@ -87,7 +155,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	if (Array.isArray(members) && members.length && !profile.member) {
+	// ✅ COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
+		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
+	// Check if team has members but no specific member found
+	if (Array.isArray(members) && members.length > 0 && !unwrappedParams.memberId) {
 		return (
 			<MainLayout>
 				<div
@@ -128,27 +203,27 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 						{/* User Profile Detail */}
 						<div className="flex flex-col justify-between items-center md:flex-row">
-							<UserProfileDetail member={profile.member} />
+							<LazyUserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
-								<Timer
-									className={cn(
-										'p-5 rounded-2xl shadow-xl card',
-										'dark:border-[0.125rem] dark:border-[#28292F]',
-										'dark:bg-[#1B1D22]'
-									)}
-								/>
+								<Suspense fallback={<TimerSkeleton />}>
+									<LazyTimer
+										className={cn(
+											'p-5 rounded-2xl shadow-xl card',
+											'dark:border-[0.125rem] dark:border-[#28292F]',
+											'dark:bg-[#1B1D22]'
+										)}
+									/>
+								</Suspense>
 							)}
 						</div>
 						{/* TaskFilter */}
-						<TaskFilter profile={profile} hook={hook} />
+						<LazyTaskFilter profile={profile} hook={hook} />
 					</div>
 				</MainHeader>
 			}
 		>
-			{/* <div className="p-1">
-								<ActivityCalendar />
-							</div> */}
+			{/* ✅ OPTIMIZED: Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
 					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
@@ -157,8 +232,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(
-										'text-gray-500',
-										activityFilter == filter && 'text-black dark:text-white'
+										'text-gray-500 transition-colors duration-200 hover:text-gray-700 dark:hover:text-gray-300',
+										activityFilter == filter && 'text-black dark:text-white font-medium'
 									)}
 									onClick={() => changeActivityFilter(filter as FilterTab)}
 								>
@@ -173,7 +248,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				)}
 			</Container>
 		</MainLayout>

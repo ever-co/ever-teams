@@ -46,7 +46,7 @@ import {
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
 import TaskBlockCard from '../tasks/task-block-card';
-import { TaskCard } from '../tasks/task-card';
+import { LazyTaskCard } from '@/core/components/tasks/optimized-tasks-components';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import DailyPlanTasksTableView from '../tasks/daily-plan/table-view';
@@ -456,7 +456,7 @@ function AllPlans({
 																			marginBottom: 6
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			isAuthUser={true}
 																			activeAuthTask={true}
 																			viewType={'dailyplan'}
