@@ -223,10 +223,7 @@ export function useOrganizationTeams() {
 
 	// Query for organization teams list
 	const organizationTeamsQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.paginated({
-			organizationId: user?.employee?.organizationId || '',
-			tenantId: user?.employee?.tenantId || ''
-		}),
+		queryKey: queryKeys.organizationTeams.all,
 		queryFn: async () => {
 			if (!user?.employee?.organizationId || !user?.employee?.tenantId) {
 				throw new Error('Organization ID and Tenant ID are required');
