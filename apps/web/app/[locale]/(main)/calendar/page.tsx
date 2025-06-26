@@ -13,9 +13,41 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { HeadCalendar } from '@/core/components/pages/calendar/page-component';
-import { SetupFullCalendar, SetupTimeSheet, timesheetCalendar } from '@/core/components/integration/calendar';
+import { timesheetCalendar } from '@/core/components/integration/calendar';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { AddManualTimeModal } from '@/core/components/features/manual-time/add-manual-time-modal';
+import { CalendarPageSkeleton } from '@/core/components/common/skeleton/calendar-page-skeleton';
+import {
+	SetupFullCalendarSkeleton,
+	SetupTimeSheetSkeleton,
+	AddManualTimeModalSkeleton
+} from '@/core/components/common/skeleton/calendar-component-skeletons';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+const LazySetupFullCalendar = dynamic(
+	() => import('@/core/components/integration/calendar').then((mod) => ({ default: mod.SetupFullCalendar })),
+	{
+		ssr: false,
+		loading: () => <SetupFullCalendarSkeleton />
+	}
+);
+
+const LazySetupTimeSheet = dynamic(
+	() => import('@/core/components/integration/calendar').then((mod) => ({ default: mod.SetupTimeSheet })),
+	{
+		ssr: false,
+		loading: () => <SetupTimeSheetSkeleton />
+	}
+);
+const LazyAddManualTimeModal = dynamic(
+	() =>
+		import('@/core/components/features/manual-time/add-manual-time-modal').then((mod) => ({
+			default: mod.AddManualTimeModal
+		})),
+	{
+		ssr: false
+	}
+);
 
 const CalendarPage = () => {
 	const t = useTranslations();
@@ -31,6 +63,10 @@ const CalendarPage = () => {
 		closeModal: closeManualTimeModal
 	} = useModal();
 
+	// ✅ COMPLETE PAGE SKELETON: Show unified skeleton while components are loading
+	if (!activeTeam) {
+		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
 	const params = useParams<{ locale: string }>();
 	const currentLocale = params ? params.locale : null;
 	const breadcrumbPath = useMemo(
@@ -42,33 +78,35 @@ const CalendarPage = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const renderComponent = () => {
-		switch (calendarTimeSheet) {
-			case 'Calendar':
-				return <SetupFullCalendar />;
-			case 'TimeSheet':
-				return <SetupTimeSheet timesheet={calendarTimeSheet} />;
-			default:
-				return null;
-		}
+	const calendarMap = {
+		Calendar: <LazySetupFullCalendar />,
+		TimeSheet: <LazySetupTimeSheet timesheet={calendarTimeSheet} />,
+		null: null
 	};
+	const renderComponent = useMemo(() => {
+		return calendarMap[calendarTimeSheet];
+	}, [calendarTimeSheet]);
 	return (
 		<>
 			<MainLayout showTimer={isTrackingEnabled} footerClassName="hidden" className="h-full shadow-xl">
-				<AddManualTimeModal
-					closeModal={closeManualTimeModal}
-					isOpen={isManualTimeModalOpen}
-					params="AddManuelTime"
-					timeSheetStatus="ManagerTimesheet"
-				/>
+				{isManualTimeModalOpen && (
+					<Suspense fallback={<AddManualTimeModalSkeleton />}>
+						<LazyAddManualTimeModal
+							closeModal={closeManualTimeModal}
+							isOpen={isManualTimeModalOpen}
+							params="AddManuelTime"
+							timeSheetStatus="ManagerTimesheet"
+						/>
+					</Suspense>
+				)}
 				<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
 					<Container fullWidth={fullWidth}>
-						<div className="flex flex-row items-start justify-between mt-12 bg-white dark:bg-dark-high">
-							<div className="flex items-center justify-center h-10 gap-8">
+						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
+							<div className="flex gap-8 justify-center items-center h-10">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
-							<div className="flex items-center justify-center h-10 gap-1 w-max">
+							<div className="flex gap-1 justify-center items-center w-max h-10">
 								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
 						</div>
@@ -83,12 +121,12 @@ const CalendarPage = () => {
 					</Container>
 				</div>
 				<div className="mt-[15vh] mb-32">
-					<Container fullWidth={fullWidth}>{renderComponent()}</Container>
+					<Container fullWidth={fullWidth}>{renderComponent}</Container>
 				</div>
 			</MainLayout>
 			<div className="bg-white dark:bg-[#1e2025] w-screen z-[999] fixed bottom-0">
 				<Divider />
-				<Footer className={clsxm('justify-between w-full px-0 mx-auto', fullWidth ? 'px-8' : 'x-container')} />
+				<Footer className={clsxm('justify-between px-0 mx-auto w-full', fullWidth ? 'px-8' : 'x-container')} />
 			</div>
 		</>
 	);
