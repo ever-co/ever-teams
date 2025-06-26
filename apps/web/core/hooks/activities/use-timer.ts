@@ -175,7 +175,7 @@ export function useTimer() {
 	);
 	// const { queryCall, loading, loadingRef } = useQueryCall(timerService.getTimerStatus);
 
-	const toogleTimerMutation = useMutation({
+	const toggleTimerMutation = useMutation({
 		mutationFn: async (taskId: string) => {
 			return await timerService.toggleTimer({ taskId });
 		}
@@ -296,14 +296,14 @@ export function useTimer() {
 
 	const toggleTimer = useCallback(
 		(taskId: string, updateStore = true) => {
-			return toogleTimerMutation.mutateAsync(taskId).then((res) => {
+			return toggleTimerMutation.mutateAsync(taskId).then((res) => {
 				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus(res.data);
 				}
 				return res;
 			});
 		},
-		[timerStatus, toogleTimerMutation, setTimerStatus]
+		[timerStatus, toggleTimerMutation, setTimerStatus]
 	);
 
 	const syncTimer = useCallback(() => {
