@@ -336,9 +336,11 @@ class TaskService extends APIService {
 	getTasksByEmployeeId = async (employeeId: string, organizationTeamId: string): Promise<TTask[]> => {
 		try {
 			const organizationId = getOrganizationIdCookie();
+			const tenantId = getTenantIdCookie();
 			const obj = {
-				'where[organizationTeamId]': organizationTeamId,
-				'where[organizationId]': organizationId
+				'where[tenantId]': tenantId,
+				'where[organizationId]': organizationId,
+				'teams[0]': organizationTeamId
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 

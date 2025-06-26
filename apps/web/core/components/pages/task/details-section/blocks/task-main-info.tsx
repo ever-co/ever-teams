@@ -1,11 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
-import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useOrganizationTeams, useSyncRef, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
@@ -217,11 +217,7 @@ function DueDates() {
 
 const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTask | null) => {
 	const t = useTranslations();
-	const [member, setMember] = useState<TOrganizationTeamEmployee>();
-	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
-	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
-
-	const memberInfo = useTeamMemberCard(member);
+	const { updateTask } = useTeamTasks();
 
 	const unassignedMembers = useMemo(() => {
 		if (!task?.members) return memberList.filter((member) => member.employee?.isActive); // Early return if no task members
@@ -241,31 +237,37 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 		);
 	}, [memberList, task?.members]);
 
-	useEffect(() => {
-		if (task && member && memberToRemove) {
-			memberInfo
-				.unassignTask(task)
-				.then(() => {
-					setMember(undefined);
-					setMemberToRemove(false);
-				})
-				.catch(() => {
-					setMember(undefined);
-					setMemberToRemove(false);
+	const handleUnassignMember = useCallback(
+		async (member: TOrganizationTeamEmployee) => {
+			if (!task || !member?.employeeId) return;
+
+			try {
+				await updateTask({
+					...task,
+					members: task.members?.filter((m) => m.id !== member.employeeId)
 				});
-		} else if (task && member && memberToAdd) {
-			memberInfo
-				.assignTask(task)
-				.then(() => {
-					setMember(undefined);
-					setMemberToAdd(false);
-				})
-				.catch(() => {
-					setMember(undefined);
-					setMemberToAdd(false);
+			} catch (error) {
+				console.error('Failed to unassign member:', error);
+			}
+		},
+		[task, updateTask]
+	);
+
+	const handleAssignMember = useCallback(
+		async (member: TOrganizationTeamEmployee) => {
+			if (!task || !member?.employeeId) return;
+
+			try {
+				await updateTask({
+					...task,
+					members: [...(task.members || []), { id: member.employeeId } as any]
 				});
-		}
-	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
+			} catch (error) {
+				console.error('Failed to assign member:', error);
+			}
+		},
+		[task, updateTask]
+	);
 
 	return (
 		<>
@@ -290,8 +292,7 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 										<div
 											className="flex items-center justify-between w-auto h-8 gap-1 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
-												setMember(member);
-												setMemberToRemove(true);
+												handleUnassignMember(member);
 												close();
 											}}
 											key={index}
@@ -308,8 +309,7 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 										<div
 											className="flex items-center justify-between w-auto h-8 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
-												setMember(member);
-												setMemberToAdd(true);
+												handleAssignMember(member);
 												close();
 											}}
 											key={index}
