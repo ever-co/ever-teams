@@ -29,15 +29,9 @@ const LazyLeftSideSettingMenu = dynamic(
 );
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const t = useTranslations();
-	const { user } = useAuthenticateUser();
+	const { user, userLoading } = useAuthenticateUser();
 	const fullWidth = useAtomValue(fullWidthState);
 	const pathName = usePathname();
-
-	if (!user) {
-		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
-	}
-
-	const { isTrackingEnabled } = useOrganizationTeams();
 
 	const getEndPath: any = pathName?.split('settings/')[1];
 	const endWord: 'TEAM' | 'PERSONAL' = getEndPath?.toUpperCase();
@@ -46,6 +40,12 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 		{ title: t('common.SETTINGS'), href: pathName as string },
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
+
+	if (userLoading && !user) {
+		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
+	}
+
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<MainLayout

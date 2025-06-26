@@ -66,6 +66,7 @@ export interface IRelationalUser {
 export interface UseAuthenticateUserResult {
 	$user: React.RefObject<TUser | null>;
 	user: TUser | null;
+	userLoading: boolean;
 	setUser: (user: TUser | null) => void;
 	isTeamManager: boolean;
 	updateUserFromAPI: () => void;

@@ -14,8 +14,10 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { TeamStatsGrid } from '@/core/components/pages/dashboard/team-dashboard';
+
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
+import { TeamDashboardPageSkeleton } from '@/core/components/common/skeleton/team-dashboard-page-skeleton';
+import { TeamStatsGridSkeleton } from '@/core/components/common/skeleton/team-stats-grid-skeleton';
 import dynamic from 'next/dynamic';
 
 // Lazy load TeamStatsChart (Recharts) for performance optimization
@@ -38,6 +40,18 @@ const LazyTeamStatsTable = dynamic(
 		})),
 	{
 		ssr: false
+	}
+);
+
+// Lazy load TeamStatsGrid for performance optimization
+const LazyTeamStatsGrid = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard').then((mod) => ({
+			default: mod.TeamStatsGrid
+		})),
+	{
+		ssr: false,
+		loading: () => <TeamStatsGridSkeleton />
 	}
 );
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -75,6 +89,11 @@ function TeamDashboard() {
 
 	const handleBack = () => router.back();
 
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (loading && (!rapportDailyActivity || rapportDailyActivity.length === 0)) {
+		return <TeamDashboardPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -102,7 +121,7 @@ function TeamDashboard() {
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
 							/>
-							<TeamStatsGrid
+							<LazyTeamStatsGrid
 								statisticsCounts={statisticsCounts}
 								loadingTimesheetStatisticsCounts={loading}
 							/>

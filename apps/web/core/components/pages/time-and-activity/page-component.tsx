@@ -101,7 +101,7 @@ const TimeActivityComponents = () => {
 	const handleBack = () => router.back();
 
 	// Show unified skeleton while data is loading
-	if (loading || !rapportDailyActivity) {
+	if (loading && (!rapportDailyActivity || !activeTeam)) {
 		return <TimeActivityPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
 	}
 

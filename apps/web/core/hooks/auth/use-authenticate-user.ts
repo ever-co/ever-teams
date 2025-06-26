@@ -111,6 +111,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	return {
 		$user,
 		user: $user.current,
+		userLoading: userDataQuery.isFetching,
 		setUser,
 		isTeamManager,
 		updateUserFromAPI,

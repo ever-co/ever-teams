@@ -19,9 +19,7 @@ import { useLocalStorageState, useModal } from '@/core/hooks/common';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,
-	ProductivityHeader,
 	ProductivityProjectTable,
-	ProductivityStats,
 	ProductivityTable
 } from '@/core/components/pages/dashboard/app-url';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -33,6 +31,9 @@ import {
 	ProductivityApplicationTableSkeleton
 } from '@/core/components/common/skeleton/productivity-skeletons';
 import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
+import { AppUrlsDashboardPageSkeleton } from '@/core/components/common/skeleton/app-urls-dashboard-page-skeleton';
+import { ProductivityHeaderSkeleton } from '@/core/components/common/skeleton/productivity-header-skeleton';
+import { ProductivityStatsSkeleton } from '@/core/components/common/skeleton/productivity-stats-skeleton';
 import dynamic from 'next/dynamic';
 
 const LazyProductivityChart = dynamic(
@@ -43,6 +44,30 @@ const LazyProductivityChart = dynamic(
 	{
 		ssr: false,
 		loading: () => <ChartSkeleton />
+	}
+);
+
+// Lazy load ProductivityHeader for performance optimization
+const LazyProductivityHeader = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
+			default: mod.ProductivityHeader
+		})),
+	{
+		ssr: false,
+		loading: () => <ProductivityHeaderSkeleton />
+	}
+);
+
+// Lazy load ProductivityStats for performance optimization
+const LazyProductivityStats = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
+			default: mod.ProductivityStats
+		})),
+	{
+		ssr: false,
+		loading: () => <ProductivityStatsSkeleton />
 	}
 );
 interface ProductivityData {
@@ -257,6 +282,11 @@ function AppUrls() {
 			</Suspense>
 		)
 	};
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (loading && (!activityReport || activityReport.length === 0)) {
+		return <AppUrlsDashboardPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -294,8 +324,8 @@ function AppUrls() {
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
 									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700 pl-8">
-										<ProductivityHeader month={currentMonth} year={currentYear} />
-										<ProductivityStats
+										<LazyProductivityHeader month={currentMonth} year={currentYear} />
+										<LazyProductivityStats
 											productivePercentage={productivePercentage}
 											neutralPercentage={neutralPercentage}
 											unproductivePercentage={unproductivePercentage}

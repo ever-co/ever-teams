@@ -63,7 +63,7 @@ const CalendarPage = () => {
 		closeModal: closeManualTimeModal
 	} = useModal();
 
-	// ✅ COMPLETE PAGE SKELETON: Show unified skeleton while components are loading
+	// Show unified skeleton while components are loading
 	if (!activeTeam) {
 		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
 	}

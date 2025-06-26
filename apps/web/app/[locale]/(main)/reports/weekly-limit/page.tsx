@@ -28,8 +28,6 @@ import {
 } from '@/core/components/common/skeleton/reports-component-skeletons';
 import dynamic from 'next/dynamic';
 
-// ✅ HYBRID APPROACH: Page skeleton + Individual component skeletons for progressive loading
-// Priority 1: Heavy filter components
 const LazyDatePickerWithRange = dynamic(
 	() => import('@/core/components/common/date-range-select').then((mod) => ({ default: mod.DatePickerWithRange })),
 	{
@@ -183,8 +181,6 @@ function WeeklyLimitReport() {
 		tenantId,
 		timeZone
 	]);
-
-	// ✅ COMPLETE PAGE SKELETON: Show unified skeleton while data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!organization || !organizationLimits || getTimeLimitReportLoading) {
 		return <ReportsPageSkeleton showTimer={isTrackingEnabled} fullWidth={false} />;

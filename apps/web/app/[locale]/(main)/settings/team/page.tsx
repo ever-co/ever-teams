@@ -94,6 +94,7 @@ const Team = () => {
 	const t = useTranslations();
 
 	const setActiveTeam = useSetAtom(activeSettingTeamTab);
+	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 	const { user, isTeamManager } = useAuthenticateUser();
 
 	if (!user) {
@@ -113,7 +114,6 @@ const Team = () => {
 
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
-	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 
 	return (
 		<div className="overflow-hidden pb-16">
@@ -148,7 +148,7 @@ const Team = () => {
 								defaultOpen={teamInvitations.length ? true : false}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								{/* ✅ OPTIMIZED: Use lazy loaded InvitationSetting with Suspense */}
+								{/* Use lazy loaded InvitationSetting with Suspense */}
 								<Suspense fallback={<InvitationSettingSkeleton />}>
 									<LazyInvitationSetting />
 								</Suspense>
@@ -163,7 +163,7 @@ const Team = () => {
 								title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								{/* ✅ OPTIMIZED: Use lazy loaded MemberSetting with Suspense */}
+								{/* Use lazy loaded MemberSetting with Suspense */}
 								<Suspense fallback={<MemberSettingSkeleton />}>
 									<LazyMemberSetting />
 								</Suspense>
@@ -177,7 +177,7 @@ const Team = () => {
 								title={t('pages.settingsTeam.INTEGRATIONS')}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								{/* ✅ OPTIMIZED: Use lazy loaded IntegrationSetting with Suspense */}
+								{/* Use lazy loaded IntegrationSetting with Suspense */}
 								<Suspense fallback={<IntegrationSettingSkeleton />}>
 									<LazyIntegrationSetting />
 								</Suspense>
@@ -191,7 +191,7 @@ const Team = () => {
 							title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
 							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 						>
-							{/* ✅ OPTIMIZED: Use lazy loaded IssuesSettings with Suspense */}
+							{/* Use lazy loaded IssuesSettings with Suspense */}
 							<Suspense fallback={<IssuesSettingsSkeleton />}>
 								<LazyIssuesSettings />
 							</Suspense>
@@ -214,7 +214,7 @@ const Team = () => {
 							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
 							isDanger={true}
 						>
-							{/* ✅ OPTIMIZED: Use lazy loaded DangerZoneTeam with Suspense */}
+							{/* Use lazy loaded DangerZoneTeam with Suspense */}
 							<Suspense fallback={<DangerZoneTeamSkeleton />}>
 								<LazyDangerZoneTeam />
 							</Suspense>
