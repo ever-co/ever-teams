@@ -31,6 +31,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
+import { queryKeys } from '@/core/query/keys';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -169,11 +170,10 @@ export function useTimer() {
 	// Queries
 	const { queryCall, loading, loadingRef } = useQueryCall(async (tenantId: string, organizationId: string) =>
 		queryClient.fetchQuery({
-			queryKey: ['timer'],
+			queryKey: queryKeys.timer.timer,
 			queryFn: () => timerService.getTimerStatus(tenantId, organizationId)
 		})
 	);
-	// const { queryCall, loading, loadingRef } = useQueryCall(timerService.getTimerStatus);
 
 	const toggleTimerMutation = useMutation({
 		mutationFn: async (taskId: string) => {
@@ -181,41 +181,15 @@ export function useTimer() {
 		}
 	});
 
-	// const { queryCall: startTimerQueryCall } = useQueryCall(async () =>
-	// 	queryClient.fetchQuery({
-	// 		queryKey: ['timer'],
-	// 		queryFn: timerService.startTimer
-	// 	})
-	// );
-
 	const stopTimerMutation = useMutation({
 		mutationFn: async (source: ETimeLogSource) => {
 			return await timerService.stopTimer(source);
 		}
 	});
 
-	// const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQueryCall(async (source: ETimeLogSource) =>
-	// 	queryClient.fetchQuery({
-	// 		queryKey: ['timer'],
-	// 		queryFn: () => timerService.stopTimer(source)
-	// 	})
-	// );
-	// const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQueryCall(async () => timerService.stopTimer);
-
 	const startTimerMutation = useMutation({
 		mutationFn: timerService.startTimer
 	});
-
-	// const {
-	// 	queryCall: syncTimerQueryCall,
-	// 	loading: syncTimerLoading,
-	// 	loadingRef: syncTimerLoadingRef
-	// } = useQueryCall(async (source: ETimeLogSource, user?: TUser | null) =>
-	// 	queryClient.fetchQuery({
-	// 		queryKey: ['timer'],
-	// 		queryFn: () => timerService.syncTimer(source, user)
-	// 	})
-	// );
 
 	const syncTimerMutation = useMutation({
 		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
