@@ -23,6 +23,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
 
 const TeamTask = () => {
 	const t = useTranslations();
@@ -68,6 +69,12 @@ const TeamTask = () => {
 		getFilteredRowModel: getFilteredRowModel()
 	});
 
+	// COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (!activeTeam || !tasks || tasks.length === 0) {
+		return <TeamTasksPageSkeleton fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			mainHeaderSlot={
@@ -75,13 +82,13 @@ const TeamTask = () => {
 					<Breadcrumb paths={breadcrumbPath} className="mb-5 text-sm" />
 
 					<div className="flex flex-col my-4 leading-snug">
-						<div className="flex flex-wrap items-center justify-between w-full gap-10 max-md:max-w-full">
+						<div className="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
 							<h1 className="self-stretch my-auto text-4xl font-medium text-indigo-950 dark:text-gray-50">
 								{t('sidebar.TEAMTASKS')}
 							</h1>
 							<nav className="flex flex-wrap gap-3.5 items-center self-stretch my-auto text-sm font-medium min-w-[240px] text-indigo-950 max-md:max-w-full">
 								<div className="flex gap-2.5 justify-center items-center self-stretch my-auto font-medium text-slate-800">
-									<div className="flex items-start self-stretch gap-1 my-auto">
+									<div className="flex gap-1 items-start self-stretch my-auto">
 										{Array.from(new Set(currentItems.map((status) => status.status))).map(
 											(taskStatus, index) => (
 												<StatusBadge
@@ -95,7 +102,7 @@ const TeamTask = () => {
 									</div>
 								</div>
 								{/* <FilterButton table={table} /> */}
-								<Menu as="div" className="relative inline-block text-left">
+								<Menu as="div" className="inline-block relative text-left">
 									<div>
 										<Menu.Button>
 											<Button
@@ -132,7 +139,7 @@ const TeamTask = () => {
 																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																)}
 															>
-																<div className="flex items-center justify-center w-5 h-full ">
+																<div className="flex justify-center items-center w-5 h-full">
 																	{isVisible && <Check size={12} />}
 																</div>
 																<span className="capitalize">
@@ -150,7 +157,7 @@ const TeamTask = () => {
 								</Menu>
 								<div className="w-px h-6 bg-gray-200 dark:bg-gray-400" />
 								<div className="flex gap-2.5 items-center relative min-w-[122px] text-muted-foreground border border-gray-200 dark:border-gray-400 rounded-md">
-									<Search className="absolute w-4 h-4 left-3" />
+									<Search className="absolute left-3 w-4 h-4" />
 
 									<Input
 										placeholder="Search tasks..."
@@ -199,7 +206,7 @@ const TeamTask = () => {
 			}
 			childrenClassName="bg-white dark:bg-dark--theme"
 		>
-			<div className="flex flex-col w-full min-h-full p-4 pt-6">
+			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
 				<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
 
 				<Paginate
