@@ -16,19 +16,22 @@ export function useIsMemberManager(user?: TUser | null) {
 			const isUser = member.employee?.userId === user.id;
 			const roleName = member.role?.name;
 			return (
-				isUser &&
-				(roleName === ERoleName.MANAGER || roleName === ERoleName.SUPER_ADMIN || roleName === ERoleName.ADMIN)
+				(isUser &&
+					(roleName === ERoleName.MANAGER ||
+						roleName === ERoleName.SUPER_ADMIN ||
+						roleName === ERoleName.ADMIN)) ||
+				activeTeam.createdByUserId === user.id
 			);
 		});
 	}, [user?.id, activeTeam?.members]);
-
-	const isTeamManager = !!activeManager;
 
 	const isTeamCreator = useMemo(() => {
 		if (!user || !activeTeam?.createdByUserId) return false;
 		return activeTeam.createdByUserId === user.id;
 	}, [user?.id, activeTeam?.createdByUserId]);
 
+	// Team creator should automatically be considered a manager (business logic fix)
+	const isTeamManager = !!activeManager || isTeamCreator;
 	return {
 		isTeamManager,
 		isTeamCreator,
