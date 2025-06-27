@@ -160,7 +160,7 @@ export const organizationTeamCreateResponseSchema = z.object({
 	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 	public: z.boolean().nullable(),
 	owner: z.any().optional().nullable(),
-	code: z.string().nullable(),
+	code: z.string().nullable().optional(),
 	description: z.string().optional().nullable(),
 	color: z.string().optional().nullable(),
 	billable: z.boolean().optional().nullable(),

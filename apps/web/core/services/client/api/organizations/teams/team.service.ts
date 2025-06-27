@@ -10,6 +10,7 @@ import {
 	validateApiResponse,
 	validatePaginationResponse,
 	organizationTeamSchema,
+	organizationTeamCreateSchema,
 	ZodValidationError,
 	TOrganizationTeam,
 	TOrganizationTeamCreate,
@@ -80,17 +81,24 @@ class OrganizationTeamService extends APIService {
 	};
 
 	createOrganizationTeamGauzy = async (data: TOrganizationTeamCreate, bearer_token: string) => {
+		// Validate input data before sending to API
+		const validatedInput = validateApiResponse(
+			organizationTeamCreateSchema,
+			data,
+			'createOrganizationTeamGauzy input data'
+		) as TOrganizationTeamCreate;
+
 		const project = await organizationProjectService.createOrganizationProject({
-			name: data.name,
-			tenantId: data.tenantId,
-			organizationId: data.organizationId
+			name: validatedInput.name,
+			tenantId: validatedInput.tenantId,
+			organizationId: validatedInput.organizationId
 		});
 
-		data.projects = [project.data as TOrganizationProject];
+		validatedInput.projects = [project.data as TOrganizationProject];
 
 		try {
-			const response = await this.post<TOrganizationTeam>('/organization-team', data, {
-				tenantId: data.tenantId,
+			const response = await this.post<TOrganizationTeam>('/organization-team', validatedInput, {
+				tenantId: validatedInput.tenantId,
 				headers: { Authorization: `Bearer ${bearer_token}` }
 			});
 
@@ -235,14 +243,21 @@ class OrganizationTeamService extends APIService {
 	};
 
 	editOrganizationTeam = async (data: Partial<TOrganizationTeam>) => {
+		// Validate input data before sending to API
+		const validatedInput = validateApiResponse(
+			organizationTeamUpdateSchema.partial(),
+			data,
+			'editOrganizationTeam input data'
+		) as Partial<TOrganizationTeam>;
+
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
 		try {
-			let response = await this.put<TOrganizationTeam>(`/organization-team/${data.id}`, data);
+			let response = await this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput);
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(data.id!, organizationId, tenantId);
+				response = await this.getOrganizationTeam(validatedInput.id!, organizationId, tenantId);
 			} else {
 				// Validate the response data for non-Gauzy API
 				const validatedData = validateApiResponse(
@@ -265,7 +280,7 @@ class OrganizationTeamService extends APIService {
 					message: error.message,
 					issues: error.issues,
 					context: 'editOrganizationTeam',
-					teamId: data.id
+					teamId: validatedInput.id
 				});
 			}
 			throw error;
@@ -273,11 +288,18 @@ class OrganizationTeamService extends APIService {
 	};
 
 	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeam>) => {
+		// Validate input data before sending to API
+		const validatedInput = validateApiResponse(
+			organizationTeamUpdateSchema.partial(),
+			data,
+			'updateOrganizationTeam input data'
+		) as Partial<TOrganizationTeam>;
+
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 
 		try {
-			let response = await this.put<TOrganizationTeam>(`/organization-team/${teamId}`, data);
+			let response = await this.put<TOrganizationTeam>(`/organization-team/${teamId}`, validatedInput);
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				response = await this.getOrganizationTeam(teamId, organizationId, tenantId);
@@ -311,6 +333,11 @@ class OrganizationTeamService extends APIService {
 	};
 
 	deleteOrganizationTeam = async (id: string) => {
+		// Validate input ID before sending to API
+		if (!id || typeof id !== 'string' || id.trim().length === 0) {
+			throw new Error('Valid team ID is required for deletion');
+		}
+
 		const organizationId = getOrganizationIdCookie();
 
 		try {

@@ -39,19 +39,19 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 			className={`relative flex justify-between py-3 px-4 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm ${className || ''}`}
 		>
 			{/* Large screen layout */}
-			<div className="hidden lg:flex w-full items-center justify-between">
+			<div className="hidden justify-between items-center w-full lg:flex">
 				{/* Task Info Section */}
-				<div className="flex-1 min-w-[12rem] max-w-[22rem] flex flex-row justify-between">
+				<div className="flex flex-row flex-1 justify-between min-w-36 max-w-64">
 					<div className="px-4 w-full">
 						{/* Task Issue Status + Task Number */}
-						<div className="flex items-center gap-2 mb-2">
+						<div className="flex gap-2 items-center mb-2">
 							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 						{/* Task Title */}
-						<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
+						<div className="w-28 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
 						{/* Task Status */}
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 				</div>
 
@@ -60,11 +60,11 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 
 				{/* Task Estimate Info Section */}
 				<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
-					<div className="flex flex-col items-center gap-2">
+					<div className="flex flex-col gap-2 items-center">
 						{/* Estimate Progress Circle */}
 						<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 						{/* Estimate Text */}
-						<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 				</div>
 
@@ -77,11 +77,11 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 						{[...Array(3)].map((_, index) => (
 							<div
 								key={index}
-								className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full border-2 border-white dark:border-gray-800"
+								className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full border-2 border-white dark:border-gray-800"
 							/>
 						))}
 					</div>
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 				</div>
 
 				{/* Vertical Separator */}
@@ -92,17 +92,17 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 					<div className="flex flex-col gap-2">
 						{/* Today Time */}
 						<div className="flex gap-x-4 items-center">
-							<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 						{/* Total Time */}
 						<div className="flex gap-x-4 items-center">
-							<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 					</div>
 					{/* Timer Button */}
-					<div className="w-11 h-11 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+					<div className="w-9 h-9 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 				</div>
 
 				{/* Vertical Separator */}
@@ -112,7 +112,7 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Status Dropdown */}
 					<div className="flex justify-center items-center">
-						<div className="w-[10.625rem] h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+						<div className="w-36 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					</div>
 					{/* Task Menu */}
 					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0">
@@ -122,27 +122,27 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 			</div>
 
 			{/* Small screen layout */}
-			<div className="lg:hidden flex flex-col w-full">
+			<div className="flex flex-col w-full lg:hidden">
 				{/* Top Section */}
 				<div className="flex justify-between mb-4 ml-2">
 					<div className="flex flex-col gap-2">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 				</div>
 
 				{/* Task Info Section */}
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b border-gray-200 dark:border-gray-600">
 					<div className="px-4 mb-4 w-full">
-						<div className="flex items-center gap-2 mb-2">
+						<div className="flex gap-2 items-center mb-2">
 							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 						<div className="w-full h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 					<div className="flex items-end py-4 mx-auto space-x-2">
-						<div className="w-52 h-16 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-36 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 				</div>
 
@@ -150,12 +150,12 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						<div className="flex flex-col gap-1">
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
-						<div className="w-11 h-11 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+						<div className="w-9 h-9 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 					</div>
-					<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+					<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
 			</div>
@@ -172,22 +172,22 @@ export const UserProfileTaskSkeleton: FC<SkeletonProps> = ({ className }) => {
 		<div className={`w-full ${className || ''}`}>
 			{/* Task Cards */}
 			<div className="space-y-4">
-				{[...Array(6)].map((_, index) => (
+				{[...Array(5)].map((_, index) => (
 					<TaskCardSkeleton key={index} />
 				))}
 			</div>
 
 			{/* Pagination */}
-			<div className="flex items-center justify-between mt-6 p-4">
+			<div className="flex justify-between items-center p-4 mt-6">
 				{/* Left Info */}
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
 
 				{/* Right Navigation */}
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
@@ -206,7 +206,7 @@ export const AppsTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={`w-full ${className || ''}`}>
 			{/* Table Header */}
-			<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600 p-4">
+			<div className="p-4 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/50 dark:border-gray-600">
 				<div className="grid grid-cols-4 gap-4">
 					{['Apps', 'Visited Dates', 'Percent Used', 'Time Spent'].map((header, index) => (
 						<div key={index} className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -222,7 +222,7 @@ export const AppsTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 						className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
 					>
 						{/* App Name with Icon */}
-						<div className="flex items-center gap-3">
+						<div className="flex gap-3 items-center">
 							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
@@ -231,7 +231,7 @@ export const AppsTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 
 						{/* Percent Used with Progress Bar */}
-						<div className="flex items-center gap-2">
+						<div className="flex gap-2 items-center">
 							<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 							<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
@@ -253,7 +253,7 @@ export const VisitedSitesTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={`w-full ${className || ''}`}>
 			{/* Table Header */}
-			<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600 p-4">
+			<div className="p-4 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/50 dark:border-gray-600">
 				<div className="grid grid-cols-4 gap-4">
 					{['Sites', 'Visited Dates', 'Percent Used', 'Time Spent'].map((header, index) => (
 						<div key={index} className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -269,7 +269,7 @@ export const VisitedSitesTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 						className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
 					>
 						{/* Site Name with Favicon */}
-						<div className="flex items-center gap-3">
+						<div className="flex gap-3 items-center">
 							<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
@@ -278,7 +278,7 @@ export const VisitedSitesTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 
 						{/* Percent Used with Progress Bar */}
-						<div className="flex items-center gap-2">
+						<div className="flex gap-2 items-center">
 							<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 							<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
@@ -300,7 +300,7 @@ export const ScreenshootTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={`w-full ${className || ''}`}>
 			{/* Screenshots Grid */}
-			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+			<div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
 				{[...Array(8)].map((_, index) => (
 					<div key={index} className="flex flex-col gap-2">
 						{/* Screenshot Image */}
@@ -365,7 +365,7 @@ export const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
 			</div>
 
 			{/* Filter Status Section (Conditional) */}
-			<div className="w-full mt-4">
+			<div className="mt-4 w-full">
 				<div className="w-full h-px bg-gray-200 dark:bg-gray-600" />
 				<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
 					<div className="flex flex-wrap flex-1 justify-center space-x-3 md:justify-start">

@@ -61,6 +61,11 @@ export function useCreateOrganizationTeam() {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
+
+			// Success notification
+			toast.success('Team created successfully', {
+				description: `Team "${name}" has been created and you are now a member.`
+			});
 		},
 		onError: (error) => {
 			// Enhanced error handling with Zod validation errors

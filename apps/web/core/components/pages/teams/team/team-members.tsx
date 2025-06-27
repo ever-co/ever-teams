@@ -15,6 +15,7 @@ import TeamMembersBlockView from './team-members-views/team-members-block-view';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
+import { UserProfileTaskSkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 
 // Types for better performance and security
 
@@ -152,17 +153,16 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		}, [members, currentUser?.id]);
 
 		// Early return for empty members
-		if (members.length === 0) {
+		if (members.length === 0 || teamsFetching) {
 			return (
-				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
+				<Container fullWidth={fullWidth} className="!overflow-x-auto mt-6 !mx-0 px-1">
 					<div className="hidden lg:block">
-						<UserTeamCardSkeletonCard />
+						<UserProfileTaskSkeleton />
 						<InviteUserTeamCardSkeleton />
 					</div>
 					<div className="block lg:hidden">
-						<UserCard />
-						<UserCard />
-						<UserCard />
+						<UserProfileTaskSkeleton />
+						<UserProfileTaskSkeleton />
 					</div>
 				</Container>
 			);

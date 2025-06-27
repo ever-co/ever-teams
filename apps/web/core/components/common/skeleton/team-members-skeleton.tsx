@@ -2,6 +2,7 @@ import { IssuesView } from '@/core/constants/config/constants';
 import UserTeamCardSkeletonCard from '../../teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '../../teams/invite-team-card-skeleton';
 import { Container } from '@/core/components';
+import { UserProfileTaskSkeleton } from './profile-component-skeletons';
 
 interface TeamMembersSkeletonProps {
 	view?: IssuesView;
@@ -14,7 +15,7 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className, fullWidth = t
 	const renderCardView = () => (
 		<div className="flex flex-col gap-4">
 			{Array.from({ length: 4 }, (_, index) => (
-				<UserTeamCardSkeletonCard key={index} />
+				<UserProfileTaskSkeleton key={index} />
 			))}
 			<InviteUserTeamCardSkeleton />
 		</div>
