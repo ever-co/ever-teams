@@ -15,10 +15,11 @@ import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
 import TeamSize from '@/core/components/teams/team-size-popover';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { toast } from 'sonner';
 
 export const TeamSettingForm = () => {
 	const [user] = useAtom(userState);
-	const { register, setValue, handleSubmit, getValues } = useForm();
+	const { register, setValue, handleSubmit } = useForm();
 	const t = useTranslations();
 	const {
 		activeTeam,
@@ -90,18 +91,23 @@ export const TeamSettingForm = () => {
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			if (activeTeam) {
-				editOrganizationTeam({
+			if (!activeTeam) {
+				toast.error('No active team found');
+				return;
+			}
+
+			try {
+				await editOrganizationTeam({
 					...activeTeam,
 					id: activeTeam?.id,
 					name: values.teamName,
 					organizationId: activeTeam.organizationId,
 					tenantId: activeTeam.tenantId,
 					public: values.teamType === 'PUBLIC' ? true : false,
-					color: values.color,
-					emoji: values.emoji,
+					color: values.color || null,
+					emoji: values.emoji || null,
 					shareProfileView: activeTeam.shareProfileView,
-					teamSize: values.teamSize,
+					teamSize: values.teamSize || null,
 					memberIds: activeTeam.members
 						?.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index), // To make the array Unique list of ids
@@ -116,6 +122,11 @@ export const TeamSettingForm = () => {
 						.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 				});
+
+				toast.success('Team updated successfully');
+			} catch (error) {
+				console.error('Team update failed:', error);
+				toast.error('Failed to update team. Please try again.');
 			}
 		},
 		[editOrganizationTeam, activeTeam]
@@ -152,30 +163,29 @@ export const TeamSettingForm = () => {
 		return '';
 	}, [activeTeam, locale]);
 
-	const handleChange = useCallback(() => {
-		const latestFormData = getValues();
-		onSubmit({
-			...latestFormData
-		});
-	}, [onSubmit, getValues]);
-
-	/* eslint-disable react-hooks/exhaustive-deps */
-	const debounceHandleColorChange = useCallback(debounce(handleChange, 1000), [handleChange, debounce]);
+	// Removed problematic handleChange function that triggered API calls on every field change
+	// Now using a debounced color update that only updates local state
+	const debounceHandleColorChange = useCallback(
+		debounce((color: string) => {
+			setValue('color', color);
+		}, 300),
+		[setValue]
+	);
 
 	return (
 		<>
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex flex-col items-center justify-between">
-					<div className="w-full mt-5">
+				<div className="flex flex-col justify-between items-center">
+					<div className="mt-5 w-full">
 						<div className="">
 							{/* Team Name */}
-							<div className="flex flex-col items-center justify-between w-full sm:gap-12 sm:flex-row">
+							<div className="flex flex-col justify-between items-center w-full sm:gap-12 sm:flex-row">
 								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_NAME')}
 								</Text>
 								<div
 									ref={inputWrapperRef}
-									className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5"
+									className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5"
 								>
 									<InputField
 										autoCustomFocus={!disabled}
@@ -219,16 +229,15 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className="flex flex-col items-center justify-between w-full gap-1 lg:flex-row lg:gap-12 ">
-								<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
+							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
+								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="z-10 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
+								<div className="flex z-10 flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color || ''}
 										onChange={(color: any | null) => {
-											setValue('color', color);
-											debounceHandleColorChange();
+											debounceHandleColorChange(color);
 										}}
 										isTeamManager={isTeamManager}
 										disabled={!isTeamManager}
@@ -238,15 +247,14 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Emoji */}
-							<div className="flex flex-col items-center justify-between w-full gap-1 lg:flex-row lg:gap-12 ">
-								<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
+							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
+								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.EMOJI')}
 								</Text>
 								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
 									<EmojiPicker
 										onChange={(emoji: string) => {
 											setValue('emoji', emoji);
-											handleChange();
 										}}
 										emoji={activeTeam?.emoji || null}
 										isTeamManager={isTeamManager}
@@ -257,16 +265,15 @@ export const TeamSettingForm = () => {
 
 							{/* Team Size */}
 							{
-								<div className="flex flex-col items-center justify-between w-full gap-1 mt-3 lg:flex-row lg:gap-12 ">
-									<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 lg:w-1/5">
+								<div className="flex flex-col gap-1 justify-between items-center mt-3 w-full lg:flex-row lg:gap-12">
+									<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
 										<TeamSize
 											defaultValue={activeTeam?.teamSize || ''}
 											onChange={(teamSize: string) => {
 												setValue('teamSize', teamSize);
-												handleChange();
 											}}
 											isTeamManager={isTeamManager}
 											disabled={!isTeamManager}
@@ -276,23 +283,19 @@ export const TeamSettingForm = () => {
 							}
 
 							{/* Team Type */}
-							<div className="flex flex-col items-center w-full mt-8 sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+							<div className="flex flex-col items-center mt-8 w-full sm:gap-12 sm:flex-row">
+								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_TYPE')}
 								</Text>
 								<div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
-										<div className="flex items-center justify-between w-full space-y-2 sm:block">
+										<div className="flex justify-between items-center space-y-2 w-full sm:block">
 											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
 												<input
 													id="team-type-radio-public"
 													className="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:dark:after:border-primary-xlight checked:after:bg-primary checked:dark:after:bg-primary-xlight checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:dark:focus:border-primary-xlight checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary-xlight dark:checked:after:border-primary-xlight dark:checked:after:bg-primary-xlight dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary-xlight dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
 													type="radio"
-													{...register('teamType', {
-														onChange: () => {
-															handleChange();
-														}
-													})}
+													{...register('teamType')}
 													value="PUBLIC"
 													disabled={!isTeamManager}
 												/>
@@ -309,11 +312,7 @@ export const TeamSettingForm = () => {
 													id="team-type-radio-private"
 													className="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:dark:after:border-primary-xlight checked:after:bg-primary checked:dark:after:bg-primary-xlight checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:dark:focus:border-primary-xlight checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary-xlight dark:checked:after:border-primary-xlight dark:checked:after:bg-primary-xlight dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary-xlight dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
 													type="radio"
-													{...register('teamType', {
-														onChange: () => {
-															handleChange();
-														}
-													})}
+													{...register('teamType')}
 													value="PRIVATE"
 													disabled={!isTeamManager}
 												/>
@@ -327,8 +326,8 @@ export const TeamSettingForm = () => {
 										</div>
 									)}
 									{getTeamLink() && (
-										<div className="flex flex-col items-center gap-4 sm:flex-row">
-											<div className="flex flex-row items-center justify-between flex-grow-0 w-full mb-0 lg:w-64">
+										<div className="flex flex-col gap-4 items-center sm:flex-row">
+											<div className="flex flex-row flex-grow-0 justify-between items-center mb-0 w-full lg:w-64">
 												<Tooltip
 													label={getTeamLink()}
 													placement="auto"
@@ -344,7 +343,7 @@ export const TeamSettingForm = () => {
 													/>
 												</Tooltip>
 											</div>
-											<div className="flex flex-row items-center justify-between flex-grow-0 sm:w-1/5">
+											<div className="flex flex-row flex-grow-0 justify-between items-center sm:w-1/5">
 												<Button
 													variant="outline"
 													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
@@ -368,27 +367,27 @@ export const TeamSettingForm = () => {
 							{/* Time Tracking */}
 							{isTeamManager ? (
 								<>
-									<div className="flex items-center justify-between w-full gap-12 mt-8">
+									<div className="flex gap-12 justify-between items-center mt-8 w-full">
 										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.TIME_TRACKING')}
 										</Text>
-										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
 											<TimeTrackingToggle activeManager={activeManager as any} />
 										</div>
 									</div>
-									<div className="flex items-center justify-between w-full gap-12 mt-8">
+									<div className="flex gap-12 justify-between items-center mt-8 w-full">
 										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.SHARE_MEMBERS_PROFILE_VIEWS')}
 										</Text>
-										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
 											<ShareProfileViewsToggle />
 										</div>
 									</div>
-									<div className="flex items-center justify-between w-full gap-12 mt-8">
+									<div className="flex gap-12 justify-between items-center mt-8 w-full">
 										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.ENFORCE_PLAN')}
 										</Text>
-										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
 											<RequireDailyPlanToTrack />
 										</div>
 									</div>

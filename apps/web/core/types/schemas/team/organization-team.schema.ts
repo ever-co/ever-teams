@@ -75,23 +75,23 @@ export const organizationTeamUpdateSchema = z.object({
 		.optional()
 		.nullable(),
 	organizationId: z.string().optional(),
-	sentTo: z.string(),
-	tags: z.array(z.null()), // ou z.array(z.string().nullable()) si mix
-	memberIds: z.array(z.string()),
-	managerIds: z.array(z.string()),
-	logo: z.string(),
-	prefix: z.string(),
-	shareProfileView: z.boolean(),
-	requirePlanToTrack: z.boolean(),
+	sentTo: z.string().optional(),
+	tags: z.array(z.any()).optional(), // Allow flexible tags array
+	memberIds: z.array(z.string()).optional(),
+	managerIds: z.array(z.string()).optional(),
+	logo: z.string().optional().nullable(),
+	prefix: z.string().optional().nullable(),
+	shareProfileView: z.boolean().optional(),
+	requirePlanToTrack: z.boolean().optional(),
 	imageId: z.string().optional().nullable(),
 	image: z.any().optional().nullable(),
-	public: z.boolean().nullable(),
-	color: z.string(),
-	emoji: z.string(),
-	teamSize: z.string(),
+	public: z.boolean().nullable().optional(),
+	color: z.string().nullable().optional(),
+	emoji: z.string().nullable().optional(),
+	teamSize: z.string().nullable().optional(),
 	projects: z.array(baseProjectSchema).optional(),
-	id: z.string(),
-	name: z.string()
+	id: z.string().optional(),
+	name: z.string().optional()
 });
 
 /**
