@@ -16,7 +16,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 
 	return (
 		<div className="flex gap-2 items-center">
-			{label}
+			<span className="text-[13px] whitespace-nowrap">{label}</span>
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button
@@ -31,7 +31,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 					<div className="flex flex-col gap-1">
 						<Button
 							variant={currentDirection === 'asc' ? 'secondary' : 'ghost'}
-							className="justify-start text-[12px]"
+							className="justify-start text-xs"
 							onClick={() => onSort(sortKey)}
 						>
 							ASC
@@ -41,7 +41,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 						</Button>
 						<Button
 							variant={currentDirection === 'desc' ? 'secondary' : 'ghost'}
-							className="justify-start text-[12px]"
+							className="justify-start text-xs"
 							onClick={() => onSort(sortKey)}
 						>
 							DESC

@@ -79,7 +79,6 @@ const LazyBulkRestoreProjectsModal = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for conditional modals (Medium article pattern)
 	}
 );
 
@@ -519,7 +518,6 @@ function PageComponent() {
 						/>
 					) : null}
 				</div>
-				{/* Lazy loaded modals with conditional rendering (Medium article pattern) */}
 				{isFiltersCardModalOpen && (
 					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
 						<LazyFiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />

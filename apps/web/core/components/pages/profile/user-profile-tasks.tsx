@@ -1,14 +1,15 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
-import { TaskCard } from '../../tasks/task-card';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, useEffect, useMemo, useState } from 'react';
-import { ScreenCalendar } from '../../activities/screen-calendar';
+import { memo, Suspense, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
-import { EmptyPlans, UserProfilePlans } from '../../users/user-profile-plans';
+import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
+import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/optimized-components';
+import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -16,7 +17,6 @@ type Props = {
 	paginateTasks?: boolean;
 	user?: TUser;
 };
-
 /**
  * It displays a list of tasks, the first task being the active task and the rest being the last 24 hours of tasks
  * @param  - `profile` - The user profile page data.
@@ -79,7 +79,7 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 
 			{tabFiltered.tab === 'worked' &&
 				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) && (
-					<TaskCard
+					<LazyTaskCard
 						active
 						task={profile.activeUserTeamTask}
 						isAuthUser={profile.isAuthUser}
@@ -94,7 +94,11 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
-			{tabFiltered.tab === 'stats' && <ScreenCalendar />}
+			{tabFiltered.tab === 'stats' && (
+				<Suspense fallback={<ActivityCalendarSkeleton />}>
+					<LazyActivityCalendar />
+				</Suspense>
+			)}
 			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} />}
 
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
@@ -112,7 +116,7 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 						? slicedItems.map((task) => {
 								return (
 									<li key={task.id}>
-										<TaskCard
+										<LazyTaskCard
 											key={task.id}
 											task={task}
 											isAuthUser={profile.isAuthUser}

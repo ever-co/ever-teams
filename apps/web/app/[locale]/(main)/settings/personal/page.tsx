@@ -11,7 +11,6 @@ const LazyWorkingHours = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
@@ -19,7 +18,6 @@ const LazySyncZone = dynamic(
 	() => import('@/core/components/pages/settings/personal/sync.zone').then((mod) => ({ default: mod.SyncZone })),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 import dynamic from 'next/dynamic';
@@ -36,7 +34,6 @@ const LazyPersonalSettingForm = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
@@ -47,7 +44,6 @@ const LazyDangerZone = dynamic(
 		})),
 	{
 		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
 	}
 );
 
@@ -56,7 +52,7 @@ const LazyProfileAvatar = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="flex items-center gap-4 mb-5">
+			<div className="flex gap-4 items-center mb-5">
 				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 				<div className="flex flex-col gap-2">
 					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -71,9 +67,9 @@ const Personal = () => {
 	const t = useTranslations();
 
 	return (
-		<div className="pb-16 overflow-auto">
+		<div className="overflow-auto pb-16">
 			<Link href={'/settings/team'} className="w-full">
-				<button className="w-full p-4 mt-2 border lg:hidden hover:bg-white rounded-xl border-dark text-dark">
+				<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
 					Go to Team settings
 				</button>
 			</Link>
@@ -116,4 +112,7 @@ const Personal = () => {
 		</div>
 	);
 };
-export default withAuthentication(Personal, { displayName: 'Personal' });
+export default withAuthentication(Personal, {
+	displayName: 'Personal',
+	showPageSkeleton: true
+});

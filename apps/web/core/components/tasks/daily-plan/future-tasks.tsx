@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 import { TaskCard } from '../task-card';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
@@ -69,8 +69,8 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
@@ -179,10 +179,10 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																		deleteDailyPlan(plan.id ?? '');
 																	}}
 																	variant="destructive"
-																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 																	)}
 																	Delete
 																</Button>

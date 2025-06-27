@@ -45,6 +45,7 @@ import {
 	TimesheetCardSkeleton,
 	TimesheetPaginationSkeleton
 } from '@/core/components/common/skeleton/timesheet-skeletons';
+import TimesheetPageSkeleton from '../../common/skeleton/timesheet-page-skeleton';
 
 // Lazy load heavy timesheet components for performance optimization
 // Priority 1: CalendarView (heaviest component with complex calendar logic)
@@ -246,6 +247,10 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const fullWidth = useAtomValue(fullWidthState);
 
+	// Show unified skeleton while data is loading
+	if (loadingTimesheet && (!filterDataTimesheet || !activeTeam)) {
+		return <TimesheetPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl ? paramsUrl.locale : null;
 	const breadcrumbPath = useMemo(
@@ -291,7 +296,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									{t('pages.timesheet.HEADING_DESCRIPTION')}
 								</span>
 							</div>
-							{/* ✅ OPTIMIZED: Use lazy loaded TimesheetCard components */}
 							<div className="flex gap-6 justify-between items-center mb-4 w-full">
 								<LazyTimesheetCard
 									count={statusTimesheet?.PENDING?.length || 0}
@@ -371,7 +375,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									/>
 								</div>
 							</div>
-							{/* ✅ OPTIMIZED: Use lazy loaded TimesheetFilter */}
+							{/*  Use lazy loaded TimesheetFilter */}
 							<LazyTimesheetFilter
 								user={user}
 								data={statusData}
@@ -395,7 +399,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme px-4">
 					<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
 						<div className="rounded-lg border border-gray-200 dark:border-gray-800">
-							{/* ✅ OPTIMIZED: Use lazy loaded components with conditional rendering */}
+							{/* Use lazy loaded components with conditional rendering */}
 							{timesheetNavigator === 'ListView' ? (
 								<LazyTimesheetView
 									user={user}
@@ -421,7 +425,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									)}
 								</>
 							)}
-							{/* ✅ OPTIMIZED: Use lazy loaded TimesheetPagination */}
+							{/*  Use lazy loaded TimesheetPagination */}
 							{shouldRenderPagination && (
 								<LazyTimesheetPagination
 									currentPage={currentPage}
@@ -443,7 +447,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 					</Container>
 				</div>
 
-				{/* ✅ OPTIMIZED: Use lazy loaded modal with conditional rendering and Suspense */}
+				{/* Use lazy loaded modal with conditional rendering and Suspense */}
 				{isTimesheetDetailOpen && (
 					<Suspense fallback={<TimesheetDetailModalSkeleton />}>
 						<LazyTimesheetDetailModal

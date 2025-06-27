@@ -29,7 +29,6 @@ import dynamic from 'next/dynamic';
 import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
 
-// Optimized lazy loading according to Medium article - unified loading states
 const LazyCreateTaskModal = dynamic(() => import('../features/tasks/create-task-modal'), {
 	ssr: false
 	// Note: Removed loading here to avoid double loading states
