@@ -20,6 +20,7 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<EIssueType> = {
@@ -60,38 +61,63 @@ export function TaskIssuesDropdown({
 	defaultValue,
 	onValueChange,
 	showIssueLabels = true,
-	taskStatusClassName
+	taskStatusClassName,
+	value
 }: TTaskVersionsDropdown<'issueType'> & {
 	showIssueLabels?: boolean;
 	taskStatusClassName?: string;
+	value: string;
 }) {
 	const { isOpen, closeModal } = useModal();
-	const { item, items, onChange } = useStatusValue<'issueType'>({
+	const { items } = useStatusValue<'issueType'>({
 		status: taskIssues,
-		value: defaultValue,
-		onValueChange
+		value: defaultValue
 	});
 
 	return (
 		<>
-			<StatusDropdown
-				className={className}
-				items={items}
-				value={item}
-				onChange={onChange}
-				issueType="issue"
-				showIssueLabels={showIssueLabels}
-				taskStatusClassName={taskStatusClassName}
-			>
-				{/* <Button
-					onClick={openModal}
-					className="min-w-[100px] text-xs px-1 py-2 gap-0 w-full"
-					variant="outline-danger"
-				>
-					<PlusIcon className="w-4 h-4" />
-					{t('common.NEW_ISSUE')}
-				</Button> */}
-			</StatusDropdown>
+			<Select
+				placeholder="Issue Type"
+				showChevronDownIcon={false}
+				options={items.map((el) => ({ ...el, id: el.name }))}
+				selected={value}
+				onChange={(value) => {
+					console.log(value);
+					onValueChange?.(value as EIssueType);
+				}}
+				selecteTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
+				selectOptionsListClassName="w-full h-full"
+				renderItem={(item) => (
+					<div className="flex items-center gap-2">
+						<div
+							style={{ backgroundColor: item.bgColor ?? undefined }}
+							className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
+						>
+							{item.icon}
+						</div>
+						<span>{item.name}</span>
+					</div>
+				)}
+				renderValue={(value) =>
+					value ? (
+						<div className="flex items-center gap-2">
+							<div
+								style={{
+									backgroundColor: items.find((el) => el.name == value)?.bgColor ?? undefined
+								}}
+								className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
+							>
+								{items.find((el) => el.name == value)?.icon}
+							</div>
+						</div>
+					) : (
+						<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
+							<div className="w-full border border-black/40 h-full rounded-full"></div>
+						</div>
+					)
+				}
+			/>
+
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
 		</>
 	);

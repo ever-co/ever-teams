@@ -532,7 +532,8 @@ interface ISelectProps<IItem> {
 	options: IItem[];
 	selected: string | string[] | null;
 	placeholder?: string;
-	className?: string;
+	selecteTriggerClassName?: string;
+	selectOptionsListClassName?: string;
 	onChange?: (value: string | string[]) => void;
 	multiple?: boolean;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
@@ -540,6 +541,8 @@ interface ISelectProps<IItem> {
 	searchEnabled?: boolean;
 	onCreate?: (newTerm: string) => void;
 	createLoading?: boolean;
+	showChevronDownIcon?: boolean;
+	alignOptionsList?: 'start' | 'center' | 'end';
 }
 
 /**
@@ -567,7 +570,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 	const {
 		options,
 		placeholder,
-		className,
+		selecteTriggerClassName,
 		selected,
 		onChange,
 		renderItem,
@@ -575,7 +578,10 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 		searchEnabled,
 		onCreate,
 		createLoading,
-		renderValue
+		renderValue,
+		showChevronDownIcon = true,
+		selectOptionsListClassName,
+		alignOptionsList = 'start'
 	} = props;
 
 	// State management with performance considerations
@@ -669,7 +675,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 	// Memoized height calculation to prevent recalculation on every render
 	const listHeight = useMemo(() => {
 		const maxVisibleItems = 7;
-		const itemHeight = 1.5; // rem
+		const itemHeight = 2; // rem
 		return items?.length > maxVisibleItems ? '12rem' : `${items?.length * itemHeight}rem`;
 	}, [items?.length]);
 
@@ -709,7 +715,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 						role="combobox"
 						className={cn(
 							'flex justify-between items-center px-3 py-2 w-full h-10 text-sm text-left rounded-lg border dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
-							className
+							selecteTriggerClassName
 						)}
 					>
 						{renderValue ? (
@@ -719,12 +725,17 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 								{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
 							</span>
 						)}
-						<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
+						{showChevronDownIcon ? (
+							<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
+						) : null}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
-					className="w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20"
-					align="center"
+					className={cn(
+						'w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20',
+						selectOptionsListClassName
+					)}
+					align={alignOptionsList}
 				>
 					<Command className="w-full dark:bg-dark--theme-light" shouldFilter={false}>
 						{searchEnabled && (

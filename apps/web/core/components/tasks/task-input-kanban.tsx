@@ -97,7 +97,8 @@ export function TaskInputKanban(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter
+		setFilter,
+		taskIssue
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
@@ -279,7 +280,7 @@ export function TaskInputKanban(props: Props) {
 				</div>
 			}
 			className={clsxm(
-				showTaskNumber && inputTask && ['pl-2'],
+				showTaskNumber && inputTask && ['pl-6'],
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
@@ -287,11 +288,12 @@ export function TaskInputKanban(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className="relative flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
+				<div className=" flex items-center justify-center w-10 h-full" ref={ignoreElementRef}>
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
 						onValueChange={(v: any) => setTaskIssue(v)}
+						value={taskIssue}
 					/>
 				</div>
 			}
