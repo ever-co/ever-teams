@@ -1,5 +1,4 @@
 import { IssuesView } from '@/core/constants/config/constants';
-import UserTeamCardSkeletonCard from '../../teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '../../teams/invite-team-card-skeleton';
 import { Container } from '@/core/components';
 import { UserProfileTaskSkeleton } from './profile-component-skeletons';

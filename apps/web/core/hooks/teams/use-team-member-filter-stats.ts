@@ -28,7 +28,7 @@ const INITIAL_FILTER_STATS: TeamMemberFilterStats = {
  */
 export const useTeamMemberFilterStats = (
 	allMembers: TOrganizationTeamEmployee[],
-	user: TUser | undefined
+	user: TUser | null
 ): TeamMemberFilterStats => {
 	return useMemo(() => {
 		if (!allMembers.length) return INITIAL_FILTER_STATS;
@@ -85,21 +85,21 @@ export const useTeamMemberFilterStats = (
 /**
  * Hook that provides filter stats with proper typing for UI components
  */
-export const useTeamMemberFilterStatsForUI = (
-	allMembers: TOrganizationTeamEmployee[],
-	user: TUser | undefined
-) => {
+export const useTeamMemberFilterStatsForUI = (allMembers: TOrganizationTeamEmployee[], user: TUser | null) => {
 	const stats = useTeamMemberFilterStats(allMembers, user);
 
 	// Convert to format expected by UI components
-	const filterStats = useMemo(() => ({
-		all: stats.all,
-		idle: stats.idle,
-		online: stats.online,
-		running: stats.running,
-		pause: stats.pause,
-		suspended: stats.suspended
-	}), [stats]);
+	const filterStats = useMemo(
+		() => ({
+			all: stats.all,
+			idle: stats.idle,
+			online: stats.online,
+			running: stats.running,
+			pause: stats.pause,
+			suspended: stats.suspended
+		}),
+		[stats]
+	);
 
 	return filterStats;
 };

@@ -73,8 +73,8 @@ export function UserTeamBlockHeader() {
 	const hook = useTaskFilter(profile);
 
 	// Use refactored hooks for member processing and stats
-	const processedMembers = useProcessedTeamMembers(activeTeam || undefined, user || undefined);
-	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user || undefined);
+	const processedMembers = useProcessedTeamMembers(activeTeam, user);
+	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user);
 
 	// Convert filter stats to the format expected by the UI
 	const membersStatusNumber = useMemo(
