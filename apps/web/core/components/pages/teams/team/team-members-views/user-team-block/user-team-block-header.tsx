@@ -11,29 +11,18 @@ import { InviteFormModal } from '@/core/components/features/teams/invite-form-mo
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
+import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
 
-type TimerStatus = 'running' | 'online' | 'pause' | 'idle' | 'suspended';
-type FilterType = 'all' | TimerStatus;
-
-interface IStatusCount {
-	[key: string]: number;
-}
-
-interface IFilter extends IStatusCount {
+// Interface for filter stats (kept for UI compatibility)
+interface IFilter {
 	running: number;
 	online: number;
 	pause: number;
 	idle: number;
 	suspended: number;
 }
-
-const initialFilter: IFilter = {
-	running: 0,
-	online: 0,
-	pause: 0,
-	idle: 0,
-	suspended: 0
-};
 
 // Status buttons configuration for better maintainability
 const statusButtons = (
@@ -78,81 +67,28 @@ export function UserTeamBlockHeader() {
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
-	const [activeFilter, setActiveFilter] = useAtom<FilterType>(taskBlockFilterState);
+	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
 
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
 
-	// Enhanced members status count that includes current user (matching filter logic)
-	const membersStatusNumber = useMemo(() => {
-		const rawMembers = activeTeam?.members || [];
+	// Use refactored hooks for member processing and stats
+	const processedMembers = useProcessedTeamMembers(activeTeam || undefined, user || undefined);
+	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user || undefined);
 
-		// Create complete list including current user (same logic as team-members.tsx)
-		const allMembers = [...rawMembers];
+	// Convert filter stats to the format expected by the UI
+	const membersStatusNumber = useMemo(
+		() => ({
+			running: filterStats.running,
+			online: filterStats.online,
+			pause: filterStats.pause,
+			idle: filterStats.idle,
+			suspended: filterStats.suspended
+		}),
+		[filterStats]
+	);
 
-		// Add current user if not already included and exists
-		const currentUserInMembers = rawMembers.find((m) => m.employee?.userId === user?.id);
-		if (!currentUserInMembers && user && activeTeam) {
-			// Create placeholder for current user (same as team-members.tsx)
-			const currentUserPlaceholder = {
-				id: `temp-${user.id}`,
-				employeeId: user.employee?.id || `temp-employee-${user.id}`,
-				employee: {
-					id: user.employee?.id || `temp-employee-${user.id}`,
-					userId: user.id,
-					user: user,
-					organizationId: user.employee?.organizationId || activeTeam.organizationId,
-					tenantId: user.employee?.tenantId || activeTeam.tenantId,
-					isActive: true,
-					isArchived: false
-				},
-				role: null,
-				isTrackingEnabled: user.employee?.isTrackingEnabled || false,
-				activeTaskId: null,
-				organizationTeamId: activeTeam.id,
-				assignedAt: new Date(),
-				isManager: false,
-				isOwner: false,
-				order: 0,
-				timerStatus: undefined
-			};
-			allMembers.unshift(currentUserPlaceholder);
-		}
-
-		if (!allMembers.length) return initialFilter;
-
-		return allMembers.reduce<IFilter>(
-			(acc, item) => {
-				// Enhanced status logic matching the filter conditions
-				if (!item.timerStatus) {
-					// New users without timer status are considered 'idle'
-					acc.idle += 1;
-				} else {
-					const status = item.timerStatus as TimerStatus;
-					// Safe increment with type checking
-					if (status in acc) {
-						acc[status] += 1;
-					}
-				}
-
-				// FIXED: Current user should ALWAYS be counted as 'online' when authenticated
-				// regardless of their timer status (matching the updated filter logic)
-				if (item.employee?.userId === user?.id) {
-					acc.online += 1;
-				}
-
-				return acc;
-			},
-			{ ...initialFilter }
-		);
-	}, [activeTeam?.members, activeTeam?.id, activeTeam?.organizationId, activeTeam?.tenantId, user]);
-
-	// Calculate total members count (including current user)
-	const totalMembersCount = useMemo(() => {
-		const rawMembers = activeTeam?.members || [];
-		const currentUserInMembers = rawMembers.find((m) => m.employee?.userId === user?.id);
-		return rawMembers.length + (currentUserInMembers ? 0 : user && activeTeam ? 1 : 0);
-	}, [activeTeam?.members, user?.id, user, activeTeam]);
+	const totalMembersCount = filterStats.all;
 
 	return (
 		<>
