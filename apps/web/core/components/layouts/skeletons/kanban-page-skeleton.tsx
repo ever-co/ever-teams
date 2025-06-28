@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
+import { KanbanColumnLoadingSkeleton } from '../../common/skeleton/kanban-column-loading-skeleton';
 
 interface KanbanPageSkeletonProps {
 	className?: string;
@@ -152,14 +153,10 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 							<div key={index} className="flex flex-col gap-[10px] min-w-[325px]">
 								{/* Column Header Skeleton */}
 								<div className="h-10 w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-
 								{/* Tasks Skeleton */}
 								<div className="flex flex-col gap-[5px]">
 									{[...Array(2)].map((_, taskIndex) => (
-										<div
-											key={taskIndex}
-											className="h-[155px] w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg"
-										/>
+										<KanbanColumnLoadingSkeleton className="static" key={taskIndex} />
 									))}
 
 									{/* Add Task Button Skeleton */}

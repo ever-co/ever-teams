@@ -1,10 +1,12 @@
+import { cn } from '@/core/lib/helpers';
+
 interface KanbanColumnLoadingSkeletonProps {
 	className?: string;
 }
 
 export function KanbanColumnLoadingSkeleton({ className }: KanbanColumnLoadingSkeletonProps) {
 	return (
-		<div className={`bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full ${className || ''}`}>
+		<div className={cn('bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full', className)}>
 			{/* Loading state for column content */}
 			<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] mt-3 flex flex-col justify-center items-center my-2 rounded-xl p-4 space-y-3">
 				{/* Loading spinner animation */}
@@ -17,7 +19,7 @@ export function KanbanColumnLoadingSkeleton({ className }: KanbanColumnLoadingSk
 				<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 
 				{/* Multiple task card skeletons */}
-				<div className="w-full space-y-2 mt-4">
+				<div className="mt-4 space-y-2 w-full">
 					<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
