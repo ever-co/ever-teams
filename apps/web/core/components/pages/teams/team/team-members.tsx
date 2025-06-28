@@ -79,27 +79,96 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 		// Sorting with optimized function
 		const sortedMembers = validMembers.sort(sortByWorkStatus);
 
-		// Find the current user in one pass
-		const currentUser = validMembers.find((m) => m.employee?.userId === user?.id);
+		// Find the current user in the team members
+		let currentUser = validMembers.find((m) => m.employee?.userId === user?.id);
+
+		// IMPORTANT: If current user is not found in team members (new user case),
+		// create a placeholder member object to ensure they always see their card
+		if (!currentUser && user && activeTeam) {
+			currentUser = {
+				id: `temp-${user.id}`,
+				employeeId: user.employee?.id || `temp-employee-${user.id}`,
+				employee: {
+					id: user.employee?.id || `temp-employee-${user.id}`,
+					userId: user.id,
+					user: user,
+					organizationId: user.employee?.organizationId || activeTeam.organizationId,
+					tenantId: user.employee?.tenantId || activeTeam.tenantId,
+					isActive: true,
+					isArchived: false
+				},
+				role: null,
+				isTrackingEnabled: user.employee?.isTrackingEnabled || false,
+				activeTaskId: null,
+				organizationTeamId: activeTeam.id,
+				assignedAt: new Date(),
+				isManager: false,
+				isOwner: false,
+				order: 0,
+				timerStatus: undefined
+			} as TOrganizationTeamEmployee;
+		}
 
 		return {
 			members: validMembers,
 			orderedMembers: sortedMembers,
 			currentUser
 		};
-	}, [activeTeam?.members, user?.id]);
+	}, [activeTeam?.members, activeTeam?.id, activeTeam?.organizationId, activeTeam?.tenantId, user]);
 
-	// Filtering the members for the block view (optimized memoization)
+	// Enhanced filtering for block view that includes current user in filter logic
 	const blockViewMembers = useMemo(() => {
-		if (activeFilter === 'all') return processedMembers.orderedMembers;
+		// Create a complete list including current user for filtering
+		const allMembers = [...processedMembers.orderedMembers];
 
-		const filterCondition =
-			activeFilter === 'idle'
-				? (m: TOrganizationTeamEmployee) => !m.timerStatus || m.timerStatus === ETimerStatus.IDLE
-				: (m: TOrganizationTeamEmployee) => m.timerStatus === activeFilter;
+		// Add current user to the list if they're not already included and exist
+		if (processedMembers.currentUser && !allMembers.find((m) => m.id === processedMembers.currentUser?.id)) {
+			allMembers.unshift(processedMembers.currentUser); // Add at the beginning
+		}
 
-		return processedMembers.orderedMembers.filter(filterCondition);
-	}, [processedMembers.orderedMembers, activeFilter]);
+		// Apply filter logic - handle ALL_MEMBERS case with other filters for consistent positioning
+		let filteredMembers: TOrganizationTeamEmployee[];
+
+		if (activeFilter === 'all') {
+			// For ALL_MEMBERS, include all members without filtering
+			filteredMembers = allMembers;
+		} else {
+			// Enhanced filter conditions for better new user support
+			const filterCondition = (m: TOrganizationTeamEmployee) => {
+				switch (activeFilter) {
+					case 'idle':
+						// Include users with no timer status (new users) or idle status
+						return !m.timerStatus || m.timerStatus === ETimerStatus.IDLE;
+					case 'online':
+						// FIXED: Current user should ALWAYS appear in ONLINE filter when authenticated
+						// regardless of their timer status (they're online by definition)
+						return (
+							m.timerStatus === ETimerStatus.ONLINE || m.employee?.user?.id === user?.id // Current user is always online
+						);
+					case 'running':
+						return m.timerStatus === ETimerStatus.RUNNING;
+					case 'pause':
+						return m.timerStatus === ETimerStatus.PAUSE;
+					default:
+						return m.timerStatus === activeFilter;
+				}
+			};
+
+			filteredMembers = allMembers.filter(filterCondition);
+		}
+
+		// FIXED: Ensure current user is always first in filtered results for ALL filters (including ALL_MEMBERS)
+		if (processedMembers.currentUser && filteredMembers.length > 0) {
+			const currentUserIndex = filteredMembers.findIndex((m) => m.id === processedMembers.currentUser?.id);
+			if (currentUserIndex > 0) {
+				// Move current user to first position
+				const currentUserMember = filteredMembers.splice(currentUserIndex, 1)[0];
+				filteredMembers.unshift(currentUserMember);
+			}
+		}
+
+		return filteredMembers;
+	}, [processedMembers.orderedMembers, processedMembers.currentUser, activeFilter, user?.id]);
 
 	// Simple calculation without useless memoization
 	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
@@ -182,7 +251,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		// Preparation of common props
 		const baseProps = {
 			teamMembers: viewConfig.useBlockMembers ? blockViewMembers : otherMembers,
-			currentUser,
+			...(viewConfig.useBlockMembers ? {} : { currentUser }), // Only pass currentUser for non-block views
 			publicTeam,
 			teamsFetching,
 			...(viewConfig.additionalProps?.(isMemberActive) || {})

@@ -45,30 +45,32 @@ const TeamMembersCardView: React.FC<Props> = memo(
 		return (
 			<>
 				<ul className="flex overflow-y-auto flex-col gap-3 mt-7">
-					{/* Current authenticated user members */}
-					<Transition
-						show={!!currentUser}
-						enter="transition-opacity duration-75"
-						enterFrom="opacity-0"
-						enterTo="opacity-100"
-						leave="transition-opacity duration-150"
-						leaveFrom="opacity-100"
-						leaveTo="opacity-0"
-					>
-						<li className="flex flex-col gap-4">
-							<UserTeamCard
-								member={currentUser}
-								active
-								publicTeam={publicTeam}
-								draggable={true}
-								currentExit={false}
-								onDragStart={() => (dragTeamMember.current = 0)}
-								onDragEnter={() => (draggedOverTeamMember.current = 0)}
-								onDragEnd={handleSort}
-								onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
-							/>
-						</li>
-					</Transition>
+					{/* Current authenticated user members - Always show if user exists */}
+					{currentUser && (
+						<Transition
+							show={true}
+							enter="transition-opacity duration-75"
+							enterFrom="opacity-0"
+							enterTo="opacity-100"
+							leave="transition-opacity duration-150"
+							leaveFrom="opacity-100"
+							leaveTo="opacity-0"
+						>
+							<li className="flex flex-col gap-4">
+								<UserTeamCard
+									member={currentUser}
+									active
+									publicTeam={publicTeam}
+									draggable={true}
+									currentExit={false}
+									onDragStart={() => (dragTeamMember.current = 0)}
+									onDragEnter={() => (draggedOverTeamMember.current = 0)}
+									onDragEnd={handleSort}
+									onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
+								/>
+							</li>
+						</Transition>
+					)}
 
 					{/* Team members list */}
 					{members.map((member, i) => {

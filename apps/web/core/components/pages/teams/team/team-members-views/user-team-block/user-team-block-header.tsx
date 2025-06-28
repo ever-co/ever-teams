@@ -36,12 +36,16 @@ const initialFilter: IFilter = {
 };
 
 // Status buttons configuration for better maintainability
-const statusButtons = (t: ReturnType<typeof useTranslations>, membersStatusNumber: IFilter, activeTeam: any) => [
+const statusButtons = (
+	t: ReturnType<typeof useTranslations>,
+	membersStatusNumber: IFilter,
+	totalMembersCount: number
+) => [
 	{
 		status: 'all' as const,
 		label: t('common.ALL_MEMBERS'),
 		icon: StopCircleIcon,
-		count: activeTeam?.members?.length || 0
+		count: totalMembersCount
 	},
 	{
 		status: 'idle' as const,
@@ -79,25 +83,76 @@ export function UserTeamBlockHeader() {
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
 
-	// Memoize members status count to prevent unnecessary recalculations
+	// Enhanced members status count that includes current user (matching filter logic)
 	const membersStatusNumber = useMemo(() => {
-		if (!activeTeam?.members?.length) return initialFilter;
+		const rawMembers = activeTeam?.members || [];
 
-		return activeTeam.members.reduce<IFilter>(
+		// Create complete list including current user (same logic as team-members.tsx)
+		const allMembers = [...rawMembers];
+
+		// Add current user if not already included and exists
+		const currentUserInMembers = rawMembers.find((m) => m.employee?.userId === user?.id);
+		if (!currentUserInMembers && user && activeTeam) {
+			// Create placeholder for current user (same as team-members.tsx)
+			const currentUserPlaceholder = {
+				id: `temp-${user.id}`,
+				employeeId: user.employee?.id || `temp-employee-${user.id}`,
+				employee: {
+					id: user.employee?.id || `temp-employee-${user.id}`,
+					userId: user.id,
+					user: user,
+					organizationId: user.employee?.organizationId || activeTeam.organizationId,
+					tenantId: user.employee?.tenantId || activeTeam.tenantId,
+					isActive: true,
+					isArchived: false
+				},
+				role: null,
+				isTrackingEnabled: user.employee?.isTrackingEnabled || false,
+				activeTaskId: null,
+				organizationTeamId: activeTeam.id,
+				assignedAt: new Date(),
+				isManager: false,
+				isOwner: false,
+				order: 0,
+				timerStatus: undefined
+			};
+			allMembers.unshift(currentUserPlaceholder);
+		}
+
+		if (!allMembers.length) return initialFilter;
+
+		return allMembers.reduce<IFilter>(
 			(acc, item) => {
-				// Handle undefined status as 'idle'
-				const status = (item.timerStatus || 'idle') as TimerStatus;
+				// Enhanced status logic matching the filter conditions
+				if (!item.timerStatus) {
+					// New users without timer status are considered 'idle'
+					acc.idle += 1;
+				} else {
+					const status = item.timerStatus as TimerStatus;
+					// Safe increment with type checking
+					if (status in acc) {
+						acc[status] += 1;
+					}
+				}
 
-				// Safe increment with type checking
-				if (status in acc) {
-					acc[status] += 1;
+				// FIXED: Current user should ALWAYS be counted as 'online' when authenticated
+				// regardless of their timer status (matching the updated filter logic)
+				if (item.employee?.userId === user?.id) {
+					acc.online += 1;
 				}
 
 				return acc;
 			},
 			{ ...initialFilter }
 		);
-	}, [activeTeam?.members]);
+	}, [activeTeam?.members, activeTeam?.id, activeTeam?.organizationId, activeTeam?.tenantId, user]);
+
+	// Calculate total members count (including current user)
+	const totalMembersCount = useMemo(() => {
+		const rawMembers = activeTeam?.members || [];
+		const currentUserInMembers = rawMembers.find((m) => m.employee?.userId === user?.id);
+		return rawMembers.length + (currentUserInMembers ? 0 : user && activeTeam ? 1 : 0);
+	}, [activeTeam?.members, user?.id, user, activeTeam]);
 
 	return (
 		<>
@@ -106,7 +161,7 @@ export function UserTeamBlockHeader() {
 				className="hidden sm:flex dark:bg-dark-high font-normal pt-4 justify-between dark:text-[#7B8089]"
 			>
 				<div className="flex items-center w-9/12">
-					{statusButtons(t, membersStatusNumber, activeTeam).map((button) => (
+					{statusButtons(t, membersStatusNumber, totalMembersCount).map((button) => (
 						<div
 							key={button.status}
 							className={clsxm(
@@ -135,7 +190,7 @@ export function UserTeamBlockHeader() {
 					))}
 				</div>
 
-				<div className="w-3/12 flex justify-end gap-2 items-center pr-4">
+				<div className="flex gap-2 justify-end items-center pr-4 w-3/12">
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
 							fullWidth={true}
@@ -152,7 +207,7 @@ export function UserTeamBlockHeader() {
 								className={clsxm('outline-none')}
 								onClick={() => hook.toggleFilterType('search')}
 							>
-								<SearchNormalIcon className={clsxm('dark:stroke-white w-4')} />
+								<SearchNormalIcon className={clsxm('w-4 dark:stroke-white')} />
 							</button>
 
 							<VerticalSeparator />
