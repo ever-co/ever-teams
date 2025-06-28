@@ -566,7 +566,11 @@ export function useOrganizationTeams() {
 		}
 		isManager();
 	}, [activeTeam]);
-
+	useEffect(() => {
+		return () => {
+			clearDeleteTimeout();
+		};
+	}, [clearDeleteTimeout]);
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
 

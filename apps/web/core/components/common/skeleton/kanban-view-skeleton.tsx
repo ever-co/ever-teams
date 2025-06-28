@@ -23,7 +23,7 @@ export function KanbanViewSkeleton({ className, fullWidth = true }: KanbanViewSk
 						{/* Tasks Skeleton */}
 						<div className="flex flex-col gap-[5px]">
 							{tasks.map((_, taskIndex: number) => (
-								<KanbanColumnLoadingSkeleton className="relative" key={index} />
+								<KanbanColumnLoadingSkeleton className="relative" key={`${index}-${taskIndex}`} />
 							))}
 
 							{/* Add Task Button Skeleton */}

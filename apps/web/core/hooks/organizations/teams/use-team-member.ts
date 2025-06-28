@@ -16,11 +16,8 @@ export function useIsMemberManager(user?: TUser | null) {
 			const isUser = member.employee?.userId === user.id;
 			const roleName = member.role?.name;
 			return (
-				(isUser &&
-					(roleName === ERoleName.MANAGER ||
-						roleName === ERoleName.SUPER_ADMIN ||
-						roleName === ERoleName.ADMIN)) ||
-				activeTeam.createdByUserId === user.id
+				isUser &&
+				(roleName === ERoleName.MANAGER || roleName === ERoleName.SUPER_ADMIN || roleName === ERoleName.ADMIN)
 			);
 		});
 	}, [user?.id, activeTeam?.members]);
