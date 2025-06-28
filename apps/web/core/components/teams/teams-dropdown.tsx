@@ -60,23 +60,32 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		[setActiveTeam, stopTimer, t] // Removed timerStatus and activeTeam to prevent constant recreation
 	);
 
+	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
 
 	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
 	const { isOpen, closeModal, openModal } = useModal();
 
+	// Update teamItem when activeTeam changes - use a ref to track previous values to avoid loops
+	const prevActiveTeamRef = React.useRef<string>('');
+
 	React.useEffect(() => {
-		// Only update teamItem when activeTeam.id changes, not when items change
-		if (activeTeam?.id) {
-			const foundItem = items.find((t) => t.key === activeTeam.id);
-			if (foundItem) {
-				setTeamItem(foundItem);
+		const currentTeamKey = `${activeTeam?.id}-${activeTeam?.name}-${activeTeam?.color}-${activeTeam?.emoji}-${activeTeam?.teamSize}`;
+
+		if (currentTeamKey !== prevActiveTeamRef.current) {
+			prevActiveTeamRef.current = currentTeamKey;
+
+			if (activeTeam?.id) {
+				const foundItem = items.find((t) => t.key === activeTeam.id);
+				if (foundItem) {
+					setTeamItem(foundItem);
+				}
+			} else {
+				setTeamItem(null);
 			}
-		} else {
-			setTeamItem(null);
 		}
-	}, [activeTeam?.id]); // Removed items dependency to prevent infinite loop
+	}, [activeTeam?.id, activeTeam?.name, activeTeam?.color, activeTeam?.emoji, activeTeam?.teamSize, items]);
 
 	return (
 		<div>

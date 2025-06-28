@@ -1,6 +1,6 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { userState } from '@/core/stores';
+import { activeTeamState, userState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
@@ -16,16 +16,19 @@ import TeamSize from '@/core/components/teams/team-size-popover';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { toast } from 'sonner';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
 export const TeamSettingForm = () => {
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const t = useTranslations();
+
+	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
 	const {
-		activeTeam,
 		editOrganizationTeam,
 		getOrganizationTeamsLoading: loading,
-		loadingTeam
+		loadingTeam,
+		setTeams
 	} = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
@@ -97,7 +100,7 @@ export const TeamSettingForm = () => {
 			}
 
 			try {
-				await editOrganizationTeam({
+				const inputData: Partial<TOrganizationTeam> = {
 					...activeTeam,
 					id: activeTeam?.id,
 					name: values.teamName,
@@ -121,7 +124,15 @@ export const TeamSettingForm = () => {
 						)
 						.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
-				});
+				};
+				await editOrganizationTeam(inputData);
+
+				// Create the updated team object once to avoid inconsistencies
+				const updatedTeam = { ...activeTeam, ...inputData } as TOrganizationTeam;
+
+				// Update both states with the same data to ensure consistency
+				setActiveTeam(updatedTeam);
+				setTeams((prev) => prev.map((team) => (team.id === activeTeam?.id ? updatedTeam : team)));
 
 				toast.success('Team updated successfully');
 			} catch (error) {
