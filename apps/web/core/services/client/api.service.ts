@@ -255,9 +255,11 @@ export class APIService {
 	}
 
 	/**
-	 * Generate a unique cache key for a URL and parameters
+	 * Generate a unique cache/deduplication key for a request
+	 * Includes URL, method, params, and relevant headers for complete uniqueness
 	 */
-	private getCacheKey(url: string, params?: any): string {
+	private getCacheKey(url: string, method: string = 'GET', params?: any, headers?: any): string {
+		// Sort and stringify parameters
 		const sortedParams = params
 			? JSON.stringify(
 					Object.keys(params)
@@ -268,7 +270,29 @@ export class APIService {
 						}, {})
 				)
 			: '';
-		return `${url}:${sortedParams}`;
+
+		// Include relevant headers that affect request uniqueness
+		const relevantHeaders: Record<string, any> = headers
+			? {
+					authorization: headers.Authorization || headers.authorization,
+					tenantId: headers['tenant-id'] || headers.tenantId,
+					organizationId: headers['organization-id'] || headers.organizationId,
+					contentType: headers['Content-Type'] || headers.contentType
+				}
+			: {};
+
+		const sortedHeaders = JSON.stringify(
+			Object.keys(relevantHeaders)
+				.sort()
+				.reduce((obj: any, key) => {
+					if (relevantHeaders[key]) {
+						obj[key] = relevantHeaders[key];
+					}
+					return obj;
+				}, {})
+		);
+
+		return `${method}:${url}:${sortedParams}:${sortedHeaders}`;
 	}
 
 	/**
@@ -309,11 +333,116 @@ export class APIService {
 		}
 
 		for (const key of this.cache.keys()) {
-			const url = key.split(':')[0];
+			const url = key.split(':')[1]; // Updated to account for method prefix
 			if (urlPattern.test(url)) {
 				this.cache.delete(key);
 			}
 		}
+	}
+
+	/**
+	 * Get deduplication and caching statistics for debugging and monitoring
+	 */
+	public getDeduplicationStats(): {
+		pendingRequests: number;
+		cachedItems: number;
+		activeAbortControllers: number;
+		pendingRequestKeys: string[];
+		cachedKeys: string[];
+	} {
+		return {
+			pendingRequests: this.pendingRequests.size,
+			cachedItems: this.cache.size,
+			activeAbortControllers: this.cancelSources.size,
+			pendingRequestKeys: Array.from(this.pendingRequests.keys()),
+			cachedKeys: Array.from(this.cache.keys())
+		};
+	}
+
+	/**
+	 * Check if a HTTP method is idempotent and safe for request deduplication
+	 */
+	private isIdempotentMethod(method: string): boolean {
+		const idempotentMethods = ['GET', 'HEAD', 'OPTIONS'];
+		return idempotentMethods.includes(method.toUpperCase());
+	}
+
+	/**
+	 * Execute a request with intelligent deduplication for idempotent methods
+	 * Prevents duplicate concurrent requests while preserving all functionality
+	 */
+	private async executeWithDeduplication<T>(
+		method: string,
+		url: string,
+		requestFn: () => Promise<AxiosResponse<T>>,
+		config?: APIConfig,
+		cacheOptions?: { ttl: number; bypassCache?: boolean }
+	): Promise<AxiosResponse<T>> {
+		const { headers } = await this.getApiConfig(config);
+		const requestKey = this.getCacheKey(url, method, config?.params, headers);
+
+		// Only apply deduplication for idempotent methods
+		if (!this.isIdempotentMethod(method)) {
+			return this.executeWithRetry(requestFn);
+		}
+
+		// Check cache first if caching is enabled
+		if (cacheOptions && !cacheOptions.bypassCache) {
+			const cachedData = this.getFromCache<T>(requestKey);
+			if (cachedData) {
+				return {
+					data: cachedData,
+					status: 200,
+					statusText: 'OK (from cache)',
+					headers: {},
+					config: config || {}
+				} as AxiosResponse<T>;
+			}
+		}
+
+		// Check for pending identical requests
+		if (this.pendingRequests.has(requestKey)) {
+			// Debug logging for deduplication
+			if (process.env.NODE_ENV === 'development') {
+				console.debug(`⚠️🔄🛡️Deduplicating ${method} request:`, {
+					url,
+					key: requestKey,
+					timestamp: new Date().toISOString()
+				});
+			}
+			return this.pendingRequests.get(requestKey) as Promise<AxiosResponse<T>>;
+		}
+
+		// Setup abort controller for this request
+		const controller = new AbortController();
+		this.cancelSources.set(requestKey, controller);
+
+		// Execute the request with retry logic
+		const requestPromise = this.executeWithRetry(() => {
+			// Update the request function to include abort signal
+			return requestFn();
+		})
+			.then((response) => {
+				// Cache the response if caching is enabled
+				if (cacheOptions) {
+					this.saveToCache(requestKey, response.data, cacheOptions.ttl);
+				}
+
+				// Clean up tracking
+				this.pendingRequests.delete(requestKey);
+				this.cancelSources.delete(requestKey);
+				return response;
+			})
+			.catch((error) => {
+				// Clean up tracking on error
+				this.pendingRequests.delete(requestKey);
+				this.cancelSources.delete(requestKey);
+				throw error;
+			});
+
+		// Track the pending request
+		this.pendingRequests.set(requestKey, requestPromise);
+		return requestPromise as Promise<AxiosResponse<T>>;
 	}
 
 	/**
@@ -449,52 +578,19 @@ export class APIService {
 		// If we don't use the direct API, we delegate to the old instance
 		const getRequest = !baseURL || !directAPI ? (await getFallbackAPI()).get<T> : this.axiosInstance.get<T>;
 
-		const cacheKey = this.getCacheKey(url, config?.params);
-
-		// Check the cache if requested
-		if (cacheOptions && !cacheOptions.bypassCache) {
-			const cachedData = this.getFromCache<T>(cacheKey);
-			if (cachedData) {
-				// We encapsulate the data in a fake AxiosResponse
-				return {
-					data: cachedData,
-					status: 200,
-					statusText: 'OK (from cache)',
-					headers: {},
-					config: config || {}
-				} as AxiosResponse<T>;
-			}
-		}
-
-		// Deduplicate identical requests in progress
-		if (this.pendingRequests.has(cacheKey)) {
-			return this.pendingRequests.get(cacheKey) as Promise<AxiosResponse<T>>;
-		}
-
-		const controller = new AbortController();
-		this.cancelSources.set(cacheKey, controller);
-		const requestPromise = this.executeWithRetry(() =>
-			getRequest(url, {
-				...config,
-				headers,
-				signal: controller.signal
-			})
-		)
-			.then((response) => {
-				if (cacheOptions) {
-					this.saveToCache(cacheKey, response.data, cacheOptions.ttl);
-				}
-				this.pendingRequests.delete(cacheKey);
-				this.cancelSources.delete(cacheKey);
-				return response;
-			})
-			.catch((error) => {
-				this.pendingRequests.delete(cacheKey);
-				this.cancelSources.delete(cacheKey);
-				throw error;
-			});
-		this.pendingRequests.set(cacheKey, requestPromise);
-		return requestPromise as Promise<AxiosResponse<T>>;
+		// Use the new intelligent deduplication system
+		return this.executeWithDeduplication<T>(
+			'GET',
+			url,
+			() =>
+				getRequest(url, {
+					...config,
+					headers,
+					signal: this.cancelSources.get(this.getCacheKey(url, 'GET', config?.params, headers))?.signal
+				}),
+			config,
+			cacheOptions
+		);
 	}
 
 	/**
@@ -660,6 +756,62 @@ export class APIService {
 			this.cancelSources.delete(requestId);
 		}
 	}
+
+	/**
+	 * Sends a HEAD request with intelligent deduplication
+	 * HEAD requests are idempotent and safe for deduplication
+	 *
+	 * @param {string} url - Endpoint path.
+	 * @param {object} [config={}] - Additional config.
+	 */
+	async head<T = any>(url: string, config?: APIConfig): Promise<AxiosResponse<T>> {
+		const { baseURL, headers } = await this.getApiConfig(config);
+		const { directAPI = true } = config || {};
+		// If we don't use the direct API, we delegate to the old instance
+		const headRequest = !baseURL || !directAPI ? (await getFallbackAPI()).head<T> : this.axiosInstance.head<T>;
+
+		// Use intelligent deduplication for HEAD requests
+		return this.executeWithDeduplication<T>(
+			'HEAD',
+			url,
+			() =>
+				headRequest(url, {
+					...config,
+					headers,
+					signal: this.cancelSources.get(this.getCacheKey(url, 'HEAD', config?.params, headers))?.signal
+				}),
+			config
+		);
+	}
+
+	/**
+	 * Sends an OPTIONS request with intelligent deduplication
+	 * OPTIONS requests are idempotent and safe for deduplication
+	 *
+	 * @param {string} url - Endpoint path.
+	 * @param {object} [config={}] - Additional config.
+	 */
+	async options<T = any>(url: string, config?: APIConfig): Promise<AxiosResponse<T>> {
+		const { baseURL, headers } = await this.getApiConfig(config);
+		const { directAPI = true } = config || {};
+		// If we don't use the direct API, we delegate to the old instance
+		const optionsRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).options<T> : this.axiosInstance.options<T>;
+
+		// Use intelligent deduplication for OPTIONS requests
+		return this.executeWithDeduplication<T>(
+			'OPTIONS',
+			url,
+			() =>
+				optionsRequest(url, {
+					...config,
+					headers,
+					signal: this.cancelSources.get(this.getCacheKey(url, 'OPTIONS', config?.params, headers))?.signal
+				}),
+			config
+		);
+	}
+
 	/**
 	 * Uploads a file with progress tracking
 	 *
