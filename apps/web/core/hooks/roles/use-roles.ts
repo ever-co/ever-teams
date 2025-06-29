@@ -3,16 +3,34 @@ import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
 import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
 import { useCallback } from 'react';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { useConditionalUpdateEffect } from '../common';
 
+/**
+ * Enhanced useRoles hook with proper authentication context and caching
+ *
+ * This hook provides comprehensive role management functionality including:
+ * - Fetching available roles from the API with authentication context
+ * - Managing role state with persistence
+ * - Proper React Query configuration with caching strategy
+ * - Automatic enablement based on tenant/organization availability
+ *
+ * @returns Object containing roles data, loading states, and mutation functions
+ */
 export const useRoles = () => {
 	const [roles, setRoles] = useAtom(rolesState);
 	const queryClient = useQueryClient();
 
+	// Get authentication context
+	const tenantId = getTenantIdCookie();
+
 	const rolesQuery = useQuery({
 		queryKey: queryKeys.roles.all,
-		queryFn: roleService.getRoles
+		queryFn: roleService.getRoles,
+		enabled: !!tenantId, // Only fetch when tenant is available
+		staleTime: 1000 * 60 * 10, // Roles are relatively stable, cache for 10 minutes
+		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
 	});
 
 	const invalidateRolesData = useCallback(
@@ -36,11 +54,11 @@ export const useRoles = () => {
 
 	useConditionalUpdateEffect(
 		() => {
-			if (rolesQuery.data) {
+			if (rolesQuery.data?.items) {
 				setRoles(rolesQuery.data.items);
 			}
 		},
-		[rolesQuery.data],
+		[rolesQuery.data?.items, setRoles],
 		Boolean(roles?.length)
 	);
 	return {

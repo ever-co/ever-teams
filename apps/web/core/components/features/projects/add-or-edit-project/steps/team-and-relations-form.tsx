@@ -1,6 +1,6 @@
 import { Button } from '@/core/components';
 import { CheckIcon, Plus, X } from 'lucide-react';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useState, useMemo } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
@@ -24,8 +24,34 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
 
+	// Deduplicated list of all team members to prevent user duplication
+	const allMembers = useMemo(() => {
+		if (!teams?.length) return [];
+
+		// Create a Map to deduplicate users by employeeId
+		const memberMap = new Map();
+
+		teams.forEach((team) => {
+			team.members?.forEach((member) => {
+				const employeeId = member?.employeeId;
+				if (employeeId && !memberMap.has(employeeId)) {
+					memberMap.set(employeeId, {
+						id: employeeId,
+						value: member?.employee?.fullName || '',
+						imgUrl: member?.employee?.user?.imageUrl || undefined
+					});
+				}
+			});
+		});
+
+		return Array.from(memberMap.values());
+	}, [teams]);
+
 	const handleAddNewMember = () => {
-		setMembers((prev) => [...prev, { id: crypto.randomUUID(), memberId: '', roleId: '' }]);
+		setMembers((prev) => [
+			...prev,
+			{ id: `member-${crypto.randomUUID()}-${Date.now()}`, memberId: '', roleId: '' }
+		]);
 	};
 
 	const handleRemoveMember = (id: string) => {
@@ -33,7 +59,10 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	};
 
 	const handleAddNewRelation = () => {
-		setRelations((prev) => [...prev, { id: crypto.randomUUID(), projectId: '', relationType: null }]);
+		setRelations((prev) => [
+			...prev,
+			{ id: `relation-${crypto.randomUUID()}-${Date.now()}`, projectId: '', relationType: null }
+		]);
 	};
 
 	const handleRemoveRelation = (id: string) => {
@@ -68,13 +97,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 							members.map((el) => (
 								<PairingItem
 									selected={[el.memberId, el.roleId]}
-									keys={teams
-										?.flatMap((el) => el.members)
-										?.map((el) => ({
-											id: el?.employeeId || '',
-											value: el?.employee?.fullName || '',
-											imgUrl: el?.employee?.user?.imageUrl || undefined
-										}))}
+									keys={allMembers}
 									values={roles
 										?.filter((el) => el.name == ERoleName.EMPLOYEE || el.name == ERoleName.MANAGER)
 										?.map((el) => ({

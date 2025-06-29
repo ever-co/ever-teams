@@ -750,9 +750,9 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 						</CommandEmpty>
 						<CommandGroup className="dark:bg-dark--theme-light">
 							<ScrollArea style={{ height: listHeight }}>
-								{items?.map((item) => (
+								{items?.map((item, index) => (
 									<CommandItem
-										key={item?.id}
+										key={item?.id || `item-${index}`}
 										value={item?.id}
 										onSelect={() => handleItemSelect(item)}
 										className={cn(
