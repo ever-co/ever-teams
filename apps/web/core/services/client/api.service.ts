@@ -61,6 +61,9 @@ export class APIService {
 	private readonly pendingRequests: Map<string, Promise<any>> = new Map();
 	private cancelSources: Map<string, AbortController> = new Map();
 
+	// Robust error logging tracking using WeakMap (no object pollution)
+	private readonly loggedErrors = new WeakMap<Error, boolean>();
+
 	// Default configuration
 	private readonly config: Required<HttpClientConfig>;
 
@@ -144,10 +147,7 @@ export class APIService {
 				return response;
 			},
 			(error) => {
-				// Mark error as logged to prevent duplication in executeWithRetry
-				error._isLogged = true;
-
-				// Log errors only once at the interceptor level
+				// Log errors using robust WeakMap-based deduplication
 				this.logError(error);
 
 				if (error.response && error.response.status === 401) {
@@ -183,6 +183,7 @@ export class APIService {
 				return config;
 			},
 			(error: any) => {
+				// Log request configuration errors using robust deduplication
 				this.logError(error);
 				return Promise.reject(error);
 			}
@@ -233,7 +234,21 @@ export class APIService {
 	}
 
 	/**
-	 * Log error details for debugging with duplication prevention
+	 * Mark an error as logged using WeakMap (robust, no object pollution)
+	 */
+	private markErrorAsLogged(error: Error): void {
+		this.loggedErrors.set(error, true);
+	}
+
+	/**
+	 * Check if an error has already been logged
+	 */
+	private isErrorAlreadyLogged(error: Error): boolean {
+		return this.loggedErrors.has(error);
+	}
+
+	/**
+	 * Log error details for debugging with robust duplication prevention
 	 */
 	private logError(error: any) {
 		if (axios.isCancel(error)) {
@@ -241,9 +256,24 @@ export class APIService {
 			return;
 		}
 
-		// Debug logging to trace duplication issues (development only)
+		// Robust duplication check using WeakMap
+		if (this.isErrorAlreadyLogged(error)) {
+			if (process.env.NODE_ENV === 'development') {
+				console.debug(`🔍 Skipping duplicate error log:`, {
+					url: error.config?.url,
+					status: error.response?.status,
+					timestamp: new Date().toISOString()
+				});
+			}
+			return;
+		}
+
+		// Mark as logged before actual logging
+		this.markErrorAsLogged(error);
+
+		// Debug logging for first-time logging (development only)
 		if (process.env.NODE_ENV === 'development') {
-			console.debug(`🔍 Logging error from: ${error._isLogged ? 'DUPLICATE' : 'FIRST_TIME'}`, {
+			console.debug(`🔍 Logging error for first time:`, {
 				url: error.config?.url,
 				status: error.response?.status,
 				timestamp: new Date().toISOString()
@@ -544,10 +574,8 @@ export class APIService {
 					return setTimeout(resolve, delay);
 				});
 
-				// Only log the error if it hasn't been logged by the interceptor
-				if (!lastError._isLogged) {
-					this.logError(lastError);
-				}
+				// Log the error using robust WeakMap-based deduplication
+				this.logError(lastError);
 			}
 		}
 
