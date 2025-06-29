@@ -1,4 +1,3 @@
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
@@ -30,6 +29,8 @@ class RoleService extends APIService {
 			// Validate the response data using Zod schema
 			return validateApiResponse(roleListSchema, response.data, 'getRoles API response');
 		} catch (error) {
+			// Error logging is handled by the base APIService and HttpLoggerAdapter
+			// This maintains proper separation of concerns
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
 					'Role validation failed:',

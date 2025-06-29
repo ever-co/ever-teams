@@ -65,16 +65,21 @@ export const useRoles = () => {
 		roles,
 		setRoles,
 		loading: rolesQuery.isLoading,
+		error: rolesQuery.error, // Expose error for debugging
+		isError: rolesQuery.isError,
 		getRoles: invalidateRolesData,
 
 		createRole: createRoleMutation.mutate,
 		createRoleLoading: createRoleMutation.isPending,
+		createRoleError: createRoleMutation.error,
 
 		updateRole: updateRoleMutation.mutate,
 		updateRoleLoading: updateRoleMutation.isPending,
+		updateRoleError: updateRoleMutation.error,
 
 		deleteRole: deleteRoleMutation.mutate,
 		deleteRoleLoading: deleteRoleMutation.isPending,
+		deleteRoleError: deleteRoleMutation.error,
 
 		// For backward compatibility with existing code
 		firstLoadRolesData: invalidateRolesData

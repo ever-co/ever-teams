@@ -144,7 +144,10 @@ export class APIService {
 				return response;
 			},
 			(error) => {
-				// Log errors
+				// Mark error as logged to prevent duplication in executeWithRetry
+				error._isLogged = true;
+
+				// Log errors only once at the interceptor level
 				this.logError(error);
 
 				if (error.response && error.response.status === 401) {
@@ -230,13 +233,24 @@ export class APIService {
 	}
 
 	/**
-	 * Log error details for debugging
+	 * Log error details for debugging with duplication prevention
 	 */
 	private logError(error: any) {
 		if (axios.isCancel(error)) {
 			console.debug(`⚠️ Request canceled: ${error.message}`);
 			return;
 		}
+
+		// Debug logging to trace duplication issues (development only)
+		if (process.env.NODE_ENV === 'development') {
+			console.debug(`🔍 Logging error from: ${error._isLogged ? 'DUPLICATE' : 'FIRST_TIME'}`, {
+				url: error.config?.url,
+				status: error.response?.status,
+				timestamp: new Date().toISOString()
+			});
+		}
+
+		// Use the existing HttpLoggerAdapter which already handles all error types properly
 		this.httpLogger.logError(error);
 	}
 
@@ -401,8 +415,10 @@ export class APIService {
 					return setTimeout(resolve, delay);
 				});
 
-				// Log the error before transforming it
-				this.logError(lastError);
+				// Only log the error if it hasn't been logged by the interceptor
+				if (!lastError._isLogged) {
+					this.logError(lastError);
+				}
 			}
 		}
 
