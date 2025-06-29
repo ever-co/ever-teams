@@ -43,14 +43,14 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		goToNext({
+		goToNext?.({
 			members,
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
 	};
 
 	const handlePrevious = useCallback(() => {
-		goToPrevious({
+		goToPrevious?.({
 			members,
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});

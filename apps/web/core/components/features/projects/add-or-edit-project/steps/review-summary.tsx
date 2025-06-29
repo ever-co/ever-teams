@@ -72,11 +72,11 @@ export default function FinalReview(props: IStepElementProps) {
 			});
 
 			if (project) {
-				finish(project);
+				finish?.(project);
 			}
 		}
 
-		if (mode == 'edit' && finalData.id) {
+		if (mode == 'edit' && finalData?.id) {
 			const project = await editOrganizationProject(finalData.id, {
 				...newProject
 			});
@@ -90,13 +90,13 @@ export default function FinalReview(props: IStepElementProps) {
 						return el;
 					})
 				);
-				finish(project.data as TOrganizationProject);
+				finish?.(project.data as TOrganizationProject);
 			}
 		}
 	};
 
 	const handlePrevious = useCallback(() => {
-		goToPrevious(finalData);
+		goToPrevious?.(finalData || {});
 	}, [finalData, goToPrevious]);
 
 	return (

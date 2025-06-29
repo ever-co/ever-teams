@@ -32,7 +32,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = ({ children, loading, className, ...props }: ButtonProps) => {
 	return (
 		<ShadcnButton className={cn('relative', className)} disabled={loading} {...props}>
-			{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+			{loading && <Loader2 className="mr-2 w-4 h-4 animate-spin" />}
 			{children}
 		</ShadcnButton>
 	);
@@ -53,7 +53,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
 	const { user } = useAuthenticateUser();
 	const [projectImageUrl, setProjectImageUrl] = useState(() => {
-		if (mode == 'edit' && currentData.imageUrl) {
+		if (mode == 'edit' && currentData?.imageUrl) {
 			return currentData.imageUrl;
 		}
 
@@ -156,10 +156,18 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			endDate,
 			[
 				(value) => (!value ? t('pages.projects.basicInformationForm.errors.endDateRequired') : null),
-				(value) =>
-					moment(startDate).isBefore(value)
-						? null
-						: t('pages.projects.basicInformationForm.errors.endDateAfterStart')
+				(value) => {
+					if (!value || !startDate) return null;
+					const daysDifference = moment(value).diff(moment(startDate), 'days');
+					if (daysDifference <= 0) {
+						return t('pages.projects.basicInformationForm.errors.endDateAfterStart');
+					}
+					// Warning for very short projects (less than 1 day)
+					if (daysDifference < 1) {
+						return 'Project duration should be at least 1 day for proper planning.';
+					}
+					return null;
+				}
 			],
 			newErrors
 		);
@@ -215,7 +223,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				return;
 			}
 
-			goToNext({
+			goToNext?.({
 				startDate: startDate.toISOString(),
 				endDate: endDate.toISOString(),
 				name: projectTitle,
@@ -223,9 +231,10 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				projectImage: image,
 				projectUrl: websiteUrl
 			});
+			return;
 		}
 
-		goToNext({
+		goToNext?.({
 			startDate: startDate.toISOString(),
 			endDate: endDate.toISOString(),
 			name: projectTitle,
@@ -235,12 +244,12 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
-			<div className="flex flex-col w-full gap-2">
-				<label htmlFor="project_title" className="text-xs font-medium ">
+		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
+			<div className="flex flex-col gap-2 w-full">
+				<label htmlFor="project_title" className="text-xs font-medium">
 					{t('pages.projects.basicInformationForm.formFields.title')}
 				</label>
-				<div className="w-full ">
+				<div className="w-full">
 					<InputField
 						onChange={(el) => setProjectTitle(el.target.value)}
 						required
@@ -258,8 +267,8 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
 			</div>
 			<div className="flex flex-col w-full">
-				<div className="flex w-full gap-2">
-					<div className="flex flex-col w-full gap-1">
+				<div className="flex gap-2 w-full">
+					<div className="flex flex-col gap-1 w-full">
 						<label htmlFor="project_start_date" className="text-xs font-medium">
 							{t('common.START_DATE')}
 						</label>
@@ -267,10 +276,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							onChange={(date) => {
 								if (date) {
 									setStartDate(date);
+									// Smart logic: adjust End Date if necessary (if no End Date or Start Date >= End Date)
 									if (!endDate || moment(date).isSameOrAfter(endDate)) {
-										const nextDay = new Date(date);
-										nextDay.setDate(nextDay.getDate() + 1);
-										setEndDate(nextDay);
+										// If no End Date or Start Date >= End Date,
+										// set End Date to 1 month after Start Date (typical project duration)
+										const suggestedEndDate = new Date(date);
+										suggestedEndDate.setMonth(suggestedEndDate.getMonth() + 1);
+										setEndDate(suggestedEndDate);
 									}
 								}
 							}}
@@ -281,7 +293,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							isStartDate={true}
 						/>
 					</div>
-					<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-col gap-2 w-full">
 						<label htmlFor="project_end_date" className="text-xs font-medium">
 							{t('common.END_DATE')}
 						</label>
@@ -304,11 +316,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 					<p className="text-xs font-light text-red-600">{errors.get('dateRange')}</p>
 				)}
 			</div>
-			<div className="flex flex-col w-full gap-2">
-				<label htmlFor="website_url" className="text-xs font-medium ">
+			<div className="flex flex-col gap-2 w-full">
+				<label htmlFor="website_url" className="text-xs font-medium">
 					{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 				</label>
-				<div className="w-full ">
+				<div className="w-full">
 					<InputField
 						value={websiteUrl}
 						onChange={(e) => setWebsiteUrl(e.target.value)}
@@ -321,18 +333,18 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="flex flex-col w-full gap-2">
-				<span className="text-xs font-medium ">
+			<div className="flex flex-col gap-2 w-full">
+				<span className="text-xs font-medium">
 					{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
 				</span>
-				<div className="flex flex-col w-full gap-1">
-					<div className="flex items-center w-full gap-5">
+				<div className="flex flex-col gap-1 w-full">
+					<div className="flex gap-5 items-center w-full">
 						{projectImageUrl && (
-							<div className="relative w-20 h-20 overflow-hidden rounded-lg group">
+							<div className="overflow-hidden relative w-20 h-20 rounded-lg group">
 								<Image
 									height={50}
 									width={50}
-									className="object-cover w-full h-full overflow-hidden rounded-lg aspect-square"
+									className="object-cover overflow-hidden w-full h-full rounded-lg aspect-square"
 									src={projectImageUrl}
 									alt={projectTitle}
 								/>
@@ -348,7 +360,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 											errors.delete('projectImage');
 										}}
 										size={20}
-										className={cn(' text-white')}
+										className={cn('text-white')}
 									/>
 								</div>
 							</div>
@@ -357,10 +369,10 @@ export default function BasicInformationForm(props: IStepElementProps) {
 						<label
 							htmlFor="dropzone-file"
 							className={cn(
-								'flex grow flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
+								'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
 							)}
 						>
-							<div className="flex items-center justify-center gap-3 grow">
+							<div className="flex gap-3 justify-center items-center grow">
 								<svg
 									className="w-6 h-6 text-gray-500 dark:text-gray-400"
 									aria-hidden="true"
@@ -377,7 +389,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 									/>
 								</svg>
 								<p className="text-sm text-gray-500 dark:text-gray-400">
-									<span className="text-xs ">
+									<span className="text-xs">
 										{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
 									</span>
 								</p>
@@ -395,7 +407,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 					)}
 				</div>
 			</div>
-			<div className="flex items-center justify-end w-full">
+			<div className="flex justify-end items-center w-full">
 				<Button loading={createImageAssetLoading} className=" h-[2.5rem]">
 					{createImageAssetLoading
 						? t('pages.projects.basicInformationForm.common.uploadingImage')
@@ -455,17 +467,21 @@ interface IDatePickerProps {
 
 export function DatePicker(props: IDatePickerProps) {
 	const { className, onChange, value, placeholder, disabled, required, id, isStartDate, minDate } = props;
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
 
+	// Smart logic for projects
 	const disabledDays = useMemo(() => {
-		if (isStartDate) {
-			return { before: today };
-		} else if (minDate) {
+		if (!isStartDate && minDate) {
+			// For End Date : disable dates before Start Date
 			return { before: minDate };
 		}
+		// For Start Date : no restriction (total flexibility for projects)
 		return undefined;
 	}, [isStartDate, minDate]);
+
+	// Reasonable year range for projects (5 years in the past, 10 years in the future)
+	const currentYear = new Date().getFullYear();
+	const fromYear = currentYear - 5;
+	const toYear = currentYear + 10;
 
 	return (
 		<Popover>
@@ -483,7 +499,7 @@ export function DatePicker(props: IDatePickerProps) {
 					<CalendarIcon size={15} />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0 dark:bg-dark--theme-light" align="start">
+			<PopoverContent className="p-0 w-auto dark:bg-dark--theme-light" align="start">
 				<Calendar
 					id={id}
 					required={required}
@@ -492,7 +508,9 @@ export function DatePicker(props: IDatePickerProps) {
 					selected={value}
 					onSelect={onChange}
 					initialFocus
-					fromDate={isStartDate ? today : minDate}
+					fromYear={fromYear}
+					toYear={toYear}
+					captionLayout="dropdown-buttons"
 				/>
 			</PopoverContent>
 		</Popover>
@@ -569,7 +587,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 						variant="outline"
 						role="combobox"
 						className={cn(
-							'w-full border rounded-lg flex items-center justify-between text-left px-3 py-2 text-sm h-10 dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
+							'flex justify-between items-center px-3 py-2 w-full h-10 text-sm text-left rounded-lg border dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
 							className
 						)}
 					>
@@ -580,7 +598,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 								{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
 							</span>
 						)}
-						<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50 dark:text-white" />
+						<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
@@ -640,7 +658,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 											<>
 												<Checkbox
 													checked={selected?.includes(item.id)}
-													className="h-4 w-4 dark:border-white/20"
+													className="w-4 h-4 dark:border-white/20"
 												/>
 												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
 											</>
