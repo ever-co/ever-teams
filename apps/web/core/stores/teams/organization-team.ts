@@ -17,11 +17,34 @@ export const isTeamJustDeletedState = atom<boolean>(false);
 export const isOTRefreshingState = atom<boolean>(false);
 export const OTRefreshIntervalState = atom<number>();
 
-export const activeTeamState = atom<TOrganizationTeam | null>((get) => {
-	const teams = get(organizationTeamsState);
-	const activeId = get(activeTeamIdState);
-	return teams.find((team) => team.id === activeId) || teams[0] || null;
-});
+export const activeTeamState = atom<
+	TOrganizationTeam | null,
+	[((prev: TOrganizationTeam) => TOrganizationTeam) | TOrganizationTeam],
+	void
+>(
+	(get) => {
+		const teams = get(organizationTeamsState);
+		const activeId = get(activeTeamIdState);
+		return teams.find((team) => team.id === activeId) || teams[0] || null;
+	},
+	(get, set, update) => {
+		const teams = get(organizationTeamsState);
+		const activeId = get(activeTeamIdState);
+		const currentTeam = teams.find((team) => team.id === activeId) || teams[0];
+
+		if (!currentTeam) return;
+
+		const updatedTeam =
+			typeof update === 'function'
+				? (update as (prev: TOrganizationTeam) => TOrganizationTeam)(currentTeam)
+				: update;
+
+		const updatedTeams = teams.map((team) => (team.id === currentTeam.id ? updatedTeam : team));
+
+		set(organizationTeamsState, updatedTeams);
+	}
+);
+
 export const memberActiveTaskIdState = atom<string | null>(null);
 
 export const publicActiveTeamState = atom<TOrganizationTeam | undefined>(undefined);

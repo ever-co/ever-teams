@@ -12,9 +12,10 @@ import { useMemo, memo } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
+import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
 
 // Types for better performance and security
 
@@ -34,24 +35,7 @@ interface TeamMembersViewProps {
 	isMemberActive?: boolean;
 }
 
-// Constants to avoid re-creations
-const EMPTY_ARRAY: TOrganizationTeamEmployee[] = [];
-const TIMER_STATUS_PRIORITY = {
-	[ETimerStatus.RUNNING]: 4,
-	[ETimerStatus.ONLINE]: 3,
-	[ETimerStatus.PAUSE]: 2,
-	[ETimerStatus.IDLE]: 1,
-	[ETimerStatus.SUSPENDED]: 0,
-	undefined: 0
-} as const;
-
-// Utility functions optimized and cached
-const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
-	const priorityA = TIMER_STATUS_PRIORITY[a.timerStatus as keyof typeof TIMER_STATUS_PRIORITY] ?? 0;
-	const priorityB = TIMER_STATUS_PRIORITY[b.timerStatus as keyof typeof TIMER_STATUS_PRIORITY] ?? 0;
-	return priorityB - priorityA;
-};
-
+// Utility function for sorting by order (kept local as it's specific to this component)
 const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
 	if (a.order && b.order) return b.order - a.order;
 	if (a.order) return -1;
@@ -59,47 +43,17 @@ const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee)
 	return 0;
 };
 
-// Main component optimized
+// Main component optimized with refactored hooks
 export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {
 	// Hooks
 	const { user } = useAuthenticateUser();
-	const activeFilter = useAtomValue(taskBlockFilterState);
+	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const fullWidth = useAtomValue(fullWidthState);
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
-	// Memoization of the main data with optimized dependencies
-	const processedMembers = useMemo(() => {
-		const rawMembers = activeTeam?.members || EMPTY_ARRAY;
-
-		// Filtering and sorting in one pass to optimize performance
-		const validMembers = rawMembers.filter(
-			(member): member is TOrganizationTeamEmployee => member?.employee !== null
-		);
-
-		// Sorting with optimized function
-		const sortedMembers = validMembers.sort(sortByWorkStatus);
-
-		// Find the current user in one pass
-		const currentUser = validMembers.find((m) => m.employee?.userId === user?.id);
-
-		return {
-			members: validMembers,
-			orderedMembers: sortedMembers,
-			currentUser
-		};
-	}, [activeTeam?.members, user?.id]);
-
-	// Filtering the members for the block view (optimized memoization)
-	const blockViewMembers = useMemo(() => {
-		if (activeFilter === 'all') return processedMembers.orderedMembers;
-
-		const filterCondition =
-			activeFilter === 'idle'
-				? (m: TOrganizationTeamEmployee) => !m.timerStatus || m.timerStatus === ETimerStatus.IDLE
-				: (m: TOrganizationTeamEmployee) => m.timerStatus === activeFilter;
-
-		return processedMembers.orderedMembers.filter(filterCondition);
-	}, [processedMembers.orderedMembers, activeFilter]);
+	// Use refactored hooks for member processing
+	const processedMembers = useProcessedTeamMembers(activeTeam, user);
+	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
 
 	// Simple calculation without useless memoization
 	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
@@ -152,11 +106,16 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		}, [members, currentUser?.id]);
 
 		// Early return for empty members
-		if (members.length === 0) {
+		if (teamsFetching) {
 			return (
 				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<InviteUserTeamCardSkeleton />
+						<InviteUserTeamCardSkeleton />
 						<InviteUserTeamCardSkeleton />
 					</div>
 					<div className="block lg:hidden">
@@ -177,7 +136,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		// Preparation of common props
 		const baseProps = {
 			teamMembers: viewConfig.useBlockMembers ? blockViewMembers : otherMembers,
-			currentUser,
+			...(viewConfig.useBlockMembers ? {} : { currentUser }), // Only pass currentUser for non-block views
 			publicTeam,
 			teamsFetching,
 			...(viewConfig.additionalProps?.(isMemberActive) || {})

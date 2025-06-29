@@ -15,7 +15,7 @@ import {
 	isTeamMemberState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 // import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
@@ -158,7 +158,16 @@ export function useOrganizationTeams() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
+	const { logOut } = useAuthenticateUser();
 
+	const deleteOrganizationTeamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	const clearDeleteTimeout = useCallback(() => {
+		if (deleteOrganizationTeamTimeoutRef.current) {
+			clearTimeout(deleteOrganizationTeamTimeoutRef.current);
+			deleteOrganizationTeamTimeoutRef.current = null;
+		}
+	}, []);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
 	// ===== React Query mutations for complex operations =====
@@ -427,12 +436,24 @@ export function useOrganizationTeams() {
 		mutationKey: queryKeys.organizationTeams.mutations.delete(null),
 		onSuccess: async (response) => {
 			// Preserve critical side-effect - loadTeamsData() for complete refetch
-			await loadTeamsData();
-
-			// Invalidate queries for cache consistency
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
+			toast.success('Team deleted successfully', {
+				description: `Team "${response.data.name}" has been deleted. You will be logged out of the application to choose a new workspace.`
 			});
+
+			// Clear previous timeout if any
+			clearDeleteTimeout();
+
+			// Set a new timeout
+			deleteOrganizationTeamTimeoutRef.current = setTimeout(() => {
+				logOut();
+
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.all
+				});
+
+				// Clear ref after execution
+				deleteOrganizationTeamTimeoutRef.current = null;
+			}, 3000);
 		},
 		onError: (error) => {
 			// Enhanced error handling
@@ -545,7 +566,11 @@ export function useOrganizationTeams() {
 		}
 		isManager();
 	}, [activeTeam]);
-
+	useEffect(() => {
+		return () => {
+			clearDeleteTimeout();
+		};
+	}, [clearDeleteTimeout]);
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
 

@@ -10,12 +10,11 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
 	publicTeam: boolean;
-	currentUser: TOrganizationTeamEmployee | undefined;
 	teamsFetching: boolean;
 }
 
 const TeamMembersBlockView: React.FC<Props> = React.memo(
-	({ teamMembers: members, publicTeam = false, currentUser, teamsFetching }) => {
+	({ teamMembers: members, publicTeam = false, teamsFetching }) => {
 		const activeFilter = useAtomValue(taskBlockFilterState);
 		const t = useTranslations();
 		const objectEmptyMessage = React.useMemo(
@@ -32,19 +31,7 @@ const TeamMembersBlockView: React.FC<Props> = React.memo(
 		return (
 			<>
 				<div className="mt-7">
-					{/* Current authenticated user members */}
-					<Transition
-						as="div"
-						show={!!currentUser}
-						enter="transition-opacity duration-75"
-						enterFrom="opacity-0"
-						enterTo="opacity-100"
-						leave="transition-opacity duration-150"
-						leaveFrom="opacity-100"
-						leaveTo="opacity-0"
-					>
-						{/* <UserTeamBlock member={currentUser} publicTeam={publicTeam} /> */}
-					</Transition>
+					{/* Current user is now included in the filtered members list */}
 					<div className="flex flex-wrap items-center w-full">
 						{members.map((member) => {
 							return (

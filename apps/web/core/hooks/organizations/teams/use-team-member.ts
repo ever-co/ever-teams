@@ -22,13 +22,13 @@ export function useIsMemberManager(user?: TUser | null) {
 		});
 	}, [user?.id, activeTeam?.members]);
 
-	const isTeamManager = !!activeManager;
-
 	const isTeamCreator = useMemo(() => {
 		if (!user || !activeTeam?.createdByUserId) return false;
 		return activeTeam.createdByUserId === user.id;
 	}, [user?.id, activeTeam?.createdByUserId]);
 
+	// Team creator should automatically be considered a manager (business logic fix)
+	const isTeamManager = !!activeManager || isTeamCreator;
 	return {
 		isTeamManager,
 		isTeamCreator,

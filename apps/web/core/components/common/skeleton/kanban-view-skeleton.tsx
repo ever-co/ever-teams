@@ -1,4 +1,5 @@
 import React from 'react';
+import { KanbanColumnLoadingSkeleton } from './kanban-column-loading-skeleton';
 
 interface KanbanViewSkeletonProps {
 	className?: string;
@@ -22,10 +23,7 @@ export function KanbanViewSkeleton({ className, fullWidth = true }: KanbanViewSk
 						{/* Tasks Skeleton */}
 						<div className="flex flex-col gap-[5px]">
 							{tasks.map((_, taskIndex: number) => (
-								<div
-									key={taskIndex}
-									className="h-[155px] w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg"
-								/>
+								<KanbanColumnLoadingSkeleton className="relative" key={`${index}-${taskIndex}`} />
 							))}
 
 							{/* Add Task Button Skeleton */}

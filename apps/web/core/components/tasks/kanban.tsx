@@ -98,8 +98,8 @@ function InnerItemList({
 
 	// Check if we're in a "false loading" state where isLoading=false but no data is actually available yet
 	const isActuallyLoading = useMemo(() => {
-		return isLoading || !Array.isArray(items) || (items.length === 0 && allColumnsData);
-	}, [isLoading, items, allColumnsData]);
+		return isLoading || !Array.isArray(items);
+	}, [isLoading, items]);
 	return (
 		<>
 			<section className="flex relative flex-col items-center pb-2">
