@@ -21,11 +21,11 @@ export type TStepData = Partial<
 >;
 
 export interface IStepElementProps extends PropsWithChildren {
-	goToNext: (stepData: TStepData) => void;
-	goToPrevious: (stepData: TStepData) => void;
-	finish: (newProject: TOrganizationProject) => void;
-	currentData: TStepData;
-	mode: TModalMode;
+	goToNext?: (stepData: TStepData) => void;
+	goToPrevious?: (stepData: TStepData) => void;
+	finish?: (newProject: TOrganizationProject) => void;
+	currentData?: TStepData;
+	mode?: TModalMode;
 }
 
 export default function AddOrEditContainer(props: IAddOrEditContainerProps) {

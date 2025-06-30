@@ -19,14 +19,14 @@ export default function CategorizationForm(props: IStepElementProps) {
 
 	const handleSubmit = (event: FormEvent) => {
 		event.preventDefault();
-		goToNext({
+		goToNext?.({
 			tags: tagData?.filter((tag) => tags.includes(tag.id)),
 			color: colorCode
 		});
 	};
 
 	const handlePrevious = useCallback(() => {
-		goToPrevious({
+		goToPrevious?.({
 			tags: tagData?.filter((tag) => tags.includes(tag.id)),
 			color: colorCode
 		});

@@ -79,8 +79,8 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 	};
 
 	return (
-		<EverCard className="w-full h-full " shadow="custom">
-			<div className="flex flex-row items-center justify-between h-12 gap-4">
+		<EverCard className="w-full h-full" shadow="custom">
+			<div className="flex flex-row gap-4 justify-between items-center h-12">
 				{steps.map((step, index) => {
 					const isCurrent = index === currentStep;
 					const isCompleted = step.isCompleted;
@@ -95,7 +95,7 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 									isCurrent && 'bg-primary text-primary-foreground'
 								)}
 							>
-								{step.isCompleted ? <Check size={10} /> : <span className="text-xs ">{step.id}</span>}
+								{step.isCompleted ? <Check size={10} /> : <span className="text-xs">{step.id}</span>}
 							</div>
 							<div
 								className={cn(
@@ -120,26 +120,11 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 					step={currentStep}
 					mode={mode}
 				>
-					{
-						//@ts-ignore
-						<BasicInformationForm />
-					}
-					{
-						//@ts-ignore
-						<FinancialSettingsForm />
-					}
-					{
-						//@ts-ignore
-						<CategorizationForm />
-					}
-					{
-						//@ts-ignore
-						<TeamAndRelationsForm />
-					}
-					{
-						//@ts-ignore
-						<FinalReview />
-					}
+					<BasicInformationForm />
+					<FinancialSettingsForm />
+					<CategorizationForm />
+					<TeamAndRelationsForm />
+					<FinalReview />
 				</AddOrEditContainer>
 			</div>
 		</EverCard>

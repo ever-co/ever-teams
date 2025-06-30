@@ -6,12 +6,12 @@ import { TStepData } from '@/core/components/features/projects/add-or-edit-proje
  * Converts `startDate` and `endDate` to Date objects.
  * Falls back to the provided `fallback` value if conditions are not met.
  *
- * @param {TStepData} currentData - The current step data object.
+ * @param {TStepData | undefined} currentData - The current step data object.
  * @param {keyof TStepData} key - The key to retrieve from `currentData`.
  * @param {any} fallback - The fallback value if no valid value is found.
  * @returns {any} The processed initial value.
  */
-export const getInitialValue = (currentData: TStepData, key: keyof TStepData, fallback: any) => {
+export const getInitialValue = (currentData: TStepData | undefined, key: keyof TStepData, fallback: any) => {
 	if (currentData?.[key] !== undefined) {
 		switch (key) {
 			case 'startDate':

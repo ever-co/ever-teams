@@ -145,10 +145,12 @@ export class HttpLoggerAdapter {
 	}
 
 	private getErrorDetails(error: AxiosError): any {
-		const { response } = error;
-		return this.config.logErrorData
+		const { response, config } = error;
+		const statusCode = response?.status;
+
+		const baseDetails = this.config.logErrorData
 			? {
-					statusCode: response?.status,
+					statusCode,
 					statusText: response?.statusText,
 					headers: this.sanitizeHeaders(response?.headers),
 					data: this.truncateData(response?.data),
@@ -157,14 +159,44 @@ export class HttpLoggerAdapter {
 					stack: error.stack
 				}
 			: {
-					statusCode: response?.status,
+					statusCode,
 					errorMessage: error.message
 				};
+
+		// Enhanced details for 403 Forbidden errors to aid debugging
+		if (statusCode === 403) {
+			return {
+				...baseDetails,
+				criticalError: true,
+				endpoint: config?.url,
+				method: config?.method?.toUpperCase(),
+				timestamp: new Date().toISOString(),
+				debugInfo: {
+					message: 'This 403 error indicates a permission/authorization issue',
+					possibleCauses: [
+						'User lacks required permissions',
+						'Invalid or expired authentication token',
+						'Resource access restrictions',
+						'Role-based access control (RBAC) denial'
+					]
+				}
+			};
+		}
+
+		return baseDetails;
 	}
 
 	private getLogMessage(error: AxiosError): string {
 		const statusCode = error.response?.status;
-		return `HTTP Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} ${statusCode || 'NO_RESPONSE'}`;
+		const method = error.config?.method?.toUpperCase();
+		const url = error.config?.url;
+
+		// Enhanced message for critical 403 errors to ensure visibility
+		if (statusCode === 403) {
+			return `🚨 CRITICAL: HTTP 403 Forbidden - ${method} ${url} - Permission Denied`;
+		}
+
+		return `HTTP Error: ${method} ${url} ${statusCode || 'NO_RESPONSE'}`;
 	}
 
 	private logWithLevel(logLevel: LogLevel, message: string, errorDetails: any): void {
@@ -185,12 +217,19 @@ export class HttpLoggerAdapter {
 
 	/**
 	 * Determine the log level based on the HTTP status code
+	 * Enhanced to properly handle authorization errors as critical issues
 	 */
 	private getLogLevelForStatus(status?: number): LogLevel {
 		if (!status) return LogLevel.ERROR; // No status = network error
 
 		if (status >= 400 && status < 500) {
-			return status === 401 || status === 403 ? LogLevel.WARN : LogLevel.ERROR;
+			// 403 Forbidden should be treated as ERROR, not WARN, as it indicates
+			// a critical permission issue that needs immediate attention
+			if (status === 403) {
+				return LogLevel.ERROR;
+			}
+			// 401 can remain as WARN as it's often expected (token expiry)
+			return status === 401 ? LogLevel.WARN : LogLevel.ERROR;
 		}
 
 		if (status >= 500) {

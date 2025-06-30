@@ -1,5 +1,5 @@
 import { Button } from '@/core/components';
-import { Fragment, ReactNode, useCallback } from 'react';
+import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
@@ -8,6 +8,7 @@ import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
+import { useAuthenticateUser } from '@/core/hooks';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
@@ -30,9 +31,45 @@ export default function FinalReview(props: IStepElementProps) {
 	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
 	const { roles } = useRoles();
+	const { user } = useAuthenticateUser();
 
 	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
+
+	// Enhanced member assignment with default role logic
+	const processedMembers = useMemo(() => {
+		const members = finalData?.members || [];
+		const hasManagers = members.some((el) => el.roleId == managerRole?.id && el.memberId);
+
+		// If no managers are assigned and current user is available, assign current user as manager
+		if (!hasManagers && user?.employee?.id && simpleMemberRole?.id && managerRole?.id) {
+			const currentUserMember = {
+				id: crypto.randomUUID(),
+				memberId: user.employee.id,
+				roleId: managerRole.id
+			};
+
+			// Check if current user is already assigned with a different role
+			const existingUserIndex = members.findIndex((m) => m.memberId === user?.employee?.id);
+			if (existingUserIndex >= 0) {
+				// Update existing assignment to manager role
+				const updatedMembers = [...members];
+				updatedMembers[existingUserIndex] = { ...updatedMembers[existingUserIndex], roleId: managerRole.id };
+				return updatedMembers;
+			} else {
+				// Add current user as manager
+				return [...members, currentUserMember];
+			}
+		}
+
+		// Assign default employee role to members without roles
+		return members.map((member) => {
+			if (!member.roleId && member.memberId && simpleMemberRole?.id) {
+				return { ...member, roleId: simpleMemberRole.id };
+			}
+			return member;
+		});
+	}, [finalData?.members, managerRole?.id, simpleMemberRole?.id, user?.employee?.id]);
 
 	const newProject: Partial<TCreateProjectRequest> = {
 		name: finalData?.name,
@@ -45,11 +82,11 @@ export default function FinalReview(props: IStepElementProps) {
 		tags: finalData?.tags,
 		color: finalData?.color ?? '#000',
 		memberIds:
-			finalData?.members
+			processedMembers
 				?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
 				.map((el) => el.memberId) || [],
 		managerIds:
-			finalData?.members?.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId) ||
+			processedMembers?.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId) ||
 			[],
 		budget: finalData?.budget,
 		currency: finalData?.currency,
@@ -72,11 +109,11 @@ export default function FinalReview(props: IStepElementProps) {
 			});
 
 			if (project) {
-				finish(project);
+				finish?.(project);
 			}
 		}
 
-		if (mode == 'edit' && finalData.id) {
+		if (mode == 'edit' && finalData?.id) {
 			const project = await editOrganizationProject(finalData.id, {
 				...newProject
 			});
@@ -90,13 +127,13 @@ export default function FinalReview(props: IStepElementProps) {
 						return el;
 					})
 				);
-				finish(project.data as TOrganizationProject);
+				finish?.(project.data as TOrganizationProject);
 			}
 		}
 	};
 
 	const handlePrevious = useCallback(() => {
-		goToPrevious(finalData);
+		goToPrevious?.(finalData || {});
 	}, [finalData, goToPrevious]);
 
 	return (
@@ -123,8 +160,13 @@ export default function FinalReview(props: IStepElementProps) {
 						projectTitle={finalData?.name}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						managerIds={
-							finalData?.members
+							processedMembers
 								?.filter((el) => el.roleId == managerRole?.id && el.memberId)
+								.map((el) => el.memberId) || []
+						}
+						memberIds={
+							processedMembers
+								?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
 								.map((el) => el.memberId) || []
 						}
 						relations={finalData?.relations}
@@ -282,7 +324,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 
 				return (
 					<Fragment key={index}>
-						<Attribute _key={key} value={value} key={index} />
+						<Attribute _key={key} value={value} />
 
 						{isLastItem ? null : <VerticalSeparator />}
 					</Fragment>
@@ -340,19 +382,37 @@ function Categorization(props: ICategorizationProps) {
 
 interface ITeamAndRelationsProps {
 	managerIds?: string[];
+	memberIds?: string[];
 	relations?: IProjectRelation[];
 	projectImageUrl?: string;
 	projectTitle?: string;
 }
 
 function TeamAndRelations(props: ITeamAndRelationsProps) {
-	const { managerIds, relations, projectImageUrl, projectTitle } = props;
+	const { managerIds, memberIds, relations, projectImageUrl, projectTitle } = props;
 	const t = useTranslations();
 
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
 
-	const members = teams?.flatMap((team) => team.members);
+	// Deduplicated list of all team members to prevent user duplication
+	const allMembers = useMemo(() => {
+		if (!teams?.length) return [];
+
+		// Create a Map to deduplicate users by employeeId
+		const memberMap = new Map();
+
+		teams.forEach((team) => {
+			team.members?.forEach((member) => {
+				const employeeId = member?.employeeId;
+				if (employeeId && !memberMap.has(employeeId)) {
+					memberMap.set(employeeId, member);
+				}
+			});
+		});
+
+		return Array.from(memberMap.values());
+	}, [teams]);
 
 	const Item = ({ name, imgUrl }: { name: string; imgUrl?: string }) => (
 		<div className="flex items-center gap-2">
@@ -368,7 +428,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="flex items-center w-full gap-2 wrap">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
-							const member = members?.find((el) => el?.employeeId === managerId);
+							const member = allMembers?.find((el) => el?.employeeId === managerId);
 
 							const memberImgUrl = member?.employee?.user?.imageUrl;
 
@@ -376,7 +436,31 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 
 							return (
 								<Item
-									key={member?.id}
+									key={`manager-${member?.id || managerId}-${managerId}`}
+									name={memberName ?? '-'}
+									imgUrl={memberImgUrl ?? DEFAULT_USER_IMAGE_URL}
+								/>
+							);
+						})
+					) : (
+						<span>-</span>
+					)}
+				</div>
+			</div>
+			<div className="flex flex-col gap-2">
+				<p className="text-xs font-medium ">Members</p>
+				<div className="flex items-center w-full gap-2 wrap">
+					{memberIds?.length ? (
+						memberIds?.map((memberId) => {
+							const member = allMembers?.find((el) => el?.employeeId === memberId);
+
+							const memberImgUrl = member?.employee?.user?.imageUrl;
+
+							const memberName = member?.employee?.fullName;
+
+							return (
+								<Item
+									key={`member-${member?.id || memberId}-${memberId}`}
 									name={memberName ?? '-'}
 									imgUrl={memberImgUrl ?? DEFAULT_USER_IMAGE_URL}
 								/>
