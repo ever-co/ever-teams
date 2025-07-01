@@ -390,7 +390,7 @@ export function useTimer() {
 		syncTimer();
 
 		if (!timerStatus?.running) {
-			return;
+			return Promise.resolve();
 		}
 
 		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
