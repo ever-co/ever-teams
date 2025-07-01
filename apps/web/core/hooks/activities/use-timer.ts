@@ -389,6 +389,10 @@ export function useTimer() {
 
 		syncTimer();
 
+		if (!timerStatus?.running) {
+			return;
+		}
+
 		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
