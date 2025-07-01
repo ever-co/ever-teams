@@ -5,7 +5,7 @@ import RichTextEditor from '../text-editor';
 import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { FormEvent, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
+import { CSSProperties, FormEvent, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
@@ -533,6 +533,7 @@ interface ISelectProps<IItem> {
 	selected: string | string[] | null;
 	placeholder?: string;
 	selecteTriggerClassName?: string;
+	selectTriggerStyles?: CSSProperties;
 	selectOptionsListClassName?: string;
 	onChange?: (value: string | string[]) => void;
 	multiple?: boolean;
@@ -571,6 +572,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 		options,
 		placeholder,
 		selecteTriggerClassName,
+		selectTriggerStyles,
 		selected,
 		onChange,
 		renderItem,
@@ -711,6 +713,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button
+						style={selectTriggerStyles}
 						variant="outline"
 						role="combobox"
 						className={cn(

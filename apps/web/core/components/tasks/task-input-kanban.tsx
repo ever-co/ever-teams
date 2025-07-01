@@ -7,25 +7,27 @@ import {
 	useHotkeys,
 	useOutsideClick,
 	useTaskInput,
-	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { timerStatusState } from '@/core/stores';
+import { taskLabelsListState, taskPrioritiesListState, taskSizesListState, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, SpinnerLoader } from '@/core/components';
 import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';
-import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { TaskLabels } from './task-labels';
 import { InputField } from '../duplicated-components/_input';
 import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
-import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTag, TTask } from '@/core/types/schemas/task/task.schema';
+import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
+import Image from 'next/image';
+import { cn } from '@/core/lib/helpers';
+import { X } from 'lucide-react';
+import { getTextColor } from '@/core/lib/helpers/colors';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -336,14 +338,21 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { taskLabels: taskLabelsData } = useTaskLabels();
+	const {
+		taskStatus,
+		taskPriority: activeTaskPriority,
+		taskSize: activeTaskSize,
+		taskDescription,
+		taskLabels: activeTaskLabels
+	} = datas;
 
-	const { taskStatus, taskPriority, taskSize, taskDescription, taskLabels } = datas;
 	useEffect(() => {
 		if (taskStatus) {
-			taskStatus.current = kanbanTitle ?? 'open';
+			taskStatus.current =
+				Object.values(ETaskStatusName).find((status) => status === kanbanTitle) ?? ETaskStatusName.OPEN;
 		}
 	}, [taskStatus, datas.hasCreateForm, kanbanTitle]);
+
 	useEffect(() => {
 		if (datas.editMode) {
 			window.setTimeout(() => {
@@ -355,6 +364,17 @@ function TaskCard({
 		}
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
+	const taskPriorities = useAtomValue(taskPrioritiesListState);
+	const taskSizes = useAtomValue(taskSizesListState);
+	const taskLabels = useAtomValue(taskLabelsListState);
+	const [taskPriority, setTaskPriority] = useState<ETaskPriority | undefined>(
+		activeTaskPriority?.current as ETaskPriority | undefined
+	);
+	const [taskSize, setTaskSize] = useState<ETaskSizeName | undefined>(
+		activeTaskSize?.current as ETaskSizeName | undefined
+	);
+	const [selectedTaskLabels, setSelectedTaskLabels] = useState(activeTaskLabels?.current.map((el) => el.name) ?? []);
+
 	return (
 		<EverCard shadow="custom">
 			<>
@@ -376,46 +396,256 @@ function TaskCard({
 								/>
 
 								<div className="flex flex-wrap justify-start gap-2">
-									<ActiveTaskPropertiesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskPriority) {
-												taskPriority.current = v;
+									<div className="w-28 h-[2rem]">
+										<Select
+											placeholder="Task priority"
+											options={taskPriorities.map((el) => ({
+												...el,
+												id: el.value,
+												value: el.name
+											}))}
+											selected={taskPriority as string}
+											onChange={(value) => {
+												setTaskPriority(value as ETaskPriority);
+												if (activeTaskPriority) {
+													activeTaskPriority.current = value as ETaskPriority;
+												}
+											}}
+											selecteTriggerClassName={cn(
+												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
+												taskSize ? ' gap-1 border px-2' : 'border px-2  gap-[.5rem]'
+											)}
+											selectTriggerStyles={
+												taskPriority
+													? {
+															backgroundColor:
+																taskPriorities.find((el) => el.value == taskPriority)
+																	?.color ?? undefined
+														}
+													: {}
 											}
-										}}
-										defaultValue={taskPriority?.current as ETaskPriority}
-										task={null}
-									/>
+											selectOptionsListClassName="w-32 h-full"
+											renderItem={(item) => (
+												<div
+													style={{ backgroundColor: item.color ?? undefined }}
+													className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+												>
+													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+														{item.fullIconUrl && (
+															<Image
+																className="object-cover w-full h-full rounded-md"
+																src={item.fullIconUrl}
+																alt={item.name + 'icon'}
+																width={40}
+																height={40}
+															/>
+														)}
+													</div>
+													<span className=" text-xs">{item.name}</span>
+												</div>
+											)}
+											alignOptionsList="center"
+											renderValue={(value) => {
+												const item = taskPriorities.find((el) => el.value == value);
 
-									<ActiveTaskSizesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskSize) {
-												taskSize.current = v;
-											}
-										}}
-										defaultValue={taskSize?.current as ETaskSizeName}
-										task={null}
-									/>
-									<TaskLabels
-										className="min-w-fit lg:max-w-[170px] text-xs"
-										forDetails={false}
-										taskStatusClassName="border dark:bg-[#1B1D22] dark:border-[#FFFFFF33] h-8 text-xs"
-										onValueChange={(_: any, values: string[] | undefined) => {
-											taskLabelsData.filter((tag) =>
-												tag.name ? values?.includes(tag.name) : false
-											);
-
-											if (taskLabels && values?.length) {
-												taskLabels.current = taskLabelsData.filter((tag) =>
-													tag.name ? values?.includes(tag.name) : false
+												return (
+													<div className="flex w-full items-center h-full  gap-2">
+														{value ? (
+															<div className="flex w-full h-full items-center gap-2 rounded-md">
+																<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+																	{item?.fullIconUrl && (
+																		<Image
+																			className="object-cover w-full h-full rounded-md"
+																			src={item.fullIconUrl}
+																			alt={item.name + 'icon'}
+																			width={30}
+																			height={30}
+																		/>
+																	)}
+																</div>
+																<span className=" text-xs">{item?.name}</span>
+															</div>
+														) : (
+															<div className="flex items-center gap-1">
+																<div className="w-4 h-4 rounded-full border"></div>
+																<p className=" text-xs text-slate-500  font-light ">
+																	Priosity
+																</p>
+															</div>
+														)}
+													</div>
 												);
+											}}
+										/>
+									</div>
+
+									<div className="w-28 h-[2rem]">
+										<Select
+											placeholder="Task size"
+											options={taskSizes.map((el) => ({ ...el, id: el.value }))}
+											selected={taskSize as string}
+											onChange={(value) => {
+												setTaskSize(value as ETaskSizeName);
+												if (activeTaskSize) {
+													activeTaskSize.current = value as ETaskSizeName;
+												}
+											}}
+											selecteTriggerClassName={cn(
+												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
+												taskSize ? ' gap-1 border px-2' : 'border px-2  gap-[.5rem]'
+											)}
+											selectTriggerStyles={
+												taskSize
+													? {
+															backgroundColor:
+																taskSizes.find((el) => el.value == taskSize)?.color ??
+																undefined
+														}
+													: {}
 											}
-										}}
-										task={datas.inputTask}
-									/>
+											selectOptionsListClassName="w-32 h-full"
+											renderItem={(item) => (
+												<div
+													style={{ backgroundColor: item.color ?? undefined }}
+													className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+												>
+													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+														{item.fullIconUrl && (
+															<Image
+																className="object-cover w-full h-full rounded-md"
+																src={item.fullIconUrl}
+																alt={item.name + 'icon'}
+																width={40}
+																height={40}
+															/>
+														)}
+													</div>
+													<span className=" text-xs">{item.name}</span>
+												</div>
+											)}
+											alignOptionsList="center"
+											renderValue={(value) => {
+												const item = taskSizes.find((el) => el.value == value);
+
+												return (
+													<div className="flex w-full items-center h-full  gap-2">
+														{value ? (
+															<div className="flex w-full h-full items-center gap-2 rounded-md">
+																<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+																	{item?.fullIconUrl && (
+																		<Image
+																			className="object-cover w-full h-full rounded-md"
+																			src={item.fullIconUrl}
+																			alt={item.name + 'icon'}
+																			width={30}
+																			height={30}
+																		/>
+																	)}
+																</div>
+																<span className=" text-xs">{item?.name}</span>
+															</div>
+														) : (
+															<div className="flex items-center gap-1">
+																<div className="w-4 h-4 rounded-full border"></div>
+																<p className=" text-xs text-slate-500  font-light ">
+																	Size
+																</p>
+															</div>
+														)}
+													</div>
+												);
+											}}
+										/>
+									</div>
+
+									<div className="w-28 h-[2rem]">
+										<Select
+											placeholder="Task labels"
+											options={taskLabels.map((el) => ({ ...el, id: el.name, value: el.name }))}
+											selected={selectedTaskLabels}
+											onChange={(value) => {
+												setSelectedTaskLabels(value as string[]);
+												if (activeTaskLabels) {
+													activeTaskLabels.current = Array.isArray(value)
+														? value.map(
+																(el) =>
+																	taskLabels.find((item) => item.name === el) as TTag
+															)
+														: [];
+												}
+											}}
+											multiple
+											selecteTriggerClassName={cn(
+												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
+												selectedTaskLabels?.length
+													? ' gap-1 border px-2'
+													: 'border px-2  gap-[.5rem]'
+											)}
+											selectOptionsListClassName="w-32 h-full"
+											renderItem={(item) => (
+												<div
+													style={{ backgroundColor: item.color ?? undefined }}
+													className="flex w-full items-center gap-2 py-1 px-2 rounded-md relative"
+												>
+													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+														{item.fullIconUrl && (
+															<Image
+																className="object-cover w-full h-full rounded-md"
+																src={item.fullIconUrl}
+																alt={item.name + 'icon'}
+																width={40}
+																height={40}
+															/>
+														)}
+													</div>
+													<span
+														style={{ color: getTextColor(item.color ?? 'white') }}
+														className=" text-xs"
+													>
+														{item.name}
+													</span>
+													{selectedTaskLabels?.includes(item.name) && (
+														<div
+															onClick={() =>
+																setSelectedTaskLabels(
+																	selectedTaskLabels.filter((el) => el !== item.name)
+																)
+															}
+															className="flex absolute items-center right-1 top-1/2 -translate-y-1/2 justify-center"
+														>
+															<X size={10} />
+														</div>
+													)}
+												</div>
+											)}
+											alignOptionsList="center"
+											renderValue={(value) => {
+												return (
+													<div className="flex w-full items-center h-full  gap-2">
+														{selectedTaskLabels.length ? (
+															<div
+																className={cn(
+																	'flex w-full h-full items-center gap-2 rounded-md',
+																	selectedTaskLabels.length > 0
+																		? ''
+																		: 'text-slate-500 '
+																)}
+															>
+																<span className=" text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
+															</div>
+														) : (
+															<div className="flex items-center gap-1">
+																<div className="w-4 h-4 rounded-full border"></div>
+																<p className=" text-xs text-slate-500  font-light ">
+																	Labels
+																</p>
+															</div>
+														)}
+													</div>
+												);
+											}}
+										/>
+									</div>
 								</div>
 							</div>
 						)}
