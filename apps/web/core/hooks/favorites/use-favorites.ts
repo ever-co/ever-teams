@@ -6,10 +6,10 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { userState } from '@/core/stores';
 import { useAtom, useAtomValue } from 'jotai';
 import { favoritesState } from '@/core/stores/common/favorites';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * A React hook that manages favorites operations.
@@ -35,7 +35,9 @@ export const useFavorites = () => {
 	const favoritesQuery = useQuery({
 		queryKey: queryKeys.favorites.byEmployee(employeeId),
 		queryFn: () => favoriteService.getFavoritesByEmployee(employeeId),
-		enabled: Boolean(employeeId)
+		enabled: Boolean(employeeId),
+		staleTime: 30 * 60 * 1000, // 30 minutes
+		gcTime: 60 * 60 * 1000 // 1 hour - favorites are relatively stable, cache for 1 hour
 	});
 
 	// Invalidate favorites data
@@ -94,7 +96,7 @@ export const useFavorites = () => {
 		[deleteFavoriteMutation, favorites]
 	);
 
-	const toggleFavoriteTask = async (task: ITask) => {
+	const toggleFavoriteTask = async (task: TTask) => {
 		if (!task) return;
 
 		const isFavoriteTask = favorites.some((el) => {
