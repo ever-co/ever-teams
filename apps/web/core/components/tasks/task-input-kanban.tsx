@@ -386,7 +386,7 @@ function TaskCard({
 						{datas.hasCreateForm && (
 							<div>
 								<InputField
-									placeholder="Description"
+									placeholder={t('pages.taskDetails.DESCRIPTION')}
 									onChange={(e) => {
 										if (taskDescription) {
 											taskDescription.current = e.target.value;
@@ -396,175 +396,51 @@ function TaskCard({
 								/>
 
 								<div className="flex flex-wrap justify-start gap-2">
-									<div className="w-28 h-[2rem]">
-										<Select
-											placeholder="Task priority"
-											options={taskPriorities.map((el) => ({
-												...el,
-												id: el.value,
-												value: el.name
-											}))}
-											selected={taskPriority as string}
-											onChange={(value) => {
-												setTaskPriority(value as ETaskPriority);
-												if (activeTaskPriority) {
-													activeTaskPriority.current = value as ETaskPriority;
-												}
-											}}
-											selecteTriggerClassName={cn(
-												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
-												taskSize ? ' gap-1 border px-2' : 'border px-2  gap-[.5rem]'
-											)}
-											selectTriggerStyles={
-												taskPriority
-													? {
-															backgroundColor:
-																taskPriorities.find((el) => el.value == taskPriority)
-																	?.color ?? undefined
-														}
-													: {}
+									<TaskPropertySelect
+										placeholder={t('pages.taskDetails.PRIORITY')}
+										emptyLabel={t('pages.taskDetails.PRIORITY')}
+										selected={taskPriority}
+										onChange={(value) => {
+											setTaskPriority(value as ETaskPriority);
+											if (activeTaskPriority) {
+												activeTaskPriority.current = value as ETaskPriority;
 											}
-											selectOptionsListClassName="w-32 h-full"
-											renderItem={(item) => (
-												<div
-													style={{ backgroundColor: item.color ?? undefined }}
-													className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
-												>
-													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-														{item.fullIconUrl && (
-															<Image
-																className="object-cover w-full h-full rounded-md"
-																src={item.fullIconUrl}
-																alt={item.name + 'icon'}
-																width={40}
-																height={40}
-															/>
-														)}
-													</div>
-													<span className=" text-xs">{item.name}</span>
-												</div>
-											)}
-											alignOptionsList="center"
-											renderValue={(value) => {
-												const item = taskPriorities.find((el) => el.value == value);
+										}}
+										options={taskPriorities.map((el) => ({
+											id: el.value,
+											value: el.name,
+											name: el.name,
+											color: el.color ?? undefined,
+											fullIconUrl: el.fullIconUrl ?? undefined
+										}))}
+									/>
 
-												return (
-													<div className="flex w-full items-center h-full  gap-2">
-														{value ? (
-															<div className="flex w-full h-full items-center gap-2 rounded-md">
-																<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-																	{item?.fullIconUrl && (
-																		<Image
-																			className="object-cover w-full h-full rounded-md"
-																			src={item.fullIconUrl}
-																			alt={item.name + 'icon'}
-																			width={30}
-																			height={30}
-																		/>
-																	)}
-																</div>
-																<span className=" text-xs">{item?.name}</span>
-															</div>
-														) : (
-															<div className="flex items-center gap-1">
-																<div className="w-4 h-4 rounded-full border"></div>
-																<p className=" text-xs text-slate-500  font-light ">
-																	Priosity
-																</p>
-															</div>
-														)}
-													</div>
-												);
-											}}
-										/>
-									</div>
-
-									<div className="w-28 h-[2rem]">
-										<Select
-											placeholder="Task size"
-											options={taskSizes.map((el) => ({ ...el, id: el.value }))}
-											selected={taskSize as string}
-											onChange={(value) => {
-												setTaskSize(value as ETaskSizeName);
-												if (activeTaskSize) {
-													activeTaskSize.current = value as ETaskSizeName;
-												}
-											}}
-											selecteTriggerClassName={cn(
-												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
-												taskSize ? ' gap-1 border px-2' : 'border px-2  gap-[.5rem]'
-											)}
-											selectTriggerStyles={
-												taskSize
-													? {
-															backgroundColor:
-																taskSizes.find((el) => el.value == taskSize)?.color ??
-																undefined
-														}
-													: {}
+									<TaskPropertySelect
+										placeholder={t('pages.taskDetails.SIZE')}
+										emptyLabel={t('pages.taskDetails.SIZE')}
+										selected={taskSize}
+										onChange={(value) => {
+											setTaskSize(value as ETaskSizeName);
+											if (activeTaskSize) {
+												activeTaskSize.current = value as ETaskSizeName;
 											}
-											selectOptionsListClassName="w-32 h-full"
-											renderItem={(item) => (
-												<div
-													style={{ backgroundColor: item.color ?? undefined }}
-													className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
-												>
-													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-														{item.fullIconUrl && (
-															<Image
-																className="object-cover w-full h-full rounded-md"
-																src={item.fullIconUrl}
-																alt={item.name + 'icon'}
-																width={40}
-																height={40}
-															/>
-														)}
-													</div>
-													<span className=" text-xs">{item.name}</span>
-												</div>
-											)}
-											alignOptionsList="center"
-											renderValue={(value) => {
-												const item = taskSizes.find((el) => el.value == value);
-
-												return (
-													<div className="flex w-full items-center h-full  gap-2">
-														{value ? (
-															<div className="flex w-full h-full items-center gap-2 rounded-md">
-																<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-																	{item?.fullIconUrl && (
-																		<Image
-																			className="object-cover w-full h-full rounded-md"
-																			src={item.fullIconUrl}
-																			alt={item.name + 'icon'}
-																			width={30}
-																			height={30}
-																		/>
-																	)}
-																</div>
-																<span className=" text-xs">{item?.name}</span>
-															</div>
-														) : (
-															<div className="flex items-center gap-1">
-																<div className="w-4 h-4 rounded-full border"></div>
-																<p className=" text-xs text-slate-500  font-light ">
-																	Size
-																</p>
-															</div>
-														)}
-													</div>
-												);
-											}}
-										/>
-									</div>
+										}}
+										options={taskSizes.map((el) => ({
+											id: el.value,
+											value: el.name,
+											name: el.name,
+											color: el.color ?? undefined,
+											fullIconUrl: el.fullIconUrl ?? undefined
+										}))}
+									/>
 
 									<div className="w-28 h-[2rem]">
 										<Select
-											placeholder="Task labels"
+											placeholder={t('pages.taskDetails.LABELS')}
 											options={taskLabels.map((el) => ({ ...el, id: el.name, value: el.name }))}
 											selected={selectedTaskLabels}
 											onChange={(value) => {
-												setSelectedTaskLabels(value as string[]);
+												setSelectedTaskLabels(value);
 												if (activeTaskLabels) {
 													activeTaskLabels.current = Array.isArray(value)
 														? value.map(
@@ -575,7 +451,7 @@ function TaskCard({
 												}
 											}}
 											multiple
-											selecteTriggerClassName={cn(
+											selectTriggerClassName={cn(
 												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
 												selectedTaskLabels?.length
 													? ' gap-1 border px-2'
@@ -637,7 +513,7 @@ function TaskCard({
 															<div className="flex items-center gap-1">
 																<div className="w-4 h-4 rounded-full border"></div>
 																<p className=" text-xs text-slate-500  font-light ">
-																	Labels
+																	{t('pages.taskDetails.LABELS')}
 																</p>
 															</div>
 														)}
@@ -677,5 +553,83 @@ function TaskCard({
 			</>
 			<div className="w-2 h-5 opacity-0">{'|'}</div>
 		</EverCard>
+	);
+}
+
+/**
+ * Resusable single task property select component.
+ */
+interface TaskPropertySelectProps {
+	placeholder: string;
+	options: Array<{ id: string; value: string; name: string; color?: string; fullIconUrl?: string }>;
+	selected: string | undefined;
+	onChange: (value: string) => void;
+	emptyLabel: string;
+}
+
+function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLabel }: TaskPropertySelectProps) {
+	return (
+		<Select
+			placeholder={placeholder}
+			options={options}
+			selected={selected as string}
+			onChange={onChange}
+			selectTriggerClassName={cn(
+				'w-28 h-[30px] overflow-hidden py-0 rounded-md hover:bg-transparent',
+				selected ? 'gap-1 border px-2' : 'border px-2 gap-[.5rem]'
+			)}
+			selectTriggerStyles={
+				selected ? { backgroundColor: options.find((el) => el.id === selected)?.color ?? undefined } : {}
+			}
+			selectOptionsListClassName="w-32 h-full"
+			renderItem={(item) => (
+				<div
+					style={{ backgroundColor: item.color ?? undefined }}
+					className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+				>
+					<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+						{item.fullIconUrl && (
+							<Image
+								className="object-cover w-full h-full rounded-md"
+								src={item.fullIconUrl}
+								alt={item.name + 'icon'}
+								width={40}
+								height={40}
+							/>
+						)}
+					</div>
+					<span className="text-xs">{item.name}</span>
+				</div>
+			)}
+			alignOptionsList="center"
+			renderValue={(value) => {
+				const item = options.find((el) => el.id === value);
+				return (
+					<div className="flex w-full items-center h-full gap-2">
+						{value ? (
+							<div className="flex w-full h-full items-center gap-2 rounded-md">
+								<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+									{item?.fullIconUrl && (
+										<Image
+											className="object-cover w-full h-full rounded-md"
+											src={item.fullIconUrl}
+											alt={item.name + 'icon'}
+											width={30}
+											height={30}
+										/>
+									)}
+								</div>
+								<span className="text-xs">{item?.name}</span>
+							</div>
+						) : (
+							<div className="flex items-center gap-1">
+								<div className="w-4 h-4 rounded-full border"></div>
+								<p className="text-xs text-slate-500 font-light">{emptyLabel}</p>
+							</div>
+						)}
+					</div>
+				);
+			}}
+		/>
 	);
 }

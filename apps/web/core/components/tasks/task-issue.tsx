@@ -82,10 +82,9 @@ export function TaskIssuesDropdown({
 				options={items.map((el) => ({ ...el, id: el.name }))}
 				selected={value}
 				onChange={(value) => {
-					console.log(value);
 					onValueChange?.(value as EIssueType);
 				}}
-				selecteTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
+				selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
 				selectOptionsListClassName="w-full h-full"
 				renderItem={(item) => (
 					<div className="flex items-center gap-2">

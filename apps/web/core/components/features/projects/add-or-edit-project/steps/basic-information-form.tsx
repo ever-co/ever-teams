@@ -528,15 +528,18 @@ export interface Identifiable {
 	id: string;
 	value: string | number;
 }
-interface ISelectProps<IItem> {
+
+type OnChange<IsMulti extends boolean> = IsMulti extends true ? (value: string[]) => void : (value: string) => void;
+
+interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
 	options: IItem[];
 	selected: string | string[] | null;
 	placeholder?: string;
-	selecteTriggerClassName?: string;
+	selectTriggerClassName?: string;
 	selectTriggerStyles?: CSSProperties;
 	selectOptionsListClassName?: string;
-	onChange?: (value: string | string[]) => void;
-	multiple?: boolean;
+	multiple?: IsMulti;
+	onChange?: OnChange<IsMulti>;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
 	renderValue?: (value: string | string[] | null) => React.ReactNode;
 	searchEnabled?: boolean;
@@ -567,11 +570,11 @@ interface ISelectProps<IItem> {
  * @param props - Select component props with full backward compatibility
  * @returns Optimized Select component maintaining 100% API compatibility
  */
-function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
+function SelectComponent<T extends Identifiable, IsMulti extends boolean = false>(props: ISelectProps<T, IsMulti>) {
 	const {
 		options,
 		placeholder,
-		selecteTriggerClassName,
+		selectTriggerClassName,
 		selectTriggerStyles,
 		selected,
 		onChange,
@@ -718,7 +721,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 						role="combobox"
 						className={cn(
 							'flex justify-between items-center px-3 py-2 w-full h-10 text-sm text-left rounded-lg border dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
-							selecteTriggerClassName
+							selectTriggerClassName
 						)}
 					>
 						{renderValue ? (

@@ -248,7 +248,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 			<div className="w-full">
 				<Select
 					placeholder={keysLabel}
-					selecteTriggerClassName="w-full"
+					selectTriggerClassName="w-full"
 					options={keys}
 					onChange={(keyId) => {
 						onKeyChange?.(id, keyId as string);
@@ -282,7 +282,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 			<div className="w-full">
 				<Select
 					placeholder={valuesLabel}
-					selecteTriggerClassName="w-full"
+					selectTriggerClassName="w-full"
 					options={values}
 					onChange={(valueId) => {
 						onValueChange?.(id, valueId as string);
