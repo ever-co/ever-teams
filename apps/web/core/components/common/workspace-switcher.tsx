@@ -72,13 +72,19 @@ export function WorkspacesSwitcher() {
 			return (
 				<>
 					<div className="flex justify-center items-center rounded-lg aspect-square size-8 bg-sidebar-primary text-sidebar-primary-foreground">
-						<Image
-							src={activeWorkspace.logo}
-							alt={activeWorkspace.name}
-							className="rounded size-4"
-							width={25}
-							height={26}
-						/>
+						{activeWorkspace.logo || activeWorkspace.name ? (
+							<Avatar className="rounded size-6">
+								<AvatarImage
+									width={25}
+									height={25}
+									src={activeWorkspace.logo}
+									alt={activeWorkspace.name}
+								/>
+								<AvatarFallback>{activeWorkspace.name.charAt(0)}</AvatarFallback>
+							</Avatar>
+						) : (
+							<DefaultWorkspaceIcon className="size-4" />
+						)}
 					</div>
 					<div className="grid flex-1 text-sm leading-tight text-left">
 						<span className="font-semibold truncate">{activeWorkspace.name}</span>

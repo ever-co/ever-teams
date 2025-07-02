@@ -47,6 +47,8 @@ export function useWorkspaces() {
 			try {
 				const result = await workspaceService.getUserWorkspaces(user);
 				console.log('result Workspaces', result);
+				console.log('result Workspaces length:', result.length);
+				console.log('result Workspaces type:', typeof result);
 				return result;
 			} catch (err: any) {
 				setError(err.message || 'Error retrieving workspaces');
@@ -65,12 +67,15 @@ export function useWorkspaces() {
 
 	// Update the store when the data changes
 	useEffect(() => {
+		console.log('useWorkspaces effect - workspacesQuery.data:', workspacesQuery.data);
 		if (workspacesQuery.data) {
+			console.log('Setting workspaces in store:', workspacesQuery.data);
 			setWorkspaces(workspacesQuery.data);
 
 			// If no active workspace is defined, take the first one
 			if (!activeWorkspaceId && workspacesQuery.data.length > 0) {
 				const activeWorkspace = workspacesQuery.data.find((w) => w.isActive) || workspacesQuery.data[0];
+				console.log('Setting active workspace:', activeWorkspace.id);
 				setActiveWorkspaceId(activeWorkspace.id);
 			}
 
@@ -80,6 +85,14 @@ export function useWorkspaces() {
 
 	// Update the loading state
 	useEffect(() => {
+		console.log('useWorkspaces loading state - isFetching:', workspacesQuery.isFetching);
+		console.log('useWorkspaces query state:', {
+			isLoading: workspacesQuery.isLoading,
+			isFetching: workspacesQuery.isFetching,
+			isError: workspacesQuery.isError,
+			error: workspacesQuery.error,
+			data: workspacesQuery.data
+		});
 		setIsLoading(workspacesQuery.isFetching);
 	}, [workspacesQuery.isFetching, setIsLoading]);
 

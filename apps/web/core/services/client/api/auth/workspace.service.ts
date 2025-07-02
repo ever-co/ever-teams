@@ -13,6 +13,9 @@ import { TUser } from '@/core/types/schemas/user/user.schema';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeam, TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { AxiosResponse } from 'axios';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
+import { TOrganization } from '@/core/types/schemas';
 
 /**
  * Service for workspace management
@@ -20,7 +23,7 @@ import { AxiosResponse } from 'axios';
 class WorkspaceService extends APIService {
 	/**
 	 * Retrieves all available workspaces for the authenticated user
-	 * Leverages existing authentication data and supplements with team information
+	 * Uses the same approach as the authentication flow to get multiple workspaces
 	 */
 	getUserWorkspaces = async (user: TUser | null): Promise<TWorkspace[]> => {
 		try {
@@ -30,57 +33,65 @@ class WorkspaceService extends APIService {
 			if (!accessToken || !userId) {
 				throw new Error('User not authenticated');
 			}
+
 			const tenantId = user.tenantId;
-
-			// Get user data for tenant information
-
 			if (!tenantId) {
 				throw new Error('Incomplete user data - missing tenant');
 			}
 
-			// Use the same service that the authentication flow uses
-			// This gets ALL organizations where the user is a member (owned + invited)
-			const userOrganizations = await userOrganizationService.getUserOrganizations({
-				tenantId,
-				userId,
-				token: accessToken
-			});
+			// Use the same approach as authentication flow
+			// Get ALL organizations where the user is a member (owned + invited)
+
+			// Create a new instance of URLSearchParams for query string construction
+			const query = new URLSearchParams();
+
+			// Add user and tenant IDs to the query
+			query.append('where[userId]', userId);
+			query.append('where[tenantId]', tenantId);
+
+			const userOrganizations = await this.get<PaginationResponse<TOrganization>>(
+				`/organization?${query.toString()}`
+			);
+
+			console.log('userOrganizations', userOrganizations);
+			console.log('userOrganizations.data?.items', userOrganizations.data?.items);
 
 			if (!userOrganizations.data?.items?.length) {
+				console.log('No user organizations found, returning empty array');
 				return [];
 			}
 
-			// Convert each user organization to a workspace
 			const workspaces: TWorkspace[] = [];
-			const organizationId = userOrganizations.data?.items?.[0]?.organizationId;
-			if (!organizationId) {
-				return [];
-			}
-			// Get teams for this organization
-			const organizationTeams = await this.getAllOrganizationTeamRequest(organizationId, tenantId);
-			console.log('organizationTeams', organizationTeams);
 
-			if (!organizationTeams.data?.length) {
-				return [];
-			}
+			// Process each organization as a potential workspace
+			for (const organization of userOrganizations.data.items) {
+				const orgId = organization.organizationId;
+				if (!orgId) continue;
 
-			// Each item in organizationTeams.data is a distinct workspace
-			// Convert each team/workspace to a workspace object
-			organizationTeams.data.forEach((team: any, index: number) => {
-				// For now, let's mark the first workspace as active
-				// In a real scenario, this would be determined by user's current context
-				const isActive = index === 0; // Temporary logic - mark first as active
+				try {
+					// Get teams for this organization
+					const organizationTeams = await this.getAllOrganizationTeamRequest(orgId, tenantId);
+					console.log(`Teams for organization ${orgId}:`, organizationTeams);
 
-				const workspace: TWorkspace = {
-					id: team.id, // Use team ID as workspace ID since each team is a workspace
-					name: team.name, // Use team name as workspace name
-					logo: team.logo || '',
-					plan: 'Free',
-					token: accessToken,
-					isActive,
-					isDefault: isActive,
-					teams: [
-						{
+					const teamsData = organizationTeams.data as any;
+					if (!teamsData?.items?.length) {
+						console.log(`No teams found for organization ${orgId}`);
+						continue;
+					}
+
+					// Create workspace for this organization
+					const isActive = workspaces.length === 0; // Mark first workspace as active
+					const primaryTeam = teamsData.items[0];
+
+					const workspace: TWorkspace = {
+						id: orgId, // Use organization ID as workspace ID
+						name: organization.name || primaryTeam.name || 'Workspace',
+						logo: organization.imageUrl || primaryTeam.logo || '',
+						plan: 'Free',
+						token: accessToken,
+						isActive,
+						isDefault: isActive,
+						teams: teamsData.items.map((team: any) => ({
 							id: team.id,
 							name: team.name,
 							logo: team.logo,
@@ -92,23 +103,35 @@ class WorkspaceService extends APIService {
 							managers: team.managers || [],
 							projects: team.projects || [],
 							tasks: team.tasks || []
-						}
-					], // Each workspace contains the team data matching teamSchema
-					organization: {
-						id: team.organizationId,
-						name: team.name,
-						imageUrl: team.logo,
-						tenantId: tenantId,
-						isDefault: user?.employee?.organizationId === team.organizationId,
-						organizationId: team.organizationId || '',
-						organizationName: team.name
-					},
-					organizationTeams: [team] // Store the original team data
-				};
+						})), // All teams in this workspace
+						organization: {
+							id: orgId,
+							name: organization.organization?.name || primaryTeam.name,
+							imageUrl: organization.organization?.imageUrl || primaryTeam.logo,
+							tenantId: tenantId,
+							isDefault: organization.isDefault || false,
+							organizationId: orgId,
+							organizationName: organization.organization?.name || primaryTeam.name
+						},
+						organizationTeams: teamsData.items // Store all original team data
+					};
 
-				workspaces.push(workspace);
-			});
+					workspaces.push(workspace);
+					console.log(
+						'Added workspace:',
+						workspace.name,
+						'with',
+						workspace.teams.length,
+						'teams. Total workspaces:',
+						workspaces.length
+					);
+				} catch (error) {
+					console.error(`Error fetching teams for organization ${orgId}:`, error);
+					// Continue with other organizations
+				}
+			}
 
+			console.log('Final workspaces array:', workspaces);
 			return workspaces;
 		} catch (error) {
 			console.error('Error retrieving workspaces:', error);
