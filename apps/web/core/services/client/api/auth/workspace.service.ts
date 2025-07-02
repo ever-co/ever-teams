@@ -16,6 +16,7 @@ import { AxiosResponse } from 'axios';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { TOrganization } from '@/core/types/schemas';
+import QueryString from 'qs';
 
 /**
  * Service for workspace management
@@ -43,21 +44,27 @@ class WorkspaceService extends APIService {
 			// Get ALL organizations where the user is a member (owned + invited)
 
 			// Create a new instance of URLSearchParams for query string construction
-			const query = new URLSearchParams();
-
-			// Add user and tenant IDs to the query
-			query.append('where[userId]', userId);
-			query.append('where[tenantId]', tenantId);
-
-			const userOrganizations = await this.get<PaginationResponse<TOrganization>>(
-				`/organization?${query.toString()}`
+			const query = QueryString.stringify({
+				relations: [
+					'organization',
+					'user',
+					'organization.tags',
+					'organization.contact',
+					'organization.employees',
+					'organization.featureOrganizations',
+					'organization.featureOrganizations.feature'
+				],
+				where: {
+					userId,
+					tenantId
+				},
+				includeEmployee: true
+			});
+			const userOrganizations = await this.get<PaginationResponse<TOrganizationTeam>>(
+				`/user-organization?${query}`
 			);
 
-			console.log('userOrganizations', userOrganizations);
-			console.log('userOrganizations.data?.items', userOrganizations.data?.items);
-
 			if (!userOrganizations.data?.items?.length) {
-				console.log('No user organizations found, returning empty array');
 				return [];
 			}
 
@@ -71,7 +78,6 @@ class WorkspaceService extends APIService {
 				try {
 					// Get teams for this organization
 					const organizationTeams = await this.getAllOrganizationTeamRequest(orgId, tenantId);
-					console.log(`Teams for organization ${orgId}:`, organizationTeams);
 
 					const teamsData = organizationTeams.data as any;
 					if (!teamsData?.items?.length) {
@@ -85,7 +91,7 @@ class WorkspaceService extends APIService {
 
 					const workspace: TWorkspace = {
 						id: orgId, // Use organization ID as workspace ID
-						name: organization.name || primaryTeam.name || 'Workspace',
+						name: organization.organization?.name || primaryTeam.name || 'Workspace',
 						logo: organization.imageUrl || primaryTeam.logo || '',
 						plan: 'Free',
 						token: accessToken,
@@ -109,7 +115,7 @@ class WorkspaceService extends APIService {
 							name: organization.organization?.name || primaryTeam.name,
 							imageUrl: organization.organization?.imageUrl || primaryTeam.logo,
 							tenantId: tenantId,
-							isDefault: organization.isDefault || false,
+							isDefault: organization.organization?.isDefault || false,
 							organizationId: orgId,
 							organizationName: organization.organization?.name || primaryTeam.name
 						},

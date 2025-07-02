@@ -68,7 +68,7 @@ function AuthPasscode() {
 			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500 mb-4')}>
+				<div className={clsxm('flex flex-row mb-4 duration-500 transition-[transform]')}>
 					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
@@ -102,8 +102,8 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
-					<Text.Heading as="h3" className="text-center mb-7">
+				<div className="flex flex-col justify-between items-center">
+					<Text.Heading as="h3" className="mb-7 text-center">
 						{t('pages.auth.ENTER_EMAIL')}
 					</Text.Heading>
 
@@ -121,16 +121,16 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="flex items-center justify-between w-full mt-6">
-						<div className="flex flex-col items-start gap-2">
-							<div className="flex items-center justify-start gap-2 text-sm">
+					<div className="flex justify-between items-center mt-6 w-full">
+						<div className="flex flex-col gap-2 items-start">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
 								<Link href="/auth/password" className="text-primary dark:text-primary-light">
 									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
 								</Link>
 							</div>
 
-							<div className="flex items-center justify-start gap-2 text-sm">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
 								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>
@@ -201,13 +201,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	return (
 		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.auth.LOGIN')}
 					</Text.Heading>
 
 					{/* Auth code input */}
-					<div className="w-full mt-5">
+					<div className="mt-5 w-full">
 						<div className="flex justify-between">
 							<Text className="text-xs font-normal text-gray-400">
 								{t('pages.auth.INPUT_INVITE_CODE')}
@@ -240,13 +240,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
 						{form.status === 'error' && (form.errors['code'] || form.errors['email']) && (
-							<Text.Error className="self-start justify-self-start">
+							<Text.Error className="justify-self-start self-start">
 								{form.errors['code'] || form.errors['email']}
 							</Text.Error>
 						)}
 					</div>
 
-					<div className="flex justify-between w-full mt-10">
+					<div className="flex justify-between mt-10 w-full">
 						{/* Send code */}
 						<div className="flex flex-col space-y-2">
 							<div className="flex flex-row items-center mb-1 space-x-2">
@@ -269,7 +269,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 												{t('pages.auth.RESEND_CODE')}
 											</span>
 										) : (
-											<span className=" dark:text-primary-light">
+											<span className="dark:text-primary-light">
 												{t('pages.auth.RESEND_CODE_IN')} {formatTime(timer)}
 											</span>
 										)}
@@ -427,12 +427,12 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			autoComplete="off"
 		>
 			<EverCard className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between gap-8">
+				<div className="flex flex-col gap-8 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-					<ScrollArea className="relative w-full h-64 pr-2 ">
-						<div className="flex flex-col gap-y-4 ">
+					<ScrollArea className="relative pr-2 w-full h-64">
+						<div className="flex flex-col gap-y-4">
 							{props.workspaces
 								?.filter((workspace) => workspace && workspace.user)
 								.map((worksace, index) => (
@@ -448,7 +448,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											<div className="flex justify-between">
 												<div
 													onClick={() => setExpandedWorkspace(index)}
-													className="flex items-center justify-center gap-1 cursor-pointer"
+													className="flex gap-1 justify-center items-center cursor-pointer"
 												>
 													<span>
 														{worksace.user.tenant?.name ||
@@ -497,7 +497,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 															key={`${index}-${team.team_id}`}
 															className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 														>
-															<span className="flex items-center justify-between gap-4">
+															<span className="flex gap-4 justify-between items-center">
 																<Avatar
 																	imageTitle={team.team_name}
 																	size={34}
@@ -534,7 +534,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						</div>
 						<ScrollBar className="-pr-20" />
 					</ScrollArea>
-					<div className="flex items-center justify-between w-full">
+					<div className="flex justify-between items-center w-full">
 						<div className="flex flex-col space-y-2">
 							<div>
 								<BackButton onClick={props.onBackButtonClick} />
