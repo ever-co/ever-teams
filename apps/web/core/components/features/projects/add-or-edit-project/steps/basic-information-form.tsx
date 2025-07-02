@@ -530,10 +530,11 @@ export interface Identifiable {
 }
 
 type OnChange<IsMulti extends boolean> = IsMulti extends true ? (value: string[]) => void : (value: string) => void;
+type Selected<IsMulti extends boolean> = IsMulti extends true ? string[] : string | null;
 
 interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
 	options: IItem[];
-	selected: string | string[] | null;
+	selected: Selected<IsMulti>;
 	placeholder?: string;
 	selectTriggerClassName?: string;
 	selectTriggerStyles?: CSSProperties;
@@ -541,7 +542,7 @@ interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
 	multiple?: IsMulti;
 	onChange?: OnChange<IsMulti>;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
-	renderValue?: (value: string | string[] | null) => React.ReactNode;
+	renderValue?: (value: Selected<IsMulti>) => React.ReactNode;
 	searchEnabled?: boolean;
 	onCreate?: (newTerm: string) => void;
 	createLoading?: boolean;

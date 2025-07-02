@@ -99,8 +99,7 @@ export function TaskInputKanban(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter,
-		taskIssue
+		setFilter
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
@@ -295,7 +294,6 @@ export function TaskInputKanban(props: Props) {
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
 						onValueChange={(v: any) => setTaskIssue(v)}
-						value={taskIssue}
 					/>
 				</div>
 			}
@@ -375,6 +373,119 @@ function TaskCard({
 	);
 	const [selectedTaskLabels, setSelectedTaskLabels] = useState(activeTaskLabels?.current.map((el) => el.name) ?? []);
 
+	/**
+	 * Memoize select props to prevent unnecessary re-renders.
+	 */
+
+	const taskPrioritiesOptions = useMemo(() => {
+		return taskPriorities.map((el) => ({
+			id: el.value,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskPriorities]);
+
+	const taskSizesOptions = useMemo(() => {
+		return taskSizes.map((el) => ({
+			id: el.value,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskSizes]);
+
+	const taskLabelsOptions = useMemo(() => {
+		return taskLabels.map((el) => ({
+			id: el.name,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskLabels]);
+
+	const handleTaskPriorityChange = useCallback((value: string) => {
+		setTaskPriority(value as ETaskPriority);
+		if (activeTaskPriority) {
+			activeTaskPriority.current = value as ETaskPriority;
+		}
+	}, []);
+
+	const handleTaskSizeChange = useCallback((value: string) => {
+		setTaskSize(value as ETaskSizeName);
+		if (activeTaskSize) {
+			activeTaskSize.current = value as ETaskSizeName;
+		}
+	}, []);
+
+	const handleTaskLabelsChange = useCallback(
+		(value: string[]) => {
+			setSelectedTaskLabels(value);
+			if (activeTaskLabels) {
+				activeTaskLabels.current = value.map((el) => taskLabels.find((item) => item.name === el) as TTag);
+			}
+		},
+		[taskLabels, activeTaskLabels]
+	);
+
+	const labelSelectRenderItem = useCallback(
+		(item: (typeof taskLabelsOptions)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md relative"
+			>
+				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={40}
+							height={40}
+						/>
+					)}
+				</div>
+				<span style={{ color: getTextColor(item.color ?? 'white') }} className=" text-xs">
+					{item.name}
+				</span>
+				{selectedTaskLabels?.includes(item.name) && (
+					<div
+						onClick={() => setSelectedTaskLabels(selectedTaskLabels.filter((el) => el !== item.name))}
+						className="flex absolute items-center right-1 top-1/2 -translate-y-1/2 justify-center"
+					>
+						<X size={10} />
+					</div>
+				)}
+			</div>
+		),
+		[selectedTaskLabels, setSelectedTaskLabels]
+	);
+
+	const labelSelectRenderValue = useCallback(() => {
+		return (
+			<div className="flex w-full items-center h-full  gap-2">
+				{selectedTaskLabels.length ? (
+					<div
+						className={cn(
+							'flex w-full h-full items-center gap-2 rounded-md',
+							selectedTaskLabels.length > 0 ? '' : 'text-slate-500 '
+						)}
+					>
+						<span className=" text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
+					</div>
+				) : (
+					<div className="flex items-center gap-1">
+						<div className="w-4 h-4 rounded-full border"></div>
+						<p className=" text-xs text-slate-500  font-light ">{t('pages.taskDetails.LABELS')}</p>
+					</div>
+				)}
+			</div>
+		);
+	}, [selectedTaskLabels, t]);
+
 	return (
 		<EverCard shadow="custom">
 			<>
@@ -400,56 +511,24 @@ function TaskCard({
 										placeholder={t('pages.taskDetails.PRIORITY')}
 										emptyLabel={t('pages.taskDetails.PRIORITY')}
 										selected={taskPriority}
-										onChange={(value) => {
-											setTaskPriority(value as ETaskPriority);
-											if (activeTaskPriority) {
-												activeTaskPriority.current = value as ETaskPriority;
-											}
-										}}
-										options={taskPriorities.map((el) => ({
-											id: el.value,
-											value: el.name,
-											name: el.name,
-											color: el.color ?? undefined,
-											fullIconUrl: el.fullIconUrl ?? undefined
-										}))}
+										onChange={handleTaskPriorityChange}
+										options={taskPrioritiesOptions}
 									/>
 
 									<TaskPropertySelect
 										placeholder={t('pages.taskDetails.SIZE')}
 										emptyLabel={t('pages.taskDetails.SIZE')}
 										selected={taskSize}
-										onChange={(value) => {
-											setTaskSize(value as ETaskSizeName);
-											if (activeTaskSize) {
-												activeTaskSize.current = value as ETaskSizeName;
-											}
-										}}
-										options={taskSizes.map((el) => ({
-											id: el.value,
-											value: el.name,
-											name: el.name,
-											color: el.color ?? undefined,
-											fullIconUrl: el.fullIconUrl ?? undefined
-										}))}
+										onChange={handleTaskSizeChange}
+										options={taskSizesOptions}
 									/>
 
 									<div className="w-28 h-[2rem]">
 										<Select
 											placeholder={t('pages.taskDetails.LABELS')}
-											options={taskLabels.map((el) => ({ ...el, id: el.name, value: el.name }))}
+											options={taskLabelsOptions}
 											selected={selectedTaskLabels}
-											onChange={(value) => {
-												setSelectedTaskLabels(value);
-												if (activeTaskLabels) {
-													activeTaskLabels.current = Array.isArray(value)
-														? value.map(
-																(el) =>
-																	taskLabels.find((item) => item.name === el) as TTag
-															)
-														: [];
-												}
-											}}
+											onChange={handleTaskLabelsChange}
 											multiple
 											selectTriggerClassName={cn(
 												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
@@ -458,68 +537,9 @@ function TaskCard({
 													: 'border px-2  gap-[.5rem]'
 											)}
 											selectOptionsListClassName="w-32 h-full"
-											renderItem={(item) => (
-												<div
-													style={{ backgroundColor: item.color ?? undefined }}
-													className="flex w-full items-center gap-2 py-1 px-2 rounded-md relative"
-												>
-													<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-														{item.fullIconUrl && (
-															<Image
-																className="object-cover w-full h-full rounded-md"
-																src={item.fullIconUrl}
-																alt={item.name + 'icon'}
-																width={40}
-																height={40}
-															/>
-														)}
-													</div>
-													<span
-														style={{ color: getTextColor(item.color ?? 'white') }}
-														className=" text-xs"
-													>
-														{item.name}
-													</span>
-													{selectedTaskLabels?.includes(item.name) && (
-														<div
-															onClick={() =>
-																setSelectedTaskLabels(
-																	selectedTaskLabels.filter((el) => el !== item.name)
-																)
-															}
-															className="flex absolute items-center right-1 top-1/2 -translate-y-1/2 justify-center"
-														>
-															<X size={10} />
-														</div>
-													)}
-												</div>
-											)}
+											renderItem={labelSelectRenderItem}
 											alignOptionsList="center"
-											renderValue={(value) => {
-												return (
-													<div className="flex w-full items-center h-full  gap-2">
-														{selectedTaskLabels.length ? (
-															<div
-																className={cn(
-																	'flex w-full h-full items-center gap-2 rounded-md',
-																	selectedTaskLabels.length > 0
-																		? ''
-																		: 'text-slate-500 '
-																)}
-															>
-																<span className=" text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
-															</div>
-														) : (
-															<div className="flex items-center gap-1">
-																<div className="w-4 h-4 rounded-full border"></div>
-																<p className=" text-xs text-slate-500  font-light ">
-																	{t('pages.taskDetails.LABELS')}
-																</p>
-															</div>
-														)}
-													</div>
-												);
-											}}
+											renderValue={labelSelectRenderValue}
 										/>
 									</div>
 								</div>
@@ -557,7 +577,7 @@ function TaskCard({
 }
 
 /**
- * Resusable single task property select component.
+ * Reusable single task property select component.
  */
 interface TaskPropertySelectProps {
 	placeholder: string;
@@ -567,7 +587,69 @@ interface TaskPropertySelectProps {
 	emptyLabel: string;
 }
 
-function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLabel }: TaskPropertySelectProps) {
+export function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLabel }: TaskPropertySelectProps) {
+	/**
+	 * Memoize props to prevent unnecessary re-renders.
+	 */
+
+	const activeOptionStyle = useMemo(() => {
+		return selected ? { backgroundColor: options.find((el) => el.id === selected)?.color ?? undefined } : {};
+	}, [selected]);
+
+	const renderItem = useCallback(
+		(item: (typeof options)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+			>
+				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={40}
+							height={40}
+						/>
+					)}
+				</div>
+				<span className="text-xs">{item.name}</span>
+			</div>
+		),
+		[]
+	);
+
+	const renderValue = useCallback(
+		(value: string | null) => {
+			const item = options.find((el) => el.id === value);
+			return (
+				<div className="flex w-full items-center h-full gap-2">
+					{value ? (
+						<div className="flex w-full h-full items-center gap-2 rounded-md">
+							<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+								{item?.fullIconUrl && (
+									<Image
+										className="object-cover w-full h-full rounded-md"
+										src={item.fullIconUrl}
+										alt={item.name + 'icon'}
+										width={30}
+										height={30}
+									/>
+								)}
+							</div>
+							<span className="text-xs">{item?.name}</span>
+						</div>
+					) : (
+						<div className="flex items-center gap-1">
+							<div className="w-4 h-4 rounded-full border"></div>
+							<p className="text-xs text-slate-500 font-light">{emptyLabel}</p>
+						</div>
+					)}
+				</div>
+			);
+		},
+		[options, emptyLabel]
+	);
 	return (
 		<Select
 			placeholder={placeholder}
@@ -578,58 +660,11 @@ function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLab
 				'w-28 h-[30px] overflow-hidden py-0 rounded-md hover:bg-transparent',
 				selected ? 'gap-1 border px-2' : 'border px-2 gap-[.5rem]'
 			)}
-			selectTriggerStyles={
-				selected ? { backgroundColor: options.find((el) => el.id === selected)?.color ?? undefined } : {}
-			}
+			selectTriggerStyles={activeOptionStyle}
 			selectOptionsListClassName="w-32 h-full"
-			renderItem={(item) => (
-				<div
-					style={{ backgroundColor: item.color ?? undefined }}
-					className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
-				>
-					<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-						{item.fullIconUrl && (
-							<Image
-								className="object-cover w-full h-full rounded-md"
-								src={item.fullIconUrl}
-								alt={item.name + 'icon'}
-								width={40}
-								height={40}
-							/>
-						)}
-					</div>
-					<span className="text-xs">{item.name}</span>
-				</div>
-			)}
+			renderItem={renderItem}
 			alignOptionsList="center"
-			renderValue={(value) => {
-				const item = options.find((el) => el.id === value);
-				return (
-					<div className="flex w-full items-center h-full gap-2">
-						{value ? (
-							<div className="flex w-full h-full items-center gap-2 rounded-md">
-								<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-									{item?.fullIconUrl && (
-										<Image
-											className="object-cover w-full h-full rounded-md"
-											src={item.fullIconUrl}
-											alt={item.name + 'icon'}
-											width={30}
-											height={30}
-										/>
-									)}
-								</div>
-								<span className="text-xs">{item?.name}</span>
-							</div>
-						) : (
-							<div className="flex items-center gap-1">
-								<div className="w-4 h-4 rounded-full border"></div>
-								<p className="text-xs text-slate-500 font-light">{emptyLabel}</p>
-							</div>
-						)}
-					</div>
-				);
-			}}
+			renderValue={renderValue}
 		/>
 	);
 }

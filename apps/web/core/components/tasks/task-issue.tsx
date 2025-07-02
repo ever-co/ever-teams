@@ -1,4 +1,4 @@
-import { useModal, useStatusValue } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -12,7 +12,7 @@ import {
 	useActiveTaskStatus
 } from './task-status';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
@@ -21,6 +21,9 @@ import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
+import { useAtomValue } from 'jotai';
+import { issueTypesListState } from '@/core/stores';
+import Image from 'next/image';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<EIssueType> = {
@@ -61,60 +64,95 @@ export function TaskIssuesDropdown({
 	defaultValue,
 	onValueChange,
 	showIssueLabels = true,
-	taskStatusClassName,
-	value
+	taskStatusClassName
 }: TTaskVersionsDropdown<'issueType'> & {
 	showIssueLabels?: boolean;
 	taskStatusClassName?: string;
-	value: string;
 }) {
 	const { isOpen, closeModal } = useModal();
-	const { items } = useStatusValue<'issueType'>({
-		status: taskIssues,
-		value: defaultValue
-	});
+	const taskIssues = useAtomValue(issueTypesListState);
+	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
+	/**
+	 * Memoize props to prevent unnecessary re-renders.
+	 */
+
+	const taskIssuesOptions = useMemo(() => {
+		return taskIssues.map((el) => ({ ...el, id: el.name }));
+	}, [taskIssues]);
+
+	const renderItem = useCallback(
+		(item: (typeof taskIssuesOptions)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+			>
+				<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={30}
+							height={30}
+						/>
+					)}
+				</div>
+				<span className="text-xs">{item.name}</span>
+			</div>
+		),
+		[]
+	);
+
+	const renderValue = useCallback((value: string | null) => {
+		const item = taskIssuesOptions.find((el) => el.name == value);
+		return value ? (
+			<div className="flex items-center gap-2">
+				<div
+					style={{
+						backgroundColor: item?.color ?? undefined
+					}}
+					className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
+				>
+					<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+						{item?.fullIconUrl && (
+							<Image
+								className="object-cover w-full h-full rounded-md"
+								src={item?.fullIconUrl}
+								alt={item?.name + 'icon'}
+								width={30}
+								height={30}
+							/>
+						)}
+					</div>
+				</div>
+			</div>
+		) : (
+			<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
+				<div className="w-full border border-black/40 h-full rounded-full"></div>
+			</div>
+		);
+	}, []);
+
+	const handleTaskIssueChange = useCallback(
+		(value: string) => {
+			onValueChange?.(value as EIssueType);
+			setTaskIssueType(value as EIssueType);
+		},
+		[onValueChange]
+	);
 
 	return (
 		<>
 			<Select
 				placeholder="Issue Type"
 				showChevronDownIcon={false}
-				options={items.map((el) => ({ ...el, id: el.name }))}
-				selected={value}
-				onChange={(value) => {
-					onValueChange?.(value as EIssueType);
-				}}
+				options={taskIssuesOptions}
+				selected={taskIssueType}
+				onChange={handleTaskIssueChange}
 				selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
 				selectOptionsListClassName="w-full h-full"
-				renderItem={(item) => (
-					<div className="flex items-center gap-2">
-						<div
-							style={{ backgroundColor: item.bgColor ?? undefined }}
-							className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
-						>
-							{item.icon}
-						</div>
-						<span>{item.name}</span>
-					</div>
-				)}
-				renderValue={(value) =>
-					value ? (
-						<div className="flex items-center gap-2">
-							<div
-								style={{
-									backgroundColor: items.find((el) => el.name == value)?.bgColor ?? undefined
-								}}
-								className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
-							>
-								{items.find((el) => el.name == value)?.icon}
-							</div>
-						</div>
-					) : (
-						<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
-							<div className="w-full border border-black/40 h-full rounded-full"></div>
-						</div>
-					)
-				}
+				renderItem={renderItem}
+				renderValue={renderValue}
 			/>
 
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />

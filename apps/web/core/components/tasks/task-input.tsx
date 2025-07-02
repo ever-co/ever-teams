@@ -116,7 +116,6 @@ export function TaskInput(props: Props) {
 	const {
 		inputTask,
 		setTaskIssue,
-		taskIssue,
 		editMode,
 		setEditMode,
 		setQuery,
@@ -378,7 +377,6 @@ export function TaskInput(props: Props) {
 						<TaskIssuesDropdown
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
-							value={taskIssue}
 							onValueChange={(v: any) => setTaskIssue(v)}
 							defaultValue={
 								defaultIssueType
