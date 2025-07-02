@@ -108,9 +108,6 @@ export function useOrganizationEmployeeTeams() {
 			await queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
-
-			// Preserve original behavior - call loadTeamsData
-			await loadTeamsData();
 		},
 		onError: (error) => {
 			toast.error('Failed to update employee active task:', { description: error.message });

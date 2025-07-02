@@ -393,7 +393,7 @@ export const queryKeys = {
 
 	// Keys related to Timer activities and limits
 	timer: {
-		all: ['timer'] as const,
+		timer: ['timer'] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>

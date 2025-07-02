@@ -29,6 +29,9 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { TUser } from '@/core/types/schemas/user/user.schema';
+import { queryKeys } from '@/core/query/keys';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -162,17 +165,37 @@ export function useTimer() {
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
+	const queryClient = useQueryClient();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQueryCall(timerService.getTimerStatus);
-	const { queryCall: toggleQueryCall } = useQueryCall(timerService.toggleTimer);
-	const { queryCall: startTimerQueryCall } = useQueryCall(timerService.startTimer);
-	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQueryCall(timerService.stopTimer);
-	const {
-		queryCall: syncTimerQueryCall,
-		loading: syncTimerLoading,
-		loadingRef: syncTimerLoadingRef
-	} = useQueryCall(timerService.syncTimer);
+	const { queryCall, loading, loadingRef } = useQueryCall(async (tenantId: string, organizationId: string) =>
+		queryClient.fetchQuery({
+			queryKey: queryKeys.timer.timer,
+			queryFn: () => timerService.getTimerStatus(tenantId, organizationId)
+		})
+	);
+
+	const toggleTimerMutation = useMutation({
+		mutationFn: async (taskId: string) => {
+			return await timerService.toggleTimer({ taskId });
+		}
+	});
+
+	const stopTimerMutation = useMutation({
+		mutationFn: async (source: ETimeLogSource) => {
+			return await timerService.stopTimer(source);
+		}
+	});
+
+	const startTimerMutation = useMutation({
+		mutationFn: timerService.startTimer
+	});
+
+	const syncTimerMutation = useMutation({
+		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
+			await timerService.syncTimer(data.source, data.user);
+		}
+	});
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -247,26 +270,26 @@ export function useTimer() {
 
 	const toggleTimer = useCallback(
 		(taskId: string, updateStore = true) => {
-			return toggleQueryCall({
-				taskId
-			}).then((res) => {
+			return toggleTimerMutation.mutateAsync(taskId).then((res) => {
 				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus(res.data);
 				}
 				return res;
 			});
 		},
-		[timerStatus, toggleQueryCall, setTimerStatus]
+		[timerStatus, toggleTimerMutation, setTimerStatus]
 	);
 
 	const syncTimer = useCallback(() => {
-		if (syncTimerLoading || syncTimerLoadingRef.current) {
+		if (syncTimerMutation.isPending) {
 			return;
 		}
-		return syncTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, $user.current).then((res) => {
-			return res;
-		});
-	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef, $user]);
+		return syncTimerMutation
+			.mutateAsync({ source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, user: $user.current })
+			.then((res) => {
+				return res;
+			});
+	}, [syncTimerMutation, timerStatus]);
 
 	// Loading states
 	useEffect(() => {
@@ -276,8 +299,8 @@ export function useTimer() {
 	}, [loading, firstLoad, setTimerStatusFetching]);
 
 	useEffect(() => {
-		setTimerStatusFetching(stopTimerLoading);
-	}, [stopTimerLoading, setTimerStatusFetching]);
+		setTimerStatusFetching(stopTimerMutation.isPending);
+	}, [stopTimerMutation.isPending, setTimerStatusFetching]);
 
 	// Start timer
 	const startTimer = useCallback(async () => {
@@ -290,7 +313,7 @@ export function useTimer() {
 		});
 
 		setTimerStatusFetching(true);
-		const promise = startTimerQueryCall().then((res) => {
+		const promise = startTimerMutation.mutateAsync().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 			return;
 		});
@@ -343,7 +366,7 @@ export function useTimer() {
 		taskId,
 		updateLocalTimerStatus,
 		setTimerStatusFetching,
-		startTimerQueryCall,
+		startTimerMutation,
 		activeTeamTaskRef,
 		timerStatus,
 		setTimerStatus,
@@ -366,11 +389,15 @@ export function useTimer() {
 
 		syncTimer();
 
-		return stopTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
+		if (!timerStatus?.running) {
+			return Promise.resolve();
+		}
+
+		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [timerStatus, setTimerStatus, stopTimerQueryCall, taskId, updateLocalTimerStatus]);
+	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus]);
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
@@ -441,7 +468,7 @@ export function useTimer() {
 		timerSeconds,
 		activeTeamTask,
 		syncTimer,
-		syncTimerLoading
+		syncTimerLoading: syncTimerMutation.isPending
 	};
 }
 
