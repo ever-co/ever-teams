@@ -15,6 +15,7 @@ export * from './common/currency.schema';
 // Entity schemas - Specific business domain schemas
 export * from './role/role.schema';
 export * from './tag/tag.schema';
+export * from './favorite/favorite.schema';
 export * from './task/task-status.schema';
 export * from './task/task-size.schema';
 export * from './task/task-priority.schema';

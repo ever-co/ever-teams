@@ -507,6 +507,14 @@ export const queryKeys = {
 			['email-verification', 'verify-token', ...(email ? [email] : []), ...(token ? [token] : [])] as const
 	},
 
+	// Keys related to favorites
+	favorites: {
+		all: ['favorites'] as const,
+		byEmployee: (employeeId: string | undefined | null) =>
+			['favorites', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+		detail: (favoriteId: string | undefined | null) => ['favorites', ...(favoriteId ? [favoriteId] : [])] as const
+	},
+
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
 	}

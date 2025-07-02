@@ -1,14 +1,15 @@
 import { useCallback } from 'react';
-import { useQueryCall } from '../common/use-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { favoriteService } from '@/core/services/client/api';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
-import { useFirstLoad } from '../common';
 import { userState } from '@/core/stores';
 import { useAtom, useAtomValue } from 'jotai';
 import { favoritesState } from '@/core/stores/common/favorites';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../common';
 
 /**
  * A React hook that manages favorites operations.
@@ -26,75 +27,80 @@ import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 export const useFavorites = () => {
 	const user = useAtomValue(userState);
 	const [favorites, setFavorites] = useAtom(favoritesState);
-	const { firstLoadData: firstRolesLoad } = useFirstLoad();
-	// Create favorite
-	const { loading: createFavoriteLoading, queryCall: createFavoriteQueryCall } = useQueryCall(
-		favoriteService.createFavorite
+	const queryClient = useQueryClient();
+
+	const employeeId = user?.employee?.id || user?.employeeId || '';
+
+	// Query for getting favorites by employee
+	const favoritesQuery = useQuery({
+		queryKey: queryKeys.favorites.byEmployee(employeeId),
+		queryFn: () => favoriteService.getFavoritesByEmployee(employeeId),
+		enabled: Boolean(employeeId)
+	});
+
+	// Invalidate favorites data
+	const invalidateEmployeeFavoritesData = useCallback(
+		() => queryClient.invalidateQueries({ queryKey: queryKeys.favorites.byEmployee(employeeId) }),
+		[queryClient, employeeId]
 	);
 
-	// Get favorites by employee
-	const { loading: getFavoritesByEmployeeLoading, queryCall: getFavoritesByEmployeeQueryCall } = useQueryCall(
-		favoriteService.getFavoritesByEmployee
-	);
+	// Create favorite mutation
+	const createFavoriteMutation = useMutation({
+		mutationFn: favoriteService.createFavorite,
+		onSuccess: invalidateEmployeeFavoritesData
+	});
 
-	// Delete favorite
-	const { loading: deleteFavoriteLoading, queryCall: deleteFavoriteQueryCall } = useQueryCall(
-		favoriteService.deleteFavorite
+	// Delete favorite mutation
+	const deleteFavoriteMutation = useMutation({
+		mutationFn: (favoriteId: string) => favoriteService.deleteFavorite(favoriteId),
+		onSuccess: invalidateEmployeeFavoritesData
+	});
+
+	// Sync React Query data with Jotai state
+	useConditionalUpdateEffect(
+		() => {
+			if (favoritesQuery.data) {
+				setFavorites(favoritesQuery.data.items);
+			}
+		},
+		[favoritesQuery.data],
+		Boolean(favorites?.length)
 	);
 
 	const createFavorite = useCallback(
 		async (data: IFavoriteCreateRequest) => {
-			const res = await createFavoriteQueryCall(data);
-
-			setFavorites((favorites) => [...favorites, res.data]);
-			return res;
+			return createFavoriteMutation.mutateAsync(data);
 		},
-		[createFavoriteQueryCall]
+		[createFavoriteMutation]
 	);
 
 	const getFavoritesByEmployee = useCallback(
-		(employeeId: ID) => {
-			return getFavoritesByEmployeeQueryCall(employeeId);
+		async (employeeId: ID) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.favorites.byEmployee(employeeId),
+				queryFn: () => favoriteService.getFavoritesByEmployee(employeeId)
+			});
 		},
-		[getFavoritesByEmployeeQueryCall]
+		[queryClient]
 	);
 
 	const deleteFavorite = useCallback(
 		async (id: ID) => {
 			const favoriteId = favorites.find((favorite) => favorite.entityId === id)?.id;
-			const res = favoriteId && (await deleteFavoriteQueryCall(favoriteId, user?.employee?.id ?? ''));
-			setFavorites((favorites) => favorites.filter((favorite) => favorite.id !== id));
-			return res;
+			if (favoriteId) {
+				return deleteFavoriteMutation.mutateAsync(favoriteId);
+			}
 		},
-		[deleteFavoriteQueryCall, favorites, user?.employee?.id]
+		[deleteFavoriteMutation, favorites]
 	);
 
-	const loadFavorites = useCallback(async () => {
-		try {
-			const res = await getFavoritesByEmployee(user?.employee?.id || user?.employeeId || '');
-
-			if (res) {
-				setFavorites(res.data.items);
-				return res;
-			} else {
-				throw new Error('Could not load favorites');
-			}
-		} catch (error) {
-			console.error('Failed to load favorites', error);
-		}
-	}, [getFavoritesByEmployee]);
-
-	const handleFirstFavoritesLoad = useCallback(async () => {
-		await loadFavorites();
-		firstRolesLoad();
-	}, [firstRolesLoad, loadFavorites]);
-
 	const toggleFavoriteTask = async (task: ITask) => {
-		const isFavoriteTask = task
-			? favorites.some((el) => {
-					return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
-				})
-			: false;
+		if (!task) return;
+
+		const isFavoriteTask = favorites.some((el) => {
+			return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
+		});
+
 		if (isFavoriteTask) {
 			await deleteFavorite(task.id);
 		} else {
@@ -115,10 +121,10 @@ export const useFavorites = () => {
 		deleteFavorite,
 
 		// Loading states
-		createFavoriteLoading,
-		getFavoritesByEmployeeLoading,
-		deleteFavoriteLoading,
-		firstLoadFavoritesData: handleFirstFavoritesLoad,
+		loading: favoritesQuery.isLoading,
+		createFavoriteLoading: createFavoriteMutation.isPending,
+		getFavoritesByEmployeeLoading: favoritesQuery.isLoading,
+		deleteFavoriteLoading: deleteFavoriteMutation.isPending,
 
 		toggleFavoriteTask
 	};

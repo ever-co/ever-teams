@@ -1,6 +1,6 @@
+import { TFavorite } from '@/core/types/schemas/favorite/favorite.schema';
 import { atom } from 'jotai';
-import { IFavorite } from '@/core/types/interfaces/common/favorite';
 
-export const favoritesState = atom<IFavorite[]>([]);
+export const favoritesState = atom<TFavorite[]>([]);
 
 export const favoritesFetchingState = atom<boolean>(false);
