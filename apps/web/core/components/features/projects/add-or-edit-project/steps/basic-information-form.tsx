@@ -5,7 +5,7 @@ import RichTextEditor from '../text-editor';
 import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { FormEvent, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
+import { CSSProperties, FormEvent, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
@@ -528,18 +528,26 @@ export interface Identifiable {
 	id: string;
 	value: string | number;
 }
-interface ISelectProps<IItem> {
+
+type OnChange<IsMulti extends boolean> = IsMulti extends true ? (value: string[]) => void : (value: string) => void;
+type Selected<IsMulti extends boolean> = IsMulti extends true ? string[] : string | null;
+
+interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
 	options: IItem[];
-	selected: string | string[] | null;
+	selected: Selected<IsMulti>;
 	placeholder?: string;
-	className?: string;
-	onChange?: (value: string | string[]) => void;
-	multiple?: boolean;
+	selectTriggerClassName?: string;
+	selectTriggerStyles?: CSSProperties;
+	selectOptionsListClassName?: string;
+	multiple?: IsMulti;
+	onChange?: OnChange<IsMulti>;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
-	renderValue?: (value: string | string[] | null) => React.ReactNode;
+	renderValue?: (value: Selected<IsMulti>) => React.ReactNode;
 	searchEnabled?: boolean;
 	onCreate?: (newTerm: string) => void;
 	createLoading?: boolean;
+	showChevronDownIcon?: boolean;
+	alignOptionsList?: 'start' | 'center' | 'end';
 }
 
 /**
@@ -563,11 +571,12 @@ interface ISelectProps<IItem> {
  * @param props - Select component props with full backward compatibility
  * @returns Optimized Select component maintaining 100% API compatibility
  */
-function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
+function SelectComponent<T extends Identifiable, IsMulti extends boolean = false>(props: ISelectProps<T, IsMulti>) {
 	const {
 		options,
 		placeholder,
-		className,
+		selectTriggerClassName,
+		selectTriggerStyles,
 		selected,
 		onChange,
 		renderItem,
@@ -575,7 +584,10 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 		searchEnabled,
 		onCreate,
 		createLoading,
-		renderValue
+		renderValue,
+		showChevronDownIcon = true,
+		selectOptionsListClassName,
+		alignOptionsList = 'start'
 	} = props;
 
 	// State management with performance considerations
@@ -669,7 +681,7 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 	// Memoized height calculation to prevent recalculation on every render
 	const listHeight = useMemo(() => {
 		const maxVisibleItems = 7;
-		const itemHeight = 1.5; // rem
+		const itemHeight = 2; // rem
 		return items?.length > maxVisibleItems ? '12rem' : `${items?.length * itemHeight}rem`;
 	}, [items?.length]);
 
@@ -705,11 +717,12 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button
+						style={selectTriggerStyles}
 						variant="outline"
 						role="combobox"
 						className={cn(
 							'flex justify-between items-center px-3 py-2 w-full h-10 text-sm text-left rounded-lg border dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
-							className
+							selectTriggerClassName
 						)}
 					>
 						{renderValue ? (
@@ -719,12 +732,17 @@ function SelectComponent<T extends Identifiable>(props: ISelectProps<T>) {
 								{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
 							</span>
 						)}
-						<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
+						{showChevronDownIcon ? (
+							<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
+						) : null}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
-					className="w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20"
-					align="center"
+					className={cn(
+						'w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20',
+						selectOptionsListClassName
+					)}
+					align={alignOptionsList}
 				>
 					<Command className="w-full dark:bg-dark--theme-light" shouldFilter={false}>
 						{searchEnabled && (

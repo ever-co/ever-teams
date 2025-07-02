@@ -7,25 +7,27 @@ import {
 	useHotkeys,
 	useOutsideClick,
 	useTaskInput,
-	useTaskLabels,
 	useTaskStatus
 } from '@/core/hooks';
-import { timerStatusState } from '@/core/stores';
+import { taskLabelsListState, taskPrioritiesListState, taskSizesListState, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, SpinnerLoader } from '@/core/components';
 import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';
-import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { TaskLabels } from './task-labels';
 import { InputField } from '../duplicated-components/_input';
 import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
-import { ETaskSizeName, ETaskPriority, EIssueType } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTag, TTask } from '@/core/types/schemas/task/task.schema';
+import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
+import Image from 'next/image';
+import { cn } from '@/core/lib/helpers';
+import { X } from 'lucide-react';
+import { getTextColor } from '@/core/lib/helpers/colors';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -279,7 +281,7 @@ export function TaskInputKanban(props: Props) {
 				</div>
 			}
 			className={clsxm(
-				showTaskNumber && inputTask && ['pl-2'],
+				showTaskNumber && inputTask && ['pl-6'],
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
@@ -287,7 +289,7 @@ export function TaskInputKanban(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className="relative flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
+				<div className=" flex items-center justify-center w-10 h-full" ref={ignoreElementRef}>
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
@@ -334,14 +336,21 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { taskLabels: taskLabelsData } = useTaskLabels();
+	const {
+		taskStatus,
+		taskPriority: activeTaskPriority,
+		taskSize: activeTaskSize,
+		taskDescription,
+		taskLabels: activeTaskLabels
+	} = datas;
 
-	const { taskStatus, taskPriority, taskSize, taskDescription, taskLabels } = datas;
 	useEffect(() => {
 		if (taskStatus) {
-			taskStatus.current = kanbanTitle ?? 'open';
+			taskStatus.current =
+				Object.values(ETaskStatusName).find((status) => status === kanbanTitle) ?? ETaskStatusName.OPEN;
 		}
 	}, [taskStatus, datas.hasCreateForm, kanbanTitle]);
+
 	useEffect(() => {
 		if (datas.editMode) {
 			window.setTimeout(() => {
@@ -353,6 +362,130 @@ function TaskCard({
 		}
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
+	const taskPriorities = useAtomValue(taskPrioritiesListState);
+	const taskSizes = useAtomValue(taskSizesListState);
+	const taskLabels = useAtomValue(taskLabelsListState);
+	const [taskPriority, setTaskPriority] = useState<ETaskPriority | undefined>(
+		activeTaskPriority?.current as ETaskPriority | undefined
+	);
+	const [taskSize, setTaskSize] = useState<ETaskSizeName | undefined>(
+		activeTaskSize?.current as ETaskSizeName | undefined
+	);
+	const [selectedTaskLabels, setSelectedTaskLabels] = useState(activeTaskLabels?.current.map((el) => el.name) ?? []);
+
+	/**
+	 * Memoize select props to prevent unnecessary re-renders.
+	 */
+
+	const taskPrioritiesOptions = useMemo(() => {
+		return taskPriorities.map((el) => ({
+			id: el.value,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskPriorities]);
+
+	const taskSizesOptions = useMemo(() => {
+		return taskSizes.map((el) => ({
+			id: el.value,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskSizes]);
+
+	const taskLabelsOptions = useMemo(() => {
+		return taskLabels.map((el) => ({
+			id: el.name,
+			value: el.name,
+			name: el.name,
+			color: el.color ?? undefined,
+			fullIconUrl: el.fullIconUrl ?? undefined
+		}));
+	}, [taskLabels]);
+
+	const handleTaskPriorityChange = useCallback((value: string) => {
+		setTaskPriority(value as ETaskPriority);
+		if (activeTaskPriority) {
+			activeTaskPriority.current = value as ETaskPriority;
+		}
+	}, []);
+
+	const handleTaskSizeChange = useCallback((value: string) => {
+		setTaskSize(value as ETaskSizeName);
+		if (activeTaskSize) {
+			activeTaskSize.current = value as ETaskSizeName;
+		}
+	}, []);
+
+	const handleTaskLabelsChange = useCallback(
+		(value: string[]) => {
+			setSelectedTaskLabels(value);
+			if (activeTaskLabels) {
+				activeTaskLabels.current = value.map((el) => taskLabels.find((item) => item.name === el) as TTag);
+			}
+		},
+		[taskLabels, activeTaskLabels]
+	);
+
+	const labelSelectRenderItem = useCallback(
+		(item: (typeof taskLabelsOptions)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md relative"
+			>
+				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={40}
+							height={40}
+						/>
+					)}
+				</div>
+				<span style={{ color: getTextColor(item.color ?? 'white') }} className=" text-xs">
+					{item.name}
+				</span>
+				{selectedTaskLabels?.includes(item.name) && (
+					<div
+						onClick={() => setSelectedTaskLabels(selectedTaskLabels.filter((el) => el !== item.name))}
+						className="flex absolute items-center right-1 top-1/2 -translate-y-1/2 justify-center"
+					>
+						<X size={10} />
+					</div>
+				)}
+			</div>
+		),
+		[selectedTaskLabels, setSelectedTaskLabels]
+	);
+
+	const labelSelectRenderValue = useCallback(() => {
+		return (
+			<div className="flex w-full items-center h-full  gap-2">
+				{selectedTaskLabels.length ? (
+					<div
+						className={cn(
+							'flex w-full h-full items-center gap-2 rounded-md',
+							selectedTaskLabels.length > 0 ? '' : 'text-slate-500 '
+						)}
+					>
+						<span className=" text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
+					</div>
+				) : (
+					<div className="flex items-center gap-1">
+						<div className="w-4 h-4 rounded-full border"></div>
+						<p className=" text-xs text-slate-500  font-light ">{t('pages.taskDetails.LABELS')}</p>
+					</div>
+				)}
+			</div>
+		);
+	}, [selectedTaskLabels, t]);
+
 	return (
 		<EverCard shadow="custom">
 			<>
@@ -364,7 +497,7 @@ function TaskCard({
 						{datas.hasCreateForm && (
 							<div>
 								<InputField
-									placeholder="Description"
+									placeholder={t('pages.taskDetails.DESCRIPTION')}
 									onChange={(e) => {
 										if (taskDescription) {
 											taskDescription.current = e.target.value;
@@ -374,46 +507,41 @@ function TaskCard({
 								/>
 
 								<div className="flex flex-wrap justify-start gap-2">
-									<ActiveTaskPropertiesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskPriority) {
-												taskPriority.current = v;
-											}
-										}}
-										defaultValue={taskPriority?.current as ETaskPriority}
-										task={null}
+									<TaskPropertySelect
+										placeholder={t('pages.taskDetails.PRIORITY')}
+										emptyLabel={t('pages.taskDetails.PRIORITY')}
+										selected={taskPriority}
+										onChange={handleTaskPriorityChange}
+										options={taskPrioritiesOptions}
 									/>
 
-									<ActiveTaskSizesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskSize) {
-												taskSize.current = v;
-											}
-										}}
-										defaultValue={taskSize?.current as ETaskSizeName}
-										task={null}
+									<TaskPropertySelect
+										placeholder={t('pages.taskDetails.SIZE')}
+										emptyLabel={t('pages.taskDetails.SIZE')}
+										selected={taskSize}
+										onChange={handleTaskSizeChange}
+										options={taskSizesOptions}
 									/>
-									<TaskLabels
-										className="min-w-fit lg:max-w-[170px] text-xs"
-										forDetails={false}
-										taskStatusClassName="border dark:bg-[#1B1D22] dark:border-[#FFFFFF33] h-8 text-xs"
-										onValueChange={(_: any, values: string[] | undefined) => {
-											taskLabelsData.filter((tag) =>
-												tag.name ? values?.includes(tag.name) : false
-											);
 
-											if (taskLabels && values?.length) {
-												taskLabels.current = taskLabelsData.filter((tag) =>
-													tag.name ? values?.includes(tag.name) : false
-												);
-											}
-										}}
-										task={datas.inputTask}
-									/>
+									<div className="w-28 h-[2rem]">
+										<Select
+											placeholder={t('pages.taskDetails.LABELS')}
+											options={taskLabelsOptions}
+											selected={selectedTaskLabels}
+											onChange={handleTaskLabelsChange}
+											multiple
+											selectTriggerClassName={cn(
+												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
+												selectedTaskLabels?.length
+													? ' gap-1 border px-2'
+													: 'border px-2  gap-[.5rem]'
+											)}
+											selectOptionsListClassName="w-32 h-full"
+											renderItem={labelSelectRenderItem}
+											alignOptionsList="center"
+											renderValue={labelSelectRenderValue}
+										/>
+									</div>
 								</div>
 							</div>
 						)}
@@ -445,5 +573,98 @@ function TaskCard({
 			</>
 			<div className="w-2 h-5 opacity-0">{'|'}</div>
 		</EverCard>
+	);
+}
+
+/**
+ * Reusable single task property select component.
+ */
+interface TaskPropertySelectProps {
+	placeholder: string;
+	options: Array<{ id: string; value: string; name: string; color?: string; fullIconUrl?: string }>;
+	selected: string | undefined;
+	onChange: (value: string) => void;
+	emptyLabel: string;
+}
+
+export function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLabel }: TaskPropertySelectProps) {
+	/**
+	 * Memoize props to prevent unnecessary re-renders.
+	 */
+
+	const activeOptionStyle = useMemo(() => {
+		return selected ? { backgroundColor: options.find((el) => el.id === selected)?.color ?? undefined } : {};
+	}, [selected]);
+
+	const renderItem = useCallback(
+		(item: (typeof options)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+			>
+				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={40}
+							height={40}
+						/>
+					)}
+				</div>
+				<span className="text-xs">{item.name}</span>
+			</div>
+		),
+		[]
+	);
+
+	const renderValue = useCallback(
+		(value: string | null) => {
+			const item = options.find((el) => el.id === value);
+			return (
+				<div className="flex w-full items-center h-full gap-2">
+					{value ? (
+						<div className="flex w-full h-full items-center gap-2 rounded-md">
+							<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+								{item?.fullIconUrl && (
+									<Image
+										className="object-cover w-full h-full rounded-md"
+										src={item.fullIconUrl}
+										alt={item.name + 'icon'}
+										width={30}
+										height={30}
+									/>
+								)}
+							</div>
+							<span className="text-xs">{item?.name}</span>
+						</div>
+					) : (
+						<div className="flex items-center gap-1">
+							<div className="w-4 h-4 rounded-full border"></div>
+							<p className="text-xs text-slate-500 font-light">{emptyLabel}</p>
+						</div>
+					)}
+				</div>
+			);
+		},
+		[options, emptyLabel]
+	);
+	return (
+		<Select
+			placeholder={placeholder}
+			options={options}
+			selected={selected as string}
+			onChange={onChange}
+			selectTriggerClassName={cn(
+				'w-28 h-[30px] overflow-hidden py-0 rounded-md hover:bg-transparent',
+				selected ? 'gap-1 border px-2' : 'border px-2 gap-[.5rem]'
+			)}
+			selectTriggerStyles={activeOptionStyle}
+			selectOptionsListClassName="w-32 h-full"
+			renderItem={renderItem}
+			alignOptionsList="center"
+			renderValue={renderValue}
+		/>
 	);
 }
