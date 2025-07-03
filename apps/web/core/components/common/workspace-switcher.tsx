@@ -38,7 +38,7 @@ export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
 
 	// Use the new hooks
-	const { workspaces, currentWorkspace, isLoading, error } = useWorkspaces();
+	const { workspaces, currentWorkspace, error } = useWorkspaces();
 
 	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
 

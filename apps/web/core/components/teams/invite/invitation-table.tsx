@@ -21,7 +21,7 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 
 	return (
 		<div>
-			<div className=" sm:rounded-lg">
+			<div className="sm:rounded-lg">
 				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
@@ -59,8 +59,8 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 										className={clsxm(
 											'w-[20px] h-[20px]',
 											'flex justify-center items-center',
-											'rounded-full text-xs text-default dark:text-white',
-											'shadow-md font-normal'
+											'text-xs rounded-full text-default dark:text-white',
+											'font-normal shadow-md'
 										)}
 										style={{
 											backgroundColor: `${stc(invitation.fullName || '')}80`
@@ -90,14 +90,14 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 								<td className="text-xs font-semibold pl-2 py-4 text-[#1A79D0] dark:text-white">
 									{/* http:// www.borde.. */}-
 								</td>
-								<td className="py-4 pl-2 text-xs font-semibold ">
+								<td className="py-4 pl-2 text-xs font-semibold">
 									<InvitationTableStatus
 										status={invitation.status || undefined} // Handle null status
 										acceptJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, ERequestStatus.ACCEPTED);
+											acceptRejectRequestToJoin(invitation.id || '', ERequestStatus.ACCEPTED);
 										}}
 										rejectJoinRequest={() => {
-											acceptRejectRequestToJoin(invitation.id, ERequestStatus.REJECTED);
+											acceptRejectRequestToJoin(invitation.id || '', ERequestStatus.REJECTED);
 										}}
 									/>
 								</td>

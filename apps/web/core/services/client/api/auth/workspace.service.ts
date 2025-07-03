@@ -1,12 +1,7 @@
 import qs from 'qs';
-import {
-	IAuthResponse,
-	ISigninEmailConfirmWorkspaces,
-	IUserSigninWorkspaceResponse
-} from '@/core/types/interfaces/auth/auth';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { authService } from './auth.service';
-import { userOrganizationService } from '../users/user-organization.service';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TUser } from '@/core/types/schemas/user/user.schema';
@@ -14,8 +9,6 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeam, TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { AxiosResponse } from 'axios';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
-import { TOrganization } from '@/core/types/schemas';
 import QueryString from 'qs';
 
 /**

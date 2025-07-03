@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useOrganizationProjects } from './use-organization-projects';
-import { ProjectQueryParams } from '@/core/services/client/api/organizations';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 
@@ -29,7 +28,15 @@ export function useProjectsPage() {
 
 	// Apply filters to pagination params
 	const applyFilters = useCallback(() => {
-		const filters: Partial<ProjectQueryParams> = {
+		const filters: Partial<{
+			skip: number;
+			take: number;
+			teamId: string;
+			archived: boolean;
+			startDate: string;
+			endDate: string;
+			search: string;
+		}> = {
 			skip: 0 // Reset to first page when applying filters
 		};
 
