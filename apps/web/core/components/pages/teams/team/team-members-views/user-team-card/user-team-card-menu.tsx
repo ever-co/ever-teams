@@ -1,5 +1,5 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useFavorites, useModal } from '@/core/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -12,9 +12,8 @@ import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { favoritesState } from '@/core/stores/common/favorites';
-import { useAtomValue } from 'jotai';
+import { Spinner } from '@/core/components/common/spinner';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -30,81 +29,82 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		edition,
 		memberInfo
 	});
-	const { toggleFavoriteTask } = useFavorites();
+	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
+		useFavoriteTasks();
 	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
-	const favorites = useAtomValue(favoritesState);
-	const isFavoriteTask = useMemo(
-		() =>
-			edition.task
-				? favorites.some((el) => {
-						return el.entity === EBaseEntityEnum.Task && el.entityId === edition.task?.id;
-					})
-				: false,
-		[edition.task]
-	);
 
 	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
 
-	const menu = [
-		{
-			name: t('common.EDIT_TASK'),
-			closable: true,
-			onClick: () => {
-				edition.task && edition.setEditMode(true);
+	const menu = useMemo(
+		() => [
+			{
+				name: t('common.EDIT_TASK'),
+				closable: true,
+				onClick: () => {
+					edition.task && edition.setEditMode(true);
+				},
+				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 			},
-			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
-		},
-		{
-			name: edition.task
-				? isFavoriteTask
-					? t('common.REMOVE_FAVORITE_TASK')
-					: t('common.ADD_FAVORITE_TASK')
-				: t('common.ADD_FAVORITE_TASK'),
-			closable: true,
-			onClick: () => {
-				edition.task && toggleFavoriteTask(edition.task);
+			{
+				name: edition.task ? (
+					addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
+						<Spinner />
+					) : isFavoriteTask(edition.task?.id) ? (
+						t('common.REMOVE_FAVORITE_TASK')
+					) : (
+						t('common.ADD_FAVORITE_TASK')
+					)
+				) : (
+					t('common.ADD_FAVORITE_TASK')
+				),
+				closable: true,
+				onClick: () => {
+					edition.task && toggleFavoriteTask(edition.task);
+				},
+				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 			},
-			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
-		},
-		{
-			name: t('common.ESTIMATE'),
-			closable: true,
-			onClick: () => {
-				edition.task && edition.setEstimateEditMode(true);
+			{
+				name: t('common.ESTIMATE'),
+				closable: true,
+				onClick: () => {
+					edition.task && edition.setEstimateEditMode(true);
+				},
+				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 			},
-			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
-		},
-		{
-			name: t('common.ASSIGN_TASK'),
-			action: 'assign',
-			onClick: onAssignTask,
+			{
+				name: t('common.ASSIGN_TASK'),
+				action: 'assign',
+				onClick: onAssignTask,
 
-			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && memberInfo.memberUnassignTasks.length > 0
-		},
-		{
-			name: t('common.UNASSIGN_TASK'),
-			action: 'unassign',
-			closable: true,
-			onClick: onUnAssignTask,
+				active:
+					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && memberInfo.memberUnassignTasks.length > 0
+			},
+			{
+				name: t('common.UNASSIGN_TASK'),
+				action: 'unassign',
+				closable: true,
+				onClick: onUnAssignTask,
 
-			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask
-		},
-		{
-			name: memberInfo.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
-			// MAke or unmake member a manager
-			onClick: memberInfo.isTeamManager ? memberInfo.unMakeMemberManager : memberInfo.makeMemberManager,
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
-			closable: true
-		},
-		{
-			name: t('common.REMOVE'),
-			type: 'danger',
-			action: 'remove',
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamOwner,
-			onClick: onRemoveMember
-		}
-	].filter((item) => item.active || item.active === undefined);
+				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask
+			},
+			{
+				name: memberInfo.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
+				// MAke or unmake member a manager
+				onClick: memberInfo.isTeamManager ? memberInfo.unMakeMemberManager : memberInfo.makeMemberManager,
+				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
+				closable: true
+			},
+			{
+				name: t('common.REMOVE'),
+				type: 'danger',
+				action: 'remove',
+				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamOwner,
+				onClick: onRemoveMember
+			}
+		],
+		[t, memberInfo, edition, isFavoriteTask]
+	);
 
 	return (
 		<>

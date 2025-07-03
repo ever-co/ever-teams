@@ -5,11 +5,9 @@ import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite'
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { userState } from '@/core/stores';
 import { useAtom, useAtomValue } from 'jotai';
-import { favoritesState } from '@/core/stores/common/favorites';
-import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { currentEmployeeFavoritesState, organizationFavoritesState } from '@/core/stores/common/favorites';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * A React hook that manages favorites operations.
@@ -26,10 +24,10 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
  */
 export const useFavorites = () => {
 	const user = useAtomValue(userState);
-	const [favorites, setFavorites] = useAtom(favoritesState);
-	const queryClient = useQueryClient();
-
 	const employeeId = user?.employee?.id || user?.employeeId || '';
+	const [currentEmployeeFavorites, setCurrentEmployeeFavorites] = useAtom(currentEmployeeFavoritesState);
+	const [organizationFavorites] = useAtom(organizationFavoritesState);
+	const queryClient = useQueryClient();
 
 	// Query for getting favorites by employee
 	const favoritesQuery = useQuery({
@@ -62,11 +60,11 @@ export const useFavorites = () => {
 	useConditionalUpdateEffect(
 		() => {
 			if (favoritesQuery.data) {
-				setFavorites(favoritesQuery.data.items);
+				setCurrentEmployeeFavorites(favoritesQuery.data.items);
 			}
 		},
 		[favoritesQuery.data],
-		Boolean(favorites?.length)
+		Boolean(currentEmployeeFavorites?.length)
 	);
 
 	const createFavorite = useCallback(
@@ -88,35 +86,18 @@ export const useFavorites = () => {
 
 	const deleteFavorite = useCallback(
 		async (id: ID) => {
-			const favoriteId = favorites.find((favorite) => favorite.entityId === id)?.id;
+			const favoriteId = currentEmployeeFavorites.find((favorite) => favorite.entityId === id)?.id;
 			if (favoriteId) {
 				return deleteFavoriteMutation.mutateAsync(favoriteId);
 			}
 		},
-		[deleteFavoriteMutation, favorites]
+		[deleteFavoriteMutation, currentEmployeeFavorites]
 	);
 
-	const toggleFavoriteTask = async (task: TTask) => {
-		if (!task) return;
-
-		const isFavoriteTask = favorites.some((el) => {
-			return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
-		});
-
-		if (isFavoriteTask) {
-			await deleteFavorite(task.id);
-		} else {
-			await createFavorite({
-				entity: EBaseEntityEnum.Task,
-				entityId: task.id,
-				...(user?.employee?.id || user?.employeeId
-					? { employeeId: user?.employee?.id || user?.employeeId }
-					: {})
-			} as IFavoriteCreateRequest);
-		}
-	};
-
 	return {
+		currentEmployeeFavorites,
+		organizationFavorites,
+
 		// Methods
 		createFavorite,
 		getFavoritesByEmployee,
@@ -126,8 +107,6 @@ export const useFavorites = () => {
 		loading: favoritesQuery.isLoading,
 		createFavoriteLoading: createFavoriteMutation.isPending,
 		getFavoritesByEmployeeLoading: favoritesQuery.isLoading,
-		deleteFavoriteLoading: deleteFavoriteMutation.isPending,
-
-		toggleFavoriteTask
+		deleteFavoriteLoading: deleteFavoriteMutation.isPending
 	};
 };

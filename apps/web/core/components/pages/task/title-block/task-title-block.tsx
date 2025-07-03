@@ -1,4 +1,4 @@
-import { useFavorites, useModal, useTeamTasks } from '@/core/hooks';
+import { useModal, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { Button, CopyTooltip } from '@/core/components';
@@ -6,27 +6,25 @@ import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
 
 import Link from 'next/link';
-import { ChangeEvent, useCallback, useEffect, useRef, useMemo, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useAtom } from 'jotai';
 import CreateParentTask from '../parent-task';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
-import { Heart } from 'lucide-react';
+import { Heart, LoaderCircle } from 'lucide-react';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { favoritesState } from '@/core/stores/common/favorites';
-import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { Spinner } from '@/core/components/common/spinner';
 import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
 	const t = useTranslations();
-	const favorites = useAtomValue(favoritesState);
-	const { toggleFavoriteTask, createFavoriteLoading, deleteFavoriteLoading } = useFavorites();
+	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
+		useFavoriteTasks();
 
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
@@ -40,15 +38,6 @@ const TaskTitleBlock = () => {
 	const [task] = useAtom(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
-	const isFavoriteTask = useMemo(
-		() =>
-			task
-				? favorites.some((el) => {
-						return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
-					})
-				: false,
-		[task]
-	);
 	//Hooks and functions
 	useEffect(() => {
 		if (!edit) {
@@ -231,15 +220,17 @@ const TaskTitleBlock = () => {
 						<button
 							className={clsxm(
 								'flex justify-center items-center w-7 h-7 rounded-full transition-colors ml-1',
-								isFavoriteTask
-									? 'text-red-600 bg-red-50 hover:bg-red-100'
-									: 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+								addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading
+									? ''
+									: isFavoriteTask(task.id)
+										? 'text-red-600 bg-red-50 hover:bg-red-100'
+										: 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
 							)}
 							onClick={() => toggleFavoriteTask(task)}
 						>
-							{createFavoriteLoading || deleteFavoriteLoading ? (
-								<Spinner />
-							) : isFavoriteTask ? (
+							{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
+								<LoaderCircle size={15} className=" animate-spin" />
+							) : isFavoriteTask(task.id) ? (
 								<svg
 									className="w-4 h-4"
 									fill="currentColor"

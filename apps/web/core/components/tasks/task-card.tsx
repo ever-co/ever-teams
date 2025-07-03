@@ -6,7 +6,6 @@ import {
 	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
-	useFavorites,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
@@ -46,10 +45,10 @@ import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
 import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { favoritesState } from '@/core/stores/common/favorites';
-import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { LoaderCircle } from 'lucide-react';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 type Props = {
 	active?: boolean;
@@ -489,19 +488,10 @@ export function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
-	const favorites = useAtomValue(favoritesState);
 
-	const { toggleFavoriteTask } = useFavorites();
+	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
+		useFavoriteTasks();
 
-	const isFavoriteTask = useMemo(
-		() =>
-			task
-				? favorites.some((el) => {
-						return el.entity === EBaseEntityEnum.Task && el.entityId === task?.id;
-					})
-				: false,
-		[task]
-	);
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);
@@ -561,8 +551,8 @@ export function TaskCardMenu({
 				<PopoverPanel className="z-50">
 					{() => {
 						return (
-							<EverCard shadow="custom" className="shadow-xl card !py-3 !px-7">
-								<ul className="min-w-[124px]">
+							<EverCard shadow="custom" className="shadow-xl border card !py-3 !px-7">
+								<ul className="w-[11rem]">
 									<li className="mb-2">
 										<Link
 											href={`/task/${task.id}`}
@@ -582,10 +572,13 @@ export function TaskCardMenu({
 												'cursor-pointer hover:font-semibold hover:transition-all'
 											)}
 										>
-											{isFavoriteTask
-												? t('common.REMOVE_FAVORITE_TASK')
-												: t('common.ADD_FAVORITE_TASK')}
-											{}
+											{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
+												<LoaderCircle size={15} className=" animate-spin" />
+											) : isFavoriteTask(task.id) ? (
+												t('common.REMOVE_FAVORITE_TASK')
+											) : (
+												t('common.ADD_FAVORITE_TASK')
+											)}
 										</span>
 									</li>
 									<li className="mb-3">
