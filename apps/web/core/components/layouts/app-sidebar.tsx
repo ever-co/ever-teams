@@ -427,7 +427,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 						</span>
 					</span>
 				</Link>
-				{deleteFavoriteLoading && task.id == task.id ? (
+				{deleteFavoriteLoading ? (
 					<LoaderCircle className=" animate-spin" size={15} />
 				) : (
 					<X

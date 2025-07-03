@@ -8,6 +8,8 @@ import { useAtom, useAtomValue } from 'jotai';
 import { currentEmployeeFavoritesState, organizationFavoritesState } from '@/core/stores/common/favorites';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 /**
  * A React hook that manages favorites operations.
@@ -16,13 +18,11 @@ import { useConditionalUpdateEffect } from '../common';
  *
  * - `createFavorite`: A function that creates a new favorite.
  * - `getFavoritesByEmployee`: A function that gets favorites by employee ID.
- * - `getFavorites`: A function that gets all favorites for the organization.
- * - `getFavoriteById`: A function that gets a specific favorite by ID.
  * - `deleteFavorite`: A function that deletes a favorite.
- * - `updateFavorite`: A function that updates a favorite.
  * - Loading states for each operation.
  */
 export const useFavorites = () => {
+	const t = useTranslations();
 	const user = useAtomValue(userState);
 	const employeeId = user?.employee?.id || user?.employeeId || '';
 	const [currentEmployeeFavorites, setCurrentEmployeeFavorites] = useAtom(currentEmployeeFavoritesState);
@@ -47,13 +47,19 @@ export const useFavorites = () => {
 	// Create favorite mutation
 	const createFavoriteMutation = useMutation({
 		mutationFn: favoriteService.createFavorite,
-		onSuccess: invalidateEmployeeFavoritesData
+		onSuccess: () => {
+			toast.success(t('task.toastMessages.FAVORITE_ITEM_CREATED_SUCCESSFULLY'));
+			invalidateEmployeeFavoritesData();
+		}
 	});
 
 	// Delete favorite mutation
 	const deleteFavoriteMutation = useMutation({
 		mutationFn: (favoriteId: string) => favoriteService.deleteFavorite(favoriteId),
-		onSuccess: invalidateEmployeeFavoritesData
+		onSuccess: () => {
+			toast.success(t('task.toastMessages.FAVORITE_ITEM_DELETED_SUCCESSFULLY'));
+			invalidateEmployeeFavoritesData();
+		}
 	});
 
 	// Sync React Query data with Jotai state

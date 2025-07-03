@@ -926,7 +926,9 @@
 			"TASK_PLANNED_FOR_DATE": "המשימה תוכננה לתאריך נבחר",
 			"TASK_PLAN_FAILED": "נכשל לתכנן את המשימה. אנא נסה שוב.",
 			"TASK_ASSIGNMENT_FAILED": "נכשל להקצות/להסיר את המשימה. אנא נסה שוב.",
-			"TASK_FAVORITE_FAILED": "נכשל לעדכן את המועדפים. אנא נסה שוב."
+			"TASK_FAVORITE_FAILED": "נכשל לעדכן את המועדפים. אנא נסה שוב.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "פריט מועדף נוצר בהצלחה",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "פריט מועדף נמחק בהצלחה"
 		}
 	},
 	"dailyPlan": {
