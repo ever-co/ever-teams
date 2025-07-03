@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { ChevronsUpDown, Plus, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 import {
 	DropdownMenu,
@@ -14,11 +13,9 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
 import { useWorkspaces, useWorkspaceSwitcher } from '@/core/hooks/auth';
-import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
-import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 
-// Composant de fallback pour l'icône de workspace
+// Fallback for workspace icon
 const DefaultWorkspaceIcon = ({ className }: { className?: string }) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"

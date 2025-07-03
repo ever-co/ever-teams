@@ -70,19 +70,19 @@ export default function GridItem(props: IGridItemProps) {
 	return (
 		<div
 			className={cn(
-				'w-full bg-white dark:bg-dark--theme-light rounded-lg overflow-hidden border border-gray-200 dark:border-dark--theme-light',
-				'hover:border-primary dark:hover:border-primary transition-colors duration-200'
+				'overflow-hidden w-full bg-white rounded-lg border border-gray-200 dark:bg-dark--theme-light dark:border-dark--theme-light',
+				'transition-colors duration-200 hover:border-primary dark:hover:border-primary'
 			)}
 		>
-			<div className="w-full shrink-0 p-3 flex">
-				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="shrink-0 mt-1" />
-				<div className="h-full flex flex-col gap-6 grow ml-3">
-					<div className="w-full flex items-center justify-between">
-						<div className="flex items-center font-medium gap-2">
+			<div className="flex p-3 w-full shrink-0">
+				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="mt-1 shrink-0" />
+				<div className="flex flex-col gap-6 ml-3 h-full grow">
+					<div className="flex justify-between items-center w-full">
+						<div className="flex gap-2 items-start font-medium">
 							<div
 								style={{ backgroundColor: data?.project?.color ?? undefined }}
 								className={cn(
-									'w-9 h-9 border overflow-hidden flex items-center justify-center rounded-lg'
+									'flex overflow-hidden flex-none justify-center items-center w-9 h-9 rounded-lg border'
 								)}
 							>
 								{!data?.project?.imageUrl ? (
@@ -92,7 +92,7 @@ export default function GridItem(props: IGridItemProps) {
 										alt={data?.project?.name ?? ''}
 										height={36}
 										width={36}
-										className="w-full h-full object-cover"
+										className="object-cover w-full h-full"
 										src={data?.project?.imageUrl}
 									/>
 								)}
@@ -113,7 +113,7 @@ export default function GridItem(props: IGridItemProps) {
 					</div>
 
 					{!data?.isArchived && (
-						<div className="w-full items-center flex gap-4">
+						<div className="flex gap-4 items-center w-full">
 							<p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('common.STATUS')}</p>
 							{data?.status ? (
 								<div
@@ -133,13 +133,13 @@ export default function GridItem(props: IGridItemProps) {
 						</div>
 					)}
 
-					<div className="w-full flex items-center gap-10">
+					<div className="flex gap-10 items-center w-full">
 						<div className="flex flex-col gap-2">
 							<p className="text-sm font-medium">{t('common.START_DATE')}</p>
-							<div className="flex items-center gap-1">
+							<div className="flex gap-1 items-center">
 								{data?.startDate ? (
 									<>
-										<CalendarDays size={15} className=" text-slate-400" />
+										<CalendarDays size={15} className="text-slate-400" />
 										<p>{moment(data?.startDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
@@ -150,10 +150,10 @@ export default function GridItem(props: IGridItemProps) {
 
 						<div className="flex flex-col gap-2">
 							<p className="text-sm font-medium">{t('common.END_DATE')}</p>
-							<div className="flex items-center gap-1">
+							<div className="flex gap-1 items-center">
 								{data?.endDate ? (
 									<>
-										<CalendarDays size={15} className=" text-slate-400" />
+										<CalendarDays size={15} className="text-slate-400" />
 										<p>{moment(data?.endDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
@@ -163,8 +163,8 @@ export default function GridItem(props: IGridItemProps) {
 						</div>
 					</div>
 
-					<div className="w-full flex items-center justify-between">
-						<div className="w-full flex flex-col gap-2">
+					<div className="flex justify-between items-center w-full">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-sm font-medium">{t('common.MEMBERS')}</p>
 							<div>
 								{members?.length > 0 ? (
@@ -175,7 +175,7 @@ export default function GridItem(props: IGridItemProps) {
 							</div>
 						</div>
 
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-sm font-medium">{t('common.TEAMS')}</p>
 							<div>
 								{teams?.length > 0 ? (
@@ -186,7 +186,7 @@ export default function GridItem(props: IGridItemProps) {
 							</div>
 						</div>
 
-						<div className="w-full flex flex-col gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-sm font-medium">{t('common.MANAGERS')}</p>
 							<div>
 								{managers?.length > 0 ? (

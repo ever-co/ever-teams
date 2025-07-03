@@ -65,7 +65,7 @@ export function DatePickerWithRange({
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-auto p-0 flex" align="start">
+				<PopoverContent className="flex p-0 w-auto" align="start">
 					<Calendar
 						// @ts-ignore
 						initialFocus
@@ -78,9 +78,9 @@ export function DatePickerWithRange({
 					/>
 					<div className="flex flex-col gap-1 w-44 border-l">
 						<PresetDates date={selectedDate} setDate={setSelectedDate} />
-						<div className="flex p-2 items-center flex-1 gap-1 justify-between">
+						<div className="flex flex-1 gap-1 justify-between items-center p-2">
 							<Button
-								className=" grow text-xs h-8"
+								className="h-8 text-xs  grow"
 								variant={'outline'}
 								size={'sm'}
 								onClick={() => {
@@ -94,12 +94,12 @@ export function DatePickerWithRange({
 									if (selectedDate?.from && selectedDate?.to) {
 										onChange(selectedDate);
 										setDate(selectedDate);
-										setIsOpen(false); // Fermer le popover après Apply
+										setIsOpen(false); // Close the popover after Apply
 									} else {
 										console.warn('Invalid date range selected');
 									}
 								}}
-								className=" grow text-xs h-8 dark:text-white"
+								className="h-8 text-xs  grow dark:text-white"
 								size={'sm'}
 							>
 								{t('common.APPLY')}
@@ -172,7 +172,7 @@ const PresetDates = ({
 	}, [date?.from, date?.to, presets, date]);
 
 	return (
-		<div className="flex flex-col w-full p-2 gap-1">
+		<div className="flex flex-col gap-1 p-2 w-full">
 			{presets.map((preset) => (
 				<Button
 					key={preset.label}
