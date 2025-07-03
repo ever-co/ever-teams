@@ -180,15 +180,23 @@ class OrganizationProjectService extends APIService {
 	};
 
 	/**
-	 * Get organization projects with validation
+	 * Get organization projects with validation and pagination
 	 *
 	 * @param queries - Optional query parameters
+	 * @param skip - Number of items to skip for pagination
+	 * @param take - Number of items to take for pagination
 	 * @returns Promise<PaginationResponse<TOrganizationProject>> - Validated projects data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getOrganizationProjects = async ({ queries }: { queries?: Record<string, string> } = {}): Promise<
-		PaginationResponse<TOrganizationProject>
-	> => {
+	getOrganizationProjects = async ({
+		queries,
+		skip,
+		take
+	}: {
+		queries?: Record<string, string>;
+		skip?: number;
+		take?: number;
+	} = {}): Promise<PaginationResponse<TOrganizationProject>> => {
 		try {
 			const organizationId = getOrganizationIdCookie();
 			const tenantId = getTenantIdCookie();
@@ -200,12 +208,22 @@ class OrganizationProjectService extends APIService {
 				'join[leftJoin][tags]': 'organization_project.tags'
 			} as Record<string, string>;
 
-			const relations = ['members', 'teams', 'members.employee', 'members.employee.user', 'tags', 'tasks'];
+			// Relations matching the provided URL structure
+			const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
 
 			relations.forEach((relation, i) => {
 				obj[`relations[${i}]`] = relation;
 			});
 
+			// Add skip and take if provided
+			if (skip !== undefined) {
+				obj['skip'] = skip.toString();
+			}
+			if (take !== undefined) {
+				obj['take'] = take.toString();
+			}
+
+			// Add other queries
 			if (queries) {
 				Object.entries(queries).forEach(([key, value]) => {
 					obj[key] = value;
@@ -220,7 +238,7 @@ class OrganizationProjectService extends APIService {
 					tenantId
 				}
 			);
-
+			console.log('Project Data with Pagination:', response.data);
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(
 				organizationProjectSchema,

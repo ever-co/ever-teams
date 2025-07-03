@@ -34,11 +34,12 @@ export function DatePickerWithRange({
 }) {
 	const [date, setDate] = React.useState<DateRange | undefined>(defaultValue);
 	const [selectedDate, setSelectedDate] = React.useState<DateRange | undefined>(defaultValue);
+	const [isOpen, setIsOpen] = React.useState(false);
 	const t = useTranslations();
 
 	return (
 		<div className={cn('grid gap-2')}>
-			<Popover>
+			<Popover open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
 					<Button
 						id="date"
@@ -78,7 +79,14 @@ export function DatePickerWithRange({
 					<div className="flex flex-col gap-1 w-44 border-l">
 						<PresetDates date={selectedDate} setDate={setSelectedDate} />
 						<div className="flex p-2 items-center flex-1 gap-1 justify-between">
-							<Button className=" grow text-xs h-8" variant={'outline'} size={'sm'}>
+							<Button
+								className=" grow text-xs h-8"
+								variant={'outline'}
+								size={'sm'}
+								onClick={() => {
+									setIsOpen(false);
+								}}
+							>
 								{t('common.CANCEL')}
 							</Button>
 							<Button
@@ -86,6 +94,7 @@ export function DatePickerWithRange({
 									if (selectedDate?.from && selectedDate?.to) {
 										onChange(selectedDate);
 										setDate(selectedDate);
+										setIsOpen(false); // Fermer le popover après Apply
 									} else {
 										console.warn('Invalid date range selected');
 									}

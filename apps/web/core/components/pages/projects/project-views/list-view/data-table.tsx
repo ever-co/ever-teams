@@ -334,7 +334,11 @@ export const ProjectsTable = memo(
 								name: el?.employee?.fullName || ''
 							})) || [];
 
-					return members?.length > 0 ? <AvatarStack avatars={members} /> : null;
+					if (members.length === 0) {
+						return <span className="text-gray-500 text-sm">No members assigned</span>;
+					}
+
+					return <AvatarStack avatars={members} />;
 				}
 			},
 			{
@@ -353,12 +357,24 @@ export const ProjectsTable = memo(
 				enableHiding: true,
 				enableSorting: false,
 				cell: ({ row }) => {
-					const teams =
-						row.original?.teams?.map((el) => ({
-							name: el?.name
-						})) || [];
+					const teams = row.original?.teams || [];
 
-					return teams?.length > 0 ? <AvatarStack avatars={teams} /> : null;
+					if (teams.length === 0) {
+						return <span className="text-gray-500 text-sm">No team assigned</span>;
+					}
+
+					return (
+						<div className="flex flex-wrap gap-1">
+							{teams.map((team, index) => (
+								<span
+									key={team.id || index}
+									className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+								>
+									{team.name}
+								</span>
+							))}
+						</div>
+					);
 				}
 			},
 			{
