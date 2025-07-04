@@ -8,13 +8,14 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { useFavoritesTask } from '@/core/hooks/tasks/use-favorites-task';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { Spinner } from '@/core/components/common/spinner';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
@@ -24,8 +25,8 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
-
-	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
+		useFavoriteTasks();
 	const t = useTranslations();
 
 	const handleAssignment = useCallback(async () => {
@@ -86,8 +87,14 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem className="cursor-pointer " onClick={() => toggleFavorite(task)}>
-					{isFavorite(task) ? t('common.REMOVE_FAVORITE_TASK') : t('common.ADD_FAVORITE_TASK')}
+				<DropdownMenuItem className=" cursor-pointer" onClick={async () => await toggleFavoriteTask(task)}>
+					{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
+						<Spinner />
+					) : isFavoriteTask(task.id) ? (
+						t('common.REMOVE_FAVORITE_TASK')
+					) : (
+						t('common.ADD_FAVORITE_TASK')
+					)}
 				</DropdownMenuItem>
 
 				<DropdownMenuItem className="cursor-pointer " onClick={handleAssignment}>

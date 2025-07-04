@@ -6,6 +6,7 @@ import { EFileStorageProvider } from '../../generics/enums/file-storage';
 import { EInviteStatus, EInvitationType } from '../../generics/enums/invite';
 import { ETaskStatusName, ETaskPriority, ETaskSize, ETaskType } from '../../generics/enums/task';
 import { ETimeLogSource, ETimerStatus } from '../../generics/enums/timer';
+import { EBaseEntityEnum } from '../../generics/enums/entity';
 
 /**
  * Centralized Zod schemas for enums used across the application
@@ -38,3 +39,6 @@ export const currenciesSchema = z.nativeEnum(ECurrencies);
 // Invite related enums
 export const inviteStatusSchema = z.nativeEnum(EInviteStatus);
 export const inviteTypeSchema = z.nativeEnum(EInvitationType);
+
+// Entity related enums
+export const baseEntityEnumSchema = z.nativeEnum(EBaseEntityEnum);

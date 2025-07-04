@@ -2,6 +2,7 @@ import { TUser } from '@/core/types/schemas';
 import { IOrganization } from '../organization/organization';
 import { ITag } from '../tag/tag';
 import { ITenant } from '../tenant/tenant';
+import { EBaseEntityEnum } from '../../generics/enums/entity';
 
 export type ID = string;
 
@@ -66,4 +67,9 @@ export interface IBasePerTenantAndOrganizationEntityMutationInput
 	extends Pick<IBasePerTenantAndOrganizationEntityModel, 'organizationId'>,
 		Partial<IBasePerTenantEntityMutationInput> {
 	organization?: Pick<IOrganization, 'id'>;
+}
+
+export interface IBasePerEntityType extends IBasePerTenantAndOrganizationEntityModel {
+	entityId: ID; // Unique ID of the entity
+	entity: EBaseEntityEnum; // The type of the entity, defined in BaseEntityEnum enumeration.
 }
