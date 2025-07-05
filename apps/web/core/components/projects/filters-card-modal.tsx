@@ -1,9 +1,8 @@
-import { Modal } from '@/core/components';
+import { Button, Modal } from '@/core/components';
 import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from '../common/multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button } from '@ever-teams/ui';
 import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';

@@ -37,7 +37,6 @@
 		"build:utils": "turbo build --filter=@ever-teams/utils",
 		"start:web:dev": "turbo dev --filter=@ever-teams/web",
 		"dev:web": "yarn build:services && yarn build:types && yarn build:constants && yarn build:ui && yarn build:hooks && yarn build:utils && turbo dev --filter=@ever-teams/web",
-		"dev:playground": "turbo dev --filter=@ever-teams/playground",
 		"start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
 		"start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/web/src/pm2bootstrap.ts",
 		"start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
@@ -177,7 +176,6 @@
 		"packages": [
 			"apps/web",
 			"apps/server-web",
-			"apps/playground",
 			"packages/*",
 			"libs/*",
 			"tools"
