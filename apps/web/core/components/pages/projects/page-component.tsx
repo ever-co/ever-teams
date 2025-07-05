@@ -385,19 +385,17 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects?.length;
+		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
 
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {
 			setSelectedProjects(
-				filteredProjects
-					? Object.fromEntries(
-							filteredProjects.map((el) => {
-								return [el.project.id, true];
-							})
-						)
-					: {}
+				Object.fromEntries(
+					filteredProjects.map((el) => {
+						return [el.project.id, true];
+					})
+				)
 			);
 		}
 	}, [filteredProjects, selectedProjects]);
