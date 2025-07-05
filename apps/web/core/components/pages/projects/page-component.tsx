@@ -293,11 +293,13 @@ function PageComponent() {
 	}, [activeTeam, dateFilteredProjects]);
 
 	const filteredProjects = useMemo(() => {
-		return searchTerm
-			? activeTeamProjects.filter((el) =>
-					el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
-				)
-			: activeTeamProjects || [];
+		return (
+			(searchTerm
+				? activeTeamProjects.filter((el) =>
+						el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+					)
+				: activeTeamProjects) || []
+		);
 	}, [activeTeamProjects, searchTerm]);
 	const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
 	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
