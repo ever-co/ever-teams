@@ -4,10 +4,10 @@ on:
     branches:
       - apps
     paths:
-      - '.github/workflows/mobile.apps.yml'
-      - 'apps/mobile/**'
-      - 'package.json'
-      - 'yarn.lock'
+      - ".github/workflows/mobile.apps.yml"
+      - "apps/mobile/**"
+      - "package.json"
+      - "yarn.lock"
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -35,8 +35,8 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.11.1'
-          cache: 'yarn'
+          node-version: "20.19.0"
+          cache: "yarn"
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -79,16 +79,16 @@ jobs:
       - name: Publish update
         run: cd apps/mobile && eas update --auto --platform android --non-interactive
 
-      - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+      - name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
         with:
-          project_id: 'ever-teams-399720'
+          project_id: "ever-teams-399720"
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --profile production --platform android --latest --non-interactive
