@@ -441,9 +441,11 @@ const Kanban = () => {
 				{/** TODO:fetch teamtask based on days */}
 
 				{activeTab && (
-					<div className="container overflow-x-hidden px-0 mx-0 w-full">
+					<div className="overflow-x-hidden px-0 mx-0 w-full">
 						{Object.keys(filteredBoard).length > 0 ? (
-							<LazyKanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+							<div className="w-full h-full">
+								<LazyKanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+							</div>
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
 								<KanbanViewSkeleton fullWidth={fullWidth} />

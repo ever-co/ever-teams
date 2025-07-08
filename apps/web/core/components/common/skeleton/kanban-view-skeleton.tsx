@@ -1,4 +1,3 @@
-import React from 'react';
 import { KanbanColumnLoadingSkeleton } from './kanban-column-loading-skeleton';
 
 interface KanbanViewSkeletonProps {
@@ -12,7 +11,7 @@ export function KanbanViewSkeleton({ className, fullWidth = true }: KanbanViewSk
 
 	return (
 		<div
-			className={`w-[1280px] xl:w-[1500px] 2xl:w-[1600px] mt-6 relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3 ${className || ''}`}
+			className={`w-[1290px] xl:w-[1500px] 2xl:w-[1600px] mt-6 relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3 ${className || ''}`}
 		>
 			<div className="flex flex-row flex-1 gap-4 px-8 w-full h-full min-h-fit lg:px-0">
 				{columns.map((_, index: number) => (
