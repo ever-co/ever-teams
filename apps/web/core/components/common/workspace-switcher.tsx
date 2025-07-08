@@ -91,7 +91,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 							<span className="font-medium text-foreground">
 								"{currentWorkspace?.name || 'Current workspace'}"
 							</span>{' '}
-							vers{' '}
+							to{' '}
 							<span className="font-medium text-foreground">
 								"{targetWorkspace?.name || 'New workspace'}"
 							</span>
@@ -108,12 +108,12 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						</div>
 					</DialogDescription>
 				</DialogHeader>
-				<DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+				<DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between sm:gap-2">
 					<Button
 						variant="outline"
 						onClick={onClose}
 						disabled={isLoading}
-						className="mt-2 sm:mt-0"
+						className="mt-2 text-red-500 border border-red-500 sm:mt-0"
 						aria-label="Cancel the workspace change"
 					>
 						Cancel
@@ -173,7 +173,6 @@ const WorkspaceSkeleton: React.FC = () => {
 
 export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
-
 	// Use the new hooks with comprehensive state management
 	const {
 		workspaces,
@@ -184,14 +183,49 @@ export function WorkspacesSwitcher() {
 		workspacesQuery
 	} = useWorkspaces();
 
+	// Determine the actual current workspace with robust fallback logic
+	const actualCurrentWorkspace = React.useMemo(() => {
+		// Priority 1: currentWorkspace from store (based on activeWorkspaceId)
+		if (currentWorkspace) {
+			return currentWorkspace;
+		}
+
+		// Priority 2: Find workspace marked as active
+		const activeWorkspace = workspaces.find((workspace) => workspace.isActive);
+		if (activeWorkspace) {
+			return activeWorkspace;
+		}
+
+		// Priority 3: Find workspace marked as default (legacy)
+		const defaultWorkspace = workspaces.find((workspace) => workspace.isDefault);
+		if (defaultWorkspace) {
+			return defaultWorkspace;
+		}
+
+		// Priority 4: First workspace if any exist
+		if (workspaces.length > 0) {
+			return workspaces[0];
+		}
+
+		return null;
+	}, [currentWorkspace, workspaces]);
+	// Workspaces for dropdown - exclude only the actual current workspace
+	const availableWorkspaces = workspaces.filter((workspace) => workspace.id !== actualCurrentWorkspace?.id);
+
 	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
 
 	// Modal state for workspace switch confirmation
 	const { isOpen: isConfirmModalOpen, openModal: openConfirmModal, closeModal: closeConfirmModal } = useModal();
 	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
 
-	// Fallback to legacy data if the new data is not available
-	const activeWorkspace = workspaces.find((workspace) => workspace.isDefault);
+	// Debug logs to verify the logic
+	React.useEffect(() => {
+		console.log('🔍 Workspace Debug Info:');
+		console.log('  currentWorkspace:', currentWorkspace);
+		console.log('  actualCurrentWorkspace:', actualCurrentWorkspace);
+		console.log('  workspaces:', workspaces);
+		console.log('  availableWorkspaces:', availableWorkspaces);
+	}, [currentWorkspace, actualCurrentWorkspace, workspaces, availableWorkspaces]);
 
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(
@@ -261,59 +295,33 @@ export function WorkspacesSwitcher() {
 			return <WorkspaceSkeleton />;
 		}
 
-		// Show current workspace if available (primary data source)
-		if (currentWorkspace) {
+		// Show actual current workspace if available
+		if (actualCurrentWorkspace) {
 			return (
 				<>
 					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
-						{currentWorkspace.logo || currentWorkspace.name ? (
+						{actualCurrentWorkspace.logo || actualCurrentWorkspace.name ? (
 							<Avatar className="rounded !size-6">
 								<AvatarImage
 									width={24}
 									height={24}
-									src={currentWorkspace.logo}
-									alt={currentWorkspace.name}
+									src={actualCurrentWorkspace.logo}
+									alt={actualCurrentWorkspace.name}
 								/>
-								<AvatarFallback>{currentWorkspace.name.charAt(0)}</AvatarFallback>
+								<AvatarFallback>{actualCurrentWorkspace.name.charAt(0)}</AvatarFallback>
 							</Avatar>
 						) : (
 							<DefaultWorkspaceIcon className="size-4" />
 						)}
 					</div>
 					<div className="grid flex-1 text-sm leading-tight text-left">
-						<span className="font-semibold truncate">{currentWorkspace.name}</span>
-						{currentWorkspace.teams.length > 0 && (
+						<span className="font-semibold truncate">{actualCurrentWorkspace.name}</span>
+						{actualCurrentWorkspace.teams.length > 0 && (
 							<span className="text-xs text-muted-foreground">
-								{currentWorkspace.teams.length} team{currentWorkspace.teams.length > 1 ? 's' : ''}
+								{actualCurrentWorkspace.teams.length} team
+								{actualCurrentWorkspace.teams.length > 1 ? 's' : ''}
 							</span>
 						)}
-					</div>
-				</>
-			);
-		}
-
-		// Fallback to legacy active workspace (secondary data source)
-		if (activeWorkspace) {
-			return (
-				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
-						{activeWorkspace.logo || activeWorkspace.name ? (
-							<Avatar className="rounded !size-8">
-								<AvatarImage
-									width={24}
-									height={24}
-									src={activeWorkspace.logo}
-									alt={activeWorkspace.name}
-								/>
-								<AvatarFallback>{activeWorkspace.name.charAt(0)}</AvatarFallback>
-							</Avatar>
-						) : (
-							<DefaultWorkspaceIcon className="size-4" />
-						)}
-					</div>
-					<div className="grid flex-1 text-sm leading-tight text-left">
-						<span className="font-semibold truncate">{activeWorkspace.name}</span>
-						<span className="text-xs truncate">{activeWorkspace.plan}</span>
 					</div>
 				</>
 			);
@@ -346,7 +354,7 @@ export function WorkspacesSwitcher() {
 								aria-label={
 									isWorkspaceLoading
 										? 'Loading workspace information...'
-										: `Current workspace: ${currentWorkspace?.name || activeWorkspace?.name || 'No workspace'}. Click to change the workspace`
+										: `Current workspace: ${actualCurrentWorkspace?.name || 'No workspace'}. Click to change the workspace`
 								}
 								aria-expanded={false}
 								aria-haspopup="menu"
@@ -371,11 +379,11 @@ export function WorkspacesSwitcher() {
 							<DropdownMenuLabel className="text-xs text-muted-foreground">Workspaces</DropdownMenuLabel>
 
 							{/* Display other workspaces (not current) */}
-							{workspaces.length > 0 && (
+							{availableWorkspaces.length > 0 && (
 								<>
-									{workspaces
-										.filter((workspace) => workspace.id !== currentWorkspace?.id) // Only show OTHER workspaces
-										.map((workspace) => {
+									{
+										// Only show OTHER workspaces
+										availableWorkspaces.map((workspace) => {
 											const totalMembers = workspace.teams.reduce(
 												(total: number, team: any) => total + (team.members?.length || 0),
 												0
@@ -411,41 +419,20 @@ export function WorkspacesSwitcher() {
 													</div>
 												</DropdownMenuItem>
 											);
-										})}
-								</>
-							)}
-
-							{/* Fallback to legacy data - also exclude current workspace */}
-							{workspaces.length === 0 && (
-								<>
-									{workspaces
-										.filter((workspace) => workspace.id !== currentWorkspace?.id) // Exclude current workspace
-										.map((workspace) => {
-											return (
-												<DropdownMenuItem key={workspace.name} className="gap-2 p-2" disabled>
-													<div className="flex justify-center items-center rounded-sm border size-6">
-														<Avatar>
-															<AvatarImage src={workspace.logo} alt={workspace.name} />
-															<AvatarFallback>{workspace.name.charAt(0)}</AvatarFallback>
-														</Avatar>
-													</div>
-													{workspace.name}
-												</DropdownMenuItem>
-											);
-										})}
+										})
+									}
 								</>
 							)}
 
 							{/* Message if no other workspaces */}
-							{workspaces.length > 0 &&
-								workspaces.filter((w) => w.id !== currentWorkspace?.id).length === 0 && (
-									<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-										<div className="flex justify-center items-center rounded-sm border size-6">
-											<DefaultWorkspaceIcon className="size-4" />
-										</div>
-										No other workspace available
-									</DropdownMenuItem>
-								)}
+							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
+								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
+									<div className="flex justify-center items-center rounded-sm border size-6">
+										<DefaultWorkspaceIcon className="size-4" />
+									</div>
+									No other workspace available
+								</DropdownMenuItem>
+							)}
 
 							<DropdownMenuSeparator />
 							<DropdownMenuItem className="gap-2 p-2" disabled>
@@ -467,7 +454,7 @@ export function WorkspacesSwitcher() {
 						onClose={handleCloseModal}
 						onConfirm={handleConfirmWorkspaceSwitch}
 						targetWorkspace={targetWorkspace}
-						currentWorkspace={currentWorkspace}
+						currentWorkspace={actualCurrentWorkspace}
 						isLoading={isSwitching}
 					/>
 				</Suspense>
