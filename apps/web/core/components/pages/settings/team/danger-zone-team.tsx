@@ -5,7 +5,7 @@ import { Button, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { RemoveModal } from '@/core/components/settings/remove-modal';
 import { TransferTeamModal } from '@/core/components/features/teams/transfer-team-modal';
 
@@ -22,7 +22,7 @@ export const DangerZoneTeam = () => {
 
 	const handleDisposeTeam = useCallback(() => {
 		if (activeTeam) {
-			window.localStorage.removeItem(LAST_WORSPACE_AND_TEAM);
+			window.localStorage.removeItem(LAST_WORKSPACE_AND_TEAM);
 			return deleteOrganizationTeam(activeTeam.id);
 		}
 	}, [activeTeam, deleteOrganizationTeam]);

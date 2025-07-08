@@ -7,6 +7,3 @@ export * from './use-email-verify-token';
 export * from './use-workspaces';
 export * from './use-current-org';
 export * from './use-workspace-switcher';
-
-// Export organization-focused hooks
-export * from './use-current-org';

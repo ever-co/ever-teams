@@ -238,7 +238,6 @@ class OrganizationProjectService extends APIService {
 					tenantId
 				}
 			);
-			console.log('Project Data with Pagination:', response.data);
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(
 				organizationProjectSchema,

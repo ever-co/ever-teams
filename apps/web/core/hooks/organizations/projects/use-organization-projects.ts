@@ -101,7 +101,6 @@ export function useOrganizationProjects() {
 	useConditionalUpdateEffect(
 		() => {
 			if (organizationProjectsQuery.data?.items) {
-				console.log('Synchronizing organization projects:', organizationProjectsQuery.data.items);
 				setOrganizationProjects(organizationProjectsQuery.data.items);
 			}
 		},
@@ -133,7 +132,6 @@ export function useOrganizationProjects() {
 	);
 
 	const getOrganizationProjects = useCallback(async () => {
-		console.log('Organization Projects Query Data', organizationProjectsQuery.data);
 		return organizationProjectsQuery.data;
 	}, [organizationProjectsQuery]);
 

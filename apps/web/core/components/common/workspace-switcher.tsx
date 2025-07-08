@@ -65,14 +65,6 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 	currentWorkspace,
 	isLoading = false
 }) => {
-	// Focus management - ensure focus returns to trigger when modal closes
-	React.useEffect(() => {
-		if (!isOpen) {
-			// Focus will be managed by Radix Dialog automatically
-			return;
-		}
-	}, [isOpen]);
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent
@@ -217,15 +209,6 @@ export function WorkspacesSwitcher() {
 	// Modal state for workspace switch confirmation
 	const { isOpen: isConfirmModalOpen, openModal: openConfirmModal, closeModal: closeConfirmModal } = useModal();
 	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
-
-	// Debug logs to verify the logic
-	React.useEffect(() => {
-		console.log('🔍 Workspace Debug Info:');
-		console.log('  currentWorkspace:', currentWorkspace);
-		console.log('  actualCurrentWorkspace:', actualCurrentWorkspace);
-		console.log('  workspaces:', workspaces);
-		console.log('  availableWorkspaces:', availableWorkspaces);
-	}, [currentWorkspace, actualCurrentWorkspace, workspaces, availableWorkspaces]);
 
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(

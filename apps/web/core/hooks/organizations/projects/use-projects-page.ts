@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useOrganizationProjects } from './use-organization-projects';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
@@ -65,6 +65,11 @@ export function useProjectsPage() {
 
 	// Auto-apply filters when they change
 	const debouncedApplyFilters = useCallback(() => {
+		setTimeout(applyFilters, 300);
+	}, [applyFilters]);
+
+	// Effect to handle debounce cleanup
+	useEffect(() => {
 		const timeoutId = setTimeout(applyFilters, 300);
 		return () => clearTimeout(timeoutId);
 	}, [applyFilters]);

@@ -385,8 +385,7 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
-
+		const areAllProjectsSelected = Object.keys(selectedProjects).length === filteredProjects.length;
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {

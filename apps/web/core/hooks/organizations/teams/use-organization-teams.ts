@@ -19,7 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 // import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
-import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad } from '../../common';
 import { useAuthenticateUser } from '../../auth';
@@ -341,7 +341,7 @@ export function useOrganizationTeams() {
 			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
-			window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, team.id);
+			window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
 			// Only update user last team if it's different to avoid unnecessary API calls
 			if (user && user.lastTeamId !== team.id) {
 				updateUserLastTeam({ id: user.id, lastTeamId: team.id });

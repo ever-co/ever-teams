@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { workspaceService } from '@/core/services/client/api/auth';
 import { workspaceSwitchingState, workspacesErrorState, activeWorkspaceIdState } from '@/core/stores/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
-import { LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { useWorkspaces } from './use-workspaces';
 import { useAuthenticateUser } from './use-authenticate-user';
 import { toast } from 'sonner';
@@ -58,7 +58,7 @@ export function useWorkspaceSwitcher() {
 	 */
 	const getLastUsedTeamId = useCallback((): string | null => {
 		if (typeof window === 'undefined') return null;
-		return window.localStorage.getItem(LAST_WORSPACE_AND_TEAM);
+		return window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
 	}, []);
 
 	/**
@@ -66,7 +66,7 @@ export function useWorkspaceSwitcher() {
 	 */
 	const getLastUsedTeamForWorkspace = useCallback((workspaceId: string): string | null => {
 		if (typeof window === 'undefined') return null;
-		const key = `${LAST_WORSPACE_AND_TEAM}_${workspaceId}`;
+		const key = `${LAST_WORKSPACE_AND_TEAM}_${workspaceId}`;
 		return window.localStorage.getItem(key);
 	}, []);
 
@@ -75,7 +75,7 @@ export function useWorkspaceSwitcher() {
 	 */
 	const saveLastUsedTeamId = useCallback((teamId: string) => {
 		if (typeof window === 'undefined') return;
-		window.localStorage.setItem(LAST_WORSPACE_AND_TEAM, teamId);
+		window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, teamId);
 	}, []);
 
 	/**
@@ -83,7 +83,7 @@ export function useWorkspaceSwitcher() {
 	 */
 	const saveLastUsedTeamForWorkspace = useCallback((workspaceId: string, teamId: string): void => {
 		if (typeof window === 'undefined') return;
-		const key = `${LAST_WORSPACE_AND_TEAM}_${workspaceId}`;
+		const key = `${LAST_WORKSPACE_AND_TEAM}_${workspaceId}`;
 		window.localStorage.setItem(key, teamId);
 	}, []);
 

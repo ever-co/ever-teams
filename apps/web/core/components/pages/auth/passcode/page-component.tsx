@@ -16,7 +16,7 @@ import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { useSession } from 'next-auth/react';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
@@ -314,7 +314,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			if (typeof selectedWorkspace !== 'undefined') {
 				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
 				window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
-				window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, selectedTeam);
+				window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 			}
 		},
 		[selectedWorkspace, selectedTeam, form]
@@ -333,7 +333,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			setSelectedTeam(currentTeams[0].team_id);
 		} else {
 			const lastSelectedTeam =
-				window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) ||
+				window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) ||
 				lastSelectedTeamFromAPI ||
 				form.defaultTeamId ||
 				currentTeams[0]?.team_id;

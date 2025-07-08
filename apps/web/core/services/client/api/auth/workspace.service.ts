@@ -74,7 +74,7 @@ class WorkspaceService extends APIService {
 
 					const teamsData = organizationTeams.data as any;
 					if (!teamsData?.items?.length) {
-						console.log(`No teams found for organization ${orgId}`);
+						this.logger.warn(`No teams found for organization ${orgId}`);
 						continue;
 					}
 
@@ -116,24 +116,15 @@ class WorkspaceService extends APIService {
 					};
 
 					workspaces.push(workspace);
-					console.log(
-						'Added workspace:',
-						workspace.name,
-						'with',
-						workspace.teams.length,
-						'teams. Total workspaces:',
-						workspaces.length
-					);
 				} catch (error) {
-					console.error(`Error fetching teams for organization ${orgId}:`, error);
+					this.logger.error(`Error fetching teams for organization ${orgId}:`, error);
 					// Continue with other organizations
 				}
 			}
 
-			console.log('Final workspaces array:', workspaces);
 			return workspaces;
 		} catch (error) {
-			console.error('Error retrieving workspaces:', error);
+			this.logger.error('Error retrieving workspaces:', error);
 			throw error;
 		}
 	};
@@ -188,7 +179,7 @@ class WorkspaceService extends APIService {
 				data: { loginResponse: response.data as IAuthResponse }
 			};
 		} catch (error: any) {
-			console.error('Error switching workspace:', error);
+			this.logger.error('Error switching workspace:', error);
 			throw error;
 		}
 	};
@@ -201,7 +192,7 @@ class WorkspaceService extends APIService {
 			const workspaces = await this.getUserWorkspaces(user);
 			return workspaces.find((workspace) => workspace.isActive) || null;
 		} catch (error) {
-			console.error('Error retrieving current workspace:', error);
+			this.logger.error('Error retrieving current workspace:', error);
 			return null;
 		}
 	};
@@ -214,7 +205,7 @@ class WorkspaceService extends APIService {
 			const workspaces = await this.getUserWorkspaces(user);
 			return workspaces.some((workspace) => workspace.id === workspaceId);
 		} catch (error) {
-			console.error('Error validating workspace access:', error);
+			this.logger.error('Error validating workspace access:', error);
 			return false;
 		}
 	};
@@ -346,7 +337,7 @@ class WorkspaceService extends APIService {
 				workspace
 			};
 		} catch (error) {
-			console.error('Error in enhanced workspace access validation:', error);
+			this.logger.error('Error in enhanced workspace access validation:', error);
 			return {
 				hasAccess: false,
 				reason: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`
