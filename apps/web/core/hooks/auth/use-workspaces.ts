@@ -17,6 +17,7 @@ import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from './use-authenticate-user';
+import { useFirstLoad } from '../common/use-first-load';
 
 /**
  * Hook for managing user workspaces
@@ -32,6 +33,7 @@ export function useWorkspaces() {
 	const hasMultipleWorkspaces = useAtomValue(hasMultipleWorkspacesState);
 
 	const queryClient = useQueryClient();
+	const { firstLoadData: firstLoadWorkspacesData } = useFirstLoad();
 
 	// Check if user is authenticated
 	const isAuthenticated = useCallback(() => {
@@ -194,6 +196,9 @@ export function useWorkspaces() {
 		getWorkspaceById,
 		hasWorkspace,
 		invalidateWorkspaces,
+
+		// FirstLoad function for InitState
+		firstLoadWorkspacesData,
 
 		// Query object for advanced control
 		workspacesQuery

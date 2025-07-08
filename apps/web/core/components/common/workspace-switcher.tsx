@@ -25,6 +25,8 @@ import {
 import { Button } from '@/core/components/common/button';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { useModal } from '@/core/hooks/common/use-modal';
+import { ModalSkeleton } from './skeleton/modal-skeleton';
+import { Suspense } from 'react';
 
 // Fallback for workspace icon
 const DefaultWorkspaceIcon = ({ className }: { className?: string }) => (
@@ -95,29 +97,29 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 				aria-describedby="workspace-switch-description"
 			>
 				<DialogHeader>
-					<DialogTitle id="workspace-switch-title" className="flex items-center gap-2">
-						<AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
-						Changer de workspace ?
+					<DialogTitle id="workspace-switch-title" className="flex gap-2 items-center">
+						<AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
+						Changer the workspace ?
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
 						<div className="text-sm text-muted-foreground">
-							Vous allez passer du workspace{' '}
+							You are going to switch the workspace{' '}
 							<span className="font-medium text-foreground">
-								"{currentWorkspace?.name || 'Workspace actuel'}"
+								"{currentWorkspace?.name || 'Current workspace'}"
 							</span>{' '}
 							vers{' '}
 							<span className="font-medium text-foreground">
-								"{targetWorkspace?.name || 'Nouveau workspace'}"
+								"{targetWorkspace?.name || 'New workspace'}"
 							</span>
 							.
 						</div>
-						<div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-md border border-amber-200 dark:border-amber-800">
+						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
-								className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0"
+								className="flex-shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
-								Cette action va recharger l'application pour synchroniser toutes les données.
+								This action will reload the application to synchronize all data.
 							</span>
 						</div>
 					</DialogDescription>
@@ -128,23 +130,23 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						onClick={onClose}
 						disabled={isLoading}
 						className="mt-2 sm:mt-0"
-						aria-label="Annuler le changement de workspace"
+						aria-label="Cancel the workspace change"
 					>
-						Annuler
+						Cancel
 					</Button>
 					<Button
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
-						aria-label={`Confirmer le changement vers ${targetWorkspace?.name}`}
+						aria-label={`Confirm the change to ${targetWorkspace?.name}`}
 					>
 						{isLoading ? (
 							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-								Changement...
+								<Loader2 className="mr-2 w-4 h-4 animate-spin" aria-hidden="true" />
+								Changing...
 							</>
 						) : (
-							'Confirmer le changement'
+							'Confirm the change'
 						)}
 					</Button>
 				</DialogFooter>
@@ -269,12 +271,12 @@ export function WorkspacesSwitcher() {
 			// Legacy mode
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-8 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
 						{activeWorkspace.logo || activeWorkspace.name ? (
-							<Avatar className="rounded size-6">
+							<Avatar className="rounded !size-8">
 								<AvatarImage
-									width={25}
-									height={25}
+									width={24}
+									height={24}
 									src={activeWorkspace.logo}
 									alt={activeWorkspace.name}
 								/>
@@ -296,12 +298,12 @@ export function WorkspacesSwitcher() {
 			// Real data mode
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-8 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
 						{currentWorkspace.logo || currentWorkspace.name ? (
-							<Avatar className="rounded size-4">
+							<Avatar className="rounded !size-6">
 								<AvatarImage
-									width={25}
-									height={25}
+									width={24}
+									height={24}
 									src={currentWorkspace.logo}
 									alt={currentWorkspace.name}
 								/>
@@ -326,8 +328,8 @@ export function WorkspacesSwitcher() {
 		// Loading state or no workspace
 		return (
 			<>
-				<div className="flex justify-center items-center rounded-lg aspect-square size-8 bg-sidebar-primary text-sidebar-primary-foreground">
-					<DefaultWorkspaceIcon className="size-4" />
+				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
 				<div className="grid flex-1 text-sm leading-tight text-left">
 					<span className="font-semibold truncate">Ever Teams</span>
@@ -347,7 +349,7 @@ export function WorkspacesSwitcher() {
 								size="lg"
 								className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								disabled={isSwitching}
-								aria-label={`Workspace actuel: ${currentWorkspace?.name || 'Aucun workspace'}. Cliquer pour changer de workspace`}
+								aria-label={`Current workspace: ${currentWorkspace?.name || 'No workspace'}. Click to change the workspace`}
 								aria-expanded={false}
 								aria-haspopup="menu"
 							>
@@ -365,7 +367,7 @@ export function WorkspacesSwitcher() {
 							side={isMobile ? 'bottom' : 'right'}
 							sideOffset={4}
 							role="menu"
-							aria-label="Liste des workspaces disponibles"
+							aria-label="List of available workspaces"
 						>
 							<DropdownMenuLabel className="text-xs text-muted-foreground">Workspaces</DropdownMenuLabel>
 
@@ -386,7 +388,7 @@ export function WorkspacesSwitcher() {
 													className="gap-2 p-2"
 													disabled={isSwitching}
 													role="menuitem"
-													aria-label={`Changer vers le workspace ${workspace.name} avec ${workspace.teams.length} équipe${workspace.teams.length > 1 ? 's' : ''}`}
+													aria-label={`Change to the workspace ${workspace.name} with ${workspace.teams.length} team${workspace.teams.length > 1 ? 's' : ''}`}
 												>
 													<div className="flex justify-center items-center rounded-sm border size-6">
 														{workspace.logo ? (
@@ -461,14 +463,18 @@ export function WorkspacesSwitcher() {
 			</SidebarMenu>
 
 			{/* Workspace Switch Confirmation Modal */}
-			<WorkspaceSwitchConfirmModal
-				isOpen={isConfirmModalOpen}
-				onClose={handleCloseModal}
-				onConfirm={handleConfirmWorkspaceSwitch}
-				targetWorkspace={targetWorkspace}
-				currentWorkspace={currentWorkspace}
-				isLoading={isSwitching}
-			/>
+			{isConfirmModalOpen && (
+				<Suspense fallback={<ModalSkeleton />}>
+					<WorkspaceSwitchConfirmModal
+						isOpen={isConfirmModalOpen}
+						onClose={handleCloseModal}
+						onConfirm={handleConfirmWorkspaceSwitch}
+						targetWorkspace={targetWorkspace}
+						currentWorkspace={currentWorkspace}
+						isLoading={isSwitching}
+					/>
+				</Suspense>
+			)}
 		</>
 	);
 }
