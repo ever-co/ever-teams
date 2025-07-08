@@ -7,9 +7,9 @@ import { useModal, useSyncRef } from '../common';
 import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -33,12 +33,12 @@ export function useTaskInput({
 	initEditMode,
 	tasks: customTasks
 }: {
-	tasks?: ITask[];
-	task?: Nullable<ITask>;
+	tasks?: TTask[];
+	task?: Nullable<TTask>;
 	initEditMode?: boolean;
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
-	const [closeableTask, setCloseableTaskTask] = useState<ITask | null>(null);
+	const [closeableTask, setCloseableTaskTask] = useState<TTask | null>(null);
 	const { taskStatuses: taskStatusList } = useTaskStatus();
 	const {
 		tasks: teamTasks,
@@ -76,7 +76,7 @@ export function useTaskInput({
 	const [editMode, setEditMode] = useState(initEditMode || false);
 
 	const handleOpenModal = useCallback(
-		(concernedTask: ITask) => {
+		(concernedTask: TTask) => {
 			setCloseableTaskTask(concernedTask);
 			openModal();
 		},
@@ -84,7 +84,7 @@ export function useTaskInput({
 	);
 
 	const handleReopenTask = useCallback(
-		async (concernedTask: ITask) => {
+		async (concernedTask: TTask) => {
 			return updateTask({
 				...concernedTask,
 				status: ETaskStatusName.OPEN
@@ -158,20 +158,20 @@ export function useTaskInput({
 			setQuery('');
 			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
 			setTaskIssue('');
-			const items = res.data?.items || [];
-			const created = items.find((t: ITask) => t.title === query.trim());
-			if (created && autoActiveTask) setActiveTask(created);
+			const items = res?.items || [];
+			const created = items.find((t: TTask) => t.title === query.trim());
+			if (created && autoActiveTask) setActiveTask(created as any);
 
 			return created;
 		});
 	};
 
 	const updateTaskTitleHandler = useCallback(
-		(itask: ITask, title: string) => {
+		(task: TTask, title: string) => {
 			if (!userRef.current?.isEmailVerified) return;
 
 			return updateTask({
-				...itask,
+				...task,
 				title
 			});
 		},

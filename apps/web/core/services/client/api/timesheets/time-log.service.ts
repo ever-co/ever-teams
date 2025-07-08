@@ -5,10 +5,16 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { TAddManualTimeRequest, timeLogSchema, TTimeLog } from '@/core/types/schemas';
+import {
+	TAddManualTimeRequest,
+	timeLogSchema,
+	TTimeLog,
+	timeLogReportDailySchema,
+	TTimeLogReportDaily,
+	TGetTimerLogsDailyReportRequest
+} from '@/core/types/schemas';
 import {
 	ITimeLogGroupedDailyReport,
-	ITimeLogReportDaily,
 	ITimeLogReportDailyChart,
 	ITimeLogReportDailyChartProps,
 	ITimeLogReportDailyRequest
@@ -49,33 +55,60 @@ class TimeLogService extends APIService {
 		}
 	};
 
-	getTimerLogsDailyReport = async ({
-		tenantId,
-		organizationId,
-		employeeIds,
-		startDate,
-		endDate
-	}: {
-		tenantId: string;
-		organizationId: string;
-		employeeIds: string[];
-		startDate: Date;
-		endDate: Date;
-	}) => {
-		// Format dates using the utility function to avoid same-day API errors
-		const { start, end } = formatStartAndEndDateRange(startDate, endDate);
+	/**
+	 * Get timer logs daily report with validation
+	 *
+	 * @param params - Timer logs daily report request parameters
+	 * @returns Promise<TTimeLogReportDaily[]> - Validated timer logs daily report data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
+		try {
+			// Format dates using the utility function to avoid same-day API errors
+			const { start, end } = formatStartAndEndDateRange(params.startDate, params.endDate);
 
-		const params = {
-			tenantId: tenantId,
-			organizationId: organizationId,
-			employeeIds,
-			todayStart: start,
-			todayEnd: end
-		};
+			const queryParams = {
+				tenantId: params.tenantId,
+				organizationId: params.organizationId,
+				employeeIds: params.employeeIds,
+				todayStart: start,
+				todayEnd: end
+			};
 
-		const query = qs.stringify(params);
+			const query = qs.stringify(queryParams);
 
-		return this.get<ITimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
+			const response = await this.get<TTimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
+
+			// Validate the response data using Zod schema
+			if (Array.isArray(response.data)) {
+				const validatedReports = response.data.map((report, index) =>
+					validateApiResponse(
+						timeLogReportDailySchema,
+						report,
+						`getTimerLogsDailyReport API response item ${index}`
+					)
+				);
+				return validatedReports;
+			}
+
+			// If response.data is not an array, return empty array
+			return [];
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Timer logs daily report validation failed:',
+					{
+						message: error.message,
+						issues: error.issues,
+						tenantId: params.tenantId,
+						organizationId: params.organizationId,
+						employeeIds: params.employeeIds
+					},
+					'TimeLogService'
+				);
+			}
+			throw error;
+		}
 	};
 
 	addManualTime = async (request: TAddManualTimeRequest): Promise<TTimeLog> => {

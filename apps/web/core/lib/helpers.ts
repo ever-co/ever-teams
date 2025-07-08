@@ -65,7 +65,7 @@ export function formatWithSuffix(date: Date) {
 	return moment(date).format(`D[${suffix}] MMMM YYYY`);
 }
 
-export function checkPastDate(dateToBeChecked?: Date): boolean {
+export function checkPastDate(dateToBeChecked?: Date | string): boolean {
 	if (dateToBeChecked) {
 		const todayDate = new Date(new Date().toUTCString());
 		const date = new Date(new Date(dateToBeChecked).toUTCString());

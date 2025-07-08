@@ -12,9 +12,9 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const RelatedIssueCard = () => {
 	const t = useTranslations();
@@ -40,7 +40,7 @@ export const RelatedIssueCard = () => {
 
 				return acc;
 			},
-			[] as { issue: ITaskLinkedIssue; task: ITask }[]
+			[] as { issue: ITaskLinkedIssue; task: TTask }[]
 		);
 
 		return issues || [];
@@ -107,7 +107,7 @@ export const RelatedIssueCard = () => {
 	);
 };
 
-function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
+function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -115,7 +115,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITask | undefined) => {
+		async (childTask: TTask | undefined) => {
 			if (!childTask) return;
 			setLoading(true);
 			const parentTask = task;

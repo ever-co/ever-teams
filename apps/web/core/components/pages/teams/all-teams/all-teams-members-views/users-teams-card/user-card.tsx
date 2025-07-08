@@ -1,4 +1,3 @@
-import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -13,6 +12,7 @@ import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-car
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamCard({
 	member,
@@ -82,14 +82,14 @@ export default function UserTeamCard({
 
 function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 	const memberInfo = useTeamMemberCard(member);
-	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
 		getTaskById(member.activeTaskId || '')
-			.then((response) => setActiveTask(response.data))
+			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

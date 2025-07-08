@@ -48,12 +48,12 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px]" autoComplete="off" onSubmit={handleSubmit}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.TRANSFER_TEAM')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<TransferTeamDropdown
 								setSelectedMember={setSelectedMember}
 								members={activeTeam?.members
@@ -68,7 +68,7 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-3">
+						<div className="flex justify-between items-center mt-3 w-full">
 							<BackButton onClick={closeModal} />
 
 							<Button

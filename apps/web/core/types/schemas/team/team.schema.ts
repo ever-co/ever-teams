@@ -2,25 +2,25 @@ import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { relationalOrganizationProjectSchema } from '../common/base.schema';
-import { taskSchema } from '../activities/activity.schema';
+// import { taskSchema } from '../task/task.schema';
 
-const teamAssociationsSchema = z.object({
+export const teamAssociationsSchema = z.object({
 	members: z.array(organizationTeamEmployeeSchema),
 	managers: z.array(organizationTeamEmployeeSchema),
-	projects: z.array(relationalOrganizationProjectSchema),
-	tasks: z.array(taskSchema)
+	projects: z.array(relationalOrganizationProjectSchema).optional(),
+	tasks: z.array(z.any())
 });
 export const teamSchema = z
 	.object({
 		name: z.string(),
-		color: z.string().optional(),
-		emoji: z.string().optional(),
-		teamSize: z.string().optional(),
+		color: z.string().optional().nullable(),
+		emoji: z.string().optional().nullable(),
+		teamSize: z.string().optional().nullable(),
 		logo: z.string().optional(),
 		prefix: z.string().optional(),
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
-		public: z.boolean().optional(),
+		public: z.boolean().nullable(),
 		profile_link: z.string().optional(),
 		imageId: z.string().optional(),
 		image: z.any().optional(),

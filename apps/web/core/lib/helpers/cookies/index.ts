@@ -137,13 +137,15 @@ export function removeAuthCookies() {
 }
 
 // Access Token
-export function getAccessTokenCookie(ctx?: NextCtx) {
+export function getAccessTokenCookie(ctx?: NextCtx): string | null {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME, ctx);
 	if (totalChunksCookie) {
-		return getLargeStringFromCookies(TOKEN_COOKIE_NAME, ctx); // Total chunks cookie not found.
+		const full = getLargeStringFromCookies(TOKEN_COOKIE_NAME, ctx);
+		return typeof full === 'string' && full.length > 0 ? full : null;
 	}
 
-	return getCookie(TOKEN_COOKIE_NAME, ctx) as string;
+	const single = getCookie(TOKEN_COOKIE_NAME, ctx);
+	return typeof single === 'string' && single.length > 0 ? single : null;
 }
 
 export function getTotalChunksCookie(COOKIE_NAME: string, ctx?: NextCtx) {

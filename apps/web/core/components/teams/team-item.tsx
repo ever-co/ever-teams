@@ -1,6 +1,5 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { SettingOutlineIcon } from 'assets/svg';
@@ -10,10 +9,11 @@ import { readableColor } from 'polished';
 import stc from 'string-to-color';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
-export type TeamItem = DropdownItem<IOrganizationTeam>;
+export type TeamItem = DropdownItem<TOrganizationTeam>;
 
-export function mapTeamItems(teams: IOrganizationTeam[], onChangeActiveTeam: (item: TeamItem) => void) {
+export function mapTeamItems(teams: TOrganizationTeam[], onChangeActiveTeam: (item: TeamItem) => void) {
 	const items = teams.map<TeamItem>((team) => {
 		return {
 			key: team.id,
@@ -30,7 +30,7 @@ export function mapTeamItems(teams: IOrganizationTeam[], onChangeActiveTeam: (it
 								count={team.members?.length}
 								className={clsxm(selected && ['font-medium'])}
 								logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-								color={team.color}
+								color={team.color || ''}
 							/>
 						</div>
 
@@ -99,7 +99,7 @@ export function TeamItem({
 	title?: string;
 	count?: number;
 	className?: string;
-	color?: string;
+	color?: string | null;
 	disabled?: boolean;
 	logo?: string;
 }) {

@@ -5,7 +5,7 @@ import { useJitsu } from '@jitsu/jitsu-react';
 import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-export function JitsuAnalytics({ user }: { user?: TUser }) {
+export function JitsuAnalytics({ user }: { user?: TUser | null }) {
 	const { analytics } = useJitsu();
 	const pathname = usePathname();
 

@@ -7,7 +7,7 @@ import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { DateRange } from 'react-day-picker';
 import moment from 'moment';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface ITaskDatePickerWithRange {
 	className?: string;
@@ -15,7 +15,7 @@ interface ITaskDatePickerWithRange {
 
 	onSelect?: (range: DateRange | undefined) => void;
 	label?: string;
-	data?: IDailyPlan[];
+	data?: TDailyPlan[];
 }
 export function TaskDatePickerWithRange({ className, date, onSelect, label, data }: ITaskDatePickerWithRange) {
 	const isDateDisabled = (dateToCheck: Date) => {

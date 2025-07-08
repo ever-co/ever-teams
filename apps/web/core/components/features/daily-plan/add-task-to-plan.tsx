@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useDailyPlan } from '@/core/hooks';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	Command,
 	CommandEmpty,
@@ -24,6 +22,8 @@ import { Calendar } from '@/core/components/common/calendar';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 export function AddTaskToPlan({
 	open,
@@ -33,17 +33,17 @@ export function AddTaskToPlan({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	task: ITask;
+	task: TTask;
 	employee?: IEmployee;
 }) {
 	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =
 		useDailyPlan();
-	const [selectedPlan, setSelectedPlan] = useState<IDailyPlan | null>(null);
+	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
 	const [workTimePlanned, setworkTimePlanned] = useState<number>(0);
 
-	const handlePlanClick = useCallback((plan: IDailyPlan) => {
+	const handlePlanClick = useCallback((plan: TDailyPlan) => {
 		setSelectedPlan(plan);
 	}, []);
 
@@ -52,7 +52,7 @@ export function AddTaskToPlan({
 			? createDailyPlan({
 					workTimePlanned: workTimePlanned,
 					taskId: task.id,
-					date: new Date(moment(date).format('YYYY-MM-DD')),
+					date: moment(date).format('YYYY-MM-DD'),
 					status: EDailyPlanStatus.OPEN,
 					tenantId: employee?.tenantId,
 					employeeId: employee?.employeeId,
@@ -170,9 +170,9 @@ function PlansList({
 	selectedPlan,
 	handlePlanClik
 }: {
-	plans: IDailyPlan[];
-	handlePlanClik: (plan: IDailyPlan) => void;
-	selectedPlan: IDailyPlan | null;
+	plans: TDailyPlan[];
+	handlePlanClik: (plan: TDailyPlan) => void;
+	selectedPlan: TDailyPlan | null;
 }) {
 	return (
 		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">

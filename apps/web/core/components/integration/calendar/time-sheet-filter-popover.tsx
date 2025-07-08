@@ -12,7 +12,7 @@ interface TimeSheetFilterProps {
 export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 	const { activeTeam } = useOrganizationTeams();
 	const { tasks } = useTeamTasks();
-	// const [taskId, setTaskId] = useState<ITask | ITask[] | null>([]);
+	// const [taskId, setTaskId] = useState<TTask | TTask[] | null>([]);
 	return (
 		<>
 			<Modal

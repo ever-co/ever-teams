@@ -1,6 +1,5 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
@@ -9,19 +8,48 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@/core/hooks';
-import ImageComponent, { ImageOverlapperProps } from '../common/image-overlapper';
+import { ImageOverlapperProps } from '../common/image-overlapper';
 import Link from 'next/link';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { activeTeamTaskId } from '@/core/stores';
 import { useAtom } from 'jotai';
-import { TaskAllStatusTypes } from './task-all-status-type';
-import { TaskInput } from './task-input';
-import { TaskIssueStatus } from './task-issue';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+
+import dynamic from 'next/dynamic';
+
+// Next.js official patterns for always-rendered components
+const LazyImageComponent = dynamic(() => import('../common/image-overlapper'), {
+	ssr: false,
+	loading: () => <div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+});
+
+const LazyMenuKanbanCard = dynamic(() => import('@/core/components/pages/kanban/menu-kanban-card'), {
+	ssr: false,
+	loading: () => <div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+});
+
+const LazyTaskAllStatusTypes = dynamic(
+	() => import('./task-all-status-type').then((mod) => ({ default: mod.TaskAllStatusTypes })),
+	{
+		ssr: false,
+		loading: () => <div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+	}
+);
+
+const LazyTaskInput = dynamic(() => import('./task-input').then((mod) => ({ default: mod.TaskInput })), {
+	ssr: false,
+	loading: () => <div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+});
+
+const LazyTaskIssueStatus = dynamic(() => import('./task-issue').then((mod) => ({ default: mod.TaskIssueStatus })), {
+	ssr: false,
+	loading: () => <div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+});
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -119,7 +147,7 @@ export function Priority({ level }: { level: ETaskPriority }) {
 	);
 }
 type ItemProps = {
-	item: ITask;
+	item: TTask;
 	isDragging: boolean;
 	isGroupedOver: boolean;
 	provided: DraggableProvided;
@@ -146,7 +174,7 @@ export default function Item(props: ItemProps) {
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === item?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === item?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
@@ -170,7 +198,7 @@ export default function Item(props: ItemProps) {
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t: ITask) => t.id === item?.id)
+				.filter((t: TTask) => t.id === item?.id)
 				.reduce(
 					(previousValue: number, currentValue: ITasksStatistics) =>
 						previousValue + (currentValue.duration || 0),
@@ -191,7 +219,7 @@ export default function Item(props: ItemProps) {
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
 					<span className="!w-64">
-						<TaskAllStatusTypes
+						<LazyTaskAllStatusTypes
 							className="justify-start"
 							task={item}
 							showStatus={false}
@@ -200,7 +228,7 @@ export default function Item(props: ItemProps) {
 						/>
 					</span>
 					<span>
-						<MenuKanbanCard member={currentMember} item={props.item} />
+						<LazyMenuKanbanCard member={currentMember} item={props.item} />
 					</span>
 				</div>
 				<div className="w-full flex justify-between my-3">
@@ -208,14 +236,14 @@ export default function Item(props: ItemProps) {
 						{activeTask?.id == item.id ? (
 							<>
 								<div className="w-56">
-									<TaskInput
+									<LazyTaskInput
 										task={item}
 										initEditMode={true}
 										keepOpen={true}
 										showCombobox={false}
 										autoFocus={true}
 										autoInputSelectText={true}
-										onTaskClick={(e) => {
+										onTaskClick={(e: any) => {
 											// TODO: implement
 											console.log(e);
 										}}
@@ -231,7 +259,7 @@ export default function Item(props: ItemProps) {
 									{item.issueType && (
 										<span className="h-5 w-6 inline-block ">
 											<span className="absolute top-1">
-												<TaskIssueStatus
+												<LazyTaskIssueStatus
 													showIssueLabels={false}
 													type="HORIZONTAL"
 													task={item}
@@ -273,7 +301,7 @@ export default function Item(props: ItemProps) {
 							</div>
 						)}
 					</div>
-					<ImageComponent radius={30} images={taskAssignee} item={item} />
+					<LazyImageComponent radius={30} images={taskAssignee} item={item} />
 					{item.issueType && (
 						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div

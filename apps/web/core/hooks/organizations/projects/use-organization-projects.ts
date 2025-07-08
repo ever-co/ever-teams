@@ -1,119 +1,176 @@
 import { userState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { ICreateProjectRequest, IEditProjectRequest } from '@/core/types/interfaces/project/organization-project';
+import { TCreateProjectRequest, TEditProjectRequest } from '@/core/types/schemas';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
-import { useFirstLoad, useQueryCall } from '../../common';
+import { queryKeys } from '@/core/query/keys';
+import { useConditionalUpdateEffect } from '../../common';
+
+// Simple pagination params type
+interface PaginationParams {
+	skip?: number;
+	take?: number;
+}
 
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const [organizationProjects, setOrganizationProjects] = useAtom(organizationProjectsState);
 	const [user] = useAtom(userState);
-	const { firstLoadData: firstOrganizationProjectsLoad } = useFirstLoad();
+	const queryClient = useQueryClient();
+	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
+	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
 
-	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } = useQueryCall(
-		organizationProjectService.editOrganizationProject
+	// State for enhanced pagination
+	const [paginationParams, setPaginationParams] = useState<PaginationParams>({
+		skip: 0,
+		take: 20
+	});
+
+	// React Query for fetching organization projects
+	const organizationProjectsQuery = useQuery({
+		queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId),
+		queryFn: () => organizationProjectService.getOrganizationProjects(),
+		enabled: !!organizationId && !!tenantId
+	});
+
+	const filteredOrganizations = useQuery({
+		queryKey: [
+			queryKeys.organizationProjects.all,
+			queryKeys.organizationProjects.withQueries(memoizedSearchQueries)
+		],
+		queryFn: () =>
+			organizationProjectService.getOrganizationProjects({
+				queries: memoizedSearchQueries ?? undefined
+			}),
+		enabled: !!memoizedSearchQueries
+	});
+
+	// Enhanced query with pagination using the existing method
+	const organizationProjectsWithPagination = useQuery({
+		queryKey: [queryKeys.organizationProjects.all, 'pagination', paginationParams],
+		queryFn: () =>
+			organizationProjectService.getOrganizationProjects({
+				skip: paginationParams.skip,
+				take: paginationParams.take
+			}),
+		enabled: !!organizationId && !!tenantId
+	});
+
+	// Invalidation helper
+	const invalidateOrganizationProjectsData = useCallback(
+		() =>
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId)
+			}),
+		[queryClient, organizationId, tenantId]
 	);
 
-	const { loading: editOrganizationProjectSettingLoading, queryCall: editOrganizationProjectSettingQueryCall } =
-		useQueryCall(organizationProjectService.editOrganizationProjectSetting);
+	// Mutations
+	const editOrganizationProjectMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: TEditProjectRequest }) =>
+			organizationProjectService.editOrganizationProject(id, data),
+		onSuccess: invalidateOrganizationProjectsData
+	});
 
-	const { loading: getOrganizationProjectLoading, queryCall: getOrganizationProjectQueryCall } = useQueryCall(
-		organizationProjectService.getOrganizationProject
+	const editOrganizationProjectSettingMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: any }) => {
+			if (!tenantId) {
+				throw new Error('Required parameters missing: tenantId. Ensure you have tenantId set in cookies.');
+			}
+			return organizationProjectService.editOrganizationProjectSetting(id, data, tenantId);
+		},
+		onSuccess: invalidateOrganizationProjectsData
+	});
+
+	const createOrganizationProjectMutation = useMutation({
+		mutationFn: (data: Partial<TCreateProjectRequest>) =>
+			organizationProjectService.createOrganizationProject({ ...data, organizationId, tenantId }),
+		onSuccess: invalidateOrganizationProjectsData
+	});
+
+	const deleteOrganizationProjectMutation = useMutation({
+		mutationFn: (id: string) => organizationProjectService.deleteOrganizationProject(id),
+		onSuccess: invalidateOrganizationProjectsData
+	});
+
+	// Sync React Query data with Jotai state
+	useConditionalUpdateEffect(
+		() => {
+			if (organizationProjectsQuery.data?.items) {
+				setOrganizationProjects(organizationProjectsQuery.data.items);
+			}
+		},
+		[organizationProjectsQuery.data?.items],
+		Boolean(organizationProjects?.length)
 	);
 
-	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } = useQueryCall(
-		organizationProjectService.getOrganizationProjects
-	);
-
-	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } = useQueryCall(
-		organizationProjectService.createOrganizationProject
-	);
-
-	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } = useQueryCall(
-		organizationProjectService.deleteOrganizationProject
-	);
-
+	// Callback functions for backward compatibility
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
 			try {
-				if (tenantId) {
-					return editOrganizationProjectSettingQueryCall(id, data, tenantId).then((res) => {
-						return res;
-					});
-				} else {
-					throw new Error('Required parameters missing: tenantId. Ensure you have tenantId set in cookies.');
-				}
+				return editOrganizationProjectSettingMutation.mutateAsync({ id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project setting', error);
 			}
 		},
-		[tenantId, editOrganizationProjectSettingQueryCall]
+		[editOrganizationProjectSettingMutation]
 	);
 
 	const editOrganizationProject = useCallback(
-		async (id: string, data: IEditProjectRequest) => {
+		async (id: string, data: TEditProjectRequest) => {
 			try {
-				const res = await editOrganizationProjectQueryCall(id, data);
-				return res;
+				return await editOrganizationProjectMutation.mutateAsync({ id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project', error);
 			}
 		},
-		[editOrganizationProjectQueryCall]
+		[editOrganizationProjectMutation]
 	);
 
-	const getOrganizationProject = useCallback(
-		async (id: string) => {
-			try {
-				return await getOrganizationProjectQueryCall(id);
-			} catch (error) {
-				console.error('Failed to get the organization project', error);
-			}
-		},
-		[getOrganizationProjectQueryCall]
-	);
-
-	const getOrganizationProjects = useCallback(
-		async ({ queries }: { queries?: Record<string, string> } = {}) => {
-			try {
-				const res = await getOrganizationProjectsQueryCall({ queries });
-				return res.data;
-			} catch (error) {
-				console.error('Failed to get the organization projects', error);
-			}
-		},
-		[getOrganizationProjectsQueryCall]
-	);
+	const getOrganizationProjects = useCallback(async () => {
+		return organizationProjectsQuery.data;
+	}, [organizationProjectsQuery]);
 
 	const createOrganizationProject = useCallback(
-		async (data: Partial<ICreateProjectRequest>) => {
+		async (data: Partial<TCreateProjectRequest>) => {
 			try {
-				const res = await createOrganizationProjectQueryCall({ ...data, organizationId, tenantId });
-
-				setOrganizationProjects([...organizationProjects, res.data]);
-
-				return res.data;
+				const res = await createOrganizationProjectMutation.mutateAsync(data);
+				return res;
 			} catch (error) {
 				console.error('Failed to create the organization project', error);
 			}
 		},
-		[createOrganizationProjectQueryCall, organizationId, organizationProjects, setOrganizationProjects, tenantId]
+		[createOrganizationProjectMutation]
 	);
 
 	const deleteOrganizationProject = useCallback(
 		async (id: string) => {
 			try {
-				const res = await deleteOrganizationProjectQueryCall(id);
-				return res;
+				return await deleteOrganizationProjectMutation.mutateAsync(id);
 			} catch (error) {
 				console.error(error);
 			}
 		},
-		[deleteOrganizationProjectQueryCall]
+		[deleteOrganizationProjectMutation]
+	);
+
+	const getOrganizationProject = useCallback(
+		async (id: string) => {
+			try {
+				const result = await queryClient.fetchQuery({
+					queryKey: [queryKeys.organizationProjects.all, id],
+					queryFn: () => organizationProjectService.getOrganizationProject(id)
+				});
+				return result;
+			} catch (error) {
+				console.error('Failed to get the organization project', error);
+			}
+		},
+		[queryClient]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
@@ -121,36 +178,66 @@ export function useOrganizationProjects() {
 			if (!user) return;
 			if (organizationProjects.length) return;
 
-			const res = await getOrganizationProjects();
-
-			if (res) {
-				setOrganizationProjects(res.items ?? []);
-			}
+			// Trigger refetch of the query
+			return await organizationProjectsQuery.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [user, organizationProjects, setOrganizationProjects, getOrganizationProjects]);
+	}, [user, organizationProjects, organizationProjectsQuery]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();
-		firstOrganizationProjectsLoad();
-	}, [firstOrganizationProjectsLoad, loadOrganizationProjects]);
+	}, [loadOrganizationProjects]);
+
+	// Enhanced pagination functions
+	const updatePaginationParams = useCallback((newParams: Partial<PaginationParams>) => {
+		setPaginationParams((prev: PaginationParams) => ({ ...prev, ...newParams }));
+	}, []);
+
+	const resetPagination = useCallback(() => {
+		setPaginationParams({ skip: 0, take: 20 });
+	}, []);
+
+	const loadNextPage = useCallback(() => {
+		setPaginationParams((prev: PaginationParams) => ({
+			...prev,
+			skip: (prev.skip || 0) + (prev.take || 20)
+		}));
+	}, []);
+
+	const loadPreviousPage = useCallback(() => {
+		setPaginationParams((prev: PaginationParams) => ({
+			...prev,
+			skip: Math.max(0, (prev.skip || 0) - (prev.take || 20))
+		}));
+	}, []);
 
 	return {
 		editOrganizationProjectSetting,
-		editOrganizationProjectSettingLoading,
+		editOrganizationProjectSettingLoading: editOrganizationProjectSettingMutation.isPending,
 		editOrganizationProject,
-		editOrganizationProjectLoading,
-		getOrganizationProject,
-		getOrganizationProjectLoading,
+		editOrganizationProjectLoading: editOrganizationProjectMutation.isPending,
 		getOrganizationProjects,
-		getOrganizationProjectsLoading,
+		getOrganizationProjectsLoading: organizationProjectsQuery.isLoading,
 		organizationProjects,
 		createOrganizationProject,
-		createOrganizationProjectLoading,
+		createOrganizationProjectLoading: createOrganizationProjectMutation.isPending,
 		deleteOrganizationProject,
-		deleteOrganizationProjectLoading,
+		deleteOrganizationProjectLoading: deleteOrganizationProjectMutation.isPending,
 		setOrganizationProjects,
-		firstLoadOrganizationProjectsData: handleFirstLoad
+		firstLoadOrganizationProjectsData: handleFirstLoad,
+		setSearchQueries,
+		filteredOrganizations,
+		getOrganizationProject,
+
+		// Enhanced pagination API
+		organizationProjectsWithPagination,
+		paginationParams,
+		updatePaginationParams,
+		resetPagination,
+		loadNextPage,
+		loadPreviousPage,
+		getOrganizationProjectsWithPaginationLoading: organizationProjectsWithPagination.isLoading,
+		organizationProjectsWithPaginationData: organizationProjectsWithPagination.data
 	};
 }

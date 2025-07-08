@@ -1,9 +1,9 @@
 import { IBasePerTenantAndOrganizationEntityModel, ID, IUrlMetaData } from '../common/base-interfaces';
 import { IRelationalEmployee } from '../organization/employee';
 import { IRelationalOrganizationProject } from '../project/organization-project';
-import { ITask } from '../task/task';
 import { ITimeSlot } from '../timer/time-slot/time-slot';
 import { IOrganizationTeamEmployee } from '../team/organization-team-employee';
+import { TTask } from '../../schemas/task/task.schema';
 
 export interface IActivity
 	extends IBasePerTenantAndOrganizationEntityModel,
@@ -13,7 +13,7 @@ export interface IActivity
 	description?: string;
 	timeSlot?: ITimeSlot;
 	timeSlotId?: ID;
-	task?: ITask;
+	task?: TTask;
 	taskId?: ID;
 	metaData?: string | IUrlMetaData;
 	date: string;

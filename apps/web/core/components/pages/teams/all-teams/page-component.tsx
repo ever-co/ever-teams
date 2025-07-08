@@ -18,6 +18,7 @@ import { MemberFilter } from './all-teams-members-views/all-team-members-filter'
 import AllTeamsMembers from './all-teams-members-views/all-teams-members';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
+import { AllTeamsPageSkeleton } from '@/core/components/layouts/skeletons/all-teams-page-skeleton';
 
 function AllTeamsPage() {
 	const t = useTranslations();
@@ -36,17 +37,22 @@ function AllTeamsPage() {
 	*/
 	if (userManagedTeams.length < 2) return <RedirectUser />;
 
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (!filteredTeams || filteredTeams.length === 0) {
+		return <AllTeamsPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			showTimer={isTrackingEnabled}
 			className="items-start"
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="mx-auto">
-					<div className="flex flex-col items-start justify-between w-full">
-						<div className="flex items-center justify-between w-full px-4 py-2">
+					<div className="flex flex-col justify-between items-start w-full">
+						<div className="flex justify-between items-center px-4 py-2 w-full">
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
-							<div className="flex items-center self-end gap-2">
-								<div className="flex items-center justify-center h-10 gap-1 w-max">
+							<div className="flex gap-2 items-center self-end">
+								<div className="flex gap-1 justify-center items-center w-max h-10">
 									<HeaderTabs />
 								</div>
 								<MemberFilter />

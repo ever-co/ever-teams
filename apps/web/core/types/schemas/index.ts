@@ -15,12 +15,15 @@ export * from './common/currency.schema';
 // Entity schemas - Specific business domain schemas
 export * from './role/role.schema';
 export * from './tag/tag.schema';
+export * from './favorite/favorite.schema';
 export * from './task/task-status.schema';
 export * from './task/task-size.schema';
 export * from './task/task-priority.schema';
+export * from './task/daily-plan.schema';
 export * from './organization/organization.schema';
 export * from './organization/employee.schema';
 export * from './organization/user-organization.schema';
+export * from './organization/organization-project.schema';
 export * from './team/organization-team.schema';
 export * from './team/organization-team-employee.schema';
 export * from './team/public-organization-team.schema';
@@ -33,6 +36,12 @@ export * from './timer/time-slot.schema';
 export * from './user/email-reset.schema';
 export * from './user/user.schema';
 export * from './user/invite.schema';
+
+// Auth schemas
+export * from './auth/email-verification.schema';
+
+// Team schemas
+export * from './team/request-to-join.schema';
 
 // Activity schemas
 export * from './activities/activity.schema';

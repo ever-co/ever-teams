@@ -28,7 +28,7 @@ export function Paginate({
 
 	return (
 		<div
-			className={cn('flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative', className)}
+			className={cn('flex relative flex-col gap-2 justify-between items-center pt-4 md:flex-row', className)}
 			aria-label="Table navigation"
 		>
 			<ReactPaginate
@@ -74,13 +74,13 @@ export function Paginate({
 					</div>
 				}
 				renderOnZeroPageCount={null}
-				className={'flex items-center justify-between'}
+				className={'flex justify-between items-center'}
 				pageClassName={'pl-4 pr-4 pt-2 pb-2 text-gray-500 font-normal text-[#B1AEBC]'}
 				activeClassName={'text-[#1A1C1E] dark:text-white'}
 				breakClassName={'pl-5 pr-5 pt-1 pb-2'}
 			/>
 
-			<div className="relative flex items-center gap-x-5">
+			<div className="flex relative gap-x-5 items-center">
 				<PaginationDropdown setValue={setItemsPerPage} />
 				<div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
 					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}

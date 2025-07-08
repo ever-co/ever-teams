@@ -8,67 +8,61 @@ import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useMemo, useCallback } from 'react';
+import { useMemo, memo } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
 import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
+import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
 
-type TeamMembersProps = {
+// Types for better performance and security
+
+interface TeamMembersProps {
 	publicTeam?: boolean;
 	kanbanView?: IssuesView;
+}
+
+interface TeamMembersViewProps {
+	fullWidth?: boolean;
+	members: TOrganizationTeamEmployee[];
+	currentUser?: TOrganizationTeamEmployee;
+	teamsFetching: boolean;
+	view: IssuesView;
+	blockViewMembers: TOrganizationTeamEmployee[];
+	publicTeam: boolean;
+	isMemberActive?: boolean;
+}
+
+// Utility function for sorting by order (kept local as it's specific to this component)
+const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
+	if (a.order && b.order) return b.order - a.order;
+	if (a.order) return -1;
+	if (b.order) return 1;
+	return 0;
 };
 
-export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: Readonly<TeamMembersProps>) {
-	// Hooks with expensive computations
+// Main component optimized with refactored hooks
+export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {
+	// Hooks
 	const { user } = useAuthenticateUser();
-	const activeFilter = useAtomValue(taskBlockFilterState);
+	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const fullWidth = useAtomValue(fullWidthState);
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
-	// Memoize the filter function to prevent recreation on every render
-	const filterValidMembers = useCallback((members: any[]) => {
-		return members.filter((member) => member.employee !== null);
-	}, []);
+	// Use refactored hooks for member processing
+	const processedMembers = useProcessedTeamMembers(activeTeam, user);
+	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
 
-	// Memoize the sort function
-	const sortMembers = useCallback((members: any[]) => {
-		return [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
-	}, []);
-
-	// Combine filter and sort in one memoized computation
-	const [members, orderedMembers] = useMemo(() => {
-		const validMembers = filterValidMembers(activeTeam?.members || []);
-		const sortedMembers = sortMembers(validMembers);
-		return [validMembers, sortedMembers];
-	}, [activeTeam?.members, filterValidMembers, sortMembers]);
-
-	// Memoize the block view filter function
-	const filterBlockViewMembers = useCallback((members: any[], filter: string) => {
-		if (filter === 'all') return members;
-		if (filter === 'idle') {
-			return members.filter((m) => m.timerStatus === undefined || m.timerStatus === 'idle');
-		}
-		return members.filter((m) => m.timerStatus === filter);
-	}, []);
-
-	// Memoize block view members with proper dependencies
-	const blockViewMembers = useMemo(
-		() => filterBlockViewMembers(orderedMembers, activeFilter),
-		[orderedMembers, activeFilter, filterBlockViewMembers]
-	);
-
-	// Memoize current user lookup with proper dependencies
-	const currentUser = useMemo(() => members.find((m) => m.employee?.userId === user?.id), [members, user?.id]);
-
-	// Simple computation, no need for useMemo
-	const $teamsFetching = teamsFetching && members.length === 0;
+	// Simple calculation without useless memoization
+	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
 
 	return (
 		<TeamMembersView
-			teamsFetching={$teamsFetching}
-			members={members}
-			currentUser={currentUser}
+			teamsFetching={isTeamsFetching}
+			members={processedMembers.members}
+			currentUser={processedMembers.currentUser}
 			fullWidth={fullWidth}
 			publicTeam={publicTeam}
 			view={view}
@@ -76,59 +70,52 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			isMemberActive={user?.isEmailVerified}
 		/>
 	);
-}
+});
 
-type TeamMembersViewProps = {
-	fullWidth?: boolean;
-	members: any[];
-	currentUser?: any;
-	teamsFetching: boolean;
-	view: IssuesView;
-	blockViewMembers: any[];
-	publicTeam: boolean;
-	isMemberActive?: boolean;
-};
+// Configuration of the views - optimized table of correspondence
+const VIEW_COMPONENTS_CONFIG = {
+	[IssuesView.CARDS]: {
+		component: TeamMembersCardView,
+		containerProps: { className: '!overflow-x-auto !mx-0 px-0' },
+		useTransition: false,
+		useBlockMembers: false,
+		additionalProps: (): Partial<TaskCardProps> => ({})
+	},
+	[IssuesView.TABLE]: {
+		component: TeamMembersTableView,
+		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
+		useTransition: true,
+		useBlockMembers: false,
+		additionalProps: (isMemberActive: boolean | undefined): Partial<TaskCardProps> => ({ active: isMemberActive })
+	},
+	[IssuesView.BLOCKS]: {
+		component: TeamMembersBlockView,
+		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
+		useTransition: false,
+		useBlockMembers: true,
+		additionalProps: (): Partial<TaskCardProps> => ({})
+	}
+} as const;
 
-export function TeamMembersView({
-	fullWidth,
-	members,
-	currentUser,
-	teamsFetching,
-	view,
-	blockViewMembers,
-	publicTeam,
-	isMemberActive
-}: TeamMembersViewProps) {
-	let teamMembersView;
+// Optimized view component with table of correspondence
+export const TeamMembersView = memo<TeamMembersViewProps>(
+	({ fullWidth, members, currentUser, teamsFetching, view, blockViewMembers, publicTeam, isMemberActive }) => {
+		// Filtering and sorting the other members (optimized)
+		const otherMembers = useMemo(() => {
+			return members.filter((member) => member.id !== currentUser?.id).sort(sortByOrder);
+		}, [members, currentUser?.id]);
 
-	// Memoize the filter function to prevent recreation on every render
-	const filterOtherMembers = useCallback((members: any[], currentUser: any | undefined) => {
-		return members.filter((member) => member.id !== currentUser?.id);
-	}, []);
-
-	// Memoize the sort function
-	const sortOtherMembers = useCallback((members: any[]) => {
-		return members.sort((a, b) => {
-			if (a.order && b.order) return a.order > b.order ? -1 : 1;
-			if (a.order) return -1;
-			if (b.order) return 1;
-			return -1;
-		});
-	}, []);
-
-	// Combine filter and sort in one memoized computation
-	const $members = useMemo(() => {
-		const otherMembers = filterOtherMembers(members, currentUser);
-		const sortedMembers = sortOtherMembers(otherMembers);
-		return sortedMembers;
-	}, [members, currentUser, filterOtherMembers, sortOtherMembers]);
-
-	switch (true) {
-		case members.length === 0:
-			teamMembersView = (
+		// Early return for empty members
+		if (teamsFetching) {
+			return (
 				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<UserTeamCardSkeletonCard />
+						<InviteUserTeamCardSkeleton />
+						<InviteUserTeamCardSkeleton />
 						<InviteUserTeamCardSkeleton />
 					</div>
 					<div className="block lg:hidden">
@@ -138,82 +125,50 @@ export function TeamMembersView({
 					</div>
 				</Container>
 			);
-			break;
-		case view === IssuesView.CARDS:
-			teamMembersView = (
-				<>
-					{/* <UserTeamCardHeader /> */}
-					<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-0">
-						<TeamMembersCardView
-							teamMembers={$members}
-							currentUser={currentUser}
-							publicTeam={publicTeam}
-							teamsFetching={teamsFetching}
-						/>
-					</Container>
-				</>
-			);
-			break;
-		case view === IssuesView.TABLE:
-			teamMembersView = (
-				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
-					<Transition
-						as="div"
-						show={!!currentUser}
-						enter="transition-opacity duration-75"
-						enterFrom="opacity-0"
-						enterTo="opacity-100"
-						leave="transition-opacity duration-150"
-						leaveFrom="opacity-100"
-						leaveTo="opacity-0"
-					>
-						<TeamMembersTableView
-							teamMembers={$members}
-							currentUser={currentUser}
-							publicTeam={publicTeam}
-							active={isMemberActive}
-						/>
-					</Transition>
-				</Container>
-			);
-			break;
+		}
 
-		case view === IssuesView.BLOCKS:
-			teamMembersView = (
-				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
-					<TeamMembersBlockView
-						teamMembers={blockViewMembers}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						teamsFetching={teamsFetching}
-					/>
-				</Container>
-			);
-			break;
-		default:
-			teamMembersView = (
-				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
-					<TeamMembersCardView
-						teamMembers={$members}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						teamsFetching={teamsFetching}
-					/>
-				</Container>
-			);
+		// Retrieving the configuration for the current view (with fallback on CARDS)
+		const viewConfig =
+			VIEW_COMPONENTS_CONFIG[view as keyof typeof VIEW_COMPONENTS_CONFIG] ||
+			VIEW_COMPONENTS_CONFIG[IssuesView.CARDS];
+		const ViewComponent = viewConfig.component;
+
+		// Preparation of common props
+		const baseProps = {
+			teamMembers: viewConfig.useBlockMembers ? blockViewMembers : otherMembers,
+			...(viewConfig.useBlockMembers ? {} : { currentUser }), // Only pass currentUser for non-block views
+			publicTeam,
+			teamsFetching,
+			...(viewConfig.additionalProps?.(isMemberActive) || {})
+		};
+
+		// Creation of the component content
+		const viewContent = <ViewComponent {...baseProps} />;
+
+		// Rendering with or without transition according to the configuration
+		const containerContent = viewConfig.useTransition ? (
+			<Transition
+				as="div"
+				show={!!currentUser}
+				enter="transition-opacity duration-75"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition-opacity duration-150"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				{viewContent}
+			</Transition>
+		) : (
+			viewContent
+		);
+
+		return (
+			<Container fullWidth={fullWidth} {...viewConfig.containerProps}>
+				{containerContent}
+			</Container>
+		);
 	}
+);
 
-	return teamMembersView;
-}
-
-const sortByWorkStatus = (user_a: any, user_b: any) => {
-	return (
-		user_a.timerStatus === ETimerStatus.RUNNING ||
-		(user_a.timerStatus === ETimerStatus.ONLINE && user_b.timerStatus !== ETimerStatus.RUNNING) ||
-		(user_a.timerStatus === ETimerStatus.PAUSE &&
-			user_b.timerStatus !== ETimerStatus.RUNNING &&
-			user_b.timerStatus !== ETimerStatus.ONLINE) ||
-		(user_a.timerStatus === ETimerStatus.IDLE && user_b.timerStatus === ETimerStatus.SUSPENDED) ||
-		(user_a.timerStatus === undefined && user_b.timerStatus === ETimerStatus.SUSPENDED)
-	);
-};
+TeamMembersView.displayName = 'TeamMembersView';

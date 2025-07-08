@@ -3,11 +3,11 @@
 import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
 import { Fragment, useMemo, useState } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
-import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 import Separator from '@/core/components/common/separator';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
 
 export function ActivityCalendar() {
 	const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
@@ -18,7 +18,7 @@ export function ActivityCalendar() {
 			.filter((item) => new Date(item.date).getFullYear() === selectedYear)
 			.map((el) => ({
 				value: Number((el.sum / 3600).toPrecision(2)),
-				day: el.date
+				day: String(el.date)
 			}));
 	}, [timerLogsDailyReport, selectedYear]);
 
@@ -106,25 +106,6 @@ export function ActivityCalendar() {
 					</div>
 				)}
 			</div>
-		</div>
-	);
-}
-
-// Skeletons
-function ActivityCalendarSkeleton() {
-	const { innerWidth: deviceWith } = window;
-
-	const skeletons = Array.from(Array(12));
-
-	return (
-		<div className="flex overflow-hidden justify-around items-center w-full h-32">
-			{skeletons.map((_, index) => (
-				<Skeleton
-					key={index}
-					width={(deviceWith - (deviceWith * 10) / 100) / 12}
-					className="h-32 dark:bg-transparent"
-				/>
-			))}
 		</div>
 	);
 }

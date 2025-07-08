@@ -15,7 +15,7 @@ import { employeeBaseSchema } from '../common/employee.schema';
 export const urlMetaDataSchema = z
 	.object({
 		title: z.string().optional(),
-		description: z.string().optional(),
+		description: z.string().nullable(),
 		image: z.string().optional(),
 		url: z.string().optional()
 		// Allow additional properties as per interface definition
@@ -58,9 +58,9 @@ export const taskSchema = z
 		id: idSchema,
 		title: z.string(),
 		number: z.number().optional(),
-		public: z.boolean().optional(),
+		public: z.boolean().nullable(),
 		prefix: z.string().optional(),
-		description: z.string().optional(),
+		description: z.string().nullable(),
 		status: z.string().optional(), // ETaskStatusName
 		priority: z.string().optional(), // ETaskPriority
 		size: z.string().optional(), // ETaskSize
@@ -107,7 +107,7 @@ export const activitySchema = basePerTenantAndOrganizationEntityModelSchema
 	.extend({
 		// Core activity properties
 		title: z.string(),
-		description: z.string().optional(),
+		description: z.string().nullable(),
 		timeSlot: timeSlotSchema.optional(),
 		timeSlotId: idSchema.optional(),
 		task: taskSchema.optional(),

@@ -10,7 +10,7 @@ import { GlobeIcon, LockIcon } from 'assets/svg';
 const TaskPublicity = () => {
 	const [task] = useAtom(detailedTaskState);
 	const t = useTranslations();
-	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined>(task?.public);
+	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined | null>(task?.public);
 	const { updatePublicity } = useTeamTasks();
 
 	const handlePublicity = useCallback(

@@ -1,31 +1,31 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import {
 	IActivityReport,
 	ITimeLogGroupedDailyReport,
-	ITimeLogReportDaily,
 	ITimeLogReportDailyChart
 } from '@/core/types/interfaces/activity/activity-report';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { ITimesheetCountsStatistics, IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
+import { TTimeLogReportDaily } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IFilterOption {
 	value: string;
 	label: string;
 }
 
-export const timerLogsDailyReportState = atom<ITimeLogReportDaily[]>([]);
+export const timerLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
 
 export const timesheetRapportState = atom<ITimeLog[]>([]);
 
 export const timesheetFilterEmployeeState = atom<IOrganizationTeamEmployee[]>([]);
 export const timesheetFilterProjectState = atom<IOrganizationProject[]>([]);
-export const timesheetFilterTaskState = atom<ITask[]>([]);
+export const timesheetFilterTaskState = atom<TTask[]>([]);
 
 export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([]);

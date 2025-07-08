@@ -6,11 +6,11 @@ import { useTranslations } from 'next-intl';
 import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { TOrganizationTeam } from '@/core/types/schemas';
 
 interface IProps {
 	projects: ProjectViewDataType[];
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 }
 
 export function ProjectExportMenu(props: IProps) {
@@ -52,25 +52,54 @@ export function ProjectExportMenu(props: IProps) {
 										className="w-full h-full text-left"
 										document={
 											<PDFDocument
-												data={projects.map((el) => {
-													return {
-														projectName: el.project.name || '-',
-														status: el.status || '-',
-														archivedAt: el.archivedAt
-															? moment(el.archivedAt).format('YYYY-MM-DD')
-															: '-',
-														startDate: el.startDate
-															? moment(el.startDate).format('YYYY-MM-DD')
-															: '-',
-														endDate: el.endDate
-															? moment(el.endDate).format('YYYY-MM-DD')
-															: '-',
-														members:
-															el.members?.map((el) => el.employee?.fullName || '') ?? [],
-														managers:
-															el.managers?.map((el) => el.employee?.fullName || '') ?? [],
-														teams: el.teams?.map((el: IOrganizationTeam) => el.name) ?? []
-													};
+												data={(projects || []).map((el) => {
+													try {
+														return {
+															projectName: el?.project?.name || '-',
+															status: el?.status || '-',
+															archivedAt: el?.archivedAt
+																? moment(el.archivedAt).format('YYYY-MM-DD')
+																: '-',
+															startDate: el?.startDate
+																? moment(el.startDate).format('YYYY-MM-DD')
+																: '-',
+															endDate: el?.endDate
+																? moment(el.endDate).format('YYYY-MM-DD')
+																: '-',
+															members: Array.isArray(el?.members)
+																? el.members
+																		.map(
+																			(member) => member?.employee?.fullName || ''
+																		)
+																		.filter(Boolean)
+																: [],
+															managers: Array.isArray(el?.managers)
+																? el.managers
+																		.map(
+																			(manager) =>
+																				manager?.employee?.fullName || ''
+																		)
+																		.filter(Boolean)
+																: [],
+															teams: Array.isArray(el?.teams)
+																? el.teams
+																		.map((team) => team?.name || '')
+																		.filter(Boolean)
+																: []
+														};
+													} catch (error) {
+														console.error('Error processing project data for PDF:', error);
+														return {
+															projectName: 'Error',
+															status: '-',
+															archivedAt: '-',
+															startDate: '-',
+															endDate: '-',
+															members: [],
+															managers: [],
+															teams: []
+														};
+													}
 												})}
 												headers={{
 													projectName: t('pages.projects.projectTitle.SINGULAR'),
@@ -82,10 +111,10 @@ export function ProjectExportMenu(props: IProps) {
 													managers: t('common.MANAGERS'),
 													teams: t('common.TEAMS')
 												}}
-												title={`${activeTeam?.name} Organization Projects`}
+												title={`${activeTeam?.name || 'Organization'} Projects`}
 											/>
 										}
-										fileName={`${activeTeam?.name}-organization-projects.pdf`}
+										fileName={`${activeTeam?.name || 'organization'}-projects.pdf`}
 									>
 										{({ loading }) =>
 											loading ? (

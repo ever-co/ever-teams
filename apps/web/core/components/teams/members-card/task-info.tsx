@@ -1,10 +1,10 @@
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import { ChangeEventHandler, Dispatch, forwardRef, SetStateAction } from 'react';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	memberTask: ITask | null;
+	memberTask: TTask | null;
 	editMode: boolean;
 	hasEditMode: boolean;
 	editable: MemberCardEditableValues;

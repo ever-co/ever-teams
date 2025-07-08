@@ -59,7 +59,7 @@ export function UserNavAvatar() {
 			<PopoverButton className="outline-none">
 				<div
 					className={clsxm(
-						'w-[3rem] h-[3rem]',
+						'size-12',
 						'flex justify-center items-center',
 						'rounded-full text-white',
 						'shadow-md text-[2.063rem] dark:text-[1.75rem] text-thin font-PlusJakartaSans '
@@ -78,16 +78,16 @@ export function UserNavAvatar() {
 						>
 							<TimerStatus
 								status={timerStatusValue}
-								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
 								tooltipClassName="mt-10"
 							/>
 						</Avatar>
 					) : name ? (
-						<div className="w-[3rem] h-[3rem] flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-[#26272C] text-white">
+						<div className="size-12 flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-[#26272C] text-white">
 							{imgTitle(name).charAt(0)}
 							<TimerStatus
 								status={timerStatusValue}
-								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
 								tooltipClassName="mt-8"
 								labelContainerClassName="mr-8"
 							/>
@@ -99,7 +99,6 @@ export function UserNavAvatar() {
 			</PopoverButton>
 
 			<Transition
-				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -120,7 +119,7 @@ function MenuIndicator() {
 	return (
 		<EverCard
 			className={clsxm(
-				'absolute  top-4 right-0 -z-10 bg-transparent dark:bg-transparent',
+				'absolute right-0 top-4 bg-transparent -z-10 dark:bg-transparent',
 				'nav-items--shadow rounded-none !py-0 !px-0',
 				'w-0 h-0',
 				'border-l-[15px] border-r-[15px]',
@@ -166,14 +165,14 @@ function UserNavMenu() {
 			shadow="custom"
 			className="w-[308px relative flex flex-col nav-items--shadow z-10 shadow-darker dark:bg-[#1B1D22] border dark:border-[#26272C]"
 		>
-			<div className="flex flex-col items-center justify-center">
+			<div className="flex flex-col justify-center items-center">
 				<Link href={`/settings/personal`}>
 					<div
 						className={clsxm(
 							'w-[72px] h-[72px]',
-							'flex justify-center items-center relative',
-							'rounded-full text-xs text-white',
-							'shadow-md text-5xl font-thin relative font-PlusJakartaSans cursor-pointer mb-5'
+							'flex relative justify-center items-center',
+							'text-xs text-white rounded-full',
+							'relative mb-5 text-5xl font-thin shadow-md cursor-pointer font-PlusJakartaSans'
 						)}
 						style={{
 							backgroundColor: `${stc(name || '')}80`
@@ -210,7 +209,7 @@ function UserNavMenu() {
 						}
 						placement="auto"
 					>
-						<Text.Heading as="h3" className="overflow-hidden text-ellipsis whitespace-nowrap">
+						<Text.Heading as="h3" className="overflow-hidden whitespace-nowrap text-ellipsis">
 							{user?.firstName} {user?.lastName}
 						</Text.Heading>
 					</Tooltip>
@@ -226,9 +225,9 @@ function UserNavMenu() {
 					</Tooltip>
 				</Link>
 				<Divider className="mt-6" />
-				<ul className="w-full mt-4">
+				<ul className="mt-4 w-full">
 					{/* Task menu */}
-					<li className="flex items-center h-10 ">
+					<li className="flex items-center h-10">
 						<Link
 							href={`/profile/${user?.id}?name=${name || ''}`}
 							className="flex items-center space-x-3 font-normal text-center"
@@ -237,7 +236,7 @@ function UserNavMenu() {
 						</Link>
 					</li>
 					{/* Team menu */}
-					<li className="flex items-center h-10 ">
+					<li className="flex items-center h-10">
 						<Link href="/" className="flex items-center space-x-3 font-normal">
 							<PeoplesIcon strokeWidth="1.7" className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
 							<span>{t('common.MY_TEAM')}</span>
@@ -245,7 +244,7 @@ function UserNavMenu() {
 					</li>
 					{/* Settings menu */}
 
-					<li className="flex items-center h-10 ">
+					<li className="flex items-center h-10">
 						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
 							<SettingOutlineIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
 							<span>{t('common.SETTINGS')}</span>
@@ -253,8 +252,8 @@ function UserNavMenu() {
 					</li>
 
 					{/* fullWidth menu */}
-					<li className="flex items-center justify-between h-10 space-x-3 font-normal">
-						<div className="flex items-center flex-1 space-x-3 font-normal">
+					<li className="flex justify-between items-center space-x-3 h-10 font-normal">
+						<div className="flex flex-1 items-center space-x-3 font-normal">
 							<FullWidthIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
 							<span>{t('common.FULL_WIDTH')}</span>
 						</div>
@@ -262,14 +261,14 @@ function UserNavMenu() {
 					</li>
 
 					{/* Darkmode menu */}
-					<li className="flex items-center justify-between h-10 mb-1 space-x-3 font-normal">
-						<div className="flex items-center flex-1 space-x-3">
+					<li className="flex justify-between items-center mb-1 space-x-3 h-10 font-normal">
+						<div className="flex flex-1 items-center space-x-3">
 							<MoonIcon strokeWidth="1.3" className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
 						</div>
 						<ThemeToggler className="scale-75" />
 					</li>
-					<li className="flex items-center justify-between h-10 space-x-3 font-normal">
-						<div className="flex items-center flex-1 space-x-3">
+					<li className="flex justify-between items-center space-x-3 h-10 font-normal">
+						<div className="flex flex-1 items-center space-x-3">
 							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
 						</div>
 						<LanguageDropDownWithFlags
@@ -283,7 +282,7 @@ function UserNavMenu() {
 					- Uncomment it when we have 3D mode ready
 					*/}
 					{/* <li className="flex items-center space-x-3 font-normal">
-						<div className="flex items-center flex-1 space-x-3">
+						<div className="flex flex-1 items-center space-x-3">
 							<BoxIcon className="w-5 h-5" />{' '}
 							<span>{trans.common['3D_MODE']}</span>
 						</div>
@@ -291,7 +290,7 @@ function UserNavMenu() {
 					</li> */}
 
 					{/* Themes menu */}
-					<li className="flex items-center justify-between w-full h-10 pr-3 space-x-3 font-normal">
+					<li className="flex justify-between items-center pr-3 space-x-3 w-full h-10 font-normal">
 						<div className="flex flex-1 space-x-3">
 							<DevicesIcon strokeWidth="1.7" className="w-5 h-5" /> <span>{t('common.THEMES')}</span>
 						</div>
@@ -299,16 +298,16 @@ function UserNavMenu() {
 						<ThemeDropdown />
 					</li>
 				</ul>
-				<Divider className="mt-4 " />
-				<ul className="flex flex-col items-center justify-start gap-2 md:hidden">
+				<Divider className="mt-4" />
+				<ul className="flex flex-col gap-2 justify-start items-center md:hidden">
 					{!publicTeam && <Collaborate />}
 
 					{isTeamMember && isTeamDropdownAllowed ? <TeamsDropDown publicTeam={publicTeam || false} /> : null}
 
 					<KeyboardShortcuts />
-					<Divider className="w-full mt-1 mb-3" />
+					<Divider className="mt-1 mb-3 w-full" />
 				</ul>
-				<ul className="w-full py-4">
+				<ul className="py-4 w-full">
 					{/* Logout menu */}
 					<li>
 						<button
@@ -323,7 +322,7 @@ function UserNavMenu() {
 					</li>
 				</ul>
 			</div>
-			<div className="w-10 h-10 bg-inherit border-inherit border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-5 right-8 rounded-xl rotate-[135deg] " />
+			<div className="w-8 h-8 bg-inherit border-inherit rounded-none border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-[0.95rem] right-8 rotate-[135deg] rounded-bl-md" />
 		</EverCard>
 	);
 }
@@ -349,13 +348,12 @@ function ThemeDropdown() {
 	const selectedThemeText = themes.find((item: ThemeInterface): boolean => item.theme === theme)?.text;
 
 	return (
-		<Popover className="relative z-30 flex items-center h-full">
+		<Popover className="flex relative z-30 items-center h-full">
 			<PopoverButton className="flex items-center h-full text-sm font-light">
 				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
-				<ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+				<ChevronDown className="ml-2 w-4 h-4 opacity-50" />
 			</PopoverButton>
 			<Transition
-				as="div"
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -404,12 +402,12 @@ function ThemeDropdown() {
 // 					{selected}{' '}
 // 					<ChevronDownIcon
 // 						className={clsxm(
-// 							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+// 							'ml-2 w-5 h-5 transition duration-150 ease-in-out dark:text-white group-hover:text-opacity-80'
 // 						)}
 // 						aria-hidden="true"
 // 					/>
 // 				</Listbox.Button>
-// 				<Listbox.Options className={'absolute inset-0 flex flex-col mt-6'}>
+// 				<Listbox.Options className={'flex absolute inset-0 flex-col mt-6'}>
 // 					<EverCard className="!p-0" shadow="custom">
 // 						{Object.keys(themes).map((key) => (
 // 							<Listbox.Option

@@ -4,6 +4,7 @@ import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
+import { TOrganizationProject } from '@/core/types/schemas';
 
 interface IRestoreProjectModalProps {
 	open: boolean;
@@ -43,7 +44,7 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 				setOrganizationProjects(
 					organizationProjects.map((project) => {
 						if (project.id === projectId) {
-							return res.data;
+							return res.data as TOrganizationProject;
 						}
 						return project;
 					})

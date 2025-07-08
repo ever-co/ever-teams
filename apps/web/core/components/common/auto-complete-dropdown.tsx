@@ -72,7 +72,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	);
 
 	return (
-		<div className={clsxm('', className)}>
+		<div className={clsxm(className)}>
 			<Combobox value={Value} onChange={onChange} disabled={disabled}>
 				<ComboboxInput
 					placeholder={placeholder}

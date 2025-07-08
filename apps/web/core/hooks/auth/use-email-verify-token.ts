@@ -1,57 +1,63 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useQueryCall } from '../common/use-query';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
+import { queryKeys } from '@/core/query/keys';
 
 export function useEmailVerifyToken() {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const email = searchParams?.get('email');
 	const token = searchParams?.get('token');
 
-	const loginFromQuery = useRef(false);
-
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall, loading, infiniteLoading } = useQueryCall(emailVerificationService.verifyUserEmailByToken);
+	// SECURE - Memoized parameters to prevent infinite re-renders
+	const verificationParams = useMemo(() => {
+		if (!email || !token) return null;
+		return { email, token };
+	}, [email, token]);
 
-	/**
-	 * Verify Email by token request
-	 */
-	const verifyEmailRequest = useCallback(
-		({ email, token }: { email: string; token: string }) => {
-			queryCall(email, token)
-				.then(() => {
-					window.location.replace('/');
-				})
-				.catch((err: AxiosError) => {
-					if (err.response?.status === 400) {
-						setErrors((err.response?.data as any)?.errors || {});
-					}
-				});
+	// React Query for email verification
+	const emailVerificationQuery = useQuery({
+		queryKey: queryKeys.emailVerification.verifyToken(verificationParams?.email, verificationParams?.token),
+		queryFn: async () => {
+			if (!verificationParams) {
+				throw new Error('Email and token are required for verification');
+			}
+			return await emailVerificationService.verifyUserEmailByToken(
+				verificationParams.email,
+				verificationParams.token
+			);
 		},
-		[queryCall]
-	);
+		enabled: !!verificationParams, // Only run when email and token are available
+		retry: 1, // Only retry once for email verification
+		staleTime: Infinity, // Email verification should not be cached/retried
+		gcTime: 0 // Don't cache email verification results
+	});
 
-	/**
-	 * Verify token immediately if email and token were passed from url
-	 */
+	// Handle success - redirect to home
 	useEffect(() => {
-		if (email && token) {
-			verifyEmailRequest({
-				email: email as string,
-				token: token as string
-			});
-
-			loginFromQuery.current = true;
+		if (emailVerificationQuery.data) {
+			router.replace('/');
 		}
-	}, [email, token, verifyEmailRequest]);
+	}, [emailVerificationQuery.data, router]);
+
+	// Handle errors - extract error details
+	useEffect(() => {
+		if (emailVerificationQuery.error) {
+			const err = emailVerificationQuery.error as AxiosError;
+			if (err.response?.status === 400) {
+				setErrors((err.response?.data as any)?.errors || {});
+			}
+		}
+	}, [emailVerificationQuery.error]);
 
 	return {
 		errors,
-		infiniteLoading,
-		loading
+		loading: emailVerificationQuery.isLoading
 	};
 }

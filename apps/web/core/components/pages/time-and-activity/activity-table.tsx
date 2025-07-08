@@ -15,7 +15,7 @@ import {
 	ITimerProjectLog,
 	ITimerTaskLog
 } from '@/core/types/interfaces/activity/activity-report';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface TimeSlot {
 	duration: number;
@@ -27,7 +27,7 @@ interface ITimerEmployeeLogExtended extends ITimerEmployeeLog {
 }
 
 interface TaskLog {
-	task: ITask;
+	task: TTask;
 	duration: number;
 	description: string;
 	earnings?: number;

@@ -1,39 +1,39 @@
 import { atom } from 'jotai';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { DateRange } from 'react-day-picker';
 import { isTestDateRange } from '@/core/lib/helpers/index';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
-export const dailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
+export const dailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],
 	total: 0
 });
 
-export const myDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
+export const myDailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],
 	total: 0
 });
 
-export const profileDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
+export const profileDailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],
 	total: 0
 });
 
-export const employeePlansListState = atom<IDailyPlan[]>([]);
+export const employeePlansListState = atom<TDailyPlan[]>([]);
 
-export const taskPlans = atom<IDailyPlan[]>([]);
+export const taskPlans = atom<TDailyPlan[]>([]);
 
 export const activeDailyPlanIdState = atom<string | null>(null);
 
 export const dailyPlanFetchingState = atom<boolean>(false);
 
-export const activeDailyPlanState = atom<IDailyPlan | null>((get) => {
+export const activeDailyPlanState = atom<TDailyPlan | null>((get) => {
 	const dailyPlans = get(dailyPlanListState);
 	const activeId = get(activeDailyPlanIdState);
 	return dailyPlans.items.find((plan) => plan.id === activeId) || dailyPlans.items[0] || null;
 });
 
-export const dataDailyPlanState = atom<IDailyPlan[]>([]);
+export const dataDailyPlanState = atom<TDailyPlan[]>([]);
 
 export const dateRangeDailyPlanState = atom<DateRange | undefined>({
 	from: undefined,
@@ -55,7 +55,7 @@ const createFilteredDailyPlanDataSelector = (
 			return isTestDateRange(itemDate, from, to);
 		});
 	});
-export const dataDailyPlanAllFilterState = atom<IDailyPlan[]>([]);
+export const dataDailyPlanAllFilterState = atom<TDailyPlan[]>([]);
 export const dateRangeAllPlanState = atom<DateRange | undefined>({
 	from: undefined,
 	to: undefined
@@ -90,9 +90,9 @@ export const dateRangeLimitState = atom<DateRange | undefined>({
 	to: undefined
 });
 
-export const originalFuturePlanState = atom<IDailyPlan[]>([]);
-export const originalAllPlanState = atom<IDailyPlan[]>([]);
-export const originalPastPlanDataState = atom<IDailyPlan[]>([]);
+export const originalFuturePlanState = atom<TDailyPlan[]>([]);
+export const originalAllPlanState = atom<TDailyPlan[]>([]);
+export const originalPastPlanDataState = atom<TDailyPlan[]>([]);
 
 export const filteredPastPlanDataState = createFilteredDailyPlanDataSelector(
 	dateRangePastPlanState,

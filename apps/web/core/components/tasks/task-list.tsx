@@ -4,12 +4,12 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useTaskInput } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '../features/tasks/delete-task';
 import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';
 import { useTranslations } from 'next-intl';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function CreateTaskOption({ onClick, loading }: { onClick: () => void; loading?: boolean }) {
 	const t = useTranslations();
@@ -28,7 +28,7 @@ export function CreateTaskOption({ onClick, loading }: { onClick: () => void; lo
 	);
 }
 
-export function TasksList({ onClickTask }: { onClickTask?: (task: ITask) => void }) {
+export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void }) {
 	const {
 		inputTask,
 		setActiveTask,
@@ -72,7 +72,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITask) => void
 						<Combobox.Input
 							key={`${editMode}`}
 							className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-							displayValue={(task: ITask) => {
+							displayValue={(task: TTask) => {
 								return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 							}}
 							onFocus={() => setEditMode(true)}
@@ -186,7 +186,7 @@ function InputTaskItem({
 	onReopen
 }: {
 	selected: boolean;
-	item: ITask;
+	item: TTask;
 	active: boolean;
 	onDelete: () => void;
 	onReopen: () => Promise<any>;

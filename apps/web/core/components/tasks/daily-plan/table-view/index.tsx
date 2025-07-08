@@ -1,17 +1,17 @@
 import * as React from 'react';
 import DataTable from '@/core/components/common/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
 import DailyPlanTaskEstimationCell from './cells/task-estimation-cell';
 import DailyPlanTaskInfoCell from './cells/task-info-cell';
 import DailyPlanTaskTimesCell from './cells/task-times-cell';
 import TaskActionMenuCell from './cells/task-action-menu-cell';
 import { FilterTabs, I_UserProfilePage } from '@/core/hooks';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IDailyPlanTasksTableViewProps {
-	data: ITask[];
-	plan: IDailyPlan;
+	data: TTask[];
+	plan: TDailyPlan;
 	profile: I_UserProfilePage;
 	planMode?: FilterTabs;
 }
@@ -20,7 +20,7 @@ interface IDailyPlanTasksTableViewProps {
  * Table view of daily plan tasks
  *
  * @param {Object} props - THe props object
- * @param {ITask[]} props.data - The tasks
+ * @param {TTask[]} props.data - The tasks
  * @param {I_UserProfilePage} props.profile - The user profile page
  * @param {FilterTabs} props.planMode - The plan mode to display
  *
@@ -29,7 +29,7 @@ interface IDailyPlanTasksTableViewProps {
 export default function DailyPlanTasksTableView(props: IDailyPlanTasksTableViewProps) {
 	const { data, plan, profile, planMode } = props;
 
-	const columns = React.useMemo<ColumnDef<ITask>[]>(
+	const columns = React.useMemo<ColumnDef<TTask>[]>(
 		() => [
 			{
 				id: 'task',

@@ -1,4 +1,4 @@
-import { ECurrencies } from '../../generics/enums/currency';
+import { NullableGridSize } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { TTag } from '../../schemas';
@@ -6,10 +6,10 @@ import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../comm
 import { IRelationalImageAsset } from '../common/image-asset';
 import { IEmployee } from '../organization/employee';
 import { ICustomFieldsObject } from '../organization/organization';
-import { ITask } from '../task/task';
-import { IOrganizationTeam } from '../team/organization-team';
 import { ITimeLog } from '../timer/time-log/time-log';
 import { IOrganizationProjectEmployee } from './organization-project-employee';
+import { TTask } from '../../schemas/task/task.schema';
+import { IOrganizationTeam } from '../team/organization-team';
 
 export interface IOrganizationProjectBase
 	extends IBasePerTenantAndOrganizationEntityModel,
@@ -17,42 +17,42 @@ export interface IOrganizationProjectBase
 		// IRelationalOrganizationContact,
 		IOrganizationProjectSetting,
 		ITaggable {
-	name?: string;
-	startDate?: Date;
-	endDate?: Date;
-	billing?: EProjectBilling;
-	currency?: ECurrencies;
+	name?: string | null;
+	startDate?: Date | null;
+	endDate?: Date | null;
+	billing?: EProjectBilling | null;
+	currency?: string | null;
 	members?: IOrganizationProjectEmployee[];
-	public?: boolean;
-	owner?: EProjectOwner;
-	tasks?: ITask[];
+	public?: boolean | null;
+	owner?: EProjectOwner | null;
+	tasks?: TTask[];
 	teams?: IOrganizationTeam[];
 	timeLogs?: ITimeLog[];
 	// organizationSprints?: IOrganizationSprint[];
 	// modules?: IOrganizationProjectModule[];
-	taskListType?: ETaskListType;
+	taskListType?: ETaskListType | NullableGridSize;
 	// payments?: IPayment[];
-	code?: string;
-	description?: string;
-	color?: string;
-	billable?: boolean;
-	billingFlat?: boolean;
-	openSource?: boolean;
-	projectUrl?: string;
-	openSourceProjectUrl?: string;
-	budget?: number;
-	budgetType?: EProjectBudgetType;
-	membersCount?: number;
-	imageUrl?: string;
-	status?: ETaskStatusName;
-	icon?: string;
-	archiveTasksIn?: number;
-	closeTasksIn?: number;
-	defaultAssigneeId?: ID;
-	defaultAssignee?: IEmployee;
+	code?: string | null;
+	description?: string | null;
+	color?: string | null;
+	billable?: boolean | null;
+	billingFlat?: boolean | null;
+	openSource?: boolean | null;
+	projectUrl?: string | null;
+	openSourceProjectUrl?: string | null;
+	budget?: number | null;
+	budgetType?: EProjectBudgetType | null;
+	membersCount?: number | null;
+	imageUrl?: string | null;
+	status?: ETaskStatusName | null;
+	icon?: string | null;
+	archiveTasksIn?: number | null;
+	closeTasksIn?: number | null;
+	defaultAssigneeId?: ID | null;
+	defaultAssignee?: IEmployee | null;
 	// Will be implemented on the  API side much later :
-	relations?: IProjectRelation[]; // relationship
-	repository?: IOrganizationProjectRepository;
+	relations?: IProjectRelation[] | null; // relationship
+	repository?: IOrganizationProjectRepository | null;
 }
 
 export interface IProjectRelation {
@@ -84,7 +84,7 @@ export interface ICreateProjectRequest {
 	description?: string;
 	color?: string;
 	tags?: TTag[];
-	imageUrl?: string;
+	imageUrl?: string | null;
 	imageId?: string;
 	budget?: number;
 	budgetType?: EProjectBudgetType;
@@ -119,6 +119,6 @@ export interface IOrganizationProjectRepository {
 	repositoryId: number;
 	name: string;
 	fullName: string;
-	owner: string;
+	owner: string | null;
 	integrationId: string;
 }

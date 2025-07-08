@@ -27,7 +27,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex hidden items-center py-3 min-h-[7rem] border-[0.1875rem] border-transparent',
+					'relative sm:flex hidden items-center py-2.5 min-h-24 border-[0.1875rem] border-transparent',
 					className
 				)}
 			>
@@ -38,7 +38,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				{/* User info */}
 				<div className="flex items-center space-x-4 2xl:w-[20.625rem] w-1/4 opacity-40">
 					<div
-						className="'w-[50px] h-[50px]',
+						className="'w-[50px] h-12',
 					'flex justify-center items-center',
 					'rounded-full text-2xl text-default dark:text-white',
 					'shadow-md font-normal'"
@@ -47,7 +47,7 @@ export function InvitedCard({ invitation, className }: Props) {
 						<Avatar size={50} className="relative" imageTitle={invitation.fullName}>
 							<TimerStatus
 								status={ETimerStatus.IDLE}
-								className="absolute z-20 -mb-3 border bottom-3 -right-1"
+								className="absolute -right-1 bottom-3 z-20 -mb-3 border"
 							/>
 						</Avatar>
 					</div>
@@ -70,18 +70,18 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="flex-1 px-4 text-center opacity-40 ">{t('common.TASK_TITTLE')}</Text>
+				<Text className="flex-1 px-4 text-center opacity-40">{t('common.TASK_TITTLE')}</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="flex items-center px-2 mb-2 space-x-2 font-normal text-center 2xl:w-48 3xl:w-52 opacity-40 lg:px-4">
+				<div className="flex items-center px-2 mb-2 space-x-2 font-normal text-center opacity-40 2xl:w-48 3xl:w-52 lg:px-4">
 					<span>{t('common.TODAY')}:</span>
 					<Text>0h : 0m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
-				<div className="relative flex items-center justify-center space-x-1 2xl:w-48 3xl:w-64 opacity-40 ">
+				<div className="flex relative justify-center items-center space-x-1 opacity-40 2xl:w-48 3xl:w-64">
 					{/* <TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
@@ -91,7 +91,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* card menu */}
-				<div className="font-normal text-center 2xl:w-52 3xl:w-64 opacity-40">
+				<div className="font-normal text-center opacity-40 2xl:w-52 3xl:w-64">
 					<Text>0h : 0m</Text>
 				</div>
 
@@ -99,26 +99,26 @@ export function InvitedCard({ invitation, className }: Props) {
 					<RemoveUserInviteMenu invitation={invitation} />
 				</div>
 			</EverCard>
-			<EverCard shadow="bigger" className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}>
+			<EverCard shadow="bigger" className={clsxm('flex relative flex-col py-3 sm:hidden', className)}>
 				<div className="flex items-center mb-4">
 					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
 						<TimerStatus
 							status={ETimerStatus.IDLE}
-							className="absolute z-20 -mb-3 border bottom-3 -right-1"
+							className="absolute -right-1 bottom-3 z-20 -mb-3 border"
 						/>
 					</Avatar>
 					<div className="">
-						<Text.Heading as="h3" className="overflow-hidden text-ellipsis whitespace-nowrap">
+						<Text.Heading as="h3" className="overflow-hidden whitespace-nowrap text-ellipsis">
 							{invitation.fullName}
 						</Text.Heading>
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
 							<MailIcon className="w-4 h-4" />{' '}
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap">{invitation.email}</span>
+							<span className="overflow-hidden whitespace-nowrap text-ellipsis">{invitation.email}</span>
 						</Text>
 					</div>
 				</div>
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<Text className="px-4 opacity-40 w-80 ">{t('common.TASK_TITTLE')}</Text>
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+					<Text className="px-4 w-80 opacity-40">{t('common.TASK_TITTLE')}</Text>
 				</div>
 				<div className="flex justify-between mt-4 mb-4 space-x-5">
 					<div className="flex flex-col">
@@ -130,7 +130,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							<TimeInputField defaultValue="00" label="h" />
 							<span>:</span>
 							<TimeInputField defaultValue="00" label="m" />
-							<div className="absolute " />
+							<div className="absolute" />
 						</div>
 					</div>
 					<div className="flex-1 text-xs opacity-40 text-end">
@@ -180,7 +180,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 										<button
 											onClick={async () => {
 												try {
-													await resendTeamInvitation(invitation.id);
+													await resendTeamInvitation(invitation.id || '');
 													toast.success(t('common.INVITATION_SENT'), {
 														description: t('common.INVITATION_SENT_TO_USER', {
 															email: invitation.email
@@ -202,7 +202,10 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
 											onConfirm={async () => {
 												try {
-													await removeTeamInvitation(invitation.id, invitation.email);
+													await removeTeamInvitation(
+														invitation.id || '',
+														invitation.email || ''
+													);
 													close();
 												} catch (error) {
 													toast.error('Failed to remove invitation. Please try again.');
@@ -211,7 +214,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 										>
 											<span
 												className={cn(
-													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500 cursor-pointer'
+													'font-normal text-red-500 whitespace-nowrap cursor-pointer hover:font-semibold hover:transition-all'
 												)}
 											>
 												{t('common.REMOVE')}
@@ -240,12 +243,12 @@ export function InviteUserTeamCard({
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
+					'relative hidden sm:flex items-center py-2.5 min-h-24 dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
 					'dark:border dark:border-[#FFFFFF14] w-full',
 					className
 				)}
 			>
-				<div className="absolute opacity-40 -left-0">
+				<div className="absolute -left-0 opacity-40">
 					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 

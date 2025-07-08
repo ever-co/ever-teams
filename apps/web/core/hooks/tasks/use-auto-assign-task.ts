@@ -3,9 +3,9 @@
 import { useAtomValue } from 'jotai';
 import { timerStatusState, userState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Auto assign task to auth user when start tracking time
@@ -24,7 +24,7 @@ export function useAutoAssignTask() {
 	 * Assign task to the member
 	 */
 	const autoAssignTask = useCallback(
-		(task: ITask, employeeId: string) => {
+		(task: TTask, employeeId: string) => {
 			const exists = task.members?.some((t) => t.id === employeeId);
 
 			if (exists || updateLoadingRef.current) return;

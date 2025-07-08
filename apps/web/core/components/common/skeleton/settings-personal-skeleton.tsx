@@ -26,10 +26,10 @@ const SettingsPersonalSkeleton = () => {
 							<Text className="text-base font-normal text-gray-400">
 								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
-							<div className="flex flex-col items-center justify-between">
+							<div className="flex flex-col justify-between items-center">
 								<div className="w-full">
 									<div className="">
-										<div className="flex items-center justify-between w-full gap-8">
+										<div className="flex gap-8 justify-between items-center w-full">
 											<div className="relative">
 												<Skeleton
 													circle={true}
@@ -43,11 +43,11 @@ const SettingsPersonalSkeleton = () => {
 								</div>
 							</div>
 							<div className="w-[98%] md:w-[530px]">
-								<div className="flex flex-col items-center justify-between">
-									<div className="w-full mt-5">
+								<div className="flex flex-col justify-between items-center">
+									<div className="mt-5 w-full">
 										<div className="">
-											<div className="flex items-center justify-between w-full gap-8">
-												<div className="flex items-center justify-between w-full gap-4">
+											<div className="flex gap-8 justify-between items-center w-full">
+												<div className="flex gap-4 justify-between items-center w-full">
 													<div>
 														<Text className="mb-2 font-normal text-gray-400 text-md">
 															<Skeleton
@@ -79,8 +79,8 @@ const SettingsPersonalSkeleton = () => {
 													/>
 												</div>
 											</div>
-											<div className="flex items-center justify-between w-full gap-8 mt-8">
-												<div className="flex items-center justify-between w-full gap-4">
+											<div className="flex gap-8 justify-between items-center mt-8 w-full">
+												<div className="flex gap-4 justify-between items-center w-full">
 													<div>
 														<Text className="mb-2 font-normal text-gray-400 text-md">
 															<Skeleton
@@ -95,7 +95,7 @@ const SettingsPersonalSkeleton = () => {
 															className="md:w-[220px] m-0  h-[54px] dark:bg-[#272930] rounded-lg"
 														/>
 													</div>
-													<div className="mt-8">
+													<div className="mt-5">
 														<InputField
 															type="text"
 															placeholder=""
@@ -112,7 +112,7 @@ const SettingsPersonalSkeleton = () => {
 													/>
 												</div>
 											</div>
-											<div className="flex items-center gap-6 mt-8">
+											<div className="flex gap-6 items-center mt-8">
 												<div className="">
 													<Text className="mb-2 font-normal text-gray-400 text-md">
 														<Skeleton
@@ -124,7 +124,7 @@ const SettingsPersonalSkeleton = () => {
 													</Text>
 												</div>
 											</div>
-											<div className="flex items-center justify-between w-full mt-4">
+											<div className="flex justify-between items-center mt-4 w-full">
 												<div className="">
 													<Text className="mb-2 font-normal text-gray-400 text-md">
 														<Skeleton
@@ -136,7 +136,7 @@ const SettingsPersonalSkeleton = () => {
 													</Text>
 												</div>
 											</div>
-											<div className="flex items-center justify-between w-full gap-5 mt-8 ">
+											<div className="flex gap-5 justify-between items-center mt-8 w-full">
 												<div className="">
 													<Text className="mb-2 font-normal text-gray-400 text-md">
 														<Skeleton
@@ -154,7 +154,7 @@ const SettingsPersonalSkeleton = () => {
 												className="w-full m-0 h-[54px]  dark:bg-[#272930] rounded-lg"
 											/>
 
-											<div className="flex items-center justify-between w-full gap-5 mt-8">
+											<div className="flex gap-5 justify-between items-center mt-8 w-full">
 												<div className="">
 													<Text className="mb-2 font-normal text-gray-400 text-md">
 														<Skeleton
@@ -167,7 +167,7 @@ const SettingsPersonalSkeleton = () => {
 												</div>
 											</div>
 
-											<div className="flex items-center justify-between w-full mt-8">
+											<div className="flex justify-between items-center mt-8 w-full">
 												<div className="">
 													<Text className="mb-2 font-normal text-gray-400 text-md">
 														<Skeleton

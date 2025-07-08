@@ -2,7 +2,6 @@
 	"name": "@ever-teams/playground",
 	"version": "0.1.0",
 	"description": "Ever Teams - Playground",
-	"license": "AGPL-3.0",
 	"private": true,
 	"author": {
 		"name": "Ever Co. LTD",
@@ -19,8 +18,7 @@
 	"dependencies": {
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
-		"next": "15.3.1",
-		"@ever-teams/ui": "*"
+		"next": "15.3.5"
 	},
 	"devDependencies": {
 		"typescript": "^5",
@@ -30,7 +28,9 @@
 		"@tailwindcss/postcss": "^4",
 		"tailwindcss": "^4",
 		"eslint": "^9",
-		"eslint-config-next": "15.3.1",
-		"@ever-teams/eslint-config": "*"
+		"eslint-config-next": "15.3.5",
+		"@eslint/eslintrc": "^3",
+		"@ever-teams/eslint-config": "*",
+		"@ever-teams/ui": "*"
 	}
 }

@@ -6,17 +6,54 @@ import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { Button, Container } from '@/core/components';
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
 import { useAtom } from 'jotai';
+import dynamic from 'next/dynamic';
 import { DefaultCreateAction } from '../../features/layouts/header/create-default-action';
-import { MinTimerFrame } from '../../timer/timer';
-import Collaborate from '../../collaborate';
-import { TeamsDropDown } from '../../teams/teams-dropdown';
 import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
-import { UserNavAvatar } from '../../users/user-nav-menu';
-import { RequestToJoinModal } from '../../features/teams/request-to-join-modal';
+// Lazy load RequestToJoinModal for performance optimization
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+const LazyRequestToJoinModal = dynamic(
+	() => import('../../features/teams/request-to-join-modal').then((mod) => ({ default: mod.RequestToJoinModal })),
+	{
+		ssr: false
+	}
+);
+
+// Import skeletons
+import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
+import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
+import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
+import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
+
+const LazyMinTimerFrame = dynamic(() => import('../../timer/timer').then((mod) => ({ default: mod.MinTimerFrame })), {
+	ssr: false
+	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+});
+
+const LazyCollaborate = dynamic(() => import('../../collaborate'), {
+	ssr: false
+	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+});
+
+const LazyTeamsDropDown = dynamic(
+	() => import('../../teams/teams-dropdown').then((mod) => ({ default: mod.TeamsDropDown })),
+	{
+		ssr: false
+		// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+	}
+);
+
+const LazyUserNavAvatar = dynamic(
+	() => import('../../users/user-nav-menu').then((mod) => ({ default: mod.UserNavAvatar })),
+	{
+		ssr: false
+		// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+	}
+);
 
 const HeaderSkeleton = () => {
 	return (
@@ -75,21 +112,39 @@ export function Navbar({
 							{t('common.JOIN_REQUEST')}
 						</Button>
 					)}
-					{showTimer && <MinTimerFrame />}
+					{showTimer && (
+						<Suspense fallback={<TimerSkeleton />}>
+							<LazyMinTimerFrame />
+						</Suspense>
+					)}
 
 					<div className="items-center hidden gap-3.5 md:flex">
-						{!publicTeam && <Collaborate />}
+						{!publicTeam && (
+							<Suspense fallback={<CollaborateSkeleton />}>
+								<LazyCollaborate />
+							</Suspense>
+						)}
 
 						{isTeamMember && isTeamDropdownAllowed ? (
-							<TeamsDropDown publicTeam={publicTeam || false} />
+							<Suspense fallback={<TeamsDropDownSkeleton />}>
+								<LazyTeamsDropDown publicTeam={publicTeam || false} />
+							</Suspense>
 						) : null}
 
 						<KeyboardShortcuts />
 					</div>
-					{!publicTeam && <UserNavAvatar />}
+					{!publicTeam && (
+						<Suspense fallback={<UserNavAvatarSkeleton />}>
+							<LazyUserNavAvatar />
+						</Suspense>
+					)}
 				</div>
 			)}
-			<RequestToJoinModal open={isOpen} closeModal={closeModal} />
+			{isOpen && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<LazyRequestToJoinModal open={isOpen} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</nav>
 	);
 }

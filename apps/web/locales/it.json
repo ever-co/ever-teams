@@ -927,7 +927,9 @@
 			"TASK_PLANNED_FOR_DATE": "Attività pianificata per la data selezionata",
 			"TASK_PLAN_FAILED": "Pianificazione dell'attività fallita. Riprova.",
 			"TASK_ASSIGNMENT_FAILED": "Assegnazione/rimozione dell'attività fallita. Riprova.",
-			"TASK_FAVORITE_FAILED": "Aggiornamento dei preferiti fallito. Riprova."
+			"TASK_FAVORITE_FAILED": "Aggiornamento dei preferiti fallito. Riprova.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Elemento preferito creato con successo",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Elemento preferito eliminato con successo"
 		}
 	},
 	"dailyPlan": {

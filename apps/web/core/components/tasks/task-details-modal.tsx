@@ -1,15 +1,15 @@
 import { Modal } from '@/core/components';
 import { useCallback } from 'react';
 import { clsxm } from '@/core/lib/utils';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { TaskDetailsComponent } from '../pages/task/task-details';
 import { EverCard } from '../common/ever-card';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface ITaskDetailsModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
-	task: ITask;
+	task: TTask;
 }
 
 /**
@@ -18,7 +18,7 @@ interface ITaskDetailsModalProps {
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
  * @param {() => void} props.closeModal - A function to close the modal
- * @param {ITask} props.task - The task to show details about
+ * @param {TTask} props.task - The task to show details about
  *
  * @returns {JSX.Element} The modal element
  */

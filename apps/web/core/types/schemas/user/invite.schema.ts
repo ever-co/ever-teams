@@ -7,22 +7,24 @@ import { idSchema } from '../common/base.schema';
  * Zod schemas for Invitation-related interfaces
  */
 
-// Base invite schema (IInviteBase interface)
-export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema.extend({
-	email: z.string().email('Valid email is required'),
-	token: z.string(),
-	code: z.string().optional(),
-	status: inviteStatusSchema,
-	expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
-	actionDate: z.string().optional(), // API returns string, keep as string for consistency
-	fullName: z.string().optional(),
-	isExpired: z.boolean().optional()
-});
+// Base invite schema (IInviteBase interface) - Made more flexible for API inconsistencies
+export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
+	.extend({
+		email: z.string().email('Valid email is required').optional().nullable(),
+		token: z.string().optional().nullable(),
+		code: z.string().optional(),
+		status: inviteStatusSchema.optional().nullable(),
+		expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
+		actionDate: z.string().optional(), // API returns string, keep as string for consistency
+		fullName: z.string().optional(),
+		isExpired: z.boolean().optional()
+	})
+	.passthrough(); // - Allow additional fields from API
 
 // Invite associations schema (IInviteAssociations interface)
 // Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
-	id: z.string(),
+	id: z.string().optional().nullable(),
 	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
 	userId: idSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available

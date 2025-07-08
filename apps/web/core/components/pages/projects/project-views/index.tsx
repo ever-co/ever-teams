@@ -1,5 +1,4 @@
 import { useModal } from '@/core/hooks';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
 
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
@@ -8,22 +7,23 @@ import { HorizontalSeparator } from '@/core/components/duplicated-components/sep
 import { DeleteProjectConfirmModal } from '@/core/components/features/projects/delete-project-modal';
 import { EditProjectModal } from '@/core/components/features/projects/edit-project-modal';
 import { ArchiveProjectModal } from '@/core/components/features/projects/archive-project-modal';
+import { TOrganizationProject } from '@/core/types/schemas';
 
 export type ProjectViewDataType = {
 	project: {
 		id: string;
-		name: IOrganizationProject['name'];
-		imageUrl: IOrganizationProject['imageUrl'];
-		color: IOrganizationProject['color'];
+		name: TOrganizationProject['name'];
+		imageUrl: TOrganizationProject['imageUrl'];
+		color: TOrganizationProject['color'];
 	};
-	status: IOrganizationProject['status'];
-	archivedAt: IOrganizationProject['archivedAt'];
-	isArchived: IOrganizationProject['isArchived'];
-	startDate: IOrganizationProject['startDate'];
-	endDate: IOrganizationProject['endDate'];
-	members: IOrganizationProject['members'];
-	managers: IOrganizationProject['members'];
-	teams: IOrganizationProject['teams'];
+	status: TOrganizationProject['status'];
+	archivedAt: TOrganizationProject['archivedAt'];
+	isArchived: TOrganizationProject['isArchived'];
+	startDate: TOrganizationProject['startDate'];
+	endDate: TOrganizationProject['endDate'];
+	members: TOrganizationProject['members'];
+	managers: TOrganizationProject['members'];
+	teams: TOrganizationProject['teams'];
 };
 
 export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
@@ -59,7 +59,7 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 					leaveTo="transform opacity-0 scale-95"
 				>
 					<Menu.Items className="absolute z-[999] right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-						<div className="p-1 flex flex-col gap-1">
+						<div className="flex flex-col gap-1 p-1">
 							<Menu.Item>
 								{({ active }) => (
 									<button

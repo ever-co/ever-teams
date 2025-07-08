@@ -1,77 +1,129 @@
 'use client';
-import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { removeAuthCookies, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { activeTeamState, userState } from '@/core/stores';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useQueryCall } from '../common/use-query';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { userService } from '@/core/services/client/api';
 import { useIsMemberManager, useOrganizationTeams } from '../organizations';
 import { useUserProfilePage } from '../users';
 import { TUser } from '@/core/types/schemas';
+import { queryKeys } from '@/core/query/keys';
+import { toast } from 'sonner';
+import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 
-export const useAuthenticateUser = (defaultUser?: TUser) => {
+export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const [user, setUser] = useAtom(userState);
-	const $user = useRef(defaultUser);
+	const $user = useRef<TUser | null>(defaultUser || null);
 	const intervalRt = useRef(0);
 	const activeTeam = useAtomValue(activeTeamState);
+	const queryClient = useQueryClient();
 
 	const { isTeamManager } = useIsMemberManager(user);
+	const checkTokenExist = (): boolean => {
+		const token = getAccessTokenCookie();
+		return typeof token === 'string' && token.length > 0;
+	};
 
-	const {
-		queryCall: refreshUserQueryCall,
-		loading: refreshUserLoading,
-		loadingRef: refreshUserLoadingRef
-	} = useQueryCall(userService.getAuthenticatedUserData);
+	const userDataQuery = useQuery({
+		queryKey: queryKeys.users.me,
+		queryFn: async () => {
+			return await userService.getAuthenticatedUserData();
+		},
+		staleTime: 1000 * 60 * 15,
+		gcTime: 1000 * 60 * 30,
+		refetchOnWindowFocus: true,
+		refetchOnReconnect: checkTokenExist(),
+		enabled: checkTokenExist()
+	});
+
+	const refreshTokenMutation = useMutation({
+		mutationKey: queryKeys.users.auth.refreshToken,
+		mutationFn: async () => {
+			return await authService.refreshToken();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+		},
+		onError: () => {
+			toast.error('Failed to refresh token');
+		},
+		retry: 1,
+		gcTime: 0
+	});
+
+	useEffect(() => {
+		if (userDataQuery.data && userDataQuery.data !== user) {
+			if (!user || userDataQuery.data.id !== user.id || userDataQuery.data.updatedAt !== user.updatedAt) {
+				setUser(userDataQuery.data);
+			}
+		}
+	}, [userDataQuery.data, user, setUser]);
+
+	const refreshUserLoading = useMemo(() => {
+		return userDataQuery.isFetching || refreshTokenMutation.isPending;
+	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
 
 	const updateUserFromAPI = useCallback(() => {
-		if (refreshUserLoadingRef.current) {
+		if (userDataQuery.isFetching) {
 			return;
 		}
-		refreshUserQueryCall().then((data) => {
-			setUser(data);
+		userDataQuery.refetch().then((result) => {
+			if (result.data) {
+				setUser(result.data);
+			}
 		});
-	}, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
+	}, [userDataQuery, setUser]);
 
 	$user.current = useMemo(() => {
 		return user || $user.current;
 	}, [user]);
 
 	const logOut = useCallback(() => {
-		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, activeTeam?.id ?? '');
+		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		removeAuthCookies();
 		window.clearInterval(intervalRt.current);
+		queryClient.clear();
 		window.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id]);
+	}, [activeTeam?.id, queryClient]);
 
-	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
-		window.clearInterval(intervalRt.current);
-		intervalRt.current = window.setInterval(() => authService.refreshToken(), interval);
-
-		return () => {
+	const timeToTimeRefreshToken = useCallback(
+		(interval = 3000 * 60) => {
 			window.clearInterval(intervalRt.current);
-		};
-	}, []);
+			intervalRt.current = window.setInterval(() => {
+				refreshTokenMutation.mutate();
+			}, interval);
 
-	const refreshToken = useCallback(async () => {
-		await authService.refreshToken();
-	}, []);
+			return () => {
+				window.clearInterval(intervalRt.current);
+			};
+		},
+		[refreshTokenMutation]
+	);
+
+	const refreshToken = useCallback(async (): Promise<void> => {
+		await refreshTokenMutation.mutateAsync();
+	}, [refreshTokenMutation]);
 
 	return {
 		$user,
 		user: $user.current,
+		userLoading: userDataQuery.isFetching,
 		setUser,
 		isTeamManager,
 		updateUserFromAPI,
 		refreshUserLoading,
 		logOut,
 		timeToTimeRefreshToken,
-		refreshToken
+		refreshToken,
+
+		userDataQuery,
+		refreshTokenMutation
 	};
 };
-
 /**
  * A hook to check if the current user is a manager or whom the current profile belongs to
  *

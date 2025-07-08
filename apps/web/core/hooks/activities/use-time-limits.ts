@@ -41,7 +41,7 @@ export function useTimeLimits() {
 			try {
 				setCurrentParams(data);
 
-				// ✅ BEST PRACTICE - ensureQueryData uses cache intelligently
+				// BEST PRACTICE - ensureQueryData uses cache intelligently
 				const result = await queryClient.ensureQueryData({
 					queryKey: queryKeys.timer.timeLimits.byParams(data),
 					queryFn: async () => await timeLogService.getTimeLimitsReport(data)

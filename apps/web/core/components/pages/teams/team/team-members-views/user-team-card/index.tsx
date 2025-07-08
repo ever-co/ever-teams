@@ -19,7 +19,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import UserTeamActivity from '@/core/components/activities/user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
@@ -41,6 +41,7 @@ import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
+import { cn } from '@/core/lib/helpers';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -54,6 +55,32 @@ type IUserTeamCard = {
 	onDragOver: (e: React.DragEvent<HTMLDivElement>) => any;
 	currentExit: boolean;
 } & IClassName;
+
+// Memoized ChevronToggleButton to prevent unnecessary re-renders
+const ChevronToggleButton = React.memo(
+	({
+		isExpanded,
+		userId,
+		onToggle,
+		onActivityClose
+	}: {
+		isExpanded: boolean;
+		userId?: string;
+		onToggle: (value: string) => void;
+		onActivityClose: () => void;
+	}) => {
+		const handleClick = useCallback(() => {
+			onToggle(isExpanded ? '' : (userId ?? ''));
+			onActivityClose();
+		}, [isExpanded, userId, onToggle, onActivityClose]);
+
+		return (
+			<div onClick={handleClick} className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}>
+				<ChevronDoubleDownIcon className={clsxm('h-4 w-4 transition-all', isExpanded && 'rotate-180')} />
+			</div>
+		);
+	}
+);
 
 export function UserTeamCard({
 	className,
@@ -84,15 +111,19 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET', member: any | null) => {
-		setShowActivity((prev) => !prev);
-		setUserDetailAccordion('');
-		setActivityFilter((prev: TActivityFilter) => ({
-			...prev,
-			type,
-			member
-		}));
-	};
+	// Memoize callback to prevent unnecessary re-renders
+	const showActivityFilter = useCallback(
+		(type: 'DATE' | 'TICKET', member: any | null) => {
+			setShowActivity((prev) => !prev);
+			setUserDetailAccordion('');
+			setActivityFilter((prev: TActivityFilter) => ({
+				...prev,
+				type,
+				member
+			}));
+		},
+		[setUserDetailAccordion, setActivityFilter]
+	);
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -108,7 +139,7 @@ export function UserTeamCard({
 		);
 
 		totalWork = (
-			<div className={clsxm('flex flex-col items-center mr-4 space-x-2 font-normal')}>
+			<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -146,8 +177,15 @@ export function UserTeamCard({
 		},
 		[setActivity]
 	);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
-
+	const canSeeActivity = useMemo(
+		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[profile?.userProfile?.id, user?.id, isManagerConnectedUser]
+	);
+	const isUserDetailAccordion = useMemo(
+		() => userDetailAccordion == memberInfo.memberUser?.id,
+		[userDetailAccordion, memberInfo.memberUser?.id]
+	);
+	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
 			className={clsxm(!active && 'border-2 border-transparent')}
@@ -156,7 +194,7 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
-			ref={profile.loadTaskStatsIObserverRef}
+			ref={profile?.loadTaskStatsIObserverRef}
 		>
 			<EverCard
 				shadow="bigger"
@@ -169,7 +207,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="relative flex items-center m-0">
+				<div
+					className={cn(
+						'flex relative items-center m-0 transition-all duration-300',
+						isUserDetailAccordion && !showActivity && 'pb-3 border-b'
+					)}
+				>
 					<div className="absolute left-0 cursor-pointer">
 						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
@@ -178,24 +221,12 @@ export function UserTeamCard({
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
 						{!publicTeam && (
-							<div
-								onClick={() => {
-									setUserDetailAccordion(
-										userDetailAccordion == memberInfo.memberUser?.id
-											? ''
-											: (memberInfo.memberUser?.id ?? '')
-									);
-									setShowActivity(false);
-								}}
-								className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}
-							>
-								<ChevronDoubleDownIcon
-									className={clsxm(
-										'h-4 w-4 transition-all',
-										userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
-									)}
-								/>
-							</div>
+							<ChevronToggleButton
+								isExpanded={isUserDetailAccordion}
+								userId={memberInfo.memberUser?.id}
+								onToggle={setUserDetailAccordion}
+								onActivityClose={handleActivityClose}
+							/>
 						)}
 					</div>
 					<VerticalSeparator />
@@ -205,14 +236,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="flex-1 px-2 overflow-y-hidden lg:px-4"
+							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer -left-1 dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -254,7 +285,7 @@ export function UserTeamCard({
 						{isManagerConnectedUser != -1 ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
+								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -267,15 +298,13 @@ export function UserTeamCard({
 					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{userDetailAccordion == memberInfo.memberUser?.id &&
-				memberInfo.memberUser.id == profile.userProfile?.id &&
-				!showActivity ? (
+				{isUserDetailAccordion && memberInfo.memberUser.id == profile?.userProfile?.id && !showActivity ? (
 					<div className="overflow-y-auto h-96">
 						{canSeeActivity && (
-							<Container fullWidth={fullWidth} className="py-8">
+							<Container fullWidth={fullWidth} className="px-3 py-5">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -293,8 +322,8 @@ export function UserTeamCard({
 						)}
 						{activityScreens[activityFilter] ?? null}
 					</div>
-				) : userDetailAccordion == memberInfo.memberUser?.id ? (
-					<div className="flex items-center justify-center w-full h-20">
+				) : isUserDetailAccordion ? (
+					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -308,12 +337,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}

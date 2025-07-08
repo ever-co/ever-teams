@@ -35,19 +35,19 @@ import { EverCard } from '../common/ever-card';
 import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task?: Nullable<ITask>;
-	tasks?: ITask[];
-	onTaskClick?: (task: ITask) => void;
+	task?: Nullable<TTask>;
+	tasks?: TTask[];
+	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
-	onEnterKey?: (taskName: string, task: ITask) => void;
+	onEnterKey?: (taskName: string, task: TTask) => void;
 	keepOpen?: boolean;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
@@ -63,7 +63,7 @@ type Props = {
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
-	onTaskCreated?: (task: ITask | undefined) => void;
+	onTaskCreated?: (task: TTask | undefined) => void;
 	cardWithoutShadow?: boolean;
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
@@ -104,12 +104,12 @@ export function TaskInput(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		(task: TTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task as any),
 		[$onTaskCreated]
 	);
 
 	const onTaskClick = useCallback(
-		(task: ITask) => $onTaskClick.current && $onTaskClick.current(task),
+		(task: TTask) => $onTaskClick.current && $onTaskClick.current(task),
 		[$onTaskClick]
 	);
 
@@ -152,7 +152,7 @@ export function TaskInput(props: Props) {
 	 * set the active task for the authenticated user
 	 */
 	const setAuthActiveTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
 
@@ -178,7 +178,7 @@ export function TaskInput(props: Props) {
 	 * On update task name
 	 */
 	const updateTaskNameHandler = useCallback(
-		(task: ITask, title: string) => {
+		(task: TTask, title: string) => {
 			if (task.title !== title) {
 				!updateLoading && updateTaskTitleHandler(task, title);
 			}
@@ -227,7 +227,7 @@ export function TaskInput(props: Props) {
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const updatedTaskList = useMemo(() => {
-		let updatedTaskList: ITask[] = [];
+		let updatedTaskList: TTask[] = [];
 		if (props.forParentChildRelationship) {
 			if (
 				// Story can have ParentId set to Epic ID
@@ -343,7 +343,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -459,14 +459,14 @@ function TaskCard({
 	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
-	onItemClick?: (task: ITask) => void;
+	onItemClick?: (task: TTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
-	updatedTaskList?: ITask[];
+	updatedTaskList?: TTask[];
 	assignTaskPopup?: boolean;
 }) {
 	const [, setCount] = useState(0);
@@ -516,7 +516,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<ActiveTaskStatusDropdown
 										className="min-w-fit lg:max-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
@@ -667,7 +667,7 @@ function TaskCard({
 											className="overflow-y-auto cursor-pointer"
 										/>
 										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
-										{!last && <Divider className="my-5" />}
+										{!last && <Divider className="my-3.5" />}
 									</li>
 								);
 							}}
@@ -750,9 +750,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative h-full my-auto">
-					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',
@@ -790,7 +790,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
 										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
-									<span className="text-xs text-nowrap whitespace-nowrap">
+									<span className="text-xs whitespace-nowrap text-nowrap">
 										{authMember.employee?.fullName}
 									</span>
 								</Combobox.Option>
@@ -833,7 +833,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 											</span>
 										)}
 
-										<span className="text-xs text-nowrap whitespace-nowrap">
+										<span className="text-xs whitespace-nowrap text-nowrap">
 											{member.employee?.fullName}
 										</span>
 									</Combobox.Option>

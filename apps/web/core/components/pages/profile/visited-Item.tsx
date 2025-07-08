@@ -2,9 +2,9 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ProgressBar } from '../../duplicated-components/_progress-bar';
-import { IActivity } from '@/core/types/interfaces/activity/activity';
+import { TActivity } from '@/core/types/schemas';
 
-const VisitedItem = ({ app, totalMilliseconds, type }: { app: IActivity; totalMilliseconds: number; type: string }) => {
+const VisitedItem = ({ app, totalMilliseconds, type }: { app: TActivity; totalMilliseconds: number; type: string }) => {
 	const { h, m, s } = app?.duration ? secondsToTime(+app.duration) : { h: 0, m: 0, s: 0 };
 	const percent = app?.duration && ((+app.duration * 100) / totalMilliseconds).toFixed(2);
 
@@ -19,7 +19,7 @@ const VisitedItem = ({ app, totalMilliseconds, type }: { app: IActivity; totalMi
 	);
 
 	return (
-		<div className=" flex">
+		<div className="flex ">
 			<p style={{ flexBasis: itemCellsWidth['apps'] }} className="">
 				{type == 'SITE' ? <Link href={app?.title ?? ''}>{app?.title}</Link> : <span>{app?.title}</span>}
 			</p>
@@ -36,7 +36,7 @@ const VisitedItem = ({ app, totalMilliseconds, type }: { app: IActivity; totalMi
 				</p>
 			)}
 			<div style={{ flexBasis: itemCellsWidth['percent-used'] }} className="flex gap-6">
-				<p className=" min-w-12 max-w-14 overflow-hidden">
+				<p className="overflow-hidden min-w-12 max-w-14">
 					{percent ? `${Number(percent).toPrecision(2)}%` : '0%'}
 				</p>
 				<ProgressBar backgroundColor="black" progress={percent + '%'} width={`75%`} />

@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import TaskBlockCard from '../task-block-card';
@@ -9,11 +9,8 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { ITask } from '@/core/types/interfaces/task/task';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -22,7 +19,7 @@ interface IOutstandingFilterDate {
 export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<IDailyPlan[]>(outstandingPlans);
+	const [plans, setPlans] = useState<TDailyPlan[]>(outstandingPlans);
 
 	useEffect(() => {
 		let data = [...outstandingPlans];
@@ -32,9 +29,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			data = data
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: ITask) =>
-						task.members?.some((member: IEmployee) => member.userId === user.id)
-					)
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 
@@ -59,8 +54,8 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

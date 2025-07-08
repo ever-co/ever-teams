@@ -2,9 +2,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
-import { IActivity } from '@/core/types/interfaces/activity/activity';
-import { IActivityReport } from '@/core/types/interfaces/activity/activity-report';
-import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { IActivitiesReportRequest, IActivityReport } from '@/core/types/interfaces/activity/activity-report';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 import { activitySchema, TActivity } from '@/core/types/schemas/activities/activity.schema';
 
@@ -72,15 +70,14 @@ class ActivityService extends APIService {
 		}
 	};
 
-	getDailyActivities = async ({
-		tenantId,
-		organizationId,
-		employeeId,
-		todayEnd,
-		todayStart,
-		type,
-		title
-	}: {
+	/**
+	 * Get daily activities with validation
+	 *
+	 * @param params - Daily activities request parameters
+	 * @returns Promise<TActivity[]> - Validated daily activities data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	getDailyActivities = async (params: {
 		tenantId: string;
 		organizationId: string;
 		employeeId: string;
@@ -88,31 +85,59 @@ class ActivityService extends APIService {
 		todayStart: Date;
 		type?: string;
 		title?: string;
-	}) => {
-		const params: {
-			tenantId: string;
-			organizationId: string;
-			'employeeIds[0]': string;
-			startDate: string;
-			endDate: string;
-			'types[0]'?: string;
-			'title[0]'?: string;
-		} = {
-			tenantId: tenantId,
-			organizationId: organizationId,
-			'employeeIds[0]': employeeId,
-			startDate: todayStart.toISOString(),
-			endDate: todayEnd.toISOString()
-		};
-		if (type) params['types[0]'] = type;
-		if (title) params['title[0]'] = title;
-		const query = qs.stringify(params);
+	}): Promise<TActivity[]> => {
+		try {
+			const queryParams: {
+				tenantId: string;
+				organizationId: string;
+				'employeeIds[0]': string;
+				startDate: string;
+				endDate: string;
+				'types[0]'?: string;
+				'title[0]'?: string;
+			} = {
+				tenantId: params.tenantId,
+				organizationId: params.organizationId,
+				'employeeIds[0]': params.employeeId,
+				startDate: params.todayStart.toISOString(),
+				endDate: params.todayEnd.toISOString()
+			};
+			if (params.type) queryParams['types[0]'] = params.type;
+			if (params.title) queryParams['title[0]'] = params.title;
+			const query = qs.stringify(queryParams, { encode: false });
 
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? `/timesheet/activity/daily?${query}`
-			: `/timer/daily?${query}`;
+			const endpoint = GAUZY_API_BASE_SERVER_URL.value
+				? `/timesheet/activity/daily?${query}`
+				: `/timer/daily?${query}`;
 
-		return this.get<IActivity[]>(endpoint);
+			const response = await this.get<TActivity[]>(endpoint);
+
+			// Validate the response data using Zod schema
+			if (Array.isArray(response.data)) {
+				const validatedActivities = response.data.map((activity, index) =>
+					validateApiResponse(activitySchema, activity, `getDailyActivities API response item ${index}`)
+				);
+				return validatedActivities;
+			}
+
+			// If response.data is not an array, return empty array
+			return [];
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Daily activities validation failed:',
+					{
+						message: error.message,
+						issues: error.issues,
+						employeeId: params.employeeId,
+						tenantId: params.tenantId,
+						organizationId: params.organizationId
+					},
+					'ActivityService'
+				);
+			}
+			throw error;
+		}
 	};
 
 	/**
@@ -142,19 +167,7 @@ class ActivityService extends APIService {
 		employeeIds = [],
 		source = [],
 		logType = []
-	}: {
-		activityLevel?: { start: number; end: number };
-		organizationId: string;
-		tenantId: string;
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		groupBy?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		source?: string[];
-		logType?: ETimeLogType[];
-	}) => {
+	}: IActivitiesReportRequest) => {
 		const queryString = qs.stringify(
 			{
 				activityLevel,

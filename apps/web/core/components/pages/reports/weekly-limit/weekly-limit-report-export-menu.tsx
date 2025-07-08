@@ -4,16 +4,15 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { WeeklyLimitPDFDocument } from './export-formats/pdf';
 import { WeeklyLimitByEmployeePDFDocument } from './export-formats/pdf/grouped-by-employee';
-import { TTimeLimitReportByEmployee } from '@/core/types/schemas';
+import { TOrganizationTeam, TTimeLimitReportByEmployee } from '@/core/types/schemas';
 import { TTimeLimitReportList } from '@/core/types/schemas';
 
 interface IProps {
 	data: TTimeLimitReportList[];
 	dataByEmployee: TTimeLimitReportByEmployee[];
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 	displayMode: 'week' | 'date';
 	organizationLimits: {
 		date: number;

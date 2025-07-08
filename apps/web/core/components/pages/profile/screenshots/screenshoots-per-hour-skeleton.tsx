@@ -28,7 +28,7 @@ const ScreenShootItem = () => {
 			<div className="w-full h-1/2 object-cover bg-gray-200 dark:bg-[#26272C] animate-pulse  relative"></div>
 			<div className="w-full h-1/2 p-4">
 				<h4 className="font-semibold text-xs w-2/3 py-2 bg-gray-200 dark:bg-[#26272C] animate-pulse "></h4>
-				<p className="text-xs mb-6 w-2/3 py-2 bg-gray-200 dark:bg-[#26272C] animate-pulse  my-1"></p>
+				<p className="text-xs mb-5 w-2/3 py-2 bg-gray-200 dark:bg-[#26272C] animate-pulse  my-1"></p>
 				<p className="font-semibold text-sm w-2/3 py-2 bg-gray-200 dark:bg-[#26272C] animate-pulse  my-1"></p>
 			</div>
 		</div>

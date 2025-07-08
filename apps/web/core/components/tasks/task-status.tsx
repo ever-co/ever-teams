@@ -31,10 +31,10 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type TStatusItem = {
 	id?: string;
@@ -78,7 +78,7 @@ export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
 	onChangeLoading?: (loading: boolean) => void;
 } & {
-	task?: Nullable<ITask>;
+	task?: Nullable<TTask>;
 	showIssueLabels?: boolean;
 	forDetails?: boolean;
 	sidebarUI?: boolean;
@@ -159,7 +159,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true).finally(() => {
+			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)?.finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
 			});
 		}, $task);
@@ -443,7 +443,7 @@ export function EpicPropertiesDropdown({
 
 export function useTaskPrioritiesValue() {
 	const { taskPriorities } = useTaskPriorities();
-	return useMapToTaskStatusValues(taskPriorities, false);
+	return useMapToTaskStatusValues(taskPriorities as TTaskStatus[], false);
 }
 
 /**
@@ -517,7 +517,7 @@ export function TaskPriorityStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<TTask>; showIssueLabels?: boolean } & IClassName) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
 	return task?.priority ? (
@@ -537,7 +537,7 @@ export function TaskPriorityStatus({
 
 export function useTaskSizesValue() {
 	const { taskSizes } = useTaskSizes();
-	return useMapToTaskStatusValues(taskSizes, false);
+	return useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 }
 
 /**
@@ -1030,6 +1030,19 @@ export function StatusDropdown<T extends TStatusItem>({
 							onChange(selectedValue);
 						}
 					};
+
+					if (showButtonOnly) {
+						return (
+							<div
+								className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+								style={{
+									width: largerWidth ? '160px' : ''
+								}}
+							>
+								{triggerContent}
+							</div>
+						);
+					}
 
 					return (
 						<CustomListboxDropdown

@@ -1,8 +1,8 @@
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
 
-const TaskProperties = ({ task }: { task: ITask | null }) => {
+const TaskProperties = ({ task }: { task: TTask | null }) => {
 	const t = useTranslations();
 
 	return (

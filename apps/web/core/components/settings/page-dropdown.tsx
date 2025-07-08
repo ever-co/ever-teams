@@ -94,9 +94,8 @@ export const PaginationDropdown = ({
 
 	return (
 		<>
-			<Popover>
+			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger
-					onClick={() => setOpen(!open)}
 					className={clsxm(
 						'input-border',
 						'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
@@ -113,9 +112,16 @@ export const PaginationDropdown = ({
 						aria-hidden="true"
 					/>
 				</PopoverTrigger>
-				<PopoverContent className="w-36">
+				<PopoverContent className="w-36 p-2">
 					{items.map((Item, index) => (
-						<div onClick={() => onChangeActiveTeam(Item)} key={Item.key ? Item.key : index}>
+						<div
+							onClick={() => {
+								onChangeActiveTeam(Item);
+								setOpen(false);
+							}}
+							key={Item.key ? Item.key : index}
+							className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded"
+						>
 							<Item.Label />
 						</div>
 					))}

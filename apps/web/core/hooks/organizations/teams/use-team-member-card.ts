@@ -11,9 +11,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
 import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -42,10 +42,10 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	const isAuthUser = member?.employee?.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const memberTaskRef = useRef<Nullable<ITask>>(null);
+	const memberTaskRef = useRef<Nullable<TTask>>(null);
 
 	const setActiveUserTaskCookieCb = useCallback(
-		(task: ITask | null) => {
+		(task: TTask | null) => {
 			if (task?.id && authUser?.id) {
 				setActiveUserTaskCookie({
 					taskId: task.id,
@@ -165,7 +165,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	 * Assign task to the member
 	 */
 	const assignTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
@@ -184,7 +184,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	);
 
 	const unassignTask = useCallback(
-		(task: ITask) => {
+		(task: TTask) => {
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
@@ -222,7 +222,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	};
 }
 
-export function useTMCardTaskEdit(task: Nullable<ITask>) {
+export function useTMCardTaskEdit(task: Nullable<TTask>) {
 	const [editMode, setEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 	const [loading, setLoading] = useState(false);

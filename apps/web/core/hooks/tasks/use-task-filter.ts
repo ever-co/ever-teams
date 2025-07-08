@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '../auth';
 import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { ITask } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
@@ -42,8 +42,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
-		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[isManagerConnectedUser, profile?.userProfile?.id, user?.id]
 	);
 	const path = usePathname();
 
@@ -57,7 +57,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const [taskName, setTaskName] = useState('');
 
-	const tasksFiltered: { [x in ITab]: ITask[] } = useMemo(
+	const tasksFiltered: { [x in ITab]: TTask[] } = useMemo(
 		() => ({
 			unassigned: profile.tasksGrouped.unassignedTasks,
 			assigned: profile.tasksGrouped.assignedTasks,
@@ -65,7 +65,11 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			stats: [],
 			dailyplan: [] // Change this soon
 		}),
-		[profile.tasksGrouped.assignedTasks, profile.tasksGrouped.unassignedTasks, profile.tasksGrouped.workedTasks]
+		[
+			profile?.tasksGrouped?.assignedTasks,
+			profile?.tasksGrouped?.unassignedTasks,
+			profile?.tasksGrouped?.workedTasks
+		]
 	);
 
 	const tasks = useMemo(() => tasksFiltered[tab] || [], [tab, tasksFiltered]);
@@ -87,13 +91,13 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'assigned',
 			name: t('common.ASSIGNED'),
 			description: t('task.tabFilter.ASSIGNED_DESCRIPTION'),
-			count: profile.tasksGrouped.assignedTasks.length
+			count: profile?.tasksGrouped?.assignedTasks?.length || 0
 		},
 		{
 			tab: 'unassigned',
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
-			count: profile.tasksGrouped.unassignedTasks.length
+			count: profile?.tasksGrouped?.unassignedTasks?.length || 0
 		}
 	];
 
@@ -103,7 +107,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'dailyplan',
 			name: t('common.DAILYPLAN' as DottedLanguageObjectStringPaths),
 			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION' as DottedLanguageObjectStringPaths),
-			count: isNaN(profile.tasksGrouped.planned) ? 0 : profile.tasksGrouped.planned
+			count: isNaN(profile?.tasksGrouped?.planned) ? 0 : profile?.tasksGrouped?.planned
 		});
 		tabs.push({
 			tab: 'stats',
@@ -115,7 +119,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'worked',
 			name: t('common.WORKED'),
 			description: t('task.tabFilter.WORKED_DESCRIPTION'),
-			count: profile.tasksGrouped.workedTasks.length
+			count: profile?.tasksGrouped?.workedTasks?.length || 0
 		});
 	}
 
@@ -155,7 +159,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 				setTab('dailyplan');
 			} else {
 				if (!getTotalTasks(todayPlan)) {
-					if (profile.tasksGrouped.assignedTasks.length) {
+					if (profile?.tasksGrouped?.assignedTasks?.length) {
 						setTab('assigned');
 					} else {
 						setTab('unassigned');
@@ -222,8 +226,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		statusFilter,
 		onChangeStatusFilter,
 		onResetStatusFilter,
-		applyStatusFilder: applyStatusFilter,
-		tasksGrouped: profile.tasksGrouped,
+		applyStatusFilter: applyStatusFilter,
+		tasksGrouped: profile?.tasksGrouped,
 		outclickFilterCard,
 		profileDailyPlans
 	};

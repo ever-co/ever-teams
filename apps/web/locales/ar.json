@@ -935,7 +935,9 @@
 			"TASK_PLANNED_FOR_DATE": "تم تخطيط المهمة للتاريخ المحدد",
 			"TASK_PLAN_FAILED": "فشل في تخطيط المهمة. يرجى المحاولة مرة أخرى.",
 			"TASK_ASSIGNMENT_FAILED": "فشل في تعيين/إلغاء تعيين المهمة. يرجى المحاولة مرة أخرى.",
-			"TASK_FAVORITE_FAILED": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى."
+			"TASK_FAVORITE_FAILED": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "تم إنشاء العنصر المفضل بنجاح",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "تم حذف العنصر المفضل بنجاح"
 		}
 	},
 	"dailyPlan": {

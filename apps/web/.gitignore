@@ -38,6 +38,7 @@ yarn-error.log*
 next-env.d.ts
 
 # Personal AI Guides
+/ai-guides
 guide-1.md
 
 # Sentry Config File with Auth Token

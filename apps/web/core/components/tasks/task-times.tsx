@@ -1,7 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { clsxm } from '@/core/lib/utils';
@@ -10,9 +9,11 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
 type Props = {
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	memberInfo?: I_TeamMemberCardHook | IEmployee | any;
@@ -35,7 +36,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalWorkedTasks &&
 					currentMember?.totalWorkedTasks?.length &&
 					currentMember?.totalWorkedTasks
-						.filter((t: ITask) => t.id === task?.id)
+						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
 							(previousValue: number, currentValue: ITasksStatistics) =>
 								previousValue + (currentValue?.duration || 0),
@@ -52,7 +53,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 				(currentMember?.totalTodayTasks &&
 					currentMember?.totalTodayTasks.length &&
 					currentMember?.totalTodayTasks
-						.filter((t: ITask) => t.id === task?.id)
+						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
 							(previousValue: number, currentValue: ITasksStatistics) =>
 								previousValue + (currentValue?.duration || 0),
@@ -101,7 +102,7 @@ function TimeInfo({
 	showDaily?: boolean;
 	showTotal?: boolean;
 	currentUser: TOrganizationTeamEmployee | undefined;
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 }) {
 	const t = useTranslations();
 
@@ -114,9 +115,9 @@ function TimeInfo({
 						daily.m
 					}m`}
 				>
-					<div className="flex items-center space-x-4 text-sm font-normal">
+					<div className="flex gap-x-4 items-center text-sm font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
-						<Text>
+						<Text className="text-[13px] text-nowrap whitespace-nowrap">
 							{daily.h}h : {daily.m}m
 						</Text>
 					</div>
@@ -132,12 +133,12 @@ function TimeInfo({
 				>
 					<div
 						className={clsxm(
-							'flex space-x-4 items-center font-normal text-sm'
+							'flex gap-x-4 items-center font-normal text-sm'
 							// showDaily && ['text-sm']
 						)}
 					>
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TOTAL')}</span>
-						<Text>
+						<Text className="whitespace-nowrap text-nowrap">
 							{total.h}h : {total.m}m
 						</Text>
 					</div>
@@ -160,7 +161,7 @@ function TimeBlockInfo({
 	showDaily?: boolean;
 	showTotal?: boolean;
 	currentUser: TOrganizationTeamEmployee | undefined;
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 }) {
 	const t = useTranslations();
 	return (

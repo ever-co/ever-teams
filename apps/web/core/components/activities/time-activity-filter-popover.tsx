@@ -3,17 +3,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
+import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface TimeActivityHeaderProps {
-	userManagedTeams?: IOrganizationTeam[];
-	projects?: IOrganizationProject[];
-	tasks?: ITask[];
-	activeTeam?: IOrganizationTeam | null;
+	userManagedTeams?: TOrganizationTeam[];
+	projects?: TOrganizationProject[];
+	tasks?: TTask[];
+	activeTeam?: TOrganizationTeam | null;
 }
 
 const STORAGE_KEY = 'ever-teams-activity-filters';
@@ -264,11 +263,11 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
-							<div className="flex gap-x-4 justify-end items-center w-full">
+							<div className="flex items-center justify-end w-full gap-x-4">
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+									className="flex items-center justify-center h-10 text-sm transition-colors rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
@@ -282,7 +281,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											tasks: selectedTasks
 										});
 									}}
-									className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90 transition-opacity"
+									className="flex items-center justify-center h-10 text-sm transition-opacity rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
 								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
