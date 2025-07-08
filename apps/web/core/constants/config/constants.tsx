@@ -378,7 +378,7 @@ export const languagesFlags = [
 ];
 
 // Local storage keys
-export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
+export const LAST_WORKSPACE_AND_TEAM = 'last-workspace-and-team';
 export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
 export const DAILY_PLAN_SUGGESTION_MODAL_DATE = 'daily-plan-suggestion-modal-date';
 export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date';

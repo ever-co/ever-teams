@@ -9,6 +9,12 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../../common';
 
+// Simple pagination params type
+interface PaginationParams {
+	skip?: number;
+	take?: number;
+}
+
 export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
@@ -17,6 +23,12 @@ export function useOrganizationProjects() {
 	const queryClient = useQueryClient();
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
+
+	// State for enhanced pagination
+	const [paginationParams, setPaginationParams] = useState<PaginationParams>({
+		skip: 0,
+		take: 20
+	});
 
 	// React Query for fetching organization projects
 	const organizationProjectsQuery = useQuery({
@@ -35,6 +47,17 @@ export function useOrganizationProjects() {
 				queries: memoizedSearchQueries ?? undefined
 			}),
 		enabled: !!memoizedSearchQueries
+	});
+
+	// Enhanced query with pagination using the existing method
+	const organizationProjectsWithPagination = useQuery({
+		queryKey: [queryKeys.organizationProjects.all, 'pagination', paginationParams],
+		queryFn: () =>
+			organizationProjectService.getOrganizationProjects({
+				skip: paginationParams.skip,
+				take: paginationParams.take
+			}),
+		enabled: !!organizationId && !!tenantId
 	});
 
 	// Invalidation helper
@@ -81,7 +104,7 @@ export function useOrganizationProjects() {
 				setOrganizationProjects(organizationProjectsQuery.data.items);
 			}
 		},
-		[organizationProjectsQuery.data],
+		[organizationProjectsQuery.data?.items],
 		Boolean(organizationProjects?.length)
 	);
 
@@ -166,6 +189,29 @@ export function useOrganizationProjects() {
 		await loadOrganizationProjects();
 	}, [loadOrganizationProjects]);
 
+	// Enhanced pagination functions
+	const updatePaginationParams = useCallback((newParams: Partial<PaginationParams>) => {
+		setPaginationParams((prev: PaginationParams) => ({ ...prev, ...newParams }));
+	}, []);
+
+	const resetPagination = useCallback(() => {
+		setPaginationParams({ skip: 0, take: 20 });
+	}, []);
+
+	const loadNextPage = useCallback(() => {
+		setPaginationParams((prev: PaginationParams) => ({
+			...prev,
+			skip: (prev.skip || 0) + (prev.take || 20)
+		}));
+	}, []);
+
+	const loadPreviousPage = useCallback(() => {
+		setPaginationParams((prev: PaginationParams) => ({
+			...prev,
+			skip: Math.max(0, (prev.skip || 0) - (prev.take || 20))
+		}));
+	}, []);
+
 	return {
 		editOrganizationProjectSetting,
 		editOrganizationProjectSettingLoading: editOrganizationProjectSettingMutation.isPending,
@@ -182,6 +228,16 @@ export function useOrganizationProjects() {
 		firstLoadOrganizationProjectsData: handleFirstLoad,
 		setSearchQueries,
 		filteredOrganizations,
-		getOrganizationProject
+		getOrganizationProject,
+
+		// Enhanced pagination API
+		organizationProjectsWithPagination,
+		paginationParams,
+		updatePaginationParams,
+		resetPagination,
+		loadNextPage,
+		loadPreviousPage,
+		getOrganizationProjectsWithPaginationLoading: organizationProjectsWithPagination.isLoading,
+		organizationProjectsWithPaginationData: organizationProjectsWithPagination.data
 	};
 }

@@ -6,6 +6,7 @@ import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
+import { teamSchema } from './team.schema';
 
 export const baseProjectSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
@@ -217,8 +218,23 @@ export const teamRequestParamsSchema = z.object({
 	tenantId: z.string(),
 	relations: z.array(z.string()).optional()
 });
-
 export type TOrganizationTeam = z.infer<typeof organizationTeamSchema>;
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;
+
+export type TWorkspace = {
+	id: string;
+	name: string;
+	logo: string;
+	plan: string;
+	token: string;
+	isActive: boolean;
+	isDefault: boolean;
+	teams: Partial<z.infer<typeof teamSchema>>[];
+	organization: Partial<z.infer<typeof organizationSchema>> & {
+		organizationId: string;
+		organizationName: string;
+	};
+	organizationTeams: Partial<z.infer<typeof organizationTeamSchema>>[];
+};

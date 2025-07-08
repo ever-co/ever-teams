@@ -4,6 +4,14 @@
  */
 export const queryKeys = {
 	// Keys related to authentication and users
+	auth: {
+		all: ['auth'] as const,
+		workspaces: (userId: string | undefined | null) => ['auth', 'workspaces', ...(userId ? [userId] : [])] as const,
+		currentWorkspace: (userId: string | undefined | null) =>
+			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
+		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
+			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
+	},
 	// Keys related to users
 	users: {
 		auth: {
@@ -138,6 +146,7 @@ export const queryKeys = {
 
 	// Keys related to Daily Plans
 	dailyPlans: {
+		// Standard daily plans keys (preserved for backward compatibility)
 		all: ['daily-plans'] as const,
 		myPlans: (teamId: string | undefined | null) =>
 			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
@@ -152,6 +161,7 @@ export const queryKeys = {
 
 	// Keys related to teams (organization-team)
 	organizationTeams: {
+		// Standard organization teams keys (preserved for backward compatibility)
 		all: ['organization-teams'] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
@@ -229,6 +239,7 @@ export const queryKeys = {
 
 	// Keys related to tasks
 	tasks: {
+		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>

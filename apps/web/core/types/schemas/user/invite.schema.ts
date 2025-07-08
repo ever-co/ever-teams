@@ -24,7 +24,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
 // Invite associations schema (IInviteAssociations interface)
 // Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
-	id: z.string(),
+	id: z.string().optional().nullable(),
 	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
 	userId: idSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available

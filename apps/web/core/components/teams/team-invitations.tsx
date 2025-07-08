@@ -66,7 +66,7 @@ export function TeamInvitations(props: IProps) {
 	return (
 		<div className={clsxm('mt-6', className)}>
 			{myInvitationsList
-				.filter((invitation) => !removedInvitations.includes(invitation.id))
+				.filter((invitation) => !removedInvitations.includes(invitation.id || ''))
 				.map((invitation, index) => (
 					<EverCard
 						shadow="bigger"
@@ -86,7 +86,7 @@ export function TeamInvitations(props: IProps) {
 							<Button
 								className="pt-2 pb-2 rounded-xl"
 								onClick={() => {
-									handleOpenModal(invitation.id, EInviteAction.ACCEPTED);
+									handleOpenModal(invitation.id || '', EInviteAction.ACCEPTED);
 								}}
 							>
 								<TickCircleIcon className="text-white w-full max-w-[17px]" />
@@ -96,7 +96,7 @@ export function TeamInvitations(props: IProps) {
 								className="pt-2 pb-2 rounded-xl text-primary dark:text-white"
 								variant="outline-dark"
 								onClick={() => {
-									handleOpenModal(invitation.id, EInviteAction.REJECTED);
+									handleOpenModal(invitation.id || '', EInviteAction.REJECTED);
 								}}
 							>
 								<CloseCircleIcon className="text-primary dark:text-white w-[18px]" />
@@ -106,7 +106,7 @@ export function TeamInvitations(props: IProps) {
 
 						<button
 							onClick={() => {
-								handleCloseInvitation(invitation.id);
+								handleCloseInvitation(invitation.id || '');
 							}}
 						>
 							<CrossIcon className="w-5 h-5" />

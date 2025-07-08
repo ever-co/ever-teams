@@ -357,7 +357,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					)}
 				/>
 				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
-					<WorkspacesSwitcher workspaces={data.workspaces} />
+					<WorkspacesSwitcher />
 
 					<SidebarSeparator />
 					{state !== 'collapsed' && (

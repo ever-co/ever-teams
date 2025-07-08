@@ -24,14 +24,13 @@ import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { VisibilityState } from '@tanstack/react-table';
 import { ProjectViewDataType } from './project-views';
 import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@/core/components/common/checkbox';
 
-import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useParams } from 'next/navigation';
@@ -42,6 +41,7 @@ import { VerticalSeparator } from '../../duplicated-components/separator';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { ProjectListSkeleton } from './project-views/list-view/list-skeleton';
 import { ProjectsGridSkeleton } from './project-views/grid-view/grid-skeleton';
+import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 
 // Lazy load heavy components for Projects page optimization
 // Priority 1: Modals (conditional rendering)
@@ -122,20 +122,34 @@ function PageComponent() {
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 
-	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
-	const { getOrganizationProjectsLoading, organizationProjects, filteredOrganizations, setSearchQueries } =
-		useOrganizationProjects();
-	const [dateRange] = useState<DateRange>({
-		from: startOfMonth(new Date()),
-		to: endOfMonth(new Date())
-	});
+	const { getOrganizationProjectsLoading, organizationProjects, setSearchQueries } = useOrganizationProjects();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
 	const showArchivedProjects = Boolean(params.get('archived'));
+
+	// Initialize date range from URL parameters or default to current month
+	const [dateRange, setDateRange] = useState<DateRange>(() => {
+		const dateFromParam = params.get('dateFrom');
+		const dateToParam = params.get('dateTo');
+
+		if (dateFromParam && dateToParam) {
+			return {
+				from: new Date(dateFromParam),
+				to: new Date(dateToParam)
+			};
+		}
+
+		return {
+			from: startOfMonth(new Date()),
+			to: endOfMonth(new Date())
+		};
+	});
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -163,6 +177,24 @@ function PageComponent() {
 
 	const handleBack = () => router.back();
 
+	// Function to update URL with date parameters
+	const updateDateInURL = useCallback(
+		(newDateRange: DateRange) => {
+			const newParams = new URLSearchParams(params.toString());
+
+			if (newDateRange.from && newDateRange.to) {
+				newParams.set('dateFrom', newDateRange.from.toISOString().split('T')[0]);
+				newParams.set('dateTo', newDateRange.to.toISOString().split('T')[0]);
+			} else {
+				newParams.delete('dateFrom');
+				newParams.delete('dateTo');
+			}
+
+			router.push(`${pathname}?${newParams.toString()}`);
+		},
+		[params, router, pathname]
+	);
+
 	const mapProjectToViewDataType = useCallback((project: TOrganizationProject): ProjectViewDataType => {
 		return {
 			project: {
@@ -177,24 +209,98 @@ function PageComponent() {
 			startDate: project.startDate || undefined,
 			endDate: project.endDate || undefined,
 			members: project.members,
-			managers: project.members,
+			managers: project.members?.filter((member) => member.isManager) || [],
 			teams: project.teams
 		};
 	}, []);
 
-	const activeTeamProjects = useMemo(
-		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
-		[activeTeam, projects]
-	);
-	const filteredProjects = useMemo(
-		() =>
-			searchTerm
+	// Filter projects by date range
+	const dateFilteredProjects = useMemo(() => {
+		if (!projects || projects.length === 0) {
+			return [];
+		}
+
+		// If no date range is set, return all projects
+		if (!dateRange?.from || !dateRange?.to) {
+			return projects;
+		}
+
+		const rangeStart = new Date(dateRange.from!);
+		const rangeEnd = new Date(dateRange.to!);
+
+		return projects.filter((project) => {
+			const projectStartDate = project.startDate ? new Date(project.startDate) : null;
+			const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+
+			// Check if dates are invalid (1970-01-01 means no real date set)
+			const isStartDateInvalid = projectStartDate && projectStartDate.getFullYear() === 1970;
+			const isEndDateInvalid = projectEndDate && projectEndDate.getFullYear() === 1970;
+
+			// Include project if:
+			// 1. Project has no dates or invalid dates (always visible)
+			// 2. Project dates overlap with the selected range
+			if (!projectStartDate && !projectEndDate) {
+				return true;
+			}
+
+			if (isStartDateInvalid && isEndDateInvalid) {
+				return true;
+			}
+
+			// Only apply date filtering if we have valid dates
+			const validStartDate = projectStartDate && !isStartDateInvalid ? projectStartDate : null;
+			const validEndDate = projectEndDate && !isEndDateInvalid ? projectEndDate : null;
+
+			if (!validStartDate && !validEndDate) {
+				return true;
+			}
+
+			// Check if project overlaps with the selected date range using valid dates
+			if (validStartDate && validEndDate) {
+				// Project has both valid start and end dates
+				return (
+					(validStartDate <= rangeEnd && validEndDate >= rangeStart) ||
+					(validStartDate >= rangeStart && validStartDate <= rangeEnd) ||
+					(validEndDate >= rangeStart && validEndDate <= rangeEnd)
+				);
+			} else if (validStartDate) {
+				// Project has only valid start date
+				return validStartDate >= rangeStart && validStartDate <= rangeEnd;
+			} else if (validEndDate) {
+				// Project has only valid end date
+				return validEndDate >= rangeStart && validEndDate <= rangeEnd;
+			}
+
+			return true; // Fallback: include project
+		});
+	}, [projects, dateRange]);
+
+	const activeTeamProjects = useMemo(() => {
+		// If no active team, return all date-filtered projects
+		if (!activeTeam) {
+			return dateFilteredProjects || [];
+		}
+
+		// If active team exists, filter projects that belong to this team OR have no teams assigned
+		return (
+			dateFilteredProjects?.filter((el) => {
+				const teamIds = el.teams?.map((team) => team.id) || [];
+				const hasNoTeams = teamIds.length === 0;
+				const belongsToActiveTeam = teamIds.includes(activeTeam.id);
+				return hasNoTeams || belongsToActiveTeam;
+			}) || []
+		);
+	}, [activeTeam, dateFilteredProjects]);
+
+	const filteredProjects = useMemo(() => {
+		return (
+			(searchTerm
 				? activeTeamProjects.filter((el) =>
 						el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
 					)
-				: activeTeamProjects || [],
-		[activeTeamProjects, searchTerm]
-	);
+				: activeTeamProjects) || []
+		);
+	}, [activeTeamProjects, searchTerm]);
 	const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
 	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
 		project: true,
@@ -209,41 +315,61 @@ function PageComponent() {
 		restore: showArchivedProjects
 	});
 
+	// Main effect for filtering projects based on archived status
+	useEffect(() => {
+		if (!organizationProjects || organizationProjects.length === 0) {
+			setProjects([]);
+			return;
+		}
+
+		// First, filter out teams/workspaces that are incorrectly returned as projects
+		const actualProjects = organizationProjects.filter((item) => {
+			// A real project should have at least one of these characteristics:
+			const hasProjectStatus =
+				item.status === 'open' || item.status === 'closed' || item.status === 'in-progress';
+			const hasProjectUrl = Boolean(item.projectUrl);
+			const hasDescription = Boolean(item.description);
+			const hasBudget = (item.budget || 0) > 0;
+			const hasBilling = Boolean(item.billing);
+			const hasValidDates = item.startDate && new Date(item.startDate).getFullYear() > 1970;
+
+			// Based on data.json analysis, real projects have:
+			// - status: "open" (primary indicator)
+			// - OR projectUrl (secondary indicator)
+			// - OR description (tertiary indicator)
+			// - OR budget > 0 (quaternary indicator)
+			const isRealProject =
+				hasProjectStatus || hasProjectUrl || hasDescription || hasBudget || hasBilling || hasValidDates;
+
+			return isRealProject;
+		});
+
+		// Then filter projects based on archived status
+		const filteredProjects = actualProjects.filter((project) => {
+			const shouldInclude = showArchivedProjects ? project?.isArchived : !project?.isArchived;
+			return shouldInclude;
+		});
+
+		// Map to view data type
+		const mappedProjects = filteredProjects.map(mapProjectToViewDataType);
+		setProjects(mappedProjects);
+	}, [organizationProjects, showArchivedProjects]);
+
+	// Separate effect for handling member queries (if needed)
 	useEffect(() => {
 		const members = [...(params.get('managers')?.split(',') ?? []), ...(params.get('members')?.split(',') ?? [])];
 
 		const queries = {
 			...(members.length > 0 && {
-				'where[members][employeeId]': members[0] // Available but can work with one employee ID
+				'where[members][employeeId]': members[0]
 			})
 		};
 
-		/*
-		TO DO:
-		 - Filter by status
-		 - Filter by budget type
-		 - Filter by date range
-		 - Filter by team
-
-		 when the api is ready
-		*/
-
 		if (Object.keys(queries).length > 0) {
 			setSearchQueries(queries);
-			const projects = filteredOrganizations?.data?.items
-				?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
-				.map(mapProjectToViewDataType);
-
-			setProjects(projects as ProjectViewDataType[]);
 			setSelectedProjects({}); // Reset projects selection
-		} else {
-			setProjects(
-				organizationProjects
-					?.filter((project) => (showArchivedProjects ? project?.isArchived : !project?.isArchived))
-					.map(mapProjectToViewDataType)
-			);
 		}
-	}, [params, organizationProjects, showArchivedProjects]);
+	}, [params]);
 
 	// Handle archived / active - table columns visibility
 	useEffect(() => {
@@ -259,19 +385,16 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects?.length;
-
+		const areAllProjectsSelected = Object.keys(selectedProjects).length === filteredProjects.length;
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {
 			setSelectedProjects(
-				filteredProjects
-					? Object.fromEntries(
-							filteredProjects.map((el) => {
-								return [el.project.id, true];
-							})
-						)
-					: {}
+				Object.fromEntries(
+					filteredProjects.map((el) => {
+						return [el.project.id, true];
+					})
+				)
 			);
 		}
 	}, [filteredProjects, selectedProjects]);
@@ -362,8 +485,9 @@ function PageComponent() {
 						<div className="flex gap-3">
 							<DatePickerWithRange
 								defaultValue={dateRange}
-								onChange={() => {
-									/* TODO: Implement date range handling */
+								onChange={(newDateRange: DateRange) => {
+									setDateRange(newDateRange);
+									updateDateInURL(newDateRange);
 								}}
 								className="bg-transparent dark:bg-transparent dark:border-white"
 							/>
@@ -519,12 +643,12 @@ function PageComponent() {
 					) : null}
 				</div>
 				{isFiltersCardModalOpen && (
-					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+					<Suspense fallback={<ModalSkeleton />}>
 						<LazyFiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
 					</Suspense>
 				)}
 				{isProjectModalOpen && (
-					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+					<Suspense fallback={<ModalSkeleton />}>
 						<LazyCreateProjectModal
 							key={'create-project'}
 							open={isProjectModalOpen}
@@ -534,7 +658,7 @@ function PageComponent() {
 				)}
 				{/* Lazy loaded bulk action modals with conditional rendering */}
 				{isBulkAction && isBulkArchiveProjectsModalOpen && (
-					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+					<Suspense fallback={<ModalSkeleton />}>
 						<LazyBulkArchiveProjectsModal
 							key={`bulk-archive-project`}
 							projectIds={Object.keys(selectedProjects)}
@@ -544,7 +668,7 @@ function PageComponent() {
 					</Suspense>
 				)}
 				{isBulkAction && isBulkRestoreProjectsModalOpen && (
-					<Suspense fallback={<div className="fixed inset-0 z-50 bg-black/50" />}>
+					<Suspense fallback={<ModalSkeleton />}>
 						<LazyBulkRestoreProjectsModal
 							key={`bulk-restore-project`}
 							projectIds={Object.keys(selectedProjects)}

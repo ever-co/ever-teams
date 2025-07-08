@@ -1,5 +1,5 @@
 'use client';
-import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
@@ -83,7 +83,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	}, [user]);
 
 	const logOut = useCallback(() => {
-		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, activeTeam?.id ?? '');
+		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		removeAuthCookies();
 		window.clearInterval(intervalRt.current);
 		queryClient.clear();

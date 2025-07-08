@@ -21,7 +21,7 @@ export interface IInviteProps {
 	closeModal: any;
 	task: TTask | null;
 }
-const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
+const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName'>>(initialValues);
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
@@ -47,7 +47,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 		const existingInvitation = teamInvitations.find((invitation) => invitation.email === formData.email);
 
 		if (existingInvitation) {
-			resendTeamInvitation(existingInvitation.id).then(() => {
+			resendTeamInvitation(existingInvitation.id || '').then(() => {
 				closeModal();
 
 				toast.success(t('common.INVITATION_SENT'), {
@@ -86,7 +86,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	return (
 		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
-				<div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-sm" aria-hidden="true" />
+				<div className="fixed inset-0 backdrop-blur-sm backdrop-brightness-50" aria-hidden="true" />
 				<TransitionChild
 					as="div"
 					enter="ease-out duration-300"
@@ -99,8 +99,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
 				</TransitionChild>
 
-				<div className="fixed inset-0 overflow-y-auto">
-					<div className="flex items-center justify-center min-h-full p-4 text-center">
+				<div className="overflow-y-auto fixed inset-0">
+					<div className="flex justify-center items-center p-4 min-h-full text-center">
 						<TransitionChild
 							as="div"
 							enter="ease-out duration-300"
@@ -111,7 +111,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 							leaveTo="opacity-0 scale-95"
 						>
 							<DialogPanel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
-								<div className="flex items-center justify-center w-full">
+								<div className="flex justify-center items-center w-full">
 									<UserOutlineIcon className="w-6" />
 								</div>
 								<div className="text-primary dark:text-white mt-[22px] text-center font-bold text-[22px]">
@@ -146,7 +146,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										/>
 									</div>
 
-									<div className="flex items-center justify-between">
+									<div className="flex justify-between items-center">
 										<div />
 										<button
 											className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
