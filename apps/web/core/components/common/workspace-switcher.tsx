@@ -155,11 +155,50 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 	);
 };
 
+// Workspace skeleton component - pixel-perfect match for loading state
+const WorkspaceSkeleton: React.FC = () => {
+	return (
+		<>
+			{/* Icon skeleton - matches exact dimensions and styling */}
+			<div
+				className="flex justify-center items-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
+				aria-hidden="true"
+				role="presentation"
+			>
+				<div className="rounded animate-pulse size-4 bg-sidebar-primary-foreground/20" />
+			</div>
+
+			{/* Text content skeleton - matches exact layout and dimensions */}
+			<div className="grid flex-1 space-y-1 text-sm leading-tight text-left" role="presentation">
+				{/* Main title skeleton */}
+				<div
+					className="h-[1.25rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					style={{ width: '70%' }}
+					aria-hidden="true"
+				/>
+				{/* Subtitle skeleton */}
+				<div
+					className="h-[0.75rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					style={{ width: '40%' }}
+					aria-hidden="true"
+				/>
+			</div>
+		</>
+	);
+};
+
 export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
 
-	// Use the new hooks
-	const { workspaces, currentWorkspace, error } = useWorkspaces();
+	// Use the new hooks with comprehensive state management
+	const {
+		workspaces,
+		currentWorkspace,
+		error,
+		isLoading: workspacesLoading,
+		isInitialized: workspacesInitialized,
+		workspacesQuery
+	} = useWorkspaces();
 
 	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
 
@@ -265,37 +304,30 @@ export function WorkspacesSwitcher() {
 		};
 	}, [isConfirmModalOpen, isSwitching, availableWorkspaces, canSwitchToWorkspace, handleWorkspaceClick]);
 
-	// Render the active workspace
+	// Determine loading state with comprehensive logic
+	const isWorkspaceLoading = React.useMemo(() => {
+		// Check if we're in initial loading state
+		const isInitialLoading = workspacesLoading && !workspacesInitialized;
+
+		// Check if React Query is fetching for the first time
+		const isQueryLoading = workspacesQuery.isLoading && !workspacesQuery.data;
+
+		// Check if we're switching workspaces
+		const isSwitchingWorkspace = isSwitching;
+
+		// We're loading if any of these conditions are true
+		return isInitialLoading || isQueryLoading || isSwitchingWorkspace;
+	}, [workspacesLoading, workspacesInitialized, workspacesQuery.isLoading, workspacesQuery.data, isSwitching]);
+
+	// Render the active workspace with robust state management
 	const renderActiveWorkspace = () => {
-		if (activeWorkspace) {
-			// Legacy mode
-			return (
-				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
-						{activeWorkspace.logo || activeWorkspace.name ? (
-							<Avatar className="rounded !size-8">
-								<AvatarImage
-									width={24}
-									height={24}
-									src={activeWorkspace.logo}
-									alt={activeWorkspace.name}
-								/>
-								<AvatarFallback>{activeWorkspace.name.charAt(0)}</AvatarFallback>
-							</Avatar>
-						) : (
-							<DefaultWorkspaceIcon className="size-4" />
-						)}
-					</div>
-					<div className="grid flex-1 text-sm leading-tight text-left">
-						<span className="font-semibold truncate">{activeWorkspace.name}</span>
-						<span className="text-xs truncate">{activeWorkspace.plan}</span>
-					</div>
-				</>
-			);
+		// Show skeleton during loading states
+		if (isWorkspaceLoading) {
+			return <WorkspaceSkeleton />;
 		}
 
+		// Show current workspace if available (primary data source)
 		if (currentWorkspace) {
-			// Real data mode
 			return (
 				<>
 					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
@@ -325,7 +357,34 @@ export function WorkspacesSwitcher() {
 			);
 		}
 
-		// Loading state or no workspace
+		// Fallback to legacy active workspace (secondary data source)
+		if (activeWorkspace) {
+			return (
+				<>
+					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+						{activeWorkspace.logo || activeWorkspace.name ? (
+							<Avatar className="rounded !size-8">
+								<AvatarImage
+									width={24}
+									height={24}
+									src={activeWorkspace.logo}
+									alt={activeWorkspace.name}
+								/>
+								<AvatarFallback>{activeWorkspace.name.charAt(0)}</AvatarFallback>
+							</Avatar>
+						) : (
+							<DefaultWorkspaceIcon className="size-4" />
+						)}
+					</div>
+					<div className="grid flex-1 text-sm leading-tight text-left">
+						<span className="font-semibold truncate">{activeWorkspace.name}</span>
+						<span className="text-xs truncate">{activeWorkspace.plan}</span>
+					</div>
+				</>
+			);
+		}
+
+		// Final fallback - default workspace display
 		return (
 			<>
 				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
@@ -348,10 +407,15 @@ export function WorkspacesSwitcher() {
 							<SidebarMenuButton
 								size="lg"
 								className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-								disabled={isSwitching}
-								aria-label={`Current workspace: ${currentWorkspace?.name || 'No workspace'}. Click to change the workspace`}
+								disabled={isSwitching || isWorkspaceLoading}
+								aria-label={
+									isWorkspaceLoading
+										? 'Loading workspace information...'
+										: `Current workspace: ${currentWorkspace?.name || activeWorkspace?.name || 'No workspace'}. Click to change the workspace`
+								}
 								aria-expanded={false}
 								aria-haspopup="menu"
+								aria-busy={isWorkspaceLoading}
 							>
 								{renderActiveWorkspace()}
 								{isSwitching ? (
