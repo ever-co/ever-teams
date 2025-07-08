@@ -56,7 +56,7 @@
         "sharp": "^0.33.4"
     },
     "devDependencies": {
-        "electron": "28.1.0",
+        "electron": "28.3.2",
         "electron-builder": "^24.6.4",
         "@electron/notarize": "^2.1.0",
         "@electron/rebuild": "^3.3.0",
