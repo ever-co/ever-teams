@@ -25,10 +25,7 @@ import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { ITask } from '@/core/types/interfaces/task/task';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -54,14 +51,14 @@ export function CreateDailyPlanFormModal({
 	) as 'Select' | 'Select & Close';
 	const t = useTranslations();
 	const existingPlanDates = useMemo(
-		() => profileDailyPlans?.items?.map((plan: IDailyPlan) => new Date(plan.date)),
+		() => profileDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
 		[profileDailyPlans.items]
 	);
 	const existingTaskPlanDates = useMemo(
 		() =>
 			profileDailyPlans?.items
-				?.filter((plan: IDailyPlan) => plan.tasks?.some((task: ITask) => task.id === taskId))
-				.map((plan: IDailyPlan) => new Date(plan.date)),
+				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
+				.map((plan: TDailyPlan) => new Date(plan.date)),
 		[profileDailyPlans.items, taskId]
 	);
 
@@ -102,15 +99,16 @@ export function CreateDailyPlanFormModal({
 			createDailyPlan({
 				workTimePlanned: parseInt(values.workTimePlanned) || 0,
 				taskId,
-				date:
+				date: String(
 					planMode == 'today'
 						? toDay
 						: planMode == 'tomorrow'
 							? tomorrowDate
-							: new Date(moment(date).format('YYYY-MM-DD')),
+							: new Date(moment(date).format('YYYY-MM-DD'))
+				),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: employeeId ?? selectedEmployee?.employeeId,
+				employeeId: employeeId ?? selectedEmployee?.employeeId ?? undefined,
 				organizationId: user?.employee?.organizationId
 			}).then(() => {
 				reset();
@@ -283,7 +281,7 @@ function MembersList({
 	handleMemberClick,
 	selectedMember
 }: {
-	activeTeam: IOrganizationTeam | null;
+	activeTeam: TOrganizationTeam | null;
 	selectedMember?: TOrganizationTeamEmployee;
 	handleMemberClick: (member: TOrganizationTeamEmployee) => void;
 }) {

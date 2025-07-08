@@ -4,10 +4,10 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/mobile.prod.yml'
-      - 'apps/mobile/**'
-      - 'package.json'
-      - 'yarn.lock'
+      - ".github/workflows/mobile.prod.yml"
+      - "apps/mobile/**"
+      - "package.json"
+      - "yarn.lock"
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -28,8 +28,8 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.11.1'
-          cache: 'yarn'
+          node-version: "20.19.0"
+          cache: "yarn"
 
       - name: Install Packages
         run: |

@@ -35,6 +35,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -136,11 +137,11 @@ export const ProjectsTable = memo(
 				cell: function ({ row }) {
 					return (
 						<div className="">
-							<div className="flex items-center font-medium gap-2">
+							<div className="flex gap-2 items-center font-medium">
 								<div
-									style={{ backgroundColor: row.original?.project?.color }}
+									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
-										'w-10 h-10  border overflow-hidden flex items-center justify-center rounded-xl'
+										'flex overflow-hidden justify-center items-center w-10 h-10 rounded-xl border'
 									)}
 								>
 									{!row.original?.project?.imageUrl ? (
@@ -195,15 +196,16 @@ export const ProjectsTable = memo(
 					const { resolvedTheme } = useTheme();
 
 					return (
-						<div className="capitalize flex items-center">
+						<div className="flex items-center capitalize">
 							<div
 								style={{
 									backgroundColor:
 										resolvedTheme == 'light'
-											? (statusColorsMap.get(row.original?.status) ?? 'transparent')
+											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
+												'transparent')
 											: '#6A7280'
 								}}
-								className="rounded text-xs px-4 py-1"
+								className="px-4 py-1 text-xs rounded"
 							>
 								{row.original?.status}
 							</div>
@@ -332,7 +334,11 @@ export const ProjectsTable = memo(
 								name: el?.employee?.fullName || ''
 							})) || [];
 
-					return members?.length > 0 ? <AvatarStack avatars={members} /> : null;
+					if (members.length === 0) {
+						return <span className="text-sm text-gray-500">No members assigned</span>;
+					}
+
+					return <AvatarStack avatars={members} />;
 				}
 			},
 			{
@@ -351,12 +357,24 @@ export const ProjectsTable = memo(
 				enableHiding: true,
 				enableSorting: false,
 				cell: ({ row }) => {
-					const teams =
-						row.original?.teams?.map((el) => ({
-							name: el?.name
-						})) || [];
+					const teams = row.original?.teams || [];
 
-					return teams?.length > 0 ? <AvatarStack avatars={teams} /> : null;
+					if (teams.length === 0) {
+						return <span className="text-sm text-gray-500">No team assigned</span>;
+					}
+
+					return (
+						<div className="flex flex-wrap gap-1">
+							{teams.map((team, index) => (
+								<span
+									key={team.id || index}
+									className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200"
+								>
+									{team.name}
+								</span>
+							))}
+						</div>
+					);
 				}
 			},
 			{
@@ -474,7 +492,7 @@ export const ProjectsTable = memo(
 									<TableRow key={headerGroup.id}>
 										{headerGroup.headers.map((header) => {
 											return (
-												<TableHead className=" capitalize" key={header.id}>
+												<TableHead className="capitalize" key={header.id}>
 													{header.isPlaceholder
 														? null
 														: (flexRender(
@@ -512,7 +530,7 @@ export const ProjectsTable = memo(
 												message={
 													<>
 														<p>Ready to start something amazing?</p>
-														<p className="text-sm text-gray-500 mt-1">
+														<p className="mt-1 text-sm text-gray-500">
 															Create your first project and begin collaborating with your
 															team.
 														</p>
@@ -559,12 +577,12 @@ function ColumnHandlerDropdown(args: {
 	const isSort = column.entity.getIsSorted();
 
 	return (
-		<Menu as="div" className="relative inline-block text-left">
+		<Menu as="div" className="inline-block relative text-left">
 			<div>
 				<Menu.Button>
-					<div className="flex items-center cursor-pointer  gap-2">
-						<span>{column.name}</span>
-						<div className="flex items-center flex-col">
+					<div className="flex gap-2 items-center cursor-pointer">
+						<span className="text-[13px] text-nowrap">{column.name}</span>
+						<div className="flex flex-col items-center">
 							<ChevronUp
 								size={15}
 								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
@@ -587,7 +605,7 @@ function ColumnHandlerDropdown(args: {
 				leaveTo="transform opacity-0 scale-95"
 			>
 				<Menu.Items className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-					<div className="p-1 flex flex-col gap-1">
+					<div className="flex flex-col gap-1 p-1">
 						{column.entity.getCanSort() && sorting && (
 							<>
 								<Menu.Item>

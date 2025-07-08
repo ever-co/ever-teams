@@ -3,7 +3,6 @@ import { Modal, statusColor } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';
-import { TimesheetDetailMode } from '../../../../app/[locale]/(main)/timesheet/[memberId]/page';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { cn } from '@/core/lib/helpers';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
@@ -12,6 +11,7 @@ import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-c
 import { groupBy } from '@/core/lib/helpers/array-data';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '../../tasks/task-displays';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { TimesheetDetailMode } from './timesheet-page-content';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -39,7 +39,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded w-full md:w-40 md:min-w-[35rem]"
 			titleClass="font-bold flex justify-start w-full text-xl dark:text-white"
 		>
-			<div className="w-full py-4">
+			<div className="py-4 w-full">
 				<div className="flex flex-col  w-full  gap-4  h-[60vh] max-h-[60vh]  overflow-y-auto ">
 					{(() => {
 						switch (timesheetDetailMode) {
@@ -101,13 +101,13 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 							<AccordionTrigger
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-sm hover:no-underline'
 								)}
 							>
-								<div className="flex items-center justify-between w-full">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between items-center w-full">
+									<div className="flex gap-2 items-center">
 										<EmployeeAvatar
-											className="w-10 h-10 border rounded-full shadow-md"
+											className="w-10 h-10 rounded-full border shadow-md"
 											imageUrl={timesheet.element[0].employee?.user?.imageUrl ?? ''}
 										/>
 										<span className="font-bold">{timesheet.element[0].employee?.fullName}</span>
@@ -141,11 +141,11 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
-														<div className="flex items-center justify-between w-full space-x-1">
+														<div className="flex justify-between items-center space-x-1 w-full">
 															<div className="flex items-center space-x-1">
 																<div
 																	className={cn(
@@ -153,7 +153,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 																		statusColor(status).bg
 																	)}
 																></div>
-																<div className="flex items-center gap-x-1">
+																<div className="flex gap-x-1 items-center">
 																	<span className="text-base font-normal text-gray-400 uppercase">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
@@ -202,7 +202,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 																		taskNumberClassName="text-sm"
 																	/>
 																</div>
-																<div className="flex items-center flex-1 gap-2">
+																<div className="flex flex-1 gap-2 items-center">
 																	{items.project?.imageUrl && (
 																		<ProjectLogo
 																			className="w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]"
@@ -272,11 +272,11 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 								}}
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-sm hover:no-underline'
 								)}
 							>
-								<div className="flex items-center justify-between w-full">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between items-center w-full">
+									<div className="flex gap-2 items-center">
 										<div
 											className={cn(
 												'p-2 rounded-[3px] gap-2 w-[20px] h-[20px]',
@@ -318,11 +318,11 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
-														<div className="flex items-center justify-between w-full space-x-1">
+														<div className="flex justify-between items-center space-x-1 w-full">
 															<div className="flex items-center space-x-1">
 																<div
 																	className={cn(
@@ -330,7 +330,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 																		statusColor(status).bg
 																	)}
 																></div>
-																<div className="flex items-center gap-x-1">
+																<div className="flex gap-x-1 items-center">
 																	<span className="text-base font-normal text-gray-400 uppercase">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
@@ -379,7 +379,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 																		taskNumberClassName="text-sm"
 																	/>
 																</div>
-																<div className="flex items-center flex-1 gap-2">
+																<div className="flex flex-1 gap-2 items-center">
 																	{items.project?.imageUrl && (
 																		<ProjectLogo
 																			className="w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]"

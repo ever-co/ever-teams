@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
@@ -113,7 +113,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 			if (typeof selectedWorkspace !== 'undefined') {
 				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
 				window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
-				window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, selectedTeam);
+				window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 			}
 		},
 		[selectedWorkspace, selectedTeam, form]
@@ -135,7 +135,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 
 		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
 		const lastSelectedTeamId =
-			window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || lastSelectedTeamFromAPI || form.defaultTeamId;
+			window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || lastSelectedTeamFromAPI || form.defaultTeamId;
 
 		if (currentTeams) {
 			setSelectedWorkspace(

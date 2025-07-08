@@ -9,7 +9,7 @@ import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 
 export default function SocialLoginChooseWorspace() {
@@ -68,7 +68,7 @@ function WorkSpaceScreen() {
 		if (workspaces.length === 1 && currentTeams?.length === 1) {
 			setSelectedTeam(currentTeams[0].team_id);
 		} else {
-			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0].team_id;
+			const lastSelectedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || currentTeams[0].team_id;
 			const lastSelectedWorkspace =
 				workspaces.findIndex((workspace) =>
 					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
@@ -92,7 +92,7 @@ function WorkSpaceScreen() {
 			Cookies.remove(`authjs.session-token.${i}`);
 		});
 		window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
-		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, selectedTeam);
+		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 	};
 
 	const updateOAuthSession = useCallback(() => {

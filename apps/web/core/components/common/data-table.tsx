@@ -67,7 +67,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 
 	return (
 		<>
-			<Table className="w-full mt-0 border-transparent rounded-2xl">
+			<Table className="mt-0 w-full rounded-2xl border-transparent">
 				{isHeader && (
 					<TableHeader className="">
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -100,10 +100,10 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 						))}
 					</TableHeader>
 				)}
-				<div className="mt-8"></div>
+				<div className="mt-5"></div>
 				<TableBody
 					className={cn(
-						'divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light'
+						'overflow-y-auto h-40 divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light'
 					)}
 				>
 					{table.getRowModel().rows?.length ? (

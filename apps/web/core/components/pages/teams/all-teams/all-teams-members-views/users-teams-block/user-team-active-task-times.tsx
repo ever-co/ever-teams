@@ -1,8 +1,8 @@
 import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamActiveTaskTimesBlock({
 	member,
@@ -15,11 +15,11 @@ export default function UserTeamActiveTaskTimesBlock({
 
 	const { getTaskById } = useTeamTasks();
 
-	const [activeTask, setActiveTask] = useState<ITask | null | undefined>(null);
+	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 
 	useEffect(() => {
 		getTaskById(activeTaskId || '')
-			.then((response) => setActiveTask(response.data))
+			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

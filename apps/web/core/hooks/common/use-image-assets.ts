@@ -1,38 +1,46 @@
 'use client';
 
-import { getAccessTokenCookie } from '@/core/lib/helpers/index';
-import { useCallback, useState } from 'react';
-import { post } from '@/core/services/client/axios';
-import { IImageAsset } from '@/core/types/interfaces/common/image-asset';
+import { useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { imageAssetsService } from '@/core/services/client/api';
+import { TImageAsset } from '@/core/types/schemas/common/image-asset.schema';
 
 export function useImageAssets() {
-	const [loading, setLoading] = useState(false);
+	// React Query mutation for creating image assets
+	const createImageAssetsMutation = useMutation({
+		mutationFn: async ({
+			file,
+			folder,
+			tenantId,
+			organizationId
+		}: {
+			file: File;
+			folder: string;
+			tenantId: string;
+			organizationId: string;
+		}): Promise<TImageAsset> => {
+			return await imageAssetsService.uploadImageAsset(file, folder, tenantId, organizationId);
+		},
+		onError: (error) => {
+			console.error('Image asset upload error:', error);
+		}
+	});
 
+	// Preserve exact interface - createImageAssets function
 	const createImageAssets = useCallback(
 		async (file: File, folder: string, tenantId: string, organizationId: string) => {
-			const bearer_token = getAccessTokenCookie();
-			const formData = new FormData();
-			formData.append('file', file);
-			formData.append('tenantId', tenantId);
-			formData.append('organizationId', organizationId);
-			setLoading(true);
-
-			return post<IImageAsset>(`/image-assets/upload/${folder}`, formData, {
-				headers: {
-					'tenant-id': tenantId,
-					Authorization: `Bearer ${bearer_token}`
-				}
-			})
-				.then((res) => res.data)
-				.finally(() => {
-					setLoading(false);
-				});
+			return await createImageAssetsMutation.mutateAsync({
+				file,
+				folder,
+				tenantId,
+				organizationId
+			});
 		},
-		[]
+		[createImageAssetsMutation]
 	);
 
 	return {
-		loading,
+		loading: createImageAssetsMutation.isPending,
 		createImageAssets
 	};
 }

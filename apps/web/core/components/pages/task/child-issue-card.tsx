@@ -2,7 +2,6 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { useAtomValue } from 'jotai';
 import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -12,6 +11,7 @@ import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -28,7 +28,7 @@ export const ChildIssueCard = () => {
 				acc.push($item);
 			}
 			return acc;
-		}, [] as ITask[]);
+		}, [] as TTask[]);
 
 		return children || [];
 	}, [task, tasks]);
@@ -70,7 +70,7 @@ export const ChildIssueCard = () => {
 	);
 };
 
-function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
+function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const { trans } = useTranslation();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -79,7 +79,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITask }) {
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (childTask: ITask | undefined) => {
+		async (childTask: TTask | undefined) => {
 			if (!childTask) return;
 
 			setLoading(true);

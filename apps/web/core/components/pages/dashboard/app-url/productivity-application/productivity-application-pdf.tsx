@@ -16,7 +16,7 @@ Font.register({
 });
 
 const styles = StyleSheet.create({
-	page: { padding: 30, fontFamily: 'Inter' },
+	page: { padding: 30, fontFamily: 'Helvetica' },
 	header: { marginBottom: 20, borderBottom: '2 solid #E5E7EB', paddingBottom: 10 },
 	title: { fontSize: 24, fontWeight: 'bold', color: '#111827', textAlign: 'center' },
 	subtitle: { fontSize: 12, color: '#6B7280', textAlign: 'center', marginTop: 5 },
@@ -114,23 +114,61 @@ const ActivityRow = ({ date, activity, employee, projectName, appName, index }: 
 	</View>
 );
 
-export function ProductivityApplicationPDF({ data, title }: ProductivityPDFProps) {
+export function ProductivityApplicationPDF({ data = [], title }: ProductivityPDFProps) {
+	// Handle empty data gracefully
+	if (!Array.isArray(data) || data.length === 0) {
+		const today = new Date().toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
+
+		return (
+			<Document>
+				<Page size="A4" orientation="landscape" style={styles.page}>
+					<View style={styles.header}>
+						<Text style={styles.title}>{title || 'Productivity Report'}</Text>
+						<Text style={styles.subtitle}>Generated on {today}</Text>
+					</View>
+					<View style={styles.table}>
+						<TableHeader />
+						<View style={styles.tableRow}>
+							<View style={[styles.tableCell, { width: '100%', textAlign: 'center', padding: 20 }]}>
+								<Text>No activity data available for the selected period.</Text>
+							</View>
+						</View>
+					</View>
+				</Page>
+			</Document>
+		);
+	}
+
 	const groupedByApp = data.reduce(
 		(apps, dayData) => {
-			dayData.employees.forEach((employeeData) => {
-				employeeData.projects.forEach((projectData: IProjectWithActivity) => {
-					projectData.activity.forEach((activity: IActivityItem) => {
-						if (!apps[activity.title]) apps[activity.title] = [];
-						const projectName = projectData.project?.name || activity.project?.name || 'Ever Teams';
-						apps[activity.title].push({
-							date: dayData.date,
-							activity,
-							employee: activity.employee,
-							projectName
+			// Safely handle potentially undefined nested properties
+			if (dayData?.employees && Array.isArray(dayData.employees)) {
+				dayData.employees.forEach((employeeData) => {
+					if (employeeData?.projects && Array.isArray(employeeData.projects)) {
+						employeeData.projects.forEach((projectData: IProjectWithActivity) => {
+							if (projectData?.activity && Array.isArray(projectData.activity)) {
+								projectData.activity.forEach((activity: IActivityItem) => {
+									if (activity?.title) {
+										if (!apps[activity.title]) apps[activity.title] = [];
+										const projectName =
+											projectData.project?.name || activity.project?.name || 'Ever Teams';
+										apps[activity.title].push({
+											date: dayData.date,
+											activity,
+											employee: activity.employee,
+											projectName
+										});
+									}
+								});
+							}
 						});
-					});
+					}
 				});
-			});
+			}
 			return apps;
 		},
 		{} as Record<

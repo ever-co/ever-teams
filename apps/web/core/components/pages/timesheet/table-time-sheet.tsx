@@ -58,7 +58,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 
-export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | undefined }) {
+export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
 	const modal = useModal();
 	const alertConfirmationModal = useModal();
@@ -189,7 +189,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={clsxm(
-															'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -404,8 +404,8 @@ const TaskActionMenu = ({
 	user
 }: {
 	dataTimesheet: ITimeLog;
-	isManage?: boolean;
-	user?: TUser | undefined;
+	isManage?: boolean | null;
+	user?: TUser | null;
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();

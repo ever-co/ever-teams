@@ -770,3 +770,12 @@ body.dark .PhoneInputCountrySelectOption:focus {
 .dark .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
 	background-color: #1b1d22;
 }
+
+@keyframes shimmer {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}

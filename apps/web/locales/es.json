@@ -927,7 +927,9 @@
 			"TASK_PLANNED_FOR_DATE": "Tarea planificada para la fecha seleccionada",
 			"TASK_PLAN_FAILED": "Error al planificar la tarea. Por favor, inténtalo de nuevo.",
 			"TASK_ASSIGNMENT_FAILED": "Error al asignar/desasignar la tarea. Por favor, inténtalo de nuevo.",
-			"TASK_FAVORITE_FAILED": "Error al actualizar favoritos. Por favor, inténtalo de nuevo."
+			"TASK_FAVORITE_FAILED": "Error al actualizar favoritos. Por favor, inténtalo de nuevo.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Elemento favorito creado exitosamente",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Elemento favorito eliminado exitosamente"
 		}
 	},
 	"dailyPlan": {

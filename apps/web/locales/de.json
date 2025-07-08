@@ -927,7 +927,9 @@
 			"TASK_PLANNED_FOR_DATE": "Aufgabe für ausgewähltes Datum geplant",
 			"TASK_PLAN_FAILED": "Aufgabenplanung fehlgeschlagen. Bitte versuchen Sie es erneut.",
 			"TASK_ASSIGNMENT_FAILED": "Aufgabenzuweisung/-entfernung fehlgeschlagen. Bitte versuchen Sie es erneut.",
-			"TASK_FAVORITE_FAILED": "Favoriten-Update fehlgeschlagen. Bitte versuchen Sie es erneut."
+			"TASK_FAVORITE_FAILED": "Favoriten-Update fehlgeschlagen. Bitte versuchen Sie es erneut.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favorit erfolgreich erstellt",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favorit erfolgreich gelöscht"
 		}
 	},
 	"dailyPlan": {

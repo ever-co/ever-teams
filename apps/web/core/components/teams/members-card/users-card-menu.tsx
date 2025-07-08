@@ -1,5 +1,4 @@
 import { useTaskInput } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Spinner } from '@/core/components/common/spinner';
 import DeleteTask from '@/core/components/features/tasks/delete-task';
 import TaskFilter from '@/core/components/tasks/task-filter';
@@ -20,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IOption {
 	name: string;
@@ -186,7 +186,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-									displayValue={(task: ITask) => {
+									displayValue={(task: TTask) => {
 										return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 									}}
 									onChange={(event) => setQuery(event.target.value)}

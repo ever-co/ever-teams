@@ -126,7 +126,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					noWrapper && ['input-border'],
 					'py-2 px-4 rounded-[10px]',
 					'text-sm outline-none ',
-					'h-[50px] w-full',
+					'h-11 w-full',
 					className
 				)}
 				onKeyUp={onKeyUp}
@@ -147,14 +147,14 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		) : (
 			<div
 				className={clsxm(
-					'w-full mb-3 relative bg-light--theme-light dark:bg-dark--theme-light',
+					'relative mb-3 w-full bg-light--theme-light dark:bg-dark--theme-light',
 					wrapperClassName
 				)}
 			>
 				<div
 					className={clsxm(
 						notValidBorder ? 'border border-red-500' : 'input-border',
-						'rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent'
+						'flex justify-between items-center h-auto rounded-[10px] bg-light--theme-light dark:bg-transparent'
 					)}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
@@ -175,7 +175,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 													| MutableRefObject<HTMLDivElement>
 												)[]
 											)}
-											className="absolute z-50 right-1"
+											className="absolute right-1 z-50"
 										>
 											<Picker
 												data={data}
@@ -192,7 +192,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					)}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
 				</div>
-				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
+				{error && <Text.Error className="justify-self-start self-start">{error}</Text.Error>}
 			</div>
 		);
 	}
@@ -216,13 +216,13 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 	({ className, type = 'text', label, dash = '__', wrapperClassName, value, loading, ...res }, ref) => {
 		return (
 			<div className={clsxm('flex items-center', loading && 'gap-1')}>
-				<div className={clsxm('relative isolate w-7', wrapperClassName)}>
+				<div className={clsxm('isolate relative w-7', wrapperClassName)}>
 					<input
 						type={type}
 						ref={ref}
 						value={value}
 						{...res}
-						className={clsxm('outline-none p-0 bg-transparent w-full text-center', className)}
+						className={clsxm('p-0 w-full text-center bg-transparent outline-none', className)}
 					/>
 					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">{dash}</span>
 				</div>
@@ -272,7 +272,7 @@ export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 		) : (
 			<div className={clsxm('w-full', wrapperClassName)}>
 				{inputElement}
-				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
+				{error && <Text.Error className="justify-self-start self-start">{error}</Text.Error>}
 			</div>
 		);
 	}

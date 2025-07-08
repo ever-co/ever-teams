@@ -1,6 +1,7 @@
 import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
 import { FileStorageProvider } from './file-storage-provider';
 import { ID } from './base-interfaces';
+import { TImageAsset } from '../../schemas';
 
 export interface IImageAsset extends IBasePerTenantAndOrganizationEntityModel {
 	name: string;
@@ -17,10 +18,10 @@ export interface IImageAsset extends IBasePerTenantAndOrganizationEntityModel {
 }
 
 export interface IRelationalImageAsset {
-	image?: IImageAsset | null;
+	image?: TImageAsset | null;
 	imageId?: ID | null;
 }
 
-export interface ICreateImageAssets extends Pick<IImageAsset, 'tenantId' | 'organizationId'> {
+export interface ICreateImageAssets extends Pick<TImageAsset, 'tenantId' | 'organizationId'> {
 	file: File;
 }

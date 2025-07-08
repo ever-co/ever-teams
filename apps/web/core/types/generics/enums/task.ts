@@ -19,11 +19,11 @@ export enum ETaskSize {
 }
 
 export enum ETaskType {
-	EPIC = 'epic',
-	STORY = 'story',
-	TASK = 'task',
-	BUG = 'bug',
-	MEMO = 'memo'
+	EPIC = 'Epic',
+	STORY = 'Story',
+	TASK = 'Task',
+	BUG = 'Bug',
+	MEMO = 'Memo'
 }
 
 export enum ERelatedIssuesRelation {
@@ -48,7 +48,8 @@ export enum ETaskStatusName {
 	CUSTOM = 'custom',
 	READY_FOR_REVIEW = 'ready-for-review',
 	IN_REVIEW_STATUS = 'in-review',
-	DONE = 'done'
+	DONE = 'done',
+	CANCELLED = 'cancelled'
 }
 export enum ETaskSizeName {
 	X_LARGE = 'X-Large',

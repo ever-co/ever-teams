@@ -15,6 +15,7 @@ import {
 	useOrganizationProjects,
 	useEmployee
 } from '@/core/hooks/organizations';
+import { useWorkspaces, useCurrentOrg } from '@/core/hooks/auth';
 import { useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
@@ -48,6 +49,13 @@ function InitState() {
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 	const { firstLoadRolesData } = useRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
+
+	// Load workspaces data on app initialization
+	const { firstLoadWorkspacesData } = useWorkspaces();
+
+	// Current organization management and validation
+	const { validateCurrentOrgAccess, handleOrgBranching } = useCurrentOrg();
+
 	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
 	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPriorities();
 	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
@@ -62,6 +70,11 @@ function InitState() {
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
+
+		// Load workspaces first as they're fundamental to the app
+		firstLoadWorkspacesData();
+
+		// Load other data
 		firstLoadTeamsData();
 		firstLoadTasksData();
 		firstLoadTeamInvitationsData();
@@ -86,6 +99,34 @@ function InitState() {
 		getTimerStatus();
 		loadTeamsData();
 		loadLanguagesData();
+
+		// Perform organization access validation (non-blocking)
+		// This runs after initial data loading to avoid blocking the app startup
+		setTimeout(async () => {
+			try {
+				const validationResult = await validateCurrentOrgAccess();
+				console.log('InitState Organization Validation Result:', validationResult);
+
+				// Handle validation results (non-blocking, informational only)
+				if (!validationResult.isValid) {
+					console.warn('InitState: Organization access validation failed', {
+						reason: validationResult.reason,
+						suggestedAction: validationResult.action,
+						redirectTo: validationResult.redirectTo
+					});
+
+					// Note: We don't automatically redirect here to avoid breaking existing flows
+					// The validation is primarily for logging and future enhancements
+				}
+
+				// Also run branching logic for informational purposes
+				const branchingResult = handleOrgBranching();
+				console.log('InitState Organization Branching Result:', branchingResult);
+			} catch (error) {
+				console.error('InitState: Non-critical validation error', error);
+				// Don't throw - this is non-blocking validation
+			}
+		}, 2000); // Run after 2 seconds to allow initial loading to complete
 	});
 
 	const AutoRefresher = useMemo(() => {

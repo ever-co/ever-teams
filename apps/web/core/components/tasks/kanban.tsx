@@ -1,5 +1,5 @@
 import ThreeDotIcon from '@/core/components/svgs/three-dot';
-import React, { RefObject } from 'react';
+import React, { RefObject, useMemo } from 'react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -12,7 +12,6 @@ import {
 } from '@hello-pangea/dnd';
 
 import Item from './kanban-card';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { TaskStatus } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -25,8 +24,23 @@ import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
 import { useKanban } from '../../hooks/tasks/use-kanban';
-import CreateTaskModal from '../features/tasks/create-task-modal';
-import EditStatusModal from '../features/tasks/edit-status-modal';
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
+import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
+
+const LazyCreateTaskModal = dynamic(() => import('../features/tasks/create-task-modal'), {
+	ssr: false
+	// Note: Removed loading here to avoid double loading states
+	// Suspense fallback will handle all loading states uniformly
+});
+
+const LazyEditStatusModal = dynamic(() => import('../features/tasks/edit-status-modal'), {
+	ssr: false
+	// Note: Removed loading here to avoid double loading states
+	// Suspense fallback will handle all loading states uniformly
+});
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const grid = 8;
 
@@ -67,16 +81,32 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
  * @param param0
  * @returns
  */
-function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSnapshot: DroppableStateSnapshot }) {
+function InnerItemList({
+	items,
+	title,
+	isLoading,
+	allColumnsData
+}: {
+	title: string;
+	items: TTask[];
+	dropSnapshot: DroppableStateSnapshot;
+	isLoading: boolean;
+	allColumnsData?: { [key: string]: TTask[] };
+}) {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 
+	// Check if we're in a "false loading" state where isLoading=false but no data is actually available yet
+	const isActuallyLoading = useMemo(() => {
+		return isLoading || !Array.isArray(items);
+	}, [isLoading, items]);
 	return (
 		<>
-			<section className="relative flex flex-col items-center pb-2">
-				{Array.isArray(items) &&
+			<section className="flex relative flex-col items-center pb-2">
+				{!isActuallyLoading &&
+					Array.isArray(items) &&
 					items.length > 0 &&
-					items.map((item: ITask, index: number) => (
+					items.map((item: TTask, index: number) => (
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 								<Item
@@ -98,23 +128,52 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
 							)}
 						</Draggable>
 					))}
-				{Array.isArray(items) && items?.length == 0 && (
-					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
-						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] mt-3 flex justify-center items-center my-2 rounded-xl">
-							{t('common.NOT_FOUND')}!
-						</div>
-						<div
-							onClick={openModal}
-							className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
-						>
-							<AddIcon className="w-5 h-5 " />
-							<p>{t('common.CREATE_TASK')}</p>
-						</div>
-					</div>
+
+				{/* Determine what to show based on loading state and data availability */}
+				{(() => {
+					// Show loading skeleton if:
+					// 1. Currently loading, OR
+					// 2. Items is not a valid array (undefined/null), OR
+					// 3. All columns are empty (indicating data hasn't loaded yet)
+					if (isActuallyLoading) {
+						return <KanbanColumnLoadingSkeleton />;
+					}
+
+					// At this point: !isLoading && Array.isArray(items)
+					// Show empty state only if items array is empty
+					if (items.length === 0) {
+						return (
+							<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
+								<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] mt-3 flex justify-center items-center my-2 rounded-xl">
+									{t('common.NOT_FOUND')}!
+								</div>
+								<div
+									onClick={openModal}
+									className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+								>
+									<AddIcon className="w-5 h-5" />
+									<p>{t('common.CREATE_TASK')}</p>
+								</div>
+							</div>
+						);
+					}
+
+					// If we have items, they're already rendered above in the map
+					return null;
+				})()}
+				{isOpen && (
+					<Suspense fallback={<ModalSkeleton size="lg" />}>
+						<Modal isOpen={isOpen} closeModal={closeModal}>
+							<LazyCreateTaskModal
+								onClose={closeModal}
+								title={title}
+								initEditMode={false}
+								task={null}
+								tasks={[]}
+							/>
+						</Modal>
+					</Suspense>
 				)}
-				<Modal isOpen={isOpen} closeModal={closeModal}>
-					<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
-				</Modal>
 			</section>
 		</>
 	);
@@ -128,15 +187,23 @@ function InnerItemList({ items, title }: { title: string; items: ITask[]; dropSn
  */
 function InnerList(props: {
 	title: string;
-	items: ITask[];
+	items: TTask[];
 	dropProvided: DroppableProvided;
 	dropSnapshot: DroppableStateSnapshot;
+	isLoading: boolean;
+	allColumnsData?: { [key: string]: TTask[] };
 }) {
-	const { items, dropProvided, dropSnapshot, title } = props;
+	const { items, dropProvided, dropSnapshot, title, isLoading, allColumnsData } = props;
 
 	return (
 		<div style={getBackgroundColor(dropSnapshot)} ref={dropProvided.innerRef}>
-			<InnerItemList items={items} title={title} dropSnapshot={dropSnapshot} />
+			<InnerItemList
+				items={items}
+				title={title}
+				dropSnapshot={dropSnapshot}
+				isLoading={isLoading}
+				allColumnsData={allColumnsData}
+			/>
 			<>{dropProvided.placeholder as React.ReactElement}</>
 		</div>
 	);
@@ -185,13 +252,16 @@ export const KanbanDroppable = ({
 	title,
 	droppableId,
 	type,
-	content
+	content,
+	isLoading,
+	allColumnsData
 }: {
 	title: string;
 	isLoading: boolean;
 	droppableId: string;
 	type: string;
-	content: ITask[];
+	content: TTask[];
+	allColumnsData?: { [key: string]: TTask[] };
 }) => {
 	return (
 		<>
@@ -203,6 +273,8 @@ export const KanbanDroppable = ({
 							title={title}
 							dropProvided={dropProvided}
 							dropSnapshot={dropSnapshot}
+							isLoading={isLoading}
+							allColumnsData={allColumnsData}
 						/>
 					</div>
 				)}
@@ -230,7 +302,7 @@ export const EmptyKanbanDroppable = ({
 	status: any;
 	setColumn: any;
 	backgroundColor: any;
-	items: ITask[];
+	items: TTask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
 	const t = useTranslations();
@@ -261,13 +333,13 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row h-40 px-2 w-fit"
+							className="flex flex-row px-2 h-40 w-fit"
 						>
 							{title.length > 0 ? (
 								<>
 									<header
 										className={
-											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed min-h-[20rem]'
+											'flex relative flex-col gap-8 px-2 py-4 h-full text-center rounded-lg items-between w-fit bg-indianRed min-h-[20rem]'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
@@ -312,13 +384,17 @@ export const EmptyKanbanDroppable = ({
 												</PopoverContent>
 											</Popover>
 										</div>
-										<Modal isOpen={isOpen} closeModal={closeModal}>
-											<EditStatusModal
-												status={status}
-												onClose={closeModal}
-												setColumn={setColumn}
-											/>
-										</Modal>
+										{isOpen && (
+											<Suspense fallback={<ModalSkeleton size="md" />}>
+												<Modal isOpen={isOpen} closeModal={closeModal}>
+													<LazyEditStatusModal
+														status={status}
+														onClose={closeModal}
+														setColumn={setColumn}
+													/>
+												</Modal>
+											</Suspense>
+										)}
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
 												<div
@@ -346,12 +422,26 @@ export const EmptyKanbanDroppable = ({
 					)}
 				</Draggable>
 			)}
-			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
-			</Modal>
-			<Modal className="z-[1002]" isOpen={editIsOpen} closeModal={editCloseModal}>
-				<EditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
-			</Modal>
+			{isOpen && (
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
+						<LazyCreateTaskModal
+							onClose={closeModal}
+							title={title}
+							initEditMode={false}
+							task={null}
+							tasks={[]}
+						/>
+					</Modal>
+				</Suspense>
+			)}
+			{editIsOpen && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<Modal className="z-[1002]" isOpen={editIsOpen} closeModal={editCloseModal}>
+						<LazyEditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
+					</Modal>
+				</Suspense>
+			)}
 		</>
 	);
 };
@@ -404,7 +494,7 @@ const KanbanDraggableHeader = ({
 							{items?.length ?? '0'}
 						</div>
 					</div>
-					<div className="flex flex-row items-center gap-2">
+					<div className="flex flex-row gap-2 items-center">
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
@@ -441,9 +531,13 @@ const KanbanDraggableHeader = ({
 					</div>
 				</header>
 			)}
-			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<EditStatusModal status={status} onClose={closeModal} setColumn={setColumn} />
-			</Modal>
+			{isOpen && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
+						<LazyEditStatusModal status={status} onClose={closeModal} setColumn={setColumn} />
+					</Modal>
+				</Suspense>
+			)}
 		</>
 	);
 };
@@ -462,7 +556,8 @@ const KanbanDraggable = ({
 	icon,
 	items,
 	backgroundColor,
-	containerRef
+	containerRef,
+	allColumnsData
 }: {
 	index: number;
 	setColumn: any;
@@ -471,9 +566,10 @@ const KanbanDraggable = ({
 	icon: string;
 	isLoading: boolean;
 	backgroundColor: any;
-	items: ITask[];
+	items: TTask[];
 	containerRef?: RefObject<HTMLDivElement>;
-	addNewTask: (value: ITask, status: string) => void;
+	addNewTask: (value: TTask, status: string) => void;
+	allColumnsData?: { [key: string]: TTask[] };
 }) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -517,19 +613,20 @@ const KanbanDraggable = ({
 											backgroundColor={backgroundColor}
 										/>
 									</div>
-									<div className="flex flex-col ">
+									<div className="flex flex-col">
 										<KanbanDroppable
 											isLoading={isLoading}
 											title={title}
 											droppableId={title}
 											type={'TASK'}
 											content={items}
+											allColumnsData={allColumnsData}
 										/>
 										<button
 											onClick={() => openModal()}
-											className="flex flex-row items-center gap-4 p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
+											className="flex flex-row gap-4 items-center p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
 										>
-											<AddIcon className="w-5 h-5 " />
+											<AddIcon className="w-5 h-5" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>
@@ -539,9 +636,19 @@ const KanbanDraggable = ({
 					)}
 				</Draggable>
 			)}
-			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
-			</Modal>
+			{isOpen && (
+				<Suspense fallback={<ModalSkeleton size="lg" />}>
+					<Modal isOpen={isOpen} closeModal={closeModal}>
+						<LazyCreateTaskModal
+							onClose={closeModal}
+							title={title}
+							initEditMode={false}
+							task={null}
+							tasks={[]}
+						/>
+					</Modal>
+				</Suspense>
+			)}
 		</>
 	);
 };

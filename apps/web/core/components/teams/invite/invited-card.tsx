@@ -12,7 +12,7 @@ export function InvitedCard({ invitation }: { invitation: TInvite }) {
 				<div className="flex items-center justify-center">
 					<div className="flex items-center justify-center space-x-4">
 						<div className="w-[42px] h-[42px] opacity-40 rounded-full bg-slate-100 dark:bg-white text-primary flex justify-center items-center text-[10px]">
-							{imgTitle(invitation.email)}
+							{imgTitle(invitation.email ?? '')}
 						</div>
 						<span className="text-[15px] opacity-40 text-primary text-normal dark:text-white">
 							{invitation.fullName}

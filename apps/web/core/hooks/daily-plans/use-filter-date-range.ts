@@ -1,7 +1,6 @@
 'use client';
 
 import { isTestDateRange } from '@/core/lib/helpers/index';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import {
 	dateRangeAllPlanState,
 	dateRangeFuturePlanState,
@@ -16,15 +15,16 @@ import {
 import { useEffect, useMemo } from 'react';
 import { DateRange } from 'react-day-picker';
 import { useAtom, useAtomValue } from 'jotai';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 /**
  *custom filter the data with date range
  *
  * @export
- * @param {IDailyPlan[]} itemsDailyPlan
+ * @param {TDailyPlan[]} itemsDailyPlan
  * @param {('future' | 'past' | 'all')} [typeItems]
  * @return {*}
  */
-export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'future' | 'past' | 'all') {
+export function useFilterDateRange(itemsDailyPlan: TDailyPlan[], typeItems?: 'future' | 'past' | 'all') {
 	const [dateAllPlan, setDateAllPlan] = useAtom(dateRangeAllPlanState);
 	const [datePastPlan, setDatePastPlan] = useAtom(dateRangePastPlanState);
 	const [dateFuture, setDateFuture] = useAtom(dateRangeFuturePlanState);
@@ -49,7 +49,7 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
 	//     }
 	// }, [itemsDailyPlan, dateFuture, datePastPlan, dateAllPlan, typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalAllPlanState]);
 	const updateOriginalPlanData = useMemo(
-		() => (data: IDailyPlan[]) => {
+		() => (data: TDailyPlan[]) => {
 			switch (typeItems) {
 				case 'future':
 					setOriginalFuturePlanData(data);
@@ -86,7 +86,7 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
 	};
 }
 
-export const filterDailyPlan = (date: DateRange, data: IDailyPlan[]) => {
+export const filterDailyPlan = (date: DateRange, data: TDailyPlan[]) => {
 	if (!date || !data.length) return data;
 	const { from, to } = date;
 	if (!from && !to) {

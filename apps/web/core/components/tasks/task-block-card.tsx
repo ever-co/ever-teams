@@ -1,4 +1,4 @@
-import { ITask, ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -19,9 +19,10 @@ import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface TaskItemProps {
-	task: ITask;
+	task: TTask;
 }
 
 export default function TaskBlockCard(props: TaskItemProps) {
@@ -37,7 +38,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: ITask) => i.id === task?.id) || null;
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === task?.id) || null;
 		if (totalWorkedTasks) {
 			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
 		}
@@ -62,7 +63,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
-				.filter((t: ITask) => t.id === task?.id)
+				.filter((t: TTask) => t.id === task?.id)
 				.reduce(
 					(previousValue: number, currentValue: ITasksStatistics) =>
 						previousValue + (currentValue.duration || 0),
@@ -77,7 +78,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	);
 
 	return (
-		<div className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative">
+		<div className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative border border-[#F7F7F8] dark:border-gray-700">
 			<div className="justify-between w-full h-fit">
 				<div className="flex justify-between w-full">
 					<span className="!w-64">
@@ -93,7 +94,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 						<MenuKanbanCard member={currentMember} item={task} />
 					</span>
 				</div>
-				<div className="flex justify-between w-full my-3">
+				<div className="flex justify-between my-3 w-full">
 					<div className="flex items-center w-64">
 						{activeTask?.id == task.id ? (
 							<>
@@ -117,9 +118,9 @@ export default function TaskBlockCard(props: TaskItemProps) {
 							</>
 						) : (
 							<Link href={`/task/${task.id}`}>
-								<div className="relative w-64 overflow-hidden">
+								<div className="overflow-hidden relative w-[250px] text-ellipsis">
 									{task.issueType && (
-										<span className="inline-block w-6 h-5 ">
+										<span className="inline-block w-6 h-5">
 											<span className="absolute top-1">
 												<TaskIssueStatus
 													showIssueLabels={false}
@@ -130,8 +131,10 @@ export default function TaskBlockCard(props: TaskItemProps) {
 											</span>
 										</span>
 									)}
-									<span className="mx-1 text-grey text-normal">#{task.number}</span>
-									{task.title}
+									<span className="text-[13px]">
+										<span className="mx-1 text-grey text-normal">#{task.number}</span>
+										{task.title}
+									</span>
 									<span className="inline-block ml-1">
 										{task.priority && <Priority level={task.priority} />}
 									</span>
@@ -145,19 +148,19 @@ export default function TaskBlockCard(props: TaskItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="flex items-center justify-between w-full h-10">
+				<div className="flex justify-between items-center w-full h-10">
 					<div>
 						{activeTaskStatus ? (
-							<div className="flex items-center gap-2">
+							<div className="flex gap-2 items-center">
 								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex items-center gap-2">
+							<div className="flex gap-2 items-center">
 								<small className="text-xs text-grey text-normal">Worked:</small>
-								<p className="w-20 text-sm font-medium text-black dark:text-white">
+								<p className="text-sm font-medium text-black whitespace-nowrap text-nowrap min-w-20 dark:text-white">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>

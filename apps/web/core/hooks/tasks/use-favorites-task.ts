@@ -1,47 +1,73 @@
-import { ITask } from '@/core/types/interfaces/task/task';
-import { useAtom } from 'jotai';
-import { favoriteTasksStorageAtom } from '@/core/stores/teams/team-tasks';
-import { useCallback } from 'react';
-import { useTeamTasks } from '../organizations';
+import { useAtomValue } from 'jotai';
+import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
+import { useCallback, useMemo } from 'react';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useFavorites } from '../favorites';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import { userState } from '@/core/stores';
+import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
+
 /**
  * A React hook that manages a list of favorite tasks for a team.
  *
  * The `useFavoritesTask` hook returns an object with the following properties:
  *
- * - `tasks`: The list of all tasks for the team, obtained from the `useTeamTasks` hook.
- * - `favoriteTasks`: The list of favorite tasks.
- * - `toggleFavorite`: A function that toggles the favorite status of a given task.
- * - `isFavorite`: A function that checks if a given task is a favorite.
- * - `addFavorite`: A function that adds a task to the list of favorites.
+ * - `employeeFavoritesTasks`: The list of favorite tasks of the current employee.
+ * - `toggleFavoriteTask`: A function that toggles the favorite status of a given task.
+ * - `isFavoriteTask`: A function that checks if a given task is a favorite.
+ * - `addTaskToFavorite`: A function that adds a task to the list of favorites.
  */
 
-export const useFavoritesTask = () => {
-	const { tasks } = useTeamTasks();
-	const [favoriteTasks, setFavoriteTasks] = useAtom(favoriteTasksStorageAtom);
+export const useFavoriteTasks = () => {
+	const tasks = useAtomValue(tasksByTeamState);
+	const user = useAtomValue(userState);
 
-	const toggleFavorite = useCallback((task: ITask) => {
-		if (!task?.id) {
-			console.warn('Invalid task provided to toggleFavorite');
-			return;
-		}
-		setFavoriteTasks((prev) =>
-			prev.some((t) => t.id === task.id) ? prev.filter((t) => t.id !== task.id) : [...prev, task]
-		);
-	}, []);
+	const { currentEmployeeFavorites, createFavorite, deleteFavorite, createFavoriteLoading, deleteFavoriteLoading } =
+		useFavorites();
 
-	const isFavorite = useCallback((task: ITask) => favoriteTasks.some((t) => t.id === task.id), [favoriteTasks]);
+	const toggleFavoriteTask = useCallback(
+		async (task: TTask) => {
+			if (!task) return;
 
-	const addFavorite = useCallback((task: ITask) => {
-		if (!isFavorite(task)) {
-			setFavoriteTasks((prev) => [...prev, task]);
-		}
-	}, []);
+			const isFavoriteTask = currentEmployeeFavorites.some((el) => {
+				return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
+			});
+
+			if (isFavoriteTask) {
+				await deleteFavorite(task.id);
+			} else {
+				await createFavorite({
+					entity: EBaseEntityEnum.Task,
+					entityId: task.id,
+					...(user?.employee?.id || user?.employeeId
+						? { employeeId: user?.employee?.id || user?.employeeId }
+						: {})
+				} as IFavoriteCreateRequest);
+			}
+		},
+		[currentEmployeeFavorites, createFavorite, deleteFavorite, user]
+	);
+
+	const employeeFavoritesTasks = useMemo(() => {
+		const taskIds = currentEmployeeFavorites
+			.filter((el) => el.entity === EBaseEntityEnum.Task)
+			.map((el) => el.entityId);
+
+		return tasks.filter((task) => taskIds.includes(task.id));
+	}, [tasks, currentEmployeeFavorites]);
+
+	const isFavoriteTask = useCallback(
+		(taskId: string) => employeeFavoritesTasks.some((t) => t.id === taskId),
+		[employeeFavoritesTasks]
+	);
 
 	return {
-		tasks,
-		favoriteTasks,
-		toggleFavorite,
-		isFavorite,
-		addFavorite
+		employeeFavoritesTasks,
+		addTaskToFavorite: createFavorite,
+		deleteTaskFromFavorites: deleteFavorite,
+		toggleFavoriteTask,
+		addTaskToFavoriteLoading: createFavoriteLoading,
+		deleteTaskFromFavoritesLoading: deleteFavoriteLoading,
+		isFavoriteTask
 	};
 };

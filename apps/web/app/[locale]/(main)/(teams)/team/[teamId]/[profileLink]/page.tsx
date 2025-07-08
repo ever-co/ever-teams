@@ -17,6 +17,7 @@ import { UserTeamCardHeader } from '@/core/components/pages/teams/team/team-memb
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { UnverifiedEmail } from '@/core/components/common/unverified-email';
 import { TeamMembersView } from '@/core/components/pages/teams/team/team-members';
+import { TeamMemberProfilePageSkeleton } from '@/core/components/layouts/skeletons/team-member-profile-page-skeleton';
 
 const Team = () => {
 	const router = useRouter();
@@ -69,6 +70,12 @@ const Team = () => {
 	useRefreshIntervalV2(loadMicsData, 30 * 1000, true);
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
+
+	// COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (teamsFetching || !publicTeamData) {
+		return <TeamMemberProfilePageSkeleton fullWidth={fullWidth} publicTeam={publicTeam} />;
+	}
 
 	return (
 		<MainLayout publicTeam={publicTeam}>

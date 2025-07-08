@@ -318,6 +318,6 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 	);
 };
 
-const getRoleString = (role: TRole | undefined) => {
+const getRoleString = (role: TRole | undefined | null) => {
 	return role?.name || 'MEMBER';
 };

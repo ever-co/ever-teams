@@ -7,7 +7,7 @@ function TimesheetSkeleton() {
 			className={clsxm(
 				'flex justify-between items-center w-full',
 				'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border',
-				'border-gray-100 dark:border-gray-700 text-[#71717A] font-medium my-2 p-2 h-[50px] rounded-sm gap-x-2  px-2 py-2'
+				'border-gray-100 dark:border-gray-700 text-[#71717A] font-medium my-2 p-2 h-12 rounded-sm gap-x-2  px-2 py-2'
 			)}
 		>
 			<div className="flex flex-col w-full gap-4">

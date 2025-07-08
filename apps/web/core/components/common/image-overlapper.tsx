@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ITask } from '@/core/types/interfaces/task/task';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal } from '@/core/hooks';
@@ -19,6 +18,7 @@ import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -29,7 +29,7 @@ export interface ImageOverlapperProps {
 interface ArrowDataProps {
 	activeTaskStatus: ITimerStatus | null | undefined;
 	disabled: boolean;
-	task: ITask;
+	task: TTask;
 	className: string | undefined;
 	iconClassName: string | undefined;
 }

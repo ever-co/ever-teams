@@ -13,7 +13,7 @@ import stc from 'string-to-color';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { Avatar } from '../duplicated-components/avatar';
 
-export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {
+export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string | null }) => {
 	const t = useTranslations();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);

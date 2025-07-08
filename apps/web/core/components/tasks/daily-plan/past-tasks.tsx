@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { EmptyPlans, FilterTabs, PlanHeader } from '@/core/components/users/user-profile-plans';
+import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
@@ -9,12 +9,12 @@ import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
 export function PastTasks({
 	user,
@@ -28,7 +28,7 @@ export function PastTasks({
 	const { pastPlans: _pastPlans } = useDailyPlan();
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [pastPlans, setPastPlans] = useState<IDailyPlan[]>(_pastPlans);
+	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Past Tasks');
 
@@ -68,8 +68,8 @@ export function PastTasks({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
@@ -100,7 +100,9 @@ export function PastTasks({
 														view === 'CARDS' && 'flex-col',
 														'flex gap-2 pb-[1.5rem]',
 														view === 'BLOCKS' && 'overflow-x-auto',
-														snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
+														snapshot.isDraggingOver
+															? 'border-[lightblue] lightblue'
+															: '#F7F7F8 border-[#F7F7F8]'
 													)}
 												>
 													{plan.tasks?.map((task, index) =>

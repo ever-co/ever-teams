@@ -1,11 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import { DashboardHeader } from '@/core/components/pages/dashboard/dashboard-header';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
@@ -15,9 +14,50 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { TeamStatsChart, TeamStatsGrid, TeamStatsTable } from '@/core/components/pages/dashboard/team-dashboard';
+
+import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
+import { TeamDashboardPageSkeleton } from '@/core/components/common/skeleton/team-dashboard-page-skeleton';
+import { TeamStatsGridSkeleton } from '@/core/components/common/skeleton/team-stats-grid-skeleton';
+import dynamic from 'next/dynamic';
+
+// Lazy load TeamStatsChart (Recharts) for performance optimization
+const LazyTeamStatsChart = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard/team-stats-chart').then((mod) => ({
+			default: mod.TeamStatsChart
+		})),
+	{
+		ssr: false,
+		loading: () => <ChartSkeleton />
+	}
+);
+
+// Lazy load TeamStatsTable for performance optimization
+const LazyTeamStatsTable = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard/team-stats-table').then((mod) => ({
+			default: mod.TeamStatsTable
+		})),
+	{
+		ssr: false
+	}
+);
+
+// Lazy load TeamStatsGrid for performance optimization
+const LazyTeamStatsGrid = dynamic(
+	() =>
+		import('@/core/components/pages/dashboard/team-dashboard').then((mod) => ({
+			default: mod.TeamStatsGrid
+		})),
+	{
+		ssr: false,
+		loading: () => <TeamStatsGridSkeleton />
+	}
+);
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
+import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
 
 function TeamDashboard() {
 	const t = useTranslations();
@@ -49,6 +89,11 @@ function TeamDashboard() {
 
 	const handleBack = () => router.back();
 
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if (loading && (!rapportDailyActivity || rapportDailyActivity.length === 0)) {
+		return <TeamDashboardPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -60,14 +105,14 @@ function TeamDashboard() {
 						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<button
 								onClick={handleBack}
-								className="p-1 transition-colors rounded-full hover:bg-gray-100"
+								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
 							<Breadcrumb paths={breadcrumbPath} />
 						</div>
 						<div className="flex flex-col gap-3">
-							<DashboardHeader
+							<LazyDashboardHeader
 								onUpdateDateRangeAction={updateDateRange}
 								title="Team Dashboard"
 								isManage={isManage}
@@ -76,7 +121,7 @@ function TeamDashboard() {
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
 							/>
-							<TeamStatsGrid
+							<LazyTeamStatsGrid
 								statisticsCounts={statisticsCounts}
 								loadingTimesheetStatisticsCounts={loading}
 							/>
@@ -96,10 +141,10 @@ function TeamDashboard() {
 									</div>
 								)}
 								{showChart && (
-									<Card className="w-full overflow-hidden transition-all duration-300 ease-in-out origin-top transform dark:bg-dark--theme-light">
-										<div className="h-auto transition-all duration-300 ease-in-out origin-top transform scale-y-100 opacity-100">
+									<Card className="overflow-hidden w-full transition-all duration-300 ease-in-out transform origin-top dark:bg-dark--theme-light">
+										<div className="h-auto opacity-100 transition-all duration-300 ease-in-out transform origin-top scale-y-100">
 											<div className="relative">
-												<TeamStatsChart
+												<LazyTeamStatsChart
 													rapportChartActivity={rapportChartActivity}
 													isLoading={loading}
 												/>
@@ -126,9 +171,11 @@ function TeamDashboard() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<Card className="w-full dark:bg-dark--theme-light">
-					<TeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
-				</Card>
+				<Suspense fallback={<TeamStatsTableSkeleton />}>
+					<Card className="w-full dark:bg-dark--theme-light">
+						<LazyTeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
+					</Card>
+				</Suspense>
 			</Container>
 		</MainLayout>
 	);

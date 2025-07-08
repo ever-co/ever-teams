@@ -1,7 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { ITask } from '@/core/types/interfaces/task/task';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -26,9 +25,13 @@ import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { TUser } from '@/core/types/schemas/user/user.schema';
+import { queryKeys } from '@/core/query/keys';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -38,12 +41,12 @@ const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
  *
  * The function is used in the `Timer` component
  * @param {ITimerStatus | null} timerStatus - ITimerStatus | null,
- * @param {ITask | null} activeTeamTask - ITask | null - the current active task
+ * @param {TTask | null} activeTeamTask - TTask | null - the current active task
  * @param {boolean} firstLoad - boolean - this is a flag that indicates that the component is loaded
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITask | null, firstLoad: boolean) {
+function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: TTask | null, firstLoad: boolean) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 
@@ -162,17 +165,37 @@ export function useTimer() {
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
+	const queryClient = useQueryClient();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQueryCall(timerService.getTimerStatus);
-	const { queryCall: toggleQueryCall } = useQueryCall(timerService.toggleTimer);
-	const { queryCall: startTimerQueryCall } = useQueryCall(timerService.startTimer);
-	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQueryCall(timerService.stopTimer);
-	const {
-		queryCall: syncTimerQueryCall,
-		loading: syncTimerLoading,
-		loadingRef: syncTimerLoadingRef
-	} = useQueryCall(timerService.syncTimer);
+	const { queryCall, loading, loadingRef } = useQueryCall(async (tenantId: string, organizationId: string) =>
+		queryClient.fetchQuery({
+			queryKey: queryKeys.timer.timer,
+			queryFn: () => timerService.getTimerStatus(tenantId, organizationId)
+		})
+	);
+
+	const toggleTimerMutation = useMutation({
+		mutationFn: async (taskId: string) => {
+			return await timerService.toggleTimer({ taskId });
+		}
+	});
+
+	const stopTimerMutation = useMutation({
+		mutationFn: async (source: ETimeLogSource) => {
+			return await timerService.stopTimer(source);
+		}
+	});
+
+	const startTimerMutation = useMutation({
+		mutationFn: timerService.startTimer
+	});
+
+	const syncTimerMutation = useMutation({
+		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
+			await timerService.syncTimer(data.source, data.user);
+		}
+	});
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -182,16 +205,16 @@ export function useTimer() {
 	const lastActiveTaskId = useRef<string | null>(null);
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
-	const hasPlan = myDailyPlans.items.find(
-		(plan: IDailyPlan) =>
+	const hasPlan = myDailyPlans?.items.find(
+		(plan: TDailyPlan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
 			plan.tasks &&
 			plan.tasks?.length > 0
 	);
 
 	const tomorrow = moment().add(1, 'days');
-	const hasPlanForTomorrow = myDailyPlans.items.find(
-		(plan: IDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+	const hasPlanForTomorrow = myDailyPlans?.items.find(
+		(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
 	);
 
 	// Team setting that tells if each member must have a today plan for allowing tracking time
@@ -209,7 +232,7 @@ export function useTimer() {
 	const isPlanVerified = requirePlan
 		? hasPlan &&
 			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task: ITask) => task.estimate && task.estimate > 0)
+			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
 		: true;
 
 	const canRunTimer =
@@ -247,26 +270,26 @@ export function useTimer() {
 
 	const toggleTimer = useCallback(
 		(taskId: string, updateStore = true) => {
-			return toggleQueryCall({
-				taskId
-			}).then((res) => {
+			return toggleTimerMutation.mutateAsync(taskId).then((res) => {
 				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus(res.data);
 				}
 				return res;
 			});
 		},
-		[timerStatus, toggleQueryCall, setTimerStatus]
+		[timerStatus, toggleTimerMutation, setTimerStatus]
 	);
 
 	const syncTimer = useCallback(() => {
-		if (syncTimerLoading || syncTimerLoadingRef.current) {
+		if (syncTimerMutation.isPending) {
 			return;
 		}
-		return syncTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, $user.current).then((res) => {
-			return res;
-		});
-	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef, $user]);
+		return syncTimerMutation
+			.mutateAsync({ source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, user: $user.current })
+			.then((res) => {
+				return res;
+			});
+	}, [syncTimerMutation, timerStatus]);
 
 	// Loading states
 	useEffect(() => {
@@ -276,8 +299,8 @@ export function useTimer() {
 	}, [loading, firstLoad, setTimerStatusFetching]);
 
 	useEffect(() => {
-		setTimerStatusFetching(stopTimerLoading);
-	}, [stopTimerLoading, setTimerStatusFetching]);
+		setTimerStatusFetching(stopTimerMutation.isPending);
+	}, [stopTimerMutation.isPending, setTimerStatusFetching]);
 
 	// Start timer
 	const startTimer = useCallback(async () => {
@@ -290,7 +313,7 @@ export function useTimer() {
 		});
 
 		setTimerStatusFetching(true);
-		const promise = startTimerQueryCall().then((res) => {
+		const promise = startTimerMutation.mutateAsync().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 			return;
 		});
@@ -328,7 +351,7 @@ export function useTimer() {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
-					tenantId: activeTeam?.tenantId
+					tenantId: activeTeam?.tenantId ?? ''
 				});
 			}
 		}
@@ -343,7 +366,7 @@ export function useTimer() {
 		taskId,
 		updateLocalTimerStatus,
 		setTimerStatusFetching,
-		startTimerQueryCall,
+		startTimerMutation,
 		activeTeamTaskRef,
 		timerStatus,
 		setTimerStatus,
@@ -366,11 +389,15 @@ export function useTimer() {
 
 		syncTimer();
 
-		return stopTimerQueryCall(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
+		if (!timerStatus?.running) {
+			return Promise.resolve();
+		}
+
+		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [timerStatus, setTimerStatus, stopTimerQueryCall, taskId, updateLocalTimerStatus]);
+	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus]);
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
@@ -441,7 +468,7 @@ export function useTimer() {
 		timerSeconds,
 		activeTeamTask,
 		syncTimer,
-		syncTimerLoading
+		syncTimerLoading: syncTimerMutation.isPending
 	};
 }
 

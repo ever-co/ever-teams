@@ -1,12 +1,12 @@
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
-	validatePaginationResponse,
 	roleSchema,
 	ZodValidationError,
 	validateApiResponse,
-	TRole
+	TRole,
+	TRoleList,
+	roleListSchema
 } from '@/core/types/schemas';
 
 /**
@@ -22,13 +22,15 @@ class RoleService extends APIService {
 	 * @returns Promise<PaginationResponse<Role>> - Validated roles data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getRoles = async (): Promise<PaginationResponse<TRole>> => {
+	getRoles = async (): Promise<TRoleList> => {
 		try {
-			const response = await this.get<PaginationResponse<TRole>>('/roles');
+			const response = await this.get<TRoleList>('/roles');
 
 			// Validate the response data using Zod schema
-			return validatePaginationResponse(roleSchema, response.data, 'getRoles API response');
+			return validateApiResponse(roleListSchema, response.data, 'getRoles API response');
 		} catch (error) {
+			// Error logging is handled by the base APIService and HttpLoggerAdapter
+			// This maintains proper separation of concerns
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
 					'Role validation failed:',

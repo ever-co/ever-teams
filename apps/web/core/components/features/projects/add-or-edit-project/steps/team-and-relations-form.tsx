@@ -1,31 +1,57 @@
 import { Button } from '@/core/components';
 import { CheckIcon, Plus, X } from 'lucide-react';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, useCallback, useState, useMemo } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
-import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
 import { useTranslations } from 'next-intl';
 import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
 import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { TProjectRelation } from '@/core/types/schemas';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
 	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>(() =>
 		getInitialValue(currentData, 'members', [])
 	);
-	const [relations, setRelations] = useState<(IProjectRelation & { id: string })[]>([]);
+	const [relations, setRelations] = useState<(TProjectRelation & { id: string })[]>([]);
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
 	const { roles } = useRoles();
 	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
 
+	// Deduplicated list of all team members to prevent user duplication
+	const allMembers = useMemo(() => {
+		if (!teams?.length) return [];
+
+		// Create a Map to deduplicate users by employeeId
+		const memberMap = new Map();
+
+		teams.forEach((team) => {
+			team.members?.forEach((member) => {
+				const employeeId = member?.employeeId;
+				if (employeeId && !memberMap.has(employeeId)) {
+					memberMap.set(employeeId, {
+						id: employeeId,
+						value: member?.employee?.fullName || '',
+						imgUrl: member?.employee?.user?.imageUrl || undefined
+					});
+				}
+			});
+		});
+
+		return Array.from(memberMap.values());
+	}, [teams]);
+
 	const handleAddNewMember = () => {
-		setMembers((prev) => [...prev, { id: crypto.randomUUID(), memberId: '', roleId: '' }]);
+		setMembers((prev) => [
+			...prev,
+			{ id: `member-${crypto.randomUUID()}-${Date.now()}`, memberId: '', roleId: '' }
+		]);
 	};
 
 	const handleRemoveMember = (id: string) => {
@@ -33,7 +59,10 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	};
 
 	const handleAddNewRelation = () => {
-		setRelations((prev) => [...prev, { id: crypto.randomUUID(), projectId: '', relationType: null }]);
+		setRelations((prev) => [
+			...prev,
+			{ id: `relation-${crypto.randomUUID()}-${Date.now()}`, projectId: '', relationType: null }
+		]);
 	};
 
 	const handleRemoveRelation = (id: string) => {
@@ -43,14 +72,14 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		goToNext({
+		goToNext?.({
 			members,
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
 	};
 
 	const handlePrevious = useCallback(() => {
-		goToPrevious({
+		goToPrevious?.({
 			members,
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
@@ -68,13 +97,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 							members.map((el) => (
 								<PairingItem
 									selected={[el.memberId, el.roleId]}
-									keys={teams
-										?.flatMap((el) => el.members)
-										?.map((el) => ({
-											id: el?.employeeId || '',
-											value: el?.employee?.fullName || '',
-											imgUrl: el?.employee?.user?.imageUrl || undefined
-										}))}
+									keys={allMembers}
 									values={roles
 										?.filter((el) => el.name == ERoleName.EMPLOYEE || el.name == ERoleName.MANAGER)
 										?.map((el) => ({
@@ -225,7 +248,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 			<div className="w-full">
 				<Select
 					placeholder={keysLabel}
-					className="w-full"
+					selectTriggerClassName="w-full"
 					options={keys}
 					onChange={(keyId) => {
 						onKeyChange?.(id, keyId as string);
@@ -259,7 +282,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 			<div className="w-full">
 				<Select
 					placeholder={valuesLabel}
-					className="w-full"
+					selectTriggerClassName="w-full"
 					options={values}
 					onChange={(valueId) => {
 						onValueChange?.(id, valueId as string);

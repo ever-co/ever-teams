@@ -4,9 +4,9 @@ import { IOrganizationTeam } from '../team/organization-team';
 
 import { TUser } from '@/core/types/schemas';
 import { IOrganizationProject } from '../project/organization-project';
-import { ITask } from '../task/task';
 import { ITimesheet } from '../timesheet/timesheet';
 import { ITimeSlot } from '../timer/time-slot/time-slot';
+import { TTask } from '../../schemas/task/task.schema';
 
 export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITaggable {
 	id: ID;
@@ -41,7 +41,7 @@ export interface IEmployee extends IBasePerTenantAndOrganizationEntityModel, ITa
 	// settings?: IEmployeeSetting[];
 	// expenses?: IExpense[];
 	timesheets?: ITimesheet[];
-	tasks?: ITask[];
+	tasks?: TTask[];
 	// modules?: IOrganizationProjectModule[];
 	// sprints?: IOrganizationSprint[];
 	// assignedComments?: IComment[];

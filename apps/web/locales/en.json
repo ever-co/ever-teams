@@ -928,7 +928,9 @@
 			"TASK_PLANNED_FOR_DATE": "Task planned for selected date",
 			"TASK_PLAN_FAILED": "Failed to plan task. Please try again.",
 			"TASK_ASSIGNMENT_FAILED": "Failed to assign/unassign task. Please try again.",
-			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again."
+			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favorite item created successfully",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favorite item deleted successfully"
 		}
 	},
 	"dailyPlan": {

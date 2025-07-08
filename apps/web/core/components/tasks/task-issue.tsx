@@ -1,4 +1,4 @@
-import { useModal, useStatusValue } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -12,14 +12,18 @@ import {
 	useActiveTaskStatus
 } from './task-status';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
+import { useAtomValue } from 'jotai';
+import { issueTypesListState } from '@/core/stores';
+import Image from 'next/image';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<EIssueType> = {
@@ -66,32 +70,91 @@ export function TaskIssuesDropdown({
 	taskStatusClassName?: string;
 }) {
 	const { isOpen, closeModal } = useModal();
-	const { item, items, onChange } = useStatusValue<'issueType'>({
-		status: taskIssues,
-		value: defaultValue,
-		onValueChange
-	});
+	const taskIssues = useAtomValue(issueTypesListState);
+	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
+	/**
+	 * Memoize props to prevent unnecessary re-renders.
+	 */
+
+	const taskIssuesOptions = useMemo(() => {
+		return taskIssues.map((el) => ({ ...el, id: el.name }));
+	}, [taskIssues]);
+
+	const renderItem = useCallback(
+		(item: (typeof taskIssuesOptions)[number]) => (
+			<div
+				style={{ backgroundColor: item.color ?? undefined }}
+				className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+			>
+				<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+					{item.fullIconUrl && (
+						<Image
+							className="object-cover w-full h-full rounded-md"
+							src={item.fullIconUrl}
+							alt={item.name + 'icon'}
+							width={30}
+							height={30}
+						/>
+					)}
+				</div>
+				<span className="text-xs">{item.name}</span>
+			</div>
+		),
+		[]
+	);
+
+	const renderValue = useCallback((value: string | null) => {
+		const item = taskIssuesOptions.find((el) => el.name == value);
+		return value ? (
+			<div className="flex items-center gap-2">
+				<div
+					style={{
+						backgroundColor: item?.color ?? undefined
+					}}
+					className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
+				>
+					<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
+						{item?.fullIconUrl && (
+							<Image
+								className="object-cover w-full h-full rounded-md"
+								src={item?.fullIconUrl}
+								alt={item?.name + 'icon'}
+								width={30}
+								height={30}
+							/>
+						)}
+					</div>
+				</div>
+			</div>
+		) : (
+			<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
+				<div className="w-full border border-black/40 h-full rounded-full"></div>
+			</div>
+		);
+	}, []);
+
+	const handleTaskIssueChange = useCallback(
+		(value: string) => {
+			onValueChange?.(value as EIssueType);
+			setTaskIssueType(value as EIssueType);
+		},
+		[onValueChange]
+	);
 
 	return (
 		<>
-			<StatusDropdown
-				className={className}
-				items={items}
-				value={item}
-				onChange={onChange}
-				issueType="issue"
-				showIssueLabels={showIssueLabels}
-				taskStatusClassName={taskStatusClassName}
-			>
-				{/* <Button
-					onClick={openModal}
-					className="min-w-[100px] text-xs px-1 py-2 gap-0 w-full"
-					variant="outline-danger"
-				>
-					<PlusIcon className="w-4 h-4" />
-					{t('common.NEW_ISSUE')}
-				</Button> */}
-			</StatusDropdown>
+			<Select
+				placeholder="Issue Type"
+				showChevronDownIcon={false}
+				options={taskIssuesOptions}
+				selected={taskIssueType}
+				onChange={handleTaskIssueChange}
+				selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
+				selectOptionsListClassName="w-full h-full"
+				renderItem={renderItem}
+				renderValue={renderValue}
+			/>
+
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
 		</>
 	);
@@ -170,7 +233,7 @@ export function TaskIssueStatus({
 	task,
 	className,
 	showIssueLabels
-}: { task: Nullable<ITask>; showIssueLabels?: boolean } & IClassName) {
+}: { task: Nullable<TTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
 			{...taskIssues[task?.issueType || EIssueType.TASK]}

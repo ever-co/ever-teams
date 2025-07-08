@@ -21,23 +21,17 @@ export const roleSchema = z
 
 // Relational role schema
 export const relationalRoleSchema = z.object({
-	role: roleSchema.optional(),
-	roleId: idSchema.optional()
+	role: roleSchema.optional().nullable(),
+	roleId: idSchema.optional().nullable()
 });
 
 // Role list schema (for API responses)
 export const roleListSchema = z
 	.object({
-		id: z.string(),
-		createdAt: z.coerce.date().optional(),
-		updatedAt: z.coerce.date().optional(),
-		tenantId: z.string(),
-		name: z.string(),
-		isSystem: z.boolean(),
-		items: z.array(z.any()),
-		data: z.any()
+		items: z.array(roleSchema),
+		total: z.number()
 	})
-	.strict();
+	.passthrough();
 
 // Role constants schema (from constants file)
 export const roleConstantSchema = z.object({

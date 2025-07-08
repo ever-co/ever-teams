@@ -1,14 +1,17 @@
+'use client';
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { useOrganizationTeams } from '@/core/hooks';
 import { useQueryCall } from '@/core/hooks/common/use-query';
 import { userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { userService } from '@/core/services/client/api';
-import { JoinTeamModal } from '../../features/teams/join-team-modal';
-import { CreateTeamModal } from '../../features/teams/create-team-modal';
+import { BackdropLoader } from '@/core/components';
+import GlobalSkeleton from '../../common/global-skeleton';
+import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
+import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
 
 type Params = {
 	displayName: string;
@@ -56,35 +59,43 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			fetchUserData();
 		}, [fetchUserData]);
 
+		// Show proper loading state instead of empty fragment
 		if (!user || loading) {
-			return <></>;
+			if (params.showPageSkeleton) {
+				// For pages that support page skeleton, show BackdropLoader
+				// This prevents blank pages and browser crashes during direct URL access
+				return <BackdropLoader show={true} title="Loading..." />;
+			}
+			// For pages without page skeleton support, show BackdropLoader
+			return <GlobalSkeleton />;
 		}
-		// if (showPageSkeleton) {
-		// 	return <TeamPageSkeleton />;
-		// }
 
 		return (
 			<div>
 				<Component {...props} />
 				{!isTeamMember && showCreateTeamModal && (
-					<CreateTeamModal
-						open={showCreateTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-						joinTeamModal={() => {
-							setShowCreateTeamModal(false);
-							setShowJoinTeamModal(true);
-						}}
-					/>
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyCreateTeamModal
+							open={showCreateTeamModal}
+							closeModal={() => {
+								closeModalIfNewTeamCreated();
+							}}
+							joinTeamModal={() => {
+								setShowCreateTeamModal(false);
+								setShowJoinTeamModal(true);
+							}}
+						/>
+					</Suspense>
 				)}
 				{!isTeamMember && showJoinTeamModal && (
-					<JoinTeamModal
-						open={showJoinTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-					/>
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyJoinTeamModal
+							open={showJoinTeamModal}
+							closeModal={() => {
+								closeModalIfNewTeamCreated();
+							}}
+						/>
+					</Suspense>
 				)}
 			</div>
 		);

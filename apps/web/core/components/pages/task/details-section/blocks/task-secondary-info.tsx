@@ -32,10 +32,10 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
+import { TOrganizationProject } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -68,7 +68,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITask | undefined) => {
+		async (parentTask: TTask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 
@@ -121,7 +121,7 @@ const TaskSecondaryInfo = () => {
 						onValueChange={(d: string) => {
 							onTaskSelect({
 								id: d
-							} as ITask);
+							} as TTask);
 						}}
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
@@ -240,7 +240,7 @@ const TaskSecondaryInfo = () => {
 	);
 };
 
-const EpicParent = ({ task }: { task: ITask }) => {
+const EpicParent = ({ task }: { task: TTask }) => {
 	const t = useTranslations();
 
 	if (task?.issueType === EIssueType.STORY) {
@@ -267,9 +267,9 @@ const EpicParent = ({ task }: { task: ITask }) => {
 };
 
 interface ITaskProjectDropdownProps {
-	task?: ITask;
+	task?: TTask;
 	controlled?: boolean;
-	onChange?: (project: IOrganizationProject) => void;
+	onChange?: (project: TOrganizationProject) => void;
 	styles?: {
 		container?: string; // The dropdown element
 		value?: string;
@@ -283,7 +283,7 @@ export default TaskSecondaryInfo;
  * TaskProject dropdown
  *
  * @param {Object} props - The props object
- * @param {ITask} props.task - The ITask object which
+ * @param {TTask} props.task - The TTask object which
  * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
  * @param {(project: 	IOrganizationProject) => void} props.onChange - The function called when user selects a value (external handler)
  *
@@ -296,9 +296,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<IOrganizationProject | null>(() => {
+	const [selected, setSelected] = useState<TOrganizationProject | null>(() => {
 		if (task && task.projectId) {
-			return organizationProjects.find((project) => project.id === task.projectId) || null;
+			return organizationProjects?.find((project) => project.id === task.projectId) || null;
 		}
 		return null;
 	});
@@ -313,7 +313,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	// Update the project
 	const handleUpdateProject = useCallback(
-		async (project: IOrganizationProject) => {
+		async (project: TOrganizationProject) => {
 			try {
 				if (task) {
 					await updateTask({ ...task, projectId: project.id });
@@ -347,7 +347,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			>
 				<Listbox
 					value={selected || undefined}
-					onChange={(project: IOrganizationProject) => {
+					onChange={(project: TOrganizationProject) => {
 						if (controlled && onChange) {
 							onChange(project);
 						} else {
@@ -428,7 +428,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										>
 											<ScrollArea className="w-full h-full">
 												<div className="flex flex-col gap-2.5 w-full p-4">
-													{organizationProjects.map((item) => {
+													{organizationProjects?.map((item) => {
 														return (
 															<ListboxOption key={item.id} value={item} as="div">
 																<li className="relative border  flex items-center gap-2 p-1.5  rounded-lg outline-none cursor-pointer dark:text-white">

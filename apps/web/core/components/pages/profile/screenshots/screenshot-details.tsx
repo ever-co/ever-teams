@@ -7,9 +7,8 @@ import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
-import { IOrganizationProject } from '@/core/types/interfaces/project/organization-project';
-import { ITask } from '@/core/types/interfaces/task/task';
-import { TTimeSlot } from '@/core/types/schemas';
+import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -39,25 +38,27 @@ const ScreenshotDetailsModal = ({
 			})}
 `;
 
-	const [project, setProject] = useState<IOrganizationProject | null>(null);
-	const [task, setTask] = useState<ITask | null>(null);
+	const [project, setProject] = useState<TOrganizationProject | null>(null);
+	const [task, setTask] = useState<TTask | null>(null);
 
-	const { getOrganizationProject } = useOrganizationProjects();
+	const { organizationProjects } = useOrganizationProjects();
 	const { getTaskById } = useTeamTasks();
 
 	const getProject = useCallback(
 		async (projectId: string) => {
-			const project = await getOrganizationProject(projectId);
+			const project = organizationProjects?.find((p) => p.id === projectId);
 
-			project?.data && setProject(project?.data);
+			if (!project) return null;
+
+			setProject(project);
 		},
-		[getOrganizationProject]
+		[organizationProjects]
 	);
 
 	const getTask = useCallback(
 		async (taskId: string) => {
 			const task = await getTaskById(taskId);
-			task?.data && setTask(task?.data);
+			task && setTask(task as TTask);
 		},
 		[getTaskById]
 	);
@@ -197,7 +198,7 @@ const ScreenshotDetailsModal = ({
 										</div>
 
 										<div className=" h-full flex flex-col  justify-center gap-[.4rem]">
-											<p className="font-medium leading-3  font-xs">{project?.name}</p>
+											<p className="font-medium leading-3 font-xs">{project?.name}</p>
 											<p className=" text-[.6rem] leading-[.5rem]">
 												{t('common.MEMBERS_COUNT')} : {project?.membersCount ?? '-'}
 											</p>

@@ -15,13 +15,13 @@ import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task?: ITask;
-	onClick?: (task: ITask) => void;
+	task?: TTask;
+	onClick?: (task: TTask) => void;
 	selected?: boolean;
 } & IClassName;
 
@@ -48,7 +48,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					selected && ['font-medium text-primary dark:text-primary-light']
 				)}
 			>
-				<div className="inline-flex  items-center mr-2">
+				<div className="inline-flex items-center mr-2">
 					<div className="mr-2">
 						<TaskIssueStatus
 							showIssueLabels={false}
@@ -73,7 +73,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				{task?.title}
 			</div>
 
-			<div className="flex items-center pl-2 space-x-3">
+			<div className="flex gap-2 items-center pr-5 pl-2">
 				<div onClick={(e) => e.stopPropagation()}>
 					{/* <TaskStatusDropdown
 						defaultValue={task?.status}
@@ -98,7 +98,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 								confirmText={'Confirm'}
 								className="fixed z-50"
 							>
-								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="w-5 h-5 z-10" />}
+								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="z-10 w-5 h-5" />}
 							</ConfirmDropdown>
 						</Tooltip>
 					)}
@@ -127,7 +127,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-type PartialITeamTask = Partial<ITask> & { members?: IEmployee[] };
+type PartialITeamTask = Partial<TTask> & { members?: IEmployee[] };
 
 export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task.members;
@@ -142,7 +142,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 
 	if (!members?.length) {
 		return (
-			<div className="avatars flex -space-x-2 min-w-[59px] justify-center items-center">
+			<div className="flex justify-center items-center -space-x-2 avatars min-w-10">
 				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
 			</div>
 		);
@@ -150,7 +150,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 
 	return (
 		<div
-			className="avatars flex -space-x-2 min-w-[59px] justify-center items-center"
+			className="flex justify-center items-center -space-x-2 avatars min-w-10"
 			onClick={(e) => e.stopPropagation()}
 		>
 			{members?.slice(0, limit).map((member, i) => {
@@ -165,8 +165,8 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 							className={clsx(
 								`w-[${size}px] h-[${size}px]`,
 								'flex justify-center items-center',
-								'rounded-full text-xs text-default dark:text-white',
-								'shadow-md text-md font-normal'
+								'text-xs rounded-full text-default dark:text-white',
+								'font-normal shadow-md text-md'
 							)}
 							style={{
 								backgroundColor: `${stc(userName)}80`
@@ -189,7 +189,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 			})}
 
 			{members.length > limit && (
-				<Avatar shape="circle" className="flex items-center justify-center border" size={25}>
+				<Avatar shape="circle" className="flex justify-center items-center border" size={25}>
 					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}

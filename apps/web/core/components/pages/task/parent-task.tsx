@@ -1,20 +1,20 @@
 import { IHookModal, useTeamTasks } from '@/core/hooks';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { TaskInput } from '../../tasks/task-input';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
-function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITask }) {
+function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 	const { tasks, loadTeamTasksData, updateTask } = useTeamTasks();
 
 	const [loading, setLoading] = useState(false);
 
 	const onTaskSelect = useCallback(
-		async (parentTask: ITask | undefined) => {
+		async (parentTask: TTask | undefined) => {
 			if (!parentTask) return;
 			const childTask = cloneDeep(task);
 			setLoading(true);

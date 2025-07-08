@@ -2,7 +2,7 @@
 
 # Ever Teams Platform
 
-ARG NODE_VERSION=20.11.1
+ARG NODE_VERSION=20.19.0
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://api.ever.team
 ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
 ARG NEXT_PUBLIC_CAPTCHA_SITE_KEY
@@ -27,7 +27,7 @@ ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
 
 LABEL maintainer="ever@ever.co"
-LABEL org.opencontainers.image.source https://github.com/ever-co/ever-teams
+LABEL org.opencontainers.image.source="https://github.com/ever-co/ever-teams"
 
 WORKDIR /app
 

@@ -4,6 +4,14 @@
  */
 export const queryKeys = {
 	// Keys related to authentication and users
+	auth: {
+		all: ['auth'] as const,
+		workspaces: (userId: string | undefined | null) => ['auth', 'workspaces', ...(userId ? [userId] : [])] as const,
+		currentWorkspace: (userId: string | undefined | null) =>
+			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
+		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
+			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
+	},
 	// Keys related to users
 	users: {
 		auth: {
@@ -138,21 +146,91 @@ export const queryKeys = {
 
 	// Keys related to Daily Plans
 	dailyPlans: {
+		// Standard daily plans keys (preserved for backward compatibility)
 		all: ['daily-plans'] as const,
-		myPlan: (date: string | undefined | null) => ['daily-plans', 'my-plan', ...(date ? [date] : [])] as const, // Key for the user's plan at a given date
+		myPlans: (teamId: string | undefined | null) =>
+			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
 		detail: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : [])] as const,
-		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const
+		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const,
+		allPlans: (teamId: string | undefined | null) =>
+			['daily-plans', 'all-plans', ...(teamId ? [teamId] : [])] as const,
+		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
+			['daily-plans', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
+		byTask: (taskId: string | undefined | null) => ['daily-plans', 'by-task', ...(taskId ? [taskId] : [])] as const
 	},
 
 	// Keys related to teams (organization-team)
 	organizationTeams: {
+		// Standard organization teams keys (preserved for backward compatibility)
 		all: ['organization-teams'] as const,
-		paginated: (params: Record<string, any>) => ['organization-teams', 'paginated', params] as const,
+		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
-			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const
+			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const,
+
+		// ✅ Mutation keys for team operations
+		mutations: {
+			create: (params: any | undefined | null) =>
+				['organization-teams', 'mutations', 'create', ...(params ? [params] : [])] as const,
+			update: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'update', ...(teamId ? [teamId] : [])] as const,
+			edit: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'edit', ...(teamId ? [teamId] : [])] as const,
+			delete: (teamId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'delete', ...(teamId ? [teamId] : [])] as const,
+			removeUser: (userId: string | undefined | null) =>
+				['organization-teams', 'mutations', 'remove-user', ...(userId ? [userId] : [])] as const,
+			// ✅ New keys for employee operations
+			employee: {
+				all: ['organization-teams', 'mutations', 'employee'] as const,
+				delete: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'delete',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				update: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				updateOrder: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update-order',
+						...(employeeId ? [employeeId] : [])
+					] as const,
+				updateActiveTask: (employeeId: string | undefined | null) =>
+					[
+						'organization-teams',
+						'mutations',
+						'employee',
+						'update-active-task',
+						...(employeeId ? [employeeId] : [])
+					] as const
+			}
+		},
+
+		// ✅ Request to join operations (consolidated from separate 'team' namespace)
+		requestToJoin: {
+			all: ['organization-teams', 'request-to-join'] as const,
+			list: () => ['organization-teams', 'request-to-join', 'list'] as const,
+			mutations: {
+				request: ['organization-teams', 'request-to-join', 'request'] as const,
+				validate: ['organization-teams', 'request-to-join', 'validate'] as const,
+				resendCode: ['organization-teams', 'request-to-join', 'resend-code'] as const,
+				acceptReject: ['organization-teams', 'request-to-join', 'accept-reject'] as const
+			}
+		}
 	},
 
 	tags: {
@@ -161,10 +239,11 @@ export const queryKeys = {
 
 	// Keys related to tasks
 	tasks: {
+		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
-		byEmployee: (employeeId: string | undefined | null) =>
-			['tasks', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
+			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
 		byTeamAndProject: (teamId: string | undefined | null, projectId: string | undefined | null) =>
 			['tasks', 'by-team', ...(teamId ? [teamId] : []), 'project', ...(projectId ? [projectId] : [])] as const,
@@ -193,27 +272,10 @@ export const queryKeys = {
 				...(defaultRange ? [defaultRange] : []),
 				...(unitOfTime ? [unitOfTime] : [])
 			] as const,
-		daily: (
-			tenantId: string | undefined | null,
-			organizationId: string | undefined | null,
-			employeeId: string | undefined | null,
-			startDate: string | undefined | null,
-			endDate: string | undefined | null,
-			type?: string | undefined | null,
-			title?: string | undefined | null
-		) =>
-			[
-				'activities',
-				'daily',
-				...(tenantId ? [tenantId] : []),
-				...(organizationId ? [organizationId] : []),
-				...(employeeId ? [employeeId] : []),
-				...(startDate ? [startDate] : []),
-				...(endDate ? [endDate] : []),
-				...(type ? [type] : []),
-				...(title ? [title] : [])
-			] as const,
-		report: (params: Record<string, any>) => ['activities', 'report', params] as const
+		dailyChart: (params: Record<string, any>) => ['activities', 'daily-activity-report-chart', params] as const,
+		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
+		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
+		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 
 	// Keys related to task statuses
@@ -278,17 +340,71 @@ export const queryKeys = {
 		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
 	},
 
+	// Keys related to organization projects
+	organizationProjects: {
+		all: ['organization-projects'] as const,
+		detail: (projectId: string | undefined | null) =>
+			['organization-projects', ...(projectId ? [projectId] : [])] as const,
+		byOrganization: (organizationId: string | undefined | null, tenantId: string | undefined | null) =>
+			[
+				'organization-projects',
+				'by-organization',
+				...(organizationId ? [organizationId] : []),
+				...(tenantId ? [tenantId] : [])
+			] as const,
+		withQueries: (queries: Record<string, string> | undefined | null) =>
+			['organization-projects', 'with-queries', ...(queries ? [queries] : [])] as const
+	},
+
 	// Keys related to the Timesheet / Timer
 	timesheet: {
 		all: ['timesheet'] as const,
 		dailyReport: (date: string | null | undefined) =>
 			['timesheet', 'daily-report', ...(date ? [date] : [])] as const,
-		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const
+		timerLogsDailyReport: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			employeeIds: string[] | null | undefined,
+			startDate: string | null | undefined,
+			endDate: string | null | undefined
+		) =>
+			[
+				'timesheet',
+				'timer-logs-daily-report',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(employeeIds && employeeIds.length ? [employeeIds.join(',')] : []),
+				...(startDate ? [startDate] : []),
+				...(endDate ? [endDate] : [])
+			] as const,
+		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		logs: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			startDate: string | null | undefined,
+			endDate: string | null | undefined,
+			employeeIds?: string[] | null | undefined,
+			projectIds?: string[] | null | undefined,
+			taskIds?: string[] | null | undefined,
+			status?: string[] | null | undefined
+		) =>
+			[
+				'timesheet',
+				'logs',
+				...(tenantId ? [tenantId] : []),
+				...(organizationId ? [organizationId] : []),
+				...(startDate ? [startDate] : []),
+				...(endDate ? [endDate] : []),
+				...(employeeIds && employeeIds.length ? [employeeIds.join(',')] : []),
+				...(projectIds && projectIds.length ? [projectIds.join(',')] : []),
+				...(taskIds && taskIds.length ? [taskIds.join(',')] : []),
+				...(status && status.length ? [status.join(',')] : [])
+			] as const
 	},
 
 	// Keys related to Timer activities and limits
 	timer: {
-		all: ['timer'] as const,
+		timer: ['timer'] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>
@@ -387,5 +503,30 @@ export const queryKeys = {
 					...(integrationId ? [integrationId] : [])
 				] as const
 		}
+	},
+
+	// Keys related to API health check
+	apiCheck: {
+		all: ['api-check'] as const,
+		health: ['api-check', 'health'] as const
+	},
+
+	// Keys related to email verification
+	emailVerification: {
+		all: ['email-verification'] as const,
+		verifyToken: (email: string | undefined | null, token: string | undefined | null) =>
+			['email-verification', 'verify-token', ...(email ? [email] : []), ...(token ? [token] : [])] as const
+	},
+
+	// Keys related to favorites
+	favorites: {
+		all: ['favorites'] as const,
+		byEmployee: (employeeId: string | undefined | null) =>
+			['favorites', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
+		detail: (favoriteId: string | undefined | null) => ['favorites', ...(favoriteId ? [favoriteId] : [])] as const
+	},
+
+	board: {
+		liveCollaboration: ['live-collaboration'] as const
 	}
 };

@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { EmptyPlans, PlanHeader } from '@/core/components/users/user-profile-plans';
+import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 import { TaskCard } from '../task-card';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
@@ -12,14 +12,12 @@ import { clsxm } from '@/core/lib/utils';
 import { AlertPopup } from '@/core/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { IDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { ITask } from '@/core/types/interfaces/task/task';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
@@ -29,7 +27,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 	// Use a safe default instead of direct localStorage access
 	const { setDate, date } = useDateRange('Future Tasks');
-	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
+	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);
 	useEffect(() => {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
 	}, [date, setDate, futurePlans]);
@@ -43,7 +41,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task: ITask) =>
+					tasks: plan.tasks?.filter((task) =>
 						task.members?.some((member: IEmployee) => member.userId === user.id)
 					)
 				}))
@@ -71,8 +69,8 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
@@ -181,10 +179,10 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																		deleteDailyPlan(plan.id ?? '');
 																	}}
 																	variant="destructive"
-																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 																	)}
 																	Delete
 																</Button>

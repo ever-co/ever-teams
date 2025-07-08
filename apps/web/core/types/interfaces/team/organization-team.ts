@@ -1,8 +1,8 @@
-import { TOrganizationTeamEmployee } from '../../schemas';
+import { TImageAsset, TOrganizationTeamEmployee } from '../../schemas';
+import { TTask } from '../../schemas/task/task.schema';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
-import { IImageAsset, IRelationalImageAsset } from '../common/image-asset';
+import { IRelationalImageAsset } from '../common/image-asset';
 import { IOrganizationProject } from '../project/organization-project';
-import { ITask } from '../task/task';
 
 // Base interface for common properties
 interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, IRelationalImageAsset, ITaggable {
@@ -25,7 +25,7 @@ interface ITeamAssociations {
 	projects?: IOrganizationProject[];
 	// modules?: IOrganizationProjectModule[];
 	// assignedComments?: IComment[];
-	tasks?: ITask[];
+	tasks?: TTask[];
 }
 
 // Main Organization Team interface
@@ -49,7 +49,7 @@ export interface IOrganizationTeamCreate {
 	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
-	image?: IImageAsset | null;
+	image?: TImageAsset | null;
 	projects?: IOrganizationProject[];
 }
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };

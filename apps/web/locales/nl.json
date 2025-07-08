@@ -926,7 +926,9 @@
 			"TASK_PLANNED_FOR_DATE": "Taak gepland voor geselecteerde datum",
 			"TASK_PLAN_FAILED": "Taak plannen mislukt. Probeer opnieuw.",
 			"TASK_ASSIGNMENT_FAILED": "Taak toewijzen/intrekken mislukt. Probeer opnieuw.",
-			"TASK_FAVORITE_FAILED": "Favorieten bijwerken mislukt. Probeer opnieuw."
+			"TASK_FAVORITE_FAILED": "Favorieten bijwerken mislukt. Probeer opnieuw.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favoriet item succesvol aangemaakt",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favoriet item succesvol verwijderd"
 		}
 	},
 	"dailyPlan": {

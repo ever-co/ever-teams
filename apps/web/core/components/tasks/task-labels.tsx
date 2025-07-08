@@ -8,11 +8,11 @@ import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { Nullable } from '@/core/types/generics/utils';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
-	task: Nullable<ITask>;
+	task: Nullable<TTask>;
 	className?: string;
 	forDetails: boolean;
 	taskStatusClassName?: string;

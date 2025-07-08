@@ -16,10 +16,9 @@ import { tenantService } from '../tenants/tenant.service';
 import { employeeService, organizationTeamService } from '../organizations/teams';
 import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/auth/auth';
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 
-import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
 
 class RegisterService extends APIService {
@@ -147,7 +146,7 @@ class RegisterService extends APIService {
 				token: loginRes.refresh_token
 			},
 			timezone: body['timezone'],
-			teamId: team.id,
+			teamId: team.id ?? '',
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			languageId: 'en', // TODO: not sure what should be here
@@ -156,7 +155,7 @@ class RegisterService extends APIService {
 
 		const response: AxiosResponse<{
 			loginRes: IAuthResponse;
-			team: IOrganizationTeam;
+			team: TOrganizationTeam;
 			employee: TOrganizationTeamEmployee;
 		}> = {
 			data: { loginRes, team, employee },

@@ -35,11 +35,38 @@ const getReportTitle = (groupByType: GroupByType = 'daily') => {
 const ExportButtons = ({
 	reportData = [],
 	exportType,
-	groupByType,
-	endDate,
-	startDate
+	groupByType = 'daily',
+	endDate = '',
+	startDate = ''
 }: Pick<ExportDialogProps, 'reportData' | 'exportType' | 'groupByType' | 'endDate' | 'startDate'>) => {
-	if (!reportData) return null;
+	// Debug info (development only)
+	if (process.env.NODE_ENV === 'development') {
+		console.log('ExportButtons Debug:', {
+			reportData: reportData?.length,
+			exportType,
+			groupByType,
+			startDate,
+			endDate
+		});
+	}
+
+	// Data validation - allow export even with empty data
+	const hasData = Array.isArray(reportData) && reportData.length > 0;
+	const canExport = Array.isArray(reportData); // Can export if it's an array (even empty)
+
+	// If no valid data format, show informative button
+	if (!canExport) {
+		return (
+			<Button
+				className="cursor-pointer bg-light--theme-light dark:bg-dark-high"
+				variant="outline"
+				size="sm"
+				disabled
+			>
+				Invalid Data Format
+			</Button>
+		);
+	}
 
 	return (
 		<>
@@ -48,58 +75,90 @@ const ExportButtons = ({
 					document={
 						groupByType === 'date' ? (
 							<ProductivityPDF
-								data={reportData}
+								data={hasData ? reportData : []} // Use empty array if no data
 								title={`Activity Report for ${startDate} - ${endDate}`}
 								startDate={startDate}
 								endDate={endDate}
 							/>
 						) : (
-							<ProductivityApplicationPDF data={reportData} title={getReportTitle(groupByType)} />
+							<ProductivityApplicationPDF
+								data={hasData ? reportData : []} // Use empty array if no data
+								title={getReportTitle(groupByType)}
+							/>
 						)
 					}
-					fileName={`productivity-report from ${startDate}-${endDate}.pdf`}
+					fileName={`productivity-report-${startDate}-to-${endDate}.pdf`}
+					download={true}
 				>
-					{({ loading }) => (
+					{({ loading, error }) => (
 						<Button
 							className="cursor-pointer bg-light--theme-light dark:bg-dark-high"
 							variant="outline"
 							size="sm"
-							disabled={loading}
+							disabled={loading || !!error}
 						>
-							{loading ? 'Loading PDF...' : 'Download PDF'}
+							{loading
+								? 'Generating PDF...'
+								: error
+									? 'PDF Error'
+									: hasData
+										? 'Download PDF'
+										: 'Download PDF (No Data)'}
 						</Button>
 					)}
 				</PDFDownloadLink>
 			)}
 			{exportType === 'xlsx' && (
-				<Button className="cursor-pointer bg-light--theme-light dark:bg-dark-high" variant="outline" size="sm">
-					Download XLSX
+				<Button
+					className="cursor-pointer bg-light--theme-light dark:bg-dark-high"
+					variant="outline"
+					size="sm"
+					onClick={() => {
+						// TODO: Implement XLSX export
+						console.log('XLSX export not implemented yet');
+					}}
+				>
+					{hasData ? 'Download XLSX' : 'Download XLSX (No Data)'}
 				</Button>
 			)}
 		</>
 	);
 };
 
-export function ExportDialog({ isOpen, onClose, exportType, reportData, groupByType }: ExportDialogProps) {
+export function ExportDialog({
+	isOpen,
+	onClose,
+	exportType,
+	reportData,
+	groupByType,
+	startDate,
+	endDate
+}: ExportDialogProps) {
 	return (
 		<Modal
-			closeModal={() => onClose}
+			closeModal={onClose || (() => {})}
 			showCloseIcon={false}
 			className="sm:max-w-md bg-light--theme-light dark:bg-dark-high py-4 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start !h-[auto]"
 			titleClass="flex flex-col gap-y-4 items-center text-xl text-center"
 			title="Export Successful!"
 			isOpen={isOpen}
 		>
-			<div className="flex flex-col items-center gap-y-4">
+			<div className="flex flex-col gap-y-4 items-center">
 				<CheckCircle2 className="w-12 h-12 text-primary" />
 				<p className="text-center text-muted-foreground">
 					Your export is complete. Click below to download your file.
 				</p>
-				<div className="flex flex-col justify-end w-full gap-3 sm:flex-row sm:gap-2">
+				<div className="flex flex-col gap-3 justify-end w-full sm:flex-row sm:gap-2">
 					<Button variant="outline" onClick={onClose} className="bg-light--theme-light dark:bg-dark-high">
 						Cancel
 					</Button>
-					<ExportButtons reportData={reportData} exportType={exportType} groupByType={groupByType} />
+					<ExportButtons
+						reportData={reportData}
+						exportType={exportType}
+						groupByType={groupByType}
+						startDate={startDate}
+						endDate={endDate}
+					/>
 				</div>
 			</div>
 		</Modal>

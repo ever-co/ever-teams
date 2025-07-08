@@ -9,6 +9,7 @@ import { IUserOrganization } from '../organization/user-organization';
 import { IEmployee } from '../organization/employee';
 import { IRelationalImageAsset } from '../common/image-asset';
 import { TInvite, TUser } from '../../schemas';
+import { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 
 export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset {
 	thirdPartyId?: ID;
@@ -60,4 +61,19 @@ export interface IUser extends IBasePerTenantEntityModel, IRelationalImageAsset 
 export interface IRelationalUser {
 	user?: TUser;
 	userId?: ID;
+}
+
+export interface UseAuthenticateUserResult {
+	$user: React.RefObject<TUser | null>;
+	user: TUser | null;
+	userLoading: boolean;
+	setUser: (user: TUser | null) => void;
+	isTeamManager: boolean;
+	updateUserFromAPI: () => void;
+	refreshUserLoading: boolean;
+	logOut: () => void;
+	timeToTimeRefreshToken: (interval?: number) => () => void;
+	refreshToken: () => Promise<void>;
+	userDataQuery: UseQueryResult<TUser, Error>;
+	refreshTokenMutation: UseMutationResult<unknown, Error, void, unknown>;
 }

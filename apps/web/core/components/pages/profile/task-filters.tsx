@@ -174,7 +174,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex items-center justify-center w-full gap-1 -mb-1 md:justify-start md:gap-4 md:mt-0">
+		<nav className="flex gap-1 justify-center items-center -mb-1 w-full md:justify-start md:gap-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -223,7 +223,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const { date, setDate, data } = useDateRange(dailyPlanTab);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
+			<div className="flex flex-wrap flex-1 justify-center space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
@@ -267,7 +267,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				)}
 				<VerticalSeparator />
 
-				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7" onClick={hook.applyStatusFilder}>
+				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7" onClick={hook.applyStatusFilter}>
 					{t('common.APPLY')}
 				</Button>
 				<Button

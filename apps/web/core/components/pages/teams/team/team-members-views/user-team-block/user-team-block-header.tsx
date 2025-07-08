@@ -11,15 +11,12 @@ import { InviteFormModal } from '@/core/components/features/teams/invite-form-mo
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
+import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
 
-type TimerStatus = 'running' | 'online' | 'pause' | 'idle' | 'suspended';
-type FilterType = 'all' | TimerStatus;
-
-interface IStatusCount {
-	[key: string]: number;
-}
-
-interface IFilter extends IStatusCount {
+// Interface for filter stats (kept for UI compatibility)
+interface IFilter {
 	running: number;
 	online: number;
 	pause: number;
@@ -27,21 +24,17 @@ interface IFilter extends IStatusCount {
 	suspended: number;
 }
 
-const initialFilter: IFilter = {
-	running: 0,
-	online: 0,
-	pause: 0,
-	idle: 0,
-	suspended: 0
-};
-
 // Status buttons configuration for better maintainability
-const statusButtons = (t: ReturnType<typeof useTranslations>, membersStatusNumber: IFilter, activeTeam: any) => [
+const statusButtons = (
+	t: ReturnType<typeof useTranslations>,
+	membersStatusNumber: IFilter,
+	totalMembersCount: number
+) => [
 	{
 		status: 'all' as const,
 		label: t('common.ALL_MEMBERS'),
 		icon: StopCircleIcon,
-		count: activeTeam?.members?.length || 0
+		count: totalMembersCount
 	},
 	{
 		status: 'idle' as const,
@@ -74,30 +67,28 @@ export function UserTeamBlockHeader() {
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
-	const [activeFilter, setActiveFilter] = useAtom<FilterType>(taskBlockFilterState);
+	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
 
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
 
-	// Memoize members status count to prevent unnecessary recalculations
-	const membersStatusNumber = useMemo(() => {
-		if (!activeTeam?.members?.length) return initialFilter;
+	// Use refactored hooks for member processing and stats
+	const processedMembers = useProcessedTeamMembers(activeTeam, user);
+	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user);
 
-		return activeTeam.members.reduce<IFilter>(
-			(acc, item) => {
-				// Handle undefined status as 'idle'
-				const status = (item.timerStatus || 'idle') as TimerStatus;
+	// Convert filter stats to the format expected by the UI
+	const membersStatusNumber = useMemo(
+		() => ({
+			running: filterStats.running,
+			online: filterStats.online,
+			pause: filterStats.pause,
+			idle: filterStats.idle,
+			suspended: filterStats.suspended
+		}),
+		[filterStats]
+	);
 
-				// Safe increment with type checking
-				if (status in acc) {
-					acc[status] += 1;
-				}
-
-				return acc;
-			},
-			{ ...initialFilter }
-		);
-	}, [activeTeam?.members]);
+	const totalMembersCount = filterStats.all;
 
 	return (
 		<>
@@ -106,7 +97,7 @@ export function UserTeamBlockHeader() {
 				className="hidden sm:flex dark:bg-dark-high font-normal pt-4 justify-between dark:text-[#7B8089]"
 			>
 				<div className="flex items-center w-9/12">
-					{statusButtons(t, membersStatusNumber, activeTeam).map((button) => (
+					{statusButtons(t, membersStatusNumber, totalMembersCount).map((button) => (
 						<div
 							key={button.status}
 							className={clsxm(
@@ -135,7 +126,7 @@ export function UserTeamBlockHeader() {
 					))}
 				</div>
 
-				<div className="3/12 flex justify-end gap-2 items-center pr-4">
+				<div className="flex gap-2 justify-end items-center pr-4 w-3/12">
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
 							fullWidth={true}
@@ -152,7 +143,7 @@ export function UserTeamBlockHeader() {
 								className={clsxm('outline-none')}
 								onClick={() => hook.toggleFilterType('search')}
 							>
-								<SearchNormalIcon className={clsxm('dark:stroke-white w-4')} />
+								<SearchNormalIcon className={clsxm('w-4 dark:stroke-white')} />
 							</button>
 
 							<VerticalSeparator />

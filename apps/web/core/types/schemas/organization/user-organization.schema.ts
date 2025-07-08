@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { idSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { organizationSchema } from './organization.schema';
 
 /**
  * Zod schemas for User Organization-related interfaces
@@ -22,7 +23,7 @@ export const userOrganizationSchema = z
 	})
 	.merge(baseUserOrganizationSchema)
 	.strict();
-
 // Export TypeScript types
 export type BaseUserOrganization = z.infer<typeof baseUserOrganizationSchema>;
 export type UserOrganization = z.infer<typeof userOrganizationSchema>;
+export type TOrganization = z.infer<typeof organizationSchema>;

@@ -1,34 +1,32 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	useAuthenticateUser,
-	useDailyPlan,
-	useLocalStorageState,
-	useOrganizationTeams,
-	useUserProfilePage
-} from '@/core/hooks';
+import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
-import React, { useCallback, useMemo } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { AppsTab } from '@/core/components/pages/profile/apps';
-import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
-import { UserProfileDetail } from '@/core/components/pages/profile/user-profile-detail';
 import { cn } from '@/core/lib/helpers';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
-import { Timer } from '@/core/components/timer/timer';
-import { TaskFilter } from '@/core/components/pages/profile/task-filters';
-import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
+import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
+import {
+	LazyAppsTab,
+	LazyScreenshootTab,
+	LazyUserProfileTask,
+	LazyUserProfileDetail,
+	LazyVisitedSitesTab,
+	LazyTimer,
+	LazyTaskFilter
+} from '@/core/components/optimized-components';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -38,7 +36,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
-	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
@@ -67,10 +64,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const activityScreens = useMemo(
 		() => ({
-			Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
-			Screenshots: <ScreenshootTab />,
-			Apps: <AppsTab />,
-			'Visited Sites': <VisitedSitesTab />
+			Tasks: <LazyUserProfileTask profile={profile} tabFiltered={hook} />,
+			Screenshots: <LazyScreenshootTab />,
+			Apps: <LazyAppsTab />,
+			'Visited Sites': <LazyVisitedSitesTab />
 		}),
 		[hook, profile]
 	);
@@ -94,27 +91,30 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	React.useEffect(() => {
-		getEmployeeDayPlans(profile.member?.employeeId ?? '');
-	}, [getEmployeeDayPlans, profile.member?.employeeId]);
+	// Show unified skeleton while initial data is loading
+	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
+	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
+		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+	}
 
-	if (Array.isArray(members) && members.length && !profile.member) {
+	// Check if team has members but no specific member found
+	if (Array.isArray(members) && members.length > 0 && !unwrappedParams.memberId) {
 		return (
 			<MainLayout>
 				<div
 					ref={profile.loadTaskStatsIObserverRef}
 					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
 				>
-					<div className="flex flex-col items-center justify-center gap-5">
+					<div className="flex flex-col gap-5 justify-center items-center">
 						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
 						</Text>
 
-						<Text className="font-light text-center text-gray-400 ">
+						<Text className="font-light text-center text-gray-400">
 							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 						</Text>
 
-						<Button className="m-auto font-normal rounded-lg ">
+						<Button className="m-auto font-normal rounded-lg">
 							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
 						</Button>
 					</div>
@@ -127,9 +127,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<MainLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
-					<div className="w-full space-y-4">
+					<div className="space-y-4 w-full">
 						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
+						<div className="flex gap-8 items-center">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>
@@ -138,38 +138,38 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</div>
 
 						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between md:flex-row">
-							<UserProfileDetail member={profile.member} />
+						<div className="flex flex-col justify-between items-center md:flex-row">
+							<LazyUserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
-								<Timer
-									className={cn(
-										'p-5 rounded-2xl shadow-xl card',
-										'dark:border-[0.125rem] dark:border-[#28292F]',
-										'dark:bg-[#1B1D22]'
-									)}
-								/>
+								<Suspense fallback={<TimerSkeleton />}>
+									<LazyTimer
+										className={cn(
+											'p-5 rounded-2xl shadow-xl card',
+											'dark:border-[0.125rem] dark:border-[#28292F]',
+											'dark:bg-[#1B1D22]'
+										)}
+									/>
+								</Suspense>
 							)}
 						</div>
 						{/* TaskFilter */}
-						<TaskFilter profile={profile} hook={hook} />
+						<LazyTaskFilter profile={profile} hook={hook} />
 					</div>
 				</MainHeader>
 			}
 		>
-			{/* <div className="p-1">
-								<ActivityCalendar />
-							</div> */}
+			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
-					<div className={cn('flex justify-start items-center gap-4 mt-3')}>
+					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
-							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(
-										'text-gray-500',
-										activityFilter == filter && 'text-black dark:text-white'
+										'text-gray-500 transition-colors duration-200 hover:text-gray-700 dark:hover:text-gray-300',
+										activityFilter == filter && 'text-black dark:text-white font-medium'
 									)}
 									onClick={() => changeActivityFilter(filter as FilterTab)}
 								>
@@ -180,11 +180,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</Container>
 			)}
-			<Container fullWidth={fullWidth} className="mb-10 -mt-6">
+			<Container fullWidth={fullWidth} className="mt-6 mb-10">
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 				)}
 			</Container>
 		</MainLayout>

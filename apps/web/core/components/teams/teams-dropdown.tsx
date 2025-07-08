@@ -10,8 +10,20 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { CreateTeamModal } from '../features/teams/create-team-modal';
 import { toast } from 'sonner';
+// Lazy load CreateTeamModal for performance optimization
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+const LazyCreateTeamModal = dynamic(
+	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
+	{
+		ssr: false
+		// Note: Removed loading here to avoid double loading states
+		// Suspense fallback will handle all loading states uniformly
+	}
+);
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
@@ -48,23 +60,32 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		[setActiveTeam, stopTimer, t] // Removed timerStatus and activeTeam to prevent constant recreation
 	);
 
+	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
 
 	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
 	const { isOpen, closeModal, openModal } = useModal();
 
+	// Update teamItem when activeTeam changes - use a ref to track previous values to avoid loops
+	const prevActiveTeamRef = React.useRef<string>('');
+
 	React.useEffect(() => {
-		// Only update teamItem when activeTeam.id changes, not when items change
-		if (activeTeam?.id) {
-			const foundItem = items.find((t) => t.key === activeTeam.id);
-			if (foundItem) {
-				setTeamItem(foundItem);
+		const currentTeamKey = `${activeTeam?.id}-${activeTeam?.name}-${activeTeam?.color}-${activeTeam?.emoji}-${activeTeam?.teamSize}`;
+
+		if (currentTeamKey !== prevActiveTeamRef.current) {
+			prevActiveTeamRef.current = currentTeamKey;
+
+			if (activeTeam?.id) {
+				const foundItem = items.find((t) => t.key === activeTeam.id);
+				if (foundItem) {
+					setTeamItem(foundItem);
+				}
+			} else {
+				setTeamItem(null);
 			}
-		} else {
-			setTeamItem(null);
 		}
-	}, [activeTeam?.id]); // Removed items dependency to prevent infinite loop
+	}, [activeTeam?.id, activeTeam?.name, activeTeam?.color, activeTeam?.emoji, activeTeam?.teamSize, items]);
 
 	return (
 		<div>
@@ -98,13 +119,17 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							disabled={!user?.isEmailVerified}
 						>
 							<PlusIcon className="w-4 h-4" />
-							<span className="text-nowrap whitespace-nowrap">{t('common.CREATE_TEAM')}</span>
+							<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
 						</Button>
 					</Tooltip>
 				)}
 			</Dropdown>
 
-			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
+			{!publicTeam && isOpen && !!user?.isEmailVerified && (
+				<Suspense fallback={<ModalSkeleton size="md" />}>
+					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
+				</Suspense>
+			)}
 		</div>
 	);
 };

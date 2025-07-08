@@ -927,7 +927,9 @@
 			"TASK_PLANNED_FOR_DATE": "Tâche planifiée pour la date sélectionnée",
 			"TASK_PLAN_FAILED": "Échec de la planification de la tâche. Veuillez réessayer.",
 			"TASK_ASSIGNMENT_FAILED": "Échec de l'attribution/désattribution de la tâche. Veuillez réessayer.",
-			"TASK_FAVORITE_FAILED": "Échec de la mise à jour des favoris. Veuillez réessayer."
+			"TASK_FAVORITE_FAILED": "Échec de la mise à jour des favoris. Veuillez réessayer.",
+			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Élément favori créé avec succès",
+			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Élément favori supprimé avec succès"
 		}
 	},
 	"dailyPlan": {

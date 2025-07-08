@@ -3,7 +3,8 @@
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import {
 	Archive,
 	ArrowLeftIcon,
@@ -23,26 +24,89 @@ import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
-import FiltersCardModal from '../../projects/filters-card-modal';
-import { ProjectsListView } from './project-views/list-view';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { VisibilityState } from '@tanstack/react-table';
 import { ProjectViewDataType } from './project-views';
-import { ProjectsGridView } from './project-views/grid-view';
-import { ProjectExportMenu } from './project-export-menu';
 import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@/core/components/common/checkbox';
-import { BulkArchiveProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal';
-import { BulkRestoreProjectsModal } from '@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal';
-import { useRouter } from 'next/navigation';
+
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useParams } from 'next/navigation';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
-import { CreateProjectModal } from '../../features/projects/create-project-modal';
+
+import { TOrganizationProject } from '@/core/types/schemas';
+import { ProjectListSkeleton } from './project-views/list-view/list-skeleton';
+import { ProjectsGridSkeleton } from './project-views/grid-view/grid-skeleton';
+import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
+
+// Lazy load heavy components for Projects page optimization
+// Priority 1: Modals (conditional rendering)
+const LazyFiltersCardModal = dynamic(
+	() => import('../../projects/filters-card-modal').then((mod) => ({ default: mod.default })),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyCreateProjectModal = dynamic(
+	() => import('../../features/projects/create-project-modal').then((mod) => ({ default: mod.CreateProjectModal })),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyBulkArchiveProjectsModal = dynamic(
+	() =>
+		import('@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal').then((mod) => ({
+			default: mod.BulkArchiveProjectsModal
+		})),
+	{
+		ssr: false
+		// Note: No loading property for conditional modals
+	}
+);
+
+const LazyBulkRestoreProjectsModal = dynamic(
+	() =>
+		import('@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal').then((mod) => ({
+			default: mod.BulkRestoreProjectsModal
+		})),
+	{
+		ssr: false
+	}
+);
+
+// Priority 2: Conditional views
+const LazyProjectsListView = dynamic(
+	() => import('./project-views/list-view').then((mod) => ({ default: mod.ProjectsListView })),
+	{
+		ssr: false,
+		loading: () => <ProjectListSkeleton />
+	}
+);
+
+const LazyProjectsGridView = dynamic(
+	() => import('./project-views/grid-view').then((mod) => ({ default: mod.ProjectsGridView })),
+	{
+		ssr: false,
+		loading: () => <ProjectsGridSkeleton />
+	}
+);
+
+// Priority 3: Heavy components
+const LazyProjectExportMenu = dynamic(
+	() => import('./project-export-menu').then((mod) => ({ default: mod.ProjectExportMenu })),
+	{
+		ssr: false,
+		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+	}
+);
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -58,18 +122,34 @@ function PageComponent() {
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 
-	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
-	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
-	const [dateRange] = useState<DateRange>({
-		from: startOfMonth(new Date()),
-		to: endOfMonth(new Date())
-	});
+	const { getOrganizationProjectsLoading, organizationProjects, setSearchQueries } = useOrganizationProjects();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
+	const showArchivedProjects = Boolean(params.get('archived'));
+
+	// Initialize date range from URL parameters or default to current month
+	const [dateRange, setDateRange] = useState<DateRange>(() => {
+		const dateFromParam = params.get('dateFrom');
+		const dateToParam = params.get('dateTo');
+
+		if (dateFromParam && dateToParam) {
+			return {
+				from: new Date(dateFromParam),
+				to: new Date(dateToParam)
+			};
+		}
+
+		return {
+			from: startOfMonth(new Date()),
+			to: endOfMonth(new Date())
+		};
+	});
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -97,20 +177,130 @@ function PageComponent() {
 
 	const handleBack = () => router.back();
 
-	const showArchivedProjects = Boolean(params.get('archived'));
-	const activeTeamProjects = useMemo(
-		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
-		[activeTeam, projects]
+	// Function to update URL with date parameters
+	const updateDateInURL = useCallback(
+		(newDateRange: DateRange) => {
+			const newParams = new URLSearchParams(params.toString());
+
+			if (newDateRange.from && newDateRange.to) {
+				newParams.set('dateFrom', newDateRange.from.toISOString().split('T')[0]);
+				newParams.set('dateTo', newDateRange.to.toISOString().split('T')[0]);
+			} else {
+				newParams.delete('dateFrom');
+				newParams.delete('dateTo');
+			}
+
+			router.push(`${pathname}?${newParams.toString()}`);
+		},
+		[params, router, pathname]
 	);
-	const filteredProjects = useMemo(
-		() =>
-			searchTerm
+
+	const mapProjectToViewDataType = useCallback((project: TOrganizationProject): ProjectViewDataType => {
+		return {
+			project: {
+				name: project.name,
+				imageUrl: project.imageUrl,
+				color: project.color,
+				id: project.id
+			},
+			status: project.status,
+			archivedAt: project.archivedAt || null,
+			isArchived: project.isArchived,
+			startDate: project.startDate || undefined,
+			endDate: project.endDate || undefined,
+			members: project.members,
+			managers: project.members?.filter((member) => member.isManager) || [],
+			teams: project.teams
+		};
+	}, []);
+
+	// Filter projects by date range
+	const dateFilteredProjects = useMemo(() => {
+		if (!projects || projects.length === 0) {
+			return [];
+		}
+
+		// If no date range is set, return all projects
+		if (!dateRange?.from || !dateRange?.to) {
+			return projects;
+		}
+
+		const rangeStart = new Date(dateRange.from!);
+		const rangeEnd = new Date(dateRange.to!);
+
+		return projects.filter((project) => {
+			const projectStartDate = project.startDate ? new Date(project.startDate) : null;
+			const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+
+			// Check if dates are invalid (1970-01-01 means no real date set)
+			const isStartDateInvalid = projectStartDate && projectStartDate.getFullYear() === 1970;
+			const isEndDateInvalid = projectEndDate && projectEndDate.getFullYear() === 1970;
+
+			// Include project if:
+			// 1. Project has no dates or invalid dates (always visible)
+			// 2. Project dates overlap with the selected range
+			if (!projectStartDate && !projectEndDate) {
+				return true;
+			}
+
+			if (isStartDateInvalid && isEndDateInvalid) {
+				return true;
+			}
+
+			// Only apply date filtering if we have valid dates
+			const validStartDate = projectStartDate && !isStartDateInvalid ? projectStartDate : null;
+			const validEndDate = projectEndDate && !isEndDateInvalid ? projectEndDate : null;
+
+			if (!validStartDate && !validEndDate) {
+				return true;
+			}
+
+			// Check if project overlaps with the selected date range using valid dates
+			if (validStartDate && validEndDate) {
+				// Project has both valid start and end dates
+				return (
+					(validStartDate <= rangeEnd && validEndDate >= rangeStart) ||
+					(validStartDate >= rangeStart && validStartDate <= rangeEnd) ||
+					(validEndDate >= rangeStart && validEndDate <= rangeEnd)
+				);
+			} else if (validStartDate) {
+				// Project has only valid start date
+				return validStartDate >= rangeStart && validStartDate <= rangeEnd;
+			} else if (validEndDate) {
+				// Project has only valid end date
+				return validEndDate >= rangeStart && validEndDate <= rangeEnd;
+			}
+
+			return true; // Fallback: include project
+		});
+	}, [projects, dateRange]);
+
+	const activeTeamProjects = useMemo(() => {
+		// If no active team, return all date-filtered projects
+		if (!activeTeam) {
+			return dateFilteredProjects || [];
+		}
+
+		// If active team exists, filter projects that belong to this team OR have no teams assigned
+		return (
+			dateFilteredProjects?.filter((el) => {
+				const teamIds = el.teams?.map((team) => team.id) || [];
+				const hasNoTeams = teamIds.length === 0;
+				const belongsToActiveTeam = teamIds.includes(activeTeam.id);
+				return hasNoTeams || belongsToActiveTeam;
+			}) || []
+		);
+	}, [activeTeam, dateFilteredProjects]);
+
+	const filteredProjects = useMemo(() => {
+		return (
+			(searchTerm
 				? activeTeamProjects.filter((el) =>
 						el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
 					)
-				: activeTeamProjects || [],
-		[activeTeamProjects, searchTerm]
-	);
+				: activeTeamProjects) || []
+		);
+	}, [activeTeamProjects, searchTerm]);
 	const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
 	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
 		project: true,
@@ -125,51 +315,61 @@ function PageComponent() {
 		restore: showArchivedProjects
 	});
 
+	// Main effect for filtering projects based on archived status
+	useEffect(() => {
+		if (!organizationProjects || organizationProjects.length === 0) {
+			setProjects([]);
+			return;
+		}
+
+		// First, filter out teams/workspaces that are incorrectly returned as projects
+		const actualProjects = organizationProjects.filter((item) => {
+			// A real project should have at least one of these characteristics:
+			const hasProjectStatus =
+				item.status === 'open' || item.status === 'closed' || item.status === 'in-progress';
+			const hasProjectUrl = Boolean(item.projectUrl);
+			const hasDescription = Boolean(item.description);
+			const hasBudget = (item.budget || 0) > 0;
+			const hasBilling = Boolean(item.billing);
+			const hasValidDates = item.startDate && new Date(item.startDate).getFullYear() > 1970;
+
+			// Based on data.json analysis, real projects have:
+			// - status: "open" (primary indicator)
+			// - OR projectUrl (secondary indicator)
+			// - OR description (tertiary indicator)
+			// - OR budget > 0 (quaternary indicator)
+			const isRealProject =
+				hasProjectStatus || hasProjectUrl || hasDescription || hasBudget || hasBilling || hasValidDates;
+
+			return isRealProject;
+		});
+
+		// Then filter projects based on archived status
+		const filteredProjects = actualProjects.filter((project) => {
+			const shouldInclude = showArchivedProjects ? project?.isArchived : !project?.isArchived;
+			return shouldInclude;
+		});
+
+		// Map to view data type
+		const mappedProjects = filteredProjects.map(mapProjectToViewDataType);
+		setProjects(mappedProjects);
+	}, [organizationProjects, showArchivedProjects]);
+
+	// Separate effect for handling member queries (if needed)
 	useEffect(() => {
 		const members = [...(params.get('managers')?.split(',') ?? []), ...(params.get('members')?.split(',') ?? [])];
 
 		const queries = {
 			...(members.length > 0 && {
-				'where[members][employeeId]': members[0] // Available but can work with one employee ID
+				'where[members][employeeId]': members[0]
 			})
 		};
 
-		/*
-		TO DO:
-		 - Filter by status
-		 - Filter by budget type
-		 - Filter by date range
-		 - Filter by team
-
-		 when the api is ready
-		*/
-
-		getOrganizationProjects({ queries }).then((data) => {
-			if (data && data?.items?.length > 0) {
-				const projects = data.items
-					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
-					.map((el) => ({
-						project: {
-							name: el.name,
-							imageUrl: el.imageUrl,
-							color: el.color,
-							id: el.id
-						},
-						status: el.status,
-						archivedAt: el.archivedAt,
-						isArchived: el.isArchived,
-						startDate: el.startDate,
-						endDate: el.endDate,
-						members: el.members,
-						managers: el.members,
-						teams: el.teams
-					}));
-
-				setProjects(projects);
-				setSelectedProjects({}); // Reset projects selection
-			}
-		});
-	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
+		if (Object.keys(queries).length > 0) {
+			setSearchQueries(queries);
+			setSelectedProjects({}); // Reset projects selection
+		}
+	}, [params]);
 
 	// Handle archived / active - table columns visibility
 	useEffect(() => {
@@ -185,8 +385,7 @@ function PageComponent() {
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
-		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
-
+		const areAllProjectsSelected = Object.keys(selectedProjects).length === filteredProjects.length;
 		if (areAllProjectsSelected) {
 			setSelectedProjects({});
 		} else {
@@ -199,7 +398,6 @@ function PageComponent() {
 			);
 		}
 	}, [filteredProjects, selectedProjects]);
-
 	/**
 	 * --- Bulk actions -------
 	 */
@@ -224,18 +422,18 @@ function PageComponent() {
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
-						<button onClick={handleBack} className="p-1 transition-colors rounded-full hover:bg-gray-100">
+						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					</div>
-					<div className="flex flex-col items-start justify-between gap-3">
-						<div className="flex items-center justify-center h-10 gap-8">
-							<h3 className="text-3xl font-medium ">{t('pages.projects.projectTitle.PLURAL')}</h3>
+					<div className="flex flex-col gap-3 justify-between items-start">
+						<div className="flex gap-8 justify-center items-center h-10">
+							<h3 className="text-3xl font-medium">{t('pages.projects.projectTitle.PLURAL')}</h3>
 						</div>
-						<div className="flex items-center justify-between w-full h-14">
+						<div className="flex justify-between items-center w-full h-14">
 							<div className="w-[20rem] h-full flex items-end justify-center">
-								<ul className="relative flex w-full text-lg justify-evenly">
+								<ul className="flex relative justify-evenly w-full text-lg">
 									{viewItems.map((item, index) => (
 										<li
 											onClick={() => {
@@ -271,11 +469,11 @@ function PageComponent() {
 				</Container>
 			}
 		>
-			<Container fullWidth={fullWidth} className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme">
-				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
-					<div className="flex items-center justify-between font-light rounded ">
+			<Container fullWidth={fullWidth} className="flex flex-col gap-6 p-4 mt-6 w-full h-full dark:bg-dark--theme">
+				<div className="p-3 space-y-6 rounded-lg border bg-light--theme-light dark:bg-transparent">
+					<div className="flex justify-between items-center font-light rounded">
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
-							<Search size={15} className=" text-slate-300" />{' '}
+							<Search size={15} className="text-slate-300" />{' '}
 							<InputField
 								onChange={(e) => setSearchTerm(e.target.value)}
 								value={searchTerm}
@@ -287,8 +485,9 @@ function PageComponent() {
 						<div className="flex gap-3">
 							<DatePickerWithRange
 								defaultValue={dateRange}
-								onChange={() => {
-									/* TODO: Implement date range handling */
+								onChange={(newDateRange: DateRange) => {
+									setDateRange(newDateRange);
+									updateDateInURL(newDateRange);
 								}}
 								className="bg-transparent dark:bg-transparent dark:border-white"
 							/>
@@ -300,9 +499,9 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 							</Button>
-							<ProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
+							<LazyProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
 							{selectedView == 'LIST' && (
-								<Menu as="div" className="relative inline-block text-left">
+								<Menu as="div" className="inline-block relative text-left">
 									<div>
 										<Menu.Button>
 											<Button
@@ -344,7 +543,7 @@ function PageComponent() {
 																		`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																	)}
 																>
-																	<div className="flex items-center justify-center w-5 h-full ">
+																	<div className="flex justify-center items-center w-5 h-full">
 																		{isVisible && <Check size={12} />}
 																	</div>
 																	<span className="capitalize">{column}</span>
@@ -379,14 +578,14 @@ function PageComponent() {
 									: 'hidden'
 							)}
 						>
-							<div className="flex items-center h-full gap-2">
+							<div className="flex gap-2 items-center h-full">
 								{selectedView == 'GRID' && (
 									<Checkbox
 										checked={
 											Object.keys(selectedProjects).length > 0 &&
 											Object.keys(selectedProjects).length == filteredProjects.length
 										}
-										className=" shrink-0"
+										className="shrink-0"
 										onCheckedChange={handleSelectAllProjects}
 									/>
 								)}
@@ -426,7 +625,7 @@ function PageComponent() {
 						</div>
 					</div>
 					{selectedView === 'LIST' ? (
-						<ProjectsListView
+						<LazyProjectsListView
 							projects={filteredProjects}
 							loading={getOrganizationProjectsLoading}
 							columnVisibility={tableColumnsVisibility}
@@ -435,7 +634,7 @@ function PageComponent() {
 							onColumnVisibilityChange={setTableColumnsVisibility}
 						/>
 					) : selectedView === 'GRID' ? (
-						<ProjectsGridView
+						<LazyProjectsGridView
 							loading={getOrganizationProjectsLoading}
 							projects={filteredProjects}
 							selectedProjects={selectedProjects}
@@ -443,23 +642,40 @@ function PageComponent() {
 						/>
 					) : null}
 				</div>
-				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
-				<CreateProjectModal key={'create-project'} open={isProjectModalOpen} closeModal={closeProjectModal} />
-				{isBulkAction && (
-					<>
-						<BulkArchiveProjectsModal
+				{isFiltersCardModalOpen && (
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyFiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
+					</Suspense>
+				)}
+				{isProjectModalOpen && (
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyCreateProjectModal
+							key={'create-project'}
+							open={isProjectModalOpen}
+							closeModal={closeProjectModal}
+						/>
+					</Suspense>
+				)}
+				{/* Lazy loaded bulk action modals with conditional rendering */}
+				{isBulkAction && isBulkArchiveProjectsModalOpen && (
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyBulkArchiveProjectsModal
 							key={`bulk-archive-project`}
 							projectIds={Object.keys(selectedProjects)}
 							open={isBulkArchiveProjectsModalOpen}
 							closeModal={closeBulkArchiveProjectsModal}
 						/>
-						<BulkRestoreProjectsModal
+					</Suspense>
+				)}
+				{isBulkAction && isBulkRestoreProjectsModalOpen && (
+					<Suspense fallback={<ModalSkeleton />}>
+						<LazyBulkRestoreProjectsModal
 							key={`bulk-restore-project`}
 							projectIds={Object.keys(selectedProjects)}
 							open={isBulkRestoreProjectsModalOpen}
 							closeModal={closeBulkRestoreProjectsModal}
 						/>
-					</>
+					</Suspense>
 				)}
 			</Container>
 		</MainLayout>

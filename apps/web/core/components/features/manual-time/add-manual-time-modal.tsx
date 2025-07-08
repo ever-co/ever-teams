@@ -13,13 +13,13 @@ import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { ITask } from '@/core/types/interfaces/task/task';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -49,7 +49,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [endTime, setEndTime] = useState<string>('');
 	const [date, setDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState<string>('');
-	const [team, setTeam] = useState<IOrganizationTeam>();
+	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
@@ -170,20 +170,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
 	// Simplified task validation for performance
-	const isValidTask = useCallback((task: any): task is ITask => {
+	const isValidTask = useCallback((task: any): task is TTask => {
 		return task?.id && task?.title && Array.isArray(task?.teams);
 	}, []);
 
 	// Simplified team filtering functions for performance
-	const isTaskInActiveTeam = useCallback((task: ITask, teamId: string | undefined): boolean => {
+	const isTaskInActiveTeam = useCallback((task: TTask, teamId: string | undefined): boolean => {
 		return Boolean(teamId && task.teams?.some((team: any) => team?.id === teamId));
 	}, []);
 
-	const isTaskInSelectedTeam = useCallback((task: ITask, selectedTeamId: string | undefined): boolean => {
+	const isTaskInSelectedTeam = useCallback((task: TTask, selectedTeamId: string | undefined): boolean => {
 		return Boolean(selectedTeamId && task.teams?.some((team: any) => team?.id === selectedTeamId));
 	}, []);
 
-	const isTaskAssignedToUser = useCallback((task: ITask, userId: string | undefined): boolean => {
+	const isTaskAssignedToUser = useCallback((task: TTask, userId: string | undefined): boolean => {
 		return Boolean(userId && task.members?.some((member: any) => member?.userId === userId));
 	}, []);
 
@@ -196,7 +196,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
 	const filterTasksByTeamAndRole = useCallback(
-		(tasks: any[], teamId: string | undefined, filterByTeam: (task: ITask, teamId: string) => boolean) => {
+		(tasks: any[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
 			if (!tasks || !Array.isArray(tasks) || !teamId) {
 				return [];
 			}
@@ -251,7 +251,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return {
 			Project: (activeTeam?.projects || []).filter(isValidProject),
 			Employee: (activeTeam?.members || []).filter(isValidEmployee),
-			Task: activeTeamTasks // ✅ Only tasks from active team
+			Task: activeTeamTasks // Only tasks from active team
 		};
 	}, [activeTeam?.projects, activeTeam?.members, activeTeamTasks, isValidProject, isValidEmployee]);
 
@@ -381,7 +381,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="p-2 w-full text-sm font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -396,7 +396,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -432,7 +432,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What did you worked on..."
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 					</>
@@ -490,7 +490,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-2 w-full text-sm rounded-md border border-gray-300 resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 
