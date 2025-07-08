@@ -8,7 +8,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
@@ -66,20 +65,6 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 	currentWorkspace,
 	isLoading = false
 }) => {
-	// Handle keyboard navigation and accessibility
-	const handleKeyDown = React.useCallback(
-		(event: React.KeyboardEvent) => {
-			if (event.key === 'Enter' && !isLoading) {
-				event.preventDefault();
-				onConfirm();
-			} else if (event.key === 'Escape' && !isLoading) {
-				event.preventDefault();
-				onClose();
-			}
-		},
-		[onConfirm, onClose, isLoading]
-	);
-
 	// Focus management - ensure focus returns to trigger when modal closes
 	React.useEffect(() => {
 		if (!isOpen) {
@@ -92,7 +77,6 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent
 				className="sm:max-w-md"
-				onKeyDown={handleKeyDown}
 				aria-labelledby="workspace-switch-title"
 				aria-describedby="workspace-switch-description"
 			>
@@ -209,11 +193,6 @@ export function WorkspacesSwitcher() {
 	// Fallback to legacy data if the new data is not available
 	const activeWorkspace = workspaces.find((workspace) => workspace.isDefault);
 
-	// Get available workspaces (excluding current one) for keyboard shortcuts
-	const availableWorkspaces = React.useMemo(() => {
-		return workspaces.filter((workspace) => workspace.id !== currentWorkspace?.id);
-	}, [workspaces, currentWorkspace?.id]);
-
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(
 		(workspaceId: string) => {
@@ -259,50 +238,6 @@ export function WorkspacesSwitcher() {
 		closeConfirmModal();
 		setTargetWorkspace(null);
 	}, [closeConfirmModal, setTargetWorkspace]);
-
-	// Keyboard shortcuts support (Cmd/Ctrl + 1-9)
-	React.useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			// Only handle shortcuts when no modal is open and not in input fields
-			if (
-				isConfirmModalOpen ||
-				isSwitching ||
-				event.target instanceof HTMLInputElement ||
-				event.target instanceof HTMLTextAreaElement ||
-				event.target instanceof HTMLSelectElement
-			) {
-				return;
-			}
-
-			// Check for Cmd (Mac) or Ctrl (Windows/Linux) + number key
-			if ((event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey) {
-				const keyNumber = parseInt(event.key);
-
-				// Handle keys 1-9
-				if (keyNumber >= 1 && keyNumber <= 9) {
-					event.preventDefault();
-
-					// Get the workspace at index (keyNumber - 1)
-					const targetWorkspace = availableWorkspaces[keyNumber - 1];
-
-					if (targetWorkspace && canSwitchToWorkspace(targetWorkspace.id)) {
-						console.log(`Keyboard shortcut: Switching to workspace ${keyNumber} (${targetWorkspace.name})`);
-						handleWorkspaceClick(targetWorkspace.id);
-					} else if (targetWorkspace) {
-						console.warn(`Cannot switch to workspace ${keyNumber} (${targetWorkspace.name})`);
-					}
-				}
-			}
-		};
-
-		// Add event listener
-		document.addEventListener('keydown', handleKeyDown);
-
-		// Cleanup
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [isConfirmModalOpen, isSwitching, availableWorkspaces, canSwitchToWorkspace, handleWorkspaceClick]);
 
 	// Determine loading state with comprehensive logic
 	const isWorkspaceLoading = React.useMemo(() => {
@@ -440,7 +375,7 @@ export function WorkspacesSwitcher() {
 								<>
 									{workspaces
 										.filter((workspace) => workspace.id !== currentWorkspace?.id) // Only show OTHER workspaces
-										.map((workspace, index) => {
+										.map((workspace) => {
 											const totalMembers = workspace.teams.reduce(
 												(total: number, team: any) => total + (team.members?.length || 0),
 												0
@@ -474,7 +409,6 @@ export function WorkspacesSwitcher() {
 															{totalMembers > 1 ? 's' : ''}
 														</div>
 													</div>
-													<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 												</DropdownMenuItem>
 											);
 										})}
@@ -486,7 +420,7 @@ export function WorkspacesSwitcher() {
 								<>
 									{workspaces
 										.filter((workspace) => workspace.id !== currentWorkspace?.id) // Exclude current workspace
-										.map((workspace, index) => {
+										.map((workspace) => {
 											return (
 												<DropdownMenuItem key={workspace.name} className="gap-2 p-2" disabled>
 													<div className="flex justify-center items-center rounded-sm border size-6">
@@ -496,7 +430,6 @@ export function WorkspacesSwitcher() {
 														</Avatar>
 													</div>
 													{workspace.name}
-													<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 												</DropdownMenuItem>
 											);
 										})}
