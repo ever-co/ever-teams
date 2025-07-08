@@ -22,6 +22,33 @@ export function useWorkspaceSwitcher() {
 	const { user } = useAuthenticateUser();
 	const { workspaces, setActiveWorkspace } = useWorkspaces();
 
+	/**
+	 * Intelligent cache management utility
+	 */
+	const manageCacheIntelligently = useCallback(
+		async (teamId: string) => {
+			// Prefetch related data that will likely be needed
+			const prefetchPromises = [
+				// Prefetch team data for the new workspace
+				queryClient.prefetchQuery({
+					queryKey: queryKeys.organizationTeams.detail(teamId),
+					staleTime: 1000 * 60 * 10 // 10 minutes
+				}),
+				// Prefetch tasks for the new team
+				queryClient.prefetchQuery({
+					queryKey: queryKeys.tasks.byTeam(teamId),
+					staleTime: 1000 * 60 * 5 // 5 minutes
+				})
+			];
+
+			// Execute prefetches in background (don't wait for them)
+			Promise.allSettled(prefetchPromises).catch((error) => {
+				console.warn('Prefetch error (non-critical):', error);
+			});
+		},
+		[queryClient]
+	);
+
 	const [isSwitching, setIsSwitching] = useAtom(workspaceSwitchingState);
 	const [error, setError] = useAtom(workspacesErrorState);
 	const [activeWorkspaceId, setActiveWorkspaceId] = useAtom(activeWorkspaceIdState);
@@ -35,7 +62,16 @@ export function useWorkspaceSwitcher() {
 	}, []);
 
 	/**
-	 * Saves the last used team to localStorage
+	 * Retrieves the last used team for a specific workspace
+	 */
+	const getLastUsedTeamForWorkspace = useCallback((workspaceId: string): string | null => {
+		if (typeof window === 'undefined') return null;
+		const key = `${LAST_WORSPACE_AND_TEAM}_${workspaceId}`;
+		return window.localStorage.getItem(key);
+	}, []);
+
+	/**
+	 * Saves the last used team to localStorage (global)
 	 */
 	const saveLastUsedTeamId = useCallback((teamId: string) => {
 		if (typeof window === 'undefined') return;
@@ -43,19 +79,95 @@ export function useWorkspaceSwitcher() {
 	}, []);
 
 	/**
-	 * Selects the appropriate team for a given workspace
+	 * Saves the last used team for a specific workspace
 	 */
-	const selectTargetTeam = useCallback((workspace: TWorkspace): string => {
-		const result = workspace.teams[0];
-
-		// Log selection reason for debugging
-		console.log(`Team selected for workspace ${workspace.name}:`, {
-			teamId: result.id,
-			reason: result.name
-		});
-
-		return result.id || '';
+	const saveLastUsedTeamForWorkspace = useCallback((workspaceId: string, teamId: string): void => {
+		if (typeof window === 'undefined') return;
+		const key = `${LAST_WORSPACE_AND_TEAM}_${workspaceId}`;
+		window.localStorage.setItem(key, teamId);
 	}, []);
+
+	/**
+	 * Intelligently selects the appropriate team for a given workspace
+	 * Priority order:
+	 * 1. Last used team in this workspace (from localStorage)
+	 * 2. Default team (if marked as default)
+	 * 3. User's primary team (if user is member)
+	 * 4. First available team (fallback)
+	 */
+	const selectTargetTeam = useCallback(
+		(workspace: TWorkspace): string => {
+			if (!workspace.teams || workspace.teams.length === 0) {
+				console.warn(`No teams available in workspace ${workspace.name}`);
+				return '';
+			}
+
+			// 1. Try to get last used team for this specific workspace
+			const lastUsedTeamForWorkspace = getLastUsedTeamForWorkspace(workspace.id);
+			if (lastUsedTeamForWorkspace) {
+				const lastUsedTeam = workspace.teams.find((team) => team.id === lastUsedTeamForWorkspace);
+				if (lastUsedTeam) {
+					console.log(`Team selected for workspace ${workspace.name}:`, {
+						teamId: lastUsedTeam.id,
+						teamName: lastUsedTeam.name,
+						reason: 'Last used team for this workspace'
+					});
+					return lastUsedTeam.id;
+				}
+			}
+
+			// 1.5. Fallback to global last used team
+			const globalLastUsedTeamId = getLastUsedTeamId();
+			if (globalLastUsedTeamId) {
+				const globalLastUsedTeam = workspace.teams.find((team) => team.id === globalLastUsedTeamId);
+				if (globalLastUsedTeam) {
+					console.log(`Team selected for workspace ${workspace.name}:`, {
+						teamId: globalLastUsedTeam.id,
+						teamName: globalLastUsedTeam.name,
+						reason: 'Global last used team'
+					});
+					return globalLastUsedTeam.id;
+				}
+			}
+
+			// 2. Try to find default team
+			const defaultTeam = workspace.teams.find((team) => team.isDefault);
+			if (defaultTeam) {
+				console.log(`Team selected for workspace ${workspace.name}:`, {
+					teamId: defaultTeam.id,
+					teamName: defaultTeam.name,
+					reason: 'Default team'
+				});
+				return defaultTeam.id;
+			}
+
+			// 3. Try to find user's primary team (where user is active member)
+			if (user?.id) {
+				const userPrimaryTeam = workspace.teams.find((team) =>
+					team.members?.some((member) => member.employee?.userId === user.id && member.isActive)
+				);
+				if (userPrimaryTeam) {
+					console.log(`Team selected for workspace ${workspace.name}:`, {
+						teamId: userPrimaryTeam.id,
+						teamName: userPrimaryTeam.name,
+						reason: 'User primary team'
+					});
+					return userPrimaryTeam.id;
+				}
+			}
+
+			// 4. Fallback to first available team
+			const fallbackTeam = workspace.teams[0];
+			console.log(`Team selected for workspace ${workspace.name}:`, {
+				teamId: fallbackTeam.id,
+				teamName: fallbackTeam.name,
+				reason: 'First available team (fallback)'
+			});
+
+			return fallbackTeam.id || '';
+		},
+		[getLastUsedTeamId, getLastUsedTeamForWorkspace, user?.id]
+	);
 
 	/**
 	 * Mutation to switch workspace
@@ -66,29 +178,82 @@ export function useWorkspaceSwitcher() {
 		mutationFn: async (request: { teamId: string; email: string }) => {
 			return await workspaceService.switchWorkspace(request.teamId, request.email);
 		},
-		onSuccess: (response, variables) => {
+		onSuccess: async (response, variables) => {
 			if (response) {
 				// Update local state
 				setActiveWorkspace(variables.teamId);
 				setActiveWorkspaceId(variables.teamId);
 
-				// Save the last used team
+				// Save the last used team (global and per workspace)
 				saveLastUsedTeamId(variables.teamId);
 
-				// Invalidate relevant caches
-				queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces });
-				queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
-				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				// Find the workspace to save team preference per workspace
+				const currentWorkspace = workspaces.find((w) => w.teams.some((team) => team.id === variables.teamId));
+				if (currentWorkspace) {
+					saveLastUsedTeamForWorkspace(currentWorkspace.id, variables.teamId);
+				}
+
+				// Intelligent cache management and prefetching
+				manageCacheIntelligently(variables.teamId);
+
+				// Optimistic cache updates for better performance
+				try {
+					// Update workspaces cache optimistically
+					queryClient.setQueryData(
+						queryKeys.auth.workspaces(user?.id),
+						(oldData: TWorkspace[] | undefined) => {
+							if (!oldData) return oldData;
+							return oldData.map((workspace) => ({
+								...workspace,
+								isActive: workspace.teams.some((team) => team.id === variables.teamId)
+							}));
+						}
+					);
+
+					// Invalidate only critical queries that need fresh data
+					await Promise.all([
+						queryClient.invalidateQueries({ queryKey: queryKeys.users.me }),
+						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }),
+						// Selectively invalidate team-related queries
+						queryClient.invalidateQueries({
+							queryKey: ['organization-teams'],
+							exact: false,
+							refetchType: 'active' // Only refetch active queries
+						})
+					]);
+
+					// Background refresh of workspaces to ensure consistency
+					queryClient.refetchQueries({
+						queryKey: queryKeys.auth.workspaces(user?.id),
+						type: 'active'
+					});
+				} catch (cacheError) {
+					console.warn('Cache update error:', cacheError);
+					// Fallback to full invalidation if optimistic update fails
+					await queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
+				}
 
 				// Show success message
-				toast.success('Workspace switch successful');
+				toast.success('Workspace changé avec succès');
 
-				// Redirect if necessary
-				if (response.data.loginResponse) {
-					router.push('/');
-				} else {
-					// Reload page to ensure all states are synchronized
-					window.location.reload();
+				// Use optimized navigation instead of brutal reload
+				try {
+					if (response.data.loginResponse) {
+						// New login response - redirect to home
+						router.push('/');
+					} else {
+						// Existing session - use router refresh for smooth transition
+						router.refresh();
+
+						// Navigate to home to ensure clean state
+						setTimeout(() => {
+							router.push('/');
+						}, 100);
+					}
+				} catch (navigationError) {
+					console.error('Navigation error after workspace switch:', navigationError);
+					// Fallback to reload only if navigation fails
+					window.location.href = '/';
 				}
 			} else {
 				throw new Error('Error switching workspace');
@@ -188,7 +353,9 @@ export function useWorkspaceSwitcher() {
 
 		// Utilities
 		getLastUsedTeamId,
+		getLastUsedTeamForWorkspace,
 		saveLastUsedTeamId,
+		saveLastUsedTeamForWorkspace,
 		selectTargetTeam,
 
 		// Mutation for advanced control

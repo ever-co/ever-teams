@@ -40,7 +40,7 @@ export function useWorkspaces() {
 
 	// Query to retrieve workspaces
 	const workspacesQuery = useQuery({
-		queryKey: queryKeys.auth.workspaces,
+		queryKey: queryKeys.auth.workspaces(user?.id),
 		queryFn: async () => {
 			setIsLoading(true);
 			setError(null);
@@ -57,12 +57,24 @@ export function useWorkspaces() {
 				setIsLoading(false);
 			}
 		},
-		enabled: isAuthenticated(),
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		gcTime: 1000 * 60 * 10, // 10 minutes
-		refetchOnWindowFocus: false,
-		refetchOnReconnect: true,
-		retry: 2
+		enabled: isAuthenticated() && !!user?.id,
+		// Intelligent cache configuration
+		staleTime: 1000 * 60 * 15, // 15 minutes - workspaces don't change often
+		gcTime: 1000 * 60 * 60, // 1 hour - keep in memory longer
+		refetchOnWindowFocus: false, // Don't refetch on focus to avoid unnecessary requests
+		refetchOnReconnect: true, // Refetch when connection is restored
+		refetchOnMount: false, // Use cached data on mount if available
+		// Stale-while-revalidate behavior
+		refetchInterval: 1000 * 60 * 30, // Background refresh every 30 minutes
+		refetchIntervalInBackground: false, // Only when tab is active
+		retry: (failureCount, error: any) => {
+			// Smart retry logic
+			if (error?.status === 401 || error?.status === 403) {
+				return false; // Don't retry auth errors
+			}
+			return failureCount < 3; // Max 3 retries for other errors
+		},
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000) // Exponential backoff
 	});
 
 	// Update the store when the data changes
@@ -160,8 +172,8 @@ export function useWorkspaces() {
 	 * Invalidate the cache of workspaces
 	 */
 	const invalidateWorkspaces = useCallback(() => {
-		queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces });
-	}, [queryClient]);
+		queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
+	}, [queryClient, user?.id]);
 
 	return {
 		// Data

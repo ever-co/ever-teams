@@ -6,10 +6,11 @@ export const queryKeys = {
 	// Keys related to authentication and users
 	auth: {
 		all: ['auth'] as const,
-		workspaces: ['auth', 'workspaces'] as const,
-		currentWorkspace: ['auth', 'current-workspace'] as const,
-		switchWorkspace: (workspaceId: string | undefined | null) =>
-			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : [])] as const
+		workspaces: (userId: string | undefined | null) => ['auth', 'workspaces', ...(userId ? [userId] : [])] as const,
+		currentWorkspace: (userId: string | undefined | null) =>
+			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
+		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
+			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
 	},
 	// Keys related to users
 	users: {

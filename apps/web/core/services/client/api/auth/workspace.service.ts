@@ -218,6 +218,141 @@ class WorkspaceService extends APIService {
 			return false;
 		}
 	};
+
+	/**
+	 * Enhanced workspace access validation with role and permission checking
+	 */
+	validateWorkspaceAccessEnhanced = async (
+		workspaceId: string,
+		user: TUser | null,
+		requiredRole?: string,
+		requiredPermissions?: string[]
+	): Promise<{
+		hasAccess: boolean;
+		role?: string;
+		permissions?: string[];
+		reason?: string;
+		workspace?: TWorkspace;
+	}> => {
+		try {
+			// Basic authentication check
+			if (!user?.id) {
+				return {
+					hasAccess: false,
+					reason: 'User not authenticated'
+				};
+			}
+
+			// Get user workspaces
+			const workspaces = await this.getUserWorkspaces(user);
+			const workspace = workspaces.find((w) => w.id === workspaceId);
+
+			if (!workspace) {
+				return {
+					hasAccess: false,
+					reason: 'Workspace not found or user not a member'
+				};
+			}
+
+			// Check if workspace is active
+			if (!workspace.organization?.isActive) {
+				return {
+					hasAccess: false,
+					reason: 'Organization is not active',
+					workspace
+				};
+			}
+
+			// Get user role from team membership (since TWorkspace doesn't have userRole directly)
+			// Find user's role by checking team memberships
+			let userRole = 'EMPLOYEE'; // Default role
+			let userPermissions: string[] = [];
+
+			// Check if user is a manager in any team
+			const isManagerInAnyTeam = workspace.teams.some((team) =>
+				team.managers?.some((manager) => manager.employee?.userId === user.id)
+			);
+
+			if (isManagerInAnyTeam) {
+				userRole = 'MANAGER';
+				userPermissions = ['MANAGE_TEAM', 'VIEW_REPORTS', 'ASSIGN_TASKS'];
+			} else {
+				// Check if user is a member in any team
+				const isMemberInAnyTeam = workspace.teams.some((team) =>
+					team.members?.some((member) => member.employee?.userId === user.id)
+				);
+
+				if (isMemberInAnyTeam) {
+					userRole = 'EMPLOYEE';
+					userPermissions = ['VIEW_TASKS', 'UPDATE_OWN_TASKS'];
+				}
+			}
+
+			// Check required role if specified
+			if (requiredRole && userRole !== requiredRole) {
+				// Check if user has a higher role (basic hierarchy)
+				const roleHierarchy = ['EMPLOYEE', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'];
+				const userRoleIndex = roleHierarchy.indexOf(userRole);
+				const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
+
+				if (userRoleIndex === -1 || requiredRoleIndex === -1 || userRoleIndex < requiredRoleIndex) {
+					return {
+						hasAccess: false,
+						reason: `Insufficient role. Required: ${requiredRole}, Current: ${userRole}`,
+						role: userRole,
+						permissions: userPermissions,
+						workspace
+					};
+				}
+			}
+
+			// Check required permissions if specified
+			if (requiredPermissions && requiredPermissions.length > 0) {
+				const missingPermissions = requiredPermissions.filter(
+					(permission) => !userPermissions.includes(permission)
+				);
+
+				if (missingPermissions.length > 0) {
+					return {
+						hasAccess: false,
+						reason: `Missing permissions: ${missingPermissions.join(', ')}`,
+						role: userRole,
+						permissions: userPermissions,
+						workspace
+					};
+				}
+			}
+
+			// Check if user is active in at least one team
+			const isActiveInAnyTeam = workspace.teams.some((team) =>
+				team.members?.some((member) => member.employee?.userId === user.id && member.isActive)
+			);
+
+			if (!isActiveInAnyTeam) {
+				return {
+					hasAccess: false,
+					reason: 'User is not active in any team within this workspace',
+					role: userRole,
+					permissions: userPermissions,
+					workspace
+				};
+			}
+
+			// All checks passed
+			return {
+				hasAccess: true,
+				role: userRole,
+				permissions: userPermissions,
+				workspace
+			};
+		} catch (error) {
+			console.error('Error in enhanced workspace access validation:', error);
+			return {
+				hasAccess: false,
+				reason: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`
+			};
+		}
+	};
 }
 
 export const workspaceService = new WorkspaceService(GAUZY_API_BASE_SERVER_URL.value);
