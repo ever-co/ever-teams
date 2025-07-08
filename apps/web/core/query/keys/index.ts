@@ -156,42 +156,7 @@ export const queryKeys = {
 			['daily-plans', 'all-plans', ...(teamId ? [teamId] : [])] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['daily-plans', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
-		byTask: (taskId: string | undefined | null) => ['daily-plans', 'by-task', ...(taskId ? [taskId] : [])] as const,
-
-		// Organization-scoped daily plans keys for data isolation
-		scoped: {
-			all: (organizationId: string | undefined | null) =>
-				['daily-plans', 'scoped', ...(organizationId ? [organizationId] : [])] as const,
-			myPlans: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'daily-plans',
-					'scoped',
-					'my-plans',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : [])
-				] as const,
-			allPlans: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'daily-plans',
-					'scoped',
-					'all-plans',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : [])
-				] as const,
-			byEmployee: (
-				employeeId: string | undefined | null,
-				teamId: string | undefined | null,
-				organizationId: string | undefined | null
-			) =>
-				[
-					'daily-plans',
-					'scoped',
-					'by-employee',
-					...(organizationId ? [organizationId] : []),
-					...(employeeId ? [employeeId] : []),
-					...(teamId ? [teamId] : [])
-				] as const
-		}
+		byTask: (taskId: string | undefined | null) => ['daily-plans', 'by-task', ...(taskId ? [taskId] : [])] as const
 	},
 
 	// Keys related to teams (organization-team)
@@ -204,27 +169,6 @@ export const queryKeys = {
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'join-requests'] as const,
-
-		// Organization-scoped organization teams keys for data isolation
-		scoped: {
-			all: (organizationId: string | undefined | null) =>
-				['organization-teams', 'scoped', ...(organizationId ? [organizationId] : [])] as const,
-			detail: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'organization-teams',
-					'scoped',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : [])
-				] as const,
-			members: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'organization-teams',
-					'scoped',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : []),
-					'members'
-				] as const
-		},
 
 		// ✅ Mutation keys for team operations
 		mutations: {
@@ -306,42 +250,7 @@ export const queryKeys = {
 		statistics: (teamId?: string | undefined | null) =>
 			['tasks', 'statistics', ...(teamId ? [teamId] : [])] as const,
 		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
-		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const,
-
-		// Organization-scoped task keys for data isolation
-		scoped: {
-			all: (organizationId: string | undefined | null) =>
-				['tasks', 'scoped', ...(organizationId ? [organizationId] : [])] as const,
-			byEmployee: (
-				employeeId: string | undefined | null,
-				teamId: string | undefined | null,
-				organizationId: string | undefined | null
-			) =>
-				[
-					'tasks',
-					'scoped',
-					'by-employee',
-					...(organizationId ? [organizationId] : []),
-					...(employeeId ? [employeeId] : []),
-					...(teamId ? [teamId] : [])
-				] as const,
-			byTeam: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'tasks',
-					'scoped',
-					'by-team',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : [])
-				] as const,
-			statistics: (teamId: string | undefined | null, organizationId: string | undefined | null) =>
-				[
-					'tasks',
-					'scoped',
-					'statistics',
-					...(organizationId ? [organizationId] : []),
-					...(teamId ? [teamId] : [])
-				] as const
-		}
+		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
 	},
 
 	// Keys related to activities
@@ -620,58 +529,4 @@ export const queryKeys = {
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
 	}
-};
-
-/**
- * Utility functions for organization-scoped query keys
- *
- * These utilities help developers migrate from non-scoped to organization-scoped queries
- * while maintaining backward compatibility.
- */
-export const queryKeysUtils = {
-	/**
-	 * Get organization-scoped task keys with fallback to non-scoped
-	 * @param organizationId - The organization ID (optional for backward compatibility)
-	 * @returns Object with both scoped and non-scoped query key functions
-	 */
-	getTaskKeys: (organizationId?: string | null) => ({
-		// Use scoped keys if organizationId is provided, otherwise fallback to non-scoped
-		all: organizationId ? queryKeys.tasks.scoped.all(organizationId) : queryKeys.tasks.all,
-		byTeam: (teamId: string | null) =>
-			organizationId ? queryKeys.tasks.scoped.byTeam(teamId, organizationId) : queryKeys.tasks.byTeam(teamId),
-		statistics: (teamId: string | null) =>
-			organizationId
-				? queryKeys.tasks.scoped.statistics(teamId, organizationId)
-				: queryKeys.tasks.statistics(teamId)
-	}),
-
-	/**
-	 * Get organization-scoped daily plans keys with fallback to non-scoped
-	 */
-	getDailyPlansKeys: (organizationId?: string | null) => ({
-		all: organizationId ? queryKeys.dailyPlans.scoped.all(organizationId) : queryKeys.dailyPlans.all,
-		myPlans: (teamId: string | null) =>
-			organizationId
-				? queryKeys.dailyPlans.scoped.myPlans(teamId, organizationId)
-				: queryKeys.dailyPlans.myPlans(teamId),
-		allPlans: (teamId: string | null) =>
-			organizationId
-				? queryKeys.dailyPlans.scoped.allPlans(teamId, organizationId)
-				: queryKeys.dailyPlans.allPlans(teamId)
-	}),
-
-	/**
-	 * Get organization-scoped organization teams keys with fallback to non-scoped
-	 */
-	getOrganizationTeamsKeys: (organizationId?: string | null) => ({
-		all: organizationId ? queryKeys.organizationTeams.scoped.all(organizationId) : queryKeys.organizationTeams.all,
-		detail: (teamId: string | null) =>
-			organizationId
-				? queryKeys.organizationTeams.scoped.detail(teamId, organizationId)
-				: queryKeys.organizationTeams.detail(teamId),
-		members: (teamId: string | null) =>
-			organizationId
-				? queryKeys.organizationTeams.scoped.members(teamId, organizationId)
-				: queryKeys.organizationTeams.members(teamId)
-	})
 };

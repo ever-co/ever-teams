@@ -112,7 +112,7 @@ export function useWorkspaceSwitcher() {
 						teamName: lastUsedTeam.name,
 						reason: 'Last used team for this workspace'
 					});
-					return lastUsedTeam.id;
+					return lastUsedTeam.id || '';
 				}
 			}
 
@@ -126,7 +126,7 @@ export function useWorkspaceSwitcher() {
 						teamName: globalLastUsedTeam.name,
 						reason: 'Global last used team'
 					});
-					return globalLastUsedTeam.id;
+					return globalLastUsedTeam.id || '';
 				}
 			}
 
@@ -138,7 +138,7 @@ export function useWorkspaceSwitcher() {
 					teamName: defaultTeam.name,
 					reason: 'Default team'
 				});
-				return defaultTeam.id;
+				return defaultTeam.id || '';
 			}
 
 			// 3. Try to find user's primary team (where user is active member)
@@ -152,7 +152,7 @@ export function useWorkspaceSwitcher() {
 						teamName: userPrimaryTeam.name,
 						reason: 'User primary team'
 					});
-					return userPrimaryTeam.id;
+					return userPrimaryTeam.id || '';
 				}
 			}
 
@@ -173,7 +173,7 @@ export function useWorkspaceSwitcher() {
 	 * Mutation to switch workspace
 	 */
 	const switchWorkspaceMutation = useMutation({
-		mutationKey: queryKeys.auth.switchWorkspace(undefined),
+		mutationKey: queryKeys.auth.switchWorkspace(undefined, user?.id),
 
 		mutationFn: async (request: { teamId: string; email: string }) => {
 			return await workspaceService.switchWorkspace(request.teamId, request.email);
@@ -234,7 +234,7 @@ export function useWorkspaceSwitcher() {
 				}
 
 				// Show success message
-				toast.success('Workspace changé avec succès');
+				toast.success('Workspace changed successfully');
 
 				// Use optimized navigation instead of brutal reload
 				try {
