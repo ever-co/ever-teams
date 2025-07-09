@@ -24,6 +24,7 @@ import Image from 'next/image';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskStatus
@@ -40,7 +41,6 @@ import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
-import { ActiveTaskStatusDropdown } from '@/core/components/tasks/active-task-status-dropdown';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -358,7 +358,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
-										dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
+										dark:bg-[#1B1D22] dark:border dark:border-gray-800 rounded-lg`,
 									styles?.value
 								)}
 								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
@@ -374,7 +374,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												height={25}
 											/>
 										)}
-										<span className="max-w-44 text-ellipsis">
+										<span className="overflow-hidden whitespace-nowrap max-w-44 text-ellipsis">
 											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
 										</span>
 									</div>
@@ -402,7 +402,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<EverCard
 								shadow="bigger"
 								className={clsxm(
-									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-gray-800 flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
 									styles?.listCard
 								)}
 							>
@@ -431,7 +431,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															className="rounded-full"
 														/>
 													)}
-													<span className="w-full text-xs truncate max-w-64 text-ellipsis">
+													<span className="overflow-hidden w-full text-xs truncate max-w-64 text-ellipsis">
 														{item.name || 'Project'}
 													</span>
 												</DropdownMenuItem>
@@ -440,7 +440,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<div className="mt-2">
 											{!controlled && (
 												<Button
-													className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+													className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-gray-800"
 													variant="outline"
 													onClick={handleRemoveProject}
 												>

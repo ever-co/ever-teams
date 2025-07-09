@@ -2,7 +2,7 @@
 
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
 import { Button, Modal } from '@/core/components';
-import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
+import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef } from 'react';
 import { AddIcon } from 'assets/svg';
@@ -10,6 +10,7 @@ import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { taskUpdateQueue } from '@/core/utils/task.utils';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -67,7 +68,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				latestLabels={latestLabels}
 			>
 				<Button
-					className="w-full px-2 py-1 mt-4 text-xs dark:text-white dark:border-white"
+					className="px-2 py-1 mt-4 w-full text-xs dark:text-white dark:border-white"
 					variant="outline"
 					onClick={modal.openModal}
 				>

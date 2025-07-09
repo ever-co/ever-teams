@@ -1,40 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-
-/* eslint-disable no-mixed-spaces-and-tabs */
-import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { Nullable } from '@/core/types/generics/utils';
-import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { PropsWithChildren, RefObject, useMemo } from 'react';
-import {
-	useStatusValue,
-	useSyncRef,
-	useTaskLabels,
-	useTaskPriorities,
-	useTaskSizes,
-	useTaskStatus,
-	useTaskStatusValue,
-	useTaskVersion,
-	useTeamTasks
-} from '@/core/hooks';
-import Image from 'next/legacy/image';
+import { PropsWithChildren } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { readableColor } from 'polished';
-import { useTheme } from 'next-themes';
-import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
-import { getTextColor } from '@/core/lib/helpers/index';
+import { CircleIcon } from 'assets/svg';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
-import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTaskStatus } from '@/core/types/schemas';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TaskStatus } from './task-status';
 

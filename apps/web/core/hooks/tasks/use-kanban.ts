@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
-import { TStatusItem } from '@/core/components/tasks/task-status';
+import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 

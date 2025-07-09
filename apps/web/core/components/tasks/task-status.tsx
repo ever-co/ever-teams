@@ -3,23 +3,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { Nullable } from '@/core/types/generics/utils';
-import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { PropsWithChildren, useMemo } from 'react';
-import {
-	useStatusValue,
-	useSyncRef,
-	useTaskLabels,
-	useTaskPriorities,
-	useTaskSizes,
-	useTaskStatus,
-	useTaskStatusValue,
-	useTaskVersion,
-	useTeamTasks
-} from '@/core/hooks';
+import { useStatusValue, useTaskSizes, useTaskStatusValue, useTeamTasks } from '@/core/hooks';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -29,16 +17,10 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { CustomListboxDropdown } from './custom-dropdown';
 import { capitalize } from 'lodash';
 import { cn } from '@/core/lib/helpers';
-import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import {
-	TStatus,
-	TStatusItem,
-	TTaskStatusesDropdown,
-	IActiveTaskStatuses
-} from '@/core/types/interfaces/task/task-card';
+import { TStatusItem, TTaskStatusesDropdown, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { MultipleStatusDropdown } from './multiple-status-dropdown';
 import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
