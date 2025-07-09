@@ -402,7 +402,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<EverCard
 								shadow="bigger"
 								className={clsxm(
-									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-gray-800 flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
 									styles?.listCard
 								)}
 							>
