@@ -24,7 +24,6 @@ import { TStatusItem, TTaskStatusesDropdown, IActiveTaskStatuses } from '@/core/
 import { MultipleStatusDropdown } from './multiple-status-dropdown';
 import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
 import { SpinnerLoader } from '@/core/components/common/loader';
-import { useState } from 'react';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
@@ -124,16 +123,8 @@ export function StandardTaskStatusDropDown({
  */
 export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
-	const [isLoading, setIsLoading] = useState(false);
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		{
-			...props,
-			onChangeLoading: setIsLoading
-		},
-		taskStatusValues,
-		'status'
-	);
+	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(props, taskStatusValues, 'status');
 
 	return (
 		<StatusDropdown
@@ -148,7 +139,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
 			showIcon={props.showIcon}
-			isLoading={isLoading}
+			isLoading={isLocalLoading}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -339,13 +330,9 @@ export function TaskPropertiesDropdown({
 
 export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
-	const [isLoading, setIsLoading] = useState(false);
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		{
-			...props,
-			onChangeLoading: setIsLoading
-		},
+	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(
+		props,
 		taskPrioritiesValues,
 		'priority'
 	);
@@ -362,7 +349,7 @@ export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priorit
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
-			isLoading={isLoading}
+			isLoading={isLocalLoading}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -392,16 +379,8 @@ export function TaskPriorityStatus({
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 	const { taskSizes } = useTaskSizes();
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
-	const [isLoading, setIsLoading] = useState(false);
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		{
-			...props,
-			onChangeLoading: setIsLoading
-		},
-		taskSizesValue,
-		'size'
-	);
+	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(props, taskSizesValue, 'size');
 
 	return (
 		<StatusDropdown
@@ -415,7 +394,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
-			isLoading={isLoading}
+			isLoading={isLocalLoading}
 		>
 			{props.children}
 		</StatusDropdown>

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import {
 	DropdownMenu,
@@ -322,9 +323,15 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			try {
 				if (task) {
 					await updateTask({ ...task, projectId: project.id });
+					toast.success('Task project updated successfully', {
+						description: `Project changed to "${project.name}"`
+					});
 				}
 			} catch (error) {
 				console.error(error);
+				toast.error('Failed to update task project', {
+					description: (error as any)?.message || 'Please try again'
+				});
 			}
 		},
 		[task, updateTask]

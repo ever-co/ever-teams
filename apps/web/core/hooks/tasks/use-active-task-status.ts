@@ -72,6 +72,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	const { taskLabels } = useTaskLabels();
 	const { taskStatuses } = useTaskStatus();
 	const [optimisticValue, setOptimisticValue] = useState<ITaskStatusStack[T] | null>(null);
+	const [isLocalLoading, setIsLocalLoading] = useState(false);
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 	const $task = useSyncRef(task);
@@ -79,6 +80,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	// Reset optimistic value when task changes
 	useEffect(() => {
 		setOptimisticValue(null);
+		setIsLocalLoading(false);
 	}, [task?.id]);
 
 	/**
@@ -87,8 +89,8 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	function onItemChange(status: ITaskStatusStack[T]) {
 		if (!task) return;
 
-		// Start loading state
-		props.onChangeLoading && props.onChangeLoading(true);
+		// Start local loading state (isolated per component)
+		setIsLocalLoading(true);
 
 		// Set optimistic value immediately for UI feedback
 		setOptimisticValue(status);
@@ -117,12 +119,13 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 					// Error - revert optimistic value and show error toast
 					setOptimisticValue(null);
 					toast.error(`Failed to update task ${field}`, {
-						description: error?.message || 'Please try again'
+						description: (error as any)?.message || 'Please try again'
 					});
 					console.error(`Error updating task ${field}:`, error);
 				})
 				.finally(() => {
-					props.onChangeLoading && props.onChangeLoading(false);
+					// Always clear local loading state
+					setIsLocalLoading(false);
 				});
 		}, $task);
 	}
@@ -143,6 +146,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		onChange,
 		task,
 		field,
-		optimisticValue
+		optimisticValue,
+		isLocalLoading
 	};
 }
