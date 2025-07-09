@@ -3,7 +3,7 @@
 import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
-import { TaskStatus, useTaskLabelsValue, useTaskPrioritiesValue, useTaskSizesValue } from './task-status';
+import { TaskStatus } from './task-status';
 import { clsxm } from '@/core/lib/utils';
 import { planBadgeContent, planBadgeContPast } from '@/core/lib/helpers/index';
 import { CalendarIcon } from '@radix-ui/react-icons';
@@ -13,6 +13,9 @@ import { useAtomValue } from 'jotai';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
+import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
 export function TaskAllStatusTypes({
 	task,
@@ -68,9 +71,9 @@ export function TaskAllStatusTypes({
 	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
 
 	return (
-		<div className="relative flex flex-col justify-center w-full h-full">
-			<div ref={viewportRef} className="relative w-full overflow-hidden">
-				<div className={clsxm('flex space-x-2 h-6 justify-start items-center', className)}>
+		<div className="flex relative flex-col justify-center w-full h-full">
+			<div ref={viewportRef} className="overflow-hidden relative w-full">
+				<div className={clsxm('flex justify-start items-center space-x-2 h-6', className)}>
 					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
 							{...taskStatus[task?.status]}
@@ -99,8 +102,8 @@ export function TaskAllStatusTypes({
 						/>
 					)}
 					{taskProject && (
-						<div className="flex items-center justify-center h-full gap-1 px-2 bg-slate-200">
-							<ProjectIcon /> <span className="text-xs truncate ">{taskProject.name}</span>
+						<div className="flex gap-1 justify-center items-center px-2 h-full bg-slate-200">
+							<ProjectIcon /> <span className="text-xs truncate">{taskProject.name}</span>
 						</div>
 					)}
 					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (
@@ -136,13 +139,13 @@ export function TaskAllStatusTypes({
 			</div>
 
 			{nextBtnEnabled && (
-				<RoundedButton onClick={scrollNext} className={'absolute w-6 h-6 -right-3'}>
+				<RoundedButton onClick={scrollNext} className={'absolute -right-3 w-6 h-6'}>
 					{'>'}
 				</RoundedButton>
 			)}
 
 			{prevBtnEnabled && (
-				<RoundedButton onClick={scrollPrev} className={'absolute w-6 h-6 -left-3'}>
+				<RoundedButton onClick={scrollPrev} className={'absolute -left-3 w-6 h-6'}>
 					{'<'}
 				</RoundedButton>
 			)}

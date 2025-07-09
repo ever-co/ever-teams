@@ -4,18 +4,14 @@ import { IHookModal, useModal, useStatusValue, useTaskStatusValue } from '@/core
 import { Button, Modal, Text } from '@/core/components';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';
-import {
-	StatusDropdown,
-	TStatus,
-	TTaskStatusesDropdown,
-	TaskStatus,
-	useTaskLabelsValue,
-	useTaskPrioritiesValue,
-	useTaskSizesValue
-} from './task-status';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../common/ever-card';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
+import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { TStatus, TTaskStatusesDropdown } from '@/core/types/interfaces/task/task-card';
+import { StatusDropdown, TaskStatus } from './task-status';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
 	types,
@@ -89,7 +85,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 					onPointerUp={(e) => e.stopPropagation()}
 				>
 					<EverCard className="w-full" shadow="custom">
-						<div className="flex flex-col items-center justify-between w-full">
+						<div className="flex flex-col justify-between items-center w-full">
 							<Text.Heading as="h3" className="mb-2 text-center">
 								{title}
 							</Text.Heading>
@@ -102,7 +98,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 											<li key={i} className="mb-2">
 												<div
 													ref={active ? checkedRef : undefined}
-													className="flex justify-between w-full p-2 cursor-pointer input-border rounded-xl"
+													className="flex justify-between p-2 w-full rounded-xl cursor-pointer input-border"
 													onClick={() => {
 														setValue(item.name as any);
 													}}
@@ -116,7 +112,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 								</ul>
 							</div>
 
-							<div className="flex justify-end w-full h-10 gap-2">
+							<div className="flex gap-2 justify-end w-full h-10">
 								<Button
 									disabled={!value}
 									variant="outline-dark"

@@ -4,7 +4,7 @@ import { useAuthenticateUser, useModal, useOrganizationTeams, useStatusValue } f
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useEffect, useMemo, useState, Suspense } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
 import Separator from '@/core/components/common/separator';
@@ -23,8 +23,8 @@ import dynamic from 'next/dynamic';
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { KanbanPageSkeleton } from '@/core/components/layouts/skeletons/kanban-page-skeleton';
-import { TStatusItem } from '@/core/components/tasks/task-status';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
+import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 
 // Next.js official patterns for always-rendered components
 const LazyKanbanView = dynamic(
@@ -95,7 +95,7 @@ const LazyTaskPropertiesDropdown = dynamic(
 );
 
 const LazyTaskSizesDropdown = dynamic(
-	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskSizesDropdown })),
+	() => import('@/core/components/tasks/task-sizes-dropdown').then((mod) => ({ default: mod.TaskSizesDropdown })),
 	{
 		ssr: false,
 		loading: () => (
