@@ -10,7 +10,12 @@ import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
 import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger
+} from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
@@ -22,8 +27,7 @@ import {
 	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
-	TaskStatus,
-	useTaskLabelsValue
+	TaskStatus
 } from '@/core/components/tasks/task-status';
 import { TaskLabels } from '@/core/components/tasks/task-labels';
 import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
@@ -36,6 +40,7 @@ import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -144,7 +149,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
+						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
@@ -192,7 +197,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
+						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
@@ -211,7 +216,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
+						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
@@ -256,7 +261,7 @@ const EpicParent = ({ task }: { task: TTask }) => {
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
 							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
 						</div>
-						<div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
+						<div className="overflow-hidden text-xs whitespace-nowrap text-ellipsis">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
 					</div>
 				</Link>
 			</Tooltip>
@@ -345,138 +350,119 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					styles?.container
 				)}
 			>
-				<Listbox
-					value={selected || undefined}
-					onChange={(project: TOrganizationProject) => {
-						if (controlled && onChange) {
-							onChange(project);
-						} else {
-							handleUpdateProject(project);
-							setSelected(project);
-						}
-					}}
-				>
-					{({ open }) => {
-						return (
-							<div>
-								<ListboxButton
-									className={clsxm(
-										`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
-									items-center justify-between h-fit p-1
-									border-solid border-color-[#F2F2F2]
-									dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
-										styles?.value
-									)}
-								>
-									{selected ? (
-										<div className="flex items-center gap-1 mx-1 w-fit">
-											{selected.imageUrl && (
-												<Image
-													className="w-4 h-4 rounded-full"
-													src={selected.imageUrl}
-													alt={selected.name || ''}
-													width={25}
-													height={25}
-												/>
-											)}
-											<span className="max-w-16 text-ellipsis">
-												{updateLoading ? (
-													<SpinnerLoader size={10} />
-												) : (
-													selected?.name || 'Project'
-												)}
-											</span>
-										</div>
-									) : (
-										<CircleIcon className="w-4 h-4" />
-									)}
-									<ChevronDownIcon
-										className={clsxm(
-											'transition duration-150 ease-in-out group-hover:text-opacity-80 w-5 h-5 text-default dark:text-white'
+				<DropdownMenu>
+					<div>
+						<DropdownMenuTrigger asChild>
+							<button
+								className={clsxm(
+									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
+										items-center justify-between h-fit p-1
+										border-solid border-color-[#F2F2F2]
+										dark:bg-[#1B1D22] dark:border dark:border-[#ffffffc1] rounded-[8px]`,
+									styles?.value
+								)}
+								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
+							>
+								{selected ? (
+									<div className="flex gap-1 items-center mx-1 w-fit">
+										{selected.imageUrl && (
+											<Image
+												className="w-4 h-4 rounded-full"
+												src={selected.imageUrl}
+												alt={selected.name || ''}
+												width={25}
+												height={25}
+											/>
 										)}
-										aria-hidden="true"
-									/>
-								</ListboxButton>
-
-								<Transition
-									as="div"
-									show={open}
-									enter="transition duration-100 ease-out"
-									enterFrom="transform scale-95 opacity-0"
-									enterTo="transform scale-100 opacity-100"
-									leave="transition duration-75 ease-out"
-									leaveFrom="transform scale-100 opacity-100"
-									leaveTo="transform scale-95 opacity-0"
+										<span className="max-w-16 text-ellipsis">
+											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
+										</span>
+									</div>
+								) : (
+									<CircleIcon className="w-4 h-4" />
+								)}
+								<ChevronDownIcon
 									className={clsxm(
-										'absolute right-0 z-40 min-w-min outline-none',
-										open ? 'w-max min-w-full' : 'w-full',
-										'[&>ul]:w-full'
+										'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
 									)}
-									style={{
-										top: 'calc(100% + 0.5rem)',
-										maxHeight: 'calc(100vh - 100%)',
-										overflow: 'auto'
-									}}
-								>
-									<ListboxOptions className="outline-none">
-										<EverCard
-											shadow="bigger"
-											className={clsxm(
-												'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
-												styles?.listCard
+									aria-hidden="true"
+								/>
+							</button>
+						</DropdownMenuTrigger>
+
+						<DropdownMenuContent
+							className={clsxm('z-[9999] min-w-full outline-none w-max p-0', styles?.listCard)}
+							style={{
+								maxHeight: 'calc(100vh - 100%)',
+								overflow: 'auto'
+							}}
+							align="end"
+							sideOffset={8}
+						>
+							<EverCard
+								shadow="bigger"
+								className={clsxm(
+									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+									styles?.listCard
+								)}
+							>
+								<ScrollArea className="w-full h-full">
+									<div className="flex flex-col gap-2.5 w-full p-4">
+										{organizationProjects?.map((item) => {
+											return (
+												<DropdownMenuItem
+													key={item.id}
+													onSelect={() => {
+														if (controlled && onChange) {
+															onChange(item);
+														} else {
+															handleUpdateProject(item);
+															setSelected(item);
+														}
+													}}
+													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-none cursor-pointer dark:text-white"
+												>
+													{item.imageUrl && (
+														<Image
+															src={item.imageUrl}
+															alt={item.name || ''}
+															width={20}
+															height={20}
+															className="rounded-full"
+														/>
+													)}
+													<span className="w-full text-xs truncate max-w-40 text-ellipsis">
+														{item.name || 'Project'}
+													</span>
+												</DropdownMenuItem>
+											);
+										})}
+										<div className="mt-2">
+											{!controlled && (
+												<Button
+													className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+													variant="outline"
+													onClick={handleRemoveProject}
+												>
+													<TrashIcon className="w-5" /> {t('common.REMOVE')}
+												</Button>
 											)}
-										>
-											<ScrollArea className="w-full h-full">
-												<div className="flex flex-col gap-2.5 w-full p-4">
-													{organizationProjects?.map((item) => {
-														return (
-															<ListboxOption key={item.id} value={item} as="div">
-																<li className="relative border  flex items-center gap-2 p-1.5  rounded-lg outline-none cursor-pointer dark:text-white">
-																	{item.imageUrl && (
-																		<Image
-																			src={item.imageUrl}
-																			alt={item.name || ''}
-																			width={20}
-																			height={20}
-																			className="rounded-full"
-																		/>
-																	)}
-																	<span className="w-full text-xs truncate ">
-																		{item.name || 'Project'}
-																	</span>
-																</li>
-															</ListboxOption>
-														);
-													})}
-													<div className="mt-2">
-														{!controlled && (
-															<Button
-																className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
-																variant="outline"
-																onClick={handleRemoveProject}
-															>
-																<TrashIcon className="w-5 " /> {t('common.REMOVE')}
-															</Button>
-														)}
-														<Button
-															className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
-															variant="outline"
-															onClick={openModal}
-														>
-															<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-															<span className="truncate ">{t('common.CREATE_NEW')}</span>
-														</Button>
-													</div>
-												</div>
-												<ScrollBar className="-pr-60" />
-											</ScrollArea>
-										</EverCard>
-									</ListboxOptions>
-								</Transition>
-							</div>
-						);
-					}}
-				</Listbox>
+											<Button
+												className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+												variant="outline"
+												onClick={openModal}
+											>
+												<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
+												<span className="truncate">{t('common.CREATE_NEW')}</span>
+											</Button>
+										</div>
+									</div>
+									<ScrollBar className="-pr-60" />
+								</ScrollArea>
+							</EverCard>
+						</DropdownMenuContent>
+					</div>
+				</DropdownMenu>
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {

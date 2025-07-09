@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
@@ -9,7 +8,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { Queue } from '@/core/lib/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, { PropsWithChildren, RefObject, useMemo } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
 import {
 	useStatusValue,
 	useSyncRef,
@@ -21,7 +20,6 @@ import {
 	useTaskVersion,
 	useTeamTasks
 } from '@/core/hooks';
-import Image from 'next/legacy/image';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -35,151 +33,18 @@ import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-
-export type TStatusItem = {
-	id?: string;
-	bgColor?: string | null;
-	icon?: React.ReactNode | undefined;
-	realName?: string;
-	name?: string;
-	value?: string;
-	bordered?: boolean;
-	showIcon?: boolean;
-	className?: string;
-};
-
-export type TStatus<T extends string = string> = {
-	[k in T]: TStatusItem;
-};
-
-export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
-	PropsWithChildren<{
-		defaultValue?: ITaskStatusStack[T];
-		onValueChange?: (v: ITaskStatusStack[T], values?: ITaskStatusStack[T][]) => void;
-		forDetails?: boolean;
-		dynamicValues?: any[];
-		multiple?: boolean;
-		disabled?: boolean;
-		largerWidth?: boolean;
-		sidebarUI?: boolean;
-		placeholder?: string;
-		defaultValues?: ITaskStatusStack[T][];
-		taskStatusClassName?: string;
-		latestLabels?: RefObject<string[]>;
-		dropdownContentClassName?: string;
-		isMultiple?: boolean;
-	}>;
-
-export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
-	defaultValue?: ITaskStatusStack[T];
-	onValueChange?: (v: ITaskStatusStack[T]) => void;
-};
-
-export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
-	onChangeLoading?: (loading: boolean) => void;
-} & {
-	task?: Nullable<TTask>;
-	showIssueLabels?: boolean;
-	forDetails?: boolean;
-	sidebarUI?: boolean;
-
-	forParentChildRelationship?: boolean;
-	taskStatusClassName?: string;
-	showIcon?: boolean;
-};
-
-export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], bordered = false): TStatus<any> {
-	return useMemo(() => {
-		return data.reduce((acc, item) => {
-			const value: TStatus<any>[string] = {
-				id: item.id,
-				name: item.name?.split('-').join(' '),
-				realName: item.name?.split('-').join(' '),
-				value: item.value || item.name,
-				bgColor: item.color,
-				bordered,
-				icon: (
-					<div className="relative flex items-center">
-						{item.fullIconUrl && (
-							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
-						)}
-					</div>
-				)
-			};
-
-			if (value.value) {
-				acc[value.value] = value;
-			} else if (value.name) {
-				acc[value.name] = value;
-			}
-			return acc;
-		}, {} as TStatus<any>);
-	}, [data, bordered]);
-}
-
-export const taskUpdateQueue = new Queue(1);
-
-export function useActiveTaskStatus<T extends ITaskStatusField>(
-	props: IActiveTaskStatuses<T>,
-	status: TStatus<ITaskStatusStack[T]>,
-	field: T
-) {
-	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
-	const { taskLabels } = useTaskLabels();
-	const { taskStatuses } = useTaskStatus();
-
-	const task = props.task !== undefined ? props.task : activeTeamTask;
-	const $task = useSyncRef(task);
-
-	/**
-	 * "When the user changes the status of a task, update the status of the task and then call the
-	 * onChangeLoading function with true, and when the status update is complete, call the onChangeLoading
-	 * function with false."
-	 *
-	 * The first line of the function is a type annotation. It says that the function takes a single
-	 * argument, which is an object of type ITaskStatusStack[T]. The type annotation is optional, but it's
-	 * a good idea to include it
-	 * @param status - The new status of the item.
-	 */
-	function onItemChange(status: ITaskStatusStack[T]) {
-		props.onChangeLoading && props.onChangeLoading(true);
-
-		let updatedField: ITaskStatusField = field;
-		let taskStatusId: string | undefined;
-
-		if (field === 'label' && task) {
-			const currentTag = taskLabels.find((label) => label.name === status) as ITag;
-			updatedField = 'tags';
-			status = [currentTag];
-		}
-
-		if (field === 'status') {
-			const selectedStatus = taskStatuses.find((s) => s.name === status && s.value === status);
-			taskStatusId = selectedStatus?.id;
-		}
-
-		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)?.finally(() => {
-				props.onChangeLoading && props.onChangeLoading(false);
-			});
-		}, $task);
-	}
-
-	const { item, items, onChange } = useStatusValue<T>({
-		status: status,
-		value: props.defaultValue ? props.defaultValue : task ? (task as any)[field] : undefined,
-		onValueChange: onItemChange,
-		defaultValues: props.defaultValues
-	});
-
-	return {
-		item,
-		items,
-		onChange,
-		task,
-		field
-	};
-}
+import {
+	TStatus,
+	TStatusItem,
+	TTaskStatusesDropdown,
+	IActiveTaskStatuses
+} from '@/core/types/interfaces/task/task-card';
+import { MultipleStatusDropdown } from './multiple-status-dropdown';
+import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
+import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
+import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
+import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
 /**
  * Task status dropwdown
@@ -295,12 +160,6 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			{props.children}
 		</StatusDropdown>
 	);
-}
-
-export function useTaskVersionsValue() {
-	const { taskVersion } = useTaskVersion();
-
-	return useMapToTaskStatusValues(taskVersion, false);
 }
 
 /**
@@ -441,11 +300,6 @@ export function EpicPropertiesDropdown({
 
 //! =============== Task Status ================= //
 
-export function useTaskPrioritiesValue() {
-	const { taskPriorities } = useTaskPriorities();
-	return useMapToTaskStatusValues(taskPriorities as TTaskStatus[], false);
-}
-
 /**
  * Task dropdown that allows you to select a task property
  * @param {IClassName}  - IClassName - This is the interface that the component will accept.
@@ -533,59 +387,9 @@ export function TaskPriorityStatus({
 	);
 }
 
-//! =============== Task Sizes ================= //
-
-export function useTaskSizesValue() {
-	const { taskSizes } = useTaskSizes();
-	return useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
-}
-
-/**
- * Task dropdown that lets you select a task size
- * @param {IClassName}  - IClassName - This is the interface that the component will accept.
- * @returns A React component
- */
-export function TaskSizesDropdown({
-	className,
-	defaultValue,
-	onValueChange,
-	forDetails,
-	multiple,
-	largerWidth,
-	sidebarUI = false,
-	children,
-	isMultiple = false
-}: TTaskStatusesDropdown<'size'>) {
-	const taskSizesValue = useTaskSizesValue();
-
-	const { item, items, onChange, values } = useStatusValue<'size'>({
-		status: taskSizesValue,
-		value: defaultValue,
-		onValueChange,
-		multiple
-	});
-
-	return (
-		<StatusDropdown
-			isMultiple={isMultiple}
-			sidebarUI={sidebarUI}
-			forDetails={forDetails}
-			className={className}
-			items={items}
-			value={item}
-			defaultItem={!item ? 'size' : undefined}
-			onChange={onChange}
-			multiple={multiple}
-			values={values}
-			largerWidth={largerWidth}
-		>
-			{children}
-		</StatusDropdown>
-	);
-}
-
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
-	const taskSizesValue = useTaskSizesValue();
+	const { taskSizes } = useTaskSizes();
+	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 	const { item, items, onChange, field } = useActiveTaskStatus(props, taskSizesValue, 'size');
 
 	return (
@@ -607,11 +411,6 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 }
 
 //! =============== Task Label ================= //
-
-export function useTaskLabelsValue() {
-	const { taskLabels } = useTaskLabels();
-	return useMapToTaskStatusValues(taskLabels as any[], false);
-}
 
 export function TaskLabelsDropdown({
 	className,
@@ -661,45 +460,6 @@ export function TaskLabelsDropdown({
 		>
 			{children}
 		</MultipleStatusDropdown>
-	);
-}
-
-export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label' | 'tags'>) {
-	const taskLabelsValue = useTaskLabelsValue();
-	const { item, items, onChange, field } = useActiveTaskStatus(props, taskLabelsValue, 'label');
-
-	return (
-		<StatusDropdown
-			className={props.className}
-			items={items}
-			value={item}
-			defaultItem={!item ? field : undefined}
-			onChange={onChange}
-			disabled={props.disabled}
-			sidebarUI={props.sidebarUI}
-			forDetails={props.forDetails}
-			largerWidth={props.largerWidth}
-			multiple={props.multiple}
-		>
-			{props.children}
-		</StatusDropdown>
-	);
-}
-
-//! =============== Task Project ================= //
-
-export function ActiveTaskProjectDropdown(props: IActiveTaskStatuses<'project'>) {
-	const { item, items, onChange, field } = useActiveTaskStatus(props, {}, 'project');
-
-	return (
-		<StatusDropdown
-			className={props.className}
-			items={items}
-			value={item}
-			forDetails={props.forDetails}
-			defaultItem={!item ? field : undefined}
-			onChange={onChange}
-		/>
 	);
 }
 
@@ -981,7 +741,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="w-full outline-none cursor-pointer">
+							<div className="w-full cursor-pointer outline-none">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -1074,171 +834,5 @@ export function StatusDropdown<T extends TStatusItem>({
 		</div>
 	);
 
-	return dropdown;
-}
-
-/**
- * Multiple Status Dropdown Component
- */
-export function MultipleStatusDropdown<T extends TStatusItem>({
-	value,
-	onChange,
-	items,
-	className,
-	taskStatusClassName,
-	dropdownContentClassName,
-	defaultItem,
-	issueType = 'status',
-	children,
-	forDetails,
-	enabled = true,
-	values = [],
-	disabled,
-	showIcon = true,
-	largerWidth = false,
-	bordered = false,
-	sidebarUI = false,
-	disabledReason = '',
-	isVersion = false,
-	onRemoveSelected
-}: PropsWithChildren<{
-	value: T | undefined;
-	values?: NonNullable<T['name']>[];
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	onChange?(value: string[]): void;
-	items: T[];
-	className?: string;
-	dropdownContentClassName?: string;
-	taskStatusClassName?: string;
-	defaultItem?: ITaskStatusField;
-	issueType?: 'status' | 'issue';
-	forDetails?: boolean;
-	showIssueLabels?: boolean;
-	enabled?: boolean;
-	showButtonOnly?: boolean;
-	multiple?: boolean;
-	disabled?: boolean;
-	showIcon?: boolean;
-	largerWidth?: boolean;
-	bordered?: boolean;
-	sidebarUI?: boolean;
-	disabledReason?: string;
-	isVersion?: boolean;
-	onRemoveSelected?: () => void;
-}>) {
-	const valueToAdd = value?.value || value?.name;
-	if (valueToAdd && !values.includes(valueToAdd)) {
-		values = [...values, valueToAdd];
-	}
-	const defaultValue: TStatusItem = {
-		bgColor: undefined,
-		icon: (
-			<span>
-				<CircleIcon className="w-4 h-4" />
-			</span>
-		),
-		name: defaultItem
-	};
-
-	const triggerButton = (
-		<div
-			className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
-			style={{
-				width: largerWidth ? '160px' : ''
-			}}
-		>
-			<TaskStatus
-				{...defaultValue}
-				active={true}
-				forDetails={forDetails}
-				sidebarUI={sidebarUI}
-				className={cn(
-					'justify-between w-full capitalize',
-					sidebarUI && ['text-xs'],
-					' dark:text-white dark:bg-dark--theme-light',
-					forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-					taskStatusClassName
-				)}
-				titleClassName={cn(
-					values.length > 0 && '!text-dark dark:!text-white',
-					!value && 'dark:text-white text-slate-500'
-				)}
-				name={
-					values.length > 0 ? `Item${values.length === 1 ? '' : 's'} (${values.length})` : defaultValue.name
-				}
-			>
-				<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
-			</TaskStatus>
-		</div>
-	);
-
-	const renderItem = (item: T, isSelected: boolean) => {
-		const item_value = item.value || item.name;
-		return (
-			<div className="relative w-full outline-none cursor-pointer">
-				<TaskStatus
-					showIcon={showIcon}
-					{...item}
-					checked={isSelected}
-					className={cn(
-						'!w-full',
-						issueType === 'issue' && ['rounded-md px-2 text-white'],
-						sidebarUI && 'rounded-[8px]',
-						bordered && 'input-border',
-						isVersion && 'dark:text-white'
-					)}
-				/>
-				{isSelected && issueType !== 'issue' && (
-					<button
-						onClick={(e: any) => {
-							e.stopPropagation();
-
-							if (onChange && item_value) {
-								const newValues = values.filter((v) => String(v) !== String(item_value));
-								onChange(newValues);
-							}
-
-							onRemoveSelected?.();
-						}}
-						className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-					>
-						<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
-					</button>
-				)}
-			</div>
-		);
-	};
-
-	const handleChange = (selectedValue: any) => {
-		if (!onChange) return;
-		if (Array.isArray(selectedValue)) {
-			onChange(selectedValue);
-		} else if (selectedValue) {
-			onChange([selectedValue]);
-		} else {
-			onChange([]);
-		}
-	};
-
-	const dropdown = (
-		<div className={cn('relative', className)}>
-			<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
-				<CustomListboxDropdown
-					value={value?.value || value?.name}
-					values={values}
-					onChange={handleChange}
-					disabled={disabled}
-					enabled={enabled}
-					trigger={triggerButton}
-					items={items}
-					renderItem={renderItem as any}
-					multiple={true}
-					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
-				>
-					{children && <div className="mt-2">{children}</div>}
-				</CustomListboxDropdown>
-			</Tooltip>
-		</div>
-	);
 	return dropdown;
 }
