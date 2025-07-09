@@ -4,7 +4,8 @@ import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks'
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
@@ -21,11 +22,17 @@ type Props = {
 };
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [optimisticLabels, setOptimisticLabels] = useState<string[] | null>(null);
+
+	// Reset optimistic labels when task changes
+	useEffect(() => {
+		setOptimisticLabels(null);
+	}, [task?.id]);
 
 	const onValuesChange = useCallback(
 		(_: any, values: string[] | undefined) => {
@@ -35,16 +42,32 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				return;
 			}
 
+			// Set optimistic value immediately
+			setOptimisticLabels(values || []);
 			setIsLoading(true);
+
 			taskUpdateQueue.task(
 				(task, taskLabels, values) => {
 					return updateTask({
 						// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
 						...task.current!,
 						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
-					}).finally(() => {
-						setIsLoading(false);
-					});
+					})
+						.then(() => {
+							// Success - keep optimistic value and show success toast
+							toast.success('Task labels updated successfully');
+						})
+						.catch((error) => {
+							// Error - revert optimistic value and show error toast
+							setOptimisticLabels(null);
+							toast.error('Failed to update task labels', {
+								description: error?.message || 'Please try again'
+							});
+							console.error('Error updating task labels:', error);
+						})
+						.finally(() => {
+							setIsLoading(false);
+						});
 				},
 				$task,
 				taskLabels,
@@ -56,7 +79,9 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 
 	const onValuesChangeDebounce = useMemo(() => debounce(onValuesChange, 2000), [onValuesChange]);
 
-	const tags = (task?.tags as typeof taskLabels | undefined)?.map((tag) => tag.name || '');
+	// Use optimistic labels if available, otherwise use actual task labels
+	const actualTags = (task?.tags as typeof taskLabels | undefined)?.map((tag) => tag.name || '');
+	const tags = optimisticLabels !== null ? optimisticLabels : actualTags;
 
 	return (
 		<>

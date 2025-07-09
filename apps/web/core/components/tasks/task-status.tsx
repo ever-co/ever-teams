@@ -705,7 +705,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			isEpic={isEpic}
 		>
 			{isLoading ? (
-				<SpinnerLoader size={12} />
+				<SpinnerLoader size={12} variant="dark-white" />
 			) : (
 				issueType === 'status' &&
 				!showButtonOnly && (

@@ -6,7 +6,8 @@ import { useStatusValue, useSyncRef, useTaskLabels, useTaskStatus, useTeamTasks 
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { taskUpdateQueue } from '@/core/utils/task.utils';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -70,22 +71,27 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const { taskStatuses } = useTaskStatus();
+	const [optimisticValue, setOptimisticValue] = useState<ITaskStatusStack[T] | null>(null);
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 	const $task = useSyncRef(task);
 
+	// Reset optimistic value when task changes
+	useEffect(() => {
+		setOptimisticValue(null);
+	}, [task?.id]);
+
 	/**
-	 * "When the user changes the status of a task, update the status of the task and then call the
-	 * onChangeLoading function with true, and when the status update is complete, call the onChangeLoading
-	 * function with false."
-	 *
-	 * The first line of the function is a type annotation. It says that the function takes a single
-	 * argument, which is an object of type ITaskStatusStack[T]. The type annotation is optional, but it's
-	 * a good idea to include it
-	 * @param status - The new status of the item.
+	 * Handle optimistic updates with proper error handling and user feedback
 	 */
 	function onItemChange(status: ITaskStatusStack[T]) {
+		if (!task) return;
+
+		// Start loading state
 		props.onChangeLoading && props.onChangeLoading(true);
+
+		// Set optimistic value immediately for UI feedback
+		setOptimisticValue(status);
 
 		let updatedField: ITaskStatusField = field;
 		let taskStatusId: string | undefined;
@@ -102,15 +108,31 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)?.finally(() => {
-				props.onChangeLoading && props.onChangeLoading(false);
-			});
+			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)
+				?.then(() => {
+					// Success - keep optimistic value and show success toast
+					toast.success(`Task ${field} updated successfully`);
+				})
+				.catch((error) => {
+					// Error - revert optimistic value and show error toast
+					setOptimisticValue(null);
+					toast.error(`Failed to update task ${field}`, {
+						description: error?.message || 'Please try again'
+					});
+					console.error(`Error updating task ${field}:`, error);
+				})
+				.finally(() => {
+					props.onChangeLoading && props.onChangeLoading(false);
+				});
 		}, $task);
 	}
 
+	// Use optimistic value if available, otherwise use actual task value
+	const currentValue = optimisticValue !== null ? optimisticValue : task ? (task as any)[field] : undefined;
+
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: props.defaultValue ? props.defaultValue : task ? (task as any)[field] : undefined,
+		value: props.defaultValue ? props.defaultValue : currentValue,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});
@@ -120,6 +142,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		items,
 		onChange,
 		task,
-		field
+		field,
+		optimisticValue
 	};
 }

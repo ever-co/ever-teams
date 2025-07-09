@@ -106,7 +106,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 				}
 			>
 				{isLoading ? (
-					<SpinnerLoader size={12} />
+					<SpinnerLoader size={12} variant="dark-white" />
 				) : (
 					<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
 				)}
