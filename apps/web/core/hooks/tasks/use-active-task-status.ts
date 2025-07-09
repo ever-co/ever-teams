@@ -6,6 +6,61 @@ import { useStatusValue, useSyncRef, useTaskLabels, useTaskStatus, useTeamTasks 
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { useCallback, useState } from 'react';
+
+/**
+ * Hook for managing loading states in task dropdown components
+ * Provides optimistic updates, loading indicators, and error handling
+ */
+export function useTaskDropdownLoading<T extends ITaskStatusField>(
+	field: T,
+	task: any,
+	onUpdate: (value: ITaskStatusStack[T]) => Promise<void>
+) {
+	const [isLoading, setIsLoading] = useState(false);
+	const [optimisticValue, setOptimisticValue] = useState<ITaskStatusStack[T] | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleUpdate = useCallback(
+		async (value: ITaskStatusStack[T]) => {
+			if (!task) return;
+
+			setIsLoading(true);
+			setOptimisticValue(value);
+			setError(null);
+
+			try {
+				await onUpdate(value);
+				// Success - keep optimistic value
+			} catch (err) {
+				// Error - revert optimistic value
+				setOptimisticValue(null);
+				setError(err instanceof Error ? err.message : 'Update failed');
+				console.error(`Error updating task ${field}:`, err);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[task, onUpdate, field]
+	);
+
+	const getCurrentValue = useCallback(() => {
+		return optimisticValue !== null ? optimisticValue : task?.[field];
+	}, [optimisticValue, task, field]);
+
+	const clearError = useCallback(() => {
+		setError(null);
+	}, []);
+
+	return {
+		isLoading,
+		optimisticValue,
+		error,
+		handleUpdate,
+		getCurrentValue,
+		clearError
+	};
+}
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(
 	props: IActiveTaskStatuses<T>,

@@ -23,6 +23,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TStatusItem, TTaskStatusesDropdown, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { MultipleStatusDropdown } from './multiple-status-dropdown';
 import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
+import { SpinnerLoader } from '@/core/components/common/loader';
+import { useState } from 'react';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
@@ -122,8 +124,16 @@ export function StandardTaskStatusDropDown({
  */
 export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
+	const [isLoading, setIsLoading] = useState(false);
 
-	const { item, items, onChange, field } = useActiveTaskStatus(props, taskStatusValues, 'status');
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		{
+			...props,
+			onChangeLoading: setIsLoading
+		},
+		taskStatusValues,
+		'status'
+	);
 
 	return (
 		<StatusDropdown
@@ -138,6 +148,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
 			showIcon={props.showIcon}
+			isLoading={isLoading}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -328,8 +339,16 @@ export function TaskPropertiesDropdown({
 
 export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
+	const [isLoading, setIsLoading] = useState(false);
 
-	const { item, items, onChange, field } = useActiveTaskStatus(props, taskPrioritiesValues, 'priority');
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		{
+			...props,
+			onChangeLoading: setIsLoading
+		},
+		taskPrioritiesValues,
+		'priority'
+	);
 
 	return (
 		<StatusDropdown
@@ -343,6 +362,7 @@ export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priorit
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
+			isLoading={isLoading}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -372,7 +392,16 @@ export function TaskPriorityStatus({
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 	const { taskSizes } = useTaskSizes();
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
-	const { item, items, onChange, field } = useActiveTaskStatus(props, taskSizesValue, 'size');
+	const [isLoading, setIsLoading] = useState(false);
+
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		{
+			...props,
+			onChangeLoading: setIsLoading
+		},
+		taskSizesValue,
+		'size'
+	);
 
 	return (
 		<StatusDropdown
@@ -386,6 +415,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
+			isLoading={isLoading}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -406,8 +436,9 @@ export function TaskLabelsDropdown({
 	defaultValues,
 	taskStatusClassName,
 	latestLabels,
-	dropdownContentClassName
-}: TTaskStatusesDropdown<'label'>) {
+	dropdownContentClassName,
+	isLoading = false
+}: TTaskStatusesDropdown<'label'> & { isLoading?: boolean }) {
 	const taskLabelsValue = useTaskLabelsValue();
 
 	const { item, items, onChange, values } = useStatusValue<'label'>({
@@ -439,6 +470,7 @@ export function TaskLabelsDropdown({
 			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
 			dropdownContentClassName={dropdownContentClassName}
+			isLoading={isLoading}
 		>
 			{children}
 		</MultipleStatusDropdown>
@@ -590,7 +622,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	isVersion = false,
 	isEpic = false,
 	onRemoveSelected,
-	isMultiple = true
+	isMultiple = true,
+	isLoading = false
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -615,6 +648,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	isEpic?: boolean;
 	onRemoveSelected?: () => null;
 	isMultiple?: boolean;
+	isLoading?: boolean;
 }>) {
 	const processedValues = [...new Set(values)];
 	if (multiple && value) {
@@ -670,16 +704,21 @@ export function StatusDropdown<T extends TStatusItem>({
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
-			{issueType === 'status' && !showButtonOnly && (
-				<ChevronDownIcon
-					className={cn(
-						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
-						hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
-						isVersion && 'dark:text-white'
-					)}
-					aria-hidden="true"
-				/>
+			{isLoading ? (
+				<SpinnerLoader size={12} />
+			) : (
+				issueType === 'status' &&
+				!showButtonOnly && (
+					<ChevronDownIcon
+						className={cn(
+							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+							(!value || currentValue.bordered) && ['text-dark dark:text-white'],
+							hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
+							isVersion && 'dark:text-white'
+						)}
+						aria-hidden="true"
+					/>
+				)
 			)}
 		</TaskStatus>
 	);

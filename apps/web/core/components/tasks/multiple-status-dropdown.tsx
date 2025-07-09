@@ -11,6 +11,7 @@ import { CustomListboxDropdown } from './custom-dropdown';
 import { cn } from '@/core/lib/helpers';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TaskStatus } from './task-status';
+import { SpinnerLoader } from '@/core/components/common/loader';
 
 /**
  * Multiple Status Dropdown Component
@@ -35,7 +36,8 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	sidebarUI = false,
 	disabledReason = '',
 	isVersion = false,
-	onRemoveSelected
+	onRemoveSelected,
+	isLoading = false
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -60,6 +62,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	disabledReason?: string;
 	isVersion?: boolean;
 	onRemoveSelected?: () => void;
+	isLoading?: boolean;
 }>) {
 	const valueToAdd = value?.value || value?.name;
 	if (valueToAdd && !values.includes(valueToAdd)) {
@@ -102,7 +105,11 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					values.length > 0 ? `Item${values.length === 1 ? '' : 's'} (${values.length})` : defaultValue.name
 				}
 			>
-				<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+				{isLoading ? (
+					<SpinnerLoader size={12} />
+				) : (
+					<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+				)}
 			</TaskStatus>
 		</div>
 	);

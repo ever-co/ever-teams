@@ -34,31 +34,31 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					<ActiveTaskStatusDropdown
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] "
+						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskPropertiesDropdown
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskSizesDropdown
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<TaskLabels
 						task={activeTeamTask}
 						className="w-fit lg:max-w-[170px] text-xs"
 						forDetails={false}
-						taskStatusClassName="dark:bg-[#1B1D22] text-xs border dark:border-gray-700"
+						taskStatusClassName="dark:bg-[#1B1D22] text-xs border dark:border-gray-700 overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 					{activeTeamTask && (
 						<ProjectDropDown
 							styles={{
-								container: 'rounded-xl grow text-xs !max-w-fit',
+								container: 'rounded-xl grow text-xs !max-w-fit overflow-hidden',
 								listCard: 'rounded-xl'
 							}}
 							task={activeTeamTask}

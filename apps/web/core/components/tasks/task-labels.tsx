@@ -4,7 +4,7 @@ import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks'
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { AddIcon } from 'assets/svg';
 import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
@@ -21,10 +21,11 @@ type Props = {
 };
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
-	const { updateTask } = useTeamTasks();
+	const { updateTask, updateLoading } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const onValuesChange = useCallback(
 		(_: any, values: string[] | undefined) => {
@@ -34,12 +35,15 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				return;
 			}
 
+			setIsLoading(true);
 			taskUpdateQueue.task(
 				(task, taskLabels, values) => {
 					return updateTask({
 						// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
 						...task.current!,
 						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
+					}).finally(() => {
+						setIsLoading(false);
 					});
 				},
 				$task,
@@ -66,6 +70,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				sidebarUI={forDetails}
 				taskStatusClassName={taskStatusClassName}
 				latestLabels={latestLabels}
+				isLoading={isLoading}
 			>
 				<Button
 					className="px-2 py-1 mt-4 w-full text-xs dark:text-white dark:border-white"
