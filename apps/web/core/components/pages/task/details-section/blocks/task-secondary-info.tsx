@@ -24,7 +24,6 @@ import Image from 'next/image';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskStatus
@@ -41,6 +40,7 @@ import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { ActiveTaskStatusDropdown } from '@/core/components/tasks/active-task-status-dropdown';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -374,7 +374,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												height={25}
 											/>
 										)}
-										<span className="max-w-16 text-ellipsis">
+										<span className="max-w-44 text-ellipsis">
 											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
 										</span>
 									</div>
@@ -431,7 +431,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															className="rounded-full"
 														/>
 													)}
-													<span className="w-full text-xs truncate max-w-40 text-ellipsis">
+													<span className="w-full text-xs truncate max-w-64 text-ellipsis">
 														{item.name || 'Project'}
 													</span>
 												</DropdownMenuItem>
