@@ -98,7 +98,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		let updatedField: ITaskStatusField = field;
 		let taskStatusId: string | undefined;
 
-		if (field === 'label' && task) {
+		if (field === 'label') {
 			const currentTag = taskLabels.find((label) => label.name === status) as ITag;
 			updatedField = 'tags';
 			status = [currentTag];
