@@ -28,6 +28,7 @@ import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
 import { LazyRender } from '@/core/components/common/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
+import { toast } from 'sonner';
 import { cn } from '@/core/lib/helpers';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
@@ -223,11 +224,20 @@ export function TaskInput(props: Props) {
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
-				?.then(onTaskCreated)
+				?.then((createdTask) => {
+					// Show success toast notification
+					if (createdTask) {
+						toast.success('Task Created Successfully', {
+							description: `"${createdTask.title}" has been created successfully`,
+							duration: 4000
+						});
+					}
+					onTaskCreated(createdTask);
+				})
 				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
+	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 
 	const updatedTaskList = useMemo(() => {
 		let updatedTaskList: TTask[] = [];
@@ -828,6 +838,28 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 		[teamMembers, user?.id]
 	);
 
+	// Auto-select current user by default if no assignees are selected
+	useEffect(() => {
+		if (assignees && authMember && (!assignees.current || assignees.current.length === 0)) {
+			assignees.current = [{ id: authMember.employee?.id || '' }];
+		}
+	}, [assignees, authMember]);
+
+	// Helper function to check if current user is assigned
+	const isCurrentUserAssigned = useMemo(() => {
+		return assignees?.current?.some((assignee) => assignee.id === authMember?.employee?.id);
+	}, [assignees?.current, authMember?.employee?.id]);
+
+	// Helper function to get other assigned users (excluding current user)
+	const otherAssignedUsers = useMemo(() => {
+		return assignees?.current?.filter((assignee) => assignee.id !== authMember?.employee?.id) || [];
+	}, [assignees?.current, authMember?.employee?.id]);
+
+	// Helper function to determine if current user can be deselected
+	const canDeselectCurrentUser = useMemo(() => {
+		return otherAssignedUsers.length > 0;
+	}, [otherAssignedUsers.length]);
+
 	return (
 		<div
 			className={cn(
@@ -865,19 +897,45 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+										`relative select-none py-2 pl-10 pr-4 ${
+											canDeselectCurrentUser ? 'cursor-pointer' : 'cursor-not-allowed opacity-75'
+										} ${
 											active
 												? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
 												: 'text-gray-900 dark:text-gray-200'
 										}`
 									}
+									onClick={() => {
+										if (!assignees) return;
+
+										if (isCurrentUserAssigned) {
+											// Only allow deselection if other users are assigned
+											if (canDeselectCurrentUser) {
+												assignees.current = (assignees.current || []).filter(
+													(el) => el.id !== authMember.employee?.id
+												);
+											}
+											// If can't deselect, do nothing (user remains selected)
+										} else {
+											// Re-select current user
+											assignees.current = [
+												...(assignees.current || []),
+												{ id: authMember.employee?.id || '' }
+											];
+										}
+									}}
 									value={authMember}
 								>
-									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
-										<CheckIcon className="w-5 h-5" aria-hidden="true" />
-									</span>
+									{isCurrentUserAssigned && (
+										<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+											<CheckIcon className="w-5 h-5" aria-hidden="true" />
+										</span>
+									)}
 									<span className="text-xs whitespace-nowrap text-nowrap">
 										{authMember.employee?.fullName}
+										{!canDeselectCurrentUser && isCurrentUserAssigned && (
+											<span className="ml-1 text-xs text-gray-500">(Required)</span>
+										)}
 									</span>
 								</Combobox.Option>
 							)}
