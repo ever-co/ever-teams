@@ -19,7 +19,7 @@ export function ProjectsListView(props: IProps) {
 		props;
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ProjectViewDataType>(projects);
+		usePagination<ProjectViewDataType>({ items: projects });
 
 	return (
 		<div key="list" className=" w-full h-full">

@@ -55,8 +55,8 @@ const TeamTask = () => {
 		action: true
 	});
 
-	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<TTask>(filteredTasks);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
+		usePagination<TTask>({ items: filteredTasks, defaultItemsPerPage: 10 });
 	useReactTable<TTask>({
 		data: currentItems,
 		columns: columns as ColumnDef<TTask, any>[],
@@ -222,7 +222,7 @@ const TeamTask = () => {
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
-					pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+					pageCount={pageCount}
 					itemsPerPage={itemsPerPage}
 					itemOffset={itemOffset}
 					endOffset={endOffset}
