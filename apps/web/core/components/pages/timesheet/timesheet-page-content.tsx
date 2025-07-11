@@ -114,11 +114,9 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const isTrackingEnabled = activeTeam?.members?.find(
+	const isTrackingEnabled = !!activeTeam?.members?.find(
 		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	);
 
 	const [search, setSearch] = useState<string>('');
 	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>(

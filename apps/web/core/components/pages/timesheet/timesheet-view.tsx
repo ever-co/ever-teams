@@ -26,7 +26,7 @@ export function TimesheetView({
 		);
 	}
 
-	if (loading != undefined && loading == false && data.length === 0) {
+	if (loading !== undefined && loading == false && data.length === 0) {
 		return (
 			<AnimatedEmptyState
 				title={t('pages.timesheet.NO_ENTRIES_FOUND')}
