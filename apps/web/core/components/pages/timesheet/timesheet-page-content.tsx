@@ -40,7 +40,6 @@ import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pa
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
 import { activeTeamState, userState } from '@/core/stores';
-import TimesheetPageSkeleton from '../../common/skeleton/timesheet-page-skeleton';
 
 // Lazy load heavy timesheet components for performance optimization
 // Priority 1: CalendarView (heaviest component with complex calendar logic)
@@ -129,6 +128,20 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
+	);
+
+	const paramsUrl = useParams<{ locale: string }>();
+	const currentLocale = paramsUrl ? paramsUrl.locale : null;
+	const breadcrumbPath = useMemo(
+		() => [
+			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+			{ title: activeTeam?.name || '', href: '/' },
+			{
+				title: t('pages.timesheet.TIMESHEET_TITLE'),
+				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+			}
+		],
+		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
 	);
 
 	/**
@@ -244,23 +257,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const fullWidth = useAtomValue(fullWidthState);
 
-	// Show unified skeleton while data is loading
-	if (loadingTimesheet && (!filterDataTimesheet || !activeTeam)) {
-		return <TimesheetPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
-	}
-	const paramsUrl = useParams<{ locale: string }>();
-	const currentLocale = paramsUrl ? paramsUrl.locale : null;
-	const breadcrumbPath = useMemo(
-		() => [
-			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: activeTeam?.name || '', href: '/' },
-			{
-				title: t('pages.timesheet.TIMESHEET_TITLE'),
-				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
-			}
-		],
-		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
-	);
 	const shouldRenderPagination =
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
@@ -393,7 +389,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 				}
 			>
 				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme mt-6">
-					<div className="rounded-lg border border-gray-200 bg-red-700 dark:border-gray-800">
+					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 						{/* Use lazy loaded components with conditional rendering */}
 						{timesheetNavigator === 'ListView' ? (
 							<LazyTimesheetView
