@@ -135,14 +135,14 @@ function WeeklyLimitReport() {
 	const accessToken = useMemo(() => getAccessTokenCookie(), []);
 	const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
-	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<TTimeLimitReportList>(
-			groupBy.includes('week')
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
+		usePagination<TTimeLimitReportList>({
+			items: groupBy.includes('week')
 				? timeLimitsReports.filter((report) =>
 						moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'day')
 					)
 				: timeLimitsReports
-		);
+		});
 
 	const duration = useMemo(() => groupBy.find((el) => el == 'date' || el == 'week') ?? 'date', [groupBy]);
 	const displayMode = (groupBy.find((el) => el === 'date' || el === 'week') ?? 'date') as 'week' | 'date';
@@ -289,7 +289,7 @@ function WeeklyLimitReport() {
 				<LazyPaginate
 					total={total}
 					onPageChange={onPageChange}
-					pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+					pageCount={pageCount}
 					itemsPerPage={itemsPerPage}
 					itemOffset={itemOffset}
 					endOffset={endOffset}

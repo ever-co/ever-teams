@@ -246,7 +246,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 	const t = useTranslations();
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<any>(data || []);
+		usePagination<any>({ items: data || [] });
 
 	const groupedData = React.useMemo(() => {
 		const paginatedData = currentItems;
