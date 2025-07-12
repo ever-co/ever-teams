@@ -19,7 +19,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
 	const reportData = data as IActivityReportGroupByDate[] | undefined;
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<IActivityReportGroupByDate>(reportData || []);
+		usePagination<IActivityReportGroupByDate>({ items: reportData || [] });
 
 	if (isLoading) {
 		return <LoadingSkeleton />;

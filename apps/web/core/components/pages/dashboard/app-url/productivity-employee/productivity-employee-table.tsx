@@ -245,8 +245,8 @@ MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
 	const t = useTranslations();
 
-	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<any>(data || []);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
+		usePagination<any>({ items: data || [] });
 
 	const groupedData = React.useMemo(() => {
 		const paginatedData = currentItems;
@@ -387,7 +387,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
-					pageCount={1}
+					pageCount={pageCount}
 					itemsPerPage={itemsPerPage}
 					itemOffset={itemOffset}
 					endOffset={endOffset}

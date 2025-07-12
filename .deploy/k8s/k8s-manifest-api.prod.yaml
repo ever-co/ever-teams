@@ -26,7 +26,7 @@ apiVersion: apps/v1
 metadata:
     name: ever-teams-prod-api
 spec:
-    replicas: 3
+    replicas: 6
     selector:
         matchLabels:
             app: ever-teams-prod-api
@@ -87,6 +87,10 @@ spec:
                         value: '$DB_NAME'
                       - name: DB_PORT
                         value: '$DB_PORT'
+                      - name: DB_POOL_SIZE
+                        value: '$DB_POOL_SIZE'
+                      - name: DB_POOL_SIZE_KNEX
+                        value: '$DB_POOL_SIZE_KNEX'
                       - name: REDIS_ENABLED
                         value: '$REDIS_ENABLED'
                       - name: REDIS_URL
@@ -109,6 +113,20 @@ spec:
                         value: '$WASABI_SERVICE_URL'
                       - name: WASABI_S3_BUCKET
                         value: '$WASABI_S3_BUCKET'
+                      - name: DIGITALOCEAN_ACCESS_KEY_ID
+                        value: '$DIGITALOCEAN_ACCESS_KEY_ID'
+                      - name: DIGITALOCEAN_SECRET_ACCESS_KEY
+                        value: '$DIGITALOCEAN_SECRET_ACCESS_KEY'
+                      - name: DIGITALOCEAN_REGION
+                        value: '$DIGITALOCEAN_REGION'
+                      - name: DIGITALOCEAN_SERVICE_URL
+                        value: '$DIGITALOCEAN_SERVICE_URL'
+                      - name: DIGITALOCEAN_CDN_URL
+                        value: '$DIGITALOCEAN_CDN_URL'
+                      - name: DIGITALOCEAN_S3_BUCKET
+                        value: '$DIGITALOCEAN_S3_BUCKET'
+                      - name: DIGITALOCEAN_S3_FORCE_PATH_STYLE
+                        value: '$DIGITALOCEAN_S3_FORCE_PATH_STYLE'
                       - name: EXPRESS_SESSION_SECRET
                         value: '$EXPRESS_SESSION_SECRET'
                       - name: JWT_SECRET
@@ -185,6 +203,8 @@ spec:
                         value: '$JITSU_SERVER_WRITE_KEY'
                       - name: OTEL_ENABLED
                         value: '$OTEL_ENABLED'
+                      - name: OTEL_PROVIDER
+                        value: '$OTEL_PROVIDER'
                       - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
                         value: '$OTEL_EXPORTER_OTLP_TRACES_ENDPOINT'
                       - name: OTEL_EXPORTER_OTLP_HEADERS
@@ -229,6 +249,9 @@ spec:
                         value: '$COMPANY_LINK'
                       - name: COMPANY_NAME
                         value: '$COMPANY_NAME'
+                      - name: FEATURE_OPEN_STATS
+                        value: '$FEATURE_OPEN_STATS'
+
                   ports:
                       - containerPort: 3000
                         protocol: TCP

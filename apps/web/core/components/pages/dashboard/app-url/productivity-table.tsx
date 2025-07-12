@@ -26,7 +26,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 	const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<IActivityReportGroupByDate>(sortedData);
+		usePagination<IActivityReportGroupByDate>({ items: sortedData });
 
 	const getProjectName = (activity: IActivityItem) => {
 		return activity.project?.name || 'No project';

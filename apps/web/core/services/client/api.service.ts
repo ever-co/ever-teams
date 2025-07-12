@@ -19,27 +19,16 @@ import { Logger } from '../logs/logger.service';
 import { ApiErrorService } from './api-error.service';
 
 /**
- * Type for the cache elements
- */
-interface CacheItem<T> {
-	data: T;
-	timestamp: number;
-	expiry: number;
-}
-
-/**
  * Configuration Options for HTTP Request
  */
 interface HttpClientConfig {
 	baseURL?: string;
 	timeout?: number;
-	retries?: number;
-	retryDelay?: number;
 	customHeaders?: Record<string, string>;
 	withCredentials?: boolean;
 	directAPI?: boolean;
 	loggerConfig?: any;
-	enableRetry?: boolean;
+	enableLogging?: boolean;
 }
 
 /**
@@ -56,9 +45,7 @@ export class APIService {
 
 	protected logger!: Logger;
 	protected httpLogger!: HttpLoggerAdapter;
-	// For the caching and deduplication of requests
-	private readonly cache: Map<string, CacheItem<any>> = new Map();
-	private readonly pendingRequests: Map<string, Promise<any>> = new Map();
+	// For request cancellation
 	private cancelSources: Map<string, AbortController> = new Map();
 
 	// Robust error logging tracking using WeakMap (no object pollution)
@@ -70,8 +57,6 @@ export class APIService {
 	private static readonly DEFAULT_CONFIG: Required<HttpClientConfig> = {
 		baseURL: '',
 		timeout: 60 * 1000,
-		retries: 3,
-		retryDelay: 1000,
 		customHeaders: {
 			'Content-Type': 'application/json',
 			Accept: 'application/json'
@@ -79,7 +64,7 @@ export class APIService {
 		withCredentials: false,
 		directAPI: true,
 		loggerConfig: {},
-		enableRetry: false
+		enableLogging: process.env.NODE_ENV === 'development'
 	};
 
 	/**
@@ -213,24 +198,28 @@ export class APIService {
 	 * Log request details for debugging
 	 */
 	private logRequest(config: AxiosRequestConfig) {
-		this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
-			headers: config.headers,
-			params: config.params,
-			data: config.data
-		});
+		if (this.config.enableLogging) {
+			this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
+				headers: config.headers,
+				params: config.params,
+				data: config.data
+			});
+		}
 	}
 
 	/**
 	 * Log response details for debugging
 	 */
 	private logResponse(response: AxiosResponse) {
-		this.logger.debug(
-			`✅ Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
-			{
-				data: response.data,
-				headers: response.headers
-			}
-		);
+		if (this.config.enableLogging) {
+			this.logger.debug(
+				`✅ Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+				{
+					data: response.data,
+					headers: response.headers
+				}
+			);
+		}
 	}
 
 	/**
@@ -285,194 +274,14 @@ export class APIService {
 	}
 
 	/**
-	 * Generate a unique cache/deduplication key for a request
-	 * Includes URL, method, params, and relevant headers for complete uniqueness
+	 * Get active request statistics for debugging and monitoring
 	 */
-	private getCacheKey(url: string, method: string = 'GET', params?: any, headers?: any): string {
-		// Sort and stringify parameters
-		const sortedParams = params
-			? JSON.stringify(
-					Object.keys(params)
-						.sort()
-						.reduce((obj: any, key) => {
-							obj[key] = params[key];
-							return obj;
-						}, {})
-				)
-			: '';
-
-		// Include relevant headers that affect request uniqueness
-		const relevantHeaders: Record<string, any> = headers
-			? {
-					authorization: headers.Authorization || headers.authorization,
-					tenantId: headers['tenant-id'] || headers.tenantId,
-					organizationId: headers['organization-id'] || headers.organizationId,
-					contentType: headers['Content-Type'] || headers.contentType
-				}
-			: {};
-
-		const sortedHeaders = JSON.stringify(
-			Object.keys(relevantHeaders)
-				.sort()
-				.reduce((obj: any, key) => {
-					if (relevantHeaders[key]) {
-						obj[key] = relevantHeaders[key];
-					}
-					return obj;
-				}, {})
-		);
-
-		return `${method}:${url}:${sortedParams}:${sortedHeaders}`;
-	}
-
-	/**
-	 * Retrieve data from cache if they are still valid
-	 */
-	private getFromCache<T>(key: string): T | null {
-		const cached = this.cache.get(key);
-		if (!cached) return null;
-
-		const now = Date.now();
-		if (now > cached.expiry) {
-			this.cache.delete(key);
-			return null;
-		}
-
-		return cached.data as T;
-	}
-
-	/**
-	 * Save data in cache with a lifetime
-	 */
-	private saveToCache<T>(key: string, data: T, ttlMs: number): void {
-		const now = Date.now();
-		this.cache.set(key, {
-			data,
-			timestamp: now,
-			expiry: now + ttlMs
-		});
-	}
-
-	/**
-	 * Clear the cache or the one corresponding to a specific URL pattern
-	 */
-	public clearCache(urlPattern?: RegExp): void {
-		if (!urlPattern) {
-			this.cache.clear();
-			return;
-		}
-
-		for (const key of this.cache.keys()) {
-			const url = key.split(':')[1]; // Updated to account for method prefix
-			if (urlPattern.test(url)) {
-				this.cache.delete(key);
-			}
-		}
-	}
-
-	/**
-	 * Get deduplication and caching statistics for debugging and monitoring
-	 */
-	public getDeduplicationStats(): {
-		pendingRequests: number;
-		cachedItems: number;
+	public getRequestStats(): {
 		activeAbortControllers: number;
-		pendingRequestKeys: string[];
-		cachedKeys: string[];
 	} {
 		return {
-			pendingRequests: this.pendingRequests.size,
-			cachedItems: this.cache.size,
-			activeAbortControllers: this.cancelSources.size,
-			pendingRequestKeys: Array.from(this.pendingRequests.keys()),
-			cachedKeys: Array.from(this.cache.keys())
+			activeAbortControllers: this.cancelSources.size
 		};
-	}
-
-	/**
-	 * Check if a HTTP method is idempotent and safe for request deduplication
-	 */
-	private isIdempotentMethod(method: string): boolean {
-		const idempotentMethods = ['GET', 'HEAD', 'OPTIONS'];
-		return idempotentMethods.includes(method.toUpperCase());
-	}
-
-	/**
-	 * Execute a request with intelligent deduplication for idempotent methods
-	 * Prevents duplicate concurrent requests while preserving all functionality
-	 */
-	private async executeWithDeduplication<T>(
-		method: string,
-		url: string,
-		requestFn: () => Promise<AxiosResponse<T>>,
-		config?: APIConfig,
-		cacheOptions?: { ttl: number; bypassCache?: boolean }
-	): Promise<AxiosResponse<T>> {
-		const { headers } = await this.getApiConfig(config);
-		const requestKey = this.getCacheKey(url, method, config?.params, headers);
-
-		// Only apply deduplication for idempotent methods
-		if (!this.isIdempotentMethod(method)) {
-			return this.executeWithRetry(requestFn);
-		}
-
-		// Check cache first if caching is enabled
-		if (cacheOptions && !cacheOptions.bypassCache) {
-			const cachedData = this.getFromCache<T>(requestKey);
-			if (cachedData) {
-				return {
-					data: cachedData,
-					status: 200,
-					statusText: 'OK (from cache)',
-					headers: {},
-					config: config || {}
-				} as AxiosResponse<T>;
-			}
-		}
-
-		// Check for pending identical requests
-		if (this.pendingRequests.has(requestKey)) {
-			// Debug logging for deduplication
-			if (process.env.NODE_ENV === 'development') {
-				console.debug(`⚠️🔄🛡️Deduplicating ${method} request:`, {
-					url,
-					key: requestKey,
-					timestamp: new Date().toISOString()
-				});
-			}
-			return this.pendingRequests.get(requestKey) as Promise<AxiosResponse<T>>;
-		}
-
-		// Setup abort controller for this request
-		const controller = new AbortController();
-		this.cancelSources.set(requestKey, controller);
-
-		// Execute the request with retry logic
-		const requestPromise = this.executeWithRetry(() => {
-			// Update the request function to include abort signal
-			return requestFn();
-		})
-			.then((response) => {
-				// Cache the response if caching is enabled
-				if (cacheOptions) {
-					this.saveToCache(requestKey, response.data, cacheOptions.ttl);
-				}
-
-				// Clean up tracking
-				this.pendingRequests.delete(requestKey);
-				this.cancelSources.delete(requestKey);
-				return response;
-			})
-			.catch((error) => {
-				// Clean up tracking on error
-				this.pendingRequests.delete(requestKey);
-				this.cancelSources.delete(requestKey);
-				throw error;
-			});
-
-		// Track the pending request
-		this.pendingRequests.set(requestKey, requestPromise);
-		return requestPromise as Promise<AxiosResponse<T>>;
 	}
 
 	/**
@@ -526,99 +335,42 @@ export class APIService {
 	}
 
 	/**
-	 * Execute a function with a retry logic
+	 * Execute a function with basic error handling
 	 */
-	private async executeWithRetry<T>(fn: () => Promise<AxiosResponse<T>>): Promise<AxiosResponse<T>> {
-		let lastError: any;
-		if (!this.config.enableRetry) {
-			try {
-				return await fn();
-			} catch (error: any) {
-				throw this._handleAxiosError(error);
-			}
+	private async executeRequest<T>(fn: () => Promise<AxiosResponse<T>>): Promise<AxiosResponse<T>> {
+		try {
+			return await fn();
+		} catch (error: any) {
+			throw this._handleAxiosError(error);
 		}
-
-		for (let attempt = 1; attempt <= this.config.retries; attempt++) {
-			try {
-				return await fn();
-			} catch (error: any) {
-				// Do not retry if the request was intentionally cancelled
-				if (axios.isCancel(error as AxiosError)) {
-					throw error;
-				}
-				lastError = error;
-
-				// Check if the error is recoverable (network errors or 5xx)
-				const isRetryable =
-					!error.response ||
-					(error.response.status >= 500 && error.response.status < 600) ||
-					error.response.status === 429;
-
-				if (attempt >= this.config.retries || !isRetryable) {
-					break;
-				}
-
-				// Wait with exponential backoff + jitter
-				const delay = this.config.retryDelay * Math.pow(2, attempt) + Math.random() * 100;
-				await new Promise((resolve) => {
-					// Log of the retry attempt
-					this.logger.info(
-						`Retrying request in ${delay}ms (attempt ${attempt + 1}/${this.config.retries})`,
-						{
-							url: lastError.config?.url,
-							method: lastError.config?.method?.toUpperCase(),
-							statusCode: lastError.response?.status
-						},
-						'HttpClient'
-					);
-					return setTimeout(resolve, delay);
-				});
-
-				// Log the error using robust WeakMap-based deduplication
-				this.logError(lastError);
-			}
-		}
-
-		// Transform the error before throwing it
-		throw this._handleAxiosError(lastError);
 	}
 	/**
-	 * Sends a GET request with caching support.
+	 * Sends a GET request.
 	 *
 	 * @param {string} url - Endpoint path.
 	 * @param {object} config - Additional config.
-	 * @param {object} cacheOptions - Optional caching configuration.
 	 */
-	/**
-	 * Sends a GET request with caching support.
-	 *
-	 * @param {string} url - Endpoint path.
-	 * @param {object} config - Additional config.
-	 * @param {object} cacheOptions - Optional caching configuration.
-	 */
-	async get<T>(
-		url: string,
-		config?: APIConfig,
-		cacheOptions?: { ttl: number; bypassCache?: boolean }
-	): Promise<AxiosResponse<T>> {
+	async get<T>(url: string, config?: APIConfig): Promise<AxiosResponse<T>> {
 		const { baseURL, headers } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
 		const getRequest = !baseURL || !directAPI ? (await getFallbackAPI()).get<T> : this.axiosInstance.get<T>;
 
-		// Use the new intelligent deduplication system
-		return this.executeWithDeduplication<T>(
-			'GET',
-			url,
-			() =>
+		const requestId = `GET:${url}:${Date.now()}`;
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
+
+		try {
+			return await this.executeRequest<T>(() =>
 				getRequest(url, {
 					...config,
 					headers,
-					signal: this.cancelSources.get(this.getCacheKey(url, 'GET', config?.params, headers))?.signal
-				}),
-			config,
-			cacheOptions
-		);
+					signal: controller.signal
+				})
+			);
+		} finally {
+			this.cancelSources.delete(requestId);
+		}
 	}
 
 	/**
@@ -644,7 +396,7 @@ export class APIService {
 		this.cancelSources.set(requestId, controller);
 
 		try {
-			const response = await this.executeWithRetry<T>(() => {
+			return await this.executeRequest<T>(() => {
 				// Automatically add tenantId / organizationId
 				if (data && !(data instanceof FormData)) {
 					if (!('tenantId' in data) && tenantId !== undefined) {
@@ -661,8 +413,6 @@ export class APIService {
 					signal: controller.signal
 				});
 			});
-
-			return response;
 		} finally {
 			this.cancelSources.delete(requestId);
 		}
@@ -689,7 +439,7 @@ export class APIService {
 		const controller = new AbortController();
 		this.cancelSources.set(requestId, controller);
 		try {
-			return await this.executeWithRetry<T>(() => {
+			return await this.executeRequest<T>(() => {
 				if (data && !(data instanceof FormData)) {
 					if (!('tenantId' in data)) {
 						(data as any).tenantId = tenantId;
@@ -733,7 +483,7 @@ export class APIService {
 		const controller = new AbortController();
 		this.cancelSources.set(requestId, controller);
 		try {
-			return await this.executeWithRetry<T>(() => {
+			return await this.executeRequest<T>(() => {
 				if (data && !(data instanceof FormData)) {
 					if (!('tenantId' in data)) {
 						(data as any).tenantId = tenantId;
@@ -773,7 +523,7 @@ export class APIService {
 		this.cancelSources.set(requestId, controller);
 
 		try {
-			return await this.executeWithRetry<T>(() => {
+			return await this.executeRequest<T>(() => {
 				return deleteRequest(url, {
 					...config,
 					headers,
@@ -786,8 +536,7 @@ export class APIService {
 	}
 
 	/**
-	 * Sends a HEAD request with intelligent deduplication
-	 * HEAD requests are idempotent and safe for deduplication
+	 * Sends a HEAD request.
 	 *
 	 * @param {string} url - Endpoint path.
 	 * @param {object} [config={}] - Additional config.
@@ -798,23 +547,25 @@ export class APIService {
 		// If we don't use the direct API, we delegate to the old instance
 		const headRequest = !baseURL || !directAPI ? (await getFallbackAPI()).head<T> : this.axiosInstance.head<T>;
 
-		// Use intelligent deduplication for HEAD requests
-		return this.executeWithDeduplication<T>(
-			'HEAD',
-			url,
-			() =>
+		const requestId = `HEAD:${url}:${Date.now()}`;
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
+
+		try {
+			return await this.executeRequest<T>(() =>
 				headRequest(url, {
 					...config,
 					headers,
-					signal: this.cancelSources.get(this.getCacheKey(url, 'HEAD', config?.params, headers))?.signal
-				}),
-			config
-		);
+					signal: controller.signal
+				})
+			);
+		} finally {
+			this.cancelSources.delete(requestId);
+		}
 	}
 
 	/**
-	 * Sends an OPTIONS request with intelligent deduplication
-	 * OPTIONS requests are idempotent and safe for deduplication
+	 * Sends an OPTIONS request.
 	 *
 	 * @param {string} url - Endpoint path.
 	 * @param {object} [config={}] - Additional config.
@@ -826,18 +577,21 @@ export class APIService {
 		const optionsRequest =
 			!baseURL || !directAPI ? (await getFallbackAPI()).options<T> : this.axiosInstance.options<T>;
 
-		// Use intelligent deduplication for OPTIONS requests
-		return this.executeWithDeduplication<T>(
-			'OPTIONS',
-			url,
-			() =>
+		const requestId = `OPTIONS:${url}:${Date.now()}`;
+		const controller = new AbortController();
+		this.cancelSources.set(requestId, controller);
+
+		try {
+			return await this.executeRequest<T>(() =>
 				optionsRequest(url, {
 					...config,
 					headers,
-					signal: this.cancelSources.get(this.getCacheKey(url, 'OPTIONS', config?.params, headers))?.signal
-				}),
-			config
-		);
+					signal: controller.signal
+				})
+			);
+		} finally {
+			this.cancelSources.delete(requestId);
+		}
 	}
 
 	/**
@@ -907,7 +661,7 @@ export class APIService {
 		this.cancelSources.set(requestId, controller);
 
 		try {
-			return await this.executeWithRetry<T>(async () => {
+			return await this.executeRequest<T>(async () => {
 				const response = await this.axiosInstance.request<T>({
 					...config,
 					signal: controller.signal

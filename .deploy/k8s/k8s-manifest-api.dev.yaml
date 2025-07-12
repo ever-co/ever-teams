@@ -38,12 +38,6 @@ spec:
             containers:
                 - name: ever-teams-dev-api
                   image: registry.digitalocean.com/ever/gauzy-api-demo:latest
-                  resources:
-                      requests:
-                          memory: '1536Mi'
-                          cpu: '1000m'
-                      limits:
-                          memory: '2048Mi'
                   env:
                       - name: API_HOST
                         value: 0.0.0.0
@@ -79,10 +73,15 @@ spec:
                         value: '86400'
                       - name: OTEL_ENABLED
                         value: '$OTEL_ENABLED'
+                      - name: OTEL_PROVIDER
+                        value: '$OTEL_PROVIDER'
                       - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
                         value: '$OTEL_EXPORTER_OTLP_TRACES_ENDPOINT'
                       - name: OTEL_EXPORTER_OTLP_HEADERS
                         value: '$OTEL_EXPORTER_OTLP_HEADERS'
+                      - name: FEATURE_OPEN_STATS
+                        value: '$FEATURE_OPEN_STATS'
+
                   ports:
                       - containerPort: 3000
                         protocol: TCP
