@@ -8,7 +8,7 @@ import { useFirstLoad } from '../common/use-first-load';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../common';
-import { TStatus, TStatusItem, useMapToTaskStatusValues } from '@/core/components/tasks/task-status';
+import { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { queryKeys } from '@/core/query/keys';
 import { useAuthenticateUser } from '../auth';
@@ -16,6 +16,7 @@ import { useOrganizationTeams } from '../organizations';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
+import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);

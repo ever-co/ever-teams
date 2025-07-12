@@ -8,12 +8,7 @@ import { Button } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { useState } from 'react';
 import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
-import {
-	TaskLabelsDropdown,
-	TaskPropertiesDropdown,
-	TaskSizesDropdown,
-	TaskStatusDropdown
-} from '../../tasks/task-status';
+import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskStatusDropdown } from '@/core/components/tasks/task-status';
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from '../../tasks/daily-plan/daily-plan-filter';
@@ -30,6 +25,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
 import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { TaskSizesDropdown } from '../../tasks/task-sizes-dropdown';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 

@@ -16,7 +16,7 @@ import {
 	TrackingIcon as TimerIcon,
 	LoginIcon
 } from 'assets/svg';
-import { TStatus } from './task-status';
+import { TStatus } from '@/core/types/interfaces/task/task-card';
 import { ETaskStatusName, ETaskSizeName } from '@/core/types/generics/enums/task';
 
 export const taskStatus: TStatus<ETaskStatusName> = {

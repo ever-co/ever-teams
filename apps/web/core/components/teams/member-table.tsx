@@ -23,7 +23,7 @@ import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
-		usePagination<TOrganizationTeamEmployee>(members, 5);
+		usePagination<TOrganizationTeamEmployee>({ items: members, defaultItemsPerPage: 5 });
 	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 

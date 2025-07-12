@@ -94,6 +94,7 @@ export function useTaskInput({
 	);
 
 	const [query, setQuery] = useState('');
+	const [isCreatingTask, setIsCreatingTask] = useState(false);
 
 	const filteredTasks = useMemo(() => {
 		if (query.trim() === '') {
@@ -124,7 +125,20 @@ export function useTaskInput({
 				.startsWith(query.toLowerCase().replace(/\s+/g, ''));
 		});
 	}, [query, tasks]);
-	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
+
+	// Detect when user is creating a task to stabilize hasCreateForm
+	useEffect(() => {
+		const isCreating = filteredTasks2.length === 0 && query !== '' && query.trim().length >= 2;
+		setIsCreatingTask(isCreating);
+	}, [filteredTasks2.length, query]);
+
+	// Stabilized hasCreateForm that doesn't reset during task creation
+	const hasCreateForm = useMemo(() => {
+		if (isCreatingTask) {
+			return true; // Keep form visible during creation
+		}
+		return filteredTasks2.length === 0 && query !== '';
+	}, [filteredTasks2.length, query, isCreatingTask]);
 
 	const handleTaskCreation = ({
 		autoActiveTask = true,
@@ -156,6 +170,7 @@ export function useTaskInput({
 			]
 		}).then((res) => {
 			setQuery('');
+			setIsCreatingTask(false); // Reset creation state after task creation
 			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
 			setTaskIssue('');
 			const items = res?.items || [];
@@ -226,7 +241,8 @@ export function useTaskInput({
 		user,
 		userRef,
 		taskProject,
-		taskAssignees
+		taskAssignees,
+		isCreatingTask
 	};
 }
 

@@ -1,23 +1,16 @@
 'use client';
-import React, { use, useMemo, useState, Suspense } from 'react';
-import { useParams } from 'next/navigation';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import React, { Suspense, use, useMemo, useState } from 'react';
 
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 
-import {
-	useAuthenticateUser,
-	useLocalStorageState,
-	useModal,
-	useOrganizationProjects,
-	useOrganizationTeams
-} from '@/core/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 
-import { ArrowLeftIcon } from 'assets/svg';
 import {
 	CalendarViewIcon,
 	ListViewIcon,
@@ -26,26 +19,27 @@ import {
 	PendingTaskIcon,
 	SelectedTimesheet
 } from '@/core/components/timesheet';
-import type { IconBaseProps } from 'react-icons';
+import { ArrowLeftIcon } from 'assets/svg';
 import dynamic from 'next/dynamic';
+import type { IconBaseProps } from 'react-icons';
 
-import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
-import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
-import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
-import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
-import { IconsSearch } from '@/core/components/icons';
-import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import {
 	CalendarViewSkeleton,
-	TimesheetViewSkeleton,
+	TimesheetCardSkeleton,
 	TimesheetDetailModalSkeleton,
 	TimesheetFilterSkeleton,
-	TimesheetCardSkeleton,
-	TimesheetPaginationSkeleton
+	TimesheetPaginationSkeleton,
+	TimesheetViewSkeleton
 } from '@/core/components/common/skeleton/timesheet-skeletons';
-import TimesheetPageSkeleton from '../../common/skeleton/timesheet-page-skeleton';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { IconsSearch } from '@/core/components/icons';
+import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
+import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
+import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
+import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
+import { activeTeamState, userState } from '@/core/stores';
 
 // Lazy load heavy timesheet components for performance optimization
 // Priority 1: CalendarView (heaviest component with complex calendar logic)
@@ -108,7 +102,7 @@ export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 export function TimeSheetPageContent({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = use(params as any) as { memberId: string };
 	const t = useTranslations();
-	const { user } = useAuthenticateUser();
+	const user = useAtomValue(userState);
 	const [pageSize, setPageSize] = useState(10);
 
 	const getPageSizeOptions = (total: number) => {
@@ -117,9 +111,13 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		if (total <= 30) return [10, 20, 30];
 		return [10, 20, 30, 50];
 	};
-	const { getOrganizationProjects } = useOrganizationProjects();
 
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const isTrackingEnabled = !!activeTeam?.members?.find(
+		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled
+	);
+
 	const [search, setSearch] = useState<string>('');
 	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>(
 		'timesheet-detail-mode',
@@ -128,6 +126,20 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
+	);
+
+	const paramsUrl = useParams<{ locale: string }>();
+	const currentLocale = paramsUrl ? paramsUrl.locale : null;
+	const breadcrumbPath = useMemo(
+		() => [
+			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+			{ title: activeTeam?.name || '', href: '/' },
+			{
+				title: t('pages.timesheet.TIMESHEET_TITLE'),
+				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+			}
+		],
+		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
 	);
 
 	/**
@@ -212,12 +224,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const { activeStatus, setActiveStatus, filteredData, statusData } = useTimesheetFilters(viewData);
 
-	// Force default values will be handled by the atomWithStorage and corrected defaults
-
-	React.useEffect(() => {
-		getOrganizationProjects();
-	}, [getOrganizationProjects]);
-
 	const {
 		isOpen: isManualTimeModalOpen,
 		openModal: openManualTimeModal,
@@ -232,38 +238,23 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-	const totalDuration = statusTimesheet
-		? Object.values(statusTimesheet)
-				.flat()
-				.map((entry) => {
-					return differenceBetweenHours(
-						entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
-						entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
-					);
-				})
-				.reduce((total, current) => total + current, 0)
-		: 0;
+	const totalDuration = useMemo(() => {
+		return statusTimesheet
+			? Object.values(statusTimesheet)
+					.flat()
+					.map((entry) => {
+						return differenceBetweenHours(
+							entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt || ''),
+							entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt || '')
+						);
+					})
+					.reduce((total, current) => total + current, 0)
+			: 0;
+	}, [statusTimesheet]);
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
 
-	// Show unified skeleton while data is loading
-	if (loadingTimesheet && (!filterDataTimesheet || !activeTeam)) {
-		return <TimesheetPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
-	}
-	const paramsUrl = useParams<{ locale: string }>();
-	const currentLocale = paramsUrl ? paramsUrl.locale : null;
-	const breadcrumbPath = useMemo(
-		() => [
-			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: activeTeam?.name || '', href: '/' },
-			{
-				title: t('pages.timesheet.TIMESHEET_TITLE'),
-				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
-			}
-		],
-		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
-	);
 	const shouldRenderPagination =
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
@@ -287,7 +278,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
 							</div>
-
 							<div className="flex flex-col gap-y-2 justify-start items-start">
 								<h1 className="!text-[23px] font-bold text-[#282048] dark:text-white">
 									{getGreeting(t)}, {username} !
@@ -396,55 +386,53 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 					</div>
 				}
 			>
-				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme px-4">
-					<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
-						<div className="rounded-lg border border-gray-200 dark:border-gray-800">
-							{/* Use lazy loaded components with conditional rendering */}
-							{timesheetNavigator === 'ListView' ? (
-								<LazyTimesheetView
-									user={user}
+				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme mt-6">
+					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
+						{/* Use lazy loaded components with conditional rendering */}
+						{timesheetNavigator === 'ListView' ? (
+							<LazyTimesheetView
+								user={user}
+								data={filteredData}
+								loading={loadingTimesheet}
+								key={`listview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
+							/>
+						) : (
+							<>
+								<LazyCalendarView
 									data={filteredData}
 									loading={loadingTimesheet}
-									key={`listview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
+									key={`calendarview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
 								/>
-							) : (
-								<>
-									<LazyCalendarView
-										data={filteredData}
-										loading={loadingTimesheet}
-										key={`calendarview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
+								{selectTimesheetId.length > 0 && (
+									<SelectedTimesheet
+										deleteTaskTimesheet={deleteTaskTimesheet}
+										fullWidth={fullWidth}
+										selectTimesheetId={selectTimesheetId}
+										setSelectTimesheetId={setSelectTimesheetId}
+										updateTimesheetStatus={updateTimesheetStatus}
 									/>
-									{selectTimesheetId.length > 0 && (
-										<SelectedTimesheet
-											deleteTaskTimesheet={deleteTaskTimesheet}
-											fullWidth={fullWidth}
-											selectTimesheetId={selectTimesheetId}
-											setSelectTimesheetId={setSelectTimesheetId}
-											updateTimesheetStatus={updateTimesheetStatus}
-										/>
-									)}
-								</>
-							)}
-							{/*  Use lazy loaded TimesheetPagination */}
-							{shouldRenderPagination && (
-								<LazyTimesheetPagination
-									currentPage={currentPage}
-									totalPages={totalPages}
-									onPageChange={goToPage}
-									getPageNumbers={getPageNumbers}
-									goToPage={goToPage}
-									nextPage={nextPage}
-									previousPage={previousPage}
-									dates={dates}
-									totalGroups={totalGroups}
-									pageSize={pageSize}
-									onPageSizeChange={setPageSize}
-									pageSizeOptions={getPageSizeOptions(totalGroups || 0)}
-									key={`pagination-${currentPage}-${totalPages}`}
-								/>
-							)}
-						</div>
-					</Container>
+								)}
+							</>
+						)}
+						{/*  Use lazy loaded TimesheetPagination */}
+						{shouldRenderPagination && (
+							<LazyTimesheetPagination
+								currentPage={currentPage}
+								totalPages={totalPages}
+								onPageChange={goToPage}
+								getPageNumbers={getPageNumbers}
+								goToPage={goToPage}
+								nextPage={nextPage}
+								previousPage={previousPage}
+								dates={dates}
+								totalGroups={totalGroups}
+								pageSize={pageSize}
+								onPageSizeChange={setPageSize}
+								pageSizeOptions={getPageSizeOptions(totalGroups || 0)}
+								key={`pagination-${currentPage}-${totalPages}`}
+							/>
+						)}
+					</div>
 				</div>
 
 				{/* Use lazy loaded modal with conditional rendering and Suspense */}

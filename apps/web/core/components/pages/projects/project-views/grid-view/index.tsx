@@ -17,7 +17,7 @@ export function ProjectsGridView(props: IProps) {
 	const { projects = [], selectedProjects, loading, setSelectedProjects } = props;
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ProjectViewDataType>(projects);
+		usePagination<ProjectViewDataType>({ items: projects });
 
 	const handleSelectProject = useCallback(
 		(projectId: string) => {

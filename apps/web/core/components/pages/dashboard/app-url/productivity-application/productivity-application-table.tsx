@@ -28,7 +28,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	const t = useTranslations();
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<IActivityReportGroupByDate>(sortedData);
+		usePagination<IActivityReportGroupByDate>({ items: sortedData });
 
 	if (isLoading) {
 		return (

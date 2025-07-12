@@ -28,6 +28,7 @@ import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
 import { LazyRender } from '@/core/components/common/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
+import { toast } from 'sonner';
 import { cn } from '@/core/lib/helpers';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
@@ -130,12 +131,15 @@ export function TaskInput(props: Props) {
 	const [taskName, setTaskName] = useState('');
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
-		() => !props.keepOpen && setEditMode(false)
+		() => !props.keepOpen && !datas.isCreatingTask && setEditMode(false)
 	);
 
 	useEffect(() => {
-		setQuery(taskName === inputTask?.title ? '' : taskName);
-	}, [taskName, inputTask, setQuery]);
+		// Don't reset query during task creation to maintain the creation UI
+		if (!datas.isCreatingTask) {
+			setQuery(taskName === inputTask?.title ? '' : taskName);
+		}
+	}, [taskName, inputTask, setQuery, datas.isCreatingTask]);
 
 	useEffect(() => {
 		setTaskName(inputTaskTitle);
@@ -220,11 +224,20 @@ export function TaskInput(props: Props) {
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
-				?.then(onTaskCreated)
+				?.then((createdTask) => {
+					// Show success toast notification
+					if (createdTask) {
+						toast.success('Task Created Successfully', {
+							description: `"${createdTask.title}" has been created successfully`,
+							duration: 4000
+						});
+					}
+					onTaskCreated(createdTask);
+				})
 				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
+	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 
 	const updatedTaskList = useMemo(() => {
 		let updatedTaskList: TTask[] = [];
@@ -259,8 +272,18 @@ export function TaskInput(props: Props) {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
-				// inputTask && updateTaskNameHandler(inputTask, taskName);
-				if (taskName == inputTaskTitle) {
+				// Check if the click is on a dropdown element to avoid closing during dropdown interactions
+				const target = event.target as Element;
+				const isDropdownClick =
+					target.closest('[data-radix-popper-content-wrapper]') ||
+					target.closest('[role="listbox"]') ||
+					target.closest('[role="menu"]') ||
+					target.closest('[data-headlessui-state]') ||
+					target.closest('.dropdown-content') ||
+					target.closest('[data-dropdown]');
+
+				// Only close if it's not a dropdown interaction and we're not creating a new task
+				if (!isDropdownClick && !datas.isCreatingTask && taskName == inputTaskTitle) {
 					setEditMode(false);
 					setActiveTask({
 						id: ''
@@ -276,7 +299,16 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
+	}, [
+		inputTask,
+		taskName,
+		setActiveTask,
+		updateTaskNameHandler,
+		editMode,
+		inputTaskTitle,
+		setEditMode,
+		datas.isCreatingTask
+	]);
 	const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
 	const handlePopoverToggle = useCallback(
 		(popoverId: string) => {
@@ -406,6 +438,7 @@ export function TaskInput(props: Props) {
 			assignTaskPopup={props.assignTaskPopup}
 			updatedTaskList={updatedTaskList}
 			forParentChildRelationship={props.forParentChildRelationship}
+			ignoreElementRef={ignoreElementRef}
 		/>
 	);
 
@@ -456,7 +489,8 @@ function TaskCard({
 	cardWithoutShadow,
 	forParentChildRelationship,
 	updatedTaskList,
-	assignTaskPopup
+	assignTaskPopup,
+	ignoreElementRef
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: TTask) => void;
@@ -468,15 +502,98 @@ function TaskCard({
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: TTask[];
 	assignTaskPopup?: boolean;
+	ignoreElementRef?: (el: any) => void;
 }) {
-	const [, setCount] = useState(0);
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
 	const { activeTeam } = useOrganizationTeams();
 
+	// Refs for dropdown elements to exclude from outside click detection
+	const statusDropdownRef = useRef<HTMLDivElement>(null);
+	const priorityDropdownRef = useRef<HTMLDivElement>(null);
+	const sizeDropdownRef = useRef<HTMLDivElement>(null);
+	const labelsDropdownRef = useRef<HTMLDivElement>(null);
+	const assigneesDropdownRef = useRef<HTMLDivElement>(null);
+	const projectDropdownRef = useRef<HTMLDivElement>(null);
+
 	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription, taskProject, taskAssignees } = datas;
 	const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
+
+	// Register dropdown refs with useOutsideClick to ignore them
+	useEffect(() => {
+		if (ignoreElementRef) {
+			if (statusDropdownRef.current) ignoreElementRef(statusDropdownRef.current);
+			if (priorityDropdownRef.current) ignoreElementRef(priorityDropdownRef.current);
+			if (sizeDropdownRef.current) ignoreElementRef(sizeDropdownRef.current);
+			if (labelsDropdownRef.current) ignoreElementRef(labelsDropdownRef.current);
+			if (assigneesDropdownRef.current) ignoreElementRef(assigneesDropdownRef.current);
+			if (projectDropdownRef.current) ignoreElementRef(projectDropdownRef.current);
+		}
+	}, [
+		ignoreElementRef,
+		statusDropdownRef,
+		priorityDropdownRef,
+		sizeDropdownRef,
+		labelsDropdownRef,
+		assigneesDropdownRef,
+		projectDropdownRef
+	]);
+
+	// Optimized callbacks to prevent unnecessary re-renders and state resets
+	const handleStatusChange = useCallback(
+		(v: any) => {
+			if (v && taskStatus) {
+				taskStatus.current = v;
+			}
+		},
+		[taskStatus]
+	);
+
+	const handlePriorityChange = useCallback(
+		(v: any) => {
+			if (v && taskPriority) {
+				taskPriority.current = v;
+			}
+		},
+		[taskPriority]
+	);
+
+	const handleSizeChange = useCallback(
+		(v: any) => {
+			if (v && taskSize) {
+				taskSize.current = v;
+			}
+		},
+		[taskSize]
+	);
+
+	const handleLabelsChange = useCallback(
+		(_: any, values: string[] | undefined) => {
+			if (taskLabels && values?.length) {
+				taskLabels.current = taskLabelsData.filter((tag) => (tag.name ? values?.includes(tag.name) : false));
+			}
+		},
+		[taskLabels, taskLabelsData]
+	);
+
+	const handleProjectChange = useCallback(
+		(project: any) => {
+			if (taskProject) {
+				taskProject.current = project.id;
+			}
+		},
+		[taskProject]
+	);
+
+	const handleDescriptionChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			if (taskDescription) {
+				taskDescription.current = e.target.value;
+			}
+		},
+		[taskDescription]
+	);
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -508,93 +625,72 @@ function TaskCard({
 								<InputField
 									placeholder="Description"
 									emojis={true}
-									onChange={(e) => {
-										if (taskDescription) {
-											taskDescription.current = e.target.value;
-										}
-									}}
+									onChange={handleDescriptionChange}
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
 								<div className="flex gap-2 justify-start">
-									<ActiveTaskStatusDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskStatus) {
-												taskStatus.current = v;
-											}
-											setCount((c) => c + 1);
-										}}
-										defaultValue={taskStatus?.current as ETaskStatusName}
-										task={null}
-									/>
+									<div ref={statusDropdownRef}>
+										<ActiveTaskStatusDropdown
+											className="min-w-fit lg:max-w-[170px]"
+											taskStatusClassName="h-7 text-xs"
+											onValueChange={handleStatusChange}
+											defaultValue={taskStatus?.current as ETaskStatusName}
+											task={null}
+										/>
+									</div>
 
-									<ActiveTaskPropertiesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskPriority) {
-												taskPriority.current = v;
-											}
-											setCount((c) => c + 1);
-										}}
-										defaultValue={taskPriority?.current as ETaskPriority}
-										task={null}
-									/>
+									<div ref={priorityDropdownRef}>
+										<ActiveTaskPropertiesDropdown
+											className="min-w-fit lg:max-w-[170px]"
+											taskStatusClassName="h-7 text-xs"
+											onValueChange={handlePriorityChange}
+											defaultValue={taskPriority?.current as ETaskPriority}
+											task={null}
+										/>
+									</div>
 
-									<ActiveTaskSizesDropdown
-										className="min-w-fit lg:max-w-[170px]"
-										taskStatusClassName="h-7 text-xs"
-										onValueChange={(v: any) => {
-											if (v && taskSize) {
-												taskSize.current = v;
-											}
-											setCount((c) => c + 1);
-										}}
-										defaultValue={taskSize?.current as ETaskSizeName}
-										task={null}
-									/>
+									<div ref={sizeDropdownRef}>
+										<ActiveTaskSizesDropdown
+											className="min-w-fit lg:max-w-[170px]"
+											taskStatusClassName="h-7 text-xs"
+											onValueChange={handleSizeChange}
+											defaultValue={taskSize?.current as ETaskSizeName}
+											task={null}
+										/>
+									</div>
 
-									<TaskLabels
-										className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
-										forDetails={true}
-										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
-										onValueChange={(_: any, values: string[] | undefined) => {
-											taskLabelsData.filter((tag) =>
-												tag.name ? values?.includes(tag.name) : false
-											);
-
-											if (taskLabels && values?.length) {
-												taskLabels.current = taskLabelsData.filter((tag) =>
-													tag.name ? values?.includes(tag.name) : false
-												);
-											}
-										}}
-										task={datas.inputTask}
-									/>
+									<div ref={labelsDropdownRef}>
+										<TaskLabels
+											className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
+											forDetails={true}
+											taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
+											onValueChange={handleLabelsChange}
+											task={datas.inputTask}
+										/>
+									</div>
 
 									{taskAssignees !== undefined && (
-										<AssigneesSelect
-											key={`assignees-${datas.inputTask?.id || 'new'}`}
-											className="min-w-fit lg:max-w-[170px] bg-white"
-											assignees={taskAssignees}
-											teamMembers={activeTeam?.members ?? []}
-										/>
+										<div ref={assigneesDropdownRef}>
+											<AssigneesSelect
+												key={`assignees-${datas.inputTask?.id || 'new'}`}
+												className="min-w-fit lg:max-w-[170px] bg-white h-full"
+												assignees={taskAssignees}
+												teamMembers={activeTeam?.members ?? []}
+											/>
+										</div>
 									)}
 
-									<ProjectDropDown
-										styles={{
-											container: 'rounded-xl min-w-fit max-w-[10.625rem]',
-											listCard: 'rounded-xl'
-										}}
-										controlled
-										onChange={(project) => {
-											if (taskProject) {
-												taskProject.current = project.id;
-											}
-										}}
-									/>
+									<div ref={projectDropdownRef}>
+										<ProjectDropDown
+											styles={{
+												container: 'rounded-xl min-w-fit max-w-[10.625rem]',
+												listCard: 'rounded-xl'
+											}}
+											controlled
+											onChange={handleProjectChange}
+										/>
+									</div>
 								</div>
 							</div>
 						)}
@@ -742,6 +838,28 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 		[teamMembers, user?.id]
 	);
 
+	// Auto-select current user by default if no assignees are selected
+	useEffect(() => {
+		if (assignees && authMember && (!assignees.current || assignees.current.length === 0)) {
+			assignees.current = [{ id: authMember.employee?.id || '' }];
+		}
+	}, [assignees, authMember]);
+
+	// Helper function to check if current user is assigned
+	const isCurrentUserAssigned = useMemo(() => {
+		return assignees?.current?.some((assignee) => assignee.id === authMember?.employee?.id);
+	}, [assignees?.current, authMember?.employee?.id]);
+
+	// Helper function to get other assigned users (excluding current user)
+	const otherAssignedUsers = useMemo(() => {
+		return assignees?.current?.filter((assignee) => assignee.id !== authMember?.employee?.id) || [];
+	}, [assignees?.current, authMember?.employee?.id]);
+
+	// Helper function to determine if current user can be deselected
+	const canDeselectCurrentUser = useMemo(() => {
+		return otherAssignedUsers.length > 0;
+	}, [otherAssignedUsers.length]);
+
 	return (
 		<div
 			className={cn(
@@ -779,19 +897,45 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+										`relative select-none py-2 pl-10 pr-4 ${
+											canDeselectCurrentUser ? 'cursor-pointer' : 'cursor-not-allowed opacity-75'
+										} ${
 											active
 												? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
 												: 'text-gray-900 dark:text-gray-200'
 										}`
 									}
+									onClick={() => {
+										if (!assignees) return;
+
+										if (isCurrentUserAssigned) {
+											// Only allow deselection if other users are assigned
+											if (canDeselectCurrentUser) {
+												assignees.current = (assignees.current || []).filter(
+													(el) => el.id !== authMember.employee?.id
+												);
+											}
+											// If can't deselect, do nothing (user remains selected)
+										} else {
+											// Re-select current user
+											assignees.current = [
+												...(assignees.current || []),
+												{ id: authMember.employee?.id || '' }
+											];
+										}
+									}}
 									value={authMember}
 								>
-									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
-										<CheckIcon className="w-5 h-5" aria-hidden="true" />
-									</span>
+									{isCurrentUserAssigned && (
+										<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+											<CheckIcon className="w-5 h-5" aria-hidden="true" />
+										</span>
+									)}
 									<span className="text-xs whitespace-nowrap text-nowrap">
 										{authMember.employee?.fullName}
+										{!canDeselectCurrentUser && isCurrentUserAssigned && (
+											<span className="ml-1 text-xs text-gray-500">(Required)</span>
+										)}
 									</span>
 								</Combobox.Option>
 							)}

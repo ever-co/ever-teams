@@ -15,7 +15,7 @@ import { TInvite } from '@/core/types/schemas';
 export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
 		TInvite | IJoinTeamResponse
-	>(invitations);
+	>({ items: invitations });
 	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
 
