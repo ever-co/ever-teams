@@ -29,6 +29,12 @@ jobs:
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 k8s-gauzy
 
+      - name: Write PostgreSQL Certificate file
+        run: |
+          echo "$DB_CA_CERT" | base64 --decode > ${HOME}/ca-certificate.crt
+        env:
+          DB_CA_CERT: '${{ secrets.DB_CA_CERT }}'
+
       - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
         run: |
           envsubst < $GITHUB_WORKSPACE/.deploy/k8s/k8s-manifest-api.stage.yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
@@ -43,6 +49,8 @@ jobs:
           DB_PORT: '${{ secrets.DB_PORT }}'
           DB_CA_CERT: '${{ secrets.DB_CA_CERT }}'
           DB_SSL_MODE: '${{ secrets.DB_SSL_MODE }}'
+          DB_POOL_SIZE: '${{ secrets.DB_POOL_SIZE }}'
+          DB_POOL_SIZE_KNEX: '${{ secrets.DB_POOL_SIZE_KNEX }}'
           REDIS_ENABLED: '${{ secrets.REDIS_ENABLED }}'
           REDIS_URL: '${{ secrets.REDIS_URL }}'
           CLOUD_PROVIDER: 'DO'
@@ -61,6 +69,13 @@ jobs:
           WASABI_REGION: '${{ secrets.WASABI_REGION }}'
           WASABI_SERVICE_URL: '${{ secrets.WASABI_SERVICE_URL }}'
           WASABI_S3_BUCKET: '${{ secrets.WASABI_S3_BUCKET }}'
+          DIGITALOCEAN_ACCESS_KEY_ID: '${{ secrets.DIGITALOCEAN_ACCESS_KEY_ID }}'
+          DIGITALOCEAN_SECRET_ACCESS_KEY: '${{ secrets.DIGITALOCEAN_SECRET_ACCESS_KEY }}'
+          DIGITALOCEAN_REGION: '${{ secrets.DIGITALOCEAN_REGION }}'
+          DIGITALOCEAN_SERVICE_URL: '${{ secrets.DIGITALOCEAN_SERVICE_URL }}'
+          DIGITALOCEAN_CDN_URL: '${{ secrets.DIGITALOCEAN_CDN_URL }}'
+          DIGITALOCEAN_S3_BUCKET: '${{ secrets.DIGITALOCEAN_S3_BUCKET }}'
+          DIGITALOCEAN_S3_FORCE_PATH_STYLE: '${{ secrets.DIGITALOCEAN_S3_FORCE_PATH_STYLE }}'
           EXPRESS_SESSION_SECRET: '${{ secrets.EXPRESS_SESSION_SECRET }}'
           JWT_SECRET: '${{ secrets.JWT_SECRET }}'
           JWT_REFRESH_TOKEN_SECRET: '${{ secrets.JWT_REFRESH_TOKEN_SECRET }}'
@@ -98,6 +113,7 @@ jobs:
           JITSU_SERVER_URL: '${{ secrets.JITSU_SERVER_URL }}'
           JITSU_SERVER_WRITE_KEY: '${{ secrets.JITSU_SERVER_WRITE_KEY }}'
           OTEL_ENABLED: '${{ secrets.OTEL_ENABLED }}'
+          OTEL_PROVIDER: '${{ secrets.OTEL_PROVIDER }}'
           OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: '${{ secrets.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT }}'
           OTEL_EXPORTER_OTLP_HEADERS: '${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}'
           GAUZY_GITHUB_CLIENT_ID: '${{ secrets.GAUZY_GITHUB_CLIENT_ID }}'
@@ -123,6 +139,7 @@ jobs:
           APP_MAGIC_SIGN_URL: '${{ secrets.APP_MAGIC_SIGN_URL }}'
           COMPANY_LINK: '${{ secrets.COMPANY_LINK }}'
           COMPANY_NAME: '${{ secrets.COMPANY_NAME }}'
+          FEATURE_OPEN_STATS: '${{ vars.FEATURE_OPEN_STATS }}'
 
       # we need this step because for now we just use :latest tag
       # note: for production we will use different strategy later
