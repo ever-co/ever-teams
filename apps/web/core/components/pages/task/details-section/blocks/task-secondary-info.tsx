@@ -302,20 +302,42 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	const [selected, setSelected] = useState<TOrganizationProject | null>(() => {
-		if (task && task.projectId) {
-			return organizationProjects?.find((project) => project.id === task.projectId) || null;
-		}
-		return null;
-	});
+	// Filter to show only valid projects (exclude teams or invalid entries)
+	const validProjects = useMemo(() => {
+		return organizationProjects.filter((project) => {
+			// Only show projects that are:
+			// 1. Active (not archived)
+			// 2. Have a valid name
+			// 3. Are not explicitly archived
+			return (
+				project?.name &&
+				project?.name?.trim().length > 0 &&
+				project?.isArchived !== true &&
+				project?.status?.length &&
+				project?.status?.length > 0
+			);
+		});
+	}, [organizationProjects]);
 
-	// Keep selected in sync with task project in controlled mode
+	const [selected, setSelected] = useState<TOrganizationProject | null>(null);
+
+	// Initialize and keep selected in sync with task project
+	useEffect(() => {
+		if (task && task.projectId) {
+			const projectMatch = validProjects.find((project) => project.id === task.projectId);
+			setSelected(projectMatch || null);
+		} else if (!task?.projectId) {
+			setSelected(null);
+		}
+	}, [task, task?.projectId, validProjects]);
+
+	// Additional sync for controlled mode
 	useEffect(() => {
 		if (controlled && task) {
-			const projectMatch = organizationProjects.find((project) => project.id === task.projectId);
+			const projectMatch = validProjects.find((project) => project.id === task.projectId);
 			setSelected(projectMatch || null);
 		}
-	}, [controlled, organizationProjects, task, task?.projectId]);
+	}, [controlled, validProjects, task, task?.projectId]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
@@ -415,7 +437,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							>
 								<ScrollArea className="w-full h-full">
 									<div className="flex flex-col gap-2.5 w-full p-4">
-										{organizationProjects?.map((item) => {
+										{validProjects?.map((item) => {
 											return (
 												<DropdownMenuItem
 													key={item.id}
