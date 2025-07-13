@@ -375,7 +375,34 @@
 		"ARCHIVE_AT": "Архивиране на",
 		"RESTORE": "Възстановяване",
 		"HIDE": "Скрий",
-		"EXPORT": "Експортиране"
+		"EXPORT": "Експортиране",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "Продуктивен",
+		"NEUTRAL": "Неутрален",
+		"UNPRODUCTIVE": "Непродуктивен",
+		"ACTIVITIES": "дейности",
+		"NO_PROJECT": "Няма проект",
+		"DURATION": "Продължителност",
+		"PROGRESS": "Напредък",
+		"EMPLOYEE": "Служител"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "Табло за приложения и URL адреси",
+		"TEAM_DASHBOARD": "Табло на екипа",
+		"PRODUCTIVITY_BREAKDOWN": "Разбивка на продуктивността за {month}",
+		"DAILY": "Дневно",
+		"WEEKLY": "Седмично",
+		"MONTHLY": "Месечно"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "Време и дейност",
+		"TOTAL_HOURS": "Общо часове",
+		"AVERAGE_ACTIVITY": "Средна дейност",
+		"TOTAL_EARNINGS": "Общи доходи",
+		"TRACKED_HOURS": "Проследени часове",
+		"EARNINGS": "Доходи",
+		"ACTIVITY_LEVEL": "Ниво на дейност"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

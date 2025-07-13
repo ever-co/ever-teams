@@ -375,7 +375,34 @@
 		"ARCHIVE_AT": "ארכוב בתאריך",
 		"RESTORE": "שחזר",
 		"HIDE": "הסתר",
-		"EXPORT": "ייצוא"
+		"EXPORT": "ייצוא",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "פרודוקטיבי",
+		"NEUTRAL": "נייטרלי",
+		"UNPRODUCTIVE": "לא פרודוקטיבי",
+		"ACTIVITIES": "פעילויות",
+		"NO_PROJECT": "אין פרויקט",
+		"DURATION": "משך זמן",
+		"PROGRESS": "התקדמות",
+		"EMPLOYEE": "עובד"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "לוח מחוונים אפליקציות וכתובות URL",
+		"TEAM_DASHBOARD": "לוח מחוונים של הצוות",
+		"PRODUCTIVITY_BREAKDOWN": "פירוט פרודוקטיביות עבור {month}",
+		"DAILY": "יומי",
+		"WEEKLY": "שבועי",
+		"MONTHLY": "חודשי"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "זמן ופעילות",
+		"TOTAL_HOURS": "סך הכל שעות",
+		"AVERAGE_ACTIVITY": "פעילות ממוצעת",
+		"TOTAL_EARNINGS": "סך הכל רווחים",
+		"TRACKED_HOURS": "שעות מעוקבות",
+		"EARNINGS": "רווחים",
+		"ACTIVITY_LEVEL": "רמת פעילות"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

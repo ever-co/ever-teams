@@ -354,7 +354,34 @@
 		"ARCHIVE_AT": "أرشفة في",
 		"RESTORE": "استعادة",
 		"HIDE": "إخفاء",
-		"EXPORT": "تصدير"
+		"EXPORT": "تصدير",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "منتج",
+		"NEUTRAL": "محايد",
+		"UNPRODUCTIVE": "غير منتج",
+		"ACTIVITIES": "أنشطة",
+		"NO_PROJECT": "لا يوجد مشروع",
+		"DURATION": "المدة",
+		"PROGRESS": "التقدم",
+		"EMPLOYEE": "موظف"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "لوحة تحكم التطبيقات والروابط",
+		"TEAM_DASHBOARD": "لوحة تحكم الفريق",
+		"PRODUCTIVITY_BREAKDOWN": "تفصيل الإنتاجية لـ {month}",
+		"DAILY": "يومي",
+		"WEEKLY": "أسبوعي",
+		"MONTHLY": "شهري"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "الوقت والنشاط",
+		"TOTAL_HOURS": "إجمالي الساعات",
+		"AVERAGE_ACTIVITY": "متوسط النشاط",
+		"TOTAL_EARNINGS": "إجمالي الأرباح",
+		"TRACKED_HOURS": "الساعات المتتبعة",
+		"EARNINGS": "الأرباح",
+		"ACTIVITY_LEVEL": "مستوى النشاط"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

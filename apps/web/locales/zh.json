@@ -375,7 +375,34 @@
 		"ARCHIVE_AT": "归档于",
 		"RESTORE": "恢复",
 		"HIDE": "隐藏",
-		"EXPORT": "导出"
+		"EXPORT": "导出",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "高效",
+		"NEUTRAL": "中性",
+		"UNPRODUCTIVE": "低效",
+		"ACTIVITIES": "活动",
+		"NO_PROJECT": "无项目",
+		"DURATION": "持续时间",
+		"PROGRESS": "进度",
+		"EMPLOYEE": "员工"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "应用和URL仪表板",
+		"TEAM_DASHBOARD": "团队仪表板",
+		"PRODUCTIVITY_BREAKDOWN": "{month}的生产力分解",
+		"DAILY": "每日",
+		"WEEKLY": "每周",
+		"MONTHLY": "每月"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "时间和活动",
+		"TOTAL_HOURS": "总小时数",
+		"AVERAGE_ACTIVITY": "平均活动",
+		"TOTAL_EARNINGS": "总收入",
+		"TRACKED_HOURS": "跟踪小时数",
+		"EARNINGS": "收入",
+		"ACTIVITY_LEVEL": "活动水平"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

@@ -375,7 +375,34 @@
 		"ARCHIVE_AT": "Archiveren op",
 		"RESTORE": "Herstellen",
 		"HIDE": "Verbergen",
-		"EXPORT": "Exporteren"
+		"EXPORT": "Exporteren",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "Productief",
+		"NEUTRAL": "Neutraal",
+		"UNPRODUCTIVE": "Onproductief",
+		"ACTIVITIES": "activiteiten",
+		"NO_PROJECT": "Geen project",
+		"DURATION": "Duur",
+		"PROGRESS": "Voortgang",
+		"EMPLOYEE": "Medewerker"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "Apps & URLs Dashboard",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"PRODUCTIVITY_BREAKDOWN": "Productiviteitsuitsplitsing voor {month}",
+		"DAILY": "Dagelijks",
+		"WEEKLY": "Wekelijks",
+		"MONTHLY": "Maandelijks"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "Tijd en Activiteit",
+		"TOTAL_HOURS": "Totaal Uren",
+		"AVERAGE_ACTIVITY": "Gemiddelde Activiteit",
+		"TOTAL_EARNINGS": "Totale Inkomsten",
+		"TRACKED_HOURS": "Bijgehouden Uren",
+		"EARNINGS": "Inkomsten",
+		"ACTIVITY_LEVEL": "Activiteitsniveau"
 	},
 	"hotkeys": {
 		"HELP": "Help",

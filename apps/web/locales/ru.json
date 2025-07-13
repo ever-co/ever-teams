@@ -375,7 +375,34 @@
 		"ARCHIVE_AT": "Архивировать на",
 		"RESTORE": "Восстановить",
 		"HIDE": "Скрыть",
-		"EXPORT": "Экспорт"
+		"EXPORT": "Экспорт",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "Продуктивный",
+		"NEUTRAL": "Нейтральный",
+		"UNPRODUCTIVE": "Непродуктивный",
+		"ACTIVITIES": "активности",
+		"NO_PROJECT": "Нет проекта",
+		"DURATION": "Продолжительность",
+		"PROGRESS": "Прогресс",
+		"EMPLOYEE": "Сотрудник"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "Панель приложений и URL",
+		"TEAM_DASHBOARD": "Панель команды",
+		"PRODUCTIVITY_BREAKDOWN": "Разбивка продуктивности за {month}",
+		"DAILY": "Ежедневно",
+		"WEEKLY": "Еженедельно",
+		"MONTHLY": "Ежемесячно"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "Время и активность",
+		"TOTAL_HOURS": "Общее время",
+		"AVERAGE_ACTIVITY": "Средняя активность",
+		"TOTAL_EARNINGS": "Общий доход",
+		"TRACKED_HOURS": "Отслеженные часы",
+		"EARNINGS": "Доходы",
+		"ACTIVITY_LEVEL": "Уровень активности"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

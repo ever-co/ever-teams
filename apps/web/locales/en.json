@@ -40,6 +40,15 @@
 		"SCREENSHOTS": "Screenshots",
 		"TIME_LOG": "Time log",
 		"TO_DO": "To-do",
+		"PRODUCTIVE": "Productive",
+		"NEUTRAL": "Neutral",
+		"UNPRODUCTIVE": "Unproductive",
+		"ACTIVITIES": "activities",
+		"MEMBERS": "members",
+		"NO_PROJECT": "No project",
+		"DURATION": "Duration",
+		"PROGRESS": "Progress",
+		"EMPLOYEE": "Employee",
 
 		"COLLAPSE_COLUMN": "Collapse Column",
 		"EXPAND_COLUMN": "Expand Column",
@@ -377,7 +386,26 @@
 		"ARCHIVE_AT": "Archive at",
 		"RESTORE": "Restore",
 		"HIDE": "Hide",
-		"EXPORT": "Export"
+		"EXPORT": "Export",
+		"PDF": "PDF",
+		"XLSX": "XLSX"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "Apps & URLs Dashboard",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"PRODUCTIVITY_BREAKDOWN": "Productivity breakdown for {month}",
+		"DAILY": "Daily",
+		"WEEKLY": "Weekly",
+		"MONTHLY": "Monthly"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "Time and Activity",
+		"TOTAL_HOURS": "Total Hours",
+		"AVERAGE_ACTIVITY": "Average Activity",
+		"TOTAL_EARNINGS": "Total Earnings",
+		"TRACKED_HOURS": "Tracked Hours",
+		"EARNINGS": "Earnings",
+		"ACTIVITY_LEVEL": "Activity Level"
 	},
 	"hotkeys": {
 		"HELP": "Help",

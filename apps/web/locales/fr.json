@@ -376,7 +376,34 @@
 		"ARCHIVE_AT": "Archiver le",
 		"RESTORE": "Restaurer",
 		"HIDE": "Cacher",
-		"EXPORT": "Exporter"
+		"EXPORT": "Exporter",
+		"PDF": "PDF",
+		"XLSX": "XLSX",
+		"PRODUCTIVE": "Productif",
+		"NEUTRAL": "Neutre",
+		"UNPRODUCTIVE": "Improductif",
+		"ACTIVITIES": "activités",
+		"NO_PROJECT": "Aucun projet",
+		"DURATION": "Durée",
+		"PROGRESS": "Progrès",
+		"EMPLOYEE": "Employé"
+	},
+	"dashboard": {
+		"APPS_URLS_DASHBOARD": "Tableau de bord Apps & URLs",
+		"TEAM_DASHBOARD": "Tableau de bord d'équipe",
+		"PRODUCTIVITY_BREAKDOWN": "Répartition de la productivité pour {month}",
+		"DAILY": "Quotidien",
+		"WEEKLY": "Hebdomadaire",
+		"MONTHLY": "Mensuel"
+	},
+	"timeActivity": {
+		"TIME_AND_ACTIVITY": "Temps et activité",
+		"TOTAL_HOURS": "Total des heures",
+		"AVERAGE_ACTIVITY": "Activité moyenne",
+		"TOTAL_EARNINGS": "Gains totaux",
+		"TRACKED_HOURS": "Heures suivies",
+		"EARNINGS": "Gains",
+		"ACTIVITY_LEVEL": "Niveau d'activité"
 	},
 	"hotkeys": {
 		"HELP": "Aide",

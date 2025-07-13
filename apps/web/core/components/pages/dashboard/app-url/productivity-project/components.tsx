@@ -9,6 +9,7 @@ import {
 	ProgressBarProps,
 	ProjectHeaderRowProps
 } from '@/core/types/interfaces/activity/productivity-project';
+import { useTranslations } from 'next-intl';
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
 	<div className={cn('flex gap-2 items-center', className)}>
@@ -90,17 +91,23 @@ export const ProjectHeaderRow: React.FC<ProjectHeaderRowProps> = ({ projectName 
 	</TableRow>
 );
 
-export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }) => (
-	<TableRow className="bg-gray-50/30 dark:bg-gray-800">
-		<TableCell className="text-gray-700 dark:text-gray-300">{format(new Date(date), 'EEEE dd MMM yyyy')}</TableCell>
-		<TableCell colSpan={4}>
-			<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-				{activities.length} activities • {Array.from(new Set(activities.map((a) => a.employee.id))).length}{' '}
-				members
-			</div>
-		</TableCell>
-	</TableRow>
-);
+export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }) => {
+	const t = useTranslations();
+
+	return (
+		<TableRow className="bg-gray-50/30 dark:bg-gray-800">
+			<TableCell className="text-gray-700 dark:text-gray-300">
+				{format(new Date(date), 'EEEE dd MMM yyyy')}
+			</TableCell>
+			<TableCell colSpan={4}>
+				<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+					{activities.length} {t('common.ACTIVITIES')} •{' '}
+					{Array.from(new Set(activities.map((a) => a.employee.id))).length} {t('common.MEMBERS')}
+				</div>
+			</TableCell>
+		</TableRow>
+	);
+};
 
 const formatDuration = (seconds: number | string): string => {
 	let totalSeconds: number;
