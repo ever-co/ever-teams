@@ -16,6 +16,7 @@ import {
 	ITimerTaskLog
 } from '@/core/types/interfaces/activity/activity-report';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useTranslations } from 'next-intl';
 
 interface TimeSlot {
 	duration: number;
@@ -77,6 +78,7 @@ interface ActivityTableProps {
 }
 
 const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions, isLoading = false }) => {
+	const t = useTranslations();
 	const [currentPage, setCurrentPage] = useState(1);
 	const [entriesPerPage, setEntriesPerPage] = useState(10);
 	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
@@ -228,32 +230,32 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 	if (!transformedData.length) {
 		return (
 			<AnimatedEmptyState
-				title="No Activity Data"
-				message="There is no activity data to display for the selected time period."
+				title={t('timeActivity.NO_ACTIVITY_DATA')}
+				message={t('timeActivity.NO_ACTIVITY_DATA_MESSAGE')}
 			/>
 		);
 	}
 
 	return (
-		<div className="space-y-6 ">
+		<div className="space-y-6">
 			{currentEntries.map((dayLog: DailyLog) => (
 				<div
 					key={dayLog.date}
 					className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
 				>
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
-						<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">
-							<div className="text-base ">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
+						<div className="flex gap-8 items-center text-sm text-gray-500 dark:text-gray-400">
+							<div className="text-base">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
 							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>Hours:</span>
+								<span>{t('timeActivity.HOURS_LABEL')}</span>
 								<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
 							</div>
 							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>Earnings:</span>
+								<span>{t('timeActivity.EARNINGS_LABEL')}</span>
 								<span className="font-medium">{(dayLog.earnings || 0).toFixed(2)} USD</span>
 							</div>
 							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>Average Activity:</span>
+								<span>{t('timeActivity.AVERAGE_ACTIVITY_LABEL')}</span>
 								<span className="font-medium">{dayLog.activity || 0}%</span>
 							</div>
 						</div>
@@ -262,28 +264,28 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 						<TableHeader>
 							<TableRow className="border-b border-gray-200 dark:border-gray-600">
 								{columnVisibility.member && (
-									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-										Member ↑
+									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+										{t('timeActivity.MEMBER_HEADER')}
 									</TableHead>
 								)}
 								{columnVisibility.project && (
-									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-										Project ↑
+									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+										{t('timeActivity.PROJECT_HEADER')}
 									</TableHead>
 								)}
 								{columnVisibility.trackedHours && (
-									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-										Tracked Hours ↑
+									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+										{t('timeActivity.TRACKED_HOURS_HEADER')}
 									</TableHead>
 								)}
 								{columnVisibility.earnings && (
-									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-										Earnings ↑
+									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+										{t('timeActivity.EARNINGS_HEADER')}
 									</TableHead>
 								)}
 								{columnVisibility.activityLevel && (
-									<TableHead className="px-6 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-										Activity Level ↑
+									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+										{t('timeActivity.ACTIVITY_LEVEL_HEADER')}
 									</TableHead>
 								)}
 							</TableRow>
@@ -297,7 +299,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 									>
 										{columnVisibility.member && employeeLog.employee && (
 											<TableCell className="px-6 py-4">
-												<div className="flex items-center gap-3">
+												<div className="flex gap-3 items-center">
 													<Avatar size={32} className="w-8 h-8 rounded-full">
 														{employeeLog.employee.user?.imageUrl ? (
 															<img
@@ -316,7 +318,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 														)}
 													</Avatar>
 													<span className="font-medium text-gray-900 dark:text-gray-100">
-														{employeeLog.employee.fullName || 'Unnamed Employee'}
+														{employeeLog.employee.fullName ||
+															t('timeActivity.UNNAMED_EMPLOYEE')}
 													</span>
 												</div>
 											</TableCell>
@@ -325,7 +328,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 											<TableCell className="px-6 py-4">
 												<ProjectCell
 													imageUrl={projectLog.project?.imageUrl || ''}
-													name={projectLog.project?.name || 'No Project'}
+													name={projectLog.project?.name || t('common.NO_PROJECT')}
 												/>
 											</TableCell>
 										)}
@@ -358,7 +361,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 							{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
 								<TableRow>
 									<TableCell colSpan={5} className="px-6 py-4">
-										<div className="flex items-center gap-2 text-gray-400">
+										<div className="flex gap-2 items-center text-gray-400">
 											<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
 												<path
 													d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -368,7 +371,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													strokeLinejoin="round"
 												/>
 											</svg>
-											<span>No time activity</span>
+											<span>{t('timeActivity.NO_TIME_ACTIVITY')}</span>
 										</div>
 									</TableCell>
 								</TableRow>
@@ -379,16 +382,16 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			))}
 
 			{/* Pagination controls */}
-			<div className="flex items-center justify-between px-2 mt-4">
-				<div className="flex items-center gap-4">
+			<div className="flex justify-between items-center px-2 mt-4">
+				<div className="flex gap-4 items-center">
 					<div className="relative">
 						<button
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 bg-white rounded border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
-							Show {entriesPerPage}
+							{t('timeActivity.SHOW_ENTRIES', { count: entriesPerPage })}
 							<svg
-								className="inline-block w-4 h-4 ml-2"
+								className="inline-block ml-2 w-4 h-4"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -397,52 +400,56 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 							</svg>
 						</button>
 						{showEntriesDropdown && (
-							<div className="absolute left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded shadow-lg top-full dark:bg-dark--theme dark:border-gray-600">
+							<div className="absolute left-0 top-full z-10 mt-1 w-full bg-white rounded border border-gray-200 shadow-lg dark:bg-dark--theme dark:border-gray-600">
 								{entryOptions.map((option) => (
 									<button
 										key={option}
 										onClick={() => handleEntriesPerPageChange(option)}
-										className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+										className="px-4 py-2 w-full text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 									>
-										Show {option}
+										{t('timeActivity.SHOW_ENTRIES', { count: option })}
 									</button>
 								))}
 							</div>
 						)}
 					</div>
 					<span className="text-sm text-gray-500 dark:text-gray-400">
-						Showing {startIndex + 1} to {endIndex} of {transformedData.length} entries
+						{t('timeActivity.SHOWING_ENTRIES', {
+							start: startIndex + 1,
+							end: endIndex,
+							total: transformedData.length
+						})}
 					</span>
 				</div>
 
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
-						First
+						{t('timeActivity.FIRST')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
-						Previous
+						{t('timeActivity.PREVIOUS')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
-						Next
+						{t('timeActivity.NEXT')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>
-						Last
+						{t('timeActivity.LAST')}
 					</button>
 				</div>
 			</div>

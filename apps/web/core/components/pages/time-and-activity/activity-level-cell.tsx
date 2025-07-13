@@ -1,4 +1,5 @@
 import ProgressBar from '../../duplicated-components/progress-bar';
+import { useTranslations } from 'next-intl';
 
 interface ActivityLevelCellProps {
 	activity: number;
@@ -6,6 +7,8 @@ interface ActivityLevelCellProps {
 }
 
 export function ActivityLevelCell({ activity, duration }: ActivityLevelCellProps) {
+	const t = useTranslations();
+
 	if (duration === 0) {
 		return (
 			<div className="flex gap-2 items-center text-gray-400">
@@ -18,7 +21,7 @@ export function ActivityLevelCell({ activity, duration }: ActivityLevelCellProps
 						strokeLinejoin="round"
 					/>
 				</svg>
-				<span>No activity</span>
+				<span>{t('timeActivity.NO_ACTIVITY')}</span>
 			</div>
 		);
 	}
