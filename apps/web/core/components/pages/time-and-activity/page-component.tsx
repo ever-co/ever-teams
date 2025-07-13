@@ -41,18 +41,19 @@ const LazyTimeActivityTable = dynamic(
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
-const defaultViewOptions: ViewOption[] = [
-	{ id: 'member', label: 'Member', checked: true },
-	{ id: 'project', label: 'Project', checked: true },
-	{ id: 'task', label: 'Task', checked: true },
-	{ id: 'trackedHours', label: 'Tracked Hours', checked: true },
-	{ id: 'earnings', label: 'Earnings', checked: true },
-	{ id: 'activityLevel', label: 'Activity Level', checked: true }
+const getDefaultViewOptions = (t: any): ViewOption[] => [
+	{ id: 'member', label: t('common.MEMBER'), checked: true },
+	{ id: 'project', label: t('sidebar.PROJECTS'), checked: true },
+	{ id: 'task', label: t('common.TASK'), checked: true },
+	{ id: 'trackedHours', label: t('timeActivity.TRACKED_HOURS'), checked: true },
+	{ id: 'earnings', label: t('timeActivity.EARNINGS'), checked: true },
+	{ id: 'activityLevel', label: t('timeActivity.ACTIVITY_LEVEL'), checked: true }
 ];
 
 const TimeActivityComponents = () => {
 	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
+	const t = useTranslations();
 
 	const handleGroupByChange = useCallback((type: GroupByType) => {
 		setGroupByType(type);
@@ -60,17 +61,18 @@ const TimeActivityComponents = () => {
 
 	// Memoize column visibility checks
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
-		if (typeof window === 'undefined') return defaultViewOptions;
+		const defaultOptions = getDefaultViewOptions(t);
+		if (typeof window === 'undefined') return defaultOptions;
 
 		const savedOptions = localStorage.getItem(STORAGE_KEY);
-		if (!savedOptions) return defaultViewOptions;
+		if (!savedOptions) return defaultOptions;
 
 		try {
 			const parsedOptions = JSON.parse(savedOptions);
-			if (!Array.isArray(parsedOptions)) return defaultViewOptions;
+			if (!Array.isArray(parsedOptions)) return defaultOptions;
 			return parsedOptions;
 		} catch {
-			return defaultViewOptions;
+			return defaultOptions;
 		}
 	});
 
@@ -79,7 +81,6 @@ const TimeActivityComponents = () => {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(newOptions));
 	}, []);
 
-	const t = useTranslations();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
@@ -93,7 +94,7 @@ const TimeActivityComponents = () => {
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: 'Time and Activity', href: `/${currentLocale}/time-and-activity` }
+			{ title: t('timeActivity.TIME_AND_ACTIVITY'), href: `/${currentLocale}/time-and-activity` }
 		],
 		[currentLocale, t]
 	);
@@ -138,9 +139,13 @@ const TimeActivityComponents = () => {
 
 							{/* Statistics Cards */}
 							<div className="grid grid-cols-3 gap-[30px] w-full">
-								<LazyCardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
 								<LazyCardTimeAndActivity
-									title="Average Activity"
+									title={t('timeActivity.TOTAL_HOURS')}
+									value="1,020h"
+									showProgress={false}
+								/>
+								<LazyCardTimeAndActivity
+									title={t('timeActivity.AVERAGE_ACTIVITY')}
 									value="74%"
 									showProgress={true}
 									progress={74}
@@ -148,7 +153,7 @@ const TimeActivityComponents = () => {
 									isLoading={false}
 								/>
 								<LazyCardTimeAndActivity
-									title="Total Earnings"
+									title={t('timeActivity.TOTAL_EARNINGS')}
 									value="1,200.00 USD"
 									showProgress={false}
 								/>

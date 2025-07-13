@@ -5,6 +5,7 @@ import { formatDuration, getWeekRange } from '@/core/lib/utils/formatDuration';
 import { EmptyTimeActivity } from '../../activities/empty-time-activity';
 import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';
 import ProgressBar from '../../duplicated-components/progress-bar';
+import { useTranslations } from 'next-intl';
 
 interface TimeEntry {
 	member: {
@@ -53,57 +54,59 @@ interface TimeActivityTableProps {
 }
 
 export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = false }) => {
+	const t = useTranslations();
+
 	if (!loading && (!data || data.length === 0)) {
 		return <EmptyTimeActivity />;
 	}
 
 	const columns: Column<TimeEntry>[] = [
 		{
-			header: 'Member',
+			header: t('common.MEMBER'),
 			accessorKey: 'member',
 			cell: (value) => {
-				if (!value) return <div>No Member Data</div>;
+				if (!value) return <div>{t('common.NO_MEMBER_DATA')}</div>;
 				return (
 					<div className="flex items-center gap-3">
 						<Avatar className="w-8 h-8 rounded-full">
 							<Image
 								src={value.imageUrl || '/assets/images/avatar.png'}
-								alt={value.name || 'Member'}
+								alt={value.name || t('common.MEMBER')}
 								width={32}
 								height={32}
 								className="rounded-full"
 							/>
 						</Avatar>
-						<span className="font-medium">{value.name || 'Unnamed Member'}</span>
+						<span className="font-medium">{value.name || t('timeActivity.UNNAMED_EMPLOYEE')}</span>
 					</div>
 				);
 			}
 		},
 		{
-			header: 'Project',
+			header: t('sidebar.PROJECTS'),
 			accessorKey: 'project',
 			cell: (value) => {
-				if (!value) return <div>No Project Data</div>;
+				if (!value) return <div>{t('common.NO_PROJECT_DATA')}</div>;
 				return (
 					<div className="flex items-center gap-3">
 						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-gray-800">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}
-									alt={value.name || 'No project'}
+									alt={value.name || t('common.NO_PROJECT')}
 									width={40}
 									height={40}
 									className="object-cover w-full h-full rounded-full"
 								/>
 							)}
 						</Avatar>
-						<span className="font-medium">{value.name || 'No project'}</span>
+						<span className="font-medium">{value.name || t('common.NO_PROJECT')}</span>
 					</div>
 				);
 			}
 		},
 		{
-			header: 'Tracked Hours',
+			header: t('timeActivity.TRACKED_HOURS'),
 			accessorKey: 'trackedHours',
 			cell: (value, row) => (
 				<div className="flex items-center justify-end gap-2">
@@ -119,12 +122,12 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			className: 'text-right'
 		},
 		{
-			header: 'Earnings',
+			header: t('timeActivity.EARNINGS'),
 			accessorKey: 'earnings',
 			className: 'text-right font-medium'
 		},
 		{
-			header: 'Activity Level',
+			header: t('timeActivity.ACTIVITY_LEVEL'),
 			accessorKey: 'activityLevel',
 			cell: (value) => (
 				<div className="flex items-center gap-3">
@@ -183,7 +186,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 					imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
 				},
 				project: {
-					name: projectLog.project?.name || 'No Project',
+					name: projectLog.project?.name || t('common.NO_PROJECT'),
 					imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
 				},
 				trackedHours: `${formatDuration(employeeLog.sum)}h`,
@@ -207,9 +210,12 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 
 		return {
 			headers: [
-				{ label: 'Hours', value: `${formatDuration(week.totalSum)}h` },
-				{ label: 'Earnings', value: `${week.totalEarnings.toFixed(2)} USD` },
-				{ label: 'Average Activity', value: `${Math.round(week.totalActivity / week.daysCount)}%` }
+				{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
+				{ label: t('timeActivity.EARNINGS_LABEL'), value: `${week.totalEarnings.toFixed(2)} USD` },
+				{
+					label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),
+					value: `${Math.round(week.totalActivity / week.daysCount)}%`
+				}
 			],
 			dateRange: `${startDate} - ${endDate}`,
 			entries
