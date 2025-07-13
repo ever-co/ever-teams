@@ -8,6 +8,7 @@ import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TranslationHooks, useTranslations } from 'next-intl';
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
@@ -21,13 +22,13 @@ export interface TimeActivityHeaderProps {
 	groupByType?: GroupByType;
 }
 
-const defaultViewOptions: ViewOption[] = [
-	{ id: 'member', label: 'Member', checked: true },
-	{ id: 'project', label: 'Project', checked: true },
-	{ id: 'task', label: 'Task', checked: true },
-	{ id: 'trackedHours', label: 'Tracked Hours', checked: true },
-	{ id: 'earnings', label: 'Earnings', checked: true },
-	{ id: 'activityLevel', label: 'Activity Level', checked: true }
+const getDefaultViewOptions = (t: TranslationHooks): ViewOption[] => [
+	{ id: 'member', label: t('common.MEMBER'), checked: true },
+	{ id: 'project', label: t('sidebar.PROJECTS'), checked: true },
+	{ id: 'task', label: t('common.TASK'), checked: true },
+	{ id: 'trackedHours', label: t('timeActivity.TRACKED_HOURS'), checked: true },
+	{ id: 'earnings', label: t('timeActivity.EARNINGS'), checked: true },
+	{ id: 'activityLevel', label: t('timeActivity.ACTIVITY_LEVEL'), checked: true }
 ];
 
 function TimeActivityHeader({
@@ -35,7 +36,8 @@ function TimeActivityHeader({
 	onViewOptionsChange,
 	...props
 }: TimeActivityHeaderProps) {
-	const [internalViewOptions, setInternalViewOptions] = React.useState<ViewOption[]>(defaultViewOptions);
+	const t = useTranslations();
+	const [internalViewOptions, setInternalViewOptions] = React.useState<ViewOption[]>(getDefaultViewOptions(t));
 
 	const handleViewOptionsChange = React.useCallback(
 		(newOptions: ViewOption[]) => {
@@ -56,27 +58,27 @@ function TimeActivityHeader({
 	const currentViewOptions = externalViewOptions || internalViewOptions;
 
 	return (
-		<div className="flex items-center justify-between w-full dark:bg-dar">
-			<h1 className="text-2xl font-semibold">Time and Activity</h1>
-			<div className="flex items-center gap-4">
+		<div className="flex justify-between items-center w-full dark:bg-dar">
+			<h1 className="text-2xl font-semibold">{t('timeActivity.TIME_AND_ACTIVITY')}</h1>
+			<div className="flex gap-4 items-center">
 				<GroupBySelectTimeActivity onGroupByChange={props.onGroupByChange} groupByType={props.groupByType} />
 				<TimeActivityFilterPopover {...props} />
 				<ViewSelect viewOptions={currentViewOptions} onChange={handleViewOptionsChange} />
 				<DateRangePickerTimeActivity onDateRangeChange={handleDateRangeChange} />
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<Select defaultValue="export">
 						<SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
-							<SelectValue placeholder="Export" />
+							<SelectValue placeholder={t('common.EXPORT')} />
 						</SelectTrigger>
 						<SelectContent className="dark:bg-dark--theme-light">
 							<SelectItem className=" data-[state=checked]:text-blue-600" value="export">
-								Export
+								{t('common.EXPORT')}
 							</SelectItem>
 							<SelectItem className=" data-[state=checked]:text-blue-600" value="pdf">
-								PDF
+								{t('common.PDF')}
 							</SelectItem>
 							<SelectItem className=" data-[state=checked]:text-blue-600" value="xlsx">
-								XLSX
+								{t('common.XLSX')}
 							</SelectItem>
 						</SelectContent>
 					</Select>
@@ -87,4 +89,4 @@ function TimeActivityHeader({
 }
 
 export type { ViewOption };
-export { defaultViewOptions, TimeActivityHeader };
+export { getDefaultViewOptions, TimeActivityHeader };

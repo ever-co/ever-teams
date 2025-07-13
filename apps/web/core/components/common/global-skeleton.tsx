@@ -1,6 +1,7 @@
 'use client';
 import { cn } from '@/core/lib/helpers';
 import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar';
+import { useTranslations } from 'next-intl';
 
 // Lazy load AppSidebar for performance optimization
 import { AppSidebarSkeleton } from '@/core/components/common/skeleton/app-sidebar-skeleton';
@@ -10,9 +11,10 @@ import { useAtomValue } from 'jotai';
 import { FC } from 'react';
 import { Container } from './container';
 const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
+	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
 	return (
-		<AppContainer title="Loading...">
+		<AppContainer title={t('common.LOADING')}>
 			<SidebarProvider className={cn('flex-1 w-full h-full', className)}>
 				{/* Left sidebar structure implementation - Lazy loaded for performance */}
 				<AppSidebarSkeleton />
