@@ -2,6 +2,7 @@ import React from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/core/components/common/dropdown-menu';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface ViewOption {
 	id: string;
@@ -15,6 +16,7 @@ interface ViewSelectProps {
 }
 
 export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
+	const t = useTranslations();
 	const handleCheckChange = React.useCallback(
 		(id: string) => {
 			const newOptions = viewOptions.map((option) =>
@@ -46,7 +48,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
 							className="fill-current"
 						/>
 					</svg>
-					View
+					{t('timeActivity.VIEW')}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="p-2 w-56 dark:bg-dark-high">

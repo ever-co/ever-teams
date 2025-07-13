@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
 
 export function ActivityCalendar() {
+	const t = useTranslations();
 	const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -46,8 +47,12 @@ export function ActivityCalendar() {
 								tooltip={(value) => (
 									<div className="z-50 p-3 bg-white rounded-lg shadow-lg dark:bg-dark--theme">
 										<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-											<strong>{value.value || 'No'} hours</strong> on{' '}
-											{moment(value.day).format('dddd, MMMM D, YYYY')}
+											<strong>
+												{t('timeActivity.HOURS_ON_DATE', {
+													hours: value.value || t('common.NO'),
+													date: moment(value.day).format('dddd, MMMM D, YYYY')
+												})}
+											</strong>
 										</div>
 									</div>
 								)}

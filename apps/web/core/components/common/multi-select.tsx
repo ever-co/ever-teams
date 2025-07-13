@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { statusColor } from '..';
 import { IconsCloseRounded } from '@/core/components/icons';
@@ -35,6 +36,7 @@ export function MultiSelect<T>({
 	removeItems,
 	localStorageKey = 'select-items-selected'
 }: MultiSelectProps<T>) {
+	const t = useTranslations();
 	const [selectedItems, setSelectedItems] = useState<T[]>(() => {
 		if (typeof window === 'undefined') return [];
 		try {
@@ -127,11 +129,11 @@ export function MultiSelect<T>({
 						{selectedItems.length > 0 ? (
 							<span className="truncate">
 								{multiSelect
-									? `${selectedItems.length} item(s) selected`
+									? t('common.ITEMS_SELECTED', { count: selectedItems.length })
 									: itemToString(selectedItems[0])}
 							</span>
 						) : (
-							<span>Select items</span>
+							<span>{t('common.SELECT_ITEMS')}</span>
 						)}
 						<ChevronDown className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')} />
 					</Button>

@@ -310,7 +310,7 @@ function AppUrls() {
 								onUpdateFilters={updateFilters}
 								onGroupByChange={handleGroupTypeChange}
 								showGroupBy={true}
-								title="Apps & URLs Dashboard"
+								title={t('dashboard.APPS_URLS_DASHBOARD')}
 								teamName="APPS-URLS"
 								isManage={isManage}
 								groupByType={groupByType}

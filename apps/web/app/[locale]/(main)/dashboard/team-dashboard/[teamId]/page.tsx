@@ -114,7 +114,7 @@ function TeamDashboard() {
 						<div className="flex flex-col gap-3">
 							<LazyDashboardHeader
 								onUpdateDateRangeAction={updateDateRange}
-								title="Team Dashboard"
+								title={t('dashboard.TEAM_DASHBOARD')}
 								isManage={isManage}
 								teamName="TEAM-DASHBOARD"
 								reportData={rapportDailyActivity || []}
