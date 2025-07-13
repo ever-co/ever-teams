@@ -392,9 +392,7 @@
 		"DAILY": "Dagelijks",
 		"WEEKLY": "Wekelijks",
 		"ITEMS_SELECTED": "{count} item(s) geselecteerd",
-		"SELECT_ITEMS": "Selecteer items",
-		"LOADING": "Laden...",
-		"NO": "Nee"
+		"SELECT_ITEMS": "Selecteer items"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Apps & URLs Dashboard",

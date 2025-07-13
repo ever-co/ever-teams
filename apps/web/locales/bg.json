@@ -392,9 +392,7 @@
 		"DAILY": "Ежедневно",
 		"WEEKLY": "Седмично",
 		"ITEMS_SELECTED": "{count} елемент(а) избран(и)",
-		"SELECT_ITEMS": "Избери елементи",
-		"LOADING": "Зареждане...",
-		"NO": "Не"
+		"SELECT_ITEMS": "Избери елементи"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Табло за приложения и URL адреси",

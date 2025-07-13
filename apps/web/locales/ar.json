@@ -371,9 +371,7 @@
 		"DAILY": "يومي",
 		"WEEKLY": "أسبوعي",
 		"ITEMS_SELECTED": "{count} عنصر محدد",
-		"SELECT_ITEMS": "اختر العناصر",
-		"LOADING": "جاري التحميل...",
-		"NO": "لا"
+		"SELECT_ITEMS": "اختر العناصر"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "لوحة تحكم التطبيقات والروابط",

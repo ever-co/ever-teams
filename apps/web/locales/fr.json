@@ -383,7 +383,6 @@
 		"NEUTRAL": "Neutre",
 		"UNPRODUCTIVE": "Improductif",
 		"ACTIVITIES": "activités",
-		"NO_PROJECT": "Aucun projet",
 		"DURATION": "Durée",
 		"PROGRESS": "Progrès",
 		"EMPLOYEE": "Employé",
@@ -393,9 +392,7 @@
 		"DAILY": "Quotidien",
 		"WEEKLY": "Hebdomadaire",
 		"ITEMS_SELECTED": "{count} élément(s) sélectionné(s)",
-		"SELECT_ITEMS": "Sélectionner des éléments",
-		"LOADING": "Chargement...",
-		"NO": "Non"
+		"SELECT_ITEMS": "Sélectionner des éléments"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Tableau de bord Apps & URLs",

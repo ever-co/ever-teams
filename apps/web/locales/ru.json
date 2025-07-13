@@ -392,9 +392,7 @@
 		"DAILY": "Ежедневно",
 		"WEEKLY": "Еженедельно",
 		"ITEMS_SELECTED": "{count} элемент(ов) выбрано",
-		"SELECT_ITEMS": "Выбрать элементы",
-		"LOADING": "Загрузка...",
-		"NO": "Нет"
+		"SELECT_ITEMS": "Выбрать элементы"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Панель приложений и URL",

@@ -392,9 +392,7 @@
 		"DAILY": "Codziennie",
 		"WEEKLY": "Tygodniowo",
 		"ITEMS_SELECTED": "{count} element(ów) wybranych",
-		"SELECT_ITEMS": "Wybierz elementy",
-		"LOADING": "Ładowanie...",
-		"NO": "Nie"
+		"SELECT_ITEMS": "Wybierz elementy"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Panel Aplikacji i URL",
