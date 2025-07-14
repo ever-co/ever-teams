@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
 import { paginationPageSizeOptions } from '@/core/constants/config/constants';
 
@@ -15,13 +15,14 @@ export const PaginationDropdown = ({ itemPerPage, onChange, totalItems }: IProps
 	const calculatePaginationOptions = useCallback(() => {
 		const MIN_ITEMS_PER_PAGE = 5;
 		const MAX_ITEMS_PER_PAGE = 50;
+		const options = [...paginationOptions];
 
-		const total = itemPerPage < MIN_ITEMS_PER_PAGE ? itemPerPage : totalItems;
-
-		const options = paginationPageSizeOptions.filter((opt) => opt <= total);
+		if (!options.includes(itemPerPage)) {
+			options.push(itemPerPage);
+		}
 
 		if (totalItems <= MIN_ITEMS_PER_PAGE) {
-			options.push(totalItems);
+			options.unshift(totalItems);
 		} else if (totalItems > MAX_ITEMS_PER_PAGE) {
 			const rounded = Math.ceil(totalItems / 10) * 10;
 			if (!options.includes(rounded)) {
@@ -29,19 +30,12 @@ export const PaginationDropdown = ({ itemPerPage, onChange, totalItems }: IProps
 			}
 		}
 
-		console.log(itemPerPage, totalItems, options);
-
 		return Array.from(new Set(options)).sort((a, b) => a - b);
-	}, [totalItems, itemPerPage]);
-
-	const basePaginationOptions = useMemo(
-		() => calculatePaginationOptions(),
-		[totalItems, calculatePaginationOptions, itemPerPage]
-	);
+	}, [totalItems, itemPerPage, paginationOptions]);
 
 	useEffect(() => {
 		setPaginationOptions(calculatePaginationOptions());
-	}, [totalItems, calculatePaginationOptions, itemPerPage]);
+	}, [totalItems, itemPerPage]);
 
 	return (
 		<Select
