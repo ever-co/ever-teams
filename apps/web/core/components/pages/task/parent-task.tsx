@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { TaskInput } from '../../tasks/task-input';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { toast } from 'sonner';
 
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
@@ -16,21 +17,52 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const onTaskSelect = useCallback(
 		async (parentTask: TTask | undefined) => {
 			if (!parentTask) return;
+
 			const childTask = cloneDeep(task);
 			setLoading(true);
 
-			await updateTask({
-				...childTask,
-				parentId: parentTask.id,
-				parent: parentTask
-			});
+			try {
+				// Update the task with parent assignment
+				await updateTask({
+					...childTask,
+					parentId: parentTask.id,
+					parent: parentTask
+				});
 
-			loadTeamTasksData(false).finally(() => {
-				setLoading(false);
+				// Show success notification with task titles
+				toast.success(
+					t('common.PARENT_TASK_ASSIGNED_SUCCESS', {
+						parentTitle: parentTask.title,
+						childTitle: childTask.title
+					})
+				);
+
+				// Reload team tasks data to ensure UI synchronization
+				await loadTeamTasksData(false);
+
+				// Close modal on success
 				modal.closeModal();
-			});
+			} catch (error) {
+				// Show error notification with task titles
+				toast.error(
+					t('common.PARENT_TASK_ASSIGNMENT_FAILED', {
+						parentTitle: parentTask.title,
+						childTitle: childTask.title
+					}),
+					{
+						description: t('common.PARENT_TASK_ASSIGNMENT_ERROR', {
+							parentTitle: parentTask.title,
+							childTitle: childTask.title
+						})
+					}
+				);
+
+				console.error('Error assigning parent task:', error);
+			} finally {
+				setLoading(false);
+			}
 		},
-		[task, loadTeamTasksData, modal, updateTask]
+		[task, loadTeamTasksData, modal, updateTask, t]
 	);
 
 	const filteredTasks = tasks.filter((t) => t.id != task.id);
