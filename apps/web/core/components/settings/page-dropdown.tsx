@@ -43,11 +43,13 @@ export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: I
 				id: String(item),
 				value: item
 			}))}
-			selected={String(paginationOptions.find((item) => item === itemPerPage))}
+			selected={String(
+				paginationOptions.find((item) => {
+					return item === (itemPerPage > totalItems ? totalItems : itemPerPage);
+				})
+			)}
 			onChange={(value) => onChange(parseInt(value))}
-			renderValue={(selected) =>
-				`Show ${selected ?? String(paginationOptions.find((item) => item === itemPerPage))}`
-			}
+			renderValue={(selected) => `Show ${selected}`}
 		/>
 	);
 };
