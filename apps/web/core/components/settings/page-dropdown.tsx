@@ -10,7 +10,7 @@ interface IProps {
 	totalItems: number;
 }
 
-export const PaginationDropdown = ({ itemPerPage, onChange, totalItems }: IProps) => {
+export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: IProps) => {
 	const [paginationOptions, setPaginationOptions] = useState<number[]>(paginationPageSizeOptions);
 	const calculatePaginationOptions = useCallback(() => {
 		const MIN_ITEMS_PER_PAGE = 5;

@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
-import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
+import { PaginationItemsDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
@@ -381,7 +381,7 @@ export function TeamStatsTable({
 						</Button>
 					</div>
 					<div className="flex gap-4 items-center">
-						<PaginationDropdown
+						<PaginationItemsDropdown
 							setValue={(value) => {
 								setPageSize(value);
 								setCurrentPage(1);
