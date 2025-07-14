@@ -5,20 +5,20 @@ import { Select } from '../features/projects/add-or-edit-project/steps/basic-inf
 import { paginationPageSizeOptions } from '@/core/constants/config/constants';
 
 interface IProps {
-	itemPerPage: number;
+	itemsPerPage: number;
 	onChange: (value: number) => void;
 	totalItems: number;
 }
 
-export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: IProps) => {
+export const PaginationItemsDropdown = ({ itemsPerPage, onChange, totalItems }: IProps) => {
 	const [paginationOptions, setPaginationOptions] = useState<number[]>(paginationPageSizeOptions);
 	const calculatePaginationOptions = useCallback(() => {
 		const MIN_ITEMS_PER_PAGE = 5;
 		const MAX_ITEMS_PER_PAGE = 50;
 		const options = [...paginationOptions];
 
-		if (!options.includes(itemPerPage)) {
-			options.push(itemPerPage);
+		if (!options.includes(itemsPerPage)) {
+			options.push(itemsPerPage);
 		}
 
 		if (totalItems <= MIN_ITEMS_PER_PAGE) {
@@ -31,11 +31,11 @@ export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: I
 		}
 
 		return Array.from(new Set(options)).sort((a, b) => a - b);
-	}, [totalItems, itemPerPage, paginationOptions]);
+	}, [totalItems, itemsPerPage, paginationOptions]);
 
 	useEffect(() => {
 		setPaginationOptions(calculatePaginationOptions());
-	}, [totalItems, itemPerPage]);
+	}, [totalItems, itemsPerPage]);
 
 	const handleChange = useCallback(
 		(value: string) => {
@@ -56,7 +56,7 @@ export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: I
 			}))}
 			selected={String(
 				paginationOptions.find((item) => {
-					return item === (itemPerPage > totalItems ? totalItems : itemPerPage);
+					return item === (itemsPerPage > totalItems ? totalItems : itemsPerPage);
 				})
 			)}
 			onChange={handleChange}

@@ -81,7 +81,7 @@ export function Paginate({
 			/>
 
 			<div className="flex relative gap-x-5 items-center">
-				<PaginationItemsDropdown itemPerPage={itemsPerPage} onChange={setItemsPerPage} totalItems={total} />
+				<PaginationItemsDropdown itemsPerPage={itemsPerPage} onChange={setItemsPerPage} totalItems={total} />
 				<div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
 					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
 				</div>

@@ -382,11 +382,12 @@ export function TeamStatsTable({
 					</div>
 					<div className="flex gap-4 items-center">
 						<PaginationItemsDropdown
-							setValue={(value) => {
+							onChange={(value) => {
 								setPageSize(value);
 								setCurrentPage(1);
 							}}
 							totalItems={rapportDailyActivity?.length}
+							itemsPerPage={pageSize}
 						/>
 						<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
 							Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
