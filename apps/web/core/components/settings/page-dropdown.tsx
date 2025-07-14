@@ -1,132 +1,59 @@
 'use client';
 
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
+import { paginationPageSizeOptions } from '@/core/constants/config/constants';
 
-import { clsxm } from '@/core/lib/utils';
-import { PaginationItems, mappaginationItems } from './page-items';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { ChevronDownIcon } from 'lucide-react';
-
-export interface IPagination {
-	title: string;
+interface IProps {
+	itemPerPage: number;
+	onChange: (value: number) => void;
+	totalItems: number;
 }
 
-export const PaginationDropdown = ({
-	setValue,
-	active,
-	total
-}: {
-	setValue: Dispatch<SetStateAction<number>>;
-	active?: IPagination | null;
-	total?: number;
-}) => {
-	const calculatePaginationOptions = useCallback((total = 0) => {
-		const baseOptions = [10, 20, 30, 40, 50];
+export const PaginationDropdown = ({ itemPerPage, onChange, totalItems }: IProps) => {
+	const [paginationOptions, setPaginationOptions] = useState<number[]>(paginationPageSizeOptions);
+	const calculatePaginationOptions = useCallback(() => {
+		const MIN_ITEMS_PER_PAGE = 5;
+		const MAX_ITEMS_PER_PAGE = 50;
 
-		if (total > 50) {
-			const nextOption = Math.ceil(total / 10) * 10;
-			if (!baseOptions.includes(nextOption)) {
-				baseOptions.push(nextOption);
+		const total = itemPerPage < MIN_ITEMS_PER_PAGE ? itemPerPage : totalItems;
+
+		const options = paginationPageSizeOptions.filter((opt) => opt <= total);
+
+		if (totalItems <= MIN_ITEMS_PER_PAGE) {
+			options.push(totalItems);
+		} else if (totalItems > MAX_ITEMS_PER_PAGE) {
+			const rounded = Math.ceil(totalItems / 10) * 10;
+			if (!options.includes(rounded)) {
+				options.push(rounded);
 			}
 		}
-		baseOptions.sort((a, b) => a - b);
 
-		return baseOptions.map((size) => ({
-			title: size.toString()
-		}));
-	}, []);
+		console.log(itemPerPage, totalItems, options);
 
-	const [paginationList, setPagination] = useState<IPagination[]>([
-		{
-			title: '10'
-		},
-		{
-			title: '20'
-		},
-		{
-			title: '30'
-		},
-		{
-			title: '40'
-		},
-		{
-			title: '50'
-		}
-	]);
+		return Array.from(new Set(options)).sort((a, b) => a - b);
+	}, [totalItems, itemPerPage]);
 
-	useEffect(() => {
-		if (total) {
-			setPagination(calculatePaginationOptions(total));
-		}
-	}, [total, calculatePaginationOptions]);
-
-	const items: PaginationItems[] = useMemo(() => mappaginationItems(paginationList), [paginationList]);
-	const [open, setOpen] = useState(false);
-	const [paginationItem, setPaginationItem] = useState<PaginationItems | null>();
-
-	const onChangeActiveTeam = useCallback(
-		(item: PaginationItems) => {
-			if (item.data) {
-				setPaginationItem(item);
-				setValue(+item.data.title);
-			}
-		},
-		[setPaginationItem, setValue]
+	const basePaginationOptions = useMemo(
+		() => calculatePaginationOptions(),
+		[totalItems, calculatePaginationOptions, itemPerPage]
 	);
 
 	useEffect(() => {
-		if (!paginationItem && items.length > 0) {
-			setPaginationItem(items[0]);
-		}
-	}, [paginationItem, items]);
-
-	useEffect(() => {
-		if (active && paginationList.every((filter) => filter.title !== active.title)) {
-			setPagination([...paginationList, active]);
-		}
-	}, [paginationList, setPagination, setPaginationItem, active]);
-
-	useEffect(() => {
-		if (active) {
-			setPaginationItem(items.find((item: any) => item.key === active?.title));
-		}
-	}, [active, items]);
+		setPaginationOptions(calculatePaginationOptions());
+	}, [totalItems, calculatePaginationOptions, itemPerPage]);
 
 	return (
-		<>
-			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger
-					className={clsxm(
-						'input-border',
-						'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
-						'font-normal outline-none',
-						'z-10 py-0 font-medium outline-none h-[45px] w-[145px] dark:bg-dark--theme-light'
-					)}
-				>
-					<span>{paginationItem?.selectedLabel || (paginationItem?.Label && <paginationItem.Label />)}</span>{' '}
-					<ChevronDownIcon
-						className={clsxm(
-							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80',
-							open && 'transform rotate-180'
-						)}
-						aria-hidden="true"
-					/>
-				</PopoverTrigger>
-				<PopoverContent className="w-36 p-2">
-					{items.map((Item, index) => (
-						<div
-							onClick={() => {
-								onChangeActiveTeam(Item);
-								setOpen(false);
-							}}
-							key={Item.key ? Item.key : index}
-							className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded"
-						>
-							<Item.Label />
-						</div>
-					))}
-				</PopoverContent>
-			</Popover>
-		</>
+		<Select
+			options={paginationOptions.map((item) => ({
+				id: String(item),
+				value: item
+			}))}
+			selected={String(paginationOptions.find((item) => item === itemPerPage))}
+			onChange={(value) => onChange(parseInt(value))}
+			renderValue={(selected) =>
+				`Show ${selected ?? String(paginationOptions.find((item) => item === itemPerPage))}`
+			}
+		/>
 	);
 };

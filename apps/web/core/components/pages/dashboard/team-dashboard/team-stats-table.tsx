@@ -386,7 +386,7 @@ export function TeamStatsTable({
 								setPageSize(value);
 								setCurrentPage(1);
 							}}
-							total={rapportDailyActivity?.length}
+							totalItems={rapportDailyActivity?.length}
 						/>
 						<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
 							Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
