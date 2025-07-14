@@ -86,8 +86,9 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 
 			await updateTask({
 				...childTask,
+				id: childTask.id,
 				parentId: task.id,
-				parent: task
+				parent: { ...task, id: task.id }
 			});
 
 			loadTeamTasksData(false).finally(() => {
@@ -124,12 +125,12 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[45rem]  relative">
 				{loading && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+					<div className="flex absolute inset-0 z-10 justify-center items-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between w-full">
+					<div className="flex flex-col justify-between items-center w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{trans.common.CHILD_ISSUE_TASK}
 						</Text.Heading>

@@ -140,7 +140,12 @@ export const taskSchema = baseTaskPropertiesSchema
 	// .merge(taskAssociationsSchema)
 	.extend({
 		// Relations with other tasks
-		parent: baseTaskSchema.optional().nullable(),
+		parent: baseTaskSchema
+			.extend({
+				id: z.string()
+			})
+			.optional()
+			.nullable(),
 		parentId: z.string().optional().nullable(),
 		children: z
 			.array(baseTaskSchema.merge(z.object({ id: z.string() })))

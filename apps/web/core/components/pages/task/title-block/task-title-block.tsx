@@ -247,7 +247,7 @@ const TaskTitleBlock = () => {
 				</div>
 
 				<CopyTooltip text={task?.taskNumber || ''}>
-					<button className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2">
+					<button className="flex gap-1 items-center text-[#B1AEBC] text-[10px] 3xl:text-xs 3xl:py-2">
 						<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
 						{t('pages.settingsTeam.COPY_NUMBER')}
 					</button>
@@ -271,7 +271,7 @@ const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 						task.parent.issueType === EIssueType.STORY && 'bg-[#54BA951A]',
 						task.parent.issueType === EIssueType.BUG && 'bg-[#C24A4A1A]',
 						(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'bg-[#5483ba]',
-						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
+						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-0.5 px-2.5'
 					)}
 				>
 					<span
@@ -280,7 +280,7 @@ const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 							task.parent.issueType === EIssueType.STORY && 'text-[#27AE60]',
 							task.parent.issueType === EIssueType.BUG && 'text-[#C24A4A]',
 							(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'text-white',
-							'font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
+							'font-medium text-xs 3xl:text-sm max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
 						)}
 					>
 						<span

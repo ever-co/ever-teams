@@ -81,7 +81,7 @@ const TaskSecondaryInfo = () => {
 			await updateTask({
 				...childTask,
 				parentId: parentTask.id ? parentTask.id : null,
-				parent: parentTask.id ? parentTask : null
+				parent: parentTask.id ? { ...parentTask, id: parentTask.id } : null
 			} as any);
 		},
 		[task, updateTask]
