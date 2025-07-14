@@ -37,6 +37,17 @@ export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: I
 		setPaginationOptions(calculatePaginationOptions());
 	}, [totalItems, itemPerPage]);
 
+	const handleChange = useCallback(
+		(value: string) => {
+			onChange(parseInt(value));
+		},
+		[onChange]
+	);
+
+	const renderValue = useCallback((selected: string | null) => {
+		return selected ? `Show ${selected}` : null;
+	}, []);
+
 	return (
 		<Select
 			options={paginationOptions.map((item) => ({
@@ -48,8 +59,8 @@ export const PaginationItemsDropdown = ({ itemPerPage, onChange, totalItems }: I
 					return item === (itemPerPage > totalItems ? totalItems : itemPerPage);
 				})
 			)}
-			onChange={(value) => onChange(parseInt(value))}
-			renderValue={(selected) => `Show ${selected}`}
+			onChange={handleChange}
+			renderValue={renderValue}
 		/>
 	);
 };
