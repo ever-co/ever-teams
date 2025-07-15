@@ -26,10 +26,8 @@ export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: 
 			selectedValue = totalItems;
 		} else if (itemsPerPage && itemsPerPage <= totalItems) {
 			selectedValue = itemsPerPage;
-		} else if (MIN <= totalItems) {
-			selectedValue = MIN;
 		} else {
-			selectedValue = totalItems;
+			selectedValue = MIN;
 		}
 
 		if (!baseOptions.includes(selectedValue)) {
