@@ -1,11 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useCallback, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
@@ -15,12 +13,12 @@ import { TaskInput } from '../../tasks/task-input';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { FC } from 'react';
 
-export const RelatedIssueCard = () => {
+export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const task = useAtomValue(detailedTaskState);
 	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
 
@@ -162,12 +160,12 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[42rem] relative">
 				{loading && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+					<div className="flex absolute inset-0 z-10 justify-center items-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between w-full">
+					<div className="flex flex-col justify-between items-center w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{t('common.LINK_TASK')}
 						</Text.Heading>
