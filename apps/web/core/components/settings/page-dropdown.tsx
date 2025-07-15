@@ -51,7 +51,7 @@ export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: 
 			setSelected(initialState.selected);
 			onChange(initialState.selected);
 		}
-	}, [initialState, onChange]);
+	}, [initialState]);
 
 	const handleChange = (value: number) => {
 		// Set the flag to true to indicate that the user has changed the value
