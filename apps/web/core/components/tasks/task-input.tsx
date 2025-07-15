@@ -397,7 +397,7 @@ export function TaskInput(props: Props) {
 						<ActiveTaskIssuesDropdown
 							key={(inputTask && inputTask.id) || ''}
 							task={inputTask}
-							forParentChildRelationship={true}
+							forParentChildRelationship
 							taskStatusClassName={clsxm(
 								inputTask && inputTask.issueType === 'Bug'
 									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'

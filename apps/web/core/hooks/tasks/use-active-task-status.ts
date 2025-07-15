@@ -110,10 +110,16 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
+			const previousValue = task.current ? (task.current as any)[field] : undefined;
 			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)
 				?.then(() => {
-					// Success - keep optimistic value and show success toast
-					toast.success(`Task ${field} updated successfully`);
+					// Success - keep optimistic value and show success toast with context
+					const fieldDisplayName = field === 'issueType' ? 'issue type' : field;
+					toast.success(`Task ${fieldDisplayName} updated successfully`, {
+						description: previousValue
+							? `Changed from "${previousValue}" to "${status}"`
+							: `Set to "${status}"`
+					});
 				})
 				.catch((error) => {
 					// Error - revert optimistic value and show error toast
