@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { paginationPageSizeOptions } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { clsxm } from '@/core/lib/utils';
@@ -14,54 +14,52 @@ interface IProps {
 
 export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: IProps) => {
 	const didUserChangeRef = useRef(false);
-	const [paginationOptions, setPaginationOptions] = useState<number[]>(paginationPageSizeOptions);
-	const [selected, setSelected] = useState<number>(itemsPerPage ?? paginationPageSizeOptions[0]);
-	const [open, setOpen] = useState(false);
+	const MIN = paginationPageSizeOptions[0];
 
-	const getPaginationInitialStateState = useCallback(() => {
-		const MIN = paginationPageSizeOptions[0];
+	const initialState = useMemo(() => {
 		let baseOptions = [...paginationPageSizeOptions];
-		let valueToSelect: number;
+		let selectedValue: number;
 
 		if (totalItems === 0) {
-			valueToSelect = MIN;
+			selectedValue = MIN;
 		} else if (totalItems < MIN) {
-			valueToSelect = totalItems;
+			selectedValue = totalItems;
 		} else if (itemsPerPage && itemsPerPage <= totalItems) {
-			valueToSelect = itemsPerPage;
+			selectedValue = itemsPerPage;
+		} else if (MIN <= totalItems) {
+			selectedValue = MIN;
 		} else {
-			valueToSelect = baseOptions[0];
+			selectedValue = totalItems;
 		}
 
-		if (!baseOptions.includes(valueToSelect)) {
-			baseOptions = [valueToSelect, ...baseOptions];
+		if (!baseOptions.includes(selectedValue)) {
+			baseOptions = [selectedValue, ...baseOptions];
 		}
 
 		const options = Array.from(new Set(baseOptions)).sort((a, b) => a - b);
-
-		return { options, selected: valueToSelect };
+		return { options, selected: selectedValue };
 	}, [totalItems, itemsPerPage]);
 
-	useEffect(() => {
-		// Sync initial values computed based on totalItems and itemsPerPage
-		// Sync only if user did not change the value
-		if (!didUserChangeRef.current) {
-			const { options, selected } = getPaginationInitialStateState();
-			setPaginationOptions(options);
-			setSelected(selected);
-			onChange(selected);
-		}
-	}, [getPaginationInitialStateState, onChange, didUserChangeRef.current, setSelected]);
+	const [paginationOptions, setPaginationOptions] = useState(initialState.options);
+	const [selected, setSelected] = useState(initialState.selected);
+	const [open, setOpen] = useState(false);
 
-	const handleChange = useCallback(
-		(value: number) => {
-			didUserChangeRef.current = true; // block auto-sync
-			onChange(value);
-			setSelected(value);
-			setOpen(false);
-		},
-		[onChange, setSelected]
-	);
+	useEffect(() => {
+		// If user changed the value, do not update with initial state
+		if (!didUserChangeRef.current) {
+			setPaginationOptions(initialState.options);
+			setSelected(initialState.selected);
+			onChange(initialState.selected);
+		}
+	}, [initialState, onChange]);
+
+	const handleChange = (value: number) => {
+		// Set the flag to true to indicate that the user has changed the value
+		didUserChangeRef.current = true;
+		onChange(value);
+		setSelected(value);
+		setOpen(false);
+	};
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
