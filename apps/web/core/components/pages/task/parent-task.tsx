@@ -64,7 +64,7 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 		[task, loadTeamTasksData, modal, updateTask, t]
 	);
 
-	const filteredTasks = tasks.filter((t) => t.id != task.id);
+	const filteredTasks = tasks.filter((t) => t.id !== task.id);
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>

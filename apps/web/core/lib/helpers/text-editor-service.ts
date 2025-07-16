@@ -83,7 +83,7 @@ export const isMarkdown = (value: string): boolean => {
 		/^\s*---+\s*$/m, // Horizontal rules: ---
 		/~~.*?~~/ // Strikethrough: ~~text~~
 	];
-	const matches = markdownPatterns.map((pattern, index) => {
+	const matches = markdownPatterns.map((pattern, _) => {
 		return pattern.test(value);
 	});
 

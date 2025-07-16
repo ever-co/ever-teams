@@ -6,7 +6,7 @@ import { Button, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 

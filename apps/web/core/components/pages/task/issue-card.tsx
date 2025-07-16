@@ -87,7 +87,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 			{/* {linkedTasks.length > 0 && <hr className="dark:border-[#7B8089]" />} */}
 
 			{linkedTasks.length > 0 && (
-				<div className={clsxm('flex flex-col max-h-80 gap-3 overflow-y-auto', hidden && ['hidden'])}>
+				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{linkedTasks?.map(({ task, issue }) => {
 						return (
 							<TaskLinkedIssue
@@ -110,7 +110,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const { tasks, loadTeamTasksData, detailedTask, getTaskById } = useTeamTasks();
+	const { tasks, loadTeamTasksData, detailedTask } = useTeamTasks();
 	const setDetailedTask = useSetAtom(detailedTaskState);
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);

@@ -11,7 +11,6 @@ export interface OptimisticUpdate {
 	taskId: string;
 	field: ITaskStatusField;
 	value: any;
-	timestamp: number;
 }
 
 // Type for optimistic updates map: taskId -> field -> value

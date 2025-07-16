@@ -110,8 +110,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		setOptimisticValue({
 			taskId: task.id,
 			field,
-			value: status,
-			timestamp: Date.now()
+			value: status
 		});
 
 		let updatedField: ITaskStatusField = field;
