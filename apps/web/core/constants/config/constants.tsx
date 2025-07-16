@@ -752,3 +752,5 @@ export const TIMER_STATUS_CONSTANTS = {
 	TEAMS_SOURCE: 'TEAMS',
 	HOURS_THRESHOLD: 24
 } as const;
+
+export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
