@@ -343,7 +343,11 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status });
 		},
 		onSuccess: () => {
-			invalidateTimesheetData(timesheetParams);
+			if (timesheetParams) {
+				invalidateTimesheetData(timesheetParams);
+			} else {
+				timesheetLogsQuery.refetch();
+			}
 		}
 	});
 
