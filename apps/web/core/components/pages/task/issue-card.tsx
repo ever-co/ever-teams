@@ -15,6 +15,8 @@ import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
 
+import { useSetAtom } from 'jotai';
+import { detailedTaskState } from '@/core/stores';
 export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
@@ -108,7 +110,8 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const { tasks, loadTeamTasksData } = useTeamTasks();
+	const { tasks, loadTeamTasksData, detailedTask, getTaskById } = useTeamTasks();
+	const setDetailedTask = useSetAtom(detailedTaskState);
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
@@ -124,7 +127,23 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 
 				organizationId: task.organizationId,
 				action: ERelatedIssuesRelation.RELATES_TO
-			}).catch(console.error);
+			})
+				.then((res) => {
+					if (task.id === detailedTask?.id) {
+						(async () => {
+							const newLinkedIssue = {
+								...res.data,
+								taskFrom: childTask,
+								taskTo: parentTask
+							};
+							setDetailedTask({
+								...detailedTask,
+								linkedIssues: [...(detailedTask?.linkedIssues || []), newLinkedIssue as any]
+							});
+						})();
+					}
+				})
+				.catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {
 				setLoading(false);
