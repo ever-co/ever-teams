@@ -147,6 +147,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					closeModal();
 				})
 				.catch((error) => {
+					console.error(error);
 					toast.error('Error during modification', {
 						description: 'Failed to modify timesheet. Please try again.'
 					});

@@ -85,21 +85,19 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 		isUserAllowedToAccess
 	} = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
-	const handleConfirm = () => {
-		try {
-			deleteTaskTimesheet({
-				logIds: selectTimesheetId?.map((select) => select.id).filter((id) => id !== undefined)
+	const handleConfirm = async () => {
+		return deleteTaskTimesheet({
+			logIds: selectTimesheetId?.map((select) => select.id).filter((id) => id !== undefined)
+		})
+			.then(() => {
+				setSelectTimesheetId([]);
 			})
-				.then(() => {
-					setSelectTimesheetId([]);
-					closeAlertConfirmation();
-				})
-				.catch((error) => {
-					console.error('Delete timesheet error:', error);
-				});
-		} catch (error) {
-			console.error('Delete timesheet error:', error);
-		}
+			.catch((error) => {
+				console.error('Delete timesheet error:', error);
+			})
+			.finally(() => {
+				closeAlertConfirmation();
+			});
 	};
 
 	const t = useTranslations();
@@ -413,8 +411,8 @@ const TaskActionMenu = ({
 	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
 
 	const t = useTranslations();
-	const handleDeleteTask = () => {
-		deleteTaskTimesheet({ logIds: [dataTimesheet.id] })
+	const handleDeleteTask = async () => {
+		return deleteTaskTimesheet({ logIds: [dataTimesheet.id] })
 			.then(() => {
 				toast({
 					title: 'Deletion Confirmed',
@@ -431,7 +429,8 @@ const TaskActionMenu = ({
 					variant: 'destructive',
 					className: 'bg-red-50 text-red-600 border-red-500'
 				});
-			});
+			})
+			.finally(() => closeAlertConfirmation());
 	};
 
 	return (

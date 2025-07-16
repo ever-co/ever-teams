@@ -74,7 +74,7 @@ export const AlertConfirmationModal = ({
 }: {
 	open: boolean;
 	close: () => void;
-	onAction: () => any;
+	onAction: () => Promise<void>;
 	title: string;
 	description: string;
 	loading: boolean;
@@ -84,7 +84,7 @@ export const AlertConfirmationModal = ({
 }) => {
 	return (
 		<>
-			<Modal isOpen={open} closeModal={close} showCloseIcon={false}>
+			<Modal isOpen={open} closeModal={close} showCloseIcon={true}>
 				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						<div className="flex flex-col">
