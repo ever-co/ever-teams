@@ -1,8 +1,5 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
-import { useAtomValue } from 'jotai';
-import { detailedTaskState } from '@/core/stores';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { useTranslation } from '@/core/lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
@@ -12,12 +9,13 @@ import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { FC } from 'react';
+import { useTranslations } from 'next-intl';
 
-export const ChildIssueCard = () => {
-	const { trans } = useTranslation();
+export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
+	const t = useTranslations();
 	const modal = useModal();
 
-	const task = useAtomValue(detailedTaskState);
 	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
 
@@ -39,7 +37,7 @@ export const ChildIssueCard = () => {
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
-				<p className="text-base font-semibold">{trans.common.CHILD_ISSUES}</p>
+				<p className="text-base font-semibold">{t('common.CHILD_ISSUES')}</p>
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
 						<span onClick={modal.openModal}>
@@ -58,7 +56,7 @@ export const ChildIssueCard = () => {
 			</div>
 
 			{childTasks.length > 0 && (
-				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{childTasks?.map((task) => {
 						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
 					})}
@@ -71,7 +69,7 @@ export const ChildIssueCard = () => {
 };
 
 function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
-	const { trans } = useTranslation();
+	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
 	const { updateTask } = useTeamTasks();
@@ -83,12 +81,15 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 			if (!childTask) return;
 
 			setLoading(true);
-
-			await updateTask({
+			task.children = [...(task.children || []), childTask];
+			const taskUpdate = {
 				...childTask,
+				id: childTask.id,
 				parentId: task.id,
-				parent: task
-			});
+				parent: { ...task, id: task.id }
+			};
+
+			await updateTask({ ...taskUpdate });
 
 			loadTeamTasksData(false).finally(() => {
 				setLoading(false);
@@ -124,14 +125,14 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[45rem]  relative">
 				{loading && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+					<div className="flex absolute inset-0 z-10 justify-center items-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between w-full">
+					<div className="flex flex-col justify-between items-center w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
-							{trans.common.CHILD_ISSUE_TASK}
+							{t('common.CHILD_ISSUE_TASK')}
 						</Text.Heading>
 					</div>
 

@@ -149,7 +149,8 @@
 		"sonner": "^2.0.3",
 		"string-to-color": "^2.2.2",
 		"tailwind-merge": "^1.14.0",
-		"zod": "^3.23.8"
+		"zod": "^3.23.8",
+		"marked": "^16.0.0"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",

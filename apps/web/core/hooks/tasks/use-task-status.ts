@@ -186,9 +186,11 @@ export function useStatusValue<T extends ITaskStatusField>({
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
+	// Use external value ($value) for immediate UI updates, fallback to internal state (value)
+	const effectiveValue = $value !== undefined ? $value : value;
 	const item: TStatusItem | undefined = useMemo(
-		() => items.find((r) => r.value === value || r.name === value),
-		[items, value]
+		() => items.find((r) => r.value === effectiveValue || r.name === effectiveValue),
+		[items, effectiveValue]
 	);
 
 	useEffect(() => {

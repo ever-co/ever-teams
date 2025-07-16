@@ -81,7 +81,7 @@ const TaskSecondaryInfo = () => {
 			await updateTask({
 				...childTask,
 				parentId: parentTask.id ? parentTask.id : null,
-				parent: parentTask.id ? parentTask : null
+				parent: parentTask.id ? { ...parentTask, id: parentTask.id } : null
 			} as any);
 		},
 		[task, updateTask]
@@ -229,7 +229,13 @@ const TaskSecondaryInfo = () => {
 			{/* Task project */}
 			{task && (
 				<TaskRow labelTitle={t('pages.taskDetails.PROJECT')} wrapperClassName="text-black">
-					<ProjectDropDown styles={{ listCard: 'rounded-xl' }} task={task} />
+					<ProjectDropDown
+						styles={{
+							listCard: 'rounded-xl',
+							container: 'lg:min-w-[130px] text-black overflow-hidden text-ellipsis'
+						}}
+						task={task}
+					/>
 				</TaskRow>
 			)}
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
@@ -403,7 +409,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												height={25}
 											/>
 										)}
-										<span className="overflow-hidden whitespace-nowrap max-w-44 text-ellipsis">
+										<span className="overflow-hidden whitespace-nowrap max-w-20 text-ellipsis">
 											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
 										</span>
 									</div>

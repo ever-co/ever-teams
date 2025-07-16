@@ -217,6 +217,9 @@
 		"PERMISSION": "Permission",
 		"SEARCH": "Rechercher",
 		"ADD_PARENT": "Ajouter un parent",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "La tâche parente \"{parentTitle}\" a été assignée avec succès à \"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "Échec de l'assignation de la tâche \"{childTitle}\" à la parente \"{parentTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "Une erreur s'est produite lors de l'assignation de la tâche parente \"{parentTitle}\" à la tâche \"{childTitle}\". Veuillez réessayer.",
 		"BLOCKS": "Bloque",
 		"CLONES": "Clone",
 		"DUPLICATES": "Duplique",
@@ -519,7 +522,10 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Le titre de la tâche ne peut pas dépasser 255 caractères.",
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
 			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent.",
-			"PROJECT": "Projet"
+			"PROJECT": "Projet",
+			"PARENT_TASK_ASSIGNED_SUCCESS": "La tâche parente \"{parentTitle}\" a été assignée avec succès à \"{childTitle}\"",
+			"PARENT_TASK_ASSIGNMENT_FAILED": "Échec de l'assignation de la tâche parente",
+			"PARENT_TASK_ASSIGNMENT_ERROR": "Une erreur s'est produite lors de l'assignation de la tâche parente. Veuillez réessayer."
 		},
 		"projects": {
 			"projectTitle": {

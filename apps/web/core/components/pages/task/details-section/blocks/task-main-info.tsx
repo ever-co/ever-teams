@@ -29,10 +29,10 @@ const TaskMainInfo = () => {
 				<ActiveTaskIssuesDropdown
 					key={task?.id}
 					task={task}
-					showIssueLabels={true}
-					sidebarUI={true}
-					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[0.5rem] 3xl:text-xs"
-					forParentChildRelationship={true}
+					showIssueLabels
+					sidebarUI
+					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[10px] 3xl:text-xs"
+					forParentChildRelationship
 				/>
 			</TaskRow>
 			<TaskRow labelIconPath="/assets/svg/profile.svg" labelTitle={t('pages.taskDetails.CREATOR')}>
@@ -142,7 +142,7 @@ function DueDates() {
 				/>
 				{task?.startDate ? (
 					<span
-						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
+						className="flex flex-row justify-center items-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('startDate');
 						}}
@@ -192,7 +192,7 @@ function DueDates() {
 				/>
 				{task?.dueDate ? (
 					<span
-						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
+						className="flex flex-row justify-center items-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('dueDate');
 						}}
@@ -290,7 +290,7 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 								<div className="overflow-y-auto max-h-72 scrollbar-hide">
 									{assignedTaskMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between w-auto h-8 gap-1 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
+											className="flex gap-1 justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
 												handleUnassignMember(member);
 												close();
@@ -302,12 +302,12 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 												names={member.employee?.fullName}
 											/>
 
-											<TrashIcon className="w-5 " />
+											<TrashIcon className="w-5" />
 										</div>
 									))}
 									{unassignedMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between w-auto h-8 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
+											className="flex justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
 												handleAssignMember(member);
 												close();
@@ -326,7 +326,7 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 					</Transition>
 
 					<PopoverButton className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
-						<div className="flex items-center justify-center w-full px-2 py-0 text-black border border-gray-200 rounded-full cursor-pointer dark:text-white">
+						<div className="flex justify-center items-center px-2 py-0 w-full text-black rounded-full border border-gray-200 cursor-pointer dark:text-white">
 							<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
 								{t('pages.settingsTeam.MANAGE_ASSIGNEES')}
 							</p>

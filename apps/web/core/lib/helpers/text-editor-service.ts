@@ -1,6 +1,7 @@
 import { Editor, BaseEditor, Transforms, Element as SlateElement, Path, Range, Point } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
+import { marked } from 'marked';
 
 export class TextEditorService {
 	static toggleMark(
@@ -64,8 +65,67 @@ export const isHtml = (value: string): boolean => {
 	return htmlRegex.test(value);
 };
 
+export const isMarkdown = (value: string): boolean => {
+	if (!value || typeof value !== 'string') return false;
+
+	// Common markdown patterns
+	const markdownPatterns = [
+		/^#{1,6}\s+.+$/m, // Headers: # ## ### etc.
+		/\*\*.*?\*\*/, // Bold: **text**
+		/\*.*?\*/, // Italic: *text*
+		/`.*?`/, // Inline code: `code`
+		/```[\s\S]*?```/, // Code blocks: ```code```
+		/^\s*[-*+]\s+/m, // Unordered lists: - * +
+		/^\s*\d+\.\s+/m, // Ordered lists: 1. 2. 3.
+		/\[.*?\]\(.*?\)/, // Links: [text](url)
+		/!\[.*?\]\(.*?\)/, // Images: ![alt](url)
+		/^\s*>\s+/m, // Blockquotes: > text
+		/^\s*---+\s*$/m, // Horizontal rules: ---
+		/~~.*?~~/ // Strikethrough: ~~text~~
+	];
+	const matches = markdownPatterns.map((pattern, _) => {
+		return pattern.test(value);
+	});
+
+	const result = matches.some((match) => match);
+
+	// Check if any markdown pattern matches
+	return result;
+};
+
 export const isValidSlateObject = (value: any): boolean => {
-	return Editor.isEditor(value);
+	try {
+		if (typeof value === 'string') {
+			const parsed = JSON.parse(value);
+			// Check if it's an array of Slate nodes
+			return (
+				Array.isArray(parsed) &&
+				parsed.every(
+					(node) =>
+						typeof node === 'object' && node !== null && 'children' in node && Array.isArray(node.children)
+				)
+			);
+		}
+		return false;
+	} catch {
+		return false;
+	}
+};
+
+export const markdownToHtml = (markdown: string): string => {
+	try {
+		// Configure marked options for better compatibility
+		marked.setOptions({
+			breaks: true, // Convert line breaks to <br>
+			gfm: true // GitHub Flavored Markdown
+		});
+
+		return marked(markdown) as string;
+	} catch (error) {
+		console.error('Error converting markdown to HTML:', error);
+		// Fallback: return as plain text wrapped in paragraph
+		return `<p>${markdown.replace(/\n/g, '<br>')}</p>`;
+	}
 };
 
 interface ElementAttributes {

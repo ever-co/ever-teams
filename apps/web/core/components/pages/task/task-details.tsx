@@ -79,10 +79,10 @@ export function TaskDetailsComponent(props: ITaskDetailsComponentProps) {
 
 					<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
 						{/* Pass task prop to ensure proper state synchronization */}
-						<LazyRichTextEditor key={task?.id} />
+						<LazyRichTextEditor key={task?.id ?? ''} />
 						{/* <TaskDescriptionBlock /> */}
-						<LazyChildIssueCard key={`child-${task?.id}`} />
-						<LazyRelatedIssueCard key={`related-${task?.id}`} />
+						<LazyChildIssueCard key={`child-${task?.id}`} task={task} />
+						<LazyRelatedIssueCard key={`related-${task?.id}`} task={task} />
 
 						{/* <IssueCard related={true} /> */}
 
