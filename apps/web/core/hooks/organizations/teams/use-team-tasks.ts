@@ -376,12 +376,8 @@ export function useTeamTasks() {
 					id: ''
 				});
 
-				if (detailedTask && res.id === detailedTask.id) {
-					setDetailedTask(res);
-				} else {
-					if (detailedTask) {
-						await getTaskById(task.id);
-					}
+				if (detailedTask) {
+					await getTaskById(task.id);
 				}
 
 				return res;
