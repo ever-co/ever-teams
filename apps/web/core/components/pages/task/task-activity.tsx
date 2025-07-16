@@ -39,7 +39,7 @@ export function TaskActivity({ task }: { task: TTask }) {
 					</button>
 				</div>
 			</div>
-			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+			<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 				{groupedData.length < 1 ? (
 					<p className="mx-auto">There is no Activity</p>
 				) : (

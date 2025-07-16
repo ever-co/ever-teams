@@ -87,7 +87,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 			{/* {linkedTasks.length > 0 && <hr className="dark:border-[#7B8089]" />} */}
 
 			{linkedTasks.length > 0 && (
-				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+				<div className={clsxm('flex flex-col max-h-80 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{linkedTasks?.map(({ task, issue }) => {
 						return (
 							<TaskLinkedIssue

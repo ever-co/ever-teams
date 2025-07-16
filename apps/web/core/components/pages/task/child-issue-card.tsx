@@ -56,7 +56,7 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 			</div>
 
 			{childTasks.length > 0 && (
-				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{childTasks?.map((task) => {
 						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
 					})}
