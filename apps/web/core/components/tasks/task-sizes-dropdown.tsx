@@ -7,8 +7,7 @@ import { StatusDropdown } from './task-status';
 
 /**
  * Task dropdown that lets you select a task size
- * @param {IClassName}  - IClassName - This is the interface that the component will accept.
- * @returns A React component
+ * @param {TTaskStatusesDropdown<'size'>} props - Props for the task sizes dropdown component
  */
 export function TaskSizesDropdown({
 	className,
