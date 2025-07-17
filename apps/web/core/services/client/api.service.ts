@@ -344,6 +344,7 @@ export class APIService {
 			throw this._handleAxiosError(error);
 		}
 	}
+
 	/**
 	 * Sends a GET request.
 	 *
