@@ -135,10 +135,7 @@ export function TaskInput(props: Props) {
 	);
 
 	useEffect(() => {
-		// Don't reset query during task creation to maintain the creation UI
-		if (!datas.isCreatingTask) {
-			setQuery(taskName === inputTask?.title ? '' : taskName);
-		}
+		setQuery(taskName === inputTask?.title ? '' : taskName);
 	}, [taskName, inputTask, setQuery, datas.isCreatingTask]);
 
 	useEffect(() => {
