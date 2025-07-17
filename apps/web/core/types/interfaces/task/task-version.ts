@@ -15,14 +15,12 @@ export interface ITaskVersion
 	fullIconUrl?: string;
 }
 
-export interface ITaskVersionCreate {
-	name: string;
-	description?: string;
-	icon?: string;
-	color?: string;
-	projectId?: string;
-	organizationId?: string;
-	tenantId?: string | undefined | null;
-	organizationTeamId?: string | undefined | null;
-	value?: string;
+export interface ITaskVersionCreateRequest extends Omit<ITaskVersion, 'isSystem'>, Omit<ITaskVersion, 'value'> {}
+
+export interface ITaskVersionUpdateRequest extends Partial<ITaskVersionCreateRequest> {
+	id?: string;
 }
+
+export interface IGetTaskVersionsRequest
+	extends IBasePerTenantAndOrganizationEntityModel,
+		Pick<ITaskVersion, 'projectId' | 'organizationTeamId'> {}

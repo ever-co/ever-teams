@@ -42,7 +42,7 @@ export function useTaskVersion() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId);
+			const res = await taskVersionService.getTaskVersions(tenantId, organizationId, teamId);
 			return res.data;
 		},
 		enabled: Boolean(isEnabled)
@@ -80,7 +80,7 @@ export function useTaskVersion() {
 			if (!tenantId || !teamId) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return taskVersionService.editTaskVersion(id, data, tenantId);
+			return taskVersionService.updateTaskVersion(id, data, tenantId);
 		},
 		onSuccess: () => {
 			teamId &&
