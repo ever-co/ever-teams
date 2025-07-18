@@ -23,13 +23,7 @@ export function useTaskVersion() {
 	// useQuery for fetching task versions
 	const taskVersionsQuery = useQuery({
 		queryKey: queryKeys.taskVersions.byTeam(activeTeamId),
-		queryFn: async () => {
-			try {
-				return taskVersionService.getTaskVersions();
-			} catch (error) {
-				console.error('Error fetching task versions:', error);
-			}
-		}
+		queryFn: async () => taskVersionService.getTaskVersions()
 	});
 
 	/**
@@ -83,7 +77,7 @@ export function useTaskVersion() {
 
 	useConditionalUpdateEffect(
 		() => {
-			if (taskVersionsQuery.data) {
+			if (taskVersionsQuery.data?.items) {
 				setTaskVersions(taskVersionsQuery.data.items);
 			}
 		},

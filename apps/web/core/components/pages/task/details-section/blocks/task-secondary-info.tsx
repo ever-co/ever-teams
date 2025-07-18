@@ -2,7 +2,7 @@ import { useModal, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
-import { VersionForm } from '@/core/components/tasks/version-form';
+import { TaskVersionForm } from '@/core/components/tasks/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -38,7 +38,7 @@ import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { TOrganizationProject, TTaskVersionCreate } from '@/core/types/schemas';
+import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
@@ -66,7 +66,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onVersionCreated = useCallback(
-		(version: TTaskVersionCreate) => {
+		(version: TTaskVersion) => {
 			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
@@ -240,7 +240,11 @@ const TaskSecondaryInfo = () => {
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
 					{formTarget === 'version' && (
-						<VersionForm onVersionCreated={onVersionCreated} onCreated={modal.closeModal} formOnly={true} />
+						<TaskVersionForm
+							onVersionCreated={onVersionCreated}
+							onCreated={modal.closeModal}
+							formOnly={true}
+						/>
 					)}
 					{formTarget === 'status' && <TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />}
 					{formTarget === 'priority' && <TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />}

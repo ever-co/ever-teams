@@ -13,16 +13,16 @@ import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
-import { TTaskVersion, TTaskVersionCreate } from '@/core/types/schemas';
-import { getActiveTeamIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { TTaskVersion } from '@/core/types/schemas';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
-	onVersionCreated?: (version: TTaskVersionCreate) => void;
+	onVersionCreated?: (version: TTaskVersion) => void;
 };
 
-export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
+export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
 	const t = useTranslations();
 	const tenantId = getTenantIdCookie();
 	const activeTeamId = getActiveTeamIdCookie();
@@ -31,6 +31,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskVersion | null>(null);
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
+	const organizationId = getOrganizationIdCookie();
 
 	const {
 		loading,
@@ -64,7 +65,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 					name: values.name,
 					color: '#FFFFFF',
 					// description: '',
-					organizationId: user?.employee?.organizationId,
+					organizationId: organizationId,
 					organizationTeamId: activeTeamId,
 					tenantId
 					// icon: values.icon,

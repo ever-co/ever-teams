@@ -2,7 +2,7 @@ import { CommonToggle, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { PeriodDropdown } from '../../../settings/period-dropdown';
 import { ProofDropdown } from '../../../settings/proof-dropdown';
-import { VersionForm } from '../../../tasks/version-form';
+import { TaskVersionForm } from '../../../tasks/version-form';
 // import { IssueTypeForm } from './issue-type-form';
 import { TaskLabelForm } from '../../../tasks/task-labels-form';
 import { TaskPrioritiesForm } from '../../../tasks/task-priorities-form';
@@ -161,7 +161,7 @@ export const IssuesSettings = () => {
 			</div>
 
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<VersionForm />
+				<TaskVersionForm />
 			</div>
 			{/* TODO */}
 			{/* <div className="hidden _flex w-full items-center justify-between gap-[2rem]">

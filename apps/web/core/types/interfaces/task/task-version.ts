@@ -14,13 +14,3 @@ export interface ITaskVersion
 	isSystem?: boolean;
 	fullIconUrl?: string;
 }
-
-export interface ITaskVersionCreateRequest extends Omit<ITaskVersion, 'isSystem'>, Omit<ITaskVersion, 'value'> {}
-
-export interface ITaskVersionUpdateRequest extends Partial<ITaskVersionCreateRequest> {
-	id?: string;
-}
-
-export interface IGetTaskVersionsRequest
-	extends IBasePerTenantAndOrganizationEntityModel,
-		Pick<ITaskVersion, 'projectId' | 'organizationTeamId'> {}
