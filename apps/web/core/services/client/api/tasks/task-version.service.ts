@@ -34,9 +34,9 @@ class TaskVersionService extends APIService {
 
 	get activeTeamBasedQueries() {
 		return {
-			'where[organizationTeamId]': this.activeTeamId,
-			'where[organizationId]': this.organizationId,
-			'where[tenantId]': this.tenantId
+			organizationTeamId: this.activeTeamId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
 		};
 	}
 
@@ -111,28 +111,9 @@ class TaskVersionService extends APIService {
 	 * Delete a task version with validation
 	 *
 	 * @param id - Task version ID to delete
-	 * @returns Promise<TTaskVersion> - Validated deleted task version data
-	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteTaskVersion = async (id: string): Promise<TTaskVersion> => {
-		try {
-			const response = await this.delete<TTaskVersion>(`/task-versions/${id}`, { tenantId: this.tenantId });
-
-			// Validate the response data
-			return validateApiResponse(taskVersionSchema, response.data, 'deleteTaskVersion API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task version deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskVersionService'
-				);
-			}
-			throw error;
-		}
+	deleteTaskVersion = async (id: string) => {
+		return this.delete<TTaskVersion>(`/task-versions/${id}`, { tenantId: this.tenantId });
 	};
 
 	/**

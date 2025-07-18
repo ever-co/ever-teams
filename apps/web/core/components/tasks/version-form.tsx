@@ -13,26 +13,28 @@ import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { TTaskVersion, TTaskVersionCreate } from '@/core/types/schemas';
+import { getActiveTeamIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
-	onVersionCreated?: (version: ITaskVersionCreate) => void;
+	onVersionCreated?: (version: TTaskVersionCreate) => void;
 };
 
 export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
 	const t = useTranslations();
-
+	const tenantId = getTenantIdCookie();
+	const activeTeamId = getActiveTeamIdCookie();
 	const [user] = useAtom(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskVersion | null>(null);
+	const [edit, setEdit] = useState<TTaskVersion | null>(null);
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
 
 	const {
 		loading,
-		taskVersion,
+		taskVersions,
 		createTaskVersion,
 		deleteTaskVersion,
 		editTaskVersion,
@@ -45,7 +47,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 		if (!edit && !getValues().name) {
 			setValue('name', '');
 		}
-	}, [taskVersion, edit, setValue, getValues]);
+	}, [taskVersions, edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
@@ -63,7 +65,8 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 					color: '#FFFFFF',
 					// description: '',
 					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId
+					organizationTeamId: activeTeamId,
+					tenantId
 					// icon: values.icon,
 					// projectId: '',
 				})?.then((res: any) => {
@@ -173,15 +176,15 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 								</>
 							)}
 
-							{!formOnly && taskVersion?.length > 0 && (
+							{!formOnly && taskVersions?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_VERSONS')}
 									</Text>
 									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskVersion?.length && <Spinner dark={false} />}
-										{taskVersion && taskVersion?.length ? (
-											taskVersion.map((version) => (
+										{loading && !taskVersions?.length && <Spinner dark={false} />}
+										{taskVersions && taskVersions?.length ? (
+											taskVersions.map((version) => (
 												<StatusesListCard
 													key={version.id}
 													statusTitle={version.name ? version.name?.split('-').join(' ') : ''}

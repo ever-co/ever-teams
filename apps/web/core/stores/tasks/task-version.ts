@@ -1,14 +1,12 @@
-import { ITaskVersion } from '@/core/types/interfaces/task/task-version';
+import { TTaskVersion } from '@/core/types/schemas/task/task-version.schema';
 import { atom } from 'jotai';
 
-export const taskVersionListState = atom<ITaskVersion[]>([]);
+export const taskVersionsState = atom<TTaskVersion[]>([]);
 
 export const activeTaskVersionIdState = atom<string | null>(null);
 
-export const taskVersionFetchingState = atom<boolean>(false);
-
-export const activeTaskVersionState = atom<ITaskVersion | null>((get) => {
-	const taskVersion = get(taskVersionListState);
+export const activeTaskVersionState = atom<TTaskVersion | null>((get) => {
+	const taskVersion = get(taskVersionsState);
 	const activeId = get(activeTaskVersionIdState);
 	return taskVersion.find((version) => version.id === activeId) || taskVersion[0] || null;
 });

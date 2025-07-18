@@ -24,6 +24,7 @@ export const taskVersionSchema = z
 
 export const taskVersionCreateSchema = z.object({
 	name: z.string(),
+	value: z.string().optional(),
 	description: z.string().optional().nullable(),
 	icon: z.string().optional().nullable(),
 	color: z.string().optional().nullable(),
@@ -36,7 +37,7 @@ export const taskVersionCreateSchema = z.object({
 
 // Task version update schema (partial of create schema with optional id)
 export const taskVersionUpdateSchema = taskVersionCreateSchema.partial().extend({
-	id: z.string()
+	id: z.string().optional()
 });
 
 // Get task versions request schema

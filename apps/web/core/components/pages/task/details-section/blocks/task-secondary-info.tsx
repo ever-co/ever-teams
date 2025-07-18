@@ -37,9 +37,8 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { TOrganizationProject } from '@/core/types/schemas';
+import { TOrganizationProject, TTaskVersionCreate } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
@@ -67,7 +66,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onVersionCreated = useCallback(
-		(version: ITaskVersionCreate) => {
+		(version: TTaskVersionCreate) => {
 			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
