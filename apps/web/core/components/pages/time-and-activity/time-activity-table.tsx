@@ -6,7 +6,7 @@ import { EmptyTimeActivity } from '../../activities/empty-time-activity';
 import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';
 import ProgressBar from '../../duplicated-components/progress-bar';
 import { useTranslations } from 'next-intl';
-
+import { TEmployee } from '@/core/types/schemas';
 interface TimeEntry {
 	member: {
 		name: string;
@@ -23,15 +23,7 @@ interface TimeEntry {
 }
 
 interface RawEmployeeLog {
-	employee: {
-		id: string;
-		billRateValue?: number;
-		billRateCurrency?: string;
-		user: {
-			name: string;
-			imageUrl: string;
-		};
-	};
+	employee: TEmployee;
 	sum: number;
 	activity: number;
 	earnings?: number; // Add calculated earnings
@@ -212,9 +204,9 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 
 	// Memoized function to calculate earnings for an employee
 	const calculateEarnings = useCallback((employeeLog: RawEmployeeLog): string => {
-		const billRate = employeeLog.employee.billRateValue || 0;
-		const currency = employeeLog.employee.billRateCurrency || 'USD';
-		const durationHours = employeeLog.sum / 3600; // Convert seconds to hours
+		const billRate = employeeLog?.employee?.billRateValue || 0;
+		const currency = employeeLog?.employee.billRateCurrency || 'USD';
+		const durationHours = employeeLog?.sum / 3600; // Convert seconds to hours
 		const earnings = durationHours * billRate;
 		return `${earnings.toFixed(2)} ${currency}`;
 	}, []);
@@ -225,17 +217,17 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
 				projectLog.employeeLogs.map((employeeLog) => ({
 					member: {
-						name: employeeLog.employee?.user?.name || 'No Member',
-						imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
+						name: employeeLog?.employee?.user?.name || 'No Member',
+						imageUrl: employeeLog?.employee?.user?.imageUrl || '/assets/images/avatar.png'
 					},
 					project: {
 						name: projectLog.project?.name || t('common.NO_PROJECT'),
 						imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
 					},
-					trackedHours: `${formatDuration(employeeLog.sum)}h`,
+					trackedHours: `${formatDuration(employeeLog?.sum)}h`,
 					earnings: calculateEarnings(employeeLog),
-					activityLevel: employeeLog.activity || 0,
-					status: Math.random() > 0.5 ? 'active' : 'inactive'
+					activityLevel: employeeLog?.activity || 0,
+					status: employeeLog?.employee?.isActive ? 'active' : 'inactive'
 				}))
 			);
 
