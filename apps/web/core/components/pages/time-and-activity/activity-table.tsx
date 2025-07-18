@@ -38,6 +38,8 @@ interface EmployeeLog {
 	employee: {
 		id: string;
 		fullName: string;
+		billRateValue?: number;
+		billRateCurrency?: string;
 		user: {
 			imageUrl: string;
 		};
@@ -45,7 +47,7 @@ interface EmployeeLog {
 	sum: number;
 	tasks: TaskLog[];
 	activity: number;
-	earnings?: number;
+	earnings: number;
 }
 
 interface ProjectLog {
@@ -62,7 +64,7 @@ interface DailyLog {
 	logs: ProjectLog[];
 	sum?: number;
 	activity?: number;
-	earnings?: number;
+	earnings: number;
 }
 
 interface ViewOption {
@@ -90,6 +92,18 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
 	}, []);
 
+	// Function to get the primary currency from a day's logs
+	const getPrimaryCurrency = useCallback((logs: ProjectLog[]): string => {
+		for (const log of logs) {
+			for (const empLog of log.employeeLogs) {
+				if (empLog.employee.billRateCurrency && empLog.employee.billRateCurrency !== 'USD') {
+					return empLog.employee.billRateCurrency;
+				}
+			}
+		}
+		return 'USD'; // Default to USD
+	}, []);
+
 	// Transform data from ITimerLogGrouped to DailyLog format
 	const transformedData = useMemo(() => {
 		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
@@ -108,20 +122,27 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 						name: log.project.name,
 						imageUrl: log.project.imageUrl || ''
 					},
-					employeeLogs: (log.employeeLogs || []).map(
-						(empLog: ITimerEmployeeLogExtended): EmployeeLog => ({
+					employeeLogs: (log.employeeLogs || []).map((empLog: ITimerEmployeeLogExtended): EmployeeLog => {
+						const duration =
+							empLog.timeSlots?.reduce((acc: number, slot: TimeSlot) => acc + (slot.duration || 0), 0) ||
+							0;
+
+						// Calculate earnings: duration (seconds) * hourly rate
+						const billRate = empLog.employee.billRateValue || 0;
+						const durationHours = duration / 3600; // Convert seconds to hours
+						const earnings = durationHours * billRate;
+
+						return {
 							employee: {
 								id: empLog.employee.id,
 								fullName: empLog.employee.fullName || '',
+								billRateValue: empLog.employee.billRateValue,
+								billRateCurrency: empLog.employee.billRateCurrency,
 								user: {
 									imageUrl: empLog.employee.user.imageUrl || ''
 								}
 							},
-							sum:
-								empLog.timeSlots?.reduce(
-									(acc: number, slot: TimeSlot) => acc + (slot.duration || 0),
-									0
-								) || 0,
+							sum: duration,
 							tasks: (empLog.timeLogs || []).map(
 								(timeLog: ITimerTaskLog): TaskLog => ({
 									task: timeLog.task,
@@ -129,9 +150,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 									description: timeLog.description || ''
 								})
 							),
-							activity: empLog.activity || 0
-						})
-					)
+							activity: empLog.activity || 0,
+							earnings
+						};
+					})
 				})
 			);
 
@@ -157,11 +179,21 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 				return acc + log.employeeLogs.length;
 			}, 0);
 
+			const totalEarnings = logs.reduce((acc: number, log) => {
+				return (
+					acc +
+					log.employeeLogs.reduce((logAcc: number, empLog) => {
+						return logAcc + empLog.earnings;
+					}, 0)
+				);
+			}, 0);
+
 			return {
 				date: dayData.date,
 				logs,
 				sum: totalDuration,
-				activity: Math.round(totalActivity / employeeCount)
+				activity: Math.round(totalActivity / employeeCount),
+				earnings: totalEarnings
 			};
 		});
 	}, [rapportDailyActivity]);
@@ -238,148 +270,159 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 	return (
 		<div className="space-y-6">
-			{currentEntries.map((dayLog: DailyLog) => (
-				<div
-					key={dayLog.date}
-					className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
-				>
-					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
-						<div className="flex gap-8 items-center text-sm text-gray-500 dark:text-gray-400">
-							<div className="text-base">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
-							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>{t('timeActivity.HOURS_LABEL')}</span>
-								<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
+			{currentEntries.map(
+				(dayLog: DailyLog) =>
+					dayLog && (
+						<div
+							key={dayLog?.date || 'no-date'}
+							className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
+						>
+							<div className="p-4 border-b border-gray-200 dark:border-gray-600">
+								<div className="flex gap-8 items-center text-sm text-gray-500 dark:text-gray-400">
+									<div className="text-base">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
+									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+										<span>{t('timeActivity.HOURS_LABEL')}</span>
+										<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
+									</div>
+									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+										<span>{t('timeActivity.EARNINGS_LABEL')}</span>
+										<span className="font-medium">
+											{dayLog?.earnings ? dayLog.earnings?.toFixed(2) : '0.00'}{' '}
+											{getPrimaryCurrency(dayLog.logs)}
+										</span>
+									</div>
+									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+										<span>{t('timeActivity.AVERAGE_ACTIVITY_LABEL')}</span>
+										<span className="font-medium">{dayLog.activity || 0}%</span>
+									</div>
+								</div>
 							</div>
-							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>{t('timeActivity.EARNINGS_LABEL')}</span>
-								<span className="font-medium">{(dayLog.earnings || 0).toFixed(2)} USD</span>
-							</div>
-							<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-								<span>{t('timeActivity.AVERAGE_ACTIVITY_LABEL')}</span>
-								<span className="font-medium">{dayLog.activity || 0}%</span>
-							</div>
-						</div>
-					</div>
-					<Table>
-						<TableHeader>
-							<TableRow className="border-b border-gray-200 dark:border-gray-600">
-								{columnVisibility.member && (
-									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-										{t('timeActivity.MEMBER_HEADER')}
-									</TableHead>
-								)}
-								{columnVisibility.project && (
-									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-										{t('timeActivity.PROJECT_HEADER')}
-									</TableHead>
-								)}
-								{columnVisibility.trackedHours && (
-									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-										{t('timeActivity.TRACKED_HOURS_HEADER')}
-									</TableHead>
-								)}
-								{columnVisibility.earnings && (
-									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-										{t('timeActivity.EARNINGS_HEADER')}
-									</TableHead>
-								)}
-								{columnVisibility.activityLevel && (
-									<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-										{t('timeActivity.ACTIVITY_LEVEL_HEADER')}
-									</TableHead>
-								)}
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{dayLog.logs.flatMap((projectLog) =>
-								projectLog.employeeLogs.map((employeeLog) => (
-									<TableRow
-										key={`${projectLog.project?.id || 'no-project'}-${employeeLog.employee?.id || 'no-employee'}`}
-										className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
-									>
-										{columnVisibility.member && employeeLog.employee && (
-											<TableCell className="px-6 py-4">
-												<div className="flex gap-3 items-center">
-													<Avatar size={32} className="w-8 h-8 rounded-full">
-														{employeeLog.employee.user?.imageUrl ? (
-															<img
-																src={employeeLog.employee.user.imageUrl}
-																alt={employeeLog.employee.fullName || 'Employee'}
-																className="object-cover w-full h-full rounded-full"
-																loading="lazy"
-															/>
-														) : (
-															<img
-																src="/assets/images/avatar.png"
-																alt={employeeLog.employee.fullName || 'Employee'}
-																className="object-cover w-full h-full rounded-full"
-																loading="lazy"
-															/>
-														)}
-													</Avatar>
-													<span className="font-medium text-gray-900 dark:text-gray-100">
-														{employeeLog.employee.fullName ||
-															t('timeActivity.UNNAMED_EMPLOYEE')}
-													</span>
-												</div>
-											</TableCell>
+							<Table>
+								<TableHeader>
+									<TableRow className="border-b border-gray-200 dark:border-gray-600">
+										{columnVisibility.member && (
+											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+												{t('timeActivity.MEMBER_HEADER')}
+											</TableHead>
 										)}
 										{columnVisibility.project && (
-											<TableCell className="px-6 py-4">
-												<ProjectCell
-													imageUrl={projectLog.project?.imageUrl || ''}
-													name={projectLog.project?.name || t('common.NO_PROJECT')}
-												/>
-											</TableCell>
+											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+												{t('timeActivity.PROJECT_HEADER')}
+											</TableHead>
 										)}
 										{columnVisibility.trackedHours && (
-											<TableCell className="px-6 py-4">
-												<TrackedHoursCell
-													duration={employeeLog.sum}
-													formatDuration={formatDuration}
-												/>
-											</TableCell>
+											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+												{t('timeActivity.TRACKED_HOURS_HEADER')}
+											</TableHead>
 										)}
 										{columnVisibility.earnings && (
-											<TableCell className="px-6 py-4">
-												<EarningsCell
-													earnings={employeeLog.earnings || employeeLog.sum * 0.5}
-												/>
-											</TableCell>
+											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+												{t('timeActivity.EARNINGS_HEADER')}
+											</TableHead>
 										)}
 										{columnVisibility.activityLevel && (
-											<TableCell className="px-6 py-4">
-												<ActivityLevelCell
-													activity={employeeLog.activity}
-													duration={employeeLog.sum}
-												/>
-											</TableCell>
+											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+												{t('timeActivity.ACTIVITY_LEVEL_HEADER')}
+											</TableHead>
 										)}
 									</TableRow>
-								))
-							)}
-							{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
-								<TableRow>
-									<TableCell colSpan={5} className="px-6 py-4">
-										<div className="flex gap-2 items-center text-gray-400">
-											<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-												<path
-													d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-													stroke="currentColor"
-													strokeWidth="2"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
-											<span>{t('timeActivity.NO_TIME_ACTIVITY')}</span>
-										</div>
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-			))}
+								</TableHeader>
+								<TableBody>
+									{dayLog.logs.flatMap((projectLog) =>
+										projectLog.employeeLogs.map((employeeLog) => (
+											<TableRow
+												key={`${projectLog.project?.id || 'no-project'}-${employeeLog.employee?.id || 'no-employee'}`}
+												className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+											>
+												{columnVisibility.member && employeeLog.employee && (
+													<TableCell className="px-6 py-4">
+														<div className="flex gap-3 items-center">
+															<Avatar size={32} className="w-8 h-8 rounded-full">
+																{employeeLog.employee.user?.imageUrl ? (
+																	<img
+																		src={employeeLog.employee.user.imageUrl}
+																		alt={
+																			employeeLog.employee.fullName || 'Employee'
+																		}
+																		className="object-cover w-full h-full rounded-full"
+																		loading="lazy"
+																	/>
+																) : (
+																	<img
+																		src="/assets/images/avatar.png"
+																		alt={
+																			employeeLog.employee.fullName || 'Employee'
+																		}
+																		className="object-cover w-full h-full rounded-full"
+																		loading="lazy"
+																	/>
+																)}
+															</Avatar>
+															<span className="font-medium text-gray-900 dark:text-gray-100">
+																{employeeLog.employee.fullName ||
+																	t('timeActivity.UNNAMED_EMPLOYEE')}
+															</span>
+														</div>
+													</TableCell>
+												)}
+												{columnVisibility.project && (
+													<TableCell className="px-6 py-4">
+														<ProjectCell
+															imageUrl={projectLog.project?.imageUrl || ''}
+															name={projectLog.project?.name || t('common.NO_PROJECT')}
+														/>
+													</TableCell>
+												)}
+												{columnVisibility.trackedHours && (
+													<TableCell className="px-6 py-4">
+														<TrackedHoursCell
+															duration={employeeLog.sum}
+															formatDuration={formatDuration}
+														/>
+													</TableCell>
+												)}
+												{columnVisibility.earnings && (
+													<TableCell className="px-6 py-4">
+														<EarningsCell
+															earnings={employeeLog.earnings}
+															currency={employeeLog.employee.billRateCurrency || 'USD'}
+														/>
+													</TableCell>
+												)}
+												{columnVisibility.activityLevel && (
+													<TableCell className="px-6 py-4">
+														<ActivityLevelCell
+															activity={employeeLog.activity}
+															duration={employeeLog.sum}
+														/>
+													</TableCell>
+												)}
+											</TableRow>
+										))
+									)}
+									{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
+										<TableRow>
+											<TableCell colSpan={5} className="px-6 py-4">
+												<div className="flex gap-2 items-center text-gray-400">
+													<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+														<path
+															d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+															stroke="currentColor"
+															strokeWidth="2"
+															strokeLinecap="round"
+															strokeLinejoin="round"
+														/>
+													</svg>
+													<span>{t('timeActivity.NO_TIME_ACTIVITY')}</span>
+												</div>
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</div>
+					)
+			)}
 
 			{/* Pagination controls */}
 			<div className="flex justify-between items-center px-2 mt-4">

@@ -25,12 +25,71 @@ interface UseTimeActivityStatsProps {
 export function useTimeActivityStats({
 	statisticsCounts,
 	rapportDailyActivity,
+	isManage,
 	loading
 }: UseTimeActivityStatsProps): TimeActivityStats {
-	const { user, isTeamManager } = useAuthenticateUser();
+	const { user } = useAuthenticateUser();
 
+	// Memoize user employee ID to prevent unnecessary re-renders
+	const userEmployeeId = useMemo(() => user?.employee?.id, [user?.employee?.id]);
+
+	// Memoize total hours calculation
+	const totalHours = useMemo(() => {
+		if (!statisticsCounts) return '0h';
+		const totalDurationSeconds = statisticsCounts.weekDuration || 0;
+		const { h: hours, m: minutes } = secondsToTime(totalDurationSeconds);
+		return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+	}, [statisticsCounts?.weekDuration]);
+
+	// Memoize average activity calculation
+	const averageActivity = useMemo(() => {
+		if (!statisticsCounts) return '0%';
+		return `${Math.round(statisticsCounts.weekActivities || 0)}%`;
+	}, [statisticsCounts?.weekActivities]);
+
+	// Memoize earnings calculation with optimized logic
+	const totalEarnings = useMemo(() => {
+		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
+			return '0.00 USD';
+		}
+
+		let totalEarningsValue = 0;
+		let primaryCurrency = 'USD';
+
+		// Optimized single loop with early currency detection
+		for (const dayReport of rapportDailyActivity) {
+			if (!dayReport.logs) continue;
+
+			for (const projectLog of dayReport.logs) {
+				if (!projectLog.employeeLogs) continue;
+
+				for (const employeeLog of projectLog.employeeLogs) {
+					// Check permissions: managers see all, regular users see only their own data
+					const canViewEmployeeData = isManage || userEmployeeId === employeeLog.employee?.id;
+
+					if (canViewEmployeeData && employeeLog.employee) {
+						const employee = employeeLog.employee;
+						const billRate = employee.billRateValue || 0;
+						const currency = employee.billRateCurrency || 'USD';
+
+						// Set primary currency on first non-USD currency found
+						if (currency !== 'USD' && primaryCurrency === 'USD') {
+							primaryCurrency = currency;
+						}
+
+						// Calculate earnings: duration (in seconds) * hourly rate
+						const durationHours = (employeeLog.sum || 0) / 3600;
+						totalEarningsValue += durationHours * billRate;
+					}
+				}
+			}
+		}
+
+		return `${totalEarningsValue.toFixed(2)} ${primaryCurrency}`;
+	}, [rapportDailyActivity, isManage, userEmployeeId]);
+
+	// Combine all memoized values
 	const stats = useMemo(() => {
-		// Return loading state if data is not ready
 		if (loading || !statisticsCounts) {
 			return {
 				totalHours: '0h',
@@ -40,58 +99,13 @@ export function useTimeActivityStats({
 			};
 		}
 
-		// Calculate Total Hours from statisticsCounts.weekDuration (in seconds)
-		const totalDurationSeconds = statisticsCounts.weekDuration || 0;
-		const { h: hours, m: minutes } = secondsToTime(totalDurationSeconds);
-		const totalHours = minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-
-		// Calculate Average Activity from statisticsCounts.weekActivities
-		const averageActivity = `${Math.round(statisticsCounts.weekActivities || 0)}%`;
-
-		// Calculate Total Earnings based on user permissions and employee rates
-		let totalEarnings = '0.00 USD';
-
-		if (rapportDailyActivity && rapportDailyActivity.length > 0) {
-			let totalEarningsValue = 0;
-			let primaryCurrency = 'USD'; // Default currency
-
-			rapportDailyActivity.forEach((dayReport) => {
-				dayReport.logs?.forEach((projectLog) => {
-					projectLog.employeeLogs?.forEach((employeeLog) => {
-						// Check permissions: managers see all, regular users see only their own data
-						const canViewEmployeeData = isTeamManager || user?.employee?.id === employeeLog.employee?.id;
-
-						if (canViewEmployeeData && employeeLog.employee) {
-							const employee = employeeLog.employee;
-							// IEmployee interface has billRateValue and billRateCurrency
-							const billRate = employee.billRateValue || 0;
-							const currency = employee.billRateCurrency || 'USD';
-
-							// Use the first non-USD currency found, or keep USD as default
-							if (currency !== 'USD' && primaryCurrency === 'USD') {
-								primaryCurrency = currency;
-							}
-
-							// Calculate earnings: duration (in seconds) * hourly rate
-							const durationHours = (employeeLog.sum || 0) / 3600; // Convert seconds to hours
-							const employeeEarnings = durationHours * billRate;
-
-							totalEarningsValue += employeeEarnings;
-						}
-					});
-				});
-			});
-
-			totalEarnings = `${totalEarningsValue.toFixed(2)} ${primaryCurrency}`;
-		}
-
 		return {
 			totalHours,
 			averageActivity,
 			totalEarnings,
 			isLoading: false
 		};
-	}, [statisticsCounts, rapportDailyActivity, user?.employee?.id, loading]);
+	}, [loading, statisticsCounts, totalHours, averageActivity, totalEarnings]);
 
 	return stats;
 }

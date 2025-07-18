@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo, useCallback } from 'react';
 import { Avatar } from '@/core/components/common/avatar';
 import Image from 'next/image';
 import { formatDuration, getWeekRange } from '@/core/lib/utils/formatDuration';
@@ -24,6 +24,9 @@ interface TimeEntry {
 
 interface RawEmployeeLog {
 	employee: {
+		id: string;
+		billRateValue?: number;
+		billRateCurrency?: string;
 		user: {
 			name: string;
 			imageUrl: string;
@@ -31,6 +34,7 @@ interface RawEmployeeLog {
 	};
 	sum: number;
 	activity: number;
+	earnings?: number; // Add calculated earnings
 }
 
 interface RawProjectLog {
@@ -67,7 +71,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			cell: (value) => {
 				if (!value) return <div>{t('common.NO_MEMBER_DATA')}</div>;
 				return (
-					<div className="flex items-center gap-3">
+					<div className="flex gap-3 items-center">
 						<Avatar className="w-8 h-8 rounded-full">
 							<Image
 								src={value.imageUrl || '/assets/images/avatar.png'}
@@ -88,8 +92,8 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			cell: (value) => {
 				if (!value) return <div>{t('common.NO_PROJECT_DATA')}</div>;
 				return (
-					<div className="flex items-center gap-3">
-						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-gray-800">
+					<div className="flex gap-3 items-center">
+						<Avatar className="flex justify-center items-center bg-gray-100 rounded-xl dark:bg-gray-800">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}
@@ -109,7 +113,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			header: t('timeActivity.TRACKED_HOURS'),
 			accessorKey: 'trackedHours',
 			cell: (value, row) => (
-				<div className="flex items-center justify-end gap-2">
+				<div className="flex gap-2 justify-end items-center">
 					<div
 						className="w-2 h-2 rounded-full"
 						style={{
@@ -130,7 +134,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			header: t('timeActivity.ACTIVITY_LEVEL'),
 			accessorKey: 'activityLevel',
 			cell: (value) => (
-				<div className="flex items-center gap-3">
+				<div className="flex gap-3 items-center">
 					<ProgressBar progress={value} color="bg-[#0088CC]" isLoading={loading} size="sm" />
 					<span className="font-medium min-w-[3rem] text-right">{value}%</span>
 				</div>
@@ -138,89 +142,134 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		}
 	];
 
-	const weeklyData = data.reduce(
-		(acc, dayLog) => {
-			const date = new Date(dayLog.date);
-			const { start, end } = getWeekRange(date);
-			const weekKey = start.toISOString();
+	// Memoize weekly data transformation to prevent unnecessary recalculations
+	const weeklyData = useMemo(() => {
+		return data.reduce(
+			(acc, dayLog) => {
+				const date = new Date(dayLog.date);
+				const { start, end } = getWeekRange(date);
+				const weekKey = start.toISOString();
 
-			if (!acc[weekKey]) {
-				acc[weekKey] = {
-					start,
-					end,
-					logs: [],
-					totalSum: 0,
-					totalActivity: 0,
-					daysCount: 0,
-					totalEarnings: 0
-				};
-			}
-
-			acc[weekKey].logs.push(...dayLog.logs);
-			acc[weekKey].totalSum += dayLog.sum;
-			acc[weekKey].totalActivity += dayLog.activity;
-			acc[weekKey].daysCount++;
-			acc[weekKey].totalEarnings += 2000;
-
-			return acc;
-		},
-		{} as Record<
-			string,
-			{
-				start: Date;
-				end: Date;
-				logs: RawProjectLog[];
-				totalSum: number;
-				totalActivity: number;
-				daysCount: number;
-				totalEarnings: number;
-			}
-		>
-	);
-
-	const formattedData = Object.values(weeklyData).map((week) => {
-		const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
-			projectLog.employeeLogs.map((employeeLog) => ({
-				member: {
-					name: employeeLog.employee?.user?.name || 'No Member',
-					imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
-				},
-				project: {
-					name: projectLog.project?.name || t('common.NO_PROJECT'),
-					imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
-				},
-				trackedHours: `${formatDuration(employeeLog.sum)}h`,
-				earnings: '160.00 USD',
-				activityLevel: employeeLog.activity || 0,
-				status: Math.random() > 0.5 ? 'active' : 'inactive'
-			}))
-		);
-
-		const startDate = week.start.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
-
-		const endDate = week.end.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
-
-		return {
-			headers: [
-				{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
-				{ label: t('timeActivity.EARNINGS_LABEL'), value: `${week.totalEarnings.toFixed(2)} USD` },
-				{
-					label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),
-					value: `${Math.round(week.totalActivity / week.daysCount)}%`
+				if (!acc[weekKey]) {
+					acc[weekKey] = {
+						start,
+						end,
+						logs: [],
+						totalSum: 0,
+						totalActivity: 0,
+						daysCount: 0,
+						totalEarnings: 0
+					};
 				}
-			],
-			dateRange: `${startDate} - ${endDate}`,
-			entries
-		};
-	});
+
+				acc[weekKey].logs.push(...dayLog.logs);
+				acc[weekKey].totalSum += dayLog.sum;
+				acc[weekKey].totalActivity += dayLog.activity;
+				acc[weekKey].daysCount++;
+
+				// Calculate real earnings from employee data
+				const dayEarnings = dayLog.logs.reduce((dayAcc, projectLog) => {
+					return (
+						dayAcc +
+						projectLog.employeeLogs.reduce((empAcc, employeeLog) => {
+							const billRate = employeeLog.employee.billRateValue || 0;
+							const durationHours = employeeLog.sum / 3600; // Convert seconds to hours
+							return empAcc + durationHours * billRate;
+						}, 0)
+					);
+				}, 0);
+
+				acc[weekKey].totalEarnings += dayEarnings;
+
+				return acc;
+			},
+			{} as Record<
+				string,
+				{
+					start: Date;
+					end: Date;
+					logs: RawProjectLog[];
+					totalSum: number;
+					totalActivity: number;
+					daysCount: number;
+					totalEarnings: number;
+				}
+			>
+		);
+	}, [data]);
+
+	// Memoized function to get the primary currency from week's logs
+	const getPrimaryCurrency = useCallback((logs: RawProjectLog[]): string => {
+		for (const log of logs) {
+			for (const empLog of log.employeeLogs) {
+				if (empLog.employee.billRateCurrency && empLog.employee.billRateCurrency !== 'USD') {
+					return empLog.employee.billRateCurrency;
+				}
+			}
+		}
+		return 'USD'; // Default to USD
+	}, []);
+
+	// Memoized function to calculate earnings for an employee
+	const calculateEarnings = useCallback((employeeLog: RawEmployeeLog): string => {
+		const billRate = employeeLog.employee.billRateValue || 0;
+		const currency = employeeLog.employee.billRateCurrency || 'USD';
+		const durationHours = employeeLog.sum / 3600; // Convert seconds to hours
+		const earnings = durationHours * billRate;
+		return `${earnings.toFixed(2)} ${currency}`;
+	}, []);
+
+	// Memoize formatted data to prevent unnecessary recalculations
+	const formattedData = useMemo(() => {
+		return Object.values(weeklyData).map((week) => {
+			const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
+				projectLog.employeeLogs.map((employeeLog) => ({
+					member: {
+						name: employeeLog.employee?.user?.name || 'No Member',
+						imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
+					},
+					project: {
+						name: projectLog.project?.name || t('common.NO_PROJECT'),
+						imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
+					},
+					trackedHours: `${formatDuration(employeeLog.sum)}h`,
+					earnings: calculateEarnings(employeeLog),
+					activityLevel: employeeLog.activity || 0,
+					status: Math.random() > 0.5 ? 'active' : 'inactive'
+				}))
+			);
+
+			const startDate = week.start.toLocaleDateString('en-US', {
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+
+			const endDate = week.end.toLocaleDateString('en-US', {
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+
+			const primaryCurrency = getPrimaryCurrency(week.logs);
+
+			return {
+				headers: [
+					{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
+					{
+						label: t('timeActivity.EARNINGS_LABEL'),
+						value: `${week.totalEarnings.toFixed(2)} ${primaryCurrency}`
+					},
+					{
+						label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),
+						value: `${Math.round(week.totalActivity / week.daysCount)}%`
+					}
+				],
+				dateRange: `${startDate} - ${endDate}`,
+				entries
+			};
+		});
+	}, [weeklyData, getPrimaryCurrency, calculateEarnings, t]);
 
 	return <TimeActivityTableAdapter data={formattedData} columns={columns} loading={loading} />;
 };
