@@ -11,6 +11,7 @@ import { taskVersionService } from '@/core/services/client/api/tasks/task-versio
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
 import { TTaskVersionCreate, TTaskVersionUpdate } from '@/core/types/schemas';
+import { toast } from 'sonner';
 
 export function useTaskVersion() {
 	const activeTeamId = getActiveTeamIdCookie();
@@ -40,6 +41,7 @@ export function useTaskVersion() {
 			return taskVersionService.createTaskVersion(data);
 		},
 		onSuccess: () => {
+			toast.success('Task version created successfully');
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
 			});
@@ -54,7 +56,7 @@ export function useTaskVersion() {
 			return taskVersionService.deleteTaskVersion(id);
 		},
 		onSuccess: () => {
-			console.log('Task version deleted successfully');
+			toast.success('Task version deleted successfully');
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
 			});
@@ -69,6 +71,7 @@ export function useTaskVersion() {
 			return taskVersionService.updateTaskVersion(id, data);
 		},
 		onSuccess: () => {
+			toast.success('Task version updated successfully');
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
 			});

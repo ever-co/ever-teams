@@ -48,6 +48,17 @@ export const getTaskVersionsRequestSchema = z
 	})
 	.merge(basePerTenantAndOrganizationEntityModelSchema);
 
+export const updateTaskVersionResultSchema = z.object({
+	generatedMaps: z.array(z.any()),
+	raw: z.array(z.any()),
+	affected: z.number()
+});
+
+export const deleteTaskVersionResultSchema = z.object({
+	raw: z.array(z.any()),
+	affected: z.number()
+});
+
 // Export TypeScript types
 export type TTaskVersion = z.infer<typeof taskVersionSchema>;
 export type TTaskVersionCreate = z.infer<typeof taskVersionCreateSchema>;

@@ -12,7 +12,9 @@ import {
 	ZodValidationError,
 	TTaskVersion,
 	TTaskVersionCreate,
-	TTaskVersionUpdate
+	TTaskVersionUpdate,
+	updateTaskVersionResultSchema,
+	deleteTaskVersionResultSchema
 } from '@/core/types/schemas';
 
 /**
@@ -78,20 +80,19 @@ class TaskVersionService extends APIService {
 	 *
 	 * @param id - Task version ID to update
 	 * @param data - Partial task version data
-	 * @returns Promise<TTaskVersion> - Validated updated task version
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	updateTaskVersion = async (id: string, data: TTaskVersionUpdate): Promise<TTaskVersion> => {
+	updateTaskVersion = async (id: string, data: TTaskVersionUpdate) => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(taskVersionUpdateSchema, data, 'updateTaskVersion input data');
 
-			const response = await this.put<TTaskVersion>(`/task-versions/${id}`, validatedInput, {
+			const response = await this.put(`/task-versions/${id}`, validatedInput, {
 				tenantId: this.tenantId
 			});
 
 			// Validate the response data
-			return validateApiResponse(taskVersionSchema, response.data, 'updateTaskVersion API response');
+			return validateApiResponse(updateTaskVersionResultSchema, response.data, 'updateTaskVersion API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -111,9 +112,27 @@ class TaskVersionService extends APIService {
 	 * Delete a task version with validation
 	 *
 	 * @param id - Task version ID to delete
+	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTaskVersion = async (id: string) => {
-		return this.delete<TTaskVersion>(`/task-versions/${id}`, { tenantId: this.tenantId });
+		try {
+			const response = await this.delete(`/task-versions/${id}`, { tenantId: this.tenantId });
+
+			// Validate the response data
+			return validateApiResponse(deleteTaskVersionResultSchema, response.data, 'deleteTaskVersion API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Task version deletion validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'TaskVersionService'
+				);
+			}
+			throw error;
+		}
 	};
 
 	/**
