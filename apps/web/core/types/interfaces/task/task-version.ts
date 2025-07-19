@@ -14,15 +14,3 @@ export interface ITaskVersion
 	isSystem?: boolean;
 	fullIconUrl?: string;
 }
-
-export interface ITaskVersionCreate {
-	name: string;
-	description?: string;
-	icon?: string;
-	color?: string;
-	projectId?: string;
-	organizationId?: string;
-	tenantId?: string | undefined | null;
-	organizationTeamId?: string | undefined | null;
-	value?: string;
-}

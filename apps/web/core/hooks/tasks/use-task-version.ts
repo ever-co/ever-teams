@@ -1,65 +1,47 @@
 'use client';
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
-import { userState, taskVersionListState, activeTeamIdState } from '@/core/stores';
-import { useCallback, useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { taskVersionsState } from '@/core/stores';
+import { useCallback } from 'react';
+import { useAtom } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
+import { TTaskVersionCreate, TTaskVersionUpdate } from '@/core/types/schemas';
+import { toast } from 'sonner';
 
 export function useTaskVersion() {
-	const [user] = useAtom(userState);
-	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { user: authUser } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeamId = getActiveTeamIdCookie();
 	const queryClient = useQueryClient();
 
-	const [taskVersion, setTaskVersion] = useAtom(taskVersionListState);
+	const [taskVersions, setTaskVersions] = useAtom(taskVersionsState);
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
-
-	const organizationId = useMemo(() => {
-		return authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie();
-	}, [authUser?.employee?.organizationId, user?.employee?.organizationId]);
-	const tenantId = useMemo(() => {
-		return authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie();
-	}, [authUser?.employee?.tenantId, user?.tenantId]);
-	const teamId = useMemo(() => {
-		return activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
-	}, [activeTeam?.id, activeTeamId]);
-	const isEnabled = useMemo(() => tenantId && organizationId && teamId, [tenantId, organizationId, teamId]);
 
 	// useQuery for fetching task versions
 	const taskVersionsQuery = useQuery({
-		queryKey: queryKeys.taskVersions.byTeam(teamId),
-		queryFn: async () => {
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
-			}
-			const res = await taskVersionService.getTaskVersionList(tenantId, organizationId, teamId);
-			return res.data;
-		},
-		enabled: Boolean(isEnabled)
+		queryKey: queryKeys.taskVersions.byTeam(activeTeamId),
+		queryFn: async () => taskVersionService.getTaskVersions()
 	});
 
+	/**
+	 * Mutations
+	 */
+
 	const createTaskVersionMutation = useMutation({
-		mutationFn: (data: ITaskVersionCreate) => {
-			if (!tenantId || !teamId) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			return taskVersionService.createTaskVersion(data, tenantId);
+		mutationFn: (data: TTaskVersionCreate) => {
+			return taskVersionService.createTaskVersion(data);
 		},
 		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskVersions.byTeam(teamId)
-				});
+			toast.success('Task version created successfully');
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
+			});
+		},
+		onError: (error) => {
+			console.error('Error creating task version:', error);
 		}
 	});
 
@@ -68,36 +50,39 @@ export function useTaskVersion() {
 			return taskVersionService.deleteTaskVersion(id);
 		},
 		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskVersions.byTeam(teamId)
-				});
+			toast.success('Task version deleted successfully');
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
+			});
+		},
+		onError: (error) => {
+			console.error('Error deleting task version:', error);
 		}
 	});
 
 	const editTaskVersionMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ITaskVersionCreate }) => {
-			if (!tenantId || !teamId) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			return taskVersionService.editTaskVersion(id, data, tenantId);
+		mutationFn: ({ id, data }: { id: string; data: TTaskVersionUpdate }) => {
+			return taskVersionService.updateTaskVersion(id, data);
 		},
 		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskVersions.byTeam(teamId)
-				});
+			toast.success('Task version updated successfully');
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
+			});
+		},
+		onError: (error) => {
+			console.error('Error editing task version:', error);
 		}
 	});
 
 	useConditionalUpdateEffect(
 		() => {
-			if (taskVersionsQuery.data) {
-				setTaskVersion(taskVersionsQuery.data.items);
+			if (taskVersionsQuery.data?.items) {
+				setTaskVersions(taskVersionsQuery.data.items);
 			}
 		},
 		[taskVersionsQuery.data],
-		Boolean(taskVersion?.length)
+		Boolean(taskVersions?.length)
 	);
 
 	const loadTaskVersionData = useCallback(() => {
@@ -106,7 +91,7 @@ export function useTaskVersion() {
 
 	return {
 		loading: taskVersionsQuery.isLoading,
-		taskVersion,
+		taskVersions,
 		taskVersionFetching: taskVersionsQuery.isPending,
 		firstLoadTaskVersionData,
 		createTaskVersion: createTaskVersionMutation.mutateAsync,
@@ -114,8 +99,8 @@ export function useTaskVersion() {
 		deleteTaskVersionLoading: deleteTaskVersionMutation.isPending,
 		deleteTaskVersion: deleteTaskVersionMutation.mutateAsync,
 		editTaskVersionLoading: editTaskVersionMutation.isPending,
-		editTaskVersion: (id: string, data: ITaskVersionCreate) => editTaskVersionMutation.mutateAsync({ id, data }),
-		setTaskVersion,
+		editTaskVersion: (id: string, data: TTaskVersionUpdate) => editTaskVersionMutation.mutateAsync({ id, data }),
+		setTaskVersion: setTaskVersions,
 		loadTaskVersionData
 	};
 }

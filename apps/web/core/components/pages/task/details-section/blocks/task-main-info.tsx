@@ -1,12 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
-import { useOrganizationTeams, useSyncRef, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
+import { useSyncRef, useTeamTasks } from '@/core/hooks';
+import { activeTeamState, detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
@@ -20,7 +20,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 
 	return (
