@@ -211,23 +211,6 @@ function AppUrls() {
 
 	const pdfCompatibleData = createPDFCompatibleData();
 
-	// Debug what's being passed to PDF export
-	if (process.env.NODE_ENV === 'development') {
-		console.log('📄 PDF Export Data Debug:', {
-			originalActivityReport: activityReport?.length,
-			pdfCompatibleDataLength: pdfCompatibleData?.length,
-			pdfCompatibleDataStructure: pdfCompatibleData?.[0],
-			reportDataType: typeof pdfCompatibleData,
-			reportDataIsArray: Array.isArray(pdfCompatibleData),
-			userInfo: {
-				fullName: user?.fullName,
-				firstName: user?.firstName,
-				lastName: user?.lastName,
-				employeeId: user?.employee?.id
-			}
-		});
-	}
-
 	// Calculate current month and year from filters
 	const startDate = new Date(currentFilters.startDate || new Date());
 	const endDate = new Date(currentFilters.endDate || new Date());

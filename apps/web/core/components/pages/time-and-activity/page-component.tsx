@@ -12,6 +12,7 @@ import { Card } from '@/core/components/common/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
+import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
 import { ViewOption } from '../../common/view-select';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import dynamic from 'next/dynamic';
@@ -51,9 +52,24 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage } = useReportActivity({
+		types: 'TEAM-DASHBOARD'
+	});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
 	const t = useTranslations();
+
+	// Calculate dynamic statistics from real data
+	const {
+		totalHours,
+		averageActivity,
+		totalEarnings,
+		isLoading: statsLoading
+	} = useTimeActivityStats({
+		statisticsCounts,
+		rapportDailyActivity,
+		isManage: isManage || false,
+		loading
+	});
 
 	const handleGroupByChange = useCallback((type: GroupByType) => {
 		setGroupByType(type);
@@ -141,21 +157,23 @@ const TimeActivityComponents = () => {
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.TOTAL_HOURS')}
-									value="1,020h"
+									value={totalHours}
 									showProgress={false}
+									isLoading={statsLoading}
 								/>
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.AVERAGE_ACTIVITY')}
-									value="74%"
+									value={averageActivity}
 									showProgress={true}
-									progress={74}
+									progress={parseInt(averageActivity.replace('%', '')) || 0}
 									progressColor="bg-[#0088CC]"
-									isLoading={false}
+									isLoading={statsLoading}
 								/>
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.TOTAL_EARNINGS')}
-									value="1,200.00 USD"
+									value={totalEarnings}
 									showProgress={false}
+									isLoading={statsLoading}
 								/>
 							</div>
 						</div>

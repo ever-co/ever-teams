@@ -1,11 +1,14 @@
 interface EarningsCellProps {
-	earnings: number;
+	earnings?: number;
+	currency?: string;
 }
 
-export function EarningsCell({ earnings }: EarningsCellProps) {
+export function EarningsCell({ earnings, currency = 'USD' }: EarningsCellProps) {
+	if (earnings === null || earnings === undefined)
+		return <span className="text-gray-500 dark:text-gray-100">No rate defined</span>;
 	return (
-		<span className="text-gray-900 dark:text-gray-100 font-medium">
-			{earnings.toFixed(2)} USD
+		<span className="text-gray-500 dark:text-gray-100">
+			{earnings.toFixed(2)} {currency}
 		</span>
 	);
 }

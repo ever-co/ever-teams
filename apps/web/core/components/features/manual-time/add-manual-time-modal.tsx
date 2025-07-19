@@ -96,20 +96,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Improved validation with better error messages
 			const isValidForm = date && startTime && endTime && (team || activeTeam) && taskId;
 
-			// Debug validation in development
-			if (process.env.NODE_ENV === 'development') {
-				console.log('🔧 Form validation:', {
-					date: !!date,
-					startTime: !!startTime,
-					endTime: !!endTime,
-					team: !!team,
-					activeTeam: !!activeTeam,
-					taskId: !!taskId,
-					taskIdValue: taskId,
-					isValidForm
-				});
-			}
-
 			if (!isValidForm) {
 				const missingFields = [];
 				if (!date) missingFields.push('Date');
