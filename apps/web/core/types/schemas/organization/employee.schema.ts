@@ -77,7 +77,17 @@ export const employeeSchema = z
 		payPeriod: z.any().optional(), // Will be properly typed when pay period schema is created
 		show_start_work_on: z.boolean().nullable().optional(),
 		contactId: z.string().nullable().optional(),
-		organizationPositionId: z.string().nullable().optional()
+		organizationPositionId: z.string().nullable().optional(),
+		employee: z
+			.object({
+				id: idSchema,
+				fullName: z.string(),
+				email: z.string(),
+				phone: z.string(),
+				avatar: z.string().nullable().optional()
+			})
+			.passthrough()
+			.optional()
 	})
 	.merge(basePerTenantAndOrganizationEntityModelSchema)
 	.merge(taggableSchema);

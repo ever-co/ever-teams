@@ -136,7 +136,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 			{ title: activeTeam?.name || '', href: '/' },
 			{
 				title: t('pages.timesheet.TIMESHEET_TITLE'),
-				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+				href: `/${currentLocale}/reports/timesheet/${unwrappedParams.memberId}`
 			}
 		],
 		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
