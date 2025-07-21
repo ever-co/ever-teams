@@ -83,7 +83,7 @@ export function useAuthenticationPassword() {
 
 				if (err instanceof ApiErrorService) {
 					if (err.statusCode.toString().startsWith('4')) {
-						setErrors({ email: 'Email address or password invalid' });
+						setErrors({ loginFailed: 'Incorrect email address or password' });
 					}
 				}
 			});

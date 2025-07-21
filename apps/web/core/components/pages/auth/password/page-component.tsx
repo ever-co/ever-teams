@@ -71,6 +71,8 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 							onChange={form.handleChange}
 							autoComplete="off"
 						/>
+
+						<Text.Error className="justify-self-start self-start">{form.errors.loginFailed}</Text.Error>
 					</div>
 
 					<div className="flex items-center justify-between w-full">
