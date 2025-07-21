@@ -7,6 +7,8 @@ import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAuthenticateUser } from '@/core/hooks/auth';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
@@ -56,13 +58,34 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	activeTeam
 }: TimeActivityHeaderProps) {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	const initialState = React.useMemo(() => loadFilterState(), []);
+	const { user, isTeamManager } = useAuthenticateUser();
+	const t = useTranslations();
+
+	// Initialize state with defaults based on permissions
+	const initialState = React.useMemo(() => {
+		const savedState = loadFilterState();
+
+		// Set default selections based on user permissions
+		const defaultState = {
+			teams: activeTeam ? [activeTeam] : [], // Default to current team
+			members: isTeamManager ? [] : user ? [{ id: user.id, name: user.name }] : [], // Non-managers see only themselves
+			projects: [],
+			tasks: []
+		};
+
+		// Merge saved state with defaults, prioritizing saved state if it exists
+		return {
+			teams: savedState.teams.length > 0 ? savedState.teams : defaultState.teams,
+			members: savedState.members.length > 0 ? savedState.members : defaultState.members,
+			projects: savedState.projects.length > 0 ? savedState.projects : defaultState.projects,
+			tasks: savedState.tasks.length > 0 ? savedState.tasks : defaultState.tasks
+		};
+	}, [activeTeam, isTeamManager, user]);
 
 	const [selectedTeams, setSelectedTeams] = React.useState(initialState.teams);
 	const [selectedMembers, setSelectedMembers] = React.useState(initialState.members);
 	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
 	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
-	const t = useTranslations();
 
 	// Filter to show only valid projects (exclude teams or invalid entries)
 	const validProjects = React.useMemo(() => {
@@ -79,6 +102,33 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 			);
 		});
 	}, [projects]);
+
+	// Filter members based on permissions
+	const availableMembers = React.useMemo(() => {
+		if (!activeTeam?.members) return [];
+
+		// If user is not a manager, they can only see themselves
+		if (!isTeamManager && user) {
+			const currentUserMember = activeTeam.members.find((member) => member.employee?.userId === user.id);
+			return currentUserMember ? [currentUserMember] : [];
+		}
+
+		// Managers can see all team members
+		return activeTeam.members;
+	}, [activeTeam?.members, isTeamManager, user]);
+
+	// Filter tasks based on permissions
+	const availableTasks = React.useMemo(() => {
+		if (!tasks || tasks.length === 0) return [];
+
+		// If user is not a manager, they can only see tasks assigned to them
+		if (!isTeamManager && user) {
+			return tasks.filter((task) => task.members?.some((member) => member.userId === user.id));
+		}
+
+		// Managers can see all team tasks
+		return tasks;
+	}, [tasks, isTeamManager, user]);
 
 	// Format task display string for better readability
 	const formatTaskDisplay = React.useCallback((task: TTask) => {
@@ -229,7 +279,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
 									removeItems={shouldRemoveItems}
-									items={activeTeam?.members || []}
+									items={availableMembers}
 									itemToString={(member) => member?.employee?.fullName || ''}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
@@ -305,7 +355,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
 									removeItems={shouldRemoveItems}
-									items={tasks || []}
+									items={availableTasks}
 									itemToString={formatTaskDisplay}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedTasks(selectedItems as any)}
