@@ -2,7 +2,7 @@ import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/core/lib/helpers';
+
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
@@ -117,23 +117,22 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedTeams([]);
-											saveFilterState({
-												teams: [],
-												members: selectedMembers,
-												projects: selectedProjects,
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
+									{selectedTeams.length > 0 && (
+										<button
+											onClick={() => {
+												setSelectedTeams([]);
+												saveFilterState({
+													teams: [],
+													members: selectedMembers,
+													projects: selectedProjects,
+													tasks: selectedTasks
+												});
+											}}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-teams"
@@ -156,23 +155,22 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedMembers([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: [],
-												projects: selectedProjects,
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
+									{selectedMembers.length > 0 && (
+										<button
+											onClick={() => {
+												setSelectedMembers([]);
+												saveFilterState({
+													teams: selectedTeams,
+													members: [],
+													projects: selectedProjects,
+													tasks: selectedTasks
+												});
+											}}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
@@ -195,23 +193,22 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedProjects([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: selectedMembers,
-												projects: [],
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
+									{selectedProjects.length > 0 && (
+										<button
+											onClick={() => {
+												setSelectedProjects([]);
+												saveFilterState({
+													teams: selectedTeams,
+													members: selectedMembers,
+													projects: [],
+													tasks: selectedTasks
+												});
+											}}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
@@ -234,23 +231,22 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedTasks([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: selectedMembers,
-												projects: selectedProjects,
-												tasks: []
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
+									{selectedTasks.length > 0 && (
+										<button
+											onClick={() => {
+												setSelectedTasks([]);
+												saveFilterState({
+													teams: selectedTeams,
+													members: selectedMembers,
+													projects: selectedProjects,
+													tasks: []
+												});
+											}}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
