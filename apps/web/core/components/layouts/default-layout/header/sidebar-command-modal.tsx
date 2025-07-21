@@ -92,7 +92,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 	const { setTheme, resolvedTheme } = useTheme();
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const profileLink = `/profile/${user?.id}?name=${name || ''}`;
-	const timesheetLink = `/timesheet/${user?.id}?name=${encodeURIComponent(name || '')}`;
+	const timesheetLink = `/reports/timesheet/${user?.id}?name=${encodeURIComponent(name || '')}`;
 	const router = useRouter();
 
 	// Custom hooks for modals
@@ -117,7 +117,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 			navigateToSearchProjects: () => console.log('Searching projects'),
 			navigateToTimesheetsReport: () => router.push(timesheetLink),
 			navigateToWeeklyLimitReport: () => router.push('/reports/weekly-limit'),
-			navigateToTimeAndActivityReport: () => router.push('/time-and-activity'),
+			navigateToTimeAndActivityReport: () => router.push('/reports/time-and-activity'),
 			navigateToMyTasks: () => router.push(profileLink),
 			navigateToMyTeamsTasks: () => router.push('/teams/tasks'),
 			navigateToProjects: () => router.push('/projects'),

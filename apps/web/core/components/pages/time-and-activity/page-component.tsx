@@ -130,7 +130,7 @@ const TimeActivityComponents = () => {
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: t('timeActivity.TIME_AND_ACTIVITY'), href: `/${currentLocale}/time-and-activity` }
+			{ title: t('timeActivity.TIME_AND_ACTIVITY'), href: `/${currentLocale}/reports/time-and-activity` }
 		],
 		[currentLocale, t]
 	);
