@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
 
 import { extractHttpCode } from '@/core/lib/utils';
 import { ApiErrorResponse } from '@/core/types/generics';
