@@ -5,9 +5,10 @@ import { useTranslations } from 'next-intl';
 
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
-import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TEmployee, TOrganizationProject, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAuthenticateUser } from '@/core/hooks/auth';
+import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
@@ -18,13 +19,6 @@ interface TimeActivityHeaderProps {
 }
 
 const STORAGE_KEY = 'ever-teams-activity-filters';
-
-interface FilterState {
-	teams: any[];
-	members: any[];
-	projects: any[];
-	tasks: any[];
-}
 
 const loadFilterState = (): FilterState => {
 	if (typeof window === 'undefined') {
@@ -68,7 +62,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		// Set default selections based on user permissions
 		const defaultState = {
 			teams: activeTeam ? [activeTeam] : [], // Default to current team
-			members: isTeamManager ? [] : user ? [{ id: user.id, name: user.name }] : [], // Non-managers see only themselves
+			members: [], // Initialize as empty array to avoid type conflicts
 			projects: [],
 			tasks: []
 		};
@@ -83,7 +77,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	}, [activeTeam, isTeamManager, user]);
 
 	const [selectedTeams, setSelectedTeams] = React.useState(initialState.teams);
-	const [selectedMembers, setSelectedMembers] = React.useState(initialState.members);
+	const [selectedMembers, setSelectedMembers] = React.useState<TOrganizationTeamEmployee[]>([]);
 	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
 	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
 
@@ -117,7 +111,13 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 				}
 
 				// Check if user has tasks in this project
-				if (project.tasks?.some((task) => task.members?.some((member: any) => member.userId === user.id))) {
+				if (
+					project.tasks?.some((task) =>
+						task.members?.some(
+							(member: any) => member.employee?.userId === user.id || member.userId === user.id
+						)
+					)
+				) {
 					return true;
 				}
 			}
@@ -215,10 +215,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 
 	// Apply filters function - communicates with parent component
 	const applyFilters = React.useCallback(() => {
+		// Convert TOrganizationTeamEmployee[] to TEmployee[] for FilterState compatibility
+		const membersAsEmployees: TEmployee[] = selectedMembers
+			.map((member) => member.employee)
+			.filter(Boolean) as TEmployee[];
+
 		const currentFilters = {
 			teams: selectedTeams,
-			members: selectedMembers,
-			projects: selectedProjects,
+			members: membersAsEmployees,
+			projects: selectedProjects as TOrganizationProject[],
 			tasks: selectedTasks
 		};
 
@@ -317,7 +322,9 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={availableMembers}
 									itemToString={(member) => member?.employee?.fullName || ''}
 									itemId={(item) => item?.employee?.id || item?.id}
-									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
+									onValueChange={(selectedItems) =>
+										setSelectedMembers(selectedItems as TOrganizationTeamEmployee[])
+									}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>

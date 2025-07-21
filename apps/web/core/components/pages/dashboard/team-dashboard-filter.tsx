@@ -34,9 +34,6 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 		// Close the popover
 		setIsOpen(false);
 
-		// Show success feedback
-		const filterCount = totalFilteredItems;
-
 		// Trigger data refetch via callback to parent component
 		// This will cause React Query to refetch with the new filter values
 		onFiltersApply?.();
