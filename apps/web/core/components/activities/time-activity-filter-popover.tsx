@@ -8,7 +8,6 @@ import { Button } from '../duplicated-components/_button';
 import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAuthenticateUser } from '@/core/hooks/auth';
-import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
@@ -87,21 +86,44 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
 	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
 
-	// Filter to show only valid projects (exclude teams or invalid entries)
+	// Filter to show only valid projects with proper access control
 	const validProjects = React.useMemo(() => {
 		return (projects || []).filter((project) => {
-			// Only show projects that are:
-			// 1. Have a valid name
-			// 2. Are not explicitly archived
-			// 3. Have a valid status
-			return (
+			// Basic validation: valid name and status
+			const isValidProject =
 				project?.name &&
 				project?.name?.trim().length > 0 &&
 				project?.status?.length &&
-				project?.status?.length > 0
-			);
+				project?.status?.length > 0;
+
+			if (!isValidProject) return false;
+
+			// Access control logic:
+			// 1. Managers can see all team projects
+			if (isTeamManager) return true;
+
+			// 2. Regular users can see:
+			//    - Public projects
+			//    - Projects they are members of
+			//    - Projects where they have tasks assigned
+			if (user) {
+				// Check if project is public
+				if (project.public === true) return true;
+
+				// Check if user is a member of the project
+				if (project.members?.some((member) => member.employee?.userId === user.id)) {
+					return true;
+				}
+
+				// Check if user has tasks in this project
+				if (project.tasks?.some((task) => task.members?.some((member: any) => member.userId === user.id))) {
+					return true;
+				}
+			}
+
+			return false;
 		});
-	}, [projects]);
+	}, [projects, isTeamManager, user]);
 
 	// Filter members based on permissions
 	const availableMembers = React.useMemo(() => {
@@ -157,7 +179,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 				}`}
 			>
 				<div className="flex gap-2 items-center">
-					{taskNumber && (
+					{taskNumber && taskNumber.trim() && (
 						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
 							{taskNumber}
 						</span>
@@ -281,7 +303,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									removeItems={shouldRemoveItems}
 									items={availableMembers}
 									itemToString={(member) => member?.employee?.fullName || ''}
-									itemId={(item) => item?.id}
+									itemId={(item) => item?.employee?.id || item?.id}
 									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"

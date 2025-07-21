@@ -145,7 +145,7 @@ export function MultiSelect<T>({
 					)}
 					style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 				>
-					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col">
+					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-1.5">
 						{items.map((item) => {
 							const isSelected = selectedItems.some(
 								(selectedItem) => itemId(selectedItem) === itemId(item)
@@ -157,7 +157,7 @@ export function MultiSelect<T>({
 									key={itemId(item)}
 									onClick={() => onClick(item)}
 									className={cn(
-										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] h-fit max-w-40 hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden',
+										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] h-fit max-w-72 rounded-md p-1 px-1.5 dark:text-white dark:hover:bg-primary whitespace-nowrap transition-all duration-300 text-ellipsis overflow-hidden',
 										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
 									)}
 								>
