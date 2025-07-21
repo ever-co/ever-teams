@@ -250,6 +250,11 @@ export function useAuthenticationPasscode() {
 	}, [query, verifySignInEmailConfirmRequest, queryEmail, queryCode]);
 
 	const sendAuthCodeHandler = useCallback(() => {
+		const { errors, valid } = authFormValidate(['email'], formValues as any);
+		if (!valid) {
+			setErrors(errors);
+			return;
+		}
 		const promise = signInEmailQueryCall(formValues['email']);
 
 		promise.then(() => setErrors({}));
