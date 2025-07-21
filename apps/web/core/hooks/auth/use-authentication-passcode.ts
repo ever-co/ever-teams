@@ -108,6 +108,9 @@ export function useAuthenticationPasscode() {
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
+			// First attempt
+
+			let firstAttemptError: unknown;
 			try {
 				setStatus('loading');
 				const loginResponse = await queryCall(email, code);
@@ -119,12 +122,7 @@ export function useAuthenticationPasscode() {
 					return;
 				}
 			} catch (loginError) {
-				setStatus('error');
-				if (isAxiosError(loginError) && loginError.response?.status === 400) {
-					setErrors(loginError.response.data?.errors || {});
-				} else {
-					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
-				}
+				firstAttemptError = loginError;
 			}
 
 			// Second attempt: signInEmailConfirmQueryCall
@@ -152,6 +150,8 @@ export function useAuthenticationPasscode() {
 				setStatus('error');
 				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
 					setErrors(confirmError.response.data?.errors || {});
+				} else if (isAxiosError(firstAttemptError) && firstAttemptError.response?.status === 400) {
+					setErrors(firstAttemptError.response.data?.errors || {});
 				} else {
 					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
