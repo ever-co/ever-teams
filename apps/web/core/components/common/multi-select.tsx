@@ -11,33 +11,34 @@ import { IconsCloseRounded } from '@/core/components/icons';
 
 interface MultiSelectProps<T> {
 	items: T[];
+	value?: T[]; // <-- controlled state
 	onValueChange?: (value: T | T[] | null) => void;
 	itemToString: (item: T) => string;
 	itemId: (item: T) => string;
 	triggerClassName?: string;
 	popoverClassName?: string;
 	renderItem?: (item: T, onClick: () => void, isSelected: boolean) => JSX.Element;
-	defaultValue?: T | T[];
 	multiSelect?: boolean;
-	removeItems?: boolean;
 	localStorageKey?: string;
 }
 
 export function MultiSelect<T>({
 	items,
+	value,
 	onValueChange,
 	itemToString,
 	itemId,
 	triggerClassName = '',
 	popoverClassName = '',
 	renderItem,
-	defaultValue,
 	multiSelect = false,
-	removeItems,
 	localStorageKey = 'select-items-selected'
 }: MultiSelectProps<T>) {
 	const t = useTranslations();
-	const [selectedItems, setSelectedItems] = useState<T[]>(() => {
+	const isControlled = value !== undefined;
+
+	// Internal state only if not controlled (optional here, but useful if you want fallback)
+	const [internalSelectedItems, setInternalSelectedItems] = useState<T[]>(() => {
 		if (typeof window === 'undefined') return [];
 		try {
 			const saved = localStorage.getItem(localStorageKey);
@@ -46,36 +47,22 @@ export function MultiSelect<T>({
 			return [];
 		}
 	});
+
+	const selectedItems = isControlled ? value! : internalSelectedItems;
+
 	const [isPopoverOpen, setPopoverOpen] = useState(false);
 	const [popoverWidth, setPopoverWidth] = useState<number | null>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 
-	// Load selected items from localStorage on component mount
-	useEffect(() => {
-		if (defaultValue) {
-			const initialItems = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
-			setSelectedItems(initialItems);
+	// Synchronize the selection with the parent
+	const updateSelectedItems = (newItems: T[]) => {
+		if (!isControlled) {
+			setInternalSelectedItems(newItems);
 		}
-	}, [defaultValue, setSelectedItems]);
-
-	useEffect(() => {
 		if (onValueChange) {
-			onValueChange(multiSelect ? selectedItems : selectedItems[0] || null);
+			onValueChange(multiSelect ? newItems : newItems[0] || null);
 		}
-	}, [selectedItems, multiSelect, onValueChange]);
-
-	// Save selected items to localStorage whenever they change
-	// Handle persistence
-	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			try {
-				localStorage.setItem(localStorageKey, JSON.stringify(selectedItems));
-			} catch (error) {
-				console.error('Failed to save to localStorage:', error);
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedItems, localStorageKey]);
+	};
 
 	const onClick = (item: T) => {
 		let newSelectedItems: T[];
@@ -89,23 +76,13 @@ export function MultiSelect<T>({
 			newSelectedItems = [item];
 			setPopoverOpen(false);
 		}
-		setSelectedItems(newSelectedItems);
+		updateSelectedItems(newSelectedItems);
 	};
 
 	const removeItem = (item: T) => {
 		const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
-		setSelectedItems(newSelectedItems);
+		updateSelectedItems(newSelectedItems);
 	};
-
-	const removeAllItems = useCallback(() => {
-		setSelectedItems([]);
-	}, []);
-
-	useEffect(() => {
-		if (removeItems) {
-			removeAllItems();
-		}
-	}, [removeItems, removeAllItems]);
 
 	useEffect(() => {
 		if (triggerRef.current) {

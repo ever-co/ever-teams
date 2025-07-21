@@ -56,7 +56,12 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	tasks,
 	activeTeam
 }: TimeActivityHeaderProps) {
-	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
+	const [shouldRemoveItemsMap, setShouldRemoveItemsMap] = React.useState({
+		teams: false,
+		members: false,
+		projects: false,
+		tasks: false
+	});
 	const { user, isTeamManager } = useAuthenticateUser();
 	const t = useTranslations();
 
@@ -168,7 +173,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 
 	// Custom render function for task items with better formatting
 	const renderTaskItem = React.useCallback((task: TTask, onClick: () => void, isSelected: boolean) => {
-		const taskNumber = task.taskNumber || `#${task.number || ''}`;
+		const taskNumber = task.taskNumber || (task.number ? `#${task.number}` : '');
 		const title = task.title || '';
 
 		return (
@@ -178,27 +183,55 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''
 				}`}
 			>
-				<div className="flex gap-2 items-center">
-					{taskNumber && taskNumber.trim() && (
+				{taskNumber && (
+					<div className="flex gap-2 items-center">
 						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
 							{taskNumber}
 						</span>
-					)}
-				</div>
+					</div>
+				)}
 				<span className="mt-1 text-sm text-gray-900 dark:text-white line-clamp-2">{title}</span>
 			</div>
 		);
 	}, []);
 
 	const clearAllFilters = React.useCallback(() => {
-		setShouldRemoveItems(true);
+		setShouldRemoveItemsMap({
+			teams: true,
+			members: true,
+			projects: true,
+			tasks: true
+		});
 		setSelectedTeams([]);
 		setSelectedMembers([]);
 		setSelectedProjects([]);
 		setSelectedTasks([]);
 		saveFilterState({ teams: [], members: [], projects: [], tasks: [] });
-		setTimeout(() => setShouldRemoveItems(false), 100);
+		setTimeout(
+			() =>
+				setShouldRemoveItemsMap({
+					teams: false,
+					members: false,
+					projects: false,
+					tasks: false
+				}),
+			100
+		);
 	}, []);
+	const setters = {
+		teams: setSelectedTeams,
+		members: setSelectedMembers,
+		projects: setSelectedProjects,
+		tasks: setSelectedTasks
+	};
+
+	const clearSpecificFilter = (filter: keyof FilterState) => {
+		const newState = loadFilterState();
+		newState[filter] = [];
+		saveFilterState(newState);
+
+		setters[filter]([]);
+	};
 
 	const totalFilteredItems = React.useMemo(() => {
 		return selectedTeams.length + selectedMembers.length + selectedProjects.length + selectedTasks.length;
@@ -234,7 +267,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						</div>
 						<div className="grid gap-5">
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.TEAM')}</span>
 										{selectedTeams.length > 0 && (
@@ -245,24 +278,16 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									</div>
 									{selectedTeams.length > 0 && (
 										<button
-											onClick={() => {
-												setSelectedTeams([]);
-												saveFilterState({
-													teams: [],
-													members: selectedMembers,
-													projects: selectedProjects,
-													tasks: selectedTasks
-												});
-											}}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											onClick={() => clearSpecificFilter('teams')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
 										>
 											{t('common.CLEAR')}
 										</button>
 									)}
-								</label>
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-teams"
-									removeItems={shouldRemoveItems}
+									value={selectedTeams}
 									items={userManagedTeams || []}
 									itemToString={(team) => team.name}
 									itemId={(item) => item.id}
@@ -272,7 +297,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.MEMBER')}</span>
 										{selectedMembers.length > 0 && (
@@ -283,24 +308,16 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									</div>
 									{selectedMembers.length > 0 && (
 										<button
-											onClick={() => {
-												setSelectedMembers([]);
-												saveFilterState({
-													teams: selectedTeams,
-													members: [],
-													projects: selectedProjects,
-													tasks: selectedTasks
-												});
-											}}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											onClick={() => clearSpecificFilter('members')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
 										>
 											{t('common.CLEAR')}
 										</button>
 									)}
-								</label>
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
-									removeItems={shouldRemoveItems}
+									value={selectedMembers}
 									items={availableMembers}
 									itemToString={(member) => member?.employee?.fullName || ''}
 									itemId={(item) => item?.employee?.id || item?.id}
@@ -310,7 +327,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 										{selectedProjects.length > 0 && (
@@ -321,24 +338,16 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									</div>
 									{selectedProjects.length > 0 && (
 										<button
-											onClick={() => {
-												setSelectedProjects([]);
-												saveFilterState({
-													teams: selectedTeams,
-													members: selectedMembers,
-													projects: [],
-													tasks: selectedTasks
-												});
-											}}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											onClick={() => clearSpecificFilter('projects')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
 										>
 											{t('common.CLEAR')}
 										</button>
 									)}
-								</label>
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
-									removeItems={shouldRemoveItems}
+									value={selectedProjects}
 									items={validProjects}
 									itemToString={(project) => project?.name || ''}
 									itemId={(item) => item?.id}
@@ -348,7 +357,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 										{selectedTasks.length > 0 && (
@@ -359,24 +368,16 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									</div>
 									{selectedTasks.length > 0 && (
 										<button
-											onClick={() => {
-												setSelectedTasks([]);
-												saveFilterState({
-													teams: selectedTeams,
-													members: selectedMembers,
-													projects: selectedProjects,
-													tasks: []
-												});
-											}}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											onClick={() => clearSpecificFilter('tasks')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
 										>
 											{t('common.CLEAR')}
 										</button>
 									)}
-								</label>
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
-									removeItems={shouldRemoveItems}
+									value={selectedTasks}
 									items={availableTasks}
 									itemToString={formatTaskDisplay}
 									itemId={(item) => item?.id}

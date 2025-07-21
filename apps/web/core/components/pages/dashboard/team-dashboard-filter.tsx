@@ -14,12 +14,6 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 	const t = useTranslations();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { allteamsState, setAllTeamsState, alluserState, setAllUserState } = useTimelogFilterOptions();
-	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	React.useEffect(() => {
-		if (shouldRemoveItems) {
-			setShouldRemoveItems(false);
-		}
-	}, [shouldRemoveItems]);
 
 	const totalFilteredItems = React.useMemo(() => {
 		let total = 0;
@@ -70,7 +64,6 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 								</label>
 								<MultiSelect
 									localStorageKey="team-dashboard-select-filter-team"
-									removeItems={shouldRemoveItems}
 									items={userManagedTeams ?? []}
 									itemToString={(team) => team?.name ?? ''}
 									itemId={(item) => item.id}
@@ -95,7 +88,6 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 									</label>
 									<MultiSelect
 										localStorageKey="team-dashboard-select-filter-employee"
-										removeItems={shouldRemoveItems}
 										items={allteamsState.flatMap((team) => {
 											const members = team.members ?? [];
 											return members.filter((member) => member && member.employee);
@@ -112,15 +104,18 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 								</div>
 							)}
 
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
-									onClick={() => setShouldRemoveItems(true)}
+									onClick={() => {
+										setAllTeamsState([]);
+										setAllUserState([]);
+									}}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm rounded-lg dark:text-gray-300"
+									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button className="flex items-center justify-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+								<Button className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
