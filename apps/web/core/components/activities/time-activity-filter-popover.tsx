@@ -80,6 +80,44 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		});
 	}, [projects]);
 
+	// Format task display string for better readability
+	const formatTaskDisplay = React.useCallback((task: TTask) => {
+		if (!task) return '';
+
+		const taskNumber = task.taskNumber || task.number ? `#${task.number || task.taskNumber}` : '';
+		const title = task.title || '';
+
+		// Limit title length for better readability
+		const maxTitleLength = 40;
+		const truncatedTitle = title.length > maxTitleLength ? `${title.substring(0, maxTitleLength)}...` : title;
+
+		return taskNumber ? `${taskNumber} ${truncatedTitle}` : truncatedTitle;
+	}, []);
+
+	// Custom render function for task items with better formatting
+	const renderTaskItem = React.useCallback((task: TTask, onClick: () => void, isSelected: boolean) => {
+		const taskNumber = task.taskNumber || `#${task.number || ''}`;
+		const title = task.title || '';
+
+		return (
+			<div
+				onClick={onClick}
+				className={`flex flex-col p-2 hover:cursor-pointer hover:bg-slate-50 dark:hover:bg-primary rounded-lg transition-colors ${
+					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''
+				}`}
+			>
+				<div className="flex gap-2 items-center">
+					{taskNumber && (
+						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+							{taskNumber}
+						</span>
+					)}
+				</div>
+				<span className="mt-1 text-sm text-gray-900 dark:text-white line-clamp-2">{title}</span>
+			</div>
+		);
+	}, []);
+
 	const clearAllFilters = React.useCallback(() => {
 		setShouldRemoveItems(true);
 		setSelectedTeams([]);
@@ -268,11 +306,13 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-task"
 									removeItems={shouldRemoveItems}
 									items={tasks || []}
-									itemToString={(task) => task?.title || ''}
+									itemToString={formatTaskDisplay}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedTasks(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
+									renderItem={renderTaskItem}
+									popoverClassName="max-h-[300px] overflow-y-auto"
 								/>
 							</div>
 							<div className="flex gap-x-4 justify-end items-center w-full">

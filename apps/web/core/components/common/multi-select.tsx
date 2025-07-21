@@ -114,7 +114,7 @@ export function MultiSelect<T>({
 	}, []);
 
 	return (
-		<div className="relative w-full overflow-hidden">
+		<div className="overflow-hidden relative w-full">
 			<Popover open={isPopoverOpen} onOpenChange={setPopoverOpen}>
 				<PopoverTrigger asChild>
 					<Button
@@ -122,7 +122,7 @@ export function MultiSelect<T>({
 						onClick={() => setPopoverOpen(!isPopoverOpen)}
 						variant="outline"
 						className={cn(
-							'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
+							'justify-between w-full h-10 font-normal text-left rounded-lg dark:bg-dark--theme-light',
 							triggerClassName
 						)}
 					>
@@ -140,43 +140,37 @@ export function MultiSelect<T>({
 				</PopoverTrigger>
 				<PopoverContent
 					className={cn(
-						'w-full max-w-full max-h-[80vh] border border-transparent dark:bg-dark--theme-light',
+						'w-full max-w-full border border-transparent max-h-[80vh] dark:bg-dark--theme-light',
 						popoverClassName
 					)}
 					style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 				>
-					<div className="w-full max-h-[80vh] overflow-auto flex flex-col">
-						<React.Fragment>
-							{items.map((item) => {
-								const isSelected = selectedItems.some(
-									(selectedItem) => itemId(selectedItem) === itemId(item)
-								);
-								const element = renderItem ? (
-									<div key={itemId(item)}>
-										{/* @ts-ignore */}
-										{renderItem(item, () => onClick(item), isSelected)}
-									</div>
-								) : (
-									<span
-										key={itemId(item)}
-										onClick={() => onClick(item)}
-										className={cn(
-											'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary',
-											isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
-										)}
-										style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
-									>
-										{itemToString(item)}
-									</span>
-								);
-								return element;
-							})}
-						</React.Fragment>
-					</div>
+					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col">
+						{items.map((item) => {
+							const isSelected = selectedItems.some(
+								(selectedItem) => itemId(selectedItem) === itemId(item)
+							);
+							const element = renderItem ? (
+								<li key={itemId(item)}>{renderItem(item, () => onClick(item), isSelected)}</li>
+							) : (
+								<li
+									key={itemId(item)}
+									onClick={() => onClick(item)}
+									className={cn(
+										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] h-fit max-w-40 hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden',
+										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
+									)}
+								>
+									{itemToString(item)}
+								</li>
+							);
+							return element;
+						})}
+					</ul>
 				</PopoverContent>
 			</Popover>
 			{selectedItems.length > 0 && (
-				<div className="mt-2 flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-2 mt-2">
 					{selectedItems.map((item) => (
 						<div
 							key={itemId(item)}
@@ -192,7 +186,7 @@ export function MultiSelect<T>({
 								className="ml-2 text-gray-600 dark:text-white hover:text-red-500 dark:hover:text-red-500"
 								aria-label="Remove item"
 							>
-								<span className="h-4 w-4 flex items-center justify-center">
+								<span className="flex justify-center items-center w-4 h-4">
 									<IconsCloseRounded className="w-4 h-4" aria-hidden="true" />
 								</span>
 							</button>
