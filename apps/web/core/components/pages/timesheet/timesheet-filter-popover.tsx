@@ -142,7 +142,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									</label>
 									<MultiSelect
 										localStorageKey="timesheet-select-filter-employee"
-										removeItems={shouldRemoveItems}
 										items={activeTeam?.members ?? []}
 										itemToString={(members) => (members ? members?.employee?.fullName || '' : '')}
 										itemId={(item) => item.id}
@@ -166,7 +165,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
-									removeItems={shouldRemoveItems}
 									items={organizationProjects ?? []}
 									itemToString={(project) =>
 										(organizationProjects && project ? project.name : '') || ''
@@ -191,7 +189,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-task"
-									removeItems={shouldRemoveItems}
 									items={tasks}
 									onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
 									itemId={(task) => (task ? task.id : '')}
@@ -214,7 +211,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-status"
-									removeItems={shouldRemoveItems}
 									items={statusTable?.flat()}
 									itemToString={(status) => (status ? status.label : '')}
 									itemId={(item) => item.label}

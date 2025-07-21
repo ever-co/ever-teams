@@ -122,7 +122,7 @@ const TaskTitleBlock = () => {
 					/>
 
 					{edit ? (
-						<div className="flex flex-col justify-start gap-1 transition-all">
+						<div className="flex flex-col gap-1 justify-start transition-all">
 							<button
 								ref={saveButton}
 								onClick={() => saveTitle(title)}
@@ -139,7 +139,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col items-center justify-start gap-2">
+						<div className="flex flex-col gap-2 justify-start items-center">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -171,7 +171,7 @@ const TaskTitleBlock = () => {
 			)}
 
 			<div className="flex flex-col items-start">
-				<div className="flex flex-row items-center justify-start gap-3">
+				<div className="flex flex-row gap-3 justify-start items-center">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
 						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
@@ -194,7 +194,7 @@ const TaskTitleBlock = () => {
 					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
 
 					{task?.issueType !== EIssueType.EPIC && task && (
-						<div className="flex items-center gap-3">
+						<div className="flex gap-3 items-center">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 							{(!task?.issueType ||
 								task?.issueType === EIssueType.TASK ||
@@ -229,7 +229,7 @@ const TaskTitleBlock = () => {
 							onClick={() => toggleFavoriteTask(task)}
 						>
 							{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-								<LoaderCircle size={15} className=" animate-spin" />
+								<LoaderCircle size={15} className="animate-spin" />
 							) : isFavoriteTask(task.id) ? (
 								<svg
 									className="w-4 h-4"
@@ -247,7 +247,7 @@ const TaskTitleBlock = () => {
 				</div>
 
 				<CopyTooltip text={task?.taskNumber || ''}>
-					<button className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2">
+					<button className="flex gap-1 items-center text-[#B1AEBC] text-[10px] 3xl:text-xs 3xl:py-2">
 						<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
 						{t('pages.settingsTeam.COPY_NUMBER')}
 					</button>
@@ -271,7 +271,7 @@ const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 						task.parent.issueType === EIssueType.STORY && 'bg-[#54BA951A]',
 						task.parent.issueType === EIssueType.BUG && 'bg-[#C24A4A1A]',
 						(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'bg-[#5483ba]',
-						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
+						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-0.5 px-2.5'
 					)}
 				>
 					<span
@@ -280,7 +280,7 @@ const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 							task.parent.issueType === EIssueType.STORY && 'text-[#27AE60]',
 							task.parent.issueType === EIssueType.BUG && 'text-[#C24A4A]',
 							(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'text-white',
-							'font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
+							'font-medium text-xs 3xl:text-sm max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
 						)}
 					>
 						<span
@@ -317,17 +317,19 @@ const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 	const t = useTranslations();
 
 	return task && task.issueType !== EIssueType.EPIC ? (
-		<div className="box-border flex items-center justify-center text-center bg-transparent rounded cursor-pointer h-7">
-			<Button
-				variant="outline-danger"
-				className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
-				onClick={modal.openModal}
-			>
-				{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}
-			</Button>
+		<>
+			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
+				<Button
+					variant="outline-danger"
+					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
+					onClick={modal.openModal}
+				>
+					{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}
+				</Button>
+			</div>
 
 			<CreateParentTask modal={modal} task={task} />
-		</div>
+		</>
 	) : (
 		<></>
 	);

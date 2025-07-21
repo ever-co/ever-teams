@@ -3,34 +3,45 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingFilterIcon } from '@/assets/svg';
-import { cn } from '@/core/lib/helpers';
+
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { MultiSelect } from '../../common/multi-select';
 interface TeamDashboardFilterProps {
 	isManage?: boolean | null;
+	onFiltersApply?: () => void;
 }
-export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isManage }: TeamDashboardFilterProps) {
+export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
+	isManage,
+	onFiltersApply
+}: TeamDashboardFilterProps) {
 	const t = useTranslations();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { allteamsState, setAllTeamsState, alluserState, setAllUserState } = useTimelogFilterOptions();
-	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	React.useEffect(() => {
-		if (shouldRemoveItems) {
-			setShouldRemoveItems(false);
-		}
-	}, [shouldRemoveItems]);
+	const [isOpen, setIsOpen] = React.useState(false);
 
 	const totalFilteredItems = React.useMemo(() => {
 		let total = 0;
+		// Count selected teams
 		if (allteamsState?.length) total += allteamsState.length;
-		total += allteamsState?.reduce((acc, team) => acc + (team.members?.length || 0), 0) || 0;
+		// Count selected employees (only if manager)
+		if (isManage && alluserState?.length) total += alluserState.length;
 		return total;
-	}, [allteamsState]);
+	}, [allteamsState, alluserState, isManage]);
+
+	// Apply filters function - triggers data refetch and closes popover
+	const applyFilters = React.useCallback(() => {
+		// Close the popover
+		setIsOpen(false);
+
+		// Trigger data refetch via callback to parent component
+		// This will cause React Query to refetch with the new filter values
+		onFiltersApply?.();
+	}, [onFiltersApply, totalFilteredItems, t]);
 
 	return (
 		<div>
-			<Popover modal>
+			<Popover modal open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
@@ -58,44 +69,55 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 						<div className="grid gap-5">
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('manualTime.TEAM')}</span>
-									<span
-										className={cn(
-											'text-primary/10',
-											allteamsState.length > 0 && 'text-primary dark:text-primary-light'
+									<div className="flex gap-2 items-center">
+										<span className="text-[12px]">{t('manualTime.TEAM')}</span>
+										{allteamsState.length > 0 && (
+											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												{allteamsState.length}
+											</span>
 										)}
-									>
-										{t('common.CLEAR')} ({allteamsState.length})
-									</span>
+									</div>
+									{allteamsState.length > 0 && (
+										<button
+											onClick={() => setAllTeamsState([])}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
 								</label>
 								<MultiSelect
-									localStorageKey="team-dashboard-select-filter-team"
-									removeItems={shouldRemoveItems}
 									items={userManagedTeams ?? []}
 									itemToString={(team) => team?.name ?? ''}
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setAllTeamsState(selectedItems as any)}
-									multiSelect={true}
+									multiSelect
 									triggerClassName="dark:border-gray-700"
+									value={allteamsState as any}
 								/>
 							</div>
 
 							{isManage && (
 								<div className="">
 									<label className="flex justify-between mb-1 text-sm text-gray-600">
-										<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
-										<span
-											className={cn(
-												'text-primary/10',
-												alluserState.length > 0 && 'text-primary dark:text-primary-light'
+										<div className="flex gap-2 items-center">
+											<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
+											{alluserState.length > 0 && (
+												<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+													{alluserState.length}
+												</span>
 											)}
-										>
-											{t('common.CLEAR')} ({alluserState.length})
-										</span>
+										</div>
+										{alluserState.length > 0 && (
+											<button
+												onClick={() => setAllUserState([])}
+												className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											>
+												{t('common.CLEAR')}
+											</button>
+										)}
 									</label>
 									<MultiSelect
-										localStorageKey="team-dashboard-select-filter-employee"
-										removeItems={shouldRemoveItems}
 										items={allteamsState.flatMap((team) => {
 											const members = team.members ?? [];
 											return members.filter((member) => member && member.employee);
@@ -108,19 +130,26 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isM
 										onValueChange={(selectedItems) => setAllUserState(selectedItems as any)}
 										multiSelect={true}
 										triggerClassName="dark:border-gray-700"
+										value={alluserState as any}
 									/>
 								</div>
 							)}
 
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
-									onClick={() => setShouldRemoveItems(true)}
+									onClick={() => {
+										setAllTeamsState([]);
+										setAllUserState([]);
+									}}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm rounded-lg dark:text-gray-300"
+									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button className="flex items-center justify-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+								<Button
+									onClick={applyFilters}
+									className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300"
+								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>

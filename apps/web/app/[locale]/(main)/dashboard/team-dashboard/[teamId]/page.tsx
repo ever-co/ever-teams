@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
@@ -74,7 +74,10 @@ function TeamDashboard() {
 		updateDateRange,
 		loading,
 		isManage,
-		currentFilters
+		currentFilters,
+		fetchReportActivity,
+		fetchDailyReport,
+		fetchStatisticsCounts
 	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
 
 	const currentLocale = paramsUrl?.locale;
@@ -88,6 +91,14 @@ function TeamDashboard() {
 	);
 
 	const handleBack = () => router.back();
+
+	// Handle filter application - triggers data refetch
+	const handleFiltersApply = useCallback(() => {
+		// Refetch all dashboard data with current filter state
+		fetchReportActivity();
+		fetchDailyReport();
+		fetchStatisticsCounts();
+	}, [fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
 
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (loading && (!rapportDailyActivity || rapportDailyActivity.length === 0)) {
@@ -120,6 +131,7 @@ function TeamDashboard() {
 								reportData={rapportDailyActivity || []}
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
+								onFiltersApply={handleFiltersApply}
 							/>
 							<LazyTeamStatsGrid
 								statisticsCounts={statisticsCounts}

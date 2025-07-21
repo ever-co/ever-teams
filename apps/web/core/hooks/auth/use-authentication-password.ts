@@ -8,6 +8,7 @@ import { AxiosError, isAxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -78,6 +79,12 @@ export function useAuthenticationPassword() {
 					}
 				} else {
 					setErrors(err.errors || {});
+				}
+
+				if (err instanceof ApiErrorService) {
+					if (err.statusCode.toString().startsWith('4')) {
+						setErrors({ loginFailed: 'Incorrect email address or password' });
+					}
 				}
 			});
 	};

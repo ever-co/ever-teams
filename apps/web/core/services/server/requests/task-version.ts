@@ -1,9 +1,8 @@
-import { ITaskVersion } from '@/core/types/interfaces/task/task-version';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { TTaskVersion, TTaskVersionCreate } from '@/core/types/schemas/task/task-version.schema';
 import { serverFetch } from '../fetch';
 
-export function createVersionRequest(datas: ITaskVersionCreate, bearer_token: string, tenantId?: any) {
-	return serverFetch<ITaskVersion>({
+export function createVersionRequest(datas: TTaskVersionCreate, bearer_token: string, tenantId?: any) {
+	return serverFetch<TTaskVersion>({
 		path: '/task-versions',
 		method: 'POST',
 		body: datas,
@@ -19,11 +18,11 @@ export function editTaskVersionRequest({
 	tenantId
 }: {
 	id: string | any;
-	datas: ITaskVersionCreate;
+	datas: TTaskVersionCreate;
 	bearer_token: string;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskVersion>({
+	return serverFetch<TTaskVersion>({
 		path: `/task-versions/${id}`,
 		method: 'PUT',
 		body: datas,
@@ -41,7 +40,7 @@ export function deleteTaskVersionRequest({
 	bearer_token: string | any;
 	tenantId?: any;
 }) {
-	return serverFetch<ITaskVersion>({
+	return serverFetch<TTaskVersion>({
 		path: `/task-versions/${id}`,
 		method: 'DELETE',
 		bearer_token,

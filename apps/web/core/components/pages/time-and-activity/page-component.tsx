@@ -12,10 +12,12 @@ import { Card } from '@/core/components/common/card';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
-import { ViewOption } from '../../common/view-select';
-import { Breadcrumb } from '../../duplicated-components/breadcrumb';
+import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
+import { ViewOption } from '@/core/components/common/view-select';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import dynamic from 'next/dynamic';
 import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
+import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 
 const LazyTimeActivityHeader = dynamic(
 	() => import('./time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
@@ -51,9 +53,43 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange, loading } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage, updateFilters } =
+		useReportActivity({
+			types: 'TEAM-DASHBOARD'
+		});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
 	const t = useTranslations();
+
+	// Handle filter application from the filter popover
+	const handleFiltersApply = useCallback(
+		(filters: FilterState) => {
+			// Convert filter state to the format expected by useReportActivity
+			const filterParams = {
+				// Extract IDs from the filter objects
+				teamIds: filters.teams.map((team) => team.id),
+				employeeIds: filters.members.map((member) => member.employee?.id || member.id).filter(Boolean),
+				projectIds: filters.projects.map((project) => project.id),
+				taskIds: filters.tasks.map((task) => task.id)
+			};
+
+			// Update the report activity filters
+			updateFilters(filterParams);
+		},
+		[updateFilters]
+	);
+
+	// Calculate dynamic statistics from real data
+	const {
+		totalHours,
+		averageActivity,
+		totalEarnings,
+		isLoading: statsLoading
+	} = useTimeActivityStats({
+		statisticsCounts,
+		rapportDailyActivity,
+		isManage: isManage || false,
+		loading
+	});
 
 	const handleGroupByChange = useCallback((type: GroupByType) => {
 		setGroupByType(type);
@@ -94,7 +130,7 @@ const TimeActivityComponents = () => {
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: t('timeActivity.TIME_AND_ACTIVITY'), href: `/${currentLocale}/time-and-activity` }
+			{ title: t('timeActivity.TIME_AND_ACTIVITY'), href: `/${currentLocale}/reports/time-and-activity` }
 		],
 		[currentLocale, t]
 	);
@@ -135,27 +171,30 @@ const TimeActivityComponents = () => {
 								onUpdateDateRange={updateDateRange}
 								onGroupByChange={handleGroupByChange}
 								groupByType={groupByType}
+								onFiltersApply={handleFiltersApply}
 							/>
 
 							{/* Statistics Cards */}
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.TOTAL_HOURS')}
-									value="1,020h"
+									value={totalHours}
 									showProgress={false}
+									isLoading={statsLoading}
 								/>
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.AVERAGE_ACTIVITY')}
-									value="74%"
+									value={averageActivity}
 									showProgress={true}
-									progress={74}
+									progress={parseInt(averageActivity.replace('%', '')) || 0}
 									progressColor="bg-[#0088CC]"
-									isLoading={false}
+									isLoading={statsLoading}
 								/>
 								<LazyCardTimeAndActivity
 									title={t('timeActivity.TOTAL_EARNINGS')}
-									value="1,200.00 USD"
+									value={totalEarnings}
 									showProgress={false}
+									isLoading={statsLoading}
 								/>
 							</div>
 						</div>

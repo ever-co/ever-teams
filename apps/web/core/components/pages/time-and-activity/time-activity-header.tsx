@@ -6,9 +6,16 @@ import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-acti
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
-import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationProject, TOrganizationTeam, TEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TranslationHooks, useTranslations } from 'next-intl';
+
+interface FilterState {
+	teams: TOrganizationTeam[];
+	members: TEmployee[];
+	projects: TOrganizationProject[];
+	tasks: TTask[];
+}
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
@@ -20,6 +27,7 @@ export interface TimeActivityHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onGroupByChange?: (value: GroupByType) => void;
 	groupByType?: GroupByType;
+	onFiltersApply?: (filters: FilterState) => void;
 }
 
 const getDefaultViewOptions = (t: TranslationHooks): ViewOption[] => [

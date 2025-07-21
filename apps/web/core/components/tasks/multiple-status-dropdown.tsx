@@ -132,7 +132,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 				/>
 				{isSelected && issueType !== 'issue' && (
 					<button
-						onClick={(e: any) => {
+						onClick={(e) => {
 							e.stopPropagation();
 
 							if (onChange && item_value) {
@@ -151,7 +151,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		);
 	};
 
-	const handleChange = (selectedValue: any) => {
+	const handleChange = (selectedValue: string[] | string) => {
 		if (!onChange) return;
 		if (Array.isArray(selectedValue)) {
 			onChange(selectedValue);

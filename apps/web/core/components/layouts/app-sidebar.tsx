@@ -302,38 +302,38 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 							items: [
 								{
 									title: t('sidebar.TIMESHEETS'),
-									url: `/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
-									label: 'timesheets'
+									url: `/reports/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
+									label: 'reports-timesheets'
 								},
 								{
 									title: t('sidebar.MANUAL_TIME_EDIT'),
-									label: 'manual-time-edit',
+									label: 'reports-manual-time-edit',
 									url: '#'
 								},
 								{
 									title: t('sidebar.WEEKLY_LIMIT'),
-									label: 'weekly-limit',
+									label: 'reports-weekly-limit',
 									url: '/reports/weekly-limit'
 								},
 								{
 									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
-									label: 'actual-and-expected-hours',
+									label: 'reports-actual-and-expected-hours',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PAYMENTS_DUE'),
-									label: 'payments-due',
+									label: 'reports-payments-due',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PROJECT_BUDGET'),
-									label: 'project-budget',
+									label: 'reports-project-budget',
 									url: '#'
 								},
 								{
 									title: t('sidebar.TIME_AND_ACTIVITY'),
-									label: 'time-and-activity',
-									url: '/time-and-activity'
+									label: 'reports-time-and-activity',
+									url: '/reports/time-and-activity'
 								}
 							]
 						}
@@ -428,7 +428,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 					</span>
 				</Link>
 				{deleteFavoriteLoading ? (
-					<LoaderCircle className=" animate-spin" size={15} />
+					<LoaderCircle className="animate-spin" size={15} />
 				) : (
 					<X
 						className="w-5 h-5 cursor-pointer"

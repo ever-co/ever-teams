@@ -2,27 +2,23 @@ import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/core/lib/helpers';
+
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
-import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TEmployee, TOrganizationProject, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAuthenticateUser } from '@/core/hooks/auth';
+import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
 	projects?: TOrganizationProject[];
 	tasks?: TTask[];
 	activeTeam?: TOrganizationTeam | null;
+	onFiltersApply?: (filters: FilterState) => void;
 }
 
 const STORAGE_KEY = 'ever-teams-activity-filters';
-
-interface FilterState {
-	teams: any[];
-	members: any[];
-	projects: any[];
-	tasks: any[];
-}
 
 const loadFilterState = (): FilterState => {
 	if (typeof window === 'undefined') {
@@ -53,26 +49,190 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	userManagedTeams,
 	projects,
 	tasks,
-	activeTeam
+	activeTeam,
+	onFiltersApply
 }: TimeActivityHeaderProps) {
-	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	const initialState = React.useMemo(() => loadFilterState(), []);
-
-	const [selectedTeams, setSelectedTeams] = React.useState(initialState.teams);
-	const [selectedMembers, setSelectedMembers] = React.useState(initialState.members);
-	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
-	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
+	const { user, isTeamManager } = useAuthenticateUser();
 	const t = useTranslations();
 
+	// Initialize state with defaults based on permissions
+	const initialState = React.useMemo(() => {
+		const savedState = loadFilterState();
+
+		// Set default selections based on user permissions
+		const defaultState = {
+			teams: activeTeam ? [activeTeam] : [], // Default to current team
+			members: [], // Initialize as empty array to avoid type conflicts
+			projects: [],
+			tasks: []
+		};
+
+		// Merge saved state with defaults, prioritizing saved state if it exists
+		return {
+			teams: savedState.teams.length > 0 ? savedState.teams : defaultState.teams,
+			members: savedState.members.length > 0 ? savedState.members : defaultState.members,
+			projects: savedState.projects.length > 0 ? savedState.projects : defaultState.projects,
+			tasks: savedState.tasks.length > 0 ? savedState.tasks : defaultState.tasks
+		};
+	}, [activeTeam, isTeamManager, user]);
+
+	const [selectedTeams, setSelectedTeams] = React.useState(initialState.teams);
+	const [selectedMembers, setSelectedMembers] = React.useState<TOrganizationTeamEmployee[]>([]);
+	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
+	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
+
+	// Filter to show only valid projects with proper access control
+	const validProjects = React.useMemo(() => {
+		return (projects || []).filter((project) => {
+			// Basic validation: valid name and status
+			const isValidProject =
+				project?.name &&
+				project?.name?.trim().length > 0 &&
+				project?.status?.length &&
+				project?.status?.length > 0;
+
+			if (!isValidProject) return false;
+
+			// Access control logic:
+			// 1. Managers can see all team projects
+			if (isTeamManager) return true;
+
+			// 2. Regular users can see:
+			//    - Public projects
+			//    - Projects they are members of
+			//    - Projects where they have tasks assigned
+			if (user) {
+				// Check if project is public
+				if (project.public === true) return true;
+
+				// Check if user is a member of the project
+				if (project.members?.some((member) => member.employee?.userId === user.id)) {
+					return true;
+				}
+
+				// Check if user has tasks in this project
+				if (
+					project.tasks?.some((task) =>
+						task.members?.some(
+							(member: any) => member.employee?.userId === user.id || member.userId === user.id
+						)
+					)
+				) {
+					return true;
+				}
+			}
+
+			return false;
+		});
+	}, [projects, isTeamManager, user]);
+
+	// Filter members based on permissions
+	const availableMembers = React.useMemo(() => {
+		if (!activeTeam?.members) return [];
+
+		// If user is not a manager, they can only see themselves
+		if (!isTeamManager && user) {
+			const currentUserMember = activeTeam.members.find((member) => member.employee?.userId === user.id);
+			return currentUserMember ? [currentUserMember] : [];
+		}
+
+		// Managers can see all team members
+		return activeTeam.members;
+	}, [activeTeam?.members, isTeamManager, user]);
+
+	// Filter tasks based on permissions
+	const availableTasks = React.useMemo(() => {
+		if (!tasks || tasks.length === 0) return [];
+
+		// If user is not a manager, they can only see tasks assigned to them
+		if (!isTeamManager && user) {
+			return tasks.filter((task) => task.members?.some((member) => member.userId === user.id));
+		}
+
+		// Managers can see all team tasks
+		return tasks;
+	}, [tasks, isTeamManager, user]);
+
+	// Format task display string for better readability
+	const formatTaskDisplay = React.useCallback((task: TTask) => {
+		if (!task) return '';
+
+		const taskNumber = task.taskNumber || task.number ? `#${task.number || task.taskNumber}` : '';
+		const title = task.title || '';
+
+		// Limit title length for better readability
+		const maxTitleLength = 40;
+		const truncatedTitle = title.length > maxTitleLength ? `${title.substring(0, maxTitleLength)}...` : title;
+
+		return taskNumber ? `${taskNumber} ${truncatedTitle}` : truncatedTitle;
+	}, []);
+
+	// Custom render function for task items with better formatting
+	const renderTaskItem = React.useCallback((task: TTask, onClick: () => void, isSelected: boolean) => {
+		const taskNumber = task.taskNumber || (task.number ? `#${task.number}` : '');
+		const title = task.title || '';
+
+		return (
+			<div
+				onClick={onClick}
+				className={`flex flex-col p-2 hover:cursor-pointer hover:bg-slate-50 dark:hover:bg-primary rounded-lg transition-colors ${
+					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''
+				}`}
+			>
+				{taskNumber && (
+					<div className="flex gap-2 items-center">
+						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+							{taskNumber}
+						</span>
+					</div>
+				)}
+				<span className="mt-1 text-sm text-gray-900 dark:text-white line-clamp-2">{title}</span>
+			</div>
+		);
+	}, []);
+
 	const clearAllFilters = React.useCallback(() => {
-		setShouldRemoveItems(true);
 		setSelectedTeams([]);
 		setSelectedMembers([]);
 		setSelectedProjects([]);
 		setSelectedTasks([]);
 		saveFilterState({ teams: [], members: [], projects: [], tasks: [] });
-		setTimeout(() => setShouldRemoveItems(false), 100);
 	}, []);
+	const setters = {
+		teams: setSelectedTeams,
+		members: setSelectedMembers,
+		projects: setSelectedProjects,
+		tasks: setSelectedTasks
+	};
+
+	const clearSpecificFilter = (filter: keyof FilterState) => {
+		const newState = loadFilterState();
+		newState[filter] = [];
+		saveFilterState(newState);
+
+		setters[filter]([]);
+	};
+
+	// Apply filters function - communicates with parent component
+	const applyFilters = React.useCallback(() => {
+		// Convert TOrganizationTeamEmployee[] to TEmployee[] for FilterState compatibility
+		const membersAsEmployees: TEmployee[] = selectedMembers
+			.map((member) => member.employee)
+			.filter(Boolean) as TEmployee[];
+
+		const currentFilters = {
+			teams: selectedTeams,
+			members: membersAsEmployees,
+			projects: selectedProjects as TOrganizationProject[],
+			tasks: selectedTasks
+		};
+
+		// Save to localStorage for persistence
+		saveFilterState(currentFilters);
+
+		// Notify parent component about filter changes
+		onFiltersApply?.(currentFilters);
+	}, [selectedTeams, selectedMembers, selectedProjects, selectedTasks, onFiltersApply]);
 
 	const totalFilteredItems = React.useMemo(() => {
 		return selectedTeams.length + selectedMembers.length + selectedProjects.length + selectedTasks.length;
@@ -108,8 +268,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						</div>
 						<div className="grid gap-5">
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.TEAM')}</span>
 										{selectedTeams.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -117,27 +277,18 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedTeams([]);
-											saveFilterState({
-												teams: [],
-												members: selectedMembers,
-												projects: selectedProjects,
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
-								</label>
+									{selectedTeams.length > 0 && (
+										<button
+											onClick={() => clearSpecificFilter('teams')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-teams"
-									removeItems={shouldRemoveItems}
+									value={selectedTeams}
 									items={userManagedTeams || []}
 									itemToString={(team) => team.name}
 									itemId={(item) => item.id}
@@ -147,8 +298,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.MEMBER')}</span>
 										{selectedMembers.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -156,38 +307,31 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedMembers([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: [],
-												projects: selectedProjects,
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
-								</label>
+									{selectedMembers.length > 0 && (
+										<button
+											onClick={() => clearSpecificFilter('members')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
-									removeItems={shouldRemoveItems}
-									items={activeTeam?.members || []}
+									value={selectedMembers}
+									items={availableMembers}
 									itemToString={(member) => member?.employee?.fullName || ''}
-									itemId={(item) => item?.id}
-									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
+									itemId={(item) => item?.employee?.id || item?.id}
+									onValueChange={(selectedItems) =>
+										setSelectedMembers(selectedItems as TOrganizationTeamEmployee[])
+									}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 										{selectedProjects.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -195,28 +339,19 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedProjects([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: selectedMembers,
-												projects: [],
-												tasks: selectedTasks
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
-								</label>
+									{selectedProjects.length > 0 && (
+										<button
+											onClick={() => clearSpecificFilter('projects')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
-									removeItems={shouldRemoveItems}
-									items={projects || []}
+									value={selectedProjects}
+									items={validProjects}
 									itemToString={(project) => project?.name || ''}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedProjects(selectedItems as any)}
@@ -225,8 +360,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 										{selectedTasks.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -234,54 +369,40 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											</span>
 										)}
 									</div>
-									<button
-										onClick={() => {
-											setSelectedTasks([]);
-											saveFilterState({
-												teams: selectedTeams,
-												members: selectedMembers,
-												projects: selectedProjects,
-												tasks: []
-											});
-										}}
-										className={cn(
-											'text-primary/10',
-											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}
-									>
-										{t('common.CLEAR')}
-									</button>
-								</label>
+									{selectedTasks.length > 0 && (
+										<button
+											onClick={() => clearSpecificFilter('tasks')}
+											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+										>
+											{t('common.CLEAR')}
+										</button>
+									)}
+								</div>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
-									removeItems={shouldRemoveItems}
-									items={tasks || []}
-									itemToString={(task) => task?.title || ''}
+									value={selectedTasks}
+									items={availableTasks}
+									itemToString={formatTaskDisplay}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedTasks(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
+									renderItem={renderTaskItem}
+									popoverClassName="max-h-[300px] overflow-y-auto"
 								/>
 							</div>
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm transition-colors rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
 								<Button
-									onClick={() => {
-										saveFilterState({
-											teams: selectedTeams,
-											members: selectedMembers,
-											projects: selectedProjects,
-											tasks: selectedTasks
-										});
-									}}
-									className="flex items-center justify-center h-10 text-sm transition-opacity rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
+									onClick={applyFilters}
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-opacity bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
 								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>

@@ -62,6 +62,8 @@ export function useScrollPagination<T>({
 
 	$scrollableElement.current = scrollableElement || $scrollableElement.current;
 
+	const SCROLL_THRESHOLD = 100;
+
 	useEffect(() => {
 		if (enabled) {
 			setPage(1);
@@ -76,7 +78,7 @@ export function useScrollPagination<T>({
 		const handleScroll = () => {
 			if (
 				container.scrollTop + container.clientHeight >=
-				container.scrollHeight - 100 // Adjust this value for how close to the bottom you want to trigger loading
+				container.scrollHeight - SCROLL_THRESHOLD // Adjust this value for how close to the bottom you want to trigger loading
 			) {
 				setPage((prevPage) => prevPage + 1);
 			}
