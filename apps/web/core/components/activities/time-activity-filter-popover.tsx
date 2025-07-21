@@ -64,6 +64,22 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
 	const t = useTranslations();
 
+	// Filter to show only valid projects (exclude teams or invalid entries)
+	const validProjects = React.useMemo(() => {
+		return (projects || []).filter((project) => {
+			// Only show projects that are:
+			// 1. Have a valid name
+			// 2. Are not explicitly archived
+			// 3. Have a valid status
+			return (
+				project?.name &&
+				project?.name?.trim().length > 0 &&
+				project?.status?.length &&
+				project?.status?.length > 0
+			);
+		});
+	}, [projects]);
+
 	const clearAllFilters = React.useCallback(() => {
 		setShouldRemoveItems(true);
 		setSelectedTeams([]);
@@ -109,7 +125,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						<div className="grid gap-5">
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.TEAM')}</span>
 										{selectedTeams.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -147,7 +163,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.MEMBER')}</span>
 										{selectedMembers.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -185,7 +201,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 										{selectedProjects.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -213,7 +229,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
 									removeItems={shouldRemoveItems}
-									items={projects || []}
+									items={validProjects}
 									itemToString={(project) => project?.name || ''}
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedProjects(selectedItems as any)}
@@ -223,7 +239,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 										{selectedTasks.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -259,11 +275,11 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm transition-colors rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
@@ -277,7 +293,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 											tasks: selectedTasks
 										});
 									}}
-									className="flex items-center justify-center h-10 text-sm transition-opacity rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-opacity bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
 								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
