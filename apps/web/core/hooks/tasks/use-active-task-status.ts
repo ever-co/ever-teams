@@ -8,6 +8,12 @@ import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-
 import { taskUpdateQueue } from '@/core/utils/task.utils';
 import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useAtom, useAtomValue } from 'jotai';
+import {
+	setOptimisticValueAtom,
+	clearOptimisticValueAtom,
+	getOptimisticValueAtom
+} from '@/core/stores/tasks/task-optimistic-updates';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -71,7 +77,13 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const { taskStatuses } = useTaskStatus();
-	const [optimisticValue, setOptimisticValue] = useState<ITaskStatusStack[T] | null>(null);
+
+	// Global optimistic state for synchronization between instances
+	const [, setOptimisticValue] = useAtom(setOptimisticValueAtom);
+	const [, clearOptimisticValue] = useAtom(clearOptimisticValueAtom);
+	const getOptimisticValue = useAtomValue(getOptimisticValueAtom);
+
+	// Local loading state (per component instance)
 	const [isLocalLoading, setIsLocalLoading] = useState(false);
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
@@ -79,9 +91,11 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	// Reset optimistic value when task changes
 	useEffect(() => {
-		setOptimisticValue(null);
+		if (task?.id) {
+			clearOptimisticValue({ taskId: task.id, field });
+		}
 		setIsLocalLoading(false);
-	}, [task?.id]);
+	}, [task?.id, field, clearOptimisticValue]);
 
 	/**
 	 * Handle optimistic updates with proper error handling and user feedback
@@ -92,8 +106,12 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		// Start local loading state (isolated per component)
 		setIsLocalLoading(true);
 
-		// Set optimistic value immediately for UI feedback
-		setOptimisticValue(status);
+		// Set optimistic value globally for synchronization across all instances
+		setOptimisticValue({
+			taskId: task.id,
+			field,
+			value: status
+		});
 
 		let updatedField: ITaskStatusField = field;
 		let taskStatusId: string | undefined;
@@ -110,14 +128,22 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
+			const previousValue = task.current ? (task.current as any)[field] : undefined;
 			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)
 				?.then(() => {
-					// Success - keep optimistic value and show success toast
-					toast.success(`Task ${field} updated successfully`);
+					// Success - keep optimistic value and show success toast with context
+					const fieldDisplayName = field === 'issueType' ? 'issue type' : field;
+					toast.success(`Task ${fieldDisplayName} updated successfully`, {
+						description: previousValue
+							? `Changed from "${previousValue}" to "${status}"`
+							: `Set to "${status}"`
+					});
 				})
 				.catch((error) => {
 					// Error - revert optimistic value and show error toast
-					setOptimisticValue(null);
+					if ($task.current?.id) {
+						clearOptimisticValue({ taskId: $task.current.id, field });
+					}
 					toast.error(`Failed to update task ${field}`, {
 						description: (error as any)?.message || 'Please try again'
 					});
@@ -130,8 +156,11 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}, $task);
 	}
 
+	// Get optimistic value from global store for synchronization
+	const optimisticValue = task?.id ? getOptimisticValue(task.id, field) : undefined;
+
 	// Use optimistic value if available, otherwise use actual task value
-	const currentValue = optimisticValue !== null ? optimisticValue : task ? (task as any)[field] : undefined;
+	const currentValue = optimisticValue !== undefined ? optimisticValue : task ? (task as any)[field] : undefined;
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,

@@ -114,7 +114,6 @@ export class APIService {
 				message: `Request cancelled (${error.message})`
 			});
 		}
-
 		throw ApiErrorService.fromAxiosError(error);
 	}
 
@@ -185,8 +184,9 @@ export class APIService {
 	private handleUnauthorized(error: any) {
 		const paths = location.pathname.split('/').filter(Boolean);
 		const isAuthPath =
-			!paths.includes('join') &&
-			(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'));
+			(!paths.includes('join') &&
+				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))) ||
+			paths[0] === 'auth';
 		if (isAuthPath) {
 			return error?.response;
 		}
@@ -344,6 +344,7 @@ export class APIService {
 			throw this._handleAxiosError(error);
 		}
 	}
+
 	/**
 	 * Sends a GET request.
 	 *

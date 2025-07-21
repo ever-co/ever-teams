@@ -68,6 +68,7 @@ interface DashboardHeaderProps {
 	startDate?: Date;
 	endDate?: Date;
 	onUpdateFilters?: (filters: any) => void;
+	onFiltersApply?: () => void;
 	closeModal?: () => void;
 	openModal?: () => void;
 	isOpen?: boolean;
@@ -84,6 +85,7 @@ export function DashboardHeader({
 	teamName,
 	startDate,
 	endDate,
+	onFiltersApply,
 	closeModal,
 	openModal,
 	isOpen
@@ -122,7 +124,7 @@ export function DashboardHeader({
 						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}
 					<LazyDateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
-					<LazyTeamDashboardFilter isManage={isManage} />
+					<LazyTeamDashboardFilter isManage={isManage} onFiltersApply={onFiltersApply} />
 
 					<ExportMenu
 						pdfDocument={

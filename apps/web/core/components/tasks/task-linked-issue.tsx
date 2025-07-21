@@ -31,7 +31,7 @@ export function TaskLinkedIssue({
 	);
 
 	return (
-		<EverCard shadow="custom" className={clsxm('flex justify-between items-center py-3 px-0 md:px-0', className)}>
+		<EverCard shadow="custom" className={clsxm('flex justify-between items-center px-0 py-3 md:px-0', className)}>
 			<Link href={`/task/${task.id}`}>
 				<TaskNameInfoDisplay
 					task={task}
@@ -64,7 +64,7 @@ export function TaskLinkedIssue({
 						<ActiveTaskStatusDropdown
 							task={task}
 							defaultValue={task.status}
-							taskStatusClassName="min-w-[6rem] 3xl:min-w-[7rem] h-5 3xl:h-6 text-[0.5rem] 3xl:text-xs font-semibold rounded-[0.1875rem]"
+							taskStatusClassName="min-w-[6rem] 3xl:min-w-[7rem] h-5 3xl:h-6 text-[10px] 3xl:text-xs font-semibold rounded-[0.1875rem]"
 							showIcon={false}
 						/>
 					</div>
@@ -93,7 +93,7 @@ function mapToActionType(items: ActionType[] = []) {
 					</button>
 				);
 			},
-			selectedLabel: <span className="flex text-[0.5rem] 3xl:text-xs">{item.name}</span>,
+			selectedLabel: <span className="flex text-[10px] 3xl:text-xs">{item.name}</span>,
 			data: item
 		};
 	});

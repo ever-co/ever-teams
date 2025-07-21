@@ -2,7 +2,7 @@ import { useModal, useTeamTasks } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
-import { VersionForm } from '@/core/components/tasks/version-form';
+import { TaskVersionForm } from '@/core/components/tasks/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -37,9 +37,8 @@ import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { EIssueType } from '@/core/types/generics/enums/task';
-import { TOrganizationProject } from '@/core/types/schemas';
+import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 
@@ -67,7 +66,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const onVersionCreated = useCallback(
-		(version: ITaskVersionCreate) => {
+		(version: TTaskVersion) => {
 			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
@@ -81,7 +80,7 @@ const TaskSecondaryInfo = () => {
 			await updateTask({
 				...childTask,
 				parentId: parentTask.id ? parentTask.id : null,
-				parent: parentTask.id ? parentTask : null
+				parent: parentTask.id ? { ...parentTask, id: parentTask.id } : null
 			} as any);
 		},
 		[task, updateTask]
@@ -229,13 +228,23 @@ const TaskSecondaryInfo = () => {
 			{/* Task project */}
 			{task && (
 				<TaskRow labelTitle={t('pages.taskDetails.PROJECT')} wrapperClassName="text-black">
-					<ProjectDropDown styles={{ listCard: 'rounded-xl' }} task={task} />
+					<ProjectDropDown
+						styles={{
+							listCard: 'rounded-xl',
+							container: 'lg:min-w-[130px] text-black overflow-hidden text-ellipsis'
+						}}
+						task={task}
+					/>
 				</TaskRow>
 			)}
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
 					{formTarget === 'version' && (
-						<VersionForm onVersionCreated={onVersionCreated} onCreated={modal.closeModal} formOnly={true} />
+						<TaskVersionForm
+							onVersionCreated={onVersionCreated}
+							onCreated={modal.closeModal}
+							formOnly={true}
+						/>
 					)}
 					{formTarget === 'status' && <TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />}
 					{formTarget === 'priority' && <TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />}
@@ -403,7 +412,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												height={25}
 											/>
 										)}
-										<span className="overflow-hidden whitespace-nowrap max-w-44 text-ellipsis">
+										<span className="overflow-hidden whitespace-nowrap max-w-20 text-ellipsis">
 											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
 										</span>
 									</div>

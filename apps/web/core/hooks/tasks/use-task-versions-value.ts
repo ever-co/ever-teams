@@ -2,7 +2,7 @@ import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
 import { useTaskVersion } from './use-task-version';
 
 export function useTaskVersionsValue() {
-	const { taskVersion } = useTaskVersion();
+	const { taskVersions } = useTaskVersion();
 
-	return useMapToTaskStatusValues(taskVersion, false);
+	return useMapToTaskStatusValues(taskVersions, false);
 }

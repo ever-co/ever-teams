@@ -6,7 +6,7 @@ import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useCallback } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/core/components';
@@ -88,13 +88,27 @@ function AppUrls() {
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 
-	const { activityReport, handleGroupByChange, updateDateRange, updateFilters, currentFilters, isManage, loading } =
-		useReportActivity({ types: 'APPS-URLS' });
+	const {
+		activityReport,
+		handleGroupByChange,
+		updateDateRange,
+		updateFilters,
+		currentFilters,
+		isManage,
+		loading,
+		fetchActivityReport
+	} = useReportActivity({ types: 'APPS-URLS' });
 
 	const handleGroupTypeChange = (type: GroupByType) => {
 		setGroupByType(type);
 		handleGroupByChange(type);
 	};
+
+	// Handle filter application - triggers data refetch
+	const handleFiltersApply = useCallback(() => {
+		// Refetch activity report data with current filter state
+		fetchActivityReport();
+	}, [fetchActivityReport]);
 
 	const generateMonthData = (date: Date): ProductivityData[] => {
 		const year = date.getFullYear();
@@ -211,23 +225,6 @@ function AppUrls() {
 
 	const pdfCompatibleData = createPDFCompatibleData();
 
-	// Debug what's being passed to PDF export
-	if (process.env.NODE_ENV === 'development') {
-		console.log('📄 PDF Export Data Debug:', {
-			originalActivityReport: activityReport?.length,
-			pdfCompatibleDataLength: pdfCompatibleData?.length,
-			pdfCompatibleDataStructure: pdfCompatibleData?.[0],
-			reportDataType: typeof pdfCompatibleData,
-			reportDataIsArray: Array.isArray(pdfCompatibleData),
-			userInfo: {
-				fullName: user?.fullName,
-				firstName: user?.firstName,
-				lastName: user?.lastName,
-				employeeId: user?.employee?.id
-			}
-		});
-	}
-
 	// Calculate current month and year from filters
 	const startDate = new Date(currentFilters.startDate || new Date());
 	const endDate = new Date(currentFilters.endDate || new Date());
@@ -317,6 +314,7 @@ function AppUrls() {
 								reportData={pdfCompatibleData}
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
+								onFiltersApply={handleFiltersApply}
 								closeModal={closeModal}
 								isOpen={isOpen}
 								openModal={openModal}
