@@ -261,7 +261,7 @@
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
 		"ts-node": "^10.9.2",
-		"turbo": "^2.5.3"
+		"turbo": "^2.5.5"
 	},
 	"overrides": {
 		"prebuild": {
