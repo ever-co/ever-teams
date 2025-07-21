@@ -13,10 +13,11 @@ import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/c
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
-import { ViewOption } from '../../common/view-select';
-import { Breadcrumb } from '../../duplicated-components/breadcrumb';
+import { ViewOption } from '@/core/components/common/view-select';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import dynamic from 'next/dynamic';
 import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
+import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 
 const LazyTimeActivityHeader = dynamic(
 	() => import('./time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
@@ -52,11 +53,30 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage } = useReportActivity({
-		types: 'TEAM-DASHBOARD'
-	});
+	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage, updateFilters } =
+		useReportActivity({
+			types: 'TEAM-DASHBOARD'
+		});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
 	const t = useTranslations();
+
+	// Handle filter application from the filter popover
+	const handleFiltersApply = useCallback(
+		(filters: FilterState) => {
+			// Convert filter state to the format expected by useReportActivity
+			const filterParams = {
+				// Extract IDs from the filter objects
+				teamIds: filters.teams.map((team) => team.id),
+				employeeIds: filters.members.map((member) => member.employee?.id || member.id).filter(Boolean),
+				projectIds: filters.projects.map((project) => project.id),
+				taskIds: filters.tasks.map((task) => task.id)
+			};
+
+			// Update the report activity filters
+			updateFilters(filterParams);
+		},
+		[updateFilters]
+	);
 
 	// Calculate dynamic statistics from real data
 	const {
@@ -151,6 +171,7 @@ const TimeActivityComponents = () => {
 								onUpdateDateRange={updateDateRange}
 								onGroupByChange={handleGroupByChange}
 								groupByType={groupByType}
+								onFiltersApply={handleFiltersApply}
 							/>
 
 							{/* Statistics Cards */}

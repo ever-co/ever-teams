@@ -55,16 +55,16 @@ export function MultiSelect<T>({
 	const triggerRef = useRef<HTMLButtonElement>(null);
 
 	// Synchronize the selection with the parent
-	const updateSelectedItems = (newItems: T[]) => {
+	const updateSelectedItems = useCallback((newItems: T[]) => {
 		if (!isControlled) {
 			setInternalSelectedItems(newItems);
 		}
 		if (onValueChange) {
 			onValueChange(multiSelect ? newItems : newItems[0] || null);
 		}
-	};
+	}, [isControlled, onValueChange, multiSelect]);
 
-	const onClick = (item: T) => {
+	const onClick = useCallback((item: T) => {
 		let newSelectedItems: T[];
 		if (multiSelect) {
 			if (selectedItems.some((selectedItem) => itemId(selectedItem) === itemId(item))) {
@@ -77,12 +77,12 @@ export function MultiSelect<T>({
 			setPopoverOpen(false);
 		}
 		updateSelectedItems(newSelectedItems);
-	};
+	}, [updateSelectedItems, selectedItems, itemId, multiSelect]);
 
-	const removeItem = (item: T) => {
+	const removeItem = useCallback((item: T) => {
 		const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
 		updateSelectedItems(newSelectedItems);
-	};
+	}, [updateSelectedItems, selectedItems, itemId]);
 
 	useEffect(() => {
 		if (triggerRef.current) {
