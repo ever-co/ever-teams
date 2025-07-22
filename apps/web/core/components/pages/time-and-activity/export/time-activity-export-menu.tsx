@@ -4,6 +4,7 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronDown } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import { startOfMonth, endOfMonth } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { useTimeActivityExport } from '@/core/hooks/activities/use-time-activity-export';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
@@ -52,9 +53,21 @@ export function TimeActivityExportMenu({
 	// Check if we have data to export
 	const hasData = exportableData && exportableData.length > 0;
 
+	// Get default date range (This Month - same as the page default)
+	const getDefaultDateRange = useCallback(() => {
+		const today = new Date();
+		return {
+			from: startOfMonth(today),
+			to: endOfMonth(today)
+		};
+	}, []);
+
+	// Use provided dates or default to "This Month"
+	const effectiveStartDate = startDate || getDefaultDateRange().from;
+	const effectiveEndDate = endDate || getDefaultDateRange().to;
+
 	// Format dates for display
-	const formatDate = useCallback((date: Date | undefined): string => {
-		if (!date) return '';
+	const formatDate = useCallback((date: Date): string => {
 		return date.toLocaleDateString('en-US', {
 			day: '2-digit',
 			month: 'long',
@@ -62,8 +75,8 @@ export function TimeActivityExportMenu({
 		});
 	}, []);
 
-	const formattedStartDate = formatDate(startDate);
-	const formattedEndDate = formatDate(endDate);
+	const formattedStartDate = formatDate(effectiveStartDate);
+	const formattedEndDate = formatDate(effectiveEndDate);
 
 	// Prepare export options
 	const exportOptions = useMemo(
@@ -71,8 +84,8 @@ export function TimeActivityExportMenu({
 			format: 'csv' as const,
 			includeFilters: true,
 			dateRange: {
-				startDate: startDate || new Date(),
-				endDate: endDate || new Date()
+				startDate: effectiveStartDate,
+				endDate: effectiveEndDate
 			},
 			appliedFilters: currentFilters || { teams: [], members: [], projects: [], tasks: [] }
 		}),
@@ -216,24 +229,75 @@ export function TimeActivityExportMenu({
 				});
 			}
 		});
-		return rows;
+
+		// Calculate totals from transformed data
+		const totalSeconds = rows.reduce((acc, row) => {
+			const hoursMatch = row.trackedHours?.match(/(\d+)h\s*(\d+)m/);
+			if (hoursMatch) {
+				const hours = parseInt(hoursMatch[1]) || 0;
+				const minutes = parseInt(hoursMatch[2]) || 0;
+				return acc + hours * 3600 + minutes * 60;
+			}
+			return acc;
+		}, 0);
+
+		const totalHours = Math.floor(totalSeconds / 3600);
+		const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+		const formattedTotalHours = `${totalHours}h ${totalMinutes}m`;
+
+		const totalEarnings = rows.reduce((acc, row) => {
+			const earningsMatch = row.earnings?.match(/\$(\d+\.?\d*)/);
+			return acc + (earningsMatch ? parseFloat(earningsMatch[1]) : 0);
+		}, 0);
+
+		const avgActivity =
+			rows.length > 0
+				? Math.round(
+						rows.reduce((acc, row) => {
+							const activityMatch = row.activityLevel?.match(/(\d+)%/);
+							return acc + (activityMatch ? parseInt(activityMatch[1]) : 0);
+						}, 0) / rows.length
+					)
+				: 0;
+
+		return {
+			rows,
+			totals: {
+				totalHours: formattedTotalHours,
+				totalEarnings: `$${totalEarnings.toFixed(2)}`,
+				avgActivity: `${avgActivity}%`
+			}
+		};
 	}, [exportableData]);
+
+	// Updated PDF Document Props with real totals
+	const updatedPDFDocumentProps = useMemo(
+		() => ({
+			...PDFDocumentProps,
+			summary: exportSummary.hasData
+				? {
+						totalHours: transformedDataForPDF.totals?.totalHours || '0h 0m',
+						averageActivity: transformedDataForPDF.totals?.avgActivity || '0%',
+						totalEarnings: transformedDataForPDF.totals?.totalEarnings || '$0.00',
+						totalRecords: transformedDataForPDF.rows?.length || 0
+					}
+				: undefined
+		}),
+		[PDFDocumentProps, transformedDataForPDF, exportSummary.hasData]
+	);
 
 	// PDF Document (like weekly-limit approach)
 	const pdfDocument = useMemo(() => {
 		return groupByType === 'member' ? (
-			<TimeActivityByMemberPDF data={transformedDataForPDF} {...PDFDocumentProps} />
+			<TimeActivityByMemberPDF data={transformedDataForPDF.rows} {...updatedPDFDocumentProps} />
 		) : (
-			<TimeActivityPDF data={transformedDataForPDF} {...PDFDocumentProps} />
+			<TimeActivityPDF data={transformedDataForPDF.rows} {...updatedPDFDocumentProps} />
 		);
-	}, [transformedDataForPDF, PDFDocumentProps, groupByType, exportableData]);
+	}, [transformedDataForPDF, updatedPDFDocumentProps, groupByType]);
 
 	// Generate filename for PDF
 	const pdfFileName = useMemo(() => {
-		const dateStr =
-			startDate && endDate
-				? `${startDate.toISOString().split('T')[0]}-${endDate.toISOString().split('T')[0]}`
-				: new Date().toISOString().split('T')[0];
+		const dateStr = `${effectiveStartDate.toISOString().split('T')[0]}-${effectiveEndDate.toISOString().split('T')[0]}`;
 		return `time-activity-report-${dateStr}.pdf`;
 	}, [startDate, endDate]);
 

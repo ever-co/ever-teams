@@ -249,12 +249,23 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 				})
 			},
 			{
-				label: 'All Times',
+				label: 'Last Year', // Renamed from 'All Times' to be more accurate
 				...createRange(() => {
 					const lastYear = subYears(new Date(), 1);
 					return {
 						from: startOfYear(lastYear),
 						to: endOfYear(lastYear)
+					};
+				})
+			},
+			{
+				label: 'All Times',
+				...createRange(() => {
+					// For "All Times", use a much wider range (5 years ago to today)
+					const fiveYearsAgo = subYears(new Date(), 5);
+					return {
+						from: startOfYear(fiveYearsAgo),
+						to: new Date() // Today
 					};
 				})
 			}
