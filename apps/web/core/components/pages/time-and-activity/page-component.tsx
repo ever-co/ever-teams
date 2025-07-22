@@ -53,11 +53,19 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage, updateFilters } =
-		useReportActivity({
-			types: 'TEAM-DASHBOARD'
-		});
+	const {
+		rapportDailyActivity,
+		updateDateRange,
+		loading,
+		statisticsCounts,
+		isManage,
+		updateFilters,
+		currentFilters
+	} = useReportActivity({
+		types: 'TEAM-DASHBOARD'
+	});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
+	const [dateRange, setDateRange] = useState<{ startDate?: Date; endDate?: Date }>({});
 	const t = useTranslations();
 
 	// Handle filter application from the filter popover
@@ -94,6 +102,15 @@ const TimeActivityComponents = () => {
 	const handleGroupByChange = useCallback((type: GroupByType) => {
 		setGroupByType(type);
 	}, []);
+
+	// Handle date range updates
+	const handleUpdateDateRange = useCallback(
+		(startDate: Date, endDate: Date) => {
+			setDateRange({ startDate, endDate });
+			updateDateRange(startDate, endDate);
+		},
+		[updateDateRange]
+	);
 
 	// Memoize column visibility checks
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
@@ -168,10 +185,16 @@ const TimeActivityComponents = () => {
 								projects={organizationProjects}
 								tasks={tasks}
 								activeTeam={activeTeam}
-								onUpdateDateRange={updateDateRange}
+								onUpdateDateRange={handleUpdateDateRange}
 								onGroupByChange={handleGroupByChange}
 								groupByType={groupByType}
 								onFiltersApply={handleFiltersApply}
+								// Export-related props
+								rapportDailyActivity={rapportDailyActivity}
+								isManage={isManage || false}
+								currentFilters={currentFilters as FilterState}
+								startDate={dateRange.startDate}
+								endDate={dateRange.endDate}
 							/>
 
 							{/* Statistics Cards */}
