@@ -18,6 +18,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
+import { generateExportFilename } from '@/core/lib/utils/export-utils';
 
 export interface TimeActivityExportMenuProps {
 	rapportDailyActivity?: any[];
@@ -29,6 +30,36 @@ export interface TimeActivityExportMenuProps {
 	buttonClassName?: string;
 }
 
+interface ExportRow {
+	date: string;
+	member: string;
+	project: string;
+	task: string;
+	trackedHours: string;
+	earnings: string;
+	activityLevel: string;
+}
+
+interface ProjectLog {
+	project?: { name: string };
+	employeeLogs?: EmployeeLog[];
+}
+
+interface EmployeeLog {
+	employee?: {
+		fullName?: string;
+		user?: { name: string };
+		billRateValue?: number;
+	};
+	tasks?: TaskLog[];
+	sum?: number;
+	activity?: number;
+}
+
+interface TaskLog {
+	task?: { title: string };
+	duration?: number;
+}
 export function TimeActivityExportMenu({
 	rapportDailyActivity = [],
 	isManage = false,
@@ -89,7 +120,7 @@ export function TimeActivityExportMenu({
 			},
 			appliedFilters: currentFilters || { teams: [], members: [], projects: [], tasks: [] }
 		}),
-		[startDate, endDate, currentFilters]
+		[effectiveStartDate, effectiveEndDate, currentFilters]
 	);
 
 	// Handle CSV export
@@ -157,23 +188,23 @@ export function TimeActivityExportMenu({
 
 	// Transform data for PDF (use the same logic that works in the hook)
 	const transformedDataForPDF = useMemo(() => {
-		const rows: any[] = [];
+		const rows: ExportRow[] = [];
 
 		exportableData.forEach((dayData) => {
 			const date = dayData.date || '';
 
 			// Handle the logs structure (which is what we actually have)
 			if (dayData.logs) {
-				dayData.logs?.forEach((projectLog: any) => {
+				dayData.logs?.forEach((projectLog: ProjectLog) => {
 					const projectName = projectLog.project?.name || 'No Project';
 
-					projectLog.employeeLogs?.forEach((employeeLog: any) => {
+					projectLog.employeeLogs?.forEach((employeeLog: EmployeeLog) => {
 						const memberName =
 							employeeLog.employee?.fullName || employeeLog.employee?.user?.name || 'Unknown Member';
 
 						// If there are tasks, process them
 						if (employeeLog.tasks && employeeLog.tasks.length > 0) {
-							employeeLog.tasks.forEach((taskLog: any) => {
+							employeeLog.tasks.forEach((taskLog: TaskLog) => {
 								const taskTitle = taskLog.task?.title || 'No Task';
 								const duration = taskLog.duration || 0;
 								const hours = Math.floor(duration / 3600);
@@ -295,9 +326,8 @@ export function TimeActivityExportMenu({
 
 	// Generate filename for PDF
 	const pdfFileName = useMemo(() => {
-		const dateStr = `${effectiveStartDate.toISOString().split('T')[0]}-${effectiveEndDate.toISOString().split('T')[0]}`;
-		return `time-activity-report-${dateStr}.pdf`;
-	}, [startDate, endDate]);
+		return generateExportFilename('time-activity-report', 'pdf', effectiveStartDate, effectiveEndDate);
+	}, [effectiveStartDate, effectiveEndDate]);
 
 	return (
 		<>

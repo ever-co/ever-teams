@@ -65,7 +65,16 @@ const TimeActivityComponents = () => {
 		types: 'TEAM-DASHBOARD'
 	});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
-	const [dateRange, setDateRange] = useState<{ startDate?: Date; endDate?: Date }>({});
+	const [dateRange, setDateRange] = useState<{ startDate?: Date; endDate?: Date }>(() => {
+		// Initialize with current filter dates if available
+		if (currentFilters?.startDate && currentFilters?.endDate) {
+			return {
+				startDate: new Date(currentFilters.startDate),
+				endDate: new Date(currentFilters.endDate)
+			};
+		}
+		return {};
+	});
 	const t = useTranslations();
 
 	// Handle filter application from the filter popover

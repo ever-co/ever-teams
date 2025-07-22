@@ -26,7 +26,7 @@ export function useExportProgress(): ExportProgressHook {
 		success: false
 	});
 
-	const startExport = useCallback((totalSteps: number) => {
+	const startExport = useCallback(() => {
 		setExportProgress({
 			isExporting: true,
 			progress: 0,

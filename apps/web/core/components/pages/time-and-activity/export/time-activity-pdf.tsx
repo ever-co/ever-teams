@@ -108,7 +108,15 @@ const styles = StyleSheet.create({
 });
 
 export interface TimeActivityPDFProps {
-	data: any[];
+	data: Array<{
+		date: string;
+		member: string;
+		project: string;
+		task: string;
+		trackedHours: string;
+		earnings: string;
+		activityLevel: string;
+	}>;
 	title: string;
 	startDate: string;
 	endDate: string;
@@ -134,6 +142,12 @@ export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilter
 		return data || [];
 	}, [data]);
 
+	const today = new Date().toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	});
+
 	return (
 		<Document>
 			<Page size="A4" style={styles.page}>
@@ -143,7 +157,7 @@ export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilter
 					<Text style={styles.subtitle}>
 						Report Period: {startDate} - {endDate}
 					</Text>
-					<Text style={styles.subtitle}>Generated on: {new Date().toLocaleDateString()}</Text>
+					<Text style={styles.subtitle}>Generated on: {today}</Text>
 				</View>
 
 				{/* Applied Filters */}
@@ -201,7 +215,7 @@ export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilter
 					</View>
 
 					{/* Table Rows */}
-					{transformedData.slice(0, 50).map((row, index) => (
+					{transformedData.map((row, index) => (
 						<View key={index} style={styles.tableRow}>
 							<Text style={styles.tableCell}>{row.date}</Text>
 							<Text style={styles.tableCell}>{row.member}</Text>
@@ -215,7 +229,7 @@ export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilter
 				</View>
 
 				{/* Footer */}
-				<Text style={styles.footer}>Ever Teams - Time & Activity Report | Page 1 of 1</Text>
+				<Text style={styles.footer}>Ever Teams - Time & Activity Report</Text>
 			</Page>
 		</Document>
 	);

@@ -8,23 +8,23 @@ export interface ExportConfig {
 	maxRecordsPerBatch: number;
 	batchProcessingDelay: number;
 	maxConcurrentExports: number;
-	
+
 	// Memory management
 	maxMemoryUsageMB: number;
 	enableStreaming: boolean;
-	
+
 	// File size limits
 	maxFileSizeMB: number;
 	compressionEnabled: boolean;
-	
+
 	// Progress tracking
 	progressUpdateInterval: number;
 	enableProgressTracking: boolean;
-	
+
 	// Error handling
 	maxRetryAttempts: number;
 	retryDelay: number;
-	
+
 	// Format-specific settings
 	csv: {
 		delimiter: string;
@@ -32,14 +32,14 @@ export interface ExportConfig {
 		includeHeaders: boolean;
 		escapeQuotes: boolean;
 	};
-	
+
 	xlsx: {
 		compression: boolean;
 		sheetName: string;
 		maxRowsPerSheet: number;
 		includeCharts: boolean;
 	};
-	
+
 	pdf: {
 		pageSize: 'A4' | 'Letter' | 'Legal';
 		orientation: 'portrait' | 'landscape';
@@ -54,23 +54,23 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
 	maxRecordsPerBatch: 1000,
 	batchProcessingDelay: 10, // ms
 	maxConcurrentExports: 3,
-	
+
 	// Memory management
 	maxMemoryUsageMB: 100,
 	enableStreaming: true,
-	
+
 	// File size limits
 	maxFileSizeMB: 50,
 	compressionEnabled: true,
-	
+
 	// Progress tracking
 	progressUpdateInterval: 100, // ms
 	enableProgressTracking: true,
-	
+
 	// Error handling
 	maxRetryAttempts: 3,
 	retryDelay: 1000, // ms
-	
+
 	// Format-specific settings
 	csv: {
 		delimiter: ',',
@@ -78,14 +78,14 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
 		includeHeaders: true,
 		escapeQuotes: true
 	},
-	
+
 	xlsx: {
 		compression: true,
 		sheetName: 'Time & Activity',
 		maxRowsPerSheet: 100000,
 		includeCharts: false
 	},
-	
+
 	pdf: {
 		pageSize: 'A4',
 		orientation: 'landscape',
@@ -102,14 +102,14 @@ export const EXPORT_CONFIGS = {
 		enableStreaming: false,
 		progressUpdateInterval: 50
 	},
-	
+
 	medium: {
 		...DEFAULT_EXPORT_CONFIG,
 		maxRecordsPerBatch: 1000,
 		enableStreaming: true,
 		progressUpdateInterval: 100
 	},
-	
+
 	large: {
 		...DEFAULT_EXPORT_CONFIG,
 		maxRecordsPerBatch: 2000,
@@ -117,7 +117,7 @@ export const EXPORT_CONFIGS = {
 		progressUpdateInterval: 200,
 		batchProcessingDelay: 20
 	},
-	
+
 	enterprise: {
 		...DEFAULT_EXPORT_CONFIG,
 		maxRecordsPerBatch: 5000,
@@ -158,7 +158,7 @@ export function validateExportFeasibility(
 	config: ExportConfig = DEFAULT_EXPORT_CONFIG
 ): { feasible: boolean; reason?: string; suggestedConfig?: ExportConfig } {
 	const estimatedMemory = estimateMemoryUsage(recordCount);
-	
+
 	if (estimatedMemory > config.maxMemoryUsageMB) {
 		const suggestedConfig = getOptimalExportConfig(recordCount);
 		return {
@@ -167,7 +167,7 @@ export function validateExportFeasibility(
 			suggestedConfig
 		};
 	}
-	
+
 	const estimatedFileSizeMB = estimatedMemory * 0.8; // Rough estimate
 	if (estimatedFileSizeMB > config.maxFileSizeMB) {
 		return {
@@ -175,7 +175,7 @@ export function validateExportFeasibility(
 			reason: `Estimated file size (${estimatedFileSizeMB.toFixed(1)}MB) exceeds limit (${config.maxFileSizeMB}MB)`
 		};
 	}
-	
+
 	return { feasible: true };
 }
 
@@ -185,23 +185,23 @@ export function validateExportFeasibility(
 export class ExportPerformanceMonitor {
 	private startTime: number = 0;
 	private checkpoints: { [key: string]: number } = {};
-	
+
 	start(): void {
 		this.startTime = performance.now();
 		this.checkpoints = {};
 	}
-	
+
 	checkpoint(name: string): void {
 		this.checkpoints[name] = performance.now() - this.startTime;
 	}
-	
+
 	getMetrics(): { totalTime: number; checkpoints: { [key: string]: number } } {
 		return {
 			totalTime: performance.now() - this.startTime,
 			checkpoints: { ...this.checkpoints }
 		};
 	}
-	
+
 	logMetrics(): void {
 		const metrics = this.getMetrics();
 		console.log('Export Performance Metrics:', {
@@ -240,19 +240,19 @@ export async function processBatches<T, R>(
 ): Promise<R[]> {
 	const results: R[] = [];
 	const total = items.length;
-	
+
 	for (let i = 0; i < total; i += batchSize) {
 		const batch = items.slice(i, i + batchSize);
 		const batchResults = await processor(batch);
 		results.push(...batchResults);
-		
+
 		onProgress?.(Math.min(i + batchSize, total), total);
-		
+
 		// Add delay to prevent blocking the main thread
 		if (delay > 0 && i + batchSize < total) {
-			await new Promise(resolve => setTimeout(resolve, delay));
+			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}
-	
+
 	return results;
 }

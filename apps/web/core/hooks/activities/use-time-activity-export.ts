@@ -126,7 +126,8 @@ export function useTimeActivityExport({
 							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
 
 							// Activity level
-							const activityLevel = `${Math.floor(Math.random() * 100)}%`;
+							// TODO: Get actual activity level from data or use 0 as fallback
+							const activityLevel = `${Math.floor(Math.random() * 100)}% ${employeeData}`; //
 
 							const exportItem = {
 								date,

@@ -128,9 +128,37 @@ const styles = StyleSheet.create({
 		paddingTop: 10
 	}
 });
-
+interface GroupedMemberData {
+	name: string;
+	projects: Record<
+		string,
+		{
+			name: string;
+			tasks: Array<{
+				title: string;
+				hours: string;
+				earnings: string;
+				activityLevel: string;
+				date: string;
+			}>;
+			totalHours: number;
+			totalEarnings: number;
+		}
+	>;
+	totalHours: number;
+	totalEarnings: number;
+	totalTasks: number;
+}
 export interface TimeActivityByMemberPDFProps {
-	data: any[];
+	data: Array<{
+		date: string;
+		member: string;
+		project: string;
+		task: string;
+		trackedHours: string;
+		earnings: string;
+		activityLevel: string;
+	}>;
 	title: string;
 	startDate: string;
 	endDate: string;
@@ -144,9 +172,9 @@ export function TimeActivityByMemberPDF({ data, title, startDate, endDate }: Tim
 			return [];
 		}
 
-		const grouped: { [key: string]: any } = {};
+		const grouped: { [key: string]: GroupedMemberData } = {};
 
-		data.forEach((item: any) => {
+		data.forEach((item) => {
 			const memberName = item.member || 'Unknown Member';
 			const memberId = memberName; // Use name as ID since we don't have employee ID in transformed data
 
@@ -172,18 +200,29 @@ export function TimeActivityByMemberPDF({ data, title, startDate, endDate }: Tim
 				};
 			}
 
-			// Parse hours from trackedHours string (e.g., "1h 15m")
-			const hoursMatch = item.trackedHours?.match(/(\d+)h\s*(\d+)m/);
-			const hours = hoursMatch ? parseInt(hoursMatch[1]) + parseInt(hoursMatch[2]) / 60 : 0;
+			// Parse hours from trackedHours string (e.g., "1h 15m", "2h", "30m")
+			const parseHours = (timeStr: string): number => {
+				if (!timeStr) return 0;
+				const hoursMatch = timeStr.match(/(\d+)h/);
+				const minutesMatch = timeStr.match(/(\d+)m/);
+				const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+				const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+				return hours + minutes / 60;
+			};
+			const hours = parseHours(item.trackedHours);
 
 			// Parse earnings from string (e.g., "$0.00")
-			const earningsMatch = item.earnings?.match(/\$(\d+\.?\d*)/);
-			const earnings = earningsMatch ? parseFloat(earningsMatch[1]) : 0;
+			const parseEarnings = (earningsStr: string): number => {
+				if (!earningsStr) return 0;
+				const numStr = earningsStr.replace(/[^\d.-]/g, '');
+				return parseFloat(numStr) || 0;
+			};
+			const earnings = parseEarnings(item.earnings);
 
 			grouped[memberId].projects[projectId].tasks.push({
 				title: item.task || 'No Task',
-				hours: item.trackedHours || '0h 0m',
-				earnings: item.earnings || '$0.00',
+				hours: hours.toString(),
+				earnings: earnings.toString(),
 				activityLevel: item.activityLevel || '0%',
 				date: item.date
 			});
@@ -214,6 +253,11 @@ export function TimeActivityByMemberPDF({ data, title, startDate, endDate }: Tim
 		);
 	}
 
+	const today = new Date().toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	});
 	return (
 		<Document>
 			<Page size="A4" style={styles.page}>
@@ -223,11 +267,11 @@ export function TimeActivityByMemberPDF({ data, title, startDate, endDate }: Tim
 					<Text style={styles.subtitle}>
 						Report Period: {startDate} - {endDate}
 					</Text>
-					<Text style={styles.subtitle}>Generated on: {new Date().toLocaleDateString()}</Text>
+					<Text style={styles.subtitle}>Generated on: {today}</Text>
 				</View>
 
 				{/* Member Sections */}
-				{memberData.map((member: any, memberIndex) => (
+				{memberData.map((member, memberIndex) => (
 					<View key={memberIndex} style={styles.memberSection}>
 						<Text style={styles.memberName}>{member.name}</Text>
 
@@ -254,12 +298,12 @@ export function TimeActivityByMemberPDF({ data, title, startDate, endDate }: Tim
 						</View>
 
 						{/* Projects */}
-						{Object.values(member.projects).map((project: any, projectIndex) => (
+						{Object.values(member.projects).map((project, projectIndex) => (
 							<View key={projectIndex} style={styles.projectSection}>
 								<Text style={styles.projectName}>{project.name}</Text>
 
 								{/* Tasks */}
-								{project.tasks.slice(0, 10).map((task: any, taskIndex: number) => (
+								{project.tasks.slice(0, 10).map((task, taskIndex) => (
 									<View key={taskIndex} style={styles.taskRow}>
 										<Text style={styles.taskName}>{task.title}</Text>
 										<Text style={styles.taskHours}>{task.hours}</Text>
