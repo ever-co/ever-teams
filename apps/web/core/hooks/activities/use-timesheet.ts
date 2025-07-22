@@ -435,12 +435,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			filtersChanged;
 
 		if (paramsChanged) {
-			console.log('🔄 Timesheet params updated:', {
-				dateChanged: !timesheetParams || timesheetParams.startDate !== from || timesheetParams.endDate !== to,
-				filtersChanged,
-				newParams
-			});
-
 			setTimesheetParams(newParams);
 			prevFilterIdsRef.current = memoizedFilterIds;
 		}

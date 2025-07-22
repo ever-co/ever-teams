@@ -96,7 +96,6 @@ export function TimeActivityExportMenu({
 	const handleCSVExport = useCallback(async () => {
 		if (!hasData) {
 			console.warn('No data available for export');
-			// TODO: Show toast notification
 			return;
 		}
 		setCurrentExportType('csv');
@@ -108,7 +107,6 @@ export function TimeActivityExportMenu({
 	const handleXLSXExport = useCallback(async () => {
 		if (!hasData) {
 			console.warn('No data available for export');
-			// TODO: Show toast notification
 			return;
 		}
 		setCurrentExportType('xlsx');
@@ -332,12 +330,12 @@ export function TimeActivityExportMenu({
 					</DropdownMenuItem>
 
 					{/* CSV Export */}
-					<DropdownMenuItem onClick={handleCSVExport} className="cursor-pointer">
+					<DropdownMenuItem disabled onClick={handleCSVExport} className="cursor-pointer">
 						CSV
 					</DropdownMenuItem>
 
 					{/* XLSX Export */}
-					<DropdownMenuItem onClick={handleXLSXExport} className="cursor-pointer">
+					<DropdownMenuItem disabled onClick={handleXLSXExport} className="cursor-pointer">
 						XLSX
 					</DropdownMenuItem>
 				</DropdownMenuContent>

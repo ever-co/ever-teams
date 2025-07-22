@@ -129,12 +129,6 @@ export interface TimeActivityPDFProps {
 export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilters, summary }: TimeActivityPDFProps) {
 	// Data is already transformed, just use it directly
 	const transformedData = React.useMemo(() => {
-		console.log('🔍 PDF Component - Receiving transformed data:', {
-			dataLength: data?.length || 0,
-			sampleData: data?.[0],
-			isTransformed: data?.[0]?.member ? true : false
-		});
-
 		// Data should already be transformed to the format:
 		// [{ date, member, project, task, trackedHours, earnings, activityLevel }]
 		return data || [];
