@@ -249,6 +249,16 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 				})
 			},
 			{
+				label: 'This Year',
+				...createRange(() => {
+					const thisYear = new Date();
+					return {
+						from: startOfYear(thisYear),
+						to: endOfYear(thisYear)
+					};
+				})
+			},
+			{
 				label: 'Last Year', // Renamed from 'All Times' to be more accurate
 				...createRange(() => {
 					const lastYear = subYears(new Date(), 1);

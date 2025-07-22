@@ -95,7 +95,7 @@ export function useTimeActivityStats({
 				totalHours: '0h',
 				averageActivity: '0%',
 				totalEarnings: '0.00 USD',
-				isLoading: true
+				isLoading: loading
 			};
 		}
 
@@ -103,7 +103,7 @@ export function useTimeActivityStats({
 			totalHours,
 			averageActivity,
 			totalEarnings,
-			isLoading: false
+			isLoading: loading
 		};
 	}, [loading, statisticsCounts, totalHours, averageActivity, totalEarnings]);
 
