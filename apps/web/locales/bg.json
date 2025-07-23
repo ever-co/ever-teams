@@ -1044,6 +1044,7 @@
 		"TASK_INPUT_PLACEHOLDER": "По какво работите?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Име на члена на отбора",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Имейл адрес на члена на отбора",
+		"TEAM_MEMBER_ROLE": "Роля на члена на отбора",
 		"COMPLETION_DESCRIPTION": "Напишете описание",
 		"UPLOAD_FILES": "Качване на файлове",
 		"ATTACHMENT_FILE": "Прикачени файлове",
@@ -1071,7 +1072,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Грешка при потвърждаване на кода.",
 		"LENGTH_NUMBER_ERROR": "Дължината трябва да е число и по-голяма от 0",
 		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
-		"VALID_EMAIL": "Моля, въведете валиден имейл"
+		"VALID_EMAIL": "Моля, въведете валиден имейл",
+		"SELECT_ROLE": "Моля, изберете роля"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"

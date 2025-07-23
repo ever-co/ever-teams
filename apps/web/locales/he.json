@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "על מה אתה עובד?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "שם חבר צוות",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "כתובת אימייל של חבר צוות",
+		"TEAM_MEMBER_ROLE": "תפקיד חבר צוות",
 		"COMPLETION_DESCRIPTION": "כתוב תיאור",
 		"UPLOAD_FILES": "העלה קבצים",
 		"ATTACHMENT_FILE": "קבצים מצורפים",
@@ -1070,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "שגיאה באימות קוד.",
 		"LENGTH_NUMBER_ERROR": "אורך צריך להיות מספר וגדול מ-0",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
-		"VALID_EMAIL": "אנא הכנס אימייל חוקי"
+		"VALID_EMAIL": "אנא הכנס אימייל חוקי",
+		"SELECT_ROLE": "אנא בחר תפקיד"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת"

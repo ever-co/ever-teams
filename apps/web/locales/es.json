@@ -1044,6 +1044,7 @@
 		"TASK_INPUT_PLACEHOLDER": "¿En qué estás trabajando?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nombre del miembro del equipo",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Dirección de correo electrónico del miembro del equipo",
+		"TEAM_MEMBER_ROLE": "Rol del miembro del equipo",
 		"COMPLETION_DESCRIPTION": "Escribe la descripción",
 		"UPLOAD_FILES": "Subir archivos",
 		"ATTACHMENT_FILE": "Archivos adjuntos",
@@ -1071,7 +1072,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Error al verificar el código.",
 		"LENGTH_NUMBER_ERROR": "La longitud debe ser un número y mayor que 0",
 		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico",
-		"VALID_EMAIL": "Por favor ingrese un correo electrónico válido"
+		"VALID_EMAIL": "Por favor ingrese un correo electrónico válido",
+		"SELECT_ROLE": "Por favor seleccione un rol"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Presione Enter para validar"

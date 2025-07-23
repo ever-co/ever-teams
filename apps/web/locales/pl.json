@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "Nad czym pracujesz?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Imię członka zespołu",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Adres e-mail członka zespołu",
+		"TEAM_MEMBER_ROLE": "Rola członka zespołu",
 		"COMPLETION_DESCRIPTION": "Napisz opis",
 		"UPLOAD_FILES": "Prześlij pliki",
 		"ATTACHMENT_FILE": "Załączniki",
@@ -1070,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Błąd podczas weryfikacji kodu.",
 		"LENGTH_NUMBER_ERROR": "Długość powinna być liczbą większą niż 0",
 		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
-		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail"
+		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail",
+		"SELECT_ROLE": "Proszę wybrać rolę"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Naciśnij Enter, aby potwierdzić"

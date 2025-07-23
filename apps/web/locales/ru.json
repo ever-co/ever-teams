@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "Над чем вы работаете?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Имя участника команды",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Адрес электронной почты участника команды",
+		"TEAM_MEMBER_ROLE": "Роль участника команды",
 		"COMPLETION_DESCRIPTION": "Напишите описание",
 		"UPLOAD_FILES": "Загрузить файлы",
 		"ATTACHMENT_FILE": "Прикрепленные файлы",
@@ -1070,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Ошибка при проверке кода.",
 		"LENGTH_NUMBER_ERROR": "Длина должна быть числом и больше 0",
 		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы",
-		"VALID_EMAIL": "Пожалуйста, введите действительный адрес электронной почты"
+		"VALID_EMAIL": "Пожалуйста, введите действительный адрес электронной почты",
+		"SELECT_ROLE": "Пожалуйста, выберите роль"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения"

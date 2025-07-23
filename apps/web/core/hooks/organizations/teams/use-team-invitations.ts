@@ -95,7 +95,8 @@ export function useTeamInvitations() {
 					email: params.email,
 					name: params.name,
 					organizationId: params.organizationId,
-					teamId: params.teamId
+					teamId: params.teamId,
+					roleId: params.roleId
 				},
 				params.tenantId
 			);
@@ -218,7 +219,7 @@ export function useTeamInvitations() {
 	// ===== INTERFACE FUNCTIONS =====
 
 	const inviteUser = useCallback(
-		(email: string, name: string) => {
+		(email: string, name: string, roleId: string) => {
 			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
@@ -228,7 +229,8 @@ export function useTeamInvitations() {
 				name,
 				organizationId: user.employee.organizationId,
 				teamId: activeTeamId,
-				tenantId: user.tenantId
+				tenantId: user.tenantId,
+				roleId
 			});
 		},
 		[inviteUserMutation, user, activeTeamId]

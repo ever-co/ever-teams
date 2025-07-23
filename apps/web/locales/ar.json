@@ -1052,6 +1052,7 @@
 		"TASK_INPUT_PLACEHOLDER": "على ماذا تعمل؟",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "اسم عضو الفريق",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "عنوان بريد عضو الفريق الإلكتروني",
+		"TEAM_MEMBER_ROLE": "دور عضو الفريق",
 		"COMPLETION_DESCRIPTION": "اكتب الوصف",
 		"UPLOAD_FILES": "تحميل الملفات",
 		"ATTACHMENT_FILE": "ملفات مرفقة",
@@ -1079,7 +1080,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "حدث خطأ أثناء التحقق من الرمز.",
 		"LENGTH_NUMBER_ERROR": "يجب أن يكون الطول رقمًا وأكبر من 0",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي ",
-		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح"
+		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح",
+		"SELECT_ROLE": "يرجى اختيار دور"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"

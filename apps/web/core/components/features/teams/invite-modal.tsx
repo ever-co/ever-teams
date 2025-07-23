@@ -2,17 +2,22 @@ import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-in
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { AxiosError } from 'axios';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import Input from '../../duplicated-components/input';
 import { TInvite } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { useAtomValue } from 'jotai';
+import { rolesState, userState } from '@/core/stores';
 
-const initialValues: Pick<TInvite, 'email' | 'fullName'> = {
+const initialValues: Pick<TInvite, 'email' | 'fullName' | 'roleId'> = {
 	email: '',
-	fullName: ''
+	fullName: '',
+	roleId: ''
 };
 
 export interface IInviteProps {
@@ -22,9 +27,21 @@ export interface IInviteProps {
 	task: TTask | null;
 }
 const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
-	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName'>>(initialValues);
+	const user = useAtomValue(userState);
+	const roles = useAtomValue(rolesState);
+	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
+	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName' | 'roleId'>>({
+		...initialValues,
+		roleId: defaultSelectedRole?.id
+	});
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
+
+	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
+	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
+	const email = formData.email?.trim();
+	const fullName = formData.fullName?.trim();
+	const roleId = formData.roleId;
 
 	const [errors, setErrors] = useState({});
 	const t = useTranslations();
@@ -59,29 +76,32 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 			return;
 		}
 
-		inviteUser(formData.email || '', formData.fullName || '')
-			.then(() => {
-				setFormData(initialValues);
-				closeModal();
-				toast.success(t('common.INVITATION_SENT'), {
-					id: 'modal-invitation-sent',
-					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
-					duration: 5 * 1000
+		if (email && fullName && roleId) {
+			inviteUser(email, fullName, roleId)
+				.then(() => {
+					setErrors({});
+					setFormData(initialValues);
+					closeModal();
+					toast.success(t('common.INVITATION_SENT'), {
+						id: 'modal-invitation-sent',
+						description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
+						duration: 5 * 1000
+					});
+				})
+				.catch((err: AxiosError) => {
+					if (err.response?.status === 400) {
+						const data = err.response?.data as any;
+
+						if ('errors' in data) {
+							setErrors(data.errors || {});
+						}
+
+						if ('message' in data && Array.isArray(data.message)) {
+							setErrors({ email: data.message[0] });
+						}
+					}
 				});
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					const data = err.response?.data as any;
-
-					if ('errors' in data) {
-						setErrors(data.errors || {});
-					}
-
-					if ('message' in data && Array.isArray(data.message)) {
-						setErrors({ email: data.message[0] });
-					}
-				}
-			});
+		}
 	};
 	return (
 		<Transition appear show={isOpen} as="div">
@@ -145,6 +165,35 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 											errors={errors}
 										/>
 									</div>
+
+									{isAdmin ? (
+										<Select
+											defaultValue={formData.roleId}
+											value={formData.roleId}
+											onValueChange={(value) =>
+												setFormData((prevState) => ({ ...prevState, roleId: value }))
+											}
+										>
+											<SelectTrigger className="w-full input-border h-[3rem] data-[placeholder]:text-gray-400 data-[placeholder]:dark::text-[#3b3c44]  bg-white rounded-lg border-gray-300 text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+												<SelectValue placeholder={t('form.TEAM_MEMBER_ROLE')} />
+											</SelectTrigger>
+											<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
+												<SelectGroup>
+													{roles
+														.filter((role) => allowedRoles.has(role.name as ERoleName))
+														.map((role) => (
+															<SelectItem
+																key={role.id}
+																value={role.id}
+																className="hover:bg-primary focus:bg-primary focus:text-white hover:!text-white  py-1 cursor-pointer"
+															>
+																{role.name}
+															</SelectItem>
+														))}
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+									) : null}
 
 									<div className="flex justify-between items-center">
 										<div />
