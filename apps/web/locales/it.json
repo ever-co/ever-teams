@@ -1072,7 +1072,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Errore durante la verifica del codice.",
 		"LENGTH_NUMBER_ERROR": "La lunghezza deve essere un numero maggiore di 0",
 		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Usa alpha, numeric o alphanumeric",
-		"VALID_EMAIL": "Inserisci un indirizzo email valido"
+		"VALID_EMAIL": "Inserisci un indirizzo email valido",
+		"SELECT_ROLE": "Seleziona un ruolo"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Premi Invio per convalidare"

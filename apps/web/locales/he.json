@@ -1071,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "שגיאה באימות קוד.",
 		"LENGTH_NUMBER_ERROR": "אורך צריך להיות מספר וגדול מ-0",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
-		"VALID_EMAIL": "אנא הכנס אימייל חוקי"
+		"VALID_EMAIL": "אנא הכנס אימייל חוקי",
+		"SELECT_ROLE": "אנא בחר תפקיד"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת"

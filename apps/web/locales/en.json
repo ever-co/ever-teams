@@ -1074,7 +1074,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",
 		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
 		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
-		"VALID_EMAIL": "Please enter valid email"
+		"VALID_EMAIL": "Please enter valid email",
+		"SELECT_ROLE": "Please select a role"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate"

@@ -1071,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Fout tijdens verificatiecode.",
 		"LENGTH_NUMBER_ERROR": "Lengte moet een getal zijn en groter dan 0",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
-		"VALID_EMAIL": "Voer een geldig e-mailadres in"
+		"VALID_EMAIL": "Voer een geldig e-mailadres in",
+		"SELECT_ROLE": "Selecteer een rol"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"

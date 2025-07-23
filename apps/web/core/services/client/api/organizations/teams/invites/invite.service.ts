@@ -19,8 +19,7 @@ import {
 	validateApiResponse,
 	inviteSchema,
 	inviteVerifiedSchema,
-	ZodValidationError,
-	TRole
+	ZodValidationError
 } from '@/core/types/schemas';
 import { inviteResendResultSchema, TInviteResendResult } from '@/core/types/schemas/user/invite.schema';
 
@@ -37,17 +36,13 @@ class InviteService extends APIService {
 			const date = new Date();
 			date.setDate(date.getDate() - 1);
 
-			const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
-
-			const employeeRole = await this.get<TRole>(getRoleEndpoint, { tenantId });
-
 			const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 				emailIds: [data.email],
 				projectIds: [],
 				departmentIds: [],
 				organizationContactIds: [],
 				teamIds: [data.teamId],
-				roleId: employeeRole.data.id || '',
+				roleId: data.roleId,
 				invitationExpirationPeriod: 'Never',
 				inviteType: 'TEAM',
 				appliedDate: null,

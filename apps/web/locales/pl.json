@@ -1071,7 +1071,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Błąd podczas weryfikacji kodu.",
 		"LENGTH_NUMBER_ERROR": "Długość powinna być liczbą większą niż 0",
 		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
-		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail"
+		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail",
+		"SELECT_ROLE": "Proszę wybrać rolę"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Naciśnij Enter, aby potwierdzić"

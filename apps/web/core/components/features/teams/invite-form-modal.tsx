@@ -23,7 +23,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
 
-	const [errors, setErrors] = useState<{ email?: string; name?: string }>({});
+	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
 	const { workingEmployees } = useEmployee();
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
@@ -33,8 +33,8 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const isLoading = inviteLoading || resendInviteLoading;
 	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
 	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
-
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
+	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
 
 	useEffect(() => {
 		return () => {
@@ -93,8 +93,8 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		showSuccessToast(email);
 	};
 
-	const handleInvite = async (email: string, name: string, form: HTMLFormElement) => {
-		await inviteUser(email, name);
+	const handleInvite = async (email: string, name: string, roleId: string, form: HTMLFormElement) => {
+		await inviteUser(email, name, roleId);
 
 		form.reset();
 		showSuccessToast(email);
@@ -116,10 +116,15 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 			try {
 				const existingInvitation = teamInvitations.find((inv) => inv.email === email);
 
+				if (!selectedRoleId) {
+					setErrors({ role: t('errors.SELECT_ROLE') });
+					return;
+				}
+
 				if (existingInvitation) {
 					await handleResend(existingInvitation.id, email);
 				} else {
-					await handleInvite(email, name, e.currentTarget);
+					await handleInvite(email, name, selectedRoleId, e.currentTarget);
 				}
 
 				timeoutRef.current = setTimeout(() => closeModal(), 1000);
@@ -188,11 +193,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 									<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
 										<SelectGroup>
 											{roles
-												.filter(
-													(role) =>
-														role.name === ERoleName.ADMIN ||
-														role.name === ERoleName.EMPLOYEE
-												)
+												.filter((role) => allowedRoles.has(role.name as ERoleName))
 												.map((role) => (
 													<SelectItem
 														key={role.id}

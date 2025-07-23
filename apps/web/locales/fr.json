@@ -1074,7 +1074,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Erreur lors de la vérification du code.",
 		"LENGTH_NUMBER_ERROR": "La longueur doit être un nombre et supérieure à 0",
 		"INVALID_ALLOWED_CHARACTER": "Valeur invalide pour allowedCharacters. Utilisez alpha, numérique ou alumérique",
-		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide"
+		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide",
+		"SELECT_ROLE": "Veuillez sélectionner un rôle"
 	},
 	"team": {
 		"BACK_LABEL": "Retour à l'équipe",

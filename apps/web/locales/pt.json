@@ -1072,7 +1072,8 @@
 		"ERROR_WHILE_VERIFY_CODE": "Erro ao verificar o código.",
 		"LENGTH_NUMBER_ERROR": "O comprimento deve ser um número e maior que 0",
 		"INVALID_ALLOWED_CHARACTER": "Valor inválido para allowedCharacters. Use letras, números ou alfanuméricos",
-		"VALID_EMAIL": "Por favor, insira um e-mail válido"
+		"VALID_EMAIL": "Por favor, insira um e-mail válido",
+		"SELECT_ROLE": "Por favor, selecione uma função"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Pressione Enter para validar"
