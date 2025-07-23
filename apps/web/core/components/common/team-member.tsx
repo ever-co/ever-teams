@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
 
-const TeamMemberSection = () => {
+export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
@@ -116,4 +116,3 @@ const Header = () => {
 		</li>
 	);
 };
-export default TeamMemberSection;
