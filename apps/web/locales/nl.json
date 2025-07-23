@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "Waar werk je aan?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Teamlidnaam",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "E-mailadres teamlid",
+		"TEAM_MEMBER_ROLE": "Teamlidrol",
 		"COMPLETION_DESCRIPTION": "Schrijf de omschrijving",
 		"UPLOAD_FILES": "Bestanden uploaden",
 		"ATTACHMENT_FILE": "Bijgevoegde bestanden",

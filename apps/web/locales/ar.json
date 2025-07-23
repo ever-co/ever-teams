@@ -1052,6 +1052,7 @@
 		"TASK_INPUT_PLACEHOLDER": "على ماذا تعمل؟",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "اسم عضو الفريق",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "عنوان بريد عضو الفريق الإلكتروني",
+		"TEAM_MEMBER_ROLE": "دور عضو الفريق",
 		"COMPLETION_DESCRIPTION": "اكتب الوصف",
 		"UPLOAD_FILES": "تحميل الملفات",
 		"ATTACHMENT_FILE": "ملفات مرفقة",

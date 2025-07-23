@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "Nad czym pracujesz?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Imię członka zespołu",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Adres e-mail członka zespołu",
+		"TEAM_MEMBER_ROLE": "Rola członka zespołu",
 		"COMPLETION_DESCRIPTION": "Napisz opis",
 		"UPLOAD_FILES": "Prześlij pliki",
 		"ATTACHMENT_FILE": "Załączniki",

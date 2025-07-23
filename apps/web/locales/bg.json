@@ -1044,6 +1044,7 @@
 		"TASK_INPUT_PLACEHOLDER": "По какво работите?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Име на члена на отбора",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Имейл адрес на члена на отбора",
+		"TEAM_MEMBER_ROLE": "Роля на члена на отбора",
 		"COMPLETION_DESCRIPTION": "Напишете описание",
 		"UPLOAD_FILES": "Качване на файлове",
 		"ATTACHMENT_FILE": "Прикачени файлове",

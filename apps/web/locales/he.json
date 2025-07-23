@@ -1043,6 +1043,7 @@
 		"TASK_INPUT_PLACEHOLDER": "על מה אתה עובד?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "שם חבר צוות",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "כתובת אימייל של חבר צוות",
+		"TEAM_MEMBER_ROLE": "תפקיד חבר צוות",
 		"COMPLETION_DESCRIPTION": "כתוב תיאור",
 		"UPLOAD_FILES": "העלה קבצים",
 		"ATTACHMENT_FILE": "קבצים מצורפים",

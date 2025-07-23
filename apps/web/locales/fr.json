@@ -1046,6 +1046,7 @@
 		"TASK_INPUT_PLACEHOLDER": "Sur quoi travaillez-vous ?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nom du membre de l'équipe",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Adresse email du membre de l'équipe",
+		"TEAM_MEMBER_ROLE": "Rôle du membre de l'équipe",
 		"COMPLETION_DESCRIPTION": "Rédigez la description",
 		"UPLOAD_FILES": "Uploader des fichiers",
 		"ATTACHMENT_FILE": "Fichiers joints",
