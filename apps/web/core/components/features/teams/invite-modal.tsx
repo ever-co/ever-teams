@@ -14,9 +14,10 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
 import { rolesState, userState } from '@/core/stores';
 
-const initialValues: Pick<TInvite, 'email' | 'fullName'> = {
+const initialValues: Pick<TInvite, 'email' | 'fullName' | 'roleId'> = {
 	email: '',
-	fullName: ''
+	fullName: '',
+	roleId: ''
 };
 
 export interface IInviteProps {
@@ -28,11 +29,14 @@ export interface IInviteProps {
 const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 	const user = useAtomValue(userState);
 	const roles = useAtomValue(rolesState);
-	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName' | 'roleId'>>(initialValues);
+	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
+	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName' | 'roleId'>>({
+		...initialValues,
+		roleId: defaultSelectedRole?.id
+	});
 	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
-	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
-	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
+
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
 	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
 	const email = formData.email?.trim();
@@ -164,9 +168,11 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 
 									{isAdmin ? (
 										<Select
-											defaultValue={selectedRoleId}
-											value={selectedRoleId}
-											onValueChange={(value) => setSelectedRoleId(value)}
+											defaultValue={formData.roleId}
+											value={formData.roleId}
+											onValueChange={(value) =>
+												setFormData((prevState) => ({ ...prevState, roleId: value }))
+											}
 										>
 											<SelectTrigger className="w-full input-border h-[3rem] data-[placeholder]:text-gray-400 data-[placeholder]:dark::text-[#3b3c44]  bg-white rounded-lg border-gray-300 text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 												<SelectValue placeholder={t('form.TEAM_MEMBER_ROLE')} />
