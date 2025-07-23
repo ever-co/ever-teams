@@ -110,7 +110,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			if (member.employee?.id && member.role?.name === ERoleName.MANAGER) {
 				managerIdSet.add(member.employee.id);
 			} else {
-				memberIdSet.add(member.employee?.id || '');
+				memberIdSet.add(member.employee?.id);
 			}
 		}
 
@@ -138,7 +138,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			if (member.employee?.id && member.employee.id !== employeeId && member.role?.name === ERoleName.MANAGER) {
 				managerIdSet.add(member.employee.id);
 			} else {
-				memberIdSet.add(member.employee?.id || '');
+				memberIdSet.add(member.employee?.id);
 			}
 		}
 
