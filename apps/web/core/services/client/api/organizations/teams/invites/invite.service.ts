@@ -39,7 +39,7 @@ class InviteService extends APIService {
 
 			const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
 
-			const employeeRole = await this.get<TRole>(getRoleEndpoint, { tenantId });
+			const employeeRoleId = await this.get<TRole>(getRoleEndpoint, { tenantId }).then((res) => res.data.id);
 
 			const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 				emailIds: [data.email],
@@ -47,7 +47,7 @@ class InviteService extends APIService {
 				departmentIds: [],
 				organizationContactIds: [],
 				teamIds: [data.teamId],
-				roleId: data.roleId || employeeRole.data.id,
+				roleId: data.roleId || employeeRoleId,
 				invitationExpirationPeriod: 'Never',
 				inviteType: 'TEAM',
 				appliedDate: null,
