@@ -984,7 +984,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "Team Member",
 			"TASK": "Task",
-			"WORKED_ON_TASK": "Worked on \n task",
+			"WORKED_ON_TASK": "Worked on task",
 			"ESTIMATE": "Estimate",
 			"ACTION": "Action"
 		},

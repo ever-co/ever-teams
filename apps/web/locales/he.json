@@ -981,7 +981,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "חבר צוות",
 			"TASK": "משימה",
-			"WORKED_ON_TASK": "עבד על \n משימה",
+			"WORKED_ON_TASK": "עבד על משימה",
 			"ESTIMATE": "הערכה",
 			"ACTION": "פעולה"
 		},

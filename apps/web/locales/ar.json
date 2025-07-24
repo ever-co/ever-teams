@@ -990,7 +990,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "عضو الفريق",
 			"TASK": "المهمة",
-			"WORKED_ON_TASK": "عمل على \n المهمة",
+			"WORKED_ON_TASK": "عمل على المهمة",
 			"ESTIMATE": "التقدير",
 			"ACTION": "الإجراء"
 		},

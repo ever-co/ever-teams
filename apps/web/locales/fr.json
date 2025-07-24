@@ -984,7 +984,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "Membre de l'équipe",
 			"TASK": "Tâche",
-			"WORKED_ON_TASK": "Travaillé sur \n tâche",
+			"WORKED_ON_TASK": "Travaillé sur tâche",
 			"ESTIMATE": "Estimation",
 			"ACTION": "Action"
 		},

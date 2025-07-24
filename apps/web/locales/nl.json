@@ -981,7 +981,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "Teamlid",
 			"TASK": "Taak",
-			"WORKED_ON_TASK": "Gewerkt aan \n taak",
+			"WORKED_ON_TASK": "Gewerkt aan taak",
 			"ESTIMATE": "Schatting",
 			"ACTION": "Actie"
 		},

@@ -982,7 +982,7 @@
 		"teamMemberTableHead": {
 			"TEAM_MEMBER": "团队成员",
 			"TASK": "任务",
-			"WORKED_ON_TASK": "处理 \n 任务",
+			"WORKED_ON_TASK": "处理 任务",
 			"ESTIMATE": "估算",
 			"ACTION": "操作"
 		},
