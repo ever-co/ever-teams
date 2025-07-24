@@ -105,7 +105,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						);
 					})}
 
-					{members.length > 0 &&
+					{teamInvitations.length > 0 &&
 						teamInvitations.map((invitation) => (
 							<li key={invitation.id}>
 								<InvitedCard invitation={invitation} />
