@@ -12,7 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../../common/use-first-load';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
-import { EInviteAction, EInviteStatus } from '@/core/types/generics/enums/invite';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
