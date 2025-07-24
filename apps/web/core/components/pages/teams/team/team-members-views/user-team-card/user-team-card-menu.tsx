@@ -99,7 +99,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				name: t('common.REMOVE'),
 				type: 'danger',
 				action: 'remove',
-				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamOwner,
+				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
 				onClick: onRemoveMember
 			}
 		],
