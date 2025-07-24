@@ -18,16 +18,17 @@ import { cn } from '@/core/lib/helpers';
 import { TInvite } from '@/core/types/schemas';
 import { InviteStatusDisplayMap } from '@/core/constants/config/constants';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import { useState } from 'react';
 
 type Props = IClassName & { invitation: TInvite };
 
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();
 
-	const [{ foreground: foregroundColor, background: backgroundColor, label }] = useState(
-		InviteStatusDisplayMap[invitation.status as EInviteStatus]
-	);
+	const {
+		foreground: foregroundColor,
+		background: backgroundColor,
+		label
+	} = InviteStatusDisplayMap[invitation.status as EInviteStatus];
 
 	return (
 		<div>
