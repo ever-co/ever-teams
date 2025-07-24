@@ -2,6 +2,10 @@ import { useCallback, useMemo } from 'react';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
+import {
+	ITimeLogGroupedDailyReport,
+	IActivityReportGroupByDate
+} from '@/core/types/interfaces/activity/activity-report';
 // import { generateExportFilename } from '@/core/lib/utils/export-utils';
 import { useExportProgress } from './use-export-progress';
 import {
@@ -9,6 +13,27 @@ import {
 	validateExportFeasibility,
 	ExportPerformanceMonitor
 } from '@/core/lib/config/export-config';
+
+/**
+ * Daily Activity Report type supporting both data structures:
+ * 1. New structure with "logs" array (ITimeLogGroupedDailyReport)
+ * 2. Legacy structure with "employees" array (IActivityReportGroupByDate)
+ */
+export type DailyActivityReport = ITimeLogGroupedDailyReport | IActivityReportGroupByDate;
+
+/**
+ * Type guard to check if the item has the new "logs" structure
+ */
+function hasLogsStructure(item: DailyActivityReport): item is ITimeLogGroupedDailyReport {
+	return 'logs' in item && item.logs !== undefined;
+}
+
+/**
+ * Type guard to check if the item has the legacy "employees" structure
+ */
+function hasEmployeesStructure(item: DailyActivityReport): item is IActivityReportGroupByDate {
+	return 'employees' in item && item.employees !== undefined;
+}
 
 export interface ExportData {
 	date: string;
@@ -31,7 +56,7 @@ export interface ExportOptions {
 }
 
 export interface UseTimeActivityExportProps {
-	rapportDailyActivity?: any[];
+	rapportDailyActivity?: DailyActivityReport[];
 	isManage?: boolean;
 	currentFilters?: FilterState;
 	startDate?: Date;
@@ -60,13 +85,13 @@ export function useTimeActivityExport({
 				let hasUserData = false;
 
 				// Check in employees structure (original)
-				if (item.employees) {
+				if (hasEmployeesStructure(item)) {
 					hasUserData = item.employees.some(
 						(emp: any) => emp.employee?.userId === user.id || emp.employee?.id === user.employee?.id
 					);
 				}
 				// Check in logs structure (new)
-				else if (item.logs) {
+				else if (hasLogsStructure(item)) {
 					hasUserData = item.logs.some((log: any) =>
 						log.employeeLogs?.some(
 							(empLog: any) =>
@@ -104,7 +129,7 @@ export function useTimeActivityExport({
 			const date = dayData.date || '';
 
 			// Handle both data structures: with "employees" or with "logs"
-			if (dayData.employees) {
+			if (hasEmployeesStructure(dayData)) {
 				// Original structure with employees
 				dayData.employees?.forEach((employeeData: any) => {
 					const memberName =
@@ -143,7 +168,7 @@ export function useTimeActivityExport({
 						});
 					});
 				});
-			} else if (dayData.logs) {
+			} else if (hasLogsStructure(dayData)) {
 				// New structure with logs (like ActivityTable uses)
 				dayData.logs?.forEach((projectLog: any) => {
 					const projectName = projectLog.project?.name || 'No Project';

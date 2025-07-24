@@ -6,8 +6,14 @@ import { ChevronDown } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import { useTimeActivityExport } from '@/core/hooks/activities/use-time-activity-export';
+import { useTimeActivityExport, DailyActivityReport } from '@/core/hooks/activities/use-time-activity-export';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
+import {
+	ITimeLogGroupedDailyReport,
+	ITimerProjectLog,
+	ITimerEmployeeLog,
+	ITimerTaskLog
+} from '@/core/types/interfaces/activity/activity-report';
 import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
 import { TimeActivityPDF, TimeActivityByMemberPDF } from './index';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
@@ -20,8 +26,15 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { generateExportFilename } from '@/core/lib/utils/export-utils';
 
+/**
+ * Type guard to check if the item has the new "logs" structure
+ */
+function hasLogsStructure(item: DailyActivityReport): item is ITimeLogGroupedDailyReport {
+	return 'logs' in item && item.logs !== undefined;
+}
+
 export interface TimeActivityExportMenuProps {
-	rapportDailyActivity?: any[];
+	rapportDailyActivity?: DailyActivityReport[];
 	isManage?: boolean;
 	currentFilters?: FilterState;
 	startDate?: Date;
@@ -40,26 +53,8 @@ interface ExportRow {
 	activityLevel: string;
 }
 
-interface ProjectLog {
-	project?: { name: string };
-	employeeLogs?: EmployeeLog[];
-}
-
-interface EmployeeLog {
-	employee?: {
-		fullName?: string;
-		user?: { name: string };
-		billRateValue?: number;
-	};
-	tasks?: TaskLog[];
-	sum?: number;
-	activity?: number;
-}
-
-interface TaskLog {
-	task?: { title: string };
-	duration?: number;
-}
+// Using existing types from activity-report.ts
+// No need for custom interfaces as we use ITimerProjectLog, ITimerEmployeeLog, ITimerTaskLog
 export function TimeActivityExportMenu({
 	rapportDailyActivity = [],
 	isManage = false,
@@ -194,17 +189,17 @@ export function TimeActivityExportMenu({
 			const date = dayData.date || '';
 
 			// Handle the logs structure (which is what we actually have)
-			if (dayData.logs) {
-				dayData.logs?.forEach((projectLog: ProjectLog) => {
+			if (hasLogsStructure(dayData)) {
+				dayData.logs?.forEach((projectLog: ITimerProjectLog) => {
 					const projectName = projectLog.project?.name || 'No Project';
 
-					projectLog.employeeLogs?.forEach((employeeLog: EmployeeLog) => {
+					projectLog.employeeLogs?.forEach((employeeLog: ITimerEmployeeLog) => {
 						const memberName =
 							employeeLog.employee?.fullName || employeeLog.employee?.user?.name || 'Unknown Member';
 
 						// If there are tasks, process them
 						if (employeeLog.tasks && employeeLog.tasks.length > 0) {
-							employeeLog.tasks.forEach((taskLog: TaskLog) => {
+							employeeLog.tasks.forEach((taskLog: ITimerTaskLog) => {
 								const taskTitle = taskLog.task?.title || 'No Task';
 								const duration = taskLog.duration || 0;
 								const hours = Math.floor(duration / 3600);
