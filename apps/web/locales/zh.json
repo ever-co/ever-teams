@@ -349,6 +349,8 @@
 		"APPLY_FILTER": "应用筛选",
 		"CREATE_NEW": "创建新的",
 		"NO_RESULT": "没有结果",
+		"NO_TEAM_MEMBERS_FOUND": "未找到团队成员",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "尝试调整您的搜索或筛选条件以找到您要查找的内容。",
 		"PICK_A_DATE": "选择日期",
 		"THIS_WEEK": "本周",
 		"LAST_WEEK": "上周",
@@ -976,6 +978,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "员工今天和总共在任务上工作了多少小时",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "员工今天在所选团队的所有任务上工作了多少小时"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "团队成员",
+			"TASK": "任务",
+			"WORKED_ON_TASK": "处理 \n 任务",
+			"ESTIMATE": "估算",
+			"ACTION": "操作"
 		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务",
 		"toastMessages": {

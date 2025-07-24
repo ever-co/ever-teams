@@ -349,6 +349,8 @@
 		"APPLY_FILTER": "Приложи филтър",
 		"CREATE_NEW": "Създай нов",
 		"NO_RESULT": "Няма резултати",
+		"NO_TEAM_MEMBERS_FOUND": "Не са намерени членове на отбора",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Опитайте да коригирате търсенето или филтъра, за да намерите това, което търсите.",
 		"PICK_A_DATE": "Изберете дата",
 		"THIS_WEEK": "Тази седмица",
 		"LAST_WEEK": "Миналата седмица",
@@ -976,6 +978,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Колко часа работил служителят общо и днес по задача",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Колко часа е работил служителят днес по всички задачи за избрания екип"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Член на отбора",
+			"TASK": "Задача",
+			"WORKED_ON_TASK": "Работено по \n задача",
+			"ESTIMATE": "Оценка",
+			"ACTION": "Действие"
 		},
 		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата",
 		"toastMessages": {
