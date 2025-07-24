@@ -146,13 +146,12 @@ export function useTimeActivityExport({
 							const trackedHours = `${hours}h ${minutes}m`;
 
 							// Calculate earnings
-							const hourlyRate = employeeData.employee?.billRateValue || 0;
+							const hourlyRate = employeeData?.employee?.billRateValue || 0;
 							const totalHours = duration / 3600;
 							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
 
 							// Activity level
-							// TODO: Get actual activity level from data or use 0 as fallback
-							const activityLevel = `${Math.floor(Math.random() * 100)}% ${employeeData}`; //
+							const activityLevel = `${employeeData?.activity || 0}%`;
 
 							const exportItem = {
 								date,
@@ -218,7 +217,7 @@ export function useTimeActivityExport({
 							const totalHours = duration / 3600;
 							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
 
-							// Activity level
+							// Get actual activity level from data or use 0 as fallback
 							const activityLevel = `${employeeLog.activity || 0}%`;
 
 							const exportItem = {
