@@ -4,6 +4,7 @@ import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -754,3 +755,26 @@ export const TIMER_STATUS_CONSTANTS = {
 } as const;
 
 export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
+
+export const InviteStatusDisplayMap = {
+	[EInviteStatus.INVITED]: {
+		label: 'Pending',
+		foreground: 'rgb(30, 144, 255)',
+		background: 'rgba(30, 144, 255, 0.1)'
+	},
+	[EInviteStatus.ACCEPTED]: {
+		label: 'Accepted',
+		foreground: 'rgb(0, 128, 0)',
+		background: 'rgba(0, 128, 0, 0.1)'
+	},
+	[EInviteStatus.EXPIRED]: {
+		label: 'Expired',
+		foreground: 'rgb(128, 128, 128)',
+		background: 'rgba(128, 128, 128, 0.1)'
+	},
+	[EInviteStatus.REJECTED]: {
+		label: 'Rejected',
+		foreground: 'rgb(255, 99, 71)',
+		background: 'rgba(255, 99, 71, 0.1)'
+	}
+} as const;

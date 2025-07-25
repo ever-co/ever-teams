@@ -16,11 +16,19 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { cn } from '@/core/lib/helpers';
 import { TInvite } from '@/core/types/schemas';
+import { InviteStatusDisplayMap } from '@/core/constants/config/constants';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
 
 type Props = IClassName & { invitation: TInvite };
 
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();
+
+	const {
+		foreground: foregroundColor,
+		background: backgroundColor,
+		label
+	} = InviteStatusDisplayMap[invitation.status as EInviteStatus];
 
 	return (
 		<div>
@@ -53,12 +61,27 @@ export function InvitedCard({ invitation, className }: Props) {
 					</div>
 
 					<div className="w-1/2 lg:w-64">
-						<Text.Heading
-							className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[17ch] 2xl:max-w-full"
-							as="h3"
-						>
-							{invitation.fullName}
-						</Text.Heading>
+						<div className="flex items-center gap-2">
+							<Text.Heading
+								className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[17ch] 2xl:max-w-full"
+								as="h3"
+							>
+								{invitation.fullName}
+							</Text.Heading>
+
+							<div
+								style={{
+									color: foregroundColor,
+									backgroundColor: backgroundColor,
+									borderStyle: 'solid',
+									borderColor: foregroundColor
+								}}
+								className={cn('border px-2 py-[.125rem] rounded-full text-xs font-semibold')}
+							>
+								{label}
+							</div>
+						</div>
+
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
 							<MailIcon className="w-4 h-4" />{' '}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">

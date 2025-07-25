@@ -5,10 +5,10 @@ import {
 	INVITE_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AcceptInviteParams } from '@/core/services/server/requests';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
+import { IGetInvitationRequest, IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
@@ -25,6 +25,16 @@ import {
 import { inviteResendResultSchema, TInviteResendResult } from '@/core/types/schemas/user/invite.schema';
 
 class InviteService extends APIService {
+	get organizationId() {
+		return getOrganizationIdCookie();
+	}
+	get tenantId() {
+		return getTenantIdCookie();
+	}
+	get activeTeamId() {
+		return getActiveTeamIdCookie();
+	}
+
 	inviteByEmails = async (data: IInviteRequest, tenantId: string): Promise<PaginationResponse<TInvite>> => {
 		try {
 			const endpoint = '/invite/emails';
@@ -77,24 +87,32 @@ class InviteService extends APIService {
 		}
 	};
 
-	getTeamInvitations = async (
-		tenantId: string,
-		organizationId: string,
-		role: string,
-		teamId: string
-	): Promise<PaginationResponse<TInvite>> => {
+	getTeamInvitations = async (requestParams: IGetInvitationRequest): Promise<PaginationResponse<TInvite>> => {
 		try {
-			const query = qs.stringify({
-				'where[tenantId]': tenantId,
-				'where[organizationId]': organizationId,
-				'where[role][name]': role,
-				'where[teams][id][0]': teamId,
-				'where[status]': 'INVITED'
+			// Base queries
+			const query: Record<string, string> = {
+				'where[tenantId]': this.tenantId,
+				'where[organizationId]': this.organizationId
+			};
+
+			const { role, teamId, ...remainingParams } = requestParams;
+
+			(Object.keys(remainingParams) as (keyof typeof remainingParams)[]).forEach((key) => {
+				if (remainingParams[key]) {
+					query[`where[${key}]`] = remainingParams[key];
+				}
 			});
 
-			const endpoint = `/invite?${query}`;
+			if (role) {
+				query['where[role][name]'] = role;
+			}
+			if (teamId) {
+				query['where[teams][id][0]'] = teamId;
+			}
 
-			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId });
+			const endpoint = `/invite?${qs.stringify(query)}`;
+
+			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(inviteSchema, response.data, 'getTeamInvitations API response');
@@ -125,7 +143,10 @@ class InviteService extends APIService {
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				// Use the already validated getTeamInvitations method
-				return await this.getTeamInvitations(tenantId, organizationId, role, teamId);
+				return await this.getTeamInvitations({
+					role,
+					teamId
+				});
 			}
 
 			// Validate the response data using Zod schema
