@@ -837,6 +837,25 @@
 				"POSITION": "职位",
 				"DATE_AND_TIME_REQUEST": "日期和时间请求",
 				"CV_OR_ATTACHMENT": "简历/附件"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "接受加入 {team} 团队的邀请",
+				"USER_DETAILS": "用户详情",
+				"COMPLETE_REGISTRATION": "完成您的注册 {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "此消息不再有效",
+						"DESCRIPTION": "请联系工作区管理员请求新的邀请。您输入了错误的URL或邀请已过期"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "此工作区不再存在",
+						"DESCRIPTION": "请联系工作区管理员请求新的工作区"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "返回仪表板",
+					"CREATE_NEW_WORKSPACE": "创建新工作区"
+				}
 			}
 		},
 		"permissions": {

@@ -825,6 +825,25 @@
 				"POSITION": "المنصب",
 				"DATE_AND_TIME_REQUEST": "التاريخ والوقت للطلب",
 				"CV_OR_ATTACHMENT": "المرفقات"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "قبول الدعوة لفريق {team}",
+				"USER_DETAILS": "تفاصيل المستخدم",
+				"COMPLETE_REGISTRATION": "أكمل تسجيلك {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "هذه الرسالة لم تعد صالحة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة. إما أنك أدخلت رابطًا غير صحيح أو انتهت صلاحية الدعوة"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "مساحة العمل هذه لم تعد موجودة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "العودة إلى لوحة التحكم",
+					"CREATE_NEW_WORKSPACE": "إنشاء مساحة عمل جديدة"
+				}
 			}
 		},
 		"permissions": {

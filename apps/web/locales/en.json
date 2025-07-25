@@ -829,6 +829,25 @@
 				"POSITION": "Position",
 				"DATE_AND_TIME_REQUEST": "Date & Time Request",
 				"CV_OR_ATTACHMENT": "CV / Attachment"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accept invitation to {team} team",
+				"USER_DETAILS": "User details",
+				"COMPLETE_REGISTRATION": "Complete your registration {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "This message is no longer valid",
+						"DESCRIPTION": "Please contact the workspace admin to request a new one. Either you entered an incorrect URL or the invitation has expired"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "This workspace no longer exists",
+						"DESCRIPTION": "Please contact the workspace admin to request a new one"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Return to dashboard",
+					"CREATE_NEW_WORKSPACE": "Create a new workspace"
+				}
 			}
 		},
 		"permissions": {

@@ -825,6 +825,25 @@
 				"POSITION": "תפקיד",
 				"DATE_AND_TIME_REQUEST": "תאריך ושעת בקשה",
 				"CV_OR_ATTACHMENT": "קורות חיים / קובץ מצורף"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "קבל הזמנה לצוות {team}",
+				"USER_DETAILS": "פרטי משתמש",
+				"COMPLETE_REGISTRATION": "השלם את הרישום שלך {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "הודעה זו אינה תקפה יותר",
+						"DESCRIPTION": "אנא צור קשר עם מנהל מרחב העבודה כדי לבקש חדשה. או שהזנת URL שגוי או שההזמנה פגה"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "מרחב העבודה הזה כבר לא קיים",
+						"DESCRIPTION": "אנא צור קשר עם מנהל מרחב העבודה כדי לבקש חדש"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "חזור ללוח הבקרה",
+					"CREATE_NEW_WORKSPACE": "צור מרחב עבודה חדש"
+				}
 			}
 		},
 		"permissions": {

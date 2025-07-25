@@ -825,6 +825,25 @@
 				"POSITION": "Позиция",
 				"DATE_AND_TIME_REQUEST": "Дата и час на искането",
 				"CV_OR_ATTACHMENT": "Автобиография / прикачен файл"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Приемете покана за отбор {team}",
+				"USER_DETAILS": "Потребителски данни",
+				"COMPLETE_REGISTRATION": "Завършете регистрацията си {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Това съобщение вече не е валидно",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново. Или сте въвели неправилен URL, или поканата е изтекла"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Това работно пространство вече не съществува",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Връщане към таблото",
+					"CREATE_NEW_WORKSPACE": "Създаване на ново работно пространство"
+				}
 			}
 		},
 		"permissions": {

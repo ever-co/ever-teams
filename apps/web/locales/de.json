@@ -825,6 +825,25 @@
 				"POSITION": "Position",
 				"DATE_AND_TIME_REQUEST": "Datum & Uhrzeit der Anfrage",
 				"CV_OR_ATTACHMENT": "Lebenslauf / Anhang"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Einladung zum Team {team} annehmen",
+				"USER_DETAILS": "Benutzerdetails",
+				"COMPLETE_REGISTRATION": "Vervollständigen Sie Ihre Registrierung {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Diese Nachricht ist nicht mehr gültig",
+						"DESCRIPTION": "Bitte wenden Sie sich an den Workspace-Administrator, um eine neue anzufordern. Entweder haben Sie eine falsche URL eingegeben oder die Einladung ist abgelaufen"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Dieser Workspace existiert nicht mehr",
+						"DESCRIPTION": "Bitte wenden Sie sich an den Workspace-Administrator, um eine neue anzufordern"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Zurück zum Dashboard",
+					"CREATE_NEW_WORKSPACE": "Neuen Workspace erstellen"
+				}
 			}
 		},
 		"permissions": {

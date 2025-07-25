@@ -825,6 +825,25 @@
 				"POSITION": "Pozycja",
 				"DATE_AND_TIME_REQUEST": "Data i Godzina Żądania",
 				"CV_OR_ATTACHMENT": "CV / Załącznik"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Zaakceptuj zaproszenie do zespołu {team}",
+				"USER_DETAILS": "Szczegóły użytkownika",
+				"COMPLETE_REGISTRATION": "Ukończ rejestrację {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Ta wiadomość nie jest już ważna",
+						"DESCRIPTION": "Skontaktuj się z administratorem obszaru roboczego, aby poprosić o nową. Albo wprowadziłeś nieprawidłowy URL, albo zaproszenie wygasło"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Ten obszar roboczy już nie istnieje",
+						"DESCRIPTION": "Skontaktuj się z administratorem obszaru roboczego, aby poprosić o nowy"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Powrót do pulpitu",
+					"CREATE_NEW_WORKSPACE": "Utwórz nowy obszar roboczy"
+				}
 			}
 		},
 		"permissions": {

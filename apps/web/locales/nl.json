@@ -825,6 +825,25 @@
 				"POSITION": "Positie",
 				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
 				"CV_OR_ATTACHMENT": "CV / Bijlage"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accepteer uitnodiging voor team {team}",
+				"USER_DETAILS": "Gebruikersgegevens",
+				"COMPLETE_REGISTRATION": "Voltooi je registratie {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Dit bericht is niet meer geldig",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen. Je hebt een onjuiste URL ingevoerd of de uitnodiging is verlopen"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Deze workspace bestaat niet meer",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Terug naar dashboard",
+					"CREATE_NEW_WORKSPACE": "Nieuwe workspace maken"
+				}
 			}
 		},
 		"permissions": {

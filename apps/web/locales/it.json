@@ -825,6 +825,25 @@
 				"POSITION": "Posizione",
 				"DATE_AND_TIME_REQUEST": "Richiesta Data e Ora",
 				"CV_OR_ATTACHMENT": "CV / Allegato"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accetta invito al team {team}",
+				"USER_DETAILS": "Dettagli utente",
+				"COMPLETE_REGISTRATION": "Completa la tua registrazione {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Questo messaggio non è più valido",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo. O hai inserito un URL errato o l'invito è scaduto"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Questo spazio di lavoro non esiste più",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Torna alla dashboard",
+					"CREATE_NEW_WORKSPACE": "Crea un nuovo spazio di lavoro"
+				}
 			}
 		},
 		"permissions": {
