@@ -66,6 +66,16 @@ export function useTeamInvitations() {
 		enabled: !!(activeTeamId && isTeamManager && user?.tenantId)
 	});
 
+	const invalidateTeamInvitationData = () => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.users.invitations.team(
+				user?.tenantId || '',
+				user?.employee?.organizationId || '',
+				activeTeamId || ''
+			)
+		});
+	};
+
 	// Query for my invitations
 	const {
 		data: myInvitationsData,
@@ -104,14 +114,7 @@ export function useTeamInvitations() {
 			const items = data.items || [];
 			setTeamInvitations((prev) => [...prev, ...items]);
 
-			// Invalidation of the cache for refetch
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.team(
-					user?.tenantId || '',
-					user?.employee?.organizationId || '',
-					activeTeamId || ''
-				)
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
@@ -141,13 +144,7 @@ export function useTeamInvitations() {
 			setTeamInvitations(result.items || []);
 
 			// Invalidation of the cache
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.team(
-					user?.tenantId || '',
-					user?.employee?.organizationId || '',
-					activeTeamId || ''
-				)
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
@@ -158,9 +155,7 @@ export function useTeamInvitations() {
 		},
 		onSuccess: () => {
 			// Invalidation of the cache for refetch
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.all
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
@@ -184,9 +179,7 @@ export function useTeamInvitations() {
 			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== id));
 
 			// Invalidation of the cache
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.all
-			});
+			invalidateTeamInvitationData();
 
 			return res;
 		}
