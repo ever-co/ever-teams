@@ -93,7 +93,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		showSuccessToast(email);
 	};
 
-	const handleInvite = async (email: string, name: string, roleId: string, form: HTMLFormElement) => {
+	const handleInvite = async (email: string, name: string, form: HTMLFormElement, roleId?: string) => {
 		await inviteUser(email, name, roleId);
 
 		form.reset();
@@ -116,15 +116,10 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 			try {
 				const existingInvitation = teamInvitations.find((inv) => inv.email === email);
 
-				if (!selectedRoleId) {
-					setErrors({ role: t('errors.SELECT_ROLE') });
-					return;
-				}
-
 				if (existingInvitation) {
 					await handleResend(existingInvitation.id, email);
 				} else {
-					await handleInvite(email, name, selectedRoleId, e.currentTarget);
+					await handleInvite(email, name, e.currentTarget, selectedRoleId);
 				}
 
 				timeoutRef.current = setTimeout(() => closeModal(), 1000);

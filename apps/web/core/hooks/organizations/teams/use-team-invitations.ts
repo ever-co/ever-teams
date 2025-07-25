@@ -210,7 +210,7 @@ export function useTeamInvitations() {
 	// ===== INTERFACE FUNCTIONS =====
 
 	const inviteUser = useCallback(
-		(email: string, name: string, roleId: string) => {
+		(email: string, name: string, roleId?: string) => {
 			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
