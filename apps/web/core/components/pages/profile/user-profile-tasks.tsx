@@ -303,7 +303,7 @@ const TanStackVirtualizedTaskList = memo(
 						</div>
 					))}
 					{isScrolling && (
-						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded bg-black/50">
+						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs rounded h-50 dark:text-white bg-black/50">
 							Scrolling...
 						</div>
 					)}
