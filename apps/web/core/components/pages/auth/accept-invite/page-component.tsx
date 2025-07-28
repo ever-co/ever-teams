@@ -1,15 +1,14 @@
 'use client';
 
 import { AuthLayout } from '@/core/components/layouts/default-layout';
-import { useTranslations } from 'next-intl';
+import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 
 export function AcceptInvitePageComponent() {
-	const t = useTranslations();
-
 	return (
-		<AuthLayout
-			title={t('pages.invite.acceptInvite.ACCEPT_INVITATION_TO_TEAM', { team: 'Workout' })}
-			description={t(t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: 'user@example.com' }))}
-		></AuthLayout>
+		<AuthLayout isAuthPage={false}>
+			<div className="w-full border  h-full flex items-center justify-center">
+				<CompleteInvitationRegistrationForm />
+			</div>
+		</AuthLayout>
 	);
 }
