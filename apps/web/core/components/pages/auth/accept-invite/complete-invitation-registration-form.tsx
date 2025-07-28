@@ -70,12 +70,12 @@ export function CompleteInvitationRegistrationForm() {
 					<div className="flex items-center justify-between w-full">
 						<div className="flex items-center gap-2">
 							<Checkbox />
-							<p className="space-x-2">
-								Agree to
+							<p className="space-x-2 dark:text-gray-300">
+								Agree to{' '}
 								<a
 									href={TERMS_LINK}
 									target="_blank"
-									className="text-primary dark:text-gray-300"
+									className="text-primary dark:text-gray-300 dark:font-medium"
 									rel="noreferrer"
 								>
 									Terms & Conditions
