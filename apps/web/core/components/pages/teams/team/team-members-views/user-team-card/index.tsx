@@ -94,6 +94,7 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	const hook = useTaskFilter(profile);
@@ -165,12 +166,23 @@ export function UserTeamCard({
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
-	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee?.user} />,
-		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab />,
-		'Visited Sites': <VisitedSitesTab />
-	};
+	const activityScreens = useMemo(
+		() => ({
+			Tasks: (
+				<UserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > 50} // Only virtualize for large lists
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		}),
+		[profile, hook, member?.employee?.user]
+	);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);

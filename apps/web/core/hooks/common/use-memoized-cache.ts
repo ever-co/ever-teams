@@ -120,21 +120,44 @@ export function useMemoizedCache<T>(options: CacheOptions = {}) {
 }
 
 /**
- * Specialized hook for task filtering operations
+ * Specialized hook for task filtering operations with ultra cache
  */
 export function useTaskFilterCache() {
 	const cache = useMemoizedCache<any>({
-		maxAge: 2 * 60 * 1000, // 2 minutes for task data
-		maxSize: 20
+		maxAge: 5 * 60 * 1000, // 5 minutes for task data
+		maxSize: 100 // Increased cache size
 	});
 
 	const memoizeTaskFilter = useCallback(
 		<T>(filterFn: () => T, tasks: any[], filters: any, additionalDeps: any[] = []): T => {
+			// Create more intelligent cache key
+			const taskSignature =
+				tasks.length > 0
+					? {
+							length: tasks.length,
+							firstId: tasks[0]?.id,
+							lastId: tasks[tasks.length - 1]?.id,
+							checksum: tasks
+								.slice(0, 5)
+								.map((t) => t.id)
+								.join(',') // Sample checksum
+						}
+					: { length: 0 };
+
 			return cache.memoize(
 				filterFn,
-				[tasks.length, tasks[0]?.id, tasks[tasks.length - 1]?.id, filters, ...additionalDeps],
-				`task-filter-${tasks.length}-${JSON.stringify(filters)}`
+				[taskSignature, filters, ...additionalDeps],
+				`task-filter-${taskSignature.length}-${JSON.stringify(filters).slice(0, 50)}`
 			);
+		},
+		[cache]
+	);
+
+	// Batch clear for related filters
+	const clearRelatedFilters = useCallback(
+		(filterType: string) => {
+			// This would clear all caches related to a specific filter type
+			cache.clearCache();
 		},
 		[cache]
 	);
@@ -142,6 +165,7 @@ export function useTaskFilterCache() {
 	return {
 		memoizeTaskFilter,
 		clearCache: cache.clearCache,
+		clearRelatedFilters,
 		getCacheStats: cache.getCacheStats
 	};
 }

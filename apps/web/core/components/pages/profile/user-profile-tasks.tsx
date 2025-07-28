@@ -37,13 +37,12 @@ export const UserProfileTask = memo(
 		// Initialize cache for expensive operations
 		const { memoizeTaskFilter } = useTaskFilterCache();
 
-		// Defer non-critical updates to improve responsiveness
+		// Defer non-critical updates to improve responsiveness (OPTIMISATION CONSERVATIVE)
 		const deferredTabFiltered = useDeferredValue(tabFiltered);
 		const deferredProfile = useDeferredValue(profile);
 
 		/**
-		 * When tab is worked, then filter exclude the active task
-		 * Optimized with intelligent caching and deferred values
+		 * Optimized task filtering with intelligent caching (PRESERVE EXISTING LOGIC)
 		 */
 		const otherTasks = useMemo(() => {
 			return memoizeTaskFilter(
@@ -57,7 +56,7 @@ export const UserProfileTask = memo(
 						return tasks;
 					}
 
-					return tasks.filter((task) => task.id !== activeTaskId);
+					return tasks.filter((task: any) => task.id !== activeTaskId);
 				},
 				deferredTabFiltered.tasksFiltered,
 				{
@@ -162,9 +161,13 @@ export const UserProfileTask = memo(
 
 				{tabFiltered.tab !== 'dailyplan' &&
 					(useVirtualization && otherTasks.length > 20 ? (
-						<TanStackVirtualizedTaskList tasks={otherTasks} tabFiltered={tabFiltered} profile={profile} />
+						<TanStackVirtualizedTaskList
+							tasks={otherTasks as TTask[]}
+							tabFiltered={tabFiltered}
+							profile={profile}
+						/>
 					) : (
-						<TaskList slicedItems={slicedItems} tabFiltered={tabFiltered} profile={profile} />
+						<TaskList slicedItems={slicedItems as TTask[]} tabFiltered={tabFiltered} profile={profile} />
 					))}
 			</div>
 		);
@@ -229,12 +232,27 @@ const TanStackVirtualizedTaskList = memo(
 		const containerHeight = 600; // Adjust based on your layout
 		const itemHeight = 120; // Approximate height of each TaskCard
 
-		const { parentRef, virtualItems, containerStyle, innerStyle, isScrolling } = useTaskVirtualization(
+		const virtualizationResult = useTaskVirtualization(
 			tasks,
 			containerHeight,
 			itemHeight,
-			true
+			true,
+			tasks.length > 100 // Use window virtualization for very large lists
 		);
+
+		const { virtualItems, isScrolling } = virtualizationResult;
+
+		// Handle both container and window virtualization
+		const isWindowVirtualization = tasks.length > 100;
+		const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
+		const containerStyle =
+			'containerStyle' in virtualizationResult
+				? virtualizationResult.containerStyle
+				: { height: containerHeight };
+		const innerStyle =
+			'innerStyle' in virtualizationResult
+				? virtualizationResult.innerStyle
+				: { height: virtualizationResult.totalSize };
 
 		// Memoize computed values
 		const viewType = useMemo(() => (tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'), [tabFiltered.tab]);
@@ -254,6 +272,46 @@ const TanStackVirtualizedTaskList = memo(
 			return tabFiltered.tab !== 'stats' ? <EmptyPlans planMode="Today Tasks" /> : null;
 		}
 
+		// Render based on virtualization type
+		if (isWindowVirtualization) {
+			// Window virtualization - no container needed
+			return (
+				<div style={{ height: virtualizationResult.totalSize, position: 'relative' }}>
+					{virtualItems.map((virtualItem) => (
+						<div
+							key={virtualItem.key}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								width: '100%',
+								height: `${virtualItem.size}px`,
+								transform: `translateY(${virtualItem.start}px)`
+							}}
+						>
+							<div className="px-1 pb-4">
+								<LazyTaskCard
+									task={virtualItem.item}
+									isAuthUser={isAuthUser}
+									activeAuthTask={false}
+									viewType={viewType}
+									profile={profile}
+									taskBadgeClassName={getTaskBadgeClassName(virtualItem.item.issueType || '')}
+									taskTitleClassName="mt-[0.0625rem]"
+								/>
+							</div>
+						</div>
+					))}
+					{isScrolling && (
+						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded bg-black/50">
+							Scrolling...
+						</div>
+					)}
+				</div>
+			);
+		}
+
+		// Container virtualization
 		return (
 			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
 				<div style={innerStyle}>
