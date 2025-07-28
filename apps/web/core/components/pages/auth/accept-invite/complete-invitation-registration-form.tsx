@@ -1,13 +1,11 @@
-import SocialLogins from '@/core/components/auth/social-logins-buttons';
-import { EverCard } from '@/core/components/common/ever-card';
-import { InputField } from '@/core/components/duplicated-components/_input';
-import { cn } from '@/core/lib/helpers';
-import { Link } from 'lucide-react';
 import { Button } from '@/core/components';
-import { Text } from '@/core/components/common/typography';
-import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
+import { EverCard } from '@/core/components/common/ever-card';
+import { Text } from '@/core/components/common/typography';
+import { InputField } from '@/core/components/duplicated-components/_input';
 import { TERMS_LINK } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
+import { useTranslations } from 'next-intl';
 
 export function CompleteInvitationRegistrationForm() {
 	const t = useTranslations();
