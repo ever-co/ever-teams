@@ -340,23 +340,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						mode={'single'}
 					/>
 				</div>
-
-				<div className="flex items-center">
-					<label className="block mr-2 text-xs text-gray-500">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
-					<div
-						className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
-						onClick={() => setIsBillable(!isBillable)}
-						style={
-							isBillable
-								? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
-								: { background: '#6c57f4b7' }
-						}
-					>
-						<div
-							className={` bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
-						/>
-					</div>
-				</div>
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
 						<label className="block mb-1 text-xs text-gray-500">
@@ -387,16 +370,37 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						/>
 					</div>
 				</div>
-
-				<div className="flex items-center">
-					<label className="block mb-1 text-xs text-primary">
-						{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}:{' '}
-					</label>
-					<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
-						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-							<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+				<div className="flex justify-between">
+					<div className="flex items-center">
+						<label className="block mr-2 text-xs text-gray-500">
+							{t('pages.timesheet.BILLABLE.BILLABLE')}
+						</label>
+						<div
+							className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
+							onClick={() => setIsBillable(!isBillable)}
+							style={
+								isBillable
+									? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
+									: { background: '#6c57f4b7' }
+							}
+						>
+							<div
+								className={` bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
+							/>
 						</div>
-						{timeDifference}
+					</div>
+
+					<div className="flex items-center">
+						<label className="block mb-1 text-xs text-primary">
+							{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}
+							:{' '}
+						</label>
+						<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
+							<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
+								<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+							</div>
+							{timeDifference}
+						</div>
 					</div>
 				</div>
 				{params === 'AddManuelTime' ? (
@@ -449,7 +453,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							<CustomSelect
 								valueKey="id"
 								defaultValue={taskId || ''}
-								classNameGroup="max-h-[40vh] dark:!text-white "
+								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px] dark:!text-white "
 								ariaLabel="task"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={team ? selectedTeamTasks : activeTeamTasks}
