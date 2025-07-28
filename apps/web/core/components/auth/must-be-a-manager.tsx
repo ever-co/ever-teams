@@ -12,6 +12,7 @@ type Props = {
 };
 
 export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true }: Props) {
+	// CRITICAL: All hooks must be called before any conditional returns
 	const { userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
 	const { getOrganizationTeamsLoading: isTeamsLoading } = useOrganizationTeams();
 	const router = useRouter();
@@ -32,13 +33,18 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 		}
 	}, [isLoading, isTeamManager, redirectTo, router, useRedirect]);
 
-	// Show loading while waiting for user or team data, or during redirection
-	if (isLoading || !checked || isRedirecting) {
+	// Compute all conditions after all hooks are called
+	const shouldShowLoading = isLoading || !checked || isRedirecting;
+	const shouldShowAccessDenied = !isTeamManager && !useRedirect;
+	const shouldShowLoadingForRedirect = !isTeamManager && useRedirect;
+	const shouldShowChildren = isTeamManager;
+
+	// Conditional rendering after all hooks
+	if (shouldShowLoading) {
 		return <GlobalSkeleton />;
 	}
 
-	// Show access denied message if not using redirect
-	if (!isTeamManager && !useRedirect) {
+	if (shouldShowAccessDenied) {
 		return (
 			<div className="p-6 mx-1 mt-10 mb-5 text-center text-red-500 bg-red-200 rounded">
 				Access denied: manager rights required
@@ -46,11 +52,14 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 		);
 	}
 
-	// If not a manager and redirect is enabled, show loading (redirection should be in progress)
-	if (!isTeamManager) {
+	if (shouldShowLoadingForRedirect) {
 		return <GlobalSkeleton />;
 	}
 
-	// Render children if user is a manager
-	return <>{children}</>;
+	if (shouldShowChildren) {
+		return <>{children}</>;
+	}
+
+	// Fallback (should not reach here)
+	return <GlobalSkeleton />;
 }

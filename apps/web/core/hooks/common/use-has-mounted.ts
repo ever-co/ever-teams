@@ -13,12 +13,12 @@ export const useHasMounted = () => {
 };
 
 /**
- * Custom hook that executes a callback on dependency changes with conditional first render execution.
- * The condition is evaluated dynamically on each render.
+ * FIXED: Custom hook that executes a callback on dependency changes with conditional first render execution.
+ * This version ensures consistent hook behavior to prevent "Rendered more hooks than during the previous render" errors.
  *
  * @param callback - The function to execute when dependencies change
  * @param dependencies - Array of dependencies to watch for changes
- * @param shouldSkipFirstRender - Whether to skip the first render
+ * @param shouldSkipFirstRender - Whether to skip the first render (evaluated once on mount)
  */
 export const useConditionalUpdateEffect = (
 	callback: () => void | (() => void),
@@ -27,9 +27,18 @@ export const useConditionalUpdateEffect = (
 ) => {
 	const isFirstRender = useRef(true);
 	const prevDeps = useRef<React.DependencyList>([]);
+	// CRITICAL: Evaluate skip condition only once to ensure consistent hook behavior
+	const skipFirstRef = useRef<boolean | undefined>(undefined);
+
+	// Initialize skip condition only once on mount
+	if (skipFirstRef.current === undefined) {
+		skipFirstRef.current =
+			typeof shouldSkipFirstRender === 'function' ? shouldSkipFirstRender() : shouldSkipFirstRender;
+	}
 
 	useEffect(() => {
-		const skipFirst = typeof shouldSkipFirstRender === 'function' ? shouldSkipFirstRender() : shouldSkipFirstRender;
+		// Use the stable skip condition
+		const skipFirst = skipFirstRef.current;
 
 		// Check if dependencies have actually changed
 		const depsChanged = !prevDeps.current || dependencies.some((dep, index) => dep !== prevDeps.current![index]);
