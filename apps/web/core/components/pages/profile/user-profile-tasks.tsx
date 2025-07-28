@@ -2,12 +2,13 @@ import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
 import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/optimized-components';
 import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
 
@@ -31,13 +32,20 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 
 	/**
 	 * When tab is worked, then filter exclude the active task
+	 * Optimized to reduce unnecessary re-computations
 	 */
-	const tasks = useMemo(() => tabFiltered.tasksFiltered, [tabFiltered.tasksFiltered]);
+	const otherTasks = useMemo(() => {
+		const tasks = tabFiltered.tasksFiltered;
+		const isRunning = profile.member?.running === true;
+		const activeTaskId = profile.activeUserTeamTask?.id;
 
-	const otherTasks = useMemo(
-		() => tasks.filter((t) => (profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t)),
-		[profile.activeUserTeamTask?.id, profile.member?.running, tasks]
-	);
+		// Early return if no filtering needed
+		if (!isRunning || !activeTaskId) {
+			return tasks;
+		}
+
+		return tasks.filter((task) => task.id !== activeTaskId);
+	}, [tabFiltered.tasksFiltered, profile.member?.running, profile.activeUserTeamTask?.id]);
 
 	const { slicedItems } = useScrollPagination({
 		enabled: !!paginateTasks,
@@ -111,32 +119,60 @@ export const UserProfileTask = memo(({ profile, paginateTasks, tabFiltered, user
 			)}
 
 			{tabFiltered.tab !== 'dailyplan' && (
-				<ul className="flex flex-col gap-4">
-					{slicedItems.length > 0
-						? slicedItems.map((task) => {
-								return (
-									<li key={task.id}>
-										<LazyTaskCard
-											key={task.id}
-											task={task}
-											isAuthUser={profile.isAuthUser}
-											activeAuthTask={false}
-											viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
-											profile={profile}
-											taskBadgeClassName={cn(
-												task.issueType === 'Bug'
-													? '!px-[0.3312rem] py-[0.2875rem]'
-													: '!px-[0.375rem] py-[0.375rem]',
-												'rounded-sm'
-											)}
-											taskTitleClassName="mt-[0.0625rem]"
-										/>
-									</li>
-								);
-							})
-						: tabFiltered.tab !== 'stats' && <EmptyPlans planMode="Today Tasks" />}
-				</ul>
+				<TaskList slicedItems={slicedItems} tabFiltered={tabFiltered} profile={profile} />
 			)}
 		</div>
 	);
 });
+
+// Optimized TaskList component to prevent unnecessary re-renders
+const TaskList = memo(
+	({
+		slicedItems,
+		tabFiltered,
+		profile
+	}: {
+		slicedItems: TTask[];
+		tabFiltered: I_TaskFilter;
+		profile: I_UserProfilePage;
+	}) => {
+		// Memoize computed values to prevent recalculation
+		const viewType = useMemo(() => (tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'), [tabFiltered.tab]);
+
+		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
+
+		// Memoize the task badge class calculation
+		const getTaskBadgeClassName = useCallback(
+			(issueType: string) =>
+				cn(
+					issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
+					'rounded-sm'
+				),
+			[]
+		);
+
+		if (slicedItems.length === 0) {
+			return tabFiltered.tab !== 'stats' ? <EmptyPlans planMode="Today Tasks" /> : null;
+		}
+
+		return (
+			<ul className="flex flex-col gap-4">
+				{slicedItems.map((task) => (
+					<li key={task.id}>
+						<LazyTaskCard
+							task={task}
+							isAuthUser={isAuthUser}
+							activeAuthTask={false}
+							viewType={viewType}
+							profile={profile}
+							taskBadgeClassName={getTaskBadgeClassName(task.issueType || '')}
+							taskTitleClassName="mt-[0.0625rem]"
+						/>
+					</li>
+				))}
+			</ul>
+		);
+	}
+);
+
+TaskList.displayName = 'TaskList';
