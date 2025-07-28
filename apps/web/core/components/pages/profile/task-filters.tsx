@@ -62,7 +62,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
-				className="w-full"
+				className="mt-5 w-full"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
 				{hook.filterType !== undefined && <Divider className="mt-1" />}
@@ -219,11 +219,11 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const { date, setDate, data } = useDateRange(dailyPlanTab);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap flex-1 justify-center space-x-3 md:justify-start">
+			<div className="flex flex-wrap flex-1 justify-center mb-2 space-x-3 h-9 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -231,7 +231,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -239,7 +239,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -247,7 +247,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0 bg-[#F2F2F2] rounded-xl"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7 !rounded-[8px] text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -259,6 +259,8 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 						date={date}
 						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"
+						className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+						contentClassName="h-7"
 					/>
 				)}
 				<VerticalSeparator />
