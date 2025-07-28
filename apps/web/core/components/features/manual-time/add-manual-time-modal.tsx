@@ -6,7 +6,7 @@ import { Button, Modal } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { CalendarDays, Clock7 } from 'lucide-react';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
@@ -57,7 +57,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { user } = useAuthenticateUser();
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const { addManualTime, addManualTimeLoading, timeLog } = useManualTime();
+	const {
+		addManualTime,
+		addManualTimeLoading,
+		addManualTimeSuccess,
+		addManualTimeError,
+		addManualTimeErrorMessage,
+		timeLog
+	} = useManualTime();
 
 	useEffect(() => {
 		const now = new Date();
@@ -71,6 +78,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const handleSubmit = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
+
+			// Clear any previous error messages before validation
+			setErrorMsg('');
 
 			const startedAt = new Date(date);
 			const stoppedAt = new Date(date);
@@ -113,9 +123,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
+			// All validation passed, submit the request
 			addManualTime(requestData);
 		},
-		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team]
+		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team, activeTeam]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -145,15 +156,46 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		calculateTimeDifference();
 	}, [calculateTimeDifference, endTime, startTime]);
 
-	// This useEffect will be moved after activeTeamTasks declaration
-
+	// Handle successful manual time addition - only close modal on confirmed success
 	useEffect(() => {
-		if (!addManualTimeLoading && timeLog) {
+		if (addManualTimeSuccess && timeLog) {
+			// Close modal and reset form only on success
 			closeModal();
 			setDescription('');
 			setErrorMsg('');
+			setReason('');
+			setIsBillable(false);
 		}
-	}, [addManualTimeLoading, closeModal, timeLog]);
+	}, [addManualTimeSuccess, timeLog, closeModal]);
+
+	// Handle manual time addition errors - keep modal open and show error
+	useEffect(() => {
+		if (addManualTimeError && addManualTimeErrorMessage) {
+			// Set error message from API response
+			setErrorMsg(addManualTimeErrorMessage);
+		}
+	}, [addManualTimeError, addManualTimeErrorMessage]);
+
+	// Reset states when modal opens - use ref to prevent infinite loops
+	const isOpenRef = useRef(isOpen);
+	const hasResetRef = useRef(false);
+
+	useEffect(() => {
+		// Only reset when modal transitions from closed to open
+		if (isOpen && !isOpenRef.current && !hasResetRef.current) {
+			// Clear any previous error states
+			setErrorMsg('');
+			// Mark that we've reset to prevent multiple resets
+			hasResetRef.current = true;
+		}
+
+		// Reset the flag when modal closes
+		if (!isOpen && isOpenRef.current) {
+			hasResetRef.current = false;
+		}
+
+		isOpenRef.current = isOpen;
+	}, [isOpen]);
 
 	// Simplified task validation for performance
 	const isValidTask = useCallback((task: any): task is TTask => {

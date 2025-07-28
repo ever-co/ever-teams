@@ -106,3 +106,13 @@ export const LazyCreateTeamModal = dynamic(
 		ssr: false
 	}
 );
+
+export const LazyAddManualTimeModal = dynamic(
+	() =>
+		import('@/core/components/features/manual-time/add-manual-time-modal').then((mod) => ({
+			default: mod.AddManualTimeModal
+		})),
+	{
+		ssr: false
+	}
+);

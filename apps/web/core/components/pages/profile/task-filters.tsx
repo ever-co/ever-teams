@@ -14,6 +14,7 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from '../../tasks/daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
+import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
@@ -23,10 +24,10 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
-import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { TaskSizesDropdown } from '../../tasks/task-sizes-dropdown';
-
+import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
+import { Suspense } from 'react';
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -162,7 +163,16 @@ function InputFilters({ hook, profile }: Props) {
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
-			<AddManualTimeModal closeModal={closeManualTimeModal} isOpen={isManualTimeModalOpen} params="AddTime" />
+
+			{isManualTimeModalOpen && (
+				<Suspense fallback={<AddManualTimeModalSkeleton />}>
+					<LazyAddManualTimeModal
+						closeModal={closeManualTimeModal}
+						isOpen={isManualTimeModalOpen}
+						params="AddTime"
+					/>
+				</Suspense>
+			)}
 		</div>
 	);
 }
