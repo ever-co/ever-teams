@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { TaskCard } from '../tasks/task-card';
+import { memo, useCallback, useMemo } from 'react';
+import { LazyTaskCard } from '../optimized-components';
 import { Divider, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useUserSelectedPage } from '@/core/hooks/users';
@@ -24,25 +24,42 @@ const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any
 	// Determine if virtualization should be used
 	const shouldUseVirtualization = useVirtualization && otherTasks.length > ITEMS_LENGTH_TO_VIRTUALIZED;
 
-	// Render function for virtualized items
-	const renderTaskItem = (task: any, index: number) => (
-		<TaskCard
-			task={task}
-			isAuthUser={profile?.isAuthUser}
-			activeAuthTask={false}
-			viewType={hook.tab === 'unassigned' ? 'unassign' : 'default'}
-			profile={profile}
-			taskBadgeClassName={`${
-				task.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
-			} rounded-sm`}
-			taskTitleClassName="mt-[0.0625rem]"
-		/>
+	// Memoized render function for virtualized items to prevent unnecessary re-renders
+	const renderTaskItem = useCallback(
+		(task: any) => (
+			<LazyTaskCard
+				task={task}
+				isAuthUser={profile?.isAuthUser}
+				activeAuthTask={false}
+				viewType={hook.tab === 'unassigned' ? 'unassign' : 'default'}
+				profile={profile}
+				taskBadgeClassName={`${
+					task.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
+				} rounded-sm`}
+				taskTitleClassName="mt-[0.0625rem]"
+				taskContentClassName="!w-72 !max-w-80"
+			/>
+		),
+		[profile?.isAuthUser, hook.tab, profile]
+	);
+
+	// Memoized static props to prevent unnecessary re-renders
+	const scrollingIndicator = useMemo(
+		() => (
+			<div className="flex gap-2 justify-center items-center">
+				<span className="sr-only">Loading...</span>
+				<div className="size-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+				<div className="size-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+				<div className="bg-purple-500 rounded-full animate-bounce size-2" />
+			</div>
+		),
+		[]
 	);
 
 	return (
 		<div>
 			{profile?.activeUserTeamTask && canSeeActivity && (
-				<TaskCard
+				<LazyTaskCard
 					active
 					task={profile?.activeUserTeamTask}
 					isAuthUser={profile?.isAuthUser}
@@ -54,6 +71,7 @@ const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any
 							: '!px-[0.375rem] py-[0.375rem]'
 					} rounded-sm`}
 					taskTitleClassName="mt-[0.0625rem]"
+					taskContentClassName="!w-72 !max-w-80"
 				/>
 			)}
 
@@ -83,17 +101,12 @@ const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any
 						bufferSize={8} // Larger buffer for smoother scrolling
 						cacheSize={100} // Larger cache for better performance
 						overscanMultiplier={2}
-						scrollingIndicator={
-							<div className="flex gap-2 items-center">
-								<div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-								<span>Loading tasks...</span>
-							</div>
-						}
+						scrollingIndicator={scrollingIndicator}
 					/>
 				) : (
 					<ul className="flex flex-col gap-6">
 						{otherTasks.map((task) => (
-							<li key={task.id}>{renderTaskItem(task, 0)}</li>
+							<li key={task.id}>{renderTaskItem(task)}</li>
 						))}
 					</ul>
 				))}

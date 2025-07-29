@@ -11,7 +11,7 @@ interface VirtualizedListProps<T extends { id: string }> {
 	className?: string;
 	listClassName?: string;
 	itemClassName?: string;
-	renderItem: (item: T, index: number) => React.ReactNode;
+	renderItem: ((item: T, index: number) => React.ReactNode) | ((item: T) => React.ReactNode);
 	renderEmpty?: () => React.ReactNode;
 	loadingIndicator?: React.ReactNode;
 	scrollingIndicator?: React.ReactNode;
@@ -106,6 +106,16 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	// Initialize shared cache system for enhanced performance
 	const cache = useSharedVirtualizationCache<T>();
 
+	// Wrapper function to handle both (item, index) and (item) signatures
+	const renderItemWrapper = useCallback(
+		(item: T, index: number) => {
+			// Type assertion to handle both function signatures
+			const render = renderItem as any;
+			return render.length > 1 ? render(item, index) : render(item);
+		},
+		[renderItem]
+	);
+
 	// Extract properties safely
 	const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
 	const virtualItems = virtualizationResult.virtualItems || [];
@@ -160,7 +170,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 			bufferCalculationTimeoutRef.current = setTimeout(() => {
 				if (useSmoothVirtualization && 'getVisibleRange' in virtualizationResult) {
 					const visibleRange = virtualizationResult.getVisibleRange();
-					cache.warmCache(virtualizedItems, visibleRange, scrollDirection, renderItem);
+					cache.warmCache(virtualizedItems, visibleRange, scrollDirection, renderItemWrapper);
 
 					// Auto-pagination for very large datasets
 					if (virtualPageSize < items.length) {
@@ -241,8 +251,8 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				}
 			}
 
-			// Render new item
-			const renderedItem = renderItem(item, index);
+			// Render new item using wrapper
+			const renderedItem = renderItemWrapper(item, index);
 
 			// Cache the rendered item for future use
 			if (useSmoothVirtualization) {
@@ -286,7 +296,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				<ListComponent className={listClassName}>
 					{items.map((item, index) => (
 						<ItemComponent key={item.id} className={itemClassName}>
-							{renderItem(item, index)}
+							{renderItemWrapper(item, index)}
 						</ItemComponent>
 					))}
 				</ListComponent>

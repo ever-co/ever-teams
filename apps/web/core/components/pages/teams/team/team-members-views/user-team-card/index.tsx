@@ -33,7 +33,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
+import { LazyUserProfileTask } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
@@ -170,7 +170,7 @@ export function UserTeamCard({
 	const activityScreens = useMemo(
 		() => ({
 			Tasks: (
-				<UserProfileTask
+				<LazyUserProfileTask
 					profile={profile}
 					tabFiltered={hook}
 					user={member?.employee?.user}

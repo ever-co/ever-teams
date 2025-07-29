@@ -6,7 +6,8 @@ import {
 	TaskFilterSkeleton,
 	UserProfileDetailSkeleton,
 	UserProfileTaskSkeleton,
-	VisitedSitesTabSkeleton
+	VisitedSitesTabSkeleton,
+	TaskCardBlockSKeleton
 } from './common/skeleton/profile-component-skeletons';
 import dynamic from 'next/dynamic';
 
@@ -83,6 +84,15 @@ export const LazyScreenshootTab = dynamic(
 	{
 		ssr: false,
 		loading: () => <ScreenshootTabSkeleton />
+	}
+);
+
+// Priority 4: Activity components (Tab-based lazy loading)
+export const LazyUserWorkedTaskTab = dynamic(
+	() => import('@/core/components/activities/user-worked-task').then((mod) => ({ default: mod.default })),
+	{
+		ssr: false,
+		loading: () => <TaskCardBlockSKeleton />
 	}
 );
 export const LazyTimer = dynamic(

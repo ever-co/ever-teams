@@ -162,6 +162,13 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 		</div>
 	);
 };
+export const TaskCardBlockSKeleton = () => (
+	<div className="flex flex-col gap-y-4">
+		{[...Array(5)].map((_, index) => (
+			<TaskCardSkeleton key={index} />
+		))}
+	</div>
+);
 
 /**
  * Skeleton for UserProfileTask component - PIXEL PERFECT
