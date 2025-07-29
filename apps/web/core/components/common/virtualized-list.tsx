@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useState, useMemo } from 'react';
+import React, { memo, useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
-import { useVirtualizationCache } from '@/core/hooks/common/use-virtualization-cache';
+import { useSharedVirtualizationCache } from '@/core/hooks/common/use-shared-virtualization-cache';
 
 interface VirtualizedListProps<T extends { id: string }> {
 	items: T[];
@@ -57,30 +57,54 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	// Don't use virtualization for small lists or when disabled
 	const shouldVirtualize = useVirtualization && items.length > 20;
 
-	// Use enhanced virtualization for better performance and cache
-	const virtualizationResult = useSmoothVirtualization
-		? useEnhancedVirtualization(items, {
-				containerHeight,
-				itemHeight,
-				enabled: shouldVirtualize,
-				useWindow,
-				cacheSize: cacheSize || 50,
-				overscanMultiplier: overscanMultiplier || 2
-			})
-		: useEnhancedVirtualization(items, {
-				containerHeight,
-				itemHeight,
-				enabled: shouldVirtualize,
-				useWindow,
-				cacheSize: 20, // Smaller cache for basic mode
-				overscanMultiplier: 1.5
-			});
+	// Use window virtualization for very large datasets (100k+)
+	const shouldUseWindowVirtualization = items.length > 100000;
 
-	// Initialize cache system for enhanced performance
-	const cache = useVirtualizationCache<T>({
-		maxSize: cacheSize || 50,
-		enableMetrics: true
-	});
+	// Virtual pagination for extremely large datasets
+	const virtualPageSize = useMemo(() => {
+		if (items.length > 100000) return 10000; // 10k items per virtual page
+		if (items.length > 50000) return 5000; // 5k items per virtual page
+		if (items.length > 10000) return 2000; // 2k items per virtual page
+		return items.length; // No pagination for smaller lists
+	}, [items.length]);
+
+	const [currentVirtualPage, setCurrentVirtualPage] = useState(0);
+
+	// Calculate virtual pages for very large datasets
+	const virtualizedItems = useMemo(() => {
+		if (virtualPageSize >= items.length) return items;
+
+		const startIndex = currentVirtualPage * virtualPageSize;
+		const endIndex = Math.min(startIndex + virtualPageSize, items.length);
+		return items.slice(startIndex, endIndex);
+	}, [items, currentVirtualPage, virtualPageSize]);
+
+	// Use enhanced virtualization with dynamic configuration
+	const virtualizationConfig = useMemo(
+		() => ({
+			containerHeight,
+			itemHeight,
+			enabled: shouldVirtualize,
+			useWindow: shouldUseWindowVirtualization || useWindow,
+			cacheSize: useSmoothVirtualization ? cacheSize || 50 : 20,
+			overscanMultiplier: useSmoothVirtualization ? overscanMultiplier || 2 : 1.5
+		}),
+		[
+			containerHeight,
+			itemHeight,
+			shouldVirtualize,
+			shouldUseWindowVirtualization,
+			useWindow,
+			useSmoothVirtualization,
+			cacheSize,
+			overscanMultiplier
+		]
+	);
+
+	const virtualizationResult = useEnhancedVirtualization(virtualizedItems, virtualizationConfig);
+
+	// Initialize shared cache system for enhanced performance
+	const cache = useSharedVirtualizationCache<T>();
 
 	// Extract properties safely
 	const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
@@ -99,9 +123,11 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 			? virtualizationResult.innerStyle
 			: { height: totalSize, width: '100%', position: 'relative' as const };
 
-	// Enhanced scroll direction tracking
+	// Enhanced scroll direction tracking with debouncing
 	const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | 'idle'>('idle');
 	const [lastScrollTop, setLastScrollTop] = useState(0);
+	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const bufferCalculationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Handle scroll events with enhanced tracking
 	const handleScroll = useCallback(
@@ -126,11 +152,35 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				(virtualizationResult.trackScrollDirection as (scrollTop: number) => void)(scrollTop);
 			}
 
-			// Cache warming based on scroll direction
-			if (useSmoothVirtualization && 'getVisibleRange' in virtualizationResult) {
-				const visibleRange = virtualizationResult.getVisibleRange();
-				cache.warmCache(items, visibleRange, scrollDirection, renderItem);
+			// Debounced cache warming to avoid excessive calculations
+			if (bufferCalculationTimeoutRef.current) {
+				clearTimeout(bufferCalculationTimeoutRef.current);
 			}
+
+			bufferCalculationTimeoutRef.current = setTimeout(() => {
+				if (useSmoothVirtualization && 'getVisibleRange' in virtualizationResult) {
+					const visibleRange = virtualizationResult.getVisibleRange();
+					cache.warmCache(virtualizedItems, visibleRange, scrollDirection, renderItem);
+
+					// Auto-pagination for very large datasets
+					if (virtualPageSize < items.length) {
+						const totalVirtualizedItems = virtualizedItems.length;
+						const nearEndThreshold = totalVirtualizedItems * 0.8; // 80% threshold
+
+						if (visibleRange.end > nearEndThreshold) {
+							const nextPage = currentVirtualPage + 1;
+							const maxPage = Math.ceil(items.length / virtualPageSize) - 1;
+
+							if (nextPage <= maxPage) {
+								// Lazy load next virtual page
+								requestAnimationFrame(() => {
+									setCurrentVirtualPage(nextPage);
+								});
+							}
+						}
+					}
+				}
+			}, 50); // 50ms debounce for cache warming
 
 			if (onScroll) {
 				onScroll(scrollTop);
@@ -147,6 +197,18 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 			renderItem
 		]
 	);
+
+	// Cleanup effect for timeouts
+	useEffect(() => {
+		return () => {
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+			}
+			if (bufferCalculationTimeoutRef.current) {
+				clearTimeout(bufferCalculationTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	// Enhanced render function that preserves CSS structure like TanStackVirtualizedTaskList
 	const renderVirtualizedItem = useCallback(
@@ -261,11 +323,19 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	// Container virtualization with enhanced anti-white-space system
 	const bufferHeight = useMemo(() => itemHeight * bufferSize, [itemHeight, bufferSize]);
 
-	// Enhanced buffer zones that adapt to scroll speed
-	const dynamicBufferHeight = useMemo(() => {
-		const baseBuffer = bufferHeight;
-		const scrollSpeedMultiplier = scrollDirection !== 'idle' ? 1.5 : 1;
-		return Math.min(baseBuffer * scrollSpeedMultiplier, itemHeight * 10); // Max 10 items buffer
+	// Enhanced buffer zones that adapt to scroll speed (async calculation)
+	const [dynamicBufferHeight, setDynamicBufferHeight] = useState(bufferHeight);
+
+	useEffect(() => {
+		// Use requestAnimationFrame for non-blocking buffer calculations
+		const calculateBuffer = () => {
+			const baseBuffer = bufferHeight;
+			const scrollSpeedMultiplier = scrollDirection !== 'idle' ? 1.5 : 1;
+			const newBufferHeight = Math.min(baseBuffer * scrollSpeedMultiplier, itemHeight * 10);
+			setDynamicBufferHeight(newBufferHeight);
+		};
+
+		requestAnimationFrame(calculateBuffer);
 	}, [bufferHeight, scrollDirection, itemHeight]);
 
 	return (
@@ -337,6 +407,18 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				{useSmoothVirtualization && process.env.NODE_ENV === 'development' && (
 					<div className="absolute right-2 bottom-2 z-10 px-2 py-1 text-xs text-white rounded bg-green-600/80">
 						Cache: {cache.getCacheStats().size}/{cache.getCacheStats().maxSize}
+						{virtualPageSize < items.length && (
+							<div className="mt-1">
+								Page: {currentVirtualPage + 1}/{Math.ceil(items.length / virtualPageSize)}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Virtual pagination indicator for large datasets */}
+				{virtualPageSize < items.length && (
+					<div className="absolute left-2 bottom-2 z-10 px-2 py-1 text-xs text-white rounded bg-blue-600/80">
+						Showing {virtualizedItems.length.toLocaleString()} of {items.length.toLocaleString()} items
 					</div>
 				)}
 			</div>
