@@ -20,7 +20,7 @@ import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { useCallback, useMemo, useState } from 'react';
-import UserTeamActivity from '@/core/components/activities/user-team-card-activity';
+import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -340,7 +340,7 @@ export function UserTeamCard({
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
-				<UserTeamActivity showActivity={showActivity} member={member} />
+				<LazyUserTeamActivity showActivity={showActivity} member={member} />
 			</EverCard>
 			<EverCard
 				shadow="bigger"

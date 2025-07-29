@@ -7,7 +7,8 @@ import {
 	UserProfileDetailSkeleton,
 	UserProfileTaskSkeleton,
 	VisitedSitesTabSkeleton,
-	TaskCardBlockSKeleton
+	TaskCardBlockSKeleton,
+	UserTeamActivitySkeleton
 } from './common/skeleton/profile-component-skeletons';
 import dynamic from 'next/dynamic';
 
@@ -93,6 +94,14 @@ export const LazyUserWorkedTaskTab = dynamic(
 	{
 		ssr: false,
 		loading: () => <TaskCardBlockSKeleton />
+	}
+);
+
+export const LazyUserTeamActivity = dynamic(
+	() => import('@/core/components/activities/user-team-card-activity').then((mod) => ({ default: mod.default })),
+	{
+		ssr: false,
+		loading: () => <UserTeamActivitySkeleton />
 	}
 );
 export const LazyTimer = dynamic(
