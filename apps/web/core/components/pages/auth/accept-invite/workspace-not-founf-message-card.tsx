@@ -1,5 +1,6 @@
 import { Button } from '@/core/components';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export function WorkspaceNotFoundMessageCard() {
 	const t = useTranslations();
@@ -15,8 +16,12 @@ export function WorkspaceNotFoundMessageCard() {
 			</div>
 
 			<div className="w-full flex-col md:flex-row flex items-center justify-center gap-8">
-				<Button variant="outline">{t('pages.invite.acceptInvite.buttons.RETURN_TO_DASHBOARD')}</Button>
-				<Button>{t('pages.invite.acceptInvite.buttons.CREATE_NEW_WORKSPACE')}</Button>
+				<Button variant="outline">
+					<Link href={'/'}>{t('pages.invite.acceptInvite.buttons.RETURN_TO_DASHBOARD')}</Link>
+				</Button>
+				<Button>
+					<Link href={'/auth/team'}>{t('pages.invite.acceptInvite.buttons.CREATE_NEW_WORKSPACE')}</Link>
+				</Button>
 			</div>
 		</div>
 	);
