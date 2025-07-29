@@ -292,7 +292,7 @@ class InviteService extends APIService {
 
 	acceptInvite = async (data: TAcceptInvitationRequest) => {
 		try {
-			const res = await this.post<IAuthResponse>('/invite/accept', data);
+			const res = await this.post<IAuthResponse>('/invite/accept', data, {}, false);
 
 			return res.data;
 
