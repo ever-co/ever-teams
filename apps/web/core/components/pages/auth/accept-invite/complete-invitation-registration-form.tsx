@@ -17,6 +17,7 @@ export function CompleteInvitationRegistrationForm(props: {
 }) {
 	const t = useTranslations();
 	const { invitationData, onAcceptInvitation, acceptInvitationLoading } = props;
+	const [aggreeToTerms, setAgreeToTerms] = useState(false);
 	const router = useRouter();
 
 	const [userDetails, setUserDetails] = useState({
@@ -28,33 +29,37 @@ export function CompleteInvitationRegistrationForm(props: {
 	const [errors, setErrors] = useState({
 		fullName: '',
 		password: '',
-		confirmPassword: ''
+		confirmPassword: '',
+		acceptInviteFailed: ''
 	});
 
-	const handleAcceptInvitation = useCallback(
+	const handleSubmit = useCallback(
 		async (e: React.FormEvent<HTMLFormElement>) => {
-			e.preventDefault();
+			try {
+				e.preventDefault();
 
-			setErrors({
-				fullName: '',
-				password: '',
-				confirmPassword: ''
-			});
-
-			if (userDetails.password !== userDetails.confirmPassword) {
 				setErrors({
-					...errors,
-					confirmPassword: 'Passwords do not match'
+					fullName: '',
+					password: '',
+					confirmPassword: '',
+					acceptInviteFailed: ''
 				});
 
-				return;
-			}
+				if (userDetails.password !== userDetails.confirmPassword) {
+					setErrors({
+						...errors,
+						confirmPassword: t('errors.PASSWORDS_DO_NOT_MATCH')
+					});
 
-			await onAcceptInvitation(userDetails);
+					return;
+				}
 
-			router.push('/');
+				await onAcceptInvitation(userDetails);
+
+				router.push('/');
+			} catch (error) {}
 		},
-		[onAcceptInvitation, userDetails, errors]
+		[onAcceptInvitation, userDetails, errors, t]
 	);
 
 	return (
@@ -70,7 +75,7 @@ export function CompleteInvitationRegistrationForm(props: {
 				</p>
 			</div>
 			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-[#25272D]')} shadow="custom">
-				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleAcceptInvitation}>
+				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleSubmit}>
 					<div className="w-full flex flex-col items-center gap-8">
 						<Text.Heading as="h3" className="text-center">
 							{t('pages.invite.acceptInvite.USER_DETAILS')}
@@ -86,6 +91,7 @@ export function CompleteInvitationRegistrationForm(props: {
 								autoComplete="off"
 								wrapperClassName="dark:bg-[#25272D]"
 								className="dark:bg-[#25272D]"
+								required
 							/>
 
 							<InputField
@@ -97,13 +103,13 @@ export function CompleteInvitationRegistrationForm(props: {
 								value={userDetails.password}
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
-								autoComplete="off"
+								autoComplete="new-password"
 							/>
 
 							<InputField
 								type="password"
 								name="confirmPassword"
-								placeholder={'Confirm your Password'}
+								placeholder={t('form.CONFIRM_PASSWORD_PLACEHOLDER')}
 								className="dark:bg-[#25272D]"
 								wrapperClassName="mb-5 dark:bg-[#25272D]"
 								value={userDetails.confirmPassword}
@@ -111,30 +117,35 @@ export function CompleteInvitationRegistrationForm(props: {
 								onChange={(e) => {
 									setUserDetails({ ...userDetails, confirmPassword: e.target.value });
 								}}
-								autoComplete="off"
+								autoComplete="new-password"
 							/>
+							{errors.acceptInviteFailed && (
+								<Text.Error className="justify-self-start self-start">
+									{errors.acceptInviteFailed}
+								</Text.Error>
+							)}
 						</div>
 					</div>
 
 					<div className="flex items-center justify-between w-full">
 						<div className="flex items-center gap-2">
-							<Checkbox />
+							<Checkbox checked={aggreeToTerms} onChange={() => setAgreeToTerms(!aggreeToTerms)} />
 							<p className="space-x-2 dark:text-gray-300">
-								Agree to{' '}
+								{t('form.AGREE_TO')}
 								<a
 									href={TERMS_LINK}
 									target="_blank"
 									className="text-primary dark:text-gray-300 dark:font-medium"
 									rel="noreferrer"
 								>
-									Terms & Conditions
+									{t('layout.footer.TERMS_AND_CONDITIONS')}
 								</a>
 							</p>
 						</div>
 
 						<Button
 							loading={acceptInvitationLoading}
-							disabled={acceptInvitationLoading}
+							disabled={acceptInvitationLoading || !aggreeToTerms}
 							className="px-6"
 							type="submit"
 						>
