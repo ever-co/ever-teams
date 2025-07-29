@@ -16,7 +16,9 @@ import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
-import { InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
+import { IInviteVerifyCode, InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
+import { useQueryCall } from '../../common';
+import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
 
 export function useTeamInvitations() {
 	const queryClient = useQueryClient();
@@ -92,6 +94,25 @@ export function useTeamInvitations() {
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000 // 5 minutes
 	});
+
+	const { queryCall: validateInviteByTokenAndEmailQueryCall, loading: validateInviteByTokenAndEmailLoading } =
+		useQueryCall(async (params: TValidateInviteRequest) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.users.invitations.operations.validateByToken(params.token, params.email),
+				queryFn: () => inviteService.validateInviteByTokenAndEmail(params),
+				staleTime: 0,
+				gcTime: 0
+			});
+		});
+
+	const { queryCall: validateInviteByCodeQueryCall, loading: validateInviteByCodeLoading } = useQueryCall(
+		async (params: IInviteVerifyCode) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.users.invitations.operations.validateByCode(params.code, params.email),
+				queryFn: () => inviteService.validateInvitebyCodeAndEmail(params)
+			});
+		}
+	);
 
 	// ===== MUTATIONS =====
 
@@ -182,6 +203,12 @@ export function useTeamInvitations() {
 			invalidateTeamInvitationData();
 
 			return res;
+		}
+	});
+
+	const acceptInvitationMutation = useMutation({
+		mutationFn: async (data: TAcceptInvitationRequest) => {
+			return await inviteService.acceptInvite(data);
 		}
 	});
 
@@ -289,6 +316,12 @@ export function useTeamInvitations() {
 		myInvitations,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading: acceptOrRejectInvitationMutation.isPending
+		acceptRejectMyInvitationsLoading: acceptOrRejectInvitationMutation.isPending,
+		validateInviteByTokenAndEmail: validateInviteByTokenAndEmailQueryCall,
+		validateInviteByTokenAndEmailLoading,
+		acceptInvitationMutation,
+		acceptInvitationLoading: acceptInvitationMutation.isPending,
+		validateInviteByCode: validateInviteByCodeQueryCall,
+		validateInviteByCodeLoading
 	};
 }

@@ -32,7 +32,7 @@ class SigninService extends APIService {
 			return Promise.reject({ errors });
 		}
 
-		const inviteReq = await inviteService.verifyInviteCode({ email, code });
+		const inviteReq = await inviteService.validateInvitebyCodeAndEmail({ email, code });
 
 		if (inviteReq && inviteReq.fullName) {
 			const password = generateToken(8);
