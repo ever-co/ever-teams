@@ -76,7 +76,7 @@ export function PastTasks({
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-6 border-none dark:bg-dark--theme">
+								<AccordionContent className="pb-6 border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (

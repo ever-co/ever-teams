@@ -112,7 +112,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-12 bg-transparent border-none dark:bg-dark--theme">
+								<AccordionContent className="pb-12 bg-transparent border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (
 										<DailyPlanTasksTableView

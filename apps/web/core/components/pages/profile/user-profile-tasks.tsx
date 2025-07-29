@@ -201,7 +201,14 @@ const TaskList = memo(
 		);
 
 		if (slicedItems.length === 0) {
-			return tabFiltered.tab !== 'stats' ? <EmptyPlans planMode="Today Tasks" /> : null;
+			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
+			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
+				return null;
+			}
+
+			// Show appropriate empty state based on tab
+			const planMode = tabFiltered.tab === 'worked' ? 'Today Tasks' : 'All Tasks';
+			return <EmptyPlans planMode={planMode} />;
 		}
 
 		return (
@@ -269,7 +276,14 @@ const TanStackVirtualizedTaskList = memo(
 		);
 
 		if (tasks.length === 0) {
-			return tabFiltered.tab !== 'stats' ? <EmptyPlans planMode="Today Tasks" /> : null;
+			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
+			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
+				return null;
+			}
+
+			// Show appropriate empty state based on tab
+			const planMode = tabFiltered.tab === 'worked' ? 'Today Tasks' : 'All Tasks';
+			return <EmptyPlans planMode={planMode} />;
 		}
 
 		// Render based on virtualization type
