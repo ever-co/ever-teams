@@ -11,6 +11,7 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useEffect, useState } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import DailyPlanTasksTableView from './table-view';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -63,70 +64,92 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 								</AccordionTrigger>
 								<AccordionContent className="pb-12 bg-transparent border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode="Outstanding" />
-									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
-										{(provided) => (
-											<ul
-												ref={provided.innerRef}
-												{...provided.droppableProps}
-												className={clsxm(
-													'flex-wrap',
-													view === 'CARDS' && 'flex-col',
-													view === 'TABLE' && 'flex-wrap',
-													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-auto'
-												)}
-											>
-												{plan.tasks?.map((task, index) =>
-													view === 'CARDS' ? (
-														<Draggable key={task.id} draggableId={task.id} index={index}>
-															{(provided) => (
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
-																	style={{
-																		...provided.draggableProps.style,
-																		marginBottom: 8
-																	}}
-																>
-																	<TaskCard
-																		key={`${task.id}${plan.id}`}
-																		isAuthUser={true}
-																		activeAuthTask={true}
-																		viewType={'dailyplan'}
-																		task={task}
-																		profile={profile}
-																		type="HORIZONTAL"
-																		taskBadgeClassName={`rounded-sm`}
-																		taskTitleClassName="mt-[0.0625rem]"
-																		planMode="Outstanding"
-																	/>
-																</div>
-															)}
-														</Draggable>
-													) : (
-														<Draggable key={task.id} draggableId={task.id} index={index}>
-															{(provided) => (
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
-																	style={{
-																		...provided.draggableProps.style,
-																		marginBottom: 8
-																	}}
-																>
-																	<TaskBlockCard key={task.id} task={task} />
-																</div>
-															)}
-														</Draggable>
-													)
-												)}
-											</ul>
-										)}
-										{/* <>{provided.placeholder}</> */}
-										{/* Plan tasks list */}
-									</Droppable>
+									{view === 'TABLE' ? (
+										<DailyPlanTasksTableView
+											profile={profile}
+											plan={plan}
+											data={plan.tasks ?? []}
+											planMode="Outstanding"
+										/>
+									) : (
+										<Droppable
+											droppableId={plan.id as string}
+											key={plan.id}
+											type="task"
+											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+										>
+											{(provided, snapshot) => (
+												<ul
+													ref={provided.innerRef}
+													{...provided.droppableProps}
+													className={clsxm(
+														'flex-wrap border border-transparent',
+														view === 'CARDS' && 'flex-col',
+														'flex gap-2 pb-[1.5rem] flex-wrap',
+														view === 'BLOCKS' && 'overflow-x-auto',
+														snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-transparent'
+													)}
+												>
+													{plan.tasks?.map((task, index) =>
+														view === 'CARDS' ? (
+															<Draggable
+																key={task.id}
+																draggableId={task.id}
+																index={index}
+															>
+																{(provided) => (
+																	<div
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		{...provided.dragHandleProps}
+																		style={{
+																			...provided.draggableProps.style,
+																			marginBottom: 8
+																		}}
+																	>
+																		<TaskCard
+																			key={`${task.id}${plan.id}`}
+																			isAuthUser={true}
+																			activeAuthTask={true}
+																			viewType={'dailyplan'}
+																			task={task}
+																			profile={profile}
+																			type="HORIZONTAL"
+																			taskBadgeClassName={`rounded-sm`}
+																			taskTitleClassName="mt-[0.0625rem]"
+																			planMode="Outstanding"
+																			taskContentClassName="!w-72 !max-w-80"
+																		/>
+																	</div>
+																)}
+															</Draggable>
+														) : (
+															<Draggable
+																key={task.id}
+																draggableId={task.id}
+																index={index}
+															>
+																{(provided) => (
+																	<div
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		{...provided.dragHandleProps}
+																		style={{
+																			...provided.draggableProps.style,
+																			marginBottom: 8
+																		}}
+																	>
+																		<TaskBlockCard key={task.id} task={task} />
+																	</div>
+																)}
+															</Draggable>
+														)
+													)}
+													{provided.placeholder}
+												</ul>
+											)}
+										</Droppable>
+									)}
 								</AccordionContent>
 							</AccordionItem>
 						))}

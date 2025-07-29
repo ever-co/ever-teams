@@ -325,7 +325,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 														setCurrentOutstanding(value as FilterOutstanding);
 													}}
 												>
-													<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
+													<SelectTrigger className="h-9 w-fit dark:border-dark--theme-light dark:bg-dark-high">
 														<SelectValue placeholder="Filter" />
 													</SelectTrigger>
 													<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
