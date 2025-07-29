@@ -7920,7 +7920,7 @@
     "@radix-ui/react-roving-focus" "1.0.2"
     "@radix-ui/react-use-controllable-state" "1.0.0"
 
-"@radix-ui/react-tabs@^1.1.9":
+"@radix-ui/react-tabs@^1.1.12", "@radix-ui/react-tabs@^1.1.9":
   version "1.1.12"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-tabs/-/react-tabs-1.1.12.tgz#99b3522c73db9263f429a6d0f5a9acb88df3b129"
   integrity sha512-GTVAlRVrQrSw3cEARM0nAx73ixrWDPNZAruETn3oHCNP6SbZ/hNxdxp+u7VkIEv3/sFoLq1PfcHrl7Pnp0CDpw==
