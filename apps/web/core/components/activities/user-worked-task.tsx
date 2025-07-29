@@ -77,13 +77,18 @@ const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any
 						renderItem={renderTaskItem}
 						className="w-full"
 						listClassName="flex flex-col gap-6"
-						itemClassName=""
-						preserveListStructure={true}
+						itemClassName="px-1 pb-6" // Match original gap-6 spacing
 						listTag="ul"
 						itemTag="li"
-						bufferSize={5}
-						smoothScrolling={true}
-						cacheSize={50}
+						bufferSize={8} // Larger buffer for smoother scrolling
+						cacheSize={100} // Larger cache for better performance
+						overscanMultiplier={2}
+						scrollingIndicator={
+							<div className="flex gap-2 items-center">
+								<div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+								<span>Loading tasks...</span>
+							</div>
+						}
 					/>
 				) : (
 					<ul className="flex flex-col gap-6">

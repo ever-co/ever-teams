@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState, useMemo } from 'react';
-import { useTaskVirtualization, useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
+import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
 import { useVirtualizationCache } from '@/core/hooks/common/use-virtualization-cache';
 
 interface VirtualizedListProps<T extends { id: string }> {
@@ -57,7 +57,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	// Don't use virtualization for small lists or when disabled
 	const shouldVirtualize = useVirtualization && items.length > 20;
 
-	// Use enhanced virtualization with cache if smooth virtualization is enabled
+	// Use enhanced virtualization for better performance and cache
 	const virtualizationResult = useSmoothVirtualization
 		? useEnhancedVirtualization(items, {
 				containerHeight,
@@ -67,7 +67,14 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				cacheSize: cacheSize || 50,
 				overscanMultiplier: overscanMultiplier || 2
 			})
-		: useTaskVirtualization(items, containerHeight, itemHeight, shouldVirtualize, useWindow);
+		: useEnhancedVirtualization(items, {
+				containerHeight,
+				itemHeight,
+				enabled: shouldVirtualize,
+				useWindow,
+				cacheSize: 20, // Smaller cache for basic mode
+				overscanMultiplier: 1.5
+			});
 
 	// Initialize cache system for enhanced performance
 	const cache = useVirtualizationCache<T>({
@@ -141,7 +148,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 		]
 	);
 
-	// Enhanced render function with intelligent caching
+	// Enhanced render function that preserves CSS structure like TanStackVirtualizedTaskList
 	const renderVirtualizedItem = useCallback(
 		(virtualItem: any, index: number) => {
 			const item = virtualItem.item;
@@ -162,12 +169,11 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 								height: `${virtualItem.size}px`,
 								transform: `translateY(${virtualItem.start}px)`,
 								transition: isScrolling ? 'none' : 'transform 0.1s ease-out',
-								// Anti-flicker optimization
 								willChange: isScrolling ? 'transform' : 'auto'
 							}}
-							className={itemClassName}
 						>
-							{cachedItem.renderedContent}
+							{/* Preserve original spacing structure like TanStackVirtualizedTaskList */}
+							<div className={itemClassName || 'px-1 pb-4'}>{cachedItem.renderedContent}</div>
 						</div>
 					);
 				}
@@ -194,9 +200,9 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 						transition: isScrolling ? 'none' : 'transform 0.1s ease-out',
 						willChange: isScrolling ? 'transform' : 'auto'
 					}}
-					className={itemClassName}
 				>
-					{renderedItem}
+					{/* Preserve original spacing structure like TanStackVirtualizedTaskList */}
+					<div className={itemClassName || 'px-1 pb-4'}>{renderedItem}</div>
 				</div>
 			);
 		},
@@ -252,31 +258,43 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 		);
 	}
 
-	// Container virtualization with anti-white-space buffer
+	// Container virtualization with enhanced anti-white-space system
 	const bufferHeight = useMemo(() => itemHeight * bufferSize, [itemHeight, bufferSize]);
+
+	// Enhanced buffer zones that adapt to scroll speed
+	const dynamicBufferHeight = useMemo(() => {
+		const baseBuffer = bufferHeight;
+		const scrollSpeedMultiplier = scrollDirection !== 'idle' ? 1.5 : 1;
+		return Math.min(baseBuffer * scrollSpeedMultiplier, itemHeight * 10); // Max 10 items buffer
+	}, [bufferHeight, scrollDirection, itemHeight]);
 
 	return (
 		<div className={className}>
 			<div ref={parentRef} style={containerStyle} className="custom-scrollbar" onScroll={handleScroll}>
 				<div style={innerStyle}>
-					{/* Top buffer to prevent white spaces */}
+					{/* Enhanced top buffer - adapts to scroll direction */}
 					{virtualItems.length > 0 && virtualItems[0].start > 0 && (
 						<div
 							style={{
 								position: 'absolute',
-								top: Math.max(0, virtualItems[0].start - bufferHeight),
+								top: Math.max(0, virtualItems[0].start - dynamicBufferHeight),
 								left: 0,
 								width: '100%',
-								height: Math.min(bufferHeight, virtualItems[0].start),
+								height: Math.min(dynamicBufferHeight, virtualItems[0].start),
 								background: 'transparent',
-								pointerEvents: 'none'
+								pointerEvents: 'none',
+								// Subtle gradient to blend with content
+								backgroundImage:
+									scrollDirection === 'down'
+										? 'linear-gradient(to bottom, rgba(255,255,255,0.02), transparent)'
+										: 'transparent'
 							}}
 						/>
 					)}
 
 					{virtualItems.map((virtualItem, index) => renderVirtualizedItem(virtualItem, index))}
 
-					{/* Bottom buffer to prevent white spaces */}
+					{/* Enhanced bottom buffer - adapts to scroll direction */}
 					{virtualItems.length > 0 && virtualItems[virtualItems.length - 1].end < totalSize && (
 						<div
 							style={{
@@ -284,9 +302,17 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 								top: virtualItems[virtualItems.length - 1].end,
 								left: 0,
 								width: '100%',
-								height: Math.min(bufferHeight, totalSize - virtualItems[virtualItems.length - 1].end),
+								height: Math.min(
+									dynamicBufferHeight,
+									totalSize - virtualItems[virtualItems.length - 1].end
+								),
 								background: 'transparent',
-								pointerEvents: 'none'
+								pointerEvents: 'none',
+								// Subtle gradient to blend with content
+								backgroundImage:
+									scrollDirection === 'up'
+										? 'linear-gradient(to top, rgba(255,255,255,0.02), transparent)'
+										: 'transparent'
 							}}
 						/>
 					)}
