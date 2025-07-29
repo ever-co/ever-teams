@@ -144,8 +144,8 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 ) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
 
 // Invite
-export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/passcode';
-export const INVITE_CALLBACK_PATH = '/auth/passcode';
+export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/accept-invite';
+export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 export const GA_MEASUREMENT_ID = getNextPublicEnv(
