@@ -5,8 +5,10 @@ import { useTranslations } from 'next-intl';
 import { useUserSelectedPage } from '@/core/hooks/users';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { VirtualizedList } from '../common/virtualized-list';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 
-const UserWorkedTaskTab = ({ member }: { member?: any }) => {
+const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any; useVirtualization?: boolean }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
 	const { user } = useAuthenticateUser();
@@ -17,6 +19,24 @@ const UserWorkedTaskTab = ({ member }: { member?: any }) => {
 	const canSeeActivity = profile?.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
 	const otherTasks = tasks.filter((t) =>
 		profile?.member?.running == true ? t.id !== profile?.activeUserTeamTask?.id : t
+	);
+
+	// Determine if virtualization should be used
+	const shouldUseVirtualization = useVirtualization && otherTasks.length > ITEMS_LENGTH_TO_VIRTUALIZED;
+
+	// Render function for virtualized items
+	const renderTaskItem = (task: any, index: number) => (
+		<TaskCard
+			task={task}
+			isAuthUser={profile?.isAuthUser}
+			activeAuthTask={false}
+			viewType={hook.tab === 'unassigned' ? 'unassign' : 'default'}
+			profile={profile}
+			taskBadgeClassName={`${
+				task.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
+			} rounded-sm`}
+			taskTitleClassName="mt-[0.0625rem]"
+		/>
 	);
 
 	return (
@@ -46,28 +66,32 @@ const UserWorkedTaskTab = ({ member }: { member?: any }) => {
 				</div>
 			)}
 
-			<ul className="flex flex-col gap-6">
-				{canSeeActivity &&
-					otherTasks.map((task) => {
-						return (
-							<li key={task.id}>
-								<TaskCard
-									task={task}
-									isAuthUser={profile?.isAuthUser}
-									activeAuthTask={false}
-									viewType={hook.tab === 'unassigned' ? 'unassign' : 'default'}
-									profile={profile}
-									taskBadgeClassName={`	${
-										task.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem]'
-											: '!px-[0.375rem] py-[0.375rem]'
-									} rounded-sm`}
-									taskTitleClassName="mt-[0.0625rem]"
-								/>
-							</li>
-						);
-					})}
-			</ul>
+			{canSeeActivity &&
+				(shouldUseVirtualization ? (
+					<VirtualizedList
+						items={otherTasks}
+						itemHeight={120} // Approximate height of TaskCard
+						containerHeight={600}
+						useVirtualization={true}
+						useSmoothVirtualization={true}
+						renderItem={renderTaskItem}
+						className="w-full"
+						listClassName="flex flex-col gap-6"
+						itemClassName=""
+						preserveListStructure={true}
+						listTag="ul"
+						itemTag="li"
+						bufferSize={5}
+						smoothScrolling={true}
+						cacheSize={50}
+					/>
+				) : (
+					<ul className="flex flex-col gap-6">
+						{otherTasks.map((task) => (
+							<li key={task.id}>{renderTaskItem(task, 0)}</li>
+						))}
+					</ul>
+				))}
 		</div>
 	);
 };

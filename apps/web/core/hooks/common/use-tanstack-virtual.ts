@@ -1,5 +1,5 @@
 import { useVirtualizer, useWindowVirtualizer } from '@tanstack/react-virtual';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useMemo, useState } from 'react';
 
 interface UseTanStackVirtualOptions {
 	itemHeight: number;
@@ -142,8 +142,136 @@ export function useWindowVirtual<T>(items: T[], options: { itemHeight: number; o
 }
 
 /**
+ * Enhanced virtualization hook with intelligent caching and performance optimizations
+ * Prevents white spaces during fast scrolling and avoids re-virtualizing seen items
+ */
+export function useEnhancedVirtualization<T extends { id: string }>(
+	items: T[],
+	options: {
+		containerHeight?: number;
+		itemHeight: number;
+		enabled?: boolean;
+		useWindow?: boolean;
+		cacheSize?: number;
+		overscanMultiplier?: number;
+	}
+) {
+	const {
+		containerHeight = 600,
+		itemHeight,
+		enabled = true,
+		useWindow = false,
+		cacheSize = 50,
+		overscanMultiplier = 2
+	} = options;
+
+	// Intelligent cache for rendered items
+	const [renderedItemsCache, setRenderedItemsCache] = useState<Map<string, React.ReactNode>>(new Map());
+	const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | 'idle'>('idle');
+	const [lastScrollTop, setLastScrollTop] = useState(0);
+
+	// Dynamic overscan based on scroll speed and direction
+	const dynamicOverscan = useMemo(() => {
+		const baseOverscan = Math.max(3, Math.ceil(containerHeight / itemHeight / 4));
+		return scrollDirection !== 'idle' ? baseOverscan * overscanMultiplier : baseOverscan;
+	}, [scrollDirection, containerHeight, itemHeight, overscanMultiplier]);
+
+	// Choose virtualization strategy
+	const shouldUseWindow = useWindow || items.length > 100;
+
+	// Enhanced scroll tracking
+	const trackScrollDirection = useCallback(
+		(scrollTop: number) => {
+			const diff = scrollTop - lastScrollTop;
+			if (Math.abs(diff) > 5) {
+				// Threshold to avoid jitter
+				setScrollDirection(diff > 0 ? 'down' : 'up');
+			} else {
+				setScrollDirection('idle');
+			}
+			setLastScrollTop(scrollTop);
+		},
+		[lastScrollTop]
+	);
+
+	// Cache cleanup - remove items that are far from current view
+	const cleanupCache = useCallback(
+		(visibleRange: { start: number; end: number }) => {
+			if (renderedItemsCache.size > cacheSize) {
+				const newCache = new Map(renderedItemsCache);
+				const itemsToKeep = new Set();
+
+				// Keep items in extended range
+				const extendedStart = Math.max(0, visibleRange.start - dynamicOverscan * 2);
+				const extendedEnd = Math.min(items.length - 1, visibleRange.end + dynamicOverscan * 2);
+
+				for (let i = extendedStart; i <= extendedEnd; i++) {
+					if (items[i]) {
+						itemsToKeep.add(items[i].id);
+					}
+				}
+
+				// Remove items not in extended range
+				for (const [itemId] of newCache) {
+					if (!itemsToKeep.has(itemId)) {
+						newCache.delete(itemId);
+					}
+				}
+
+				setRenderedItemsCache(newCache);
+			}
+		},
+		[renderedItemsCache, cacheSize, dynamicOverscan, items]
+	);
+
+	if (shouldUseWindow) {
+		const windowResult = useWindowVirtual(items, {
+			itemHeight,
+			overscan: dynamicOverscan,
+			enabled: enabled && items.length > 20
+		});
+
+		return {
+			...windowResult,
+			renderedItemsCache,
+			setRenderedItemsCache,
+			scrollDirection,
+			trackScrollDirection,
+			cleanupCache,
+			getVisibleRange: () => {
+				const range = windowResult.virtualItems;
+				if (range.length === 0) return { start: 0, end: 0 };
+				return {
+					start: range[0].index,
+					end: range[range.length - 1].index
+				};
+			},
+			isEnhanced: true
+		};
+	}
+
+	const containerResult = useTanStackVirtual(items, {
+		itemHeight,
+		containerHeight,
+		overscan: dynamicOverscan,
+		enabled: enabled && items.length > 20
+	});
+
+	return {
+		...containerResult,
+		renderedItemsCache,
+		setRenderedItemsCache,
+		scrollDirection,
+		trackScrollDirection,
+		cleanupCache,
+		isEnhanced: true
+	};
+}
+
+/**
  * Specialized hook for task list virtualization with TanStack Virtual
  * Automatically chooses between container and window virtualization
+ * @deprecated Use useEnhancedVirtualization for better performance
  */
 export function useTaskVirtualization<T>(
 	tasks: T[],
