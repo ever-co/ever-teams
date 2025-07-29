@@ -49,7 +49,7 @@ export function MultipleSelect({
 				<SelectTrigger className="w-64" onClick={() => setOpen(true)}>
 					<SelectValue>{selectedValues.length > 0 ? selectedValues.join(', ') : placeholder}</SelectValue>
 				</SelectTrigger>
-				<SelectContent className="max-h-60 z-50" onClick={() => setOpen(true)}>
+				<SelectContent className="z-50 max-h-60" onClick={() => setOpen(true)}>
 					<SelectGroup>
 						{label && <SelectLabel>{label}</SelectLabel>}
 						{options.map((option) => (
@@ -61,7 +61,7 @@ export function MultipleSelect({
 								<div className="flex items-center">
 									<span>{option.label}</span>
 									{selectedValues.includes(option.value) && (
-										<Check className="ml-auto h-4 w-4 text-primary" />
+										<Check className="ml-auto w-4 h-4 text-primary" />
 									)}
 								</div>
 							</SelectItem>
@@ -121,7 +121,7 @@ export function CustomSelect({
 			aria-label={ariaLabel || 'Select an option'}
 		>
 			<SelectTrigger
-				className={`overflow-hidden text-clip bg-white dark:bg-dark--theme-light focus:ring-0 ${className}`}
+				className={`overflow-hidden bg-white text-clip dark:bg-dark--theme-light focus:ring-0 ${className}`}
 			>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
@@ -134,7 +134,9 @@ export function CustomSelect({
 								// String option (like manualTimeReasons)
 								return (
 									<SelectItem key={`${option}-${index}`} value={option}>
-										{option}
+										<span className="overflow-x-hidden whitespace-nowrap text-ellipsis max-w-96">
+											{option}
+										</span>
 									</SelectItem>
 								);
 							}
@@ -180,7 +182,9 @@ export function CustomSelect({
 
 							return (
 								<SelectItem key={`${optionValue}-${index}`} value={optionValue}>
-									{displayText}
+									<span className="overflow-x-hidden whitespace-nowrap text-ellipsis max-w-96">
+										{displayText}
+									</span>
 								</SelectItem>
 							);
 						})

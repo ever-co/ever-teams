@@ -23,7 +23,7 @@ import {
 } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-
+import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
 const LazySetupFullCalendar = dynamic(
 	() => import('@/core/components/integration/calendar').then((mod) => ({ default: mod.SetupFullCalendar })),
 	{
@@ -39,16 +39,6 @@ const LazySetupTimeSheet = dynamic(
 		loading: () => <SetupTimeSheetSkeleton />
 	}
 );
-const LazyAddManualTimeModal = dynamic(
-	() =>
-		import('@/core/components/features/manual-time/add-manual-time-modal').then((mod) => ({
-			default: mod.AddManualTimeModal
-		})),
-	{
-		ssr: false
-	}
-);
-
 const CalendarPage = () => {
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
