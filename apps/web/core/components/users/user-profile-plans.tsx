@@ -57,7 +57,8 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		sortedPlans,
 		profileDailyPlans,
 		deleteDailyPlan,
-		deleteDailyPlanLoading
+		deleteDailyPlanLoading,
+		getMyDailyPlansLoading
 	} = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
@@ -171,136 +172,192 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			).totalTasks
 		};
 	}, [todayPlan, filterFuturePlanData, filterPastPlanData, filterAllPlanData, outstandingPlans, user]);
+	/*
+	 * DAILY PLANS DISPLAY LOGIC FIX
+	 *
+	 * Original Problem: The component used a simple check `profileDailyPlans?.items?.length > 0`
+	 * which caused the daily plans interface to never show during loading states, and would
+	 * immediately fall back to EmptyPlans even when data was being fetched.
+	 *
+	 * Solution: Implemented shouldShowDailyPlans logic that:
+	 * 1. Shows the daily plans interface during loading (with loading indicator)
+	 * 2. Shows the daily plans interface when user has plans
+	 * 3. Only falls back to EmptyPlans when loading is complete AND no plans exist
+	 *
+	 * Impact: Eliminates the flash between interfaces and ensures users see the
+	 * appropriate daily plans interface with proper loading states.
+	 */
+
+	const shouldShowDailyPlans = useMemo(() => {
+		if (getMyDailyPlansLoading) {
+			return true;
+		}
+		return profileDailyPlans?.items?.length > 0;
+	}, [profileDailyPlans?.items?.length, getMyDailyPlansLoading]);
+
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
 			<Container fullWidth={fullWidth} className="">
 				<>
-					{profileDailyPlans?.items?.length > 0 ? (
+					{/*
+					 * CONDITIONAL RENDERING WITH LOADING STATES
+					 *
+					 * This replaces the original simple condition that only checked for
+					 * profileDailyPlans?.items?.length > 0, which caused the interface
+					 * to immediately show EmptyPlans during loading.
+					 *
+					 * Now properly handles three states:
+					 * 1. Loading: Shows spinner with loading message
+					 * 2. Has Plans: Shows full daily plans interface with tabs
+					 * 3. No Plans: Shows EmptyPlans component
+					 */}
+					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
-							<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
-								<div className={clsxm('flex gap-4 items-center')}>
-									{Object.keys(tabsScreens).map((filter, i) => (
-										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
-											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
-											<div
-												className={clsxm(
-													'text-gray-500 flex gap-2 items-center',
-													currentTab == filter && 'text-blue-600 dark:text-white font-medium'
-												)}
-												onClick={() => {
-													setDate(undefined);
-													setCurrentTab(filter as FilterTabs);
-												}}
-											>
-												{t(
-													`task.tabFilter.${filter
-														.toUpperCase()
-														.replace(' ', '_')}` as DottedLanguageObjectStringPaths
-												)}
-												<span
-													className={clsxm(
-														'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
-														currentTab == filter && 'dark:bg-gray-600'
-													)}
+							{getMyDailyPlansLoading ? (
+								<div className="flex justify-center items-center py-8">
+									<ReloadIcon className="w-6 h-6 animate-spin" />
+									<span className="ml-2">{t('common.LOADING')}</span>
+								</div>
+							) : (
+								<>
+									<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
+										<div className={clsxm('flex gap-4 items-center')}>
+											{Object.keys(tabsScreens).map((filter, i) => (
+												<div
+													key={i}
+													className="flex gap-4 justify-start items-center cursor-pointer"
 												>
-													{totalTasksDailyPlansMap[filter as FilterTabs]}
-												</span>
-											</div>
-										</div>
-									))}
-								</div>
-								<div className="flex gap-2 items-center">
-									{currentTab === 'Today Tasks' && todayPlan[0] && (
-										<>
-											{canSeeActivity ? (
-												<div className="flex justify-end">
-													<AlertPopup
-														open={popupOpen}
-														buttonOpen={
-															//button open popup
-															<Button
-																onClick={() => {
-																	setPopupOpen((prev) => !prev);
-																}}
-																variant="outline"
-																className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-															>
-																{t('common.plan.DELETE_THIS_PLAN')}
-															</Button>
-														}
+													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
+													<div
+														className={clsxm(
+															'text-gray-500 flex gap-2 items-center',
+															currentTab == filter &&
+																'text-blue-600 dark:text-white font-medium'
+														)}
+														onClick={() => {
+															setDate(undefined);
+															setCurrentTab(filter as FilterTabs);
+														}}
 													>
-														{/*button confirm*/}
-														<Button
-															disabled={deleteDailyPlanLoading}
-															onClick={async () => {
-																try {
-																	if (requirePlan) {
-																		localStorage.removeItem(
-																			DAILY_PLAN_SUGGESTION_MODAL_DATE
-																		);
-																	}
-																	todayPlan[0].id &&
-																		(await deleteDailyPlan(todayPlan[0].id));
-																} catch (error) {
-																	console.error(error);
-																} finally {
-																	setPopupOpen(false);
-																}
-															}}
-															variant="destructive"
-															className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-														>
-															{deleteDailyPlanLoading && (
-																<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+														{t(
+															`task.tabFilter.${filter
+																.toUpperCase()
+																.replace(' ', '_')}` as DottedLanguageObjectStringPaths
+														)}
+														<span
+															className={clsxm(
+																'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
+																currentTab == filter && 'dark:bg-gray-600'
 															)}
-															{t('common.DELETE')}
-														</Button>
-														{/*button cancel*/}
-														<Button
-															onClick={() => setPopupOpen(false)}
-															variant="outline"
-															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 														>
-															{t('common.CANCEL')}
-														</Button>
-													</AlertPopup>
+															{totalTasksDailyPlansMap[filter as FilterTabs]}
+														</span>
+													</div>
 												</div>
-											) : (
-												<></>
-											)}
-										</>
-									)}
-									{currentTab === 'Outstanding' && (
-										<Select
-											onValueChange={(value) => {
-												setCurrentOutstanding(value as FilterOutstanding);
-											}}
-										>
-											<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
-												<SelectValue placeholder="Filter" />
-											</SelectTrigger>
-											<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
-												{Object.keys(screenOutstanding).map((item, index) => (
-													<SelectItem key={index} value={item}>
-														<div className="flex items-center space-x-1">
-															{item == 'DATE' ? (
-																<IconsCalendarMonthOutline className="w-4 h-4" />
-															) : (
-																<StarIcon className="w-4 h-4" />
-															)}
-															<span className="capitalize">{item}</span>
+											))}
+										</div>
+										<div className="flex gap-2 items-center">
+											{currentTab === 'Today Tasks' && todayPlan[0] && (
+												<>
+													{canSeeActivity ? (
+														<div className="flex justify-end">
+															<AlertPopup
+																open={popupOpen}
+																buttonOpen={
+																	//button open popup
+																	<Button
+																		onClick={() => {
+																			setPopupOpen((prev) => !prev);
+																		}}
+																		variant="outline"
+																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+																	>
+																		{t('common.plan.DELETE_THIS_PLAN')}
+																	</Button>
+																}
+															>
+																{/*button confirm*/}
+																<Button
+																	disabled={deleteDailyPlanLoading}
+																	onClick={async () => {
+																		try {
+																			if (requirePlan) {
+																				localStorage.removeItem(
+																					DAILY_PLAN_SUGGESTION_MODAL_DATE
+																				);
+																			}
+																			todayPlan[0].id &&
+																				(await deleteDailyPlan(
+																					todayPlan[0].id
+																				));
+																		} catch (error) {
+																			console.error(error);
+																		} finally {
+																			setPopupOpen(false);
+																		}
+																	}}
+																	variant="destructive"
+																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																>
+																	{deleteDailyPlanLoading && (
+																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+																	)}
+																	{t('common.DELETE')}
+																</Button>
+																{/*button cancel*/}
+																<Button
+																	onClick={() => setPopupOpen(false)}
+																	variant="outline"
+																	className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+																>
+																	{t('common.CANCEL')}
+																</Button>
+															</AlertPopup>
 														</div>
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									)}
-									<ViewsHeaderTabs />
-								</div>
-							</div>
-							{tabsScreens[currentTab]}
+													) : (
+														<></>
+													)}
+												</>
+											)}
+											{currentTab === 'Outstanding' && (
+												<Select
+													onValueChange={(value) => {
+														setCurrentOutstanding(value as FilterOutstanding);
+													}}
+												>
+													<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
+														<SelectValue placeholder="Filter" />
+													</SelectTrigger>
+													<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
+														{Object.keys(screenOutstanding).map((item, index) => (
+															<SelectItem key={index} value={item}>
+																<div className="flex items-center space-x-1">
+																	{item == 'DATE' ? (
+																		<IconsCalendarMonthOutline className="w-4 h-4" />
+																	) : (
+																		<StarIcon className="w-4 h-4" />
+																	)}
+																	<span className="capitalize">{item}</span>
+																</div>
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+											)}
+											<ViewsHeaderTabs />
+										</div>
+									</div>
+									{tabsScreens[currentTab]}
+								</>
+							)}
 						</div>
 					) : (
+						/*
+						 * FALLBACK STATE: Only show EmptyPlans when loading is complete
+						 * and user genuinely has no daily plans configured.
+						 * This prevents the flash of empty state during data loading.
+						 */
+
 						<EmptyPlans />
 					)}
 				</>

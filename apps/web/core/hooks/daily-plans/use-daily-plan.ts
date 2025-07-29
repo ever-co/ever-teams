@@ -189,15 +189,39 @@ export function useDailyPlan() {
 		[getAllDayPlansQuery.data, setDailyPlan],
 		Boolean(dailyPlan?.items?.length)
 	);
+	/*
+	 * DAILY PLANS SYNCHRONIZATION FIX
+	 *
+	 * Original Problem: The useConditionalUpdateEffect was using
+	 * `Boolean(profileDailyPlans?.items?.length)` as shouldSkipFirstRender condition.
+	 * This caused a race condition where if profileDailyPlans was empty on first render,
+	 * the effect would never execute even when getMyDailyPlansQuery.data contained valid data.
+	 *
+	 * Solution: Changed shouldSkipFirstRender to `false` to ensure synchronization
+	 * always occurs when React Query data changes, regardless of current Jotai state.
+	 *
+	 * Impact: Guarantees that profileDailyPlans Jotai store is properly synchronized
+	 * with React Query data on first render and subsequent updates, fixing the
+	 * daily plans interface display logic.
+	 */
 
 	useConditionalUpdateEffect(
 		() => {
 			if (getMyDailyPlansQuery.data) {
 				setProfileDailyPlans(getMyDailyPlansQuery.data);
+				if (process.env.NODE_ENV === 'development') {
+					console.log(
+						'[Daily Plans] Profile plans synchronized:',
+						getMyDailyPlansQuery.data.items?.length || 0,
+						'plans'
+					);
+				}
 			}
 		},
 		[getMyDailyPlansQuery.data, setProfileDailyPlans],
-		Boolean(profileDailyPlans?.items?.length)
+		// Changed from Boolean(profileDailyPlans?.items?.length) to false
+		// to fix synchronization issue when profileDailyPlans is initially empty
+		false
 	);
 
 	// All day plans
