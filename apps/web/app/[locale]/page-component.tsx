@@ -37,22 +37,9 @@ import {
 	LazyTeamOutstandingNotifications,
 	LazyTeamMembers,
 	LazyTeamInvitations,
-	LazyTeamMemberHeader as TeamMemberHeaderComponent
+	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
-import {
-	LazyChatwootWidget,
-	LazyUnverifiedEmail,
-	LazyNoTeam as NoTeamComponent
-} from '@/core/components/optimized-components/common';
-
-// Re-export for backward compatibility
-export const TeamOutstandingNotifications = LazyTeamOutstandingNotifications;
-const TeamMembers = LazyTeamMembers;
-const ChatwootWidget = LazyChatwootWidget;
-const TeamInvitations = LazyTeamInvitations;
-const UnverifiedEmail = LazyUnverifiedEmail;
-const LazyTeamMemberHeader = TeamMemberHeaderComponent;
-const LazyNoTeam = NoTeamComponent;
+import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
 
 function MainPage() {
 	const t = useTranslations();
@@ -109,14 +96,14 @@ function MainPage() {
 										{/* UnverifiedEmail - Only render when user email is not verified */}
 										{user && !user.isEmailVerified && (
 											<Suspense fallback={<UnverifiedEmailSkeleton />}>
-												<UnverifiedEmail user={user} />
+												<LazyUnverifiedEmail user={user} />
 											</Suspense>
 										)}
 
 										{/* TeamInvitations - Only render when user has pending invitations */}
 										{myInvitationsList && myInvitationsList.length > 0 && (
 											<Suspense fallback={<TeamInvitationsSkeleton />}>
-												<TeamInvitations
+												<LazyTeamInvitations
 													className="!m-0"
 													myInvitationsList={myInvitationsList}
 													myInvitations={myInvitations}
@@ -127,7 +114,7 @@ function MainPage() {
 										{((outstandingPlans && outstandingPlans.length > 0) ||
 											(dailyPlan?.items && dailyPlan.items.length > 0 && isTeamManager)) && (
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
-												<TeamOutstandingNotifications
+												<LazyTeamOutstandingNotifications
 													outstandingPlans={outstandingPlans}
 													dailyPlan={dailyPlan}
 													isTeamManager={isTeamManager}
@@ -155,12 +142,12 @@ function MainPage() {
 					}
 					footerClassName={clsxm('')}
 				>
-					<ChatwootWidget />
+					<LazyChatwootWidget />
 					<div className="h-full">
 						<Container fullWidth={fullWidth} className="mx-auto">
 							{isTeamMember ? (
 								<Suspense fallback={<TeamMembersSkeleton view={view} fullWidth={fullWidth} />}>
-									<TeamMembers kanbanView={view} />
+									<LazyTeamMembers kanbanView={view} />
 								</Suspense>
 							) : (
 								<Suspense fallback={<NoTeamSkeleton fullWidth={fullWidth} />}>
