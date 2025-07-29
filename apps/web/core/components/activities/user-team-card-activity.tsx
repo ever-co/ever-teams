@@ -2,13 +2,14 @@ import { Transition } from '@headlessui/react';
 import React from 'react';
 import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { useTranslations } from 'next-intl';
-import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { clsxm } from '@/core/lib/utils';
-import { AppsTab } from '@/core/components/pages/profile/apps';
-import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
-import { LazyUserWorkedTaskTab } from '@/core/components/optimized-components';
-import { ScreenshootTeamTab } from '../pages/profile/screenshots/screenshoots';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/common/tabs';
+import {
+	LazyUserWorkedTaskTab,
+	LazyAppsTab,
+	LazyVisitedSitesTab,
+	LazyScreenshootTeamTab
+} from '@/core/components/optimized-components';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 
@@ -44,40 +45,32 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 						</div>
 					</div>
 					<div className="overflow-hidden flex-1 w-full">
-						<Tab.Group>
-							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] gap-2 p-2">
+						<Tabs defaultValue={ActivityFilters.TASKS} className="w-full h-fit">
+							<TabsList className="w-full grid grid-cols-4 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] gap-2 p-2 !h-fit">
 								{Object.values(ActivityFilters).map((filter: string) => (
-									<Tab
+									<TabsTrigger
 										key={filter}
-										className={({ selected }) =>
-											clsxm(
-												'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-												'focus:outline-none focus:ring-2',
-												selected
-													? 'bg-white dark:bg-dark text-blue-700 shadow'
-													: 'hover:bg-white/[0.50]'
-											)
-										}
+										value={filter}
+										className="rounded-lg py-2.5 text-sm font-medium leading-5 data-[state=active]:bg-white data-[state=active]:dark:bg-dark data-[state=active]:text-blue-700 data-[state=active]:shadow h-fit"
 									>
 										{filter}
-									</Tab>
+									</TabsTrigger>
 								))}
-							</Tab.List>
-							<Tab.Panels className="mt-2 w-full">
-								<Tab.Panel className="overflow-hidden w-full">
-									<LazyUserWorkedTaskTab member={member} />
-								</Tab.Panel>
-								<Tab.Panel className="w-full">
-									<ScreenshootTeamTab />
-								</Tab.Panel>
-								<Tab.Panel className="w-full">
-									<AppsTab />
-								</Tab.Panel>
-								<Tab.Panel className="w-full">
-									<VisitedSitesTab />
-								</Tab.Panel>
-							</Tab.Panels>
-						</Tab.Group>
+							</TabsList>
+
+							<TabsContent value={ActivityFilters.TASKS} className="overflow-hidden mt-2 w-full">
+								<LazyUserWorkedTaskTab member={member} />
+							</TabsContent>
+							<TabsContent value={ActivityFilters.SCREENSHOOTS} className="mt-2 w-full">
+								<LazyScreenshootTeamTab />
+							</TabsContent>
+							<TabsContent value={ActivityFilters.APPS} className="mt-2 w-full">
+								<LazyAppsTab />
+							</TabsContent>
+							<TabsContent value={ActivityFilters.VISITED_SITES} className="mt-2 w-full">
+								<LazyVisitedSitesTab />
+							</TabsContent>
+						</Tabs>
 					</div>
 				</div>
 			</div>
