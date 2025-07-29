@@ -8,10 +8,11 @@ import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -21,6 +22,52 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [plans, setPlans] = useState<TDailyPlan[]>(outstandingPlans);
+
+	// Optimized style objects - created once, not on every render
+	const draggableStyle = useMemo(() => ({ marginBottom: 8 }), []);
+
+	// Optimized task rendering function
+	const renderTask = useCallback(
+		(task: TTask, index: number, planId: string) => {
+			const TaskComponent =
+				view === 'CARDS' ? (
+					<TaskCard
+						key={`${task.id}${planId}`}
+						isAuthUser={true}
+						activeAuthTask={true}
+						viewType={'dailyplan'}
+						task={task}
+						profile={profile}
+						type="HORIZONTAL"
+						taskBadgeClassName="rounded-sm"
+						taskTitleClassName="mt-[0.0625rem]"
+						planMode="Outstanding"
+						taskContentClassName="!w-72 !max-w-80"
+					/>
+				) : (
+					<TaskBlockCard key={task.id} task={task} />
+				);
+
+			return (
+				<Draggable key={task.id} draggableId={task.id} index={index}>
+					{(provided) => (
+						<div
+							ref={provided.innerRef}
+							{...provided.draggableProps}
+							{...provided.dragHandleProps}
+							style={{
+								...provided.draggableProps.style,
+								...draggableStyle
+							}}
+						>
+							{TaskComponent}
+						</div>
+					)}
+				</Draggable>
+			);
+		},
+		[view, profile, draggableStyle]
+	);
 
 	useEffect(() => {
 		let data = [...outstandingPlans];
@@ -91,59 +138,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 													)}
 												>
 													{plan.tasks?.map((task, index) =>
-														view === 'CARDS' ? (
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 8
-																		}}
-																	>
-																		<TaskCard
-																			key={`${task.id}${plan.id}`}
-																			isAuthUser={true}
-																			activeAuthTask={true}
-																			viewType={'dailyplan'}
-																			task={task}
-																			profile={profile}
-																			type="HORIZONTAL"
-																			taskBadgeClassName={`rounded-sm`}
-																			taskTitleClassName="mt-[0.0625rem]"
-																			planMode="Outstanding"
-																			taskContentClassName="!w-72 !max-w-80"
-																		/>
-																	</div>
-																)}
-															</Draggable>
-														) : (
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 8
-																		}}
-																	>
-																		<TaskBlockCard key={task.id} task={task} />
-																	</div>
-																)}
-															</Draggable>
-														)
+														renderTask(task, index, plan.id as string)
 													)}
 													{provided.placeholder}
 												</ul>
