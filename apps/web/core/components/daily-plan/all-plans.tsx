@@ -159,6 +159,7 @@ export function AllPlans({
 																					: undefined
 																			}
 																			plan={plan}
+																			taskContentClassName="!w-72 !max-w-80"
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>

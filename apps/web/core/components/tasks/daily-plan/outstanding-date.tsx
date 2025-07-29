@@ -8,8 +8,8 @@ import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { useMemo, useCallback } from 'react';
+import { TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -21,7 +21,18 @@ interface IOutstandingFilterDate {
 export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<TDailyPlan[]>(outstandingPlans);
+
+	// Optimized plans filtering with useMemo to prevent unnecessary recalculations
+	const filteredPlans = useMemo(() => {
+		if (!user) return outstandingPlans;
+
+		return outstandingPlans
+			.map((plan) => ({
+				...plan,
+				tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, user]);
 
 	// Optimized style objects - created once, not on every render
 	const draggableStyle = useMemo(() => ({ marginBottom: 8 }), []);
@@ -69,33 +80,18 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 		[view, profile, draggableStyle]
 	);
 
-	useEffect(() => {
-		let data = [...outstandingPlans];
-
-		// Filter plans for specific user if provided
-		if (user) {
-			data = data
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				}))
-				.filter((plan) => plan.tasks && plan.tasks.length > 0);
-
-			setPlans(data);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user]);
+	// No useEffect needed - filteredPlans is already optimized with useMemo
 
 	return (
 		<div className="flex flex-col gap-6">
-			{plans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
+			{filteredPlans?.length > 0 ? (
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, filteredPlans, () => {})}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
+						defaultValue={filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
 					>
-						{plans?.map((plan) => (
+						{filteredPlans?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
