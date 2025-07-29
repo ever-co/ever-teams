@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "Vervollständigen Sie Ihre Registrierung {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Diese Nachricht ist nicht mehr gültig",
+						"TITLE": "Diese Einladung ist nicht mehr gültig",
 						"DESCRIPTION": "Bitte wenden Sie sich an den Workspace-Administrator, um eine neue anzufordern. Entweder haben Sie eine falsche URL eingegeben oder die Einladung ist abgelaufen"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1065,6 +1065,8 @@
 		"FIRST_NAME_PLACEHOLDER": "Vorname",
 		"LAST_NAME_PLACEHOLDER": "Nachname",
 		"EMAIL_PLACEHOLDER": "Ihre E-Mail-Adresse eingeben",
+		"PASSWORD_PLACEHOLDER": "Geben Sie Ihr Passwort ein",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Bestätigen Sie Ihr Passwort",
 		"PHONE_PLACEHOLDER": "Telefonnummer",
 		"ISSUE_NAME_PLACEHOLDER": "Ticketname",
 		"TEAM_NAME_PLACEHOLDER": "Bitte geben Sie den Teamnamen ein",
@@ -1080,7 +1082,7 @@
 		"CHANGE_AVATAR": "Avatar ändern",
 		"SELECT_TEAM_SIZE": "Teamgröße auswählen",
 		"INVALID_ALLOWED_CHARACTER": "Ungültiger Wert für allowedCharacters. Verwenden Sie alpha, numeric oder alphanumeric",
-		"PASSWORD_PLACEHOLDER": "Geben Sie Ihr Passwort ein"
+		"AGREE_TO": "Zustimmen zu"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Nutzungsbedingungen",
+			"TERMS_AND_CONDITIONS": "Allgemeine Geschäftsbedingungen",
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
 			"COOKIES": "Cookie-Richtlinie",
 			"BY": "Von"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "Die Länge muss eine Zahl größer als 0 sein",
 		"INVALID_ALLOWED_CHARACTER": "Ungültiger Wert für allowedCharacters. Verwenden Sie alpha, numeric oder alphanumeric",
 		"VALID_EMAIL": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-		"SELECT_ROLE": "Bitte wählen Sie eine Rolle aus"
+		"SELECT_ROLE": "Bitte wählen Sie eine Rolle aus",
+		"PASSWORDS_DO_NOT_MATCH": "Passwörter stimmen nicht überein"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Enter drücken, um zu validieren"

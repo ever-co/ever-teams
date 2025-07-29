@@ -833,7 +833,7 @@
 				"COMPLETE_REGISTRATION": "Complete seu registro {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Esta mensagem não é mais válida",
+						"TITLE": "Este convite não é mais válido",
 						"DESCRIPTION": "Entre em contato com o administrador do espaço de trabalho para solicitar uma nova. Você inseriu uma URL incorreta ou o convite expirou"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1067,6 +1067,7 @@
 		"LAST_NAME_PLACEHOLDER": "Sobrenome",
 		"EMAIL_PLACEHOLDER": "Digite seu endereço de e-mail",
 		"PASSWORD_PLACEHOLDER": "Coloque sua senha",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirme sua senha",
 		"PHONE_PLACEHOLDER": "Número de telefone",
 		"ISSUE_NAME_PLACEHOLDER": "Nome da tarefa",
 		"TEAM_NAME_PLACEHOLDER": "Por favor, digite o nome da sua equipe",
@@ -1081,7 +1082,8 @@
 		"SET_THEME": "Definir Tema",
 		"CHANGE_AVATAR": "Alterar Avatar",
 		"SELECT_TEAM_SIZE": "Selecionar Tamanho da Equipe",
-		"INVALID_ALLOWED_CHARACTER": "Valor inválido para allowedCharacters. Use alfabético, numérico ou alfanumérico"
+		"INVALID_ALLOWED_CHARACTER": "Valor inválido para allowedCharacters. Use alfabético, numérico ou alfanumérico",
+		"AGREE_TO": "Concordo com"
 	},
 	"layout": {
 		"footer": {
@@ -1091,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Termos de Serviço",
+			"TERMS_AND_CONDITIONS": "Termos e Condições",
 			"PRIVACY_POLICY": "Política de Privacidade",
 			"COOKIES": "Política de Cookies",
 			"BY": "Por"
@@ -1102,7 +1105,8 @@
 		"LENGTH_NUMBER_ERROR": "O comprimento deve ser um número e maior que 0",
 		"INVALID_ALLOWED_CHARACTER": "Valor inválido para allowedCharacters. Use letras, números ou alfanuméricos",
 		"VALID_EMAIL": "Por favor, insira um e-mail válido",
-		"SELECT_ROLE": "Por favor, selecione uma função"
+		"SELECT_ROLE": "Por favor, selecione uma função",
+		"PASSWORDS_DO_NOT_MATCH": "As senhas não coincidem"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Pressione Enter para validar"

@@ -836,7 +836,7 @@
 				"COMPLETE_REGISTRATION": "Complete your registration {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "This message is no longer valid",
+						"TITLE": "This invitation is no longer valid",
 						"DESCRIPTION": "Please contact the workspace admin to request a new one. Either you entered an incorrect URL or the invitation has expired"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1070,6 +1070,7 @@
 		"LAST_NAME_PLACEHOLDER": "Last Name",
 		"EMAIL_PLACEHOLDER": "Enter your email address",
 		"PASSWORD_PLACEHOLDER": "Enter your password",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirm your password",
 		"PHONE_PLACEHOLDER": "Phone Number",
 		"ISSUE_NAME_PLACEHOLDER": "Issue name",
 		"TEAM_NAME_PLACEHOLDER": "Please Enter your team name",
@@ -1084,7 +1085,8 @@
 		"SET_THEME": "Set Theme",
 		"CHANGE_AVATAR": "Change Avatar",
 		"SELECT_TEAM_SIZE": "Select Team Size",
-		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
+		"AGREE_TO": "Agree to"
 	},
 	"layout": {
 		"footer": {
@@ -1094,6 +1096,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Terms of Service",
+			"TERMS_AND_CONDITIONS": "Terms and Conditions",
 			"PRIVACY_POLICY": "Privacy Policy",
 			"COOKIES": "Cookie Policy",
 			"BY": "By"
@@ -1105,7 +1108,8 @@
 		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
 		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
 		"VALID_EMAIL": "Please enter valid email",
-		"SELECT_ROLE": "Please select a role"
+		"SELECT_ROLE": "Please select a role",
+		"PASSWORDS_DO_NOT_MATCH": "Passwords do not match"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate"

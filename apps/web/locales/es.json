@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "Completa tu registro {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Este mensaje ya no es válido",
+						"TITLE": "Esta invitación ya no es válida",
 						"DESCRIPTION": "Por favor contacta al administrador del espacio de trabajo para solicitar uno nuevo. O ingresaste una URL incorrecta o la invitación ha expirado"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "Apellido",
 		"EMAIL_PLACEHOLDER": "Ingresa tu dirección de correo electrónico",
 		"PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirma tu contraseña",
 		"PHONE_PLACEHOLDER": "Número de teléfono",
 		"ISSUE_NAME_PLACEHOLDER": "Nombre del problema",
 		"TEAM_NAME_PLACEHOLDER": "Ingresa el nombre de tu equipo",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "Establecer tema",
 		"CHANGE_AVATAR": "Cambiar avatar",
 		"SELECT_TEAM_SIZE": "Seleccionar tamaño de equipo",
-		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico"
+		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico",
+		"AGREE_TO": "Acepto"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Términos del servicio",
+			"TERMS_AND_CONDITIONS": "Términos y condiciones",
 			"PRIVACY_POLICY": "Política de privacidad",
 			"COOKIES": "Política de cookies",
 			"BY": "Por"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "La longitud debe ser un número y mayor que 0",
 		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico",
 		"VALID_EMAIL": "Por favor ingrese un correo electrónico válido",
-		"SELECT_ROLE": "Por favor seleccione un rol"
+		"SELECT_ROLE": "Por favor seleccione un rol",
+		"PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Presione Enter para validar"

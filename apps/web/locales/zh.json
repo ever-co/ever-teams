@@ -844,7 +844,7 @@
 				"COMPLETE_REGISTRATION": "完成您的注册 {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "此消息不再有效",
+						"TITLE": "此邀请不再有效",
 						"DESCRIPTION": "请联系工作区管理员请求新的邀请。您输入了错误的URL或邀请已过期"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "姓",
 		"EMAIL_PLACEHOLDER": "输入您的电子邮箱",
 		"PASSWORD_PLACEHOLDER": "输入您的密码",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "确认您的密码",
 		"PHONE_PLACEHOLDER": "电话号码",
 		"ISSUE_NAME_PLACEHOLDER": "议题名称",
 		"TEAM_NAME_PLACEHOLDER": "请输入您的团队名称",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "设置主题",
 		"CHANGE_AVATAR": "更改头像",
 		"SELECT_TEAM_SIZE": "选择团队规模",
-		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字"
+		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
+		"AGREE_TO": "同意"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
 			"TERMS": "服务条款",
+			"TERMS_AND_CONDITIONS": "条款和条件",
 			"PRIVACY_POLICY": "隐私政策",
 			"COOKIES": "Cookie政策",
 			"BY": "by"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "长度应为数字且大于0",
 		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
 		"VALID_EMAIL": "请输入有效的电子邮箱",
-		"SELECT_ROLE": "请选择角色"
+		"SELECT_ROLE": "请选择角色",
+		"PASSWORDS_DO_NOT_MATCH": "密码不匹配"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "按Enter键验证"

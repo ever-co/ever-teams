@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "השלם את הרישום שלך {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "הודעה זו אינה תקפה יותר",
+						"TITLE": "הזמנה זו אינה תקפה יותר",
 						"DESCRIPTION": "אנא צור קשר עם מנהל מרחב העבודה כדי לבקש חדשה. או שהזנת URL שגוי או שההזמנה פגה"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "שם משפחה",
 		"EMAIL_PLACEHOLDER": "הכנס כתובת אימייל",
 		"PASSWORD_PLACEHOLDER": "הכנס את הסיסמה שלך",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "אשר את הסיסמה שלך",
 		"PHONE_PLACEHOLDER": "מספר טלפון",
 		"ISSUE_NAME_PLACEHOLDER": "שם בעיה",
 		"TEAM_NAME_PLACEHOLDER": "אנא הכנס את שם הצוות שלך",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "קבע ערכת עיצוב",
 		"CHANGE_AVATAR": "שנה אווטר",
 		"SELECT_TEAM_SIZE": "בחר גודל צוות",
-		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
+		"AGREE_TO": "מסכים ל"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "תנאי שימוש",
+			"TERMS_AND_CONDITIONS": "תנאים והגבלות",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"COOKIES": "מדיניות עוגיות",
 			"BY": "על ידי"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "אורך צריך להיות מספר וגדול מ-0",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
 		"VALID_EMAIL": "אנא הכנס אימייל חוקי",
-		"SELECT_ROLE": "אנא בחר תפקיד"
+		"SELECT_ROLE": "אנא בחר תפקיד",
+		"PASSWORDS_DO_NOT_MATCH": "הסיסמאות אינן תואמות"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת"

@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "أكمل تسجيلك {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "هذه الرسالة لم تعد صالحة",
+						"TITLE": "هذه الدعوة لم تعد صالحة",
 						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة. إما أنك أدخلت رابطًا غير صحيح أو انتهت صلاحية الدعوة"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1074,6 +1074,7 @@
 		"LAST_NAME_PLACEHOLDER": "اسم العائلة",
 		"EMAIL_PLACEHOLDER": "أدخل عنوان بريدك الإلكتروني",
 		"PASSWORD_PLACEHOLDER": "ادخل رقمك السري",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "تأكيد كلمة المرور",
 		"PHONE_PLACEHOLDER": "رقم الهاتف",
 		"ISSUE_NAME_PLACEHOLDER": "اسم القضية",
 		"TEAM_NAME_PLACEHOLDER": "يرجى إدخال اسم فريقك",
@@ -1088,7 +1089,8 @@
 		"SET_THEME": "تعيين الموضوع",
 		"CHANGE_AVATAR": "تغيير الصورة الرمزية",
 		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
-		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي"
+		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي",
+		"AGREE_TO": "أوافق على"
 	},
 	"layout": {
 		"footer": {
@@ -1098,6 +1100,7 @@
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",
 			"TERMS": "شروط الخدمة",
+			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
 			"BY": "من طرف"
@@ -1109,7 +1112,8 @@
 		"LENGTH_NUMBER_ERROR": "يجب أن يكون الطول رقمًا وأكبر من 0",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي ",
 		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح",
-		"SELECT_ROLE": "يرجى اختيار دور"
+		"SELECT_ROLE": "يرجى اختيار دور",
+		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"

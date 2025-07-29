@@ -836,7 +836,7 @@
 				"COMPLETE_REGISTRATION": "Complétez votre inscription {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Ce message n'est plus valide",
+						"TITLE": "Cette invitation n'est plus valide",
 						"DESCRIPTION": "Veuillez contacter l'administrateur de l'espace de travail pour en demander un nouveau. Soit vous avez saisi une URL incorrecte, soit l'invitation a expiré"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1070,6 +1070,7 @@
 		"LAST_NAME_PLACEHOLDER": "Nom de famille",
 		"EMAIL_PLACEHOLDER": "Entrez votre adresse email",
 		"PASSWORD_PLACEHOLDER": "Tapez votre mot de passe",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirmez votre mot de passe",
 		"PHONE_PLACEHOLDER": "Numéro de téléphone",
 		"ISSUE_NAME_PLACEHOLDER": "Nom du problème",
 		"TEAM_NAME_PLACEHOLDER": "Veuillez entrer le nom de votre équipe",
@@ -1084,7 +1085,8 @@
 		"SET_THEME": "Choisir un thème",
 		"CHANGE_AVATAR": "Changer d'avatar",
 		"SELECT_TEAM_SIZE": "Sélectionnez la taille de l'équipe",
-		"INVALID_ALLOWED_CHARACTER": "Valeur non valide pour allowedCharacters. Utilisez alpha, numérique, ou alphanumérique"
+		"INVALID_ALLOWED_CHARACTER": "Valeur non valide pour allowedCharacters. Utilisez alpha, numérique, ou alphanumérique",
+		"AGREE_TO": "J'accepte"
 	},
 	"layout": {
 		"footer": {
@@ -1094,6 +1096,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Conditions d'utilisation",
+			"TERMS_AND_CONDITIONS": "Conditions générales",
 			"PRIVACY_POLICY": "Politique de confidentialité",
 			"COOKIES": "Politique des cookies",
 			"BY": "Par"
@@ -1105,7 +1108,8 @@
 		"LENGTH_NUMBER_ERROR": "La longueur doit être un nombre et supérieure à 0",
 		"INVALID_ALLOWED_CHARACTER": "Valeur invalide pour allowedCharacters. Utilisez alpha, numérique ou alumérique",
 		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide",
-		"SELECT_ROLE": "Veuillez sélectionner un rôle"
+		"SELECT_ROLE": "Veuillez sélectionner un rôle",
+		"PASSWORDS_DO_NOT_MATCH": "Les mots de passe ne correspondent pas"
 	},
 	"team": {
 		"BACK_LABEL": "Retour à l'équipe",

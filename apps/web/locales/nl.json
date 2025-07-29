@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "Voltooi je registratie {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Dit bericht is niet meer geldig",
+						"TITLE": "Deze uitnodiging is niet meer geldig",
 						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen. Je hebt een onjuiste URL ingevoerd of de uitnodiging is verlopen"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "Achternaam",
 		"EMAIL_PLACEHOLDER": "Voer uw e-mailadres in",
 		"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Bevestig uw wachtwoord",
 		"PHONE_PLACEHOLDER": "Telefoonnummer",
 		"ISSUE_NAME_PLACEHOLDER": "Probleemnaam",
 		"TEAM_NAME_PLACEHOLDER": "Voer uw teamnaam in",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "Thema instellen",
 		"CHANGE_AVATAR": "Avatar wijzigen",
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
-		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek"
+		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
+		"AGREE_TO": "Akkoord met"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",
+			"TERMS_AND_CONDITIONS": "Algemene voorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"COOKIES": "Cookiebeleid",
 			"BY": "Door"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "Lengte moet een getal zijn en groter dan 0",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
 		"VALID_EMAIL": "Voer een geldig e-mailadres in",
-		"SELECT_ROLE": "Selecteer een rol"
+		"SELECT_ROLE": "Selecteer een rol",
+		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"

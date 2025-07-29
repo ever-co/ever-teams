@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "Ukończ rejestrację {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Ta wiadomość nie jest już ważna",
+						"TITLE": "To zaproszenie nie jest już ważne",
 						"DESCRIPTION": "Skontaktuj się z administratorem obszaru roboczego, aby poprosić o nową. Albo wprowadziłeś nieprawidłowy URL, albo zaproszenie wygasło"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "Nazwisko",
 		"EMAIL_PLACEHOLDER": "Wprowadź swój adres e-mail",
 		"PASSWORD_PLACEHOLDER": "Wprowadź hasło",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Potwierdź hasło",
 		"PHONE_PLACEHOLDER": "Numer telefonu",
 		"ISSUE_NAME_PLACEHOLDER": "Nazwa problemu",
 		"TEAM_NAME_PLACEHOLDER": "Proszę wprowadzić nazwę zespołu",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "Ustaw motyw",
 		"CHANGE_AVATAR": "Zmień awatar",
 		"SELECT_TEAM_SIZE": "Wybierz rozmiar zespołu",
-		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną"
+		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
+		"AGREE_TO": "Zgadzam się z"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Warunki usługi",
+			"TERMS_AND_CONDITIONS": "Regulamin",
 			"PRIVACY_POLICY": "Polityka prywatności",
 			"COOKIES": "Polityka Cookie",
 			"BY": "Przez"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "Długość powinna być liczbą większą niż 0",
 		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
 		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail",
-		"SELECT_ROLE": "Proszę wybrać rolę"
+		"SELECT_ROLE": "Proszę wybrać rolę",
+		"PASSWORDS_DO_NOT_MATCH": "Hasła nie są zgodne"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Naciśnij Enter, aby potwierdzić"

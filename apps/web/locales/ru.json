@@ -832,7 +832,7 @@
 				"COMPLETE_REGISTRATION": "Завершите регистрацию {userEmail}",
 				"messages": {
 					"INVALID_INVITATION": {
-						"TITLE": "Это сообщение больше не действительно",
+						"TITLE": "Это приглашение больше не действительно",
 						"DESCRIPTION": "Обратитесь к администратору рабочего пространства, чтобы запросить новое. Либо вы ввели неправильный URL, либо срок действия приглашения истек"
 					},
 					"WORKSPACE_NOT_EXIST": {
@@ -1066,6 +1066,7 @@
 		"LAST_NAME_PLACEHOLDER": "Фамилия",
 		"EMAIL_PLACEHOLDER": "Введите ваш адрес электронной почты",
 		"PASSWORD_PLACEHOLDER": "Введите ваш пароль",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Подтвердите ваш пароль",
 		"PHONE_PLACEHOLDER": "Номер телефона",
 		"ISSUE_NAME_PLACEHOLDER": "Название задачи",
 		"TEAM_NAME_PLACEHOLDER": "Введите название вашей команды",
@@ -1080,7 +1081,8 @@
 		"SET_THEME": "Установить тему",
 		"CHANGE_AVATAR": "Изменить аватар",
 		"SELECT_TEAM_SIZE": "Выберите размер команды",
-		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы"
+		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы",
+		"AGREE_TO": "Согласен с"
 	},
 	"layout": {
 		"footer": {
@@ -1090,6 +1092,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Условия предоставления услуг",
+			"TERMS_AND_CONDITIONS": "Условия и положения",
 			"PRIVACY_POLICY": "Политика конфиденциальности",
 			"COOKIES": "Политика использования файлов cookie",
 			"BY": "От"
@@ -1101,7 +1104,8 @@
 		"LENGTH_NUMBER_ERROR": "Длина должна быть числом и больше 0",
 		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы",
 		"VALID_EMAIL": "Пожалуйста, введите действительный адрес электронной почты",
-		"SELECT_ROLE": "Пожалуйста, выберите роль"
+		"SELECT_ROLE": "Пожалуйста, выберите роль",
+		"PASSWORDS_DO_NOT_MATCH": "Пароли не совпадают"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения"
