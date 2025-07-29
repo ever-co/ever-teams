@@ -5,35 +5,83 @@ import { Text } from '@/core/components/common/typography';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { TERMS_LINK } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { useTranslations } from 'next-intl';
+import { useCallback, useState } from 'react';
 
-export function CompleteInvitationRegistrationForm() {
+export function CompleteInvitationRegistrationForm(props: {
+	invitationData: TInviteVerified;
+	onAcceptInvitation: (data: { fullName: string; password: string }) => void;
+	acceptInvitationLoading: boolean;
+}) {
 	const t = useTranslations();
+	const { invitationData, onAcceptInvitation, acceptInvitationLoading } = props;
+
+	const [userDetails, setUserDetails] = useState({
+		fullName: invitationData.fullName,
+		password: '',
+		confirmPassword: ''
+	});
+
+	const [errors, setErrors] = useState({
+		fullName: '',
+		password: '',
+		confirmPassword: ''
+	});
+
+	const handleAcceptInvitation = useCallback(
+		(e: React.FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
+
+			setErrors({
+				fullName: '',
+				password: '',
+				confirmPassword: ''
+			});
+
+			console.log(userDetails);
+
+			if (userDetails.password !== userDetails.confirmPassword) {
+				setErrors({
+					...errors,
+					confirmPassword: 'Passwords do not match'
+				});
+
+				console.log('Passwords do not match');
+				return;
+			}
+
+			onAcceptInvitation(userDetails);
+		},
+		[onAcceptInvitation, userDetails, errors]
+	);
 
 	return (
 		<div className="w-full flex flex-col gap-10 dark:bg-transparent rounded-2xl md:w-[35rem] ">
 			<div className="w-full px-8 flex flex-col gap-2 text-center">
 				<h2 className="font-medium text-3xl">
-					{t('pages.invite.acceptInvite.ACCEPT_INVITATION_TO_TEAM', { team: 'Workout' })}
+					{t('pages.invite.acceptInvite.ACCEPT_INVITATION_TO_TEAM', {
+						team: invitationData.organization.name
+					})}
 				</h2>
 				<p className=" text-lg text-gray-400">
-					{t(t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: 'user@example.com' }))}
+					{t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: invitationData.email })}
 				</p>
 			</div>
 			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-[#25272D]')} shadow="custom">
-				<form className="flex flex-col gap-1 items-center justify-between">
+				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleAcceptInvitation}>
 					<div className="w-full flex flex-col items-center gap-8">
 						<Text.Heading as="h3" className="text-center">
 							{t('pages.invite.acceptInvite.USER_DETAILS')}
 						</Text.Heading>
 						<div className="w-full">
 							<InputField
-								name="email"
-								type="email"
-								placeholder={t('form.EMAIL_PLACEHOLDER')}
-								// value={}
-								// errors={}
-								// onChange={}
+								name="name"
+								type="text"
+								placeholder={t('form.NAME_PLACEHOLDER')}
+								value={userDetails.fullName}
+								errors={errors}
+								onChange={(e) => setUserDetails({ ...userDetails, fullName: e.target.value })}
 								autoComplete="off"
 								wrapperClassName="dark:bg-[#25272D]"
 								className="dark:bg-[#25272D]"
@@ -45,9 +93,9 @@ export function CompleteInvitationRegistrationForm() {
 								placeholder={t('form.PASSWORD_PLACEHOLDER')}
 								className="dark:bg-[#25272D]"
 								wrapperClassName="dark:bg-[#25272D]"
-								// value={}
-								// errors={}
-								// onChange={}
+								value={userDetails.password}
+								errors={errors}
+								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
 								autoComplete="off"
 							/>
 
@@ -57,13 +105,14 @@ export function CompleteInvitationRegistrationForm() {
 								placeholder={'Confirm your Password'}
 								className="dark:bg-[#25272D]"
 								wrapperClassName="mb-5 dark:bg-[#25272D]"
-								// value={}
-								// errors={}
-								// onChange={}
+								value={userDetails.confirmPassword}
+								errors={errors}
+								onChange={(e) => {
+									console.log(e.target.value);
+									setUserDetails({ ...userDetails, confirmPassword: e.target.value });
+								}}
 								autoComplete="off"
 							/>
-
-							<Text.Error className="justify-self-start self-start">{}</Text.Error>
 						</div>
 					</div>
 
@@ -83,7 +132,12 @@ export function CompleteInvitationRegistrationForm() {
 							</p>
 						</div>
 
-						<Button className="px-6" type="submit">
+						<Button
+							loading={acceptInvitationLoading}
+							disabled={acceptInvitationLoading}
+							className="px-6"
+							type="submit"
+						>
 							{t('common.JOIN_REQUEST')}
 						</Button>
 					</div>
