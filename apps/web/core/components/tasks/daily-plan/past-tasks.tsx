@@ -134,7 +134,7 @@ export function PastTasks({
 																					? 'Past Tasks'
 																					: undefined
 																			}
-																			taskContentClassName="!w-72 !max-w-80"
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>

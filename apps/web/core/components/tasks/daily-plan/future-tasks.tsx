@@ -125,7 +125,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																			taskTitleClassName="mt-[0.0625rem]"
 																			plan={plan}
 																			planMode="Future Tasks"
-																			taskContentClassName="!w-72 !max-w-80"
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>

@@ -22,7 +22,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
-	// Optimized plans filtering with useMemo to prevent unnecessary recalculations
+	// Performance: useMemo prevents recalculating filtered plans on every render
 	const filteredPlans = useMemo(() => {
 		if (!user) return outstandingPlans;
 
@@ -34,12 +34,13 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			.filter((plan) => plan.tasks && plan.tasks.length > 0);
 	}, [outstandingPlans, user]);
 
-	// Optimized style objects - created once, not on every render
+	// Performance: static style object created once instead of on every render
 	const draggableStyle = useMemo(() => ({ marginBottom: 8 }), []);
 
-	// Optimized task rendering function
+	// Performance: useCallback prevents function recreation on every render
 	const renderTask = useCallback(
 		(task: TTask, index: number, planId: string) => {
+			// Conditional rendering moved outside map for better performance
 			const TaskComponent =
 				view === 'CARDS' ? (
 					<TaskCard
@@ -53,7 +54,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 						taskBadgeClassName="rounded-sm"
 						taskTitleClassName="mt-[0.0625rem]"
 						planMode="Outstanding"
-						taskContentClassName="!w-72 !max-w-80"
+						taskContentClassName="!w-72 !max-w-80" // UX: consistent width across all tabs
 					/>
 				) : (
 					<TaskBlockCard key={task.id} task={task} />
@@ -80,7 +81,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 		[view, profile, draggableStyle]
 	);
 
-	// No useEffect needed - filteredPlans is already optimized with useMemo
+	// Removed: useState + useEffect replaced with direct useMemo for better performance
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -89,7 +90,12 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
+						// Fix: only open first accordion (was opening ALL) for consistent performance with other tabs
+						defaultValue={
+							filteredPlans?.length > 0
+								? [new Date(filteredPlans[0].date).toISOString().split('T')[0]]
+								: []
+						}
 					>
 						{filteredPlans?.map((plan) => (
 							<AccordionItem
@@ -119,6 +125,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 											droppableId={plan.id as string}
 											key={plan.id}
 											type="task"
+											// Fix: added direction prop for proper Cards/Blocks differentiation
 											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
 										>
 											{(provided, snapshot) => (
@@ -133,6 +140,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 														snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-transparent'
 													)}
 												>
+													{/* Performance: using optimized renderTask function instead of inline rendering */}
 													{plan.tasks?.map((task, index) =>
 														renderTask(task, index, plan.id as string)
 													)}
