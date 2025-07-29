@@ -42,6 +42,7 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -174,7 +175,7 @@ export function UserTeamCard({
 					tabFiltered={hook}
 					user={member?.employee?.user}
 					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > 50} // Only virtualize for large lists
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED} // Only virtualize for large lists
 				/>
 			),
 			Screenshots: <ScreenshootTab />,
