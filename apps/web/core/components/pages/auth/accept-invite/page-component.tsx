@@ -5,30 +5,38 @@ import { useAcceptInvite } from '@/core/hooks/auth/use-accept-invite';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 import { EInvitationState } from '@/core/types/schemas/user/invite.schema';
 import { InvitationExpiredMessageCard } from './invitation-expired-message-card';
-import { Loader } from 'lucide-react';
+import { Spinner } from '@/core/components/common/spinner';
+import { AcceptInviteSkelethon } from '@/core/components/layouts/skeletons/accept-invite-skelethon';
 
 export function AcceptInvitePageComponent() {
 	const { invitationState, handleAcceptInvitation, acceptInvitationLoading } = useAcceptInvite();
 
-	return (
-		<AuthLayout isAuthPage={false}>
-			<div className="w-full border  h-full flex items-center justify-center">
-				{invitationState.state === EInvitationState.IDLE ? (
-					<div>Idle</div> // we need to add skeleton here
-				) : invitationState.state === EInvitationState.LOADING ? (
+	const renderContent = () => {
+		switch (invitationState.state) {
+			case EInvitationState.LOADING:
+				return (
 					<div className="w-full h-full flex items-center justify-center">
-						<Loader size={50} className=" animate-spin" />
+						<Spinner className="w-10 h-10" />
 					</div>
-				) : invitationState.state === EInvitationState.VALIDATED ? (
+				);
+			case EInvitationState.VALIDATED:
+				return (
 					<CompleteInvitationRegistrationForm
 						invitationData={invitationState.data}
 						onAcceptInvitation={handleAcceptInvitation}
 						acceptInvitationLoading={acceptInvitationLoading}
 					/>
-				) : (
-					<InvitationExpiredMessageCard />
-				)}
-			</div>
+				);
+			case EInvitationState.FAILED:
+				return <InvitationExpiredMessageCard />;
+			default:
+				return <AcceptInviteSkelethon />;
+		}
+	};
+
+	return (
+		<AuthLayout isAuthPage={false}>
+			<div className="w-full  h-full flex items-center justify-center">{renderContent()}</div>
 		</AuthLayout>
 	);
 }
