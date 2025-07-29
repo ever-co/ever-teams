@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import { LazyTaskCard } from '../optimized-components';
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { Divider, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useUserSelectedPage } from '@/core/hooks/users';

@@ -1,7 +1,8 @@
 import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
@@ -118,7 +119,7 @@ export function PastTasks({
 																			marginBottom: 4
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			key={`${task.id}${plan.id}`}
 																			isAuthUser={true}
 																			activeAuthTask={true}

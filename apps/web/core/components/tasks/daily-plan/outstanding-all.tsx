@@ -1,5 +1,6 @@
 import { EmptyPlans } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
@@ -75,7 +76,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 															marginBottom: 4
 														}}
 													>
-														<TaskCard
+														<LazyTaskCard
 															key={`${task.id}`}
 															isAuthUser={true}
 															activeAuthTask={true}

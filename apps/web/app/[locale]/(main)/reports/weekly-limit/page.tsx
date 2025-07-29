@@ -17,89 +17,18 @@ import { IOrganization } from '@/core/types/interfaces/organization/organization
 import { TTimeLimitReportList } from '@/core/types/schemas';
 import { TGroupByOption } from '@/core/components/pages/reports/weekly-limit/group-by-select';
 import { ReportsPageSkeleton } from '@/core/components/common/skeleton/reports-page-skeleton';
+// Skeletons are now handled by optimized components
+
+// Import optimized components from centralized location
 import {
-	MembersSelectSkeleton,
-	GroupBySelectSkeleton,
-	DatePickerWithRangeSkeleton,
-	WeeklyLimitExportMenuSkeleton,
-	TimeReportTableSkeleton,
-	TimeReportTableByMemberSkeleton,
-	PaginateSkeleton
-} from '@/core/components/common/skeleton/reports-component-skeletons';
-import dynamic from 'next/dynamic';
-
-const LazyDatePickerWithRange = dynamic(
-	() => import('@/core/components/common/date-range-select').then((mod) => ({ default: mod.DatePickerWithRange })),
-	{
-		ssr: false,
-		loading: () => <DatePickerWithRangeSkeleton />
-	}
-);
-
-const LazyMembersSelect = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/members-select').then((mod) => ({
-			default: mod.MembersSelect
-		})),
-	{
-		ssr: false,
-		loading: () => <MembersSelectSkeleton />
-	}
-);
-
-const LazyGroupBySelect = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/group-by-select').then((mod) => ({
-			default: mod.GroupBySelect
-		})),
-	{
-		ssr: false,
-		loading: () => <GroupBySelectSkeleton />
-	}
-);
-
-const LazyWeeklyLimitExportMenu = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu').then((mod) => ({
-			default: mod.WeeklyLimitExportMenu
-		})),
-	{
-		ssr: false,
-		loading: () => <WeeklyLimitExportMenuSkeleton />
-	}
-);
-
-// Priority 2: Heavy table components
-const LazyTimeReportTable = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/time-report-table').then((mod) => ({
-			default: mod.TimeReportTable
-		})),
-	{
-		ssr: false,
-		loading: () => <TimeReportTableSkeleton />
-	}
-);
-
-const LazyTimeReportTableByMember = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/time-report-table').then((mod) => ({
-			default: mod.TimeReportTableByMember
-		})),
-	{
-		ssr: false,
-		loading: () => <TimeReportTableByMemberSkeleton />
-	}
-);
-
-// Priority 3: Pagination component
-const LazyPaginate = dynamic(
-	() => import('@/core/components/duplicated-components/_pagination').then((mod) => ({ default: mod.Paginate })),
-	{
-		ssr: false,
-		loading: () => <PaginateSkeleton />
-	}
-);
+	LazyGroupBySelect,
+	LazyWeeklyLimitExportMenu,
+	LazyTimeReportTable,
+	LazyDatePickerWithRange,
+	LazyMembersSelect,
+	LazyTimeReportTableByMember,
+	LazyPaginate
+} from '@/core/components/optimized-components/reports';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();

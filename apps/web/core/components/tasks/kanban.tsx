@@ -25,21 +25,9 @@ import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
 import { useKanban } from '../../hooks/tasks/use-kanban';
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
-
-const LazyCreateTaskModal = dynamic(() => import('../features/tasks/create-task-modal'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
-
-const LazyEditStatusModal = dynamic(() => import('../features/tasks/edit-status-modal'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
+import { LazyCreateTaskModal, LazyEditStatusModal } from '@/core/components/optimized-components/tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const grid = 8;

@@ -1,7 +1,8 @@
 import { formatDayPlanDate, handleDragAndDrop } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
@@ -43,7 +44,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			// Conditional rendering moved outside map for better performance
 			const TaskComponent =
 				view === 'CARDS' ? (
-					<TaskCard
+					<LazyTaskCard
 						key={`${task.id}${planId}`}
 						isAuthUser={true}
 						activeAuthTask={true}

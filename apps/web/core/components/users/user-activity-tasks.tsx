@@ -1,5 +1,5 @@
 import { I_UserProfilePage } from '@/core/hooks';
-import { TaskCard } from '../tasks/task-card';
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { I_TaskFilter } from '../pages/profile/task-filters';
 
 type Props = {
@@ -25,7 +25,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				{otherTasks.map((task) => {
 					return (
 						<li key={task.id}>
-							<TaskCard
+							<LazyTaskCard
 								task={task}
 								isAuthUser={profile.isAuthUser}
 								activeAuthTask={false}

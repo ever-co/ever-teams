@@ -16,29 +16,16 @@ import { HeadCalendar } from '@/core/components/pages/calendar/page-component';
 import { timesheetCalendar } from '@/core/components/integration/calendar';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { CalendarPageSkeleton } from '@/core/components/common/skeleton/calendar-page-skeleton';
-import {
-	SetupFullCalendarSkeleton,
-	SetupTimeSheetSkeleton,
-	AddManualTimeModalSkeleton
-} from '@/core/components/common/skeleton/calendar-component-skeletons';
-import dynamic from 'next/dynamic';
+import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { Suspense } from 'react';
-import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
-const LazySetupFullCalendar = dynamic(
-	() => import('@/core/components/integration/calendar').then((mod) => ({ default: mod.SetupFullCalendar })),
-	{
-		ssr: false,
-		loading: () => <SetupFullCalendarSkeleton />
-	}
-);
 
-const LazySetupTimeSheet = dynamic(
-	() => import('@/core/components/integration/calendar').then((mod) => ({ default: mod.SetupTimeSheet })),
-	{
-		ssr: false,
-		loading: () => <SetupTimeSheetSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazySetupFullCalendar,
+	LazySetupTimeSheet,
+	LazyAddManualTimeModal
+} from '@/core/components/optimized-components/calendar';
+
 const CalendarPage = () => {
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);

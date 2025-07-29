@@ -1,7 +1,8 @@
 import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
@@ -113,7 +114,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																			marginBottom: 4
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			key={`${task.id}${plan.id}`}
 																			isAuthUser={true}
 																			activeAuthTask={true}
