@@ -3,6 +3,8 @@ import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useTeamInvitations } from '../organizations';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
+import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
+import { setAuthCookies } from '@/core/lib/helpers/cookies';
 
 export function useAcceptInvite() {
 	const searchParams = useSearchParams();
@@ -17,41 +19,64 @@ export function useAcceptInvite() {
 
 	const handleAcceptInvitation = useCallback(
 		async ({ fullName, password }: { fullName: string; password: string }) => {
-			if (invitationState?.state !== EInvitationState.VALIDATED || !code || !email) return;
+			try {
+				if (invitationState?.state !== EInvitationState.VALIDATED || !code || !email) return;
 
-			const user = {
-				firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : '',
-				lastName: fullName ? fullName.split(' ').slice(-1).join(' ') : '',
-				email
-			};
+				const user = {
+					firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : '',
+					lastName: fullName ? fullName.split(' ').slice(-1).join(' ') : ''
+				};
 
-			const res = await acceptInvitationMutation.mutateAsync({
-				user,
-				password,
-				code,
-				email
-			});
+				const res = await acceptInvitationMutation.mutateAsync({
+					user,
+					password,
+					code,
+					email
+				});
 
-			// Prepare auth cookies
+				// Prepare auth cookies
 
-			const { data: userOrganizations } = await userOrganizationService.getUserOrganizations({
-				tenantId: res.user.tenantId!,
-				userId: res.user.id,
-				token: res.token
-			});
+				const { data: userOrganizations } = await userOrganizationService.getUserOrganizations({
+					tenantId: res.user.tenantId!,
+					userId: res.user.id,
+					token: res.token
+				});
 
-			const authCookies = {
-				access_token: res.token,
-				refresh_token: {
-					token: res.refresh_token
-				},
-				// teamId: res.user.employee.te.id,
-				tenantId: res.user.tenantId,
-				organizationId: res.user.employee?.organizationId,
-				languageId: 'en',
-				noTeamPopup: true,
-				userId: res.user.id
-			};
+				/**
+				 * Get the organization the user was invited to
+				 *
+				 * If the user has multiple organizations, we need to find the one the user was invited to
+				 *
+				 */
+				const userOrganization =
+					userOrganizations.items.find(
+						(el) => el.organization?.name === invitationState.data.organization.name
+					) || userOrganizations.items[0];
+
+				const { data: teams } = await organizationTeamService.getAllOrganizationTeam(
+					{ tenantId: res.user.tenantId!, organizationId: userOrganization?.organizationId || '' },
+					res.token
+				);
+
+				const team = teams.items[0];
+
+				const authCookies = {
+					access_token: res.token,
+					refresh_token: {
+						token: res.refresh_token
+					},
+					teamId: team.id,
+					tenantId: res.user.tenantId!,
+					organizationId: userOrganization?.organizationId!,
+					languageId: 'en',
+					noTeamPopup: true,
+					userId: res.user.id
+				};
+
+				setAuthCookies({ ...authCookies });
+			} catch (error) {
+				console.error('Accept invitation error:', error);
+			}
 		},
 		[acceptInvitationMutation, invitationState.state, code, email]
 	);
@@ -77,7 +102,6 @@ export function useAcceptInvite() {
 		try {
 			const res = await validateInviteByCode({ code: code, email });
 
-			console.log('res', res);
 			setInvitationState({
 				state: EInvitationState.VALIDATED,
 				loading: false,

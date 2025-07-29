@@ -7,15 +7,17 @@ import { TERMS_LINK } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 export function CompleteInvitationRegistrationForm(props: {
 	invitationData: TInviteVerified;
-	onAcceptInvitation: (data: { fullName: string; password: string }) => void;
+	onAcceptInvitation: (data: { fullName: string; password: string }) => Promise<void>;
 	acceptInvitationLoading: boolean;
 }) {
 	const t = useTranslations();
 	const { invitationData, onAcceptInvitation, acceptInvitationLoading } = props;
+	const router = useRouter();
 
 	const [userDetails, setUserDetails] = useState({
 		fullName: invitationData.fullName,
@@ -30,7 +32,7 @@ export function CompleteInvitationRegistrationForm(props: {
 	});
 
 	const handleAcceptInvitation = useCallback(
-		(e: React.FormEvent<HTMLFormElement>) => {
+		async (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 
 			setErrors({
@@ -39,19 +41,18 @@ export function CompleteInvitationRegistrationForm(props: {
 				confirmPassword: ''
 			});
 
-			console.log(userDetails);
-
 			if (userDetails.password !== userDetails.confirmPassword) {
 				setErrors({
 					...errors,
 					confirmPassword: 'Passwords do not match'
 				});
 
-				console.log('Passwords do not match');
 				return;
 			}
 
-			onAcceptInvitation(userDetails);
+			await onAcceptInvitation(userDetails);
+
+			router.push('/');
 		},
 		[onAcceptInvitation, userDetails, errors]
 	);
@@ -108,7 +109,6 @@ export function CompleteInvitationRegistrationForm(props: {
 								value={userDetails.confirmPassword}
 								errors={errors}
 								onChange={(e) => {
-									console.log(e.target.value);
 									setUserDetails({ ...userDetails, confirmPassword: e.target.value });
 								}}
 								autoComplete="off"

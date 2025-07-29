@@ -99,21 +99,11 @@ export const acceptInvitationRequest = z.object({
 	user: z.object({
 		firstName: z.string(),
 		lastName: z.string(),
-		email: z.string(),
-		role: z.string().optional(),
-		tenant: z.string().optional()
+		email: z.string().optional()
 	}),
 	password: z.string(),
 	email: z.string(),
-	code: z.string(),
-	token: z.string().optional(),
-	inviteId: z.string().optional(),
-	originalUrl: z.string().optional(),
-	organizationId: z.string().optional(),
-	createdByUserId: z.string().optional(),
-	isImporting: z.boolean().optional(),
-	sourceId: z.string().optional(),
-	inviteType: z.string().optional()
+	code: z.string()
 });
 
 export const invitationAcceptedResponse = z.object({

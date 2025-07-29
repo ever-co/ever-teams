@@ -399,14 +399,14 @@ export class APIService {
 		try {
 			return await this.executeRequest<T>(() => {
 				// Automatically add tenantId / organizationId
-				if (data && !(data instanceof FormData)) {
-					if (!('tenantId' in data) && tenantId !== undefined) {
-						(data as any).tenantId = tenantId;
-					}
-					if (!('organizationId' in data) && organizationId !== undefined) {
-						(data as any).organizationId = organizationId;
-					}
-				}
+				// if (data && !(data instanceof FormData)) {
+				// 	if (!('tenantId' in data) && tenantId !== undefined) {
+				// 		(data as any).tenantId = tenantId;
+				// 	}
+				// 	if (!('organizationId' in data) && organizationId !== undefined) {
+				// 		(data as any).organizationId = organizationId;
+				// 	}
+				// }
 
 				return postRequest(url, data, {
 					...config,
