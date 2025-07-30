@@ -5,8 +5,8 @@ import { useAcceptInvite } from '@/core/hooks/auth/use-accept-invite';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 import { EInvitationState } from '@/core/types/schemas/user/invite.schema';
 import { InvitationExpiredMessageCard } from './invitation-expired-message-card';
-import { Spinner } from '@/core/components/common/spinner';
 import { AcceptInviteSkelethon } from '@/core/components/layouts/skeletons/accept-invite-skelethon';
+import { Loader } from 'lucide-react';
 
 export function AcceptInvitePageComponent() {
 	const { invitationState, handleAcceptInvitation, acceptInvitationLoading } = useAcceptInvite();
@@ -16,7 +16,7 @@ export function AcceptInvitePageComponent() {
 			case EInvitationState.LOADING:
 				return (
 					<div className="w-full h-full flex items-center justify-center">
-						<Spinner className="w-10 h-10" />
+						<Loader size={50} className=" animate-spin" />
 					</div>
 				);
 			case EInvitationState.VALIDATED:

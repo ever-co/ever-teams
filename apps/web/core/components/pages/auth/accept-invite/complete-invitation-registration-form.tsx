@@ -57,7 +57,12 @@ export function CompleteInvitationRegistrationForm(props: {
 				await onAcceptInvitation(userDetails);
 
 				router.push('/');
-			} catch (error) {}
+			} catch (error) {
+				setErrors({
+					...errors,
+					acceptInviteFailed: 'Failed to accept invitation'
+				});
+			}
 		},
 		[onAcceptInvitation, userDetails, errors, t]
 	);
@@ -103,7 +108,7 @@ export function CompleteInvitationRegistrationForm(props: {
 								value={userDetails.password}
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
-								autoComplete="new-password"
+								autoComplete="off"
 							/>
 
 							<InputField
@@ -117,7 +122,7 @@ export function CompleteInvitationRegistrationForm(props: {
 								onChange={(e) => {
 									setUserDetails({ ...userDetails, confirmPassword: e.target.value });
 								}}
-								autoComplete="new-password"
+								autoComplete="off"
 							/>
 							{errors.acceptInviteFailed && (
 								<Text.Error className="justify-self-start self-start">
@@ -129,7 +134,7 @@ export function CompleteInvitationRegistrationForm(props: {
 
 					<div className="flex items-center justify-between w-full">
 						<div className="flex items-center gap-2">
-							<Checkbox checked={aggreeToTerms} onChange={() => setAgreeToTerms(!aggreeToTerms)} />
+							<Checkbox checked={aggreeToTerms} onCheckedChange={() => setAgreeToTerms(!aggreeToTerms)} />
 							<p className="space-x-2 dark:text-gray-300">
 								{t('form.AGREE_TO')}
 								<a
