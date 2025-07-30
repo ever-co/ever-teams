@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { isEqual } from 'lodash';
 
 interface CacheEntry<T> {
 	value: T;
@@ -21,9 +22,10 @@ export function useMemoizedCache<T>(options: CacheOptions = {}) {
 
 	const generateKey = useCallback((keyParts: any[]): string => {
 		return keyParts
-			.map((part) => {
+			.map((part, index) => {
 				if (typeof part === 'object' && part !== null) {
-					return JSON.stringify(part);
+					// Use a more efficient hash for objects instead of JSON.stringify
+					return `obj_${index}_${Object.keys(part).length}_${typeof part.id !== 'undefined' ? part.id : 'noId'}`;
 				}
 				return String(part);
 			})
@@ -38,9 +40,9 @@ export function useMemoizedCache<T>(options: CacheOptions = {}) {
 				entry.dependencies.length === dependencies.length &&
 				entry.dependencies.every((dep, index) => {
 					const currentDep = dependencies[index];
-					// Deep comparison for objects, shallow for primitives
+					// Use lodash isEqual for deep comparison - much more efficient than JSON.stringify
 					if (typeof dep === 'object' && typeof currentDep === 'object') {
-						return JSON.stringify(dep) === JSON.stringify(currentDep);
+						return isEqual(dep, currentDep);
 					}
 					return dep === currentDep;
 				});
@@ -144,23 +146,22 @@ export function useTaskFilterCache() {
 						}
 					: { length: 0 };
 
-			return cache.memoize(
-				filterFn,
-				[taskSignature, filters, ...additionalDeps],
-				`task-filter-${taskSignature.length}-${JSON.stringify(filters).slice(0, 50)}`
-			);
+			// Create efficient cache key without expensive JSON.stringify
+			const filterKeys = Object.keys(filters || {})
+				.sort()
+				.join(',');
+			const cacheKey = `task-filter-${taskSignature.length}-${filterKeys}-${Object.keys(filters || {}).length}`;
+
+			return cache.memoize(filterFn, [taskSignature, filters, ...additionalDeps], cacheKey);
 		},
 		[cache]
 	);
 
 	// Batch clear for related filters
-	const clearRelatedFilters = useCallback(
-		(filterType: string) => {
-			// This would clear all caches related to a specific filter type
-			cache.clearCache();
-		},
-		[cache]
-	);
+	const clearRelatedFilters = useCallback(() => {
+		// Clear all caches (could be extended to clear specific filter types)
+		cache.clearCache();
+	}, [cache]);
 
 	return {
 		memoizeTaskFilter,

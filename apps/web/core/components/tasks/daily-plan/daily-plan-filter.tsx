@@ -8,6 +8,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
 import { Button } from '../../common/button';
+import { isEqual } from 'lodash';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -64,8 +65,8 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 				selectedPlans.length > 0 ? selectedPlans.includes(plan.date.toString()) : true
 			);
 
-			// Only update if the items have changed
-			if (JSON.stringify(filtered) !== JSON.stringify(employeePlans)) {
+			// Only update if the items have changed - use efficient deep comparison
+			if (!isEqual(filtered, employeePlans)) {
 				return { ...prevState, items: filtered };
 			}
 			return prevState;

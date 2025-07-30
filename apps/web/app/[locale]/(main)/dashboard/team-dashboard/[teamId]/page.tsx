@@ -25,7 +25,6 @@ import {
 } from '@/core/components/optimized-components/dashboard';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
-// ChartSkeleton now handled by optimized components
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
 
 function TeamDashboard() {

@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
 import {
 	UserProfileDetailSkeleton,
-	TaskCardBlockSKeleton,
+	TaskCardBlockSkeleton,
 	UserTeamActivitySkeleton
 } from '../common/skeleton/profile-component-skeletons';
 import { AppSidebarSkeleton } from '../common/skeleton/app-sidebar-skeleton';
@@ -31,7 +31,7 @@ export const LazyUserWorkedTaskTab = dynamic(
 	() => import('@/core/components/activities/user-worked-task').then((mod) => ({ default: mod.default })),
 	{
 		ssr: false,
-		loading: () => <TaskCardBlockSKeleton />
+		loading: () => <TaskCardBlockSkeleton />
 	}
 );
 

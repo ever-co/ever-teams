@@ -224,46 +224,42 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		[renderedItemsCache, cacheSize, dynamicOverscan, items]
 	);
 
-	if (shouldUseWindow) {
-		const windowResult = useWindowVirtual(items, {
-			itemHeight,
-			overscan: dynamicOverscan,
-			enabled: enabled && items.length > 20
-		});
-
-		return {
-			...windowResult,
-			renderedItemsCache,
-			setRenderedItemsCache,
-			scrollDirection,
-			trackScrollDirection,
-			cleanupCache,
-			getVisibleRange: () => {
-				const range = windowResult.virtualItems;
-				if (range.length === 0) return { start: 0, end: 0 };
-				return {
-					start: range[0].index,
-					end: range[range.length - 1].index
-				};
-			},
-			isEnhanced: true
-		};
-	}
+	// Call both hooks unconditionally to comply with Rules of Hooks
+	const windowResult = useWindowVirtual(items, {
+		itemHeight,
+		overscan: dynamicOverscan,
+		enabled: enabled && items.length > 20 && shouldUseWindow
+	});
 
 	const containerResult = useTanStackVirtual(items, {
 		itemHeight,
 		containerHeight,
 		overscan: dynamicOverscan,
-		enabled: enabled && items.length > 20
+		enabled: enabled && items.length > 20 && !shouldUseWindow
 	});
 
+	// Select which result to use based on shouldUseWindow
+	const selectedResult = shouldUseWindow ? windowResult : containerResult;
+
+	// Create getVisibleRange function based on selected result
+	const getVisibleRange = useCallback(() => {
+		const range = selectedResult.virtualItems;
+		if (range.length === 0) return { start: 0, end: 0 };
+		return {
+			start: range[0].index,
+			end: range[range.length - 1].index
+		};
+	}, [selectedResult.virtualItems]);
+
+	// Return the selected result merged with additional properties
 	return {
-		...containerResult,
+		...selectedResult,
 		renderedItemsCache,
 		setRenderedItemsCache,
 		scrollDirection,
 		trackScrollDirection,
 		cleanupCache,
+		getVisibleRange,
 		isEnhanced: true
 	};
 }

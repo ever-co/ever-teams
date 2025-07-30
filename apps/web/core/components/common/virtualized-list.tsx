@@ -11,7 +11,7 @@ interface VirtualizedListProps<T extends { id: string }> {
 	className?: string;
 	listClassName?: string;
 	itemClassName?: string;
-	renderItem: ((item: T, index: number) => React.ReactNode) | ((item: T) => React.ReactNode);
+	renderItem: ((item: T, index?: number) => React.ReactNode) | ((item: T) => React.ReactNode);
 	renderEmpty?: () => React.ReactNode;
 	loadingIndicator?: React.ReactNode;
 	scrollingIndicator?: React.ReactNode;
@@ -110,7 +110,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	const renderItemWrapper = useCallback(
 		(item: T, index: number) => {
 			// Type assertion to handle both function signatures
-			const render = renderItem as any;
+			const render = renderItem;
 			return render.length > 1 ? render(item, index) : render(item);
 		},
 		[renderItem]
@@ -138,6 +138,24 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	const [lastScrollTop, setLastScrollTop] = useState(0);
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const bufferCalculationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Container virtualization hooks - moved to top level to comply with Rules of Hooks
+	const bufferHeight = useMemo(() => itemHeight * bufferSize, [itemHeight, bufferSize]);
+
+	// Enhanced buffer zones that adapt to scroll speed (async calculation)
+	const [dynamicBufferHeight, setDynamicBufferHeight] = useState(bufferHeight);
+
+	useEffect(() => {
+		// Use requestAnimationFrame for non-blocking buffer calculations
+		const calculateBuffer = () => {
+			const baseBuffer = bufferHeight;
+			const scrollSpeedMultiplier = scrollDirection !== 'idle' ? 1.5 : 1;
+			const newBufferHeight = Math.min(baseBuffer * scrollSpeedMultiplier, itemHeight * 10);
+			setDynamicBufferHeight(newBufferHeight);
+		};
+
+		requestAnimationFrame(calculateBuffer);
+	}, [bufferHeight, scrollDirection, itemHeight]);
 
 	// Handle scroll events with enhanced tracking
 	const handleScroll = useCallback(
@@ -331,22 +349,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 	}
 
 	// Container virtualization with enhanced anti-white-space system
-	const bufferHeight = useMemo(() => itemHeight * bufferSize, [itemHeight, bufferSize]);
-
-	// Enhanced buffer zones that adapt to scroll speed (async calculation)
-	const [dynamicBufferHeight, setDynamicBufferHeight] = useState(bufferHeight);
-
-	useEffect(() => {
-		// Use requestAnimationFrame for non-blocking buffer calculations
-		const calculateBuffer = () => {
-			const baseBuffer = bufferHeight;
-			const scrollSpeedMultiplier = scrollDirection !== 'idle' ? 1.5 : 1;
-			const newBufferHeight = Math.min(baseBuffer * scrollSpeedMultiplier, itemHeight * 10);
-			setDynamicBufferHeight(newBufferHeight);
-		};
-
-		requestAnimationFrame(calculateBuffer);
-	}, [bufferHeight, scrollDirection, itemHeight]);
+	// (hooks moved to top level to comply with Rules of Hooks)
 
 	return (
 		<div className={className}>
@@ -427,7 +430,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 
 				{/* Virtual pagination indicator for large datasets */}
 				{virtualPageSize < items.length && (
-					<div className="absolute left-2 bottom-2 z-10 px-2 py-1 text-xs text-white rounded bg-blue-600/80">
+					<div className="absolute bottom-2 left-2 z-10 px-2 py-1 text-xs text-white rounded bg-blue-600/80">
 						Showing {virtualizedItems.length.toLocaleString()} of {items.length.toLocaleString()} items
 					</div>
 				)}
