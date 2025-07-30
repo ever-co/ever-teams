@@ -109,7 +109,9 @@ export function useTeamInvitations() {
 		async (params: IInviteVerifyCode) => {
 			return queryClient.fetchQuery({
 				queryKey: queryKeys.users.invitations.operations.validateByCode(params.code, params.email),
-				queryFn: () => inviteService.validateInvitebyCodeAndEmail(params)
+				queryFn: () => inviteService.validateInvitebyCodeAndEmail(params),
+				staleTime: 0,
+				gcTime: 0
 			});
 		}
 	);
@@ -209,6 +211,11 @@ export function useTeamInvitations() {
 	const acceptInvitationMutation = useMutation({
 		mutationFn: async (data: TAcceptInvitationRequest) => {
 			return await inviteService.acceptInvite(data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.users.invitations.all
+			});
 		}
 	});
 
