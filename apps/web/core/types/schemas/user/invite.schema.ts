@@ -97,8 +97,8 @@ export const validateInviteByTokenAndEmailRequest = z.object({
 
 export const acceptInvitationRequest = z.object({
 	user: z.object({
-		firstName: z.string(),
-		lastName: z.string(),
+		firstName: z.string().optional().nullable(),
+		lastName: z.string().optional().nullable(),
 		email: z.string().optional()
 	}),
 	password: z.string(),

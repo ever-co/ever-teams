@@ -1,15 +1,11 @@
 import { EInvitationState, TInvitationState } from '@/core/types/schemas/user/invite.schema';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTeamInvitations } from '../organizations';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import { CookiesDataType, setAuthCookies } from '@/core/lib/helpers/cookies';
 
 export function useAcceptInvite() {
-	const searchParams = useSearchParams();
-	const code = searchParams?.get('code')?.split('/')[0];
-	const email = searchParams?.get('email');
 	const [invitationState, setInvitationState] = useState<TInvitationState>({
 		state: EInvitationState.IDLE,
 		data: null,
@@ -18,15 +14,19 @@ export function useAcceptInvite() {
 	const { acceptInvitationLoading, acceptInvitationMutation, validateInviteByCode } = useTeamInvitations();
 
 	const handleAcceptInvitation = useCallback(
-		async ({ fullName, password }: { fullName: string; password: string }) => {
+		async ({
+			password,
+			user,
+			code,
+			email
+		}: {
+			password: string;
+			user: { firstName: string | null; lastName: string | null; email: string };
+			code: string;
+			email: string;
+		}) => {
 			try {
-				if (invitationState?.state !== EInvitationState.VALIDATED || !code || !email) return;
-
-				const user = {
-					firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : '',
-					lastName: fullName ? fullName.split(' ').slice(-1).join(' ') : '',
-					email
-				};
+				if (invitationState?.state !== EInvitationState.VALIDATED) return;
 
 				const res = await acceptInvitationMutation.mutateAsync({
 					user,
@@ -79,54 +79,45 @@ export function useAcceptInvite() {
 				console.error('Accept invitation error:', error);
 			}
 		},
-		[acceptInvitationMutation, invitationState.state, code, email]
+		[acceptInvitationMutation, invitationState.state]
 	);
 
-	const validateInvitation = useCallback(async () => {
-		if (!code || !email) {
+	const validateInvitation = useCallback(
+		async ({ code, email }: { code: string; email: string }) => {
 			setInvitationState({
-				state: EInvitationState.FAILED,
-				loading: false,
+				state: EInvitationState.LOADING,
+				loading: true,
 				data: null,
-				error: new Error('Missing parameters')
-			});
-			return;
-		}
-
-		setInvitationState({
-			state: EInvitationState.LOADING,
-			loading: true,
-			data: null,
-			error: null
-		});
-
-		try {
-			const res = await validateInviteByCode({ code: code, email });
-
-			setInvitationState({
-				state: EInvitationState.VALIDATED,
-				loading: false,
-				data: res,
 				error: null
 			});
-		} catch (error) {
-			setInvitationState({
-				state: EInvitationState.FAILED,
-				loading: false,
-				data: null,
-				error
-			});
-		}
-	}, [code, email, validateInviteByCode]);
 
-	useEffect(() => {
-		validateInvitation();
-	}, [validateInvitation]);
+			try {
+				const res = await validateInviteByCode({ code: code, email });
+
+				setInvitationState({
+					state: EInvitationState.VALIDATED,
+					loading: false,
+					data: res,
+					error: null
+				});
+			} catch (error) {
+				setInvitationState({
+					state: EInvitationState.FAILED,
+					loading: false,
+					data: null,
+					error
+				});
+				console.error('Failed to validate invitation:', error);
+			}
+		},
+		[validateInviteByCode]
+	);
 
 	return {
 		validateInvitation,
 		handleAcceptInvitation,
 		acceptInvitationLoading,
-		invitationState
+		invitationState,
+		setInvitationState
 	};
 }

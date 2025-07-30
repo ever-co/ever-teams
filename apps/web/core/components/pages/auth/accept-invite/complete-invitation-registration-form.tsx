@@ -12,17 +12,17 @@ import { useCallback, useEffect, useState } from 'react';
 
 export function CompleteInvitationRegistrationForm(props: {
 	invitationData: TInviteVerified;
-	onAcceptInvitation: (data: { fullName: string; password: string }) => Promise<void>;
+	onCompleteRegistration: (data: { fullName: string; password: string }) => Promise<void>;
 	acceptInvitationLoading: boolean;
 }) {
 	const t = useTranslations();
-	const { invitationData, onAcceptInvitation, acceptInvitationLoading } = props;
+	const { invitationData, onCompleteRegistration, acceptInvitationLoading } = props;
 	const [aggreeToTerms, setAgreeToTerms] = useState(false);
 	const router = useRouter();
 	const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
 	const [userDetails, setUserDetails] = useState({
-		fullName: invitationData.fullName,
+		fullName: invitationData.fullName || '',
 		password: '',
 		confirmPassword: ''
 	});
@@ -55,7 +55,7 @@ export function CompleteInvitationRegistrationForm(props: {
 					return;
 				}
 
-				await onAcceptInvitation(userDetails);
+				await onCompleteRegistration(userDetails);
 				setLoadingWorkspace(true);
 				router.push('/');
 			} catch (error) {
@@ -63,9 +63,10 @@ export function CompleteInvitationRegistrationForm(props: {
 					...errors,
 					acceptInviteFailed: 'Failed to accept invitation'
 				});
+				console.error('Failed to accept invitation:', error);
 			}
 		},
-		[onAcceptInvitation, userDetails, errors, t]
+		[onCompleteRegistration, userDetails, errors, t]
 	);
 
 	useEffect(() => {
@@ -157,7 +158,7 @@ export function CompleteInvitationRegistrationForm(props: {
 
 						<Button
 							loading={acceptInvitationLoading}
-							disabled={acceptInvitationLoading || !aggreeToTerms}
+							disabled={acceptInvitationLoading || !aggreeToTerms || loadingWorkspace}
 							className="px-6"
 							type="submit"
 						>
