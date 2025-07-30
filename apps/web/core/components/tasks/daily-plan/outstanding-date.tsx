@@ -9,7 +9,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
@@ -34,6 +34,14 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			}))
 			.filter((plan) => plan.tasks && plan.tasks.length > 0);
 	}, [outstandingPlans, user]);
+
+	// Local state for drag-and-drop functionality (minimal approach)
+	const [plans, setPlans] = useState(filteredPlans);
+
+	// Sync local state only when filteredPlans changes (conservative update)
+	useEffect(() => {
+		setPlans(filteredPlans);
+	}, [filteredPlans]);
 
 	// Performance: static style object created once instead of on every render
 	const draggableStyle = useMemo(() => ({ marginBottom: 8 }), []);
@@ -82,23 +90,18 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 		[view, profile, draggableStyle]
 	);
 
-	// Removed: useState + useEffect replaced with direct useMemo for better performance
-
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, filteredPlans, () => {})}>
+			{plans?.length > 0 ? (
+				// @ts-ignore
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						// Fix: only open first accordion (was opening ALL) for consistent performance with other tabs
-						defaultValue={
-							filteredPlans?.length > 0
-								? [new Date(filteredPlans[0].date).toISOString().split('T')[0]]
-								: []
-						}
+						defaultValue={plans?.length > 0 ? [new Date(plans[0].date).toISOString().split('T')[0]] : []}
 					>
-						{filteredPlans?.map((plan) => (
+						{plans?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -112,7 +115,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-12 bg-transparent border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
+								<AccordionContent className="bg-transparent border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (
 										<DailyPlanTasksTableView
