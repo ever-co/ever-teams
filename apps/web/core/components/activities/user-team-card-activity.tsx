@@ -5,10 +5,10 @@ import { useTranslations } from 'next-intl';
 import { ActivityFilters } from '@/core/constants/config/constants';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/common/tabs';
 import {
-	LazyUserWorkedTaskTab,
-	LazyAppsTab,
-	LazyVisitedSitesTab,
-	LazyScreenshootTeamTab
+	LazyOptimizedTasksTab,
+	LazyOptimizedAppsTab,
+	LazyOptimizedVisitedSitesTab,
+	LazyOptimizedScreenshotsTab
 } from '@/core/components/optimized-components';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -59,16 +59,16 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							</TabsList>
 
 							<TabsContent value={ActivityFilters.TASKS} className="overflow-hidden mt-2 w-full">
-								<LazyUserWorkedTaskTab member={member} />
+								<LazyOptimizedTasksTab member={member} />
 							</TabsContent>
 							<TabsContent value={ActivityFilters.SCREENSHOOTS} className="mt-2 w-full">
-								<LazyScreenshootTeamTab />
+								<LazyOptimizedScreenshotsTab />
 							</TabsContent>
 							<TabsContent value={ActivityFilters.APPS} className="mt-2 w-full">
-								<LazyAppsTab />
+								<LazyOptimizedAppsTab />
 							</TabsContent>
 							<TabsContent value={ActivityFilters.VISITED_SITES} className="mt-2 w-full">
-								<LazyVisitedSitesTab />
+								<LazyOptimizedVisitedSitesTab />
 							</TabsContent>
 						</Tabs>
 					</div>
