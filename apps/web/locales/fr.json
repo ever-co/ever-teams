@@ -681,6 +681,7 @@
 			"HEADING_TITLE": "Créer une nouvelle équipe",
 			"HEADING_DESCRIPTION": "Veuillez entrer les détails de votre équipe pour créer une nouvelle équipe.",
 			"LOADING_TEXT": "Nous créons maintenant votre nouvel espace de travail, patientez...",
+			"LOADING_WORKSPACE": "Nous chargeons l'espace de travail, patientez...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirection vers votre espace de travail...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Nous vérifions votre e-mail, patientez...",
 			"INPUT_TEAM_NAME": "Saisissez le nom de votre équipe",

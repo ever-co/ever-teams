@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "Nieuw team maken",
 			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
+			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",

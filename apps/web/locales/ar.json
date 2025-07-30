@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "إنشاء فريق جديد",
 			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
 			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
+			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
 			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",

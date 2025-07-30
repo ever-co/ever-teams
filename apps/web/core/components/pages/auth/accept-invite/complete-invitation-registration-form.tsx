@@ -1,4 +1,4 @@
-import { Button } from '@/core/components';
+import { BackdropLoader, Button } from '@/core/components';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EverCard } from '@/core/components/common/ever-card';
 import { Text } from '@/core/components/common/typography';
@@ -8,7 +8,7 @@ import { cn } from '@/core/lib/helpers';
 import { TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export function CompleteInvitationRegistrationForm(props: {
 	invitationData: TInviteVerified;
@@ -19,6 +19,7 @@ export function CompleteInvitationRegistrationForm(props: {
 	const { invitationData, onAcceptInvitation, acceptInvitationLoading } = props;
 	const [aggreeToTerms, setAgreeToTerms] = useState(false);
 	const router = useRouter();
+	const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
 	const [userDetails, setUserDetails] = useState({
 		fullName: invitationData.fullName,
@@ -55,7 +56,7 @@ export function CompleteInvitationRegistrationForm(props: {
 				}
 
 				await onAcceptInvitation(userDetails);
-
+				setLoadingWorkspace(true);
 				router.push('/');
 			} catch (error) {
 				setErrors({
@@ -66,6 +67,12 @@ export function CompleteInvitationRegistrationForm(props: {
 		},
 		[onAcceptInvitation, userDetails, errors, t]
 	);
+
+	useEffect(() => {
+		return () => {
+			setLoadingWorkspace(false);
+		};
+	}, []);
 
 	return (
 		<div className="w-full flex flex-col gap-10 dark:bg-transparent rounded-2xl md:w-[35rem] ">
@@ -159,6 +166,7 @@ export function CompleteInvitationRegistrationForm(props: {
 					</div>
 				</form>
 			</EverCard>
+			<BackdropLoader show={loadingWorkspace} title={t('pages.authTeam.LOADING_WORKSPACE')} />
 		</div>
 	);
 }
