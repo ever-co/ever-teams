@@ -201,10 +201,20 @@ const TaskList = memo(
 			[]
 		);
 
+		// FIXED: Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
+		const hasActiveTask =
+			tabFiltered.tab === 'worked' &&
+			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
+
 		if (slicedItems.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
 				return null;
+			}
+
+			// FIXED: Don't show EmptyPlans if there's an active task displayed above
+			if (hasActiveTask) {
+				return null; // Active task is already shown, no need for empty state
 			}
 
 			// Show appropriate empty state based on tab
@@ -249,25 +259,10 @@ const TanStackVirtualizedTaskList = memo(
 			overscanMultiplier: 2
 		});
 
-		const { virtualItems, isScrolling } = virtualizationResult;
-
-		// Handle both container and window virtualization
-		const isWindowVirtualization = tasks.length > 100;
-		const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
-		const containerStyle =
-			'containerStyle' in virtualizationResult
-				? virtualizationResult.containerStyle
-				: { height: containerHeight };
-		const innerStyle =
-			'innerStyle' in virtualizationResult
-				? virtualizationResult.innerStyle
-				: { height: virtualizationResult.totalSize };
-
 		// Memoize computed values
 		const viewType = useMemo(() => (tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'), [tabFiltered.tab]);
 
 		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
-
 		const getTaskBadgeClassName = useCallback(
 			(issueType: string) =>
 				cn(
@@ -306,11 +301,34 @@ const TanStackVirtualizedTaskList = memo(
 			),
 			[isAuthUser, viewType, profile, getTaskBadgeClassName]
 		);
+		const { virtualItems, isScrolling } = virtualizationResult;
+
+		// Handle both container and window virtualization
+		const isWindowVirtualization = tasks.length > 100;
+		const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
+		const containerStyle =
+			'containerStyle' in virtualizationResult
+				? virtualizationResult.containerStyle
+				: { height: containerHeight };
+		const innerStyle =
+			'innerStyle' in virtualizationResult
+				? virtualizationResult.innerStyle
+				: { height: virtualizationResult.totalSize };
+
+		// FIXED: Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
+		const hasActiveTask =
+			tabFiltered.tab === 'worked' &&
+			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
 
 		if (tasks.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
 				return null;
+			}
+
+			// FIXED: Don't show EmptyPlans if there's an active task displayed above
+			if (hasActiveTask) {
+				return null; // Active task is already shown, no need for empty state
 			}
 
 			// Show appropriate empty state based on tab
