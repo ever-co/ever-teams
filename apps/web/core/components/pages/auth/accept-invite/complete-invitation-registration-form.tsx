@@ -144,7 +144,7 @@ export function CompleteInvitationRegistrationForm(props: {
 						<div className="flex items-center gap-2">
 							<Checkbox checked={agreeToTerms} onCheckedChange={() => setAgreeToTerms(!agreeToTerms)} />
 							<p className="space-x-2 dark:text-gray-300">
-								{t('form.AGREE_TO')}
+								{t('form.AGREE_TO')}{' '}
 								<a
 									href={TERMS_LINK}
 									target="_blank"
