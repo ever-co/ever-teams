@@ -109,7 +109,7 @@ export function useTeamInvitations() {
 		async (params: IInviteVerifyCode) => {
 			return queryClient.fetchQuery({
 				queryKey: queryKeys.users.invitations.operations.validateByCode(params.code, params.email),
-				queryFn: () => inviteService.validateInvitebyCodeAndEmail(params),
+				queryFn: () => inviteService.validateInvitationByCodeAndEmail(params),
 				staleTime: 0,
 				gcTime: 0
 			});

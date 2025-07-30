@@ -1,4 +1,4 @@
-export function AcceptInviteSkelethon() {
+export function AcceptInviteSkeleton() {
 	return (
 		<div className="w-full h-full flex items-center justify-center">
 			<div className="w-full max-w-2xl mx-auto p-6  bg-white animate-pulse space-y-6">

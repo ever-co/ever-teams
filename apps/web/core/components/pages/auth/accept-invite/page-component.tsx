@@ -5,7 +5,7 @@ import { useAcceptInvite } from '@/core/hooks/auth/use-accept-invite';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 import { EInvitationState } from '@/core/types/schemas/user/invite.schema';
 import { InvitationExpiredMessageCard } from './invitation-expired-message-card';
-import { AcceptInviteSkelethon } from '@/core/components/layouts/skeletons/accept-invite-skelethon';
+import { AcceptInviteSkeleton } from '@/core/components/layouts/skeletons/accept-invite-skeleton';
 import { Loader } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
@@ -75,7 +75,7 @@ export function AcceptInvitePageComponent() {
 			case EInvitationState.FAILED:
 				return <InvitationExpiredMessageCard />;
 			default:
-				return <AcceptInviteSkelethon />;
+				return <AcceptInviteSkeleton />;
 		}
 	};
 

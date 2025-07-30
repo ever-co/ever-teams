@@ -311,16 +311,20 @@ class InviteService extends APIService {
 		}
 	};
 
-	validateInvitebyCodeAndEmail = async (params: IInviteVerifyCode): Promise<TInviteVerified> => {
+	validateInvitationByCodeAndEmail = async (params: IInviteVerifyCode): Promise<TInviteVerified> => {
 		try {
 			const response = await this.post<TInviteVerified>('/invite/validate-by-code', params);
 
 			// Validate the response data using Zod schema
-			return validateApiResponse(inviteVerifiedSchema, response.data, 'verifyInviteCode API response');
+			return validateApiResponse(
+				inviteVerifiedSchema,
+				response.data,
+				'validateInvitationByCodeAndEmail API response'
+			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Verify invite code validation failed:',
+					'Validate invitation by code and email validation failed:',
 					{
 						message: error.message,
 						issues: error.issues
@@ -337,11 +341,11 @@ class InviteService extends APIService {
 			const response = await this.get<TInvite>(`/invite/validate?email=${query.email}&token=${query.token}`);
 
 			// Validate the response data using Zod schema
-			return validateApiResponse(inviteSchema, response.data, 'validateInviteByTokenAndEmail API response');
+			return validateApiResponse(inviteSchema, response.data, 'validateInvitationByTokenAndEmail API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Verify invite code validation failed:',
+					'Validate invitation by token and email validation failed:',
 					{
 						message: error.message,
 						issues: error.issues

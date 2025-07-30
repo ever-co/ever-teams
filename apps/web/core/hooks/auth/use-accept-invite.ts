@@ -59,7 +59,7 @@ export function useAcceptInvite() {
 					res.token
 				);
 
-				const team = teams.items[0];
+				const team = teams.items?.[0];
 
 				const authCookies: CookiesDataType = {
 					access_token: res.token,

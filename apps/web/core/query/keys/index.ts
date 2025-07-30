@@ -85,9 +85,9 @@ export const queryKeys = {
 			operations: {
 				all: ['users', 'invitations', 'operations'] as const,
 				validateByCode: (code: string | undefined | null, email: string | undefined | null) =>
-					['validate-invite', ...(code ? [code] : []), ...(email ? [email] : [])] as const,
+					['validate-invite-by-code', ...(code ? [code] : []), ...(email ? [email] : [])] as const,
 				validateByToken: (token: string | undefined | null, email: string | undefined | null) =>
-					['validate-invite', ...(token ? [token] : []), ...(email ? [email] : [])] as const,
+					['validate-invite-byt-token', ...(token ? [token] : []), ...(email ? [email] : [])] as const,
 				invite: (teamId: string | undefined | null) =>
 					['users', 'invitations', 'operations', 'invite', ...(teamId ? [teamId] : [])] as const,
 				remove: (invitationId: string | undefined | null) =>
