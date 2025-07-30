@@ -24,6 +24,7 @@ class SharedVirtualizationCache {
 	private maxSize: number;
 	private ttl: number;
 	private metrics: SharedCacheMetrics;
+	private cleanupInterval: NodeJS.Timeout | null = null;
 
 	constructor(maxSize = 200, ttl = 5 * 60 * 1000) {
 		this.maxSize = maxSize;
@@ -37,8 +38,8 @@ class SharedVirtualizationCache {
 			instanceCount: 0
 		};
 
-		// Periodic cleanup
-		setInterval(() => this.cleanupExpired(), Math.min(ttl / 2, 60000));
+		// Periodic cleanup with proper cleanup
+		this.cleanupInterval = setInterval(() => this.cleanupExpired(), Math.min(ttl / 2, 60000));
 	}
 
 	registerInstance(instanceId: string) {
@@ -56,6 +57,30 @@ class SharedVirtualizationCache {
 				this.cache.delete(key);
 			}
 		}
+
+		// If no instances left, cleanup the interval to prevent memory leaks
+		if (this.instances.size === 0 && this.cleanupInterval) {
+			clearInterval(this.cleanupInterval);
+			this.cleanupInterval = null;
+		}
+	}
+
+	// Method to properly destroy the cache and cleanup resources
+	destroy() {
+		if (this.cleanupInterval) {
+			clearInterval(this.cleanupInterval);
+			this.cleanupInterval = null;
+		}
+		this.cache.clear();
+		this.instances.clear();
+		this.metrics = {
+			hits: 0,
+			misses: 0,
+			evictions: 0,
+			totalRequests: 0,
+			hitRate: 0,
+			instanceCount: 0
+		};
 	}
 
 	getCachedItem<T>(itemId: string): CacheItem<T> | null {
@@ -110,6 +135,11 @@ class SharedVirtualizationCache {
 		}
 
 		if (oldestKey) {
+			// Clear references before deletion to help garbage collection
+			const item = this.cache.get(oldestKey);
+			if (item) {
+				(item as any).renderedContent = null;
+			}
 			this.cache.delete(oldestKey);
 			this.metrics.evictions++;
 		}
@@ -125,7 +155,15 @@ class SharedVirtualizationCache {
 			}
 		}
 
-		keysToDelete.forEach((key) => this.cache.delete(key));
+		// Clear references to React nodes to help garbage collection
+		keysToDelete.forEach((key) => {
+			const item = this.cache.get(key);
+			if (item) {
+				// Clear the rendered content reference to help GC
+				(item as any).renderedContent = null;
+			}
+			this.cache.delete(key);
+		});
 		this.metrics.evictions += keysToDelete.length;
 	}
 
@@ -180,6 +218,13 @@ class SharedVirtualizationCache {
 // Global singleton instance
 const globalCache = new SharedVirtualizationCache();
 
+// Cleanup on page unload to prevent memory leaks
+if (typeof window !== 'undefined') {
+	window.addEventListener('beforeunload', () => {
+		globalCache.destroy();
+	});
+}
+
 /**
  * Hook for shared virtualization cache across all instances
  * Improves performance by sharing cached items between different lists
@@ -187,12 +232,20 @@ const globalCache = new SharedVirtualizationCache();
 export function useSharedVirtualizationCache<T extends { id: string }>() {
 	const instanceId = useRef(`cache-${Date.now()}-${Math.random()}`).current;
 
-	// Register instance on mount
+	// Register instance on mount with error handling
 	useEffect(() => {
-		globalCache.registerInstance(instanceId);
+		try {
+			globalCache.registerInstance(instanceId);
+		} catch (error) {
+			console.warn('Failed to register cache instance:', error);
+		}
 
 		return () => {
-			globalCache.unregisterInstance(instanceId);
+			try {
+				globalCache.unregisterInstance(instanceId);
+			} catch (error) {
+				console.warn('Failed to unregister cache instance:', error);
+			}
 		};
 	}, [instanceId]);
 
