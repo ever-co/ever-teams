@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { isEqual } from 'lodash';
-
+import { TTask } from '@/core/types/schemas/task/task.schema';
 interface CacheEntry<T> {
 	value: T;
 	timestamp: number;
@@ -124,14 +124,14 @@ export function useMemoizedCache<T>(options: CacheOptions = {}) {
 /**
  * Specialized hook for task filtering operations with ultra cache
  */
-export function useTaskFilterCache() {
+export function useTaskFilterCache<T>() {
 	const cache = useMemoizedCache<any>({
 		maxAge: 5 * 60 * 1000, // 5 minutes for task data
 		maxSize: 100 // Increased cache size
 	});
 
 	const memoizeTaskFilter = useCallback(
-		<T>(filterFn: () => T, tasks: any[], filters: any, additionalDeps: any[] = []): T => {
+		<T>(filterFn: () => T, tasks: TTask[], filters: any, additionalDeps: any[] = []): T => {
 			// Create more intelligent cache key
 			const taskSignature =
 				tasks.length > 0

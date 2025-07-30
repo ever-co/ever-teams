@@ -94,7 +94,7 @@ export const LazyChatwootWidget = dynamic(() => import('@/core/components/integr
 export const LazyBoard = dynamic(() => import('@/core/components/integration/boards/exalidraw'), {
 	ssr: false,
 	loading: () => (
-		<div className="flex items-center justify-center h-96">
+		<div className="flex justify-center items-center h-96">
 			<div className="text-gray-500">Loading Board...</div>
 		</div>
 	)

@@ -165,8 +165,8 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		overscanMultiplier = 2
 	} = options;
 
-	// Intelligent cache for rendered items
-	const [renderedItemsCache, setRenderedItemsCache] = useState<Map<string, React.ReactNode>>(new Map());
+	// FIXED: Cache data only, not React components to prevent memory leaks and stale closures
+	const renderedItemsCacheRef = useRef<Map<string, T>>(new Map());
 	const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | 'idle'>('idle');
 	const [lastScrollTop, setLastScrollTop] = useState(0);
 
@@ -194,12 +194,12 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		[lastScrollTop]
 	);
 
-	// Cache cleanup - remove items that are far from current view
+	// FIXED: Cache cleanup without dependency on cache state to prevent infinite re-renders
 	const cleanupCache = useCallback(
 		(visibleRange: { start: number; end: number }) => {
-			if (renderedItemsCache.size > cacheSize) {
-				const newCache = new Map(renderedItemsCache);
-				const itemsToKeep = new Set();
+			const cache = renderedItemsCacheRef.current;
+			if (cache.size > cacheSize) {
+				const itemsToKeep = new Set<string>();
 
 				// Keep items in extended range
 				const extendedStart = Math.max(0, visibleRange.start - dynamicOverscan * 2);
@@ -212,16 +212,14 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 				}
 
 				// Remove items not in extended range
-				for (const [itemId] of newCache) {
+				for (const [itemId] of cache) {
 					if (!itemsToKeep.has(itemId)) {
-						newCache.delete(itemId);
+						cache.delete(itemId);
 					}
 				}
-
-				setRenderedItemsCache(newCache);
 			}
 		},
-		[renderedItemsCache, cacheSize, dynamicOverscan, items]
+		[cacheSize, dynamicOverscan, items] // FIXED: Removed renderedItemsCache from dependencies
 	);
 
 	// Call both hooks unconditionally to comply with Rules of Hooks
@@ -251,11 +249,26 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		};
 	}, [selectedResult.virtualItems]);
 
+	// FIXED: Return cache ref and helper functions instead of state
+	const getCachedItem = useCallback((itemId: string) => {
+		return renderedItemsCacheRef.current.get(itemId);
+	}, []);
+
+	const setCachedItem = useCallback((itemId: string, item: T) => {
+		renderedItemsCacheRef.current.set(itemId, item);
+	}, []);
+
+	const clearCache = useCallback(() => {
+		renderedItemsCacheRef.current.clear();
+	}, []);
+
 	// Return the selected result merged with additional properties
 	return {
 		...selectedResult,
-		renderedItemsCache,
-		setRenderedItemsCache,
+		getCachedItem,
+		setCachedItem,
+		clearCache,
+		cacheSize: renderedItemsCacheRef.current.size,
 		scrollDirection,
 		trackScrollDirection,
 		cleanupCache,

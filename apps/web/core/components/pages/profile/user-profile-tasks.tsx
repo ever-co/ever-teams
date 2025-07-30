@@ -57,7 +57,7 @@ export const UserProfileTask = memo(
 						return tasks;
 					}
 
-					return tasks.filter((task: any) => task.id !== activeTaskId);
+					return tasks.filter((task) => task.id !== activeTaskId);
 				},
 				deferredTabFiltered.tasksFiltered,
 				{
