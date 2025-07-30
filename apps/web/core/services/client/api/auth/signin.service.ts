@@ -57,7 +57,7 @@ class SigninService extends APIService {
 				});
 			}
 
-			loginResponse = acceptInviteRes;
+			loginResponse = acceptInviteRes as IAuthResponse;
 		}
 
 		if (loginResponse) {

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTeamInvitations } from '../organizations';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
-import { setAuthCookies } from '@/core/lib/helpers/cookies';
+import { CookiesDataType, setAuthCookies } from '@/core/lib/helpers/cookies';
 
 export function useAcceptInvite() {
 	const searchParams = useSearchParams();
@@ -24,7 +24,8 @@ export function useAcceptInvite() {
 
 				const user = {
 					firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : '',
-					lastName: fullName ? fullName.split(' ').slice(-1).join(' ') : ''
+					lastName: fullName ? fullName.split(' ').slice(-1).join(' ') : '',
+					email
 				};
 
 				const res = await acceptInvitationMutation.mutateAsync({
@@ -60,17 +61,17 @@ export function useAcceptInvite() {
 
 				const team = teams.items[0];
 
-				const authCookies = {
+				const authCookies: CookiesDataType = {
 					access_token: res.token,
 					refresh_token: {
-						token: res.refresh_token
+						token: res.refresh_token || ''
 					},
 					teamId: team.id,
 					tenantId: res.user.tenantId!,
 					organizationId: userOrganization?.organizationId!,
 					languageId: 'en',
-					noTeamPopup: true,
-					userId: res.user.id
+					userId: res.user.id,
+					noTeamPopup: true
 				};
 
 				setAuthCookies({ ...authCookies });

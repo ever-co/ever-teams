@@ -109,8 +109,8 @@ export const acceptInvitationRequest = z.object({
 export const invitationAcceptedResponse = z.object({
 	user: userSchema,
 	token: z.string(),
-	refresh_token: z.string(),
-	team: organizationTeamSchema
+	refresh_token: z.string().optional(),
+	team: organizationTeamSchema.optional().nullable()
 });
 
 export enum EInvitationState {

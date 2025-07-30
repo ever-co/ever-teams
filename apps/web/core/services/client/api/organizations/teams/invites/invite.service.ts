@@ -294,10 +294,8 @@ class InviteService extends APIService {
 		try {
 			const res = await this.post<IAuthResponse>('/invite/accept', data, {}, false);
 
-			return res.data;
-
 			// Validate the response data using Zod schema
-			// return validateApiResponse(invitationAcceptedResponse, res.data, 'acceptInvite API response');
+			return validateApiResponse(invitationAcceptedResponse, res.data, 'acceptInvite API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
