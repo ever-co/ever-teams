@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Няма налични данни за активност",
 		"SELECT_DIFFERENT_DATE": "Изберете различен период или проверете по-късно",
 		"PENDING_TASKS": "Чакащи задачи",
+		"RECENT_TASKS": "Скорошни задачи",
+		"OLDER_TASKS": "По-стари задачи",
 		"SHOW_MORE": "Покажи още",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Човеко-часове",
@@ -385,7 +387,6 @@
 		"NEUTRAL": "Неутрален",
 		"UNPRODUCTIVE": "Непродуктивен",
 		"ACTIVITIES": "дейности",
-		"NO_PROJECT": "Няма проект",
 		"DURATION": "Продължителност",
 		"PROGRESS": "Напредък",
 		"EMPLOYEE": "Служител",
@@ -544,7 +545,6 @@
 					"currency": "Избор на валута",
 					"currencyPlaceholder": "Изберете валута...",
 					"billing": "Тип фактуриране",
-
 					"billingPlaceholder": "Изберете интервал..."
 				}
 			},

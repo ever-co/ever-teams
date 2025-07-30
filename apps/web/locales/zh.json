@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "无可用活动数据",
 		"SELECT_DIFFERENT_DATE": "选择不同的日期范围或稍后再试",
 		"PENDING_TASKS": "待处理任务",
+		"RECENT_TASKS": "最近任务",
+		"OLDER_TASKS": "较早任务",
 		"SHOW_MORE": "显示更多",
 		"TASKS": "任务",
 		"MEN_HOURS": "工时",
@@ -143,7 +145,7 @@
 		"CREATE_TASK": "创建新任务",
 		"REMOVE_FAVORITE_TASK": "从收藏夹中移除任务",
 		"ADD_FAVORITE_TASK": "添加任务到收藏夹",
-		"NO_PROJECT": "没有项目",
+		"NO_PROJECT": "无项目",
 		"NO_FAVORITE_TASK": "尚无收藏任务",
 		"LINK_TASK": "选择相关议题",
 		"LINK": "链接",
@@ -385,7 +387,6 @@
 		"NEUTRAL": "中性",
 		"UNPRODUCTIVE": "低效",
 		"ACTIVITIES": "活动",
-		"NO_PROJECT": "无项目",
 		"DURATION": "持续时间",
 		"PROGRESS": "进度",
 		"EMPLOYEE": "员工",
@@ -523,7 +524,6 @@
 					"uploadingImage": "正在上传项目图片"
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "标签",

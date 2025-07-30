@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Keine Aktivitätsdaten verfügbar",
 		"SELECT_DIFFERENT_DATE": "Wählen Sie einen anderen Zeitraum oder kommen Sie später zurück",
 		"PENDING_TASKS": "Ausstehende Aufgaben",
+		"RECENT_TASKS": "Aktuelle Aufgaben",
+		"OLDER_TASKS": "Ältere Aufgaben",
 		"SHOW_MORE": "Mehr anzeigen",
 		"TASKS": "Aufgaben",
 		"MEN_HOURS": "Mannstunden",
@@ -385,7 +387,6 @@
 		"NEUTRAL": "Neutral",
 		"UNPRODUCTIVE": "Unproduktiv",
 		"ACTIVITIES": "Aktivitäten",
-		"NO_PROJECT": "Kein Projekt",
 		"DURATION": "Dauer",
 		"PROGRESS": "Fortschritt",
 		"EMPLOYEE": "Mitarbeiter",
@@ -579,7 +580,6 @@
 					"billingPlaceholder": "Wählen Sie einen Intervall..."
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Bezeichnungen",

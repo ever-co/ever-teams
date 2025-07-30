@@ -263,34 +263,3 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		isEnhanced: true
 	};
 }
-
-/**
- * Specialized hook for task list virtualization with TanStack Virtual
- * Automatically chooses between container and window virtualization
- * @deprecated Use useEnhancedVirtualization for better performance
- */
-export function useTaskVirtualization<T>(
-	tasks: T[],
-	containerHeight: number = 600,
-	itemHeight: number = 120,
-	enabled: boolean = true,
-	useWindow: boolean = false
-) {
-	// Use window virtualization for very large lists (>100 items)
-	const shouldUseWindow = useWindow || tasks.length > 100;
-
-	if (shouldUseWindow) {
-		return useWindowVirtual(tasks, {
-			itemHeight,
-			overscan: 2,
-			enabled: enabled && tasks.length > 20
-		});
-	}
-
-	return useTanStackVirtual(tasks, {
-		itemHeight,
-		containerHeight,
-		overscan: 3,
-		enabled: enabled && tasks.length > 20
-	});
-}

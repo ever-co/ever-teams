@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Nessun dato di attività disponibile",
 		"SELECT_DIFFERENT_DATE": "Seleziona un intervallo di date diverso o riprova più tardi",
 		"PENDING_TASKS": "Compiti in sospeso",
+		"RECENT_TASKS": "Compiti recenti",
+		"OLDER_TASKS": "Compiti precedenti",
 		"SHOW_MORE": "Mostra di più",
 		"TASKS": "Compiti",
 		"MEN_HOURS": "Ore Uomo",
@@ -270,7 +272,6 @@
 			"SINGULAR": "Scheda attività",
 			"PLURAL": "Schede attività"
 		},
-
 		"DAYS": {
 			"sun": "Dom",
 			"mon": "Lun",
@@ -386,7 +387,6 @@
 		"NEUTRAL": "Neutrale",
 		"UNPRODUCTIVE": "Improduttivo",
 		"ACTIVITIES": "attività",
-		"NO_PROJECT": "Nessun progetto",
 		"DURATION": "Durata",
 		"PROGRESS": "Progresso",
 		"EMPLOYEE": "Dipendente",

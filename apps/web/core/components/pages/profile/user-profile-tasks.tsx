@@ -4,9 +4,10 @@ import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
 import { memo, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { useTaskFilterCache } from '@/core/hooks/common/use-memoized-cache';
-import { useTaskVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
+import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
 import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
 import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
@@ -160,7 +161,7 @@ export const UserProfileTask = memo(
 				)}
 
 				{tabFiltered.tab !== 'dailyplan' &&
-					(useVirtualization && otherTasks.length > 20 ? (
+					(useVirtualization && otherTasks.length > ITEMS_LENGTH_TO_VIRTUALIZED ? (
 						<TanStackVirtualizedTaskList
 							tasks={otherTasks as TTask[]}
 							tabFiltered={tabFiltered}
@@ -239,13 +240,14 @@ const TanStackVirtualizedTaskList = memo(
 		const containerHeight = 600; // Adjust based on your layout
 		const itemHeight = 120; // Approximate height of each TaskCard
 
-		const virtualizationResult = useTaskVirtualization(
-			tasks,
+		const virtualizationResult = useEnhancedVirtualization(tasks, {
 			containerHeight,
 			itemHeight,
-			true,
-			tasks.length > 100 // Use window virtualization for very large lists
-		);
+			enabled: true,
+			useWindow: tasks.length > 100, // Use window virtualization for very large lists
+			cacheSize: 50,
+			overscanMultiplier: 2
+		});
 
 		const { virtualItems, isScrolling } = virtualizationResult;
 
@@ -275,6 +277,36 @@ const TanStackVirtualizedTaskList = memo(
 			[]
 		);
 
+		// Extract repeated JSX into a separate function to adhere to DRY principle
+		const renderVirtualItem = useCallback(
+			(virtualItem: any) => (
+				<div
+					key={virtualItem.key}
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: `${virtualItem.size}px`,
+						transform: `translateY(${virtualItem.start}px)`
+					}}
+				>
+					<div className="px-1 pb-4">
+						<LazyTaskCard
+							task={virtualItem.item}
+							isAuthUser={isAuthUser}
+							activeAuthTask={false}
+							viewType={viewType}
+							profile={profile}
+							taskBadgeClassName={getTaskBadgeClassName(virtualItem.item.issueType || '')}
+							taskTitleClassName="mt-[0.0625rem]"
+						/>
+					</div>
+				</div>
+			),
+			[isAuthUser, viewType, profile, getTaskBadgeClassName]
+		);
+
 		if (tasks.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
@@ -290,32 +322,8 @@ const TanStackVirtualizedTaskList = memo(
 		if (isWindowVirtualization) {
 			// Window virtualization - no container needed
 			return (
-				<div style={{ height: virtualizationResult.totalSize, position: 'relative' }}>
-					{virtualItems.map((virtualItem) => (
-						<div
-							key={virtualItem.key}
-							style={{
-								position: 'absolute',
-								top: 0,
-								left: 0,
-								width: '100%',
-								height: `${virtualItem.size}px`,
-								transform: `translateY(${virtualItem.start}px)`
-							}}
-						>
-							<div className="px-1 pb-4">
-								<LazyTaskCard
-									task={virtualItem.item}
-									isAuthUser={isAuthUser}
-									activeAuthTask={false}
-									viewType={viewType}
-									profile={profile}
-									taskBadgeClassName={getTaskBadgeClassName(virtualItem.item.issueType || '')}
-									taskTitleClassName="mt-[0.0625rem]"
-								/>
-							</div>
-						</div>
-					))}
+				<div style={{ height: virtualizationResult.totalSize || 0, position: 'relative' }}>
+					{virtualItems.map(renderVirtualItem)}
 					{isScrolling && (
 						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs rounded h-50 dark:text-white bg-black/50">
 							Scrolling...
@@ -328,33 +336,7 @@ const TanStackVirtualizedTaskList = memo(
 		// Container virtualization
 		return (
 			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
-				<div style={innerStyle}>
-					{virtualItems.map((virtualItem) => (
-						<div
-							key={virtualItem.key}
-							style={{
-								position: 'absolute',
-								top: 0,
-								left: 0,
-								width: '100%',
-								height: `${virtualItem.size}px`,
-								transform: `translateY(${virtualItem.start}px)`
-							}}
-						>
-							<div className="px-1 pb-4">
-								<LazyTaskCard
-									task={virtualItem.item}
-									isAuthUser={isAuthUser}
-									activeAuthTask={false}
-									viewType={viewType}
-									profile={profile}
-									taskBadgeClassName={getTaskBadgeClassName(virtualItem.item.issueType || '')}
-									taskTitleClassName="mt-[0.0625rem]"
-								/>
-							</div>
-						</div>
-					))}
-				</div>
+				<div style={innerStyle}>{virtualItems.map(renderVirtualItem)}</div>
 				{isScrolling && (
 					<div className="absolute top-2 right-2 px-2 py-1 text-xs text-white rounded bg-black/50">
 						Scrolling...

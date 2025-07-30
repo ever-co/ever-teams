@@ -7,6 +7,8 @@
 		"NO_ACTIVITY_DATA": "لا توجد بيانات نشاط متاحة",
 		"SELECT_DIFFERENT_DATE": "حدد نطاق تاريخ مختلف أو تحقق لاحقًا",
 		"PENDING_TASKS": "المهام المعلقة",
+		"RECENT_TASKS": "المهام الحديثة",
+		"OLDER_TASKS": "المهام القديمة",
 		"SHOW_MORE": "عرض المزيد",
 		"TASKS": "المهام",
 		"MEN_HOURS": "ساعات العمل",
@@ -364,7 +366,6 @@
 		"NEUTRAL": "محايد",
 		"UNPRODUCTIVE": "غير منتج",
 		"ACTIVITIES": "أنشطة",
-		"NO_PROJECT": "لا يوجد مشروع",
 		"DURATION": "المدة",
 		"PROGRESS": "التقدم",
 		"EMPLOYEE": "موظف",
@@ -538,7 +539,6 @@
 					"billingPlaceholder": "اختر الفاصل الزمني..."
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "التصنيفات",
