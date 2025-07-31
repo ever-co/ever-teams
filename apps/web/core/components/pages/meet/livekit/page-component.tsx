@@ -1,17 +1,14 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { BackdropLoader, Meta } from '@/core/components';
-import dynamic from 'next/dynamic';
+import { Meta } from '@/core/components';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 
-const LiveKit = dynamic(() => import('@/core/components/integration/livekit'), {
-	ssr: false,
-	loading: () => <BackdropLoader show />
-});
+// Import optimized components from centralized location
+import { LazyLiveKit as LiveKit } from '@/core/components/optimized-components/meet';
 
 function LiveKitPage() {
 	const router = useRouter();

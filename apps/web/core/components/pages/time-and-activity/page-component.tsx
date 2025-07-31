@@ -15,31 +15,14 @@ import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-repo
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
 import { ViewOption } from '@/core/components/common/view-select';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import dynamic from 'next/dynamic';
 import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
-
-const LazyTimeActivityHeader = dynamic(
-	() => import('./time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
-	{
-		ssr: false
-	}
-);
-
-const LazyCardTimeAndActivity = dynamic(() => import('./card-time-and-activity'), {
-	ssr: false
-});
-
-const LazyActivityTable = dynamic(() => import('./activity-table'), {
-	ssr: false
-});
-
-const LazyTimeActivityTable = dynamic(
-	() => import('./time-activity-table').then((mod) => ({ default: mod.TimeActivityTable })),
-	{
-		ssr: false
-	}
-);
+import {
+	LazyTimeActivityHeader,
+	LazyCardTimeAndActivity,
+	LazyActivityTable,
+	LazyTimeActivityTable
+} from '@/core/components/optimized-components/reports';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 

@@ -29,6 +29,8 @@
 		"NO_ACTIVITY_DATA": "Aucune donnée d'activité disponible",
 		"SELECT_DIFFERENT_DATE": "Sélectionnez une autre plage de dates ou revenez plus tard",
 		"PENDING_TASKS": "Tâches en attente",
+		"RECENT_TASKS": "Tâches récentes",
+		"OLDER_TASKS": "Tâches anciennes",
 		"SHOW_MORE": "Voir plus",
 		"TASKS": "Tâches",
 		"MEN_HOURS": "Heures Homme",

@@ -3,7 +3,7 @@
 import { useCollaborative, useQueryCall } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { BackdropLoader, Meta } from '@/core/components';
-import dynamic from 'next/dynamic';
+// dynamic import removed - using optimized components
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { meetAuthService } from '@/core/services/client/api/auth/meet-auth';
@@ -12,11 +12,8 @@ import { meetAuthService } from '@/core/services/client/api/auth/meet-auth';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
-// Lazy load Meet component
-const Meet = dynamic(() => import('@/core/components/integration/meet'), {
-	ssr: false,
-	loading: () => <BackdropLoader show />
-});
+// Import optimized components from centralized location
+import { LazyMeet as Meet } from '@/core/components/optimized-components/meet';
 
 function useMeetJwtToken(room?: string) {
 	const [token, setToken] = useState<string>();
@@ -108,12 +105,12 @@ function MeetPage() {
 	// Show error or retrying state
 	if (error) {
 		return (
-			<div className="flex flex-col items-center justify-center p-4">
-				<h2 className="text-xl font-semibold text-red-600 mb-2">Failed to initialize meeting</h2>
-				<p className="text-gray-600 mb-4">{error.message}</p>
+			<div className="flex flex-col justify-center items-center p-4">
+				<h2 className="mb-2 text-xl font-semibold text-red-600">Failed to initialize meeting</h2>
+				<p className="mb-4 text-gray-600">{error.message}</p>
 				<button
 					onClick={() => window.location.reload()}
-					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+					className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
 				>
 					Try Again
 				</button>
@@ -123,7 +120,7 @@ function MeetPage() {
 
 	if (retrying) {
 		return (
-			<div className="flex items-center justify-center p-4">
+			<div className="flex justify-center items-center p-4">
 				<BackdropLoader show />
 				<p className="ml-2">Reconnecting...</p>
 			</div>

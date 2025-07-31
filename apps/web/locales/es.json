@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "No hay datos de actividad disponibles",
 		"SELECT_DIFFERENT_DATE": "Selecciona un rango de fechas diferente o vuelve más tarde",
 		"PENDING_TASKS": "Tareas pendientes",
+		"RECENT_TASKS": "Tareas recientes",
+		"OLDER_TASKS": "Tareas anteriores",
 		"SHOW_MORE": "Mostrar más",
 		"TASKS": "Tareas",
 		"MEN_HOURS": "Horas Hombre",
@@ -387,7 +389,6 @@
 		"NEUTRAL": "Neutral",
 		"UNPRODUCTIVE": "Improductivo",
 		"ACTIVITIES": "actividades",
-		"NO_PROJECT": "Sin proyecto",
 		"DURATION": "Duración",
 		"PROGRESS": "Progreso",
 		"EMPLOYEE": "Empleado",
@@ -588,7 +589,6 @@
 					"uploadingImage": "Subiendo la imagen del proyecto"
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Etiquetas",

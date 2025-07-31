@@ -20,17 +20,8 @@ import {
 	SelectedTimesheet
 } from '@/core/components/timesheet';
 import { ArrowLeftIcon } from 'assets/svg';
-import dynamic from 'next/dynamic';
 import type { IconBaseProps } from 'react-icons';
-
-import {
-	CalendarViewSkeleton,
-	TimesheetCardSkeleton,
-	TimesheetDetailModalSkeleton,
-	TimesheetFilterSkeleton,
-	TimesheetPaginationSkeleton,
-	TimesheetViewSkeleton
-} from '@/core/components/common/skeleton/timesheet-skeletons';
+import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
@@ -40,62 +31,14 @@ import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pa
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
 import { activeTeamState, userState } from '@/core/stores';
-
-// Lazy load heavy timesheet components for performance optimization
-// Priority 1: CalendarView (heaviest component with complex calendar logic)
-const LazyCalendarView = dynamic(
-	() => import('@/core/components/pages/timesheet/calendar-view').then((mod) => ({ default: mod.CalendarView })),
-	{
-		ssr: false,
-		loading: () => <CalendarViewSkeleton />
-	}
-);
-
-// Priority 2: TimesheetView (complex DataTable with sorting/filtering)
-const LazyTimesheetView = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-view').then((mod) => ({ default: mod.TimesheetView })),
-	{
-		ssr: false,
-		loading: () => <TimesheetViewSkeleton />
-	}
-);
-
-// Priority 3: TimesheetDetailModal (conditional modal component)
-const LazyTimesheetDetailModal = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-detail-modal').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false,
-		loading: () => <TimesheetDetailModalSkeleton />
-	}
-);
-
-// Priority 4: TimesheetFilter (filter components with date pickers)
-const LazyTimesheetFilter = dynamic(
-	() =>
-		import('@/core/components/pages/timesheet/timesheet-filter').then((mod) => ({ default: mod.TimesheetFilter })),
-	{
-		ssr: false,
-		loading: () => <TimesheetFilterSkeleton />
-	}
-);
-
-// Priority 5: TimesheetCard (stats cards with icons and actions)
-const LazyTimesheetCard = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-card').then((mod) => ({ default: mod.TimesheetCard })),
-	{
-		ssr: false,
-		loading: () => <TimesheetCardSkeleton />
-	}
-);
-
-// Priority 6: TimesheetPagination (pagination controls)
-const LazyTimesheetPagination = dynamic(
-	() => import('@/core/components/timesheet/timesheet-pagination').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false,
-		loading: () => <TimesheetPaginationSkeleton />
-	}
-);
+import {
+	LazyCalendarView,
+	LazyTimesheetView,
+	LazyTimesheetDetailModal,
+	LazyTimesheetFilter,
+	LazyTimesheetCard,
+	LazyTimesheetPagination
+} from '@/core/components/optimized-components/calendar';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';

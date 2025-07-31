@@ -17,46 +17,14 @@ import { useOrganizationTeams } from '@/core/hooks/organizations';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
 import { TeamDashboardPageSkeleton } from '@/core/components/common/skeleton/team-dashboard-page-skeleton';
-import { TeamStatsGridSkeleton } from '@/core/components/common/skeleton/team-stats-grid-skeleton';
-import dynamic from 'next/dynamic';
-
-// Lazy load TeamStatsChart (Recharts) for performance optimization
-const LazyTeamStatsChart = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard/team-stats-chart').then((mod) => ({
-			default: mod.TeamStatsChart
-		})),
-	{
-		ssr: false,
-		loading: () => <ChartSkeleton />
-	}
-);
-
-// Lazy load TeamStatsTable for performance optimization
-const LazyTeamStatsTable = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard/team-stats-table').then((mod) => ({
-			default: mod.TeamStatsTable
-		})),
-	{
-		ssr: false
-	}
-);
-
-// Lazy load TeamStatsGrid for performance optimization
-const LazyTeamStatsGrid = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard').then((mod) => ({
-			default: mod.TeamStatsGrid
-		})),
-	{
-		ssr: false,
-		loading: () => <TeamStatsGridSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyTeamStatsChart,
+	LazyTeamStatsTable,
+	LazyTeamStatsGrid
+} from '@/core/components/optimized-components/dashboard';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
 
 function TeamDashboard() {

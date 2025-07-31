@@ -162,6 +162,13 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 		</div>
 	);
 };
+export const TaskCardBlockSkeleton = () => (
+	<div className="flex flex-col gap-y-4">
+		{[...Array(5)].map((_, index) => (
+			<TaskCardSkeleton key={index} />
+		))}
+	</div>
+);
 
 /**
  * Skeleton for UserProfileTask component - PIXEL PERFECT
@@ -399,6 +406,106 @@ export const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
 	);
 };
 
+/**
+ * Pixel-perfect skeleton for UserTeamActivity component
+ * Matches the exact structure: HorizontalSeparator + Title + Activity Card + Tabs + Content
+ */
+export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
+	return (
+		<div className={`w-full ${className || ''}`}>
+			<div className="flex flex-col gap-y-4 justify-center w-full transition-all">
+				{/* HorizontalSeparator skeleton */}
+				<div className="my-4 h-px bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+
+				{/* Title skeleton */}
+				<div className="py-2">
+					<div className="h-7 bg-gray-300 dark:bg-gray-600 rounded w-48 animate-pulse"></div>
+				</div>
+
+				<div className="flex overflow-hidden flex-col gap-y-5 justify-between w-full">
+					{/* Activity percentage card skeleton */}
+					<div className="flex gap-3 items-center w-full">
+						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-[#26272C] animate-pulse">
+							{/* TIME_ACTIVITY label */}
+							<div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-3"></div>
+							{/* Percentage value */}
+							<div className="h-9 bg-gray-300 dark:bg-gray-600 rounded w-20 mb-3"></div>
+							{/* Progress bar */}
+							<div className="w-4/5 h-2 bg-gray-300 dark:bg-gray-600 rounded-full">
+								<div className="h-2 bg-gray-400 dark:bg-gray-500 rounded-full w-1/3"></div>
+							</div>
+						</div>
+					</div>
+
+					{/* Tabs section skeleton */}
+					<div className="overflow-hidden flex-1 w-full">
+						{/* Tab list skeleton */}
+						<div className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] gap-2 p-2">
+							{/* 4 tabs: Tasks, Screenshots, Apps, Visited Sites */}
+							{Array.from({ length: 4 }).map((_, index) => (
+								<div
+									key={index}
+									className={`w-full rounded-lg py-2.5 px-4 animate-pulse ${
+										index === 0 ? 'bg-white dark:bg-dark shadow' : 'bg-transparent'
+									}`}
+								>
+									<div
+										className={`h-4 rounded mx-auto ${
+											index === 0
+												? 'bg-blue-300 dark:bg-blue-600 w-12'
+												: 'bg-gray-300 dark:bg-gray-600 w-16'
+										}`}
+									></div>
+								</div>
+							))}
+						</div>
+
+						{/* Tab content skeleton */}
+						<div className="mt-2 w-full">
+							<div className="overflow-hidden w-full">
+								{/* Tasks tab content skeleton - matches UserWorkedTaskTab structure */}
+								<div className="flex flex-col gap-4 p-4">
+									{/* Active task skeleton */}
+									<div className="animate-pulse">
+										<div className="flex items-center space-x-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+											<div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+											<div className="flex-1 space-y-2">
+												<div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+												<div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+											</div>
+											<div className="flex space-x-2">
+												<div className="w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+												<div className="w-20 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+											</div>
+										</div>
+									</div>
+
+									{/* Other tasks skeleton */}
+									{Array.from({ length: 3 }).map((_, index) => (
+										<div key={index} className="animate-pulse">
+											<div className="flex items-center space-x-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+												<div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+												<div className="flex-1 space-y-2">
+													<div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3"></div>
+													<div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
+												</div>
+												<div className="flex space-x-2">
+													<div className="w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+													<div className="w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 export default {
 	UserProfileDetailSkeleton,
 	UserProfileTaskSkeleton,
@@ -406,5 +513,6 @@ export default {
 	AppsTabSkeleton,
 	VisitedSitesTabSkeleton,
 	ScreenshootTabSkeleton,
-	TaskFilterSkeleton
+	TaskFilterSkeleton,
+	UserTeamActivitySkeleton
 };
