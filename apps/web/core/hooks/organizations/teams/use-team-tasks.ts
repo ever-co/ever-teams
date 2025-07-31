@@ -157,15 +157,16 @@ export function useTeamTasks() {
 		},
 		onSuccess: (updatedTask, { taskId }) => {
 			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
-				if (!oldTasks) return [];
+				if (!oldTasks) return oldTasks;
 
-				const updatedItems = oldTasks.items.map((task) =>
+				const updatedItems = oldTasks?.items?.map((task) =>
 					task.id === taskId ? { ...task, ...updatedTask } : task
 				);
 
+				// Sync the tasks store
 				setAllTasks(updatedItems);
 
-				return updatedItems;
+				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
 		}
 	});
