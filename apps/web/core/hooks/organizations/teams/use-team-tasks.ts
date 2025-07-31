@@ -30,6 +30,7 @@ import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -154,9 +155,17 @@ export function useTeamTasks() {
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
 			return await taskService.updateTask(taskId, taskData);
 		},
-		onSuccess: ({ id }) => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.tasks.detail(id)
+		onSuccess: (updatedTask, { taskId }) => {
+			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
+				if (!oldTasks) return [];
+
+				const updatedItems = oldTasks.items.map((task) =>
+					task.id === taskId ? { ...task, ...updatedTask } : task
+				);
+
+				setAllTasks(updatedItems);
+
+				return updatedItems;
 			});
 		}
 	});
