@@ -2,6 +2,21 @@ import React, { memo, useCallback, useState, useMemo, useEffect, useRef } from '
 import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
 import { useSharedVirtualizationCache } from '@/core/hooks/common/use-shared-virtualization-cache';
 
+/**
+ * Optimized utility to safely check if virtualItem has positioning properties
+ * Prevents TypeScript errors and runtime issues
+ */
+function hasPositionProperties(
+	virtualItem: any
+): virtualItem is { start: number; end: number; size: number; [key: string]: any } {
+	return (
+		virtualItem &&
+		typeof virtualItem.start === 'number' &&
+		typeof virtualItem.end === 'number' &&
+		typeof virtualItem.size === 'number'
+	);
+}
+
 interface VirtualizedListProps<T extends { id: string }> {
 	items: T[];
 	itemHeight: number;
@@ -186,26 +201,40 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 			}
 
 			bufferCalculationTimeoutRef.current = setTimeout(() => {
-				if (useSmoothVirtualization && 'getVisibleRange' in virtualizationResult) {
-					const visibleRange = virtualizationResult.getVisibleRange();
-					cache.warmCache(virtualizedItems, visibleRange, scrollDirection, renderItemWrapper);
+				if (
+					useSmoothVirtualization &&
+					'getVisibleRange' in virtualizationResult &&
+					typeof virtualizationResult.getVisibleRange === 'function'
+				) {
+					try {
+						const visibleRange = virtualizationResult.getVisibleRange();
+						if (
+							visibleRange &&
+							typeof visibleRange.start === 'number' &&
+							typeof visibleRange.end === 'number'
+						) {
+							cache.warmCache(virtualizedItems, visibleRange, scrollDirection, renderItemWrapper);
 
-					// Auto-pagination for very large datasets
-					if (virtualPageSize < items.length) {
-						const totalVirtualizedItems = virtualizedItems.length;
-						const nearEndThreshold = totalVirtualizedItems * 0.8; // 80% threshold
+							// Auto-pagination for very large datasets
+							if (virtualPageSize < items.length) {
+								const totalVirtualizedItems = virtualizedItems.length;
+								const nearEndThreshold = totalVirtualizedItems * 0.8; // 80% threshold
 
-						if (visibleRange.end > nearEndThreshold) {
-							const nextPage = currentVirtualPage + 1;
-							const maxPage = Math.ceil(items.length / virtualPageSize) - 1;
+								if (visibleRange.end > nearEndThreshold) {
+									const nextPage = currentVirtualPage + 1;
+									const maxPage = Math.ceil(items.length / virtualPageSize) - 1;
 
-							if (nextPage <= maxPage) {
-								// Lazy load next virtual page
-								requestAnimationFrame(() => {
-									setCurrentVirtualPage(nextPage);
-								});
+									if (nextPage <= maxPage) {
+										// Lazy load next virtual page
+										requestAnimationFrame(() => {
+											setCurrentVirtualPage(nextPage);
+										});
+									}
+								}
 							}
 						}
+					} catch (error) {
+						console.warn('VirtualizedList: Error getting visible range:', error);
 					}
 				}
 			}, 50); // 50ms debounce for cache warming
@@ -277,11 +306,10 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				cache.setCachedItem(itemId, item, renderedItem);
 			}
 
-			return (
-				<div
-					key={virtualItem.key}
-					style={{
-						position: 'absolute',
+			// Simple rendering with original styles
+			const itemStyle = hasPositionProperties(virtualItem)
+				? {
+						position: 'absolute' as const,
 						top: 0,
 						left: 0,
 						width: '100%',
@@ -289,14 +317,22 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 						transform: `translateY(${virtualItem.start}px)`,
 						transition: isScrolling ? 'none' : 'transform 0.1s ease-out',
 						willChange: isScrolling ? 'transform' : 'auto'
-					}}
-				>
+					}
+				: {
+						// Fallback for items without positioning (window virtualization)
+						position: 'relative' as const,
+						width: '100%',
+						minHeight: `${itemHeight}px`
+					};
+
+			return (
+				<div key={virtualItem.key} style={itemStyle}>
 					{/* Preserve original spacing structure like TanStackVirtualizedTaskList */}
 					<div className={itemClassName || 'px-1 pb-4'}>{renderedItem}</div>
 				</div>
 			);
 		},
-		[renderItem, itemClassName, isScrolling, useSmoothVirtualization, cache]
+		[renderItem, itemClassName, isScrolling, useSmoothVirtualization, cache, itemHeight]
 	);
 
 	// Non-virtualized rendering for small lists - preserves original structure
@@ -356,49 +392,54 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 			<div ref={parentRef} style={containerStyle} className="custom-scrollbar" onScroll={handleScroll}>
 				<div style={innerStyle}>
 					{/* Enhanced top buffer - adapts to scroll direction */}
-					{virtualItems.length > 0 && virtualItems[0].start > 0 && (
-						<div
-							style={{
-								position: 'absolute',
-								top: Math.max(0, virtualItems[0].start - dynamicBufferHeight),
-								left: 0,
-								width: '100%',
-								height: Math.min(dynamicBufferHeight, virtualItems[0].start),
-								background: 'transparent',
-								pointerEvents: 'none',
-								// Subtle gradient to blend with content
-								backgroundImage:
-									scrollDirection === 'down'
-										? 'linear-gradient(to bottom, rgba(255,255,255,0.02), transparent)'
-										: 'transparent'
-							}}
-						/>
-					)}
+					{(() => {
+						const firstItem = virtualItems[0];
+						return virtualItems.length > 0 && hasPositionProperties(firstItem) && firstItem.start > 0 ? (
+							<div
+								style={{
+									position: 'absolute',
+									top: Math.max(0, firstItem.start - dynamicBufferHeight),
+									left: 0,
+									width: '100%',
+									height: Math.min(dynamicBufferHeight, firstItem.start),
+									background: 'transparent',
+									pointerEvents: 'none',
+									// Subtle gradient to blend with content
+									backgroundImage:
+										scrollDirection === 'down'
+											? 'linear-gradient(to bottom, rgba(255,255,255,0.02), transparent)'
+											: 'transparent'
+								}}
+							/>
+						) : null;
+					})()}
 
 					{virtualItems.map((virtualItem, index) => renderVirtualizedItem(virtualItem, index))}
 
 					{/* Enhanced bottom buffer - adapts to scroll direction */}
-					{virtualItems.length > 0 && virtualItems[virtualItems.length - 1].end < totalSize && (
-						<div
-							style={{
-								position: 'absolute',
-								top: virtualItems[virtualItems.length - 1].end,
-								left: 0,
-								width: '100%',
-								height: Math.min(
-									dynamicBufferHeight,
-									totalSize - virtualItems[virtualItems.length - 1].end
-								),
-								background: 'transparent',
-								pointerEvents: 'none',
-								// Subtle gradient to blend with content
-								backgroundImage:
-									scrollDirection === 'up'
-										? 'linear-gradient(to top, rgba(255,255,255,0.02), transparent)'
-										: 'transparent'
-							}}
-						/>
-					)}
+					{(() => {
+						const lastItem = virtualItems[virtualItems.length - 1];
+						return virtualItems.length > 0 &&
+							hasPositionProperties(lastItem) &&
+							lastItem.end < totalSize ? (
+							<div
+								style={{
+									position: 'absolute',
+									top: lastItem.end,
+									left: 0,
+									width: '100%',
+									height: Math.min(dynamicBufferHeight, totalSize - lastItem.end),
+									background: 'transparent',
+									pointerEvents: 'none',
+									// Subtle gradient to blend with content
+									backgroundImage:
+										scrollDirection === 'up'
+											? 'linear-gradient(to top, rgba(255,255,255,0.02), transparent)'
+											: 'transparent'
+								}}
+							/>
+						) : null;
+					})()}
 				</div>
 
 				{/* Enhanced scroll indicator */}

@@ -1,6 +1,18 @@
 import { useVirtualizer, useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useCallback, useRef, useMemo, useState } from 'react';
 
+/**
+ * Simple safety check for virtual items - minimal fix for the original error
+ */
+function isValidVirtualItem(virtualItem: any, itemsLength: number): boolean {
+	return (
+		virtualItem != null &&
+		typeof virtualItem.index === 'number' &&
+		virtualItem.index >= 0 &&
+		virtualItem.index < itemsLength
+	);
+}
+
 interface UseTanStackVirtualOptions {
 	itemHeight: number;
 	containerHeight: number;
@@ -25,11 +37,14 @@ export function useTanStackVirtual<T>(items: T[], options: UseTanStackVirtualOpt
 		enabled
 	});
 
-	// Get virtual items with their corresponding data
-	const virtualItems = virtualizer.getVirtualItems().map((virtualItem) => ({
-		...virtualItem,
-		item: items[virtualItem.index]
-	}));
+	// Get virtual items with their corresponding data - simple safety fix
+	const virtualItems = virtualizer
+		.getVirtualItems()
+		.filter((virtualItem) => isValidVirtualItem(virtualItem, items.length))
+		.map((virtualItem) => ({
+			...virtualItem,
+			item: items[virtualItem.index]
+		}));
 
 	// Scroll to specific item by index
 	const scrollToIndex = useCallback(
@@ -103,11 +118,14 @@ export function useWindowVirtual<T>(items: T[], options: { itemHeight: number; o
 		enabled
 	});
 
-	// Get virtual items with their corresponding data
-	const virtualItems = virtualizer.getVirtualItems().map((virtualItem) => ({
-		...virtualItem,
-		item: items[virtualItem.index]
-	}));
+	// Get virtual items with their corresponding data - simple safety fix
+	const virtualItems = virtualizer
+		.getVirtualItems()
+		.filter((virtualItem) => isValidVirtualItem(virtualItem, items.length))
+		.map((virtualItem) => ({
+			...virtualItem,
+			item: items[virtualItem.index]
+		}));
 
 	// Scroll to specific item by index with smooth behavior
 	const scrollToIndex = useCallback(
@@ -197,25 +215,36 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 	// FIXED: Cache cleanup without dependency on cache state to prevent infinite re-renders
 	const cleanupCache = useCallback(
 		(visibleRange: { start: number; end: number }) => {
+			// Simple validation
+			if (!visibleRange || typeof visibleRange.start !== 'number' || typeof visibleRange.end !== 'number') {
+				return;
+			}
+
 			const cache = renderedItemsCacheRef.current;
-			if (cache.size > cacheSize) {
-				const itemsToKeep = new Set<string>();
+			if (!cache || cache.size <= cacheSize) {
+				return;
+			}
 
-				// Keep items in extended range
-				const extendedStart = Math.max(0, visibleRange.start - dynamicOverscan * 2);
-				const extendedEnd = Math.min(items.length - 1, visibleRange.end + dynamicOverscan * 2);
+			const itemsToKeep = new Set<string>();
 
+			// Keep items in extended range with bounds checking
+			const extendedStart = Math.max(0, visibleRange.start - dynamicOverscan * 2);
+			const extendedEnd = Math.min(items.length - 1, visibleRange.end + dynamicOverscan * 2);
+
+			// Additional safety check for valid range
+			if (extendedStart <= extendedEnd && extendedStart >= 0 && extendedEnd < items.length) {
 				for (let i = extendedStart; i <= extendedEnd; i++) {
-					if (items[i]) {
-						itemsToKeep.add(items[i].id);
+					const item = items[i];
+					if (item && item.id) {
+						itemsToKeep.add(item.id);
 					}
 				}
+			}
 
-				// Remove items not in extended range
-				for (const [itemId] of cache) {
-					if (!itemsToKeep.has(itemId)) {
-						cache.delete(itemId);
-					}
+			// Remove items not in extended range
+			for (const [itemId] of cache) {
+				if (!itemsToKeep.has(itemId)) {
+					cache.delete(itemId);
 				}
 			}
 		},
@@ -239,13 +268,21 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 	// Select which result to use based on shouldUseWindow
 	const selectedResult = shouldUseWindow ? windowResult : containerResult;
 
-	// Create getVisibleRange function based on selected result
+	// Create getVisibleRange function based on selected result - simple fix
 	const getVisibleRange = useCallback(() => {
 		const range = selectedResult.virtualItems;
-		if (range.length === 0) return { start: 0, end: 0 };
+		if (!range || range.length === 0) return { start: 0, end: 0 };
+
+		const firstItem = range[0];
+		const lastItem = range[range.length - 1];
+
+		if (!firstItem || !lastItem || typeof firstItem.index !== 'number' || typeof lastItem.index !== 'number') {
+			return { start: 0, end: 0 };
+		}
+
 		return {
-			start: range[0].index,
-			end: range[range.length - 1].index
+			start: firstItem.index,
+			end: lastItem.index
 		};
 	}, [selectedResult.virtualItems]);
 
