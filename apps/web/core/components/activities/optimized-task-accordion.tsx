@@ -83,18 +83,15 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 				<VirtualizedList
 					items={remainingTasks}
 					itemHeight={120}
-					containerHeight={400} // Smaller container for accordion
+					containerHeight={400}
 					useVirtualization={true}
-					useSmoothVirtualization={true}
+					useSmoothVirtualization={false} // Keep this disabled to prevent issues
 					renderItem={renderTaskItem}
 					className="w-full"
 					listClassName="flex flex-col gap-6"
 					itemClassName="px-1 pb-6"
 					listTag="ul"
 					itemTag="li"
-					bufferSize={5}
-					cacheSize={50}
-					overscanMultiplier={1.5}
 					scrollingIndicator={scrollingIndicator}
 				/>
 			) : (
