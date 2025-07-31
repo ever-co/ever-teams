@@ -349,6 +349,8 @@
 		"APPLY_FILTER": "Filter toepassen",
 		"CREATE_NEW": "Nieuwe maken",
 		"NO_RESULT": "Geen resultaat",
+		"NO_TEAM_MEMBERS_FOUND": "Geen teamleden gevonden",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Probeer je zoekopdracht of filter aan te passen om te vinden wat je zoekt.",
 		"PICK_A_DATE": "Kies een datum",
 		"THIS_WEEK": "Deze week",
 		"LAST_WEEK": "Vorige week",
@@ -975,6 +977,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer in totaal en vandaag aan de taak gewerkt",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer vandaag gewerkt aan alle taken voor het geselecteerde team"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Teamlid",
+			"TASK": "Taak",
+			"WORKED_ON_TASK": "Gewerkt aan taak",
+			"ESTIMATE": "Schatting",
+			"ACTION": "Actie"
 		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten",
 		"toastMessages": {

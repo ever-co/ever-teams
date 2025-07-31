@@ -343,6 +343,8 @@
 		"APPLY_FILTER": "Zastosuj filtr",
 		"CREATE_NEW": "Utwórz nowy",
 		"NO_RESULT": "Brak wyników",
+		"NO_TEAM_MEMBERS_FOUND": "Nie znaleziono członków zespołu",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Spróbuj dostosować wyszukiwanie lub filtr, aby znaleźć to, czego szukasz.",
 		"PICK_A_DATE": "Wybierz datę",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
@@ -975,6 +977,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Ile godzin pracowano ogółem i dzisiaj nad zadaniem",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Ile godzin pracowano dzisiaj nad wszystkimi zadaniami dla wybranego zespołu"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Członek zespołu",
+			"TASK": "Zadanie",
+			"WORKED_ON_TASK": "Pracował nad zadaniem",
+			"ESTIMATE": "Szacunek",
+			"ACTION": "Akcja"
 		},
 		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie",
 		"toastMessages": {

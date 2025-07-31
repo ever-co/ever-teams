@@ -160,7 +160,7 @@ export function useTeamInvitations() {
 	});
 
 	// Mutation to accept/reject an invitation
-	const acceptRejectInvitationMutation = useMutation({
+	const acceptOrRejectInvitationMutation = useMutation({
 		mutationFn: async ({ id, action }: { id: string; action: EInviteAction }) => {
 			return await inviteService.acceptRejectMyInvitations(id, action);
 		},
@@ -210,7 +210,7 @@ export function useTeamInvitations() {
 	// ===== INTERFACE FUNCTIONS =====
 
 	const inviteUser = useCallback(
-		(email: string, name: string, roleId: string) => {
+		(email: string, name: string, roleId?: string) => {
 			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
@@ -262,9 +262,9 @@ export function useTeamInvitations() {
 
 	const acceptRejectMyInvitation = useCallback(
 		(id: string, action: EInviteAction) => {
-			return acceptRejectInvitationMutation.mutateAsync({ id, action });
+			return acceptOrRejectInvitationMutation.mutateAsync({ id, action });
 		},
-		[acceptRejectInvitationMutation]
+		[acceptOrRejectInvitationMutation]
 	);
 	const hydratedInvitations = useMemo(() => {
 		return teamInvitationsData?.items ?? teamInvitations;
@@ -289,6 +289,6 @@ export function useTeamInvitations() {
 		myInvitations,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading: acceptRejectInvitationMutation.isPending
+		acceptRejectMyInvitationsLoading: acceptOrRejectInvitationMutation.isPending
 	};
 }

@@ -370,6 +370,8 @@
 		"APPLY_FILTER": "Apply Filter",
 		"CREATE_NEW": "Create New",
 		"NO_RESULT": "No result",
+		"NO_TEAM_MEMBERS_FOUND": "No team members found",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Try adjusting your search or filter to find what you're looking for.",
 		"PICK_A_DATE": "Pick a date",
 		"THIS_WEEK": "This week",
 		"LAST_WEEK": "Last week",
@@ -978,6 +980,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours an employee worked for total and today on task",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours did employees work today on all tasks for the selected Team"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Team Member",
+			"TASK": "Task",
+			"WORKED_ON_TASK": "Worked on task",
+			"ESTIMATE": "Estimate",
+			"ACTION": "Action"
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task",
 		"toastMessages": {

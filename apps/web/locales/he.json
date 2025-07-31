@@ -349,6 +349,8 @@
 		"APPLY_FILTER": "החל סינון",
 		"CREATE_NEW": "צור חדש",
 		"NO_RESULT": "אין תוצאות",
+		"NO_TEAM_MEMBERS_FOUND": "לא נמצאו חברי צוות",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "נסה להתאים את החיפוש או הסינון כדי למצוא את מה שאתה מחפש.",
 		"PICK_A_DATE": "בחר תאריך",
 		"THIS_WEEK": "השבוע",
 		"LAST_WEEK": "שבוע שעבר",
@@ -975,6 +977,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "כמה שעות עבד העובד בסך הכול והיום על המשימה",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "כמה שעות עבד העובד היום בכל המשימות לצוות שנבחר"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "חבר צוות",
+			"TASK": "משימה",
+			"WORKED_ON_TASK": "עבד על משימה",
+			"ESTIMATE": "הערכה",
+			"ACTION": "פעולה"
 		},
 		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה",
 		"toastMessages": {

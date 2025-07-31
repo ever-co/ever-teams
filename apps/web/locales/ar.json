@@ -328,6 +328,8 @@
 		"APPLY_FILTER": "تطبيق الفلتر",
 		"CREATE_NEW": "إنشاء جديد",
 		"NO_RESULT": "لا توجد نتائج",
+		"NO_TEAM_MEMBERS_FOUND": "لم يتم العثور على أعضاء فريق",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "حاول تعديل البحث أو الفلتر للعثور على ما تبحث عنه.",
 		"PICK_A_DATE": "اختر تاريخًا",
 		"THIS_WEEK": "هذا الأسبوع",
 		"LAST_WEEK": "الأسبوع الماضي",
@@ -984,6 +986,13 @@
 			},
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم والإجمالي في المهمة",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم في جميع المهام للفريق المحدد"
+		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "عضو الفريق",
+			"TASK": "المهمة",
+			"WORKED_ON_TASK": "عمل على المهمة",
+			"ESTIMATE": "التقدير",
+			"ACTION": "الإجراء"
 		},
 		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة",
 		"toastMessages": {

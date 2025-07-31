@@ -106,7 +106,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						);
 					})}
 
-					{members.length > 0 &&
+					{teamInvitations.length > 0 &&
 						teamInvitations
 							.filter((invitation) => invitation.status !== EInviteStatus.ACCEPTED)
 							.map((invitation) => (
