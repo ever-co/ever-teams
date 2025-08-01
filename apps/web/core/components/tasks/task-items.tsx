@@ -15,10 +15,8 @@ import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Avatar } from '../duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TEmployee } from '@/core/types/schemas';
 
 type Props = {
 	task?: TTask;
@@ -128,7 +126,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-type PartialITeamTask = Partial<TTask> & { members?: TEmployee[] | null };
+type PartialITeamTask = Partial<TTask>;
 
 export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task?.members || [];

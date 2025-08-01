@@ -190,14 +190,14 @@ class TaskService extends APIService {
 	updateTask = async (taskId: string, body: Partial<TTask>): Promise<TTask> => {
 		try {
 			// Validate input data before sending (partial validation)
-			// const validatedInput = validateApiResponse(
-			// 	taskSchema.partial(),
-			// 	body,
-			// 	'updateTask input data'
-			// ) as Partial<TTask>;
+			const validatedInput = validateApiResponse(
+				taskSchema.partial(),
+				body,
+				'updateTask input data'
+			) as Partial<TTask>;
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const nBody = body;
+				const nBody = { ...validatedInput };
 				delete nBody.selectedTeam;
 				delete nBody.rootEpic;
 
@@ -206,7 +206,7 @@ class TaskService extends APIService {
 				return validateApiResponse(taskSchema, response.data, 'updateTask API response');
 			}
 
-			const response = await this.put<TTask>(`/tasks/${taskId}`, body);
+			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
 
 			// Validate the response data
 			return validateApiResponse(taskSchema, response.data, 'updateTask API response');
