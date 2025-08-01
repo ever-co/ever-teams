@@ -18,7 +18,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
 		status: inviteStatusSchema.optional().nullable(),
 		expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
 		actionDate: z.string().optional(), // API returns string, keep as string for consistency
-		fullName: z.string().optional(),
+		fullName: z.string().optional().nullable(),
 		isExpired: z.boolean().optional()
 	})
 	.passthrough(); // - Allow additional fields from API
@@ -92,18 +92,18 @@ export const inviteResendResultSchema = z.object({
 
 export const validateInviteByTokenAndEmailRequest = z.object({
 	token: z.string(),
-	email: z.string()
+	email: z.string().email('Valid email is required')
 });
 
 export const acceptInvitationRequest = z.object({
 	user: z.object({
 		firstName: z.string().optional().nullable(),
 		lastName: z.string().optional().nullable(),
-		email: z.string().optional()
+		email: z.string().email('Valid email is required')
 	}),
-	password: z.string(),
-	email: z.string(),
-	code: z.string()
+	password: z.string().min(8, 'Password must be at least 8 characters long'),
+	email: z.string().email('Valid email is required'),
+	code: z.string().min(1, 'Verification code is required')
 });
 
 export const invitationAcceptedResponse = z.object({
