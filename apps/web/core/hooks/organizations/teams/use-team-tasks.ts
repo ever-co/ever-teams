@@ -26,7 +26,7 @@ import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } fr
 import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -349,7 +349,7 @@ export function useTeamTasks() {
 			tags?: TTag[] | null;
 			description?: string | null;
 			projectId?: string | null;
-			members?: { id: string }[];
+			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
 			try {
 				const res = await createTaskMutation.mutateAsync({
@@ -363,7 +363,7 @@ export function useTeamTasks() {
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					projectId,
 					...(description ? { description: `<p>${description}</p>` } : {}),
-					members,
+					members: members ?? [],
 					taskStatusId: taskStatusId
 				});
 				return res;

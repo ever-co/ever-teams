@@ -15,7 +15,6 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 	const { futurePlans } = useDailyPlan();
@@ -35,9 +34,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task) =>
-						task.members?.some((member: IEmployee) => member.userId === user.id)
-					)
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 

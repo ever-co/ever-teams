@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, idSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
-import { TUser, userSchema } from '../user/user.schema';
+import { userSchema } from '../user/user.schema';
 import { teamSchema } from '../team/team.schema';
 
 /**
@@ -116,5 +116,5 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateHours: z.number(),
 	estimateMinutes: z.number()
 });
-export type TEmployee = z.infer<typeof employeeSchema> & { user: TUser };
+export type TEmployee = z.infer<typeof employeeSchema>;
 export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
