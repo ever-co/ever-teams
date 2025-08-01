@@ -36,7 +36,7 @@ export function useAutoAssignTask() {
 				members: [...(task.members || []), newMember ? newMember.employee : {}]
 			});
 		},
-		[updateTask, updateLoadingRef]
+		[updateTask, updateLoadingRef, activeTeam]
 	);
 
 	useEffect(() => {
