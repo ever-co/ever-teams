@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "创建新团队",
 			"HEADING_DESCRIPTION": "请输入团队信息以创建新团队。",
 			"LOADING_TEXT": "正在为您创建新的工作区,请稍候......",
+			"LOADING_WORKSPACE": "正在加载工作空间,请稍候......",
 			"REDIRECT_TO_WORSPACE_LOADING": "正在重定向到您的工作空间......",
 			"VERIFY_EMAIL_LOADING_TEXT": "正在验证您的电子邮箱,请稍候......",
 			"INPUT_TEAM_NAME": "输入您的团队名称",
@@ -837,6 +838,25 @@
 				"POSITION": "职位",
 				"DATE_AND_TIME_REQUEST": "日期和时间请求",
 				"CV_OR_ATTACHMENT": "简历/附件"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "接受加入 {team} 团队的邀请",
+				"USER_DETAILS": "用户详情",
+				"COMPLETE_REGISTRATION": "完成您的注册 {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "此邀请不再有效",
+						"DESCRIPTION": "请联系工作区管理员请求新的邀请。您输入了错误的URL或邀请已过期"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "此工作区不再存在",
+						"DESCRIPTION": "请联系工作区管理员请求新的工作区"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "返回仪表板",
+					"CREATE_NEW_WORKSPACE": "创建新工作区"
+				}
 			}
 		},
 		"permissions": {
@@ -1047,6 +1067,7 @@
 		"LAST_NAME_PLACEHOLDER": "姓",
 		"EMAIL_PLACEHOLDER": "输入您的电子邮箱",
 		"PASSWORD_PLACEHOLDER": "输入您的密码",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "确认您的密码",
 		"PHONE_PLACEHOLDER": "电话号码",
 		"ISSUE_NAME_PLACEHOLDER": "议题名称",
 		"TEAM_NAME_PLACEHOLDER": "请输入您的团队名称",
@@ -1061,7 +1082,8 @@
 		"SET_THEME": "设置主题",
 		"CHANGE_AVATAR": "更改头像",
 		"SELECT_TEAM_SIZE": "选择团队规模",
-		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字"
+		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
+		"AGREE_TO": "同意"
 	},
 	"layout": {
 		"footer": {
@@ -1071,6 +1093,7 @@
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
 			"TERMS": "服务条款",
+			"TERMS_AND_CONDITIONS": "条款和条件",
 			"PRIVACY_POLICY": "隐私政策",
 			"COOKIES": "Cookie政策",
 			"BY": "by"
@@ -1082,7 +1105,8 @@
 		"LENGTH_NUMBER_ERROR": "长度应为数字且大于0",
 		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
 		"VALID_EMAIL": "请输入有效的电子邮箱",
-		"SELECT_ROLE": "请选择角色"
+		"SELECT_ROLE": "请选择角色",
+		"PASSWORDS_DO_NOT_MATCH": "密码不匹配"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "按Enter键验证"

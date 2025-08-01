@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "إنشاء فريق جديد",
 			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
 			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
+			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
 			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
@@ -825,6 +826,25 @@
 				"POSITION": "المنصب",
 				"DATE_AND_TIME_REQUEST": "التاريخ والوقت للطلب",
 				"CV_OR_ATTACHMENT": "المرفقات"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "قبول الدعوة لفريق {team}",
+				"USER_DETAILS": "تفاصيل المستخدم",
+				"COMPLETE_REGISTRATION": "أكمل تسجيلك {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "هذه الدعوة لم تعد صالحة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة. إما أنك أدخلت رابطًا غير صحيح أو انتهت صلاحية الدعوة"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "مساحة العمل هذه لم تعد موجودة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "العودة إلى لوحة التحكم",
+					"CREATE_NEW_WORKSPACE": "إنشاء مساحة عمل جديدة"
+				}
 			}
 		},
 		"permissions": {
@@ -1055,6 +1075,7 @@
 		"LAST_NAME_PLACEHOLDER": "اسم العائلة",
 		"EMAIL_PLACEHOLDER": "أدخل عنوان بريدك الإلكتروني",
 		"PASSWORD_PLACEHOLDER": "ادخل رقمك السري",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "تأكيد كلمة المرور",
 		"PHONE_PLACEHOLDER": "رقم الهاتف",
 		"ISSUE_NAME_PLACEHOLDER": "اسم القضية",
 		"TEAM_NAME_PLACEHOLDER": "يرجى إدخال اسم فريقك",
@@ -1069,7 +1090,8 @@
 		"SET_THEME": "تعيين الموضوع",
 		"CHANGE_AVATAR": "تغيير الصورة الرمزية",
 		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
-		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي"
+		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي",
+		"AGREE_TO": "أوافق على"
 	},
 	"layout": {
 		"footer": {
@@ -1079,6 +1101,7 @@
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",
 			"TERMS": "شروط الخدمة",
+			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
 			"BY": "من طرف"
@@ -1090,7 +1113,8 @@
 		"LENGTH_NUMBER_ERROR": "يجب أن يكون الطول رقمًا وأكبر من 0",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي ",
 		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح",
-		"SELECT_ROLE": "يرجى اختيار دور"
+		"SELECT_ROLE": "يرجى اختيار دور",
+		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"

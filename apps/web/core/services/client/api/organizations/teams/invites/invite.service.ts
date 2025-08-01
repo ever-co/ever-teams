@@ -6,7 +6,6 @@ import {
 } from '@/core/constants/config/constants';
 import qs from 'qs';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { AcceptInviteParams } from '@/core/services/server/requests';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IGetInvitationRequest, IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
@@ -22,7 +21,13 @@ import {
 	ZodValidationError,
 	TRole
 } from '@/core/types/schemas';
-import { inviteResendResultSchema, TInviteResendResult } from '@/core/types/schemas/user/invite.schema';
+import {
+	invitationAcceptedResponse,
+	inviteResendResultSchema,
+	TAcceptInvitationRequest,
+	TInviteResendResult,
+	TValidateInviteRequest
+} from '@/core/types/schemas/user/invite.schema';
 
 class InviteService extends APIService {
 	get organizationId() {
@@ -285,25 +290,62 @@ class InviteService extends APIService {
 		}
 	};
 
-	acceptInvite = async (params: AcceptInviteParams) => {
+	acceptInvite = async (data: TAcceptInvitationRequest) => {
 		try {
-			const res = await this.post<IAuthResponse>('/invite/accept', params);
-			return res.data;
-		} catch {
-			return void 0;
+			const res = await this.post<IAuthResponse>('/invite/accept', data, {}, false);
+
+			// Validate the response data using Zod schema
+			return validateApiResponse(invitationAcceptedResponse, res.data, 'acceptInvite API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Accept invite validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'InviteService'
+				);
+			}
+			throw error;
 		}
 	};
 
-	verifyInviteCode = async (params: IInviteVerifyCode): Promise<TInviteVerified> => {
+	validateInvitationByCodeAndEmail = async (params: IInviteVerifyCode): Promise<TInviteVerified> => {
 		try {
 			const response = await this.post<TInviteVerified>('/invite/validate-by-code', params);
 
 			// Validate the response data using Zod schema
-			return validateApiResponse(inviteVerifiedSchema, response.data, 'verifyInviteCode API response');
+			return validateApiResponse(
+				inviteVerifiedSchema,
+				response.data,
+				'validateInvitationByCodeAndEmail API response'
+			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Verify invite code validation failed:',
+					'Validate invitation by code and email validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'InviteService'
+				);
+			}
+			throw error;
+		}
+	};
+
+	validateInviteByTokenAndEmail = async (query: TValidateInviteRequest): Promise<TInvite> => {
+		try {
+			const response = await this.get<TInvite>(`/invite/validate?email=${query.email}&token=${query.token}`);
+
+			// Validate the response data using Zod schema
+			return validateApiResponse(inviteSchema, response.data, 'validateInvitationByTokenAndEmail API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Validate invitation by token and email validation failed:',
 					{
 						message: error.message,
 						issues: error.issues

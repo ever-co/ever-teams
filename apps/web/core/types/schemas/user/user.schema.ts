@@ -148,7 +148,7 @@ export const userSchema = basePerTenantEntityModelSchema
 		code: z.string().nullable().optional(),
 		codeExpireAt: z.string().optional(),
 		emailVerifiedAt: z.string().optional(),
-		lastLoginAt: z.string().optional(),
+		lastLoginAt: z.string().optional().nullable(),
 		isEmailVerified: z.boolean().optional(),
 		emailToken: z.string().nullable().optional(),
 		invites: z.array(inviteSchema).optional(),

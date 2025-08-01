@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "Nieuw team maken",
 			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
+			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
@@ -825,6 +826,25 @@
 				"POSITION": "Positie",
 				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
 				"CV_OR_ATTACHMENT": "CV / Bijlage"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accepteer uitnodiging voor team {team}",
+				"USER_DETAILS": "Gebruikersgegevens",
+				"COMPLETE_REGISTRATION": "Voltooi je registratie {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Deze uitnodiging is niet meer geldig",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen. Je hebt een onjuiste URL ingevoerd of de uitnodiging is verlopen"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Deze workspace bestaat niet meer",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Terug naar dashboard",
+					"CREATE_NEW_WORKSPACE": "Nieuwe workspace maken"
+				}
 			}
 		},
 		"permissions": {
@@ -1047,6 +1067,7 @@
 		"LAST_NAME_PLACEHOLDER": "Achternaam",
 		"EMAIL_PLACEHOLDER": "Voer uw e-mailadres in",
 		"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Bevestig uw wachtwoord",
 		"PHONE_PLACEHOLDER": "Telefoonnummer",
 		"ISSUE_NAME_PLACEHOLDER": "Probleemnaam",
 		"TEAM_NAME_PLACEHOLDER": "Voer uw teamnaam in",
@@ -1061,7 +1082,8 @@
 		"SET_THEME": "Thema instellen",
 		"CHANGE_AVATAR": "Avatar wijzigen",
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
-		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek"
+		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
+		"AGREE_TO": "Akkoord met"
 	},
 	"layout": {
 		"footer": {
@@ -1071,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",
+			"TERMS_AND_CONDITIONS": "Algemene voorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"COOKIES": "Cookiebeleid",
 			"BY": "Door"
@@ -1082,7 +1105,8 @@
 		"LENGTH_NUMBER_ERROR": "Lengte moet een getal zijn en groter dan 0",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
 		"VALID_EMAIL": "Voer een geldig e-mailadres in",
-		"SELECT_ROLE": "Selecteer een rol"
+		"SELECT_ROLE": "Selecteer een rol",
+		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"

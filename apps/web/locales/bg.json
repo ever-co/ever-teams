@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "Създаване на нов отбор",
 			"HEADING_DESCRIPTION": "Моля, въведете данните на вашия отбор, за да създадете нов отбор.",
 			"LOADING_TEXT": "В момента създаваме новото ви работно място, изчакайте...",
+			"LOADING_WORKSPACE": "Зареждаме работното пространство, изчакайте...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Пренасочване към вашето работно пространство...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Проверяваме имейла ви, изчакайте...",
 			"INPUT_TEAM_NAME": "Въведете име на отбора",
@@ -825,6 +826,25 @@
 				"POSITION": "Позиция",
 				"DATE_AND_TIME_REQUEST": "Дата и час на искането",
 				"CV_OR_ATTACHMENT": "Автобиография / прикачен файл"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Приемете покана за отбор {team}",
+				"USER_DETAILS": "Потребителски данни",
+				"COMPLETE_REGISTRATION": "Завършете регистрацията си {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Тази покана вече не е валидна",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново. Или сте въвели неправилен URL, или поканата е изтекла"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Това работно пространство вече не съществува",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Връщане към таблото",
+					"CREATE_NEW_WORKSPACE": "Създаване на ново работно пространство"
+				}
 			}
 		},
 		"permissions": {
@@ -1047,6 +1067,7 @@
 		"LAST_NAME_PLACEHOLDER": "Фамилия",
 		"EMAIL_PLACEHOLDER": "Въведете имейл адреса си",
 		"PASSWORD_PLACEHOLDER": "Въведете паролата си",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Потвърдете паролата си",
 		"PHONE_PLACEHOLDER": "Телефонен номер",
 		"ISSUE_NAME_PLACEHOLDER": "Име на проблема",
 		"TEAM_NAME_PLACEHOLDER": "Моля въведете име на отбора",
@@ -1061,7 +1082,8 @@
 		"SET_THEME": "Задаване на тема",
 		"CHANGE_AVATAR": "Смяна на аватар",
 		"SELECT_TEAM_SIZE": "Изберете размер на отбора",
-		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
+		"AGREE_TO": "Съгласявам се с"
 	},
 	"layout": {
 		"footer": {
@@ -1071,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Общи условия",
+			"TERMS_AND_CONDITIONS": "Общи условия",
 			"PRIVACY_POLICY": "Политика за поверителност",
 			"COOKIES": "Политика за бисквитки",
 			"BY": "От"
@@ -1082,7 +1105,8 @@
 		"LENGTH_NUMBER_ERROR": "Дължината трябва да е число и по-голяма от 0",
 		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
 		"VALID_EMAIL": "Моля, въведете валиден имейл",
-		"SELECT_ROLE": "Моля, изберете роля"
+		"SELECT_ROLE": "Моля, изберете роля",
+		"PASSWORDS_DO_NOT_MATCH": "Паролите не съвпадат"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"

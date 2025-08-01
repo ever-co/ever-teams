@@ -677,6 +677,7 @@
 			"HEADING_TITLE": "Crea un Nuovo Team",
 			"HEADING_DESCRIPTION": "Inserisci i dettagli del tuo team per crearne uno nuovo.",
 			"LOADING_TEXT": "Stiamo creando il tuo nuovo spazio di lavoro, attendi...",
+			"LOADING_WORKSPACE": "Stiamo caricando lo spazio di lavoro, attendi...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Reindirizzamento al tuo spazio di lavoro...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Stiamo verificando la tua email, attendi...",
 			"INPUT_TEAM_NAME": "Inserisci il nome del tuo team",
@@ -825,6 +826,25 @@
 				"POSITION": "Posizione",
 				"DATE_AND_TIME_REQUEST": "Richiesta Data e Ora",
 				"CV_OR_ATTACHMENT": "CV / Allegato"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accetta invito al team {team}",
+				"USER_DETAILS": "Dettagli utente",
+				"COMPLETE_REGISTRATION": "Completa la tua registrazione {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Questo invito non è più valido",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo. O hai inserito un URL errato o l'invito è scaduto"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Questo spazio di lavoro non esiste più",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Torna alla dashboard",
+					"CREATE_NEW_WORKSPACE": "Crea un nuovo spazio di lavoro"
+				}
 			}
 		},
 		"permissions": {
@@ -1047,6 +1067,7 @@
 		"LAST_NAME_PLACEHOLDER": "Cognome",
 		"EMAIL_PLACEHOLDER": "Inserisci il tuo indirizzo email",
 		"PASSWORD_PLACEHOLDER": "Inserisci la tua password",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Conferma la tua password",
 		"PHONE_PLACEHOLDER": "Numero di telefono",
 		"ISSUE_NAME_PLACEHOLDER": "Nome del problema",
 		"TEAM_NAME_PLACEHOLDER": "Inserisci il nome del tuo team",
@@ -1061,7 +1082,8 @@
 		"SET_THEME": "Imposta il Tema",
 		"CHANGE_AVATAR": "Cambia Avatar",
 		"SELECT_TEAM_SIZE": "Seleziona la Dimensione del Team",
-		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici"
+		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici",
+		"AGREE_TO": "Accetto"
 	},
 	"layout": {
 		"footer": {
@@ -1071,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Termini di servizio",
+			"TERMS_AND_CONDITIONS": "Termini e condizioni",
 			"PRIVACY_POLICY": "politica sulla riservatezza",
 			"COOKIES": "Gestione dei Cookie",
 			"BY": "Di"
@@ -1082,7 +1105,8 @@
 		"LENGTH_NUMBER_ERROR": "La lunghezza deve essere un numero maggiore di 0",
 		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Usa alpha, numeric o alphanumeric",
 		"VALID_EMAIL": "Inserisci un indirizzo email valido",
-		"SELECT_ROLE": "Seleziona un ruolo"
+		"SELECT_ROLE": "Seleziona un ruolo",
+		"PASSWORDS_DO_NOT_MATCH": "Le password non corrispondono"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Premi Invio per convalidare"

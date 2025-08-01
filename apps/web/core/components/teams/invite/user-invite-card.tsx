@@ -52,7 +52,7 @@ export function InvitedCard({ invitation, className }: Props) {
 					'shadow-md font-normal'"
 					>
 						{' '}
-						<Avatar size={50} className="relative" imageTitle={invitation.fullName}>
+						<Avatar size={50} className="relative" imageTitle={invitation.fullName ?? ''}>
 							<TimerStatus
 								status={ETimerStatus.IDLE}
 								className="absolute -right-1 bottom-3 z-20 -mb-3 border"
@@ -124,7 +124,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			</EverCard>
 			<EverCard shadow="bigger" className={clsxm('flex relative flex-col py-3 sm:hidden', className)}>
 				<div className="flex items-center mb-4">
-					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName}>
+					<Avatar size={50} className="relative mr-2" imageTitle={invitation.fullName ?? ''}>
 						<TimerStatus
 							status={ETimerStatus.IDLE}
 							className="absolute -right-1 bottom-3 z-20 -mb-3 border"
