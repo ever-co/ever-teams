@@ -2,13 +2,15 @@
 
 import { useCallback } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
-import { useOrganizationTeams, useTeamTasks } from '../organizations';
+import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export function useUserDetails(memberId: string) {
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
@@ -40,7 +42,7 @@ export function useUserDetails(memberId: string) {
 
 			return updateTask({
 				...task,
-				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
 			});
 		},
 		[updateTask, matchUser]
