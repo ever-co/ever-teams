@@ -2,14 +2,14 @@
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { userDetailAccordion } from '@/core/stores';
+import { activeTeamState, userDetailAccordion } from '@/core/stores';
 import { useAuthenticateUser } from '../auth';
 import { useOrganizationTeams, useTeamTasks, useAuthTeamTasks } from '../organizations';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export function useUserProfilePage() {
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const { activeTeamTask, updateTask } = useTeamTasks();
 	const userMemberId = useAtomValue(userDetailAccordion);
 
@@ -49,7 +49,7 @@ export function useUserProfilePage() {
 
 			return updateTask({
 				...task,
-				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
 			});
 		},
 		[updateTask, matchUser]

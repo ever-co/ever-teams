@@ -5,9 +5,11 @@ import { useAuthTeamTasks, useOrganizationTeams, useTeamTasks } from '../organiz
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export function useUserSelectedPage(id?: string) {
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
@@ -41,7 +43,7 @@ export function useUserSelectedPage(id?: string) {
 
 			return updateTask({
 				...task,
-				members: [...(task.members || []), (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
+				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
 			});
 		},
 		[updateTask, matchUser]

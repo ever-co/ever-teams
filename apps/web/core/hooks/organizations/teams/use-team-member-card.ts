@@ -198,7 +198,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			setAssignTaskLoading(true);
 			return updateTask({
 				...task,
-				members: [...(task.members || []), (member?.employeeId ? { id: member?.employeeId } : {}) as any]
+				members: [...(task.members || []), (member ? member.employee : {}) as any]
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);
