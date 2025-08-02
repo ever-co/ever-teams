@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Brak dostępnych danych o aktywności",
 		"SELECT_DIFFERENT_DATE": "Wybierz inny zakres dat lub sprawdź później",
 		"PENDING_TASKS": "Zadania oczekujące",
+		"RECENT_TASKS": "Ostatnie zadania",
+		"OLDER_TASKS": "Starsze zadania",
 		"SHOW_MORE": "Pokaż więcej",
 		"TASKS": "Zadania",
 		"MEN_HOURS": "Roboczogodziny",
@@ -343,6 +345,8 @@
 		"APPLY_FILTER": "Zastosuj filtr",
 		"CREATE_NEW": "Utwórz nowy",
 		"NO_RESULT": "Brak wyników",
+		"NO_TEAM_MEMBERS_FOUND": "Nie znaleziono członków zespołu",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Spróbuj dostosować wyszukiwanie lub filtr, aby znaleźć to, czego szukasz.",
 		"PICK_A_DATE": "Wybierz datę",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
@@ -385,7 +389,6 @@
 		"NEUTRAL": "Neutralny",
 		"UNPRODUCTIVE": "Nieproduktywny",
 		"ACTIVITIES": "aktywności",
-		"NO_PROJECT": "Brak projektu",
 		"DURATION": "Czas trwania",
 		"PROGRESS": "Postęp",
 		"EMPLOYEE": "Pracownik",
@@ -674,6 +677,7 @@
 			"HEADING_TITLE": "Stwórz Nowy Zespół",
 			"HEADING_DESCRIPTION": "Proszę podać szczegóły swojego zespołu, aby stworzyć nowy zespół.",
 			"LOADING_TEXT": "Teraz tworzymy twoje nowe miejsce pracy, proszę czekać...",
+			"LOADING_WORKSPACE": "Ładujemy przestrzeń roboczą, proszę czekać...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Przekierowywanie do Twojej przestrzeni roboczej...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Weryfikujemy twój e-mail, proszę czekać...",
 			"INPUT_TEAM_NAME": "Wprowadź nazwę swojego zespołu",
@@ -822,6 +826,25 @@
 				"POSITION": "Pozycja",
 				"DATE_AND_TIME_REQUEST": "Data i Godzina Żądania",
 				"CV_OR_ATTACHMENT": "CV / Załącznik"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Zaakceptuj zaproszenie do zespołu {team}",
+				"USER_DETAILS": "Szczegóły użytkownika",
+				"COMPLETE_REGISTRATION": "Ukończ rejestrację {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "To zaproszenie nie jest już ważne",
+						"DESCRIPTION": "Skontaktuj się z administratorem obszaru roboczego, aby poprosić o nową. Albo wprowadziłeś nieprawidłowy URL, albo zaproszenie wygasło"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Ten obszar roboczy już nie istnieje",
+						"DESCRIPTION": "Skontaktuj się z administratorem obszaru roboczego, aby poprosić o nowy"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Powrót do pulpitu",
+					"CREATE_NEW_WORKSPACE": "Utwórz nowy obszar roboczy"
+				}
 			}
 		},
 		"permissions": {
@@ -976,6 +999,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Ile godzin pracowano ogółem i dzisiaj nad zadaniem",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Ile godzin pracowano dzisiaj nad wszystkimi zadaniami dla wybranego zespołu"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Członek zespołu",
+			"TASK": "Zadanie",
+			"WORKED_ON_TASK": "Pracował nad zadaniem",
+			"ESTIMATE": "Szacunek",
+			"ACTION": "Akcja"
+		},
 		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Zadanie nieprzypisane",
@@ -1037,12 +1067,14 @@
 		"LAST_NAME_PLACEHOLDER": "Nazwisko",
 		"EMAIL_PLACEHOLDER": "Wprowadź swój adres e-mail",
 		"PASSWORD_PLACEHOLDER": "Wprowadź hasło",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Potwierdź hasło",
 		"PHONE_PLACEHOLDER": "Numer telefonu",
 		"ISSUE_NAME_PLACEHOLDER": "Nazwa problemu",
 		"TEAM_NAME_PLACEHOLDER": "Proszę wprowadzić nazwę zespołu",
 		"TASK_INPUT_PLACEHOLDER": "Nad czym pracujesz?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Imię członka zespołu",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Adres e-mail członka zespołu",
+		"TEAM_MEMBER_ROLE": "Rola członka zespołu",
 		"COMPLETION_DESCRIPTION": "Napisz opis",
 		"UPLOAD_FILES": "Prześlij pliki",
 		"ATTACHMENT_FILE": "Załączniki",
@@ -1050,7 +1082,8 @@
 		"SET_THEME": "Ustaw motyw",
 		"CHANGE_AVATAR": "Zmień awatar",
 		"SELECT_TEAM_SIZE": "Wybierz rozmiar zespołu",
-		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną"
+		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
+		"AGREE_TO": "Zgadzam się z"
 	},
 	"layout": {
 		"footer": {
@@ -1060,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Warunki usługi",
+			"TERMS_AND_CONDITIONS": "Regulamin",
 			"PRIVACY_POLICY": "Polityka prywatności",
 			"COOKIES": "Polityka Cookie",
 			"BY": "Przez"
@@ -1070,7 +1104,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Błąd podczas weryfikacji kodu.",
 		"LENGTH_NUMBER_ERROR": "Długość powinna być liczbą większą niż 0",
 		"INVALID_ALLOWED_CHARACTER": "Nieprawidłowa wartość dla allowedCharacters. Użyj liter, cyfr lub alfanumeryczną",
-		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail"
+		"VALID_EMAIL": "Proszę podać prawidłowy adres e-mail",
+		"SELECT_ROLE": "Proszę wybrać rolę",
+		"PASSWORDS_DO_NOT_MATCH": "Hasła nie są zgodne"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Naciśnij Enter, aby potwierdzić"

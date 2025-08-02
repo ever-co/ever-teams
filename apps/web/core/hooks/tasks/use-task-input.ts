@@ -164,10 +164,7 @@ export function useTaskInput({
 			tags: taskLabels.current || [],
 			description: taskDescription.current ?? '',
 			projectId: taskProject.current,
-			members: [
-				...(autoAssignTaskAuth && user?.employee?.id ? [{ id: user?.employee.id }] : []),
-				...taskAssignees.current
-			]
+			members: [...(autoAssignTaskAuth && user?.employee?.id ? [user?.employee] : []), ...taskAssignees.current]
 		}).then((res) => {
 			setQuery('');
 			setIsCreatingTask(false); // Reset creation state after task creation

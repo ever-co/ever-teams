@@ -4,6 +4,7 @@ import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -143,8 +144,8 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 ) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
 
 // Invite
-export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/passcode';
-export const INVITE_CALLBACK_PATH = '/auth/passcode';
+export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/accept-invite';
+export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 export const GA_MEASUREMENT_ID = getNextPublicEnv(
@@ -754,3 +755,27 @@ export const TIMER_STATUS_CONSTANTS = {
 } as const;
 
 export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
+
+export const InviteStatusDisplayMap = {
+	[EInviteStatus.INVITED]: {
+		label: 'Pending',
+		foreground: 'rgb(30, 144, 255)',
+		background: 'rgba(30, 144, 255, 0.1)'
+	},
+	[EInviteStatus.ACCEPTED]: {
+		label: 'Accepted',
+		foreground: 'rgb(0, 128, 0)',
+		background: 'rgba(0, 128, 0, 0.1)'
+	},
+	[EInviteStatus.EXPIRED]: {
+		label: 'Expired',
+		foreground: 'rgb(128, 128, 128)',
+		background: 'rgba(128, 128, 128, 0.1)'
+	},
+	[EInviteStatus.REJECTED]: {
+		label: 'Rejected',
+		foreground: 'rgb(255, 99, 71)',
+		background: 'rgba(255, 99, 71, 0.1)'
+	}
+} as const;
+export const ITEMS_LENGTH_TO_VIRTUALIZED = 25;

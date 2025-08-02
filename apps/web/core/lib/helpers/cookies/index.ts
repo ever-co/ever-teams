@@ -17,7 +17,7 @@ import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
 import { deleteCookie, getCookie, setCookie } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
 
-type DataParams = {
+export type CookiesDataType = {
 	refresh_token: {
 		token: string;
 		decoded?: IDecodedRefreshToken;
@@ -76,7 +76,7 @@ export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) =>
 	return chunks.join('');
 };
 
-export function setAuthCookies(datas: DataParams, ctx?: NextCtx) {
+export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	const {
 		refresh_token,
 		access_token,

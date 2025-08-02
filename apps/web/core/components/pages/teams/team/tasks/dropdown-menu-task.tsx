@@ -11,7 +11,6 @@ import { useTranslations } from 'next-intl';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
@@ -21,7 +20,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
-	const isAssigned = task?.members?.some((m: IEmployee) => m?.user?.id === user?.id);
+	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);

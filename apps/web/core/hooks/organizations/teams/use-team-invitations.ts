@@ -16,7 +16,9 @@ import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
-import { InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
+import { IInviteVerifyCode, InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
+import { useQueryCall } from '../../common';
+import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
 
 export function useTeamInvitations() {
 	const queryClient = useQueryClient();
@@ -58,15 +60,23 @@ export function useTeamInvitations() {
 		queryFn: async () => {
 			if (!teamInvitationsParams) return { items: [] };
 
-			return await inviteService.getTeamInvitations(
-				teamInvitationsParams.tenantId,
-				teamInvitationsParams.organizationId,
-				teamInvitationsParams.role,
-				teamInvitationsParams.teamId
-			);
+			return await inviteService.getTeamInvitations({
+				role: teamInvitationsParams.role,
+				teamId: teamInvitationsParams.teamId
+			});
 		},
 		enabled: !!(activeTeamId && isTeamManager && user?.tenantId)
 	});
+
+	const invalidateTeamInvitationData = () => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.users.invitations.team(
+				user?.tenantId || '',
+				user?.employee?.organizationId || '',
+				activeTeamId || ''
+			)
+		});
+	};
 
 	// Query for my invitations
 	const {
@@ -85,6 +95,27 @@ export function useTeamInvitations() {
 		gcTime: 5 * 60 * 1000 // 5 minutes
 	});
 
+	const { queryCall: validateInviteByTokenAndEmailQueryCall, loading: validateInviteByTokenAndEmailLoading } =
+		useQueryCall(async (params: TValidateInviteRequest) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.users.invitations.operations.validateByToken(params.token, params.email),
+				queryFn: () => inviteService.validateInviteByTokenAndEmail(params),
+				staleTime: 0,
+				gcTime: 0
+			});
+		});
+
+	const { queryCall: validateInviteByCodeQueryCall, loading: validateInviteByCodeLoading } = useQueryCall(
+		async (params: IInviteVerifyCode) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.users.invitations.operations.validateByCode(params.code, params.email),
+				queryFn: () => inviteService.validateInvitationByCodeAndEmail(params),
+				staleTime: 0,
+				gcTime: 0
+			});
+		}
+	);
+
 	// ===== MUTATIONS =====
 
 	// Mutation to invite a user
@@ -95,7 +126,8 @@ export function useTeamInvitations() {
 					email: params.email,
 					name: params.name,
 					organizationId: params.organizationId,
-					teamId: params.teamId
+					teamId: params.teamId,
+					roleId: params.roleId
 				},
 				params.tenantId
 			);
@@ -105,14 +137,7 @@ export function useTeamInvitations() {
 			const items = data.items || [];
 			setTeamInvitations((prev) => [...prev, ...items]);
 
-			// Invalidation of the cache for refetch
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.team(
-					user?.tenantId || '',
-					user?.employee?.organizationId || '',
-					activeTeamId || ''
-				)
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
@@ -142,13 +167,7 @@ export function useTeamInvitations() {
 			setTeamInvitations(result.items || []);
 
 			// Invalidation of the cache
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.team(
-					user?.tenantId || '',
-					user?.employee?.organizationId || '',
-					activeTeamId || ''
-				)
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
@@ -159,14 +178,12 @@ export function useTeamInvitations() {
 		},
 		onSuccess: () => {
 			// Invalidation of the cache for refetch
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.users.invitations.all
-			});
+			invalidateTeamInvitationData();
 		}
 	});
 
 	// Mutation to accept/reject an invitation
-	const acceptRejectInvitationMutation = useMutation({
+	const acceptOrRejectInvitationMutation = useMutation({
 		mutationFn: async ({ id, action }: { id: string; action: EInviteAction }) => {
 			return await inviteService.acceptRejectMyInvitations(id, action);
 		},
@@ -185,11 +202,20 @@ export function useTeamInvitations() {
 			setMyInvitationsList((prev) => prev.filter((invitation) => invitation.id !== id));
 
 			// Invalidation of the cache
+			invalidateTeamInvitationData();
+
+			return res;
+		}
+	});
+
+	const acceptInvitationMutation = useMutation({
+		mutationFn: async (data: TAcceptInvitationRequest) => {
+			return await inviteService.acceptInvite(data);
+		},
+		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.users.invitations.all
 			});
-
-			return res;
 		}
 	});
 
@@ -218,7 +244,7 @@ export function useTeamInvitations() {
 	// ===== INTERFACE FUNCTIONS =====
 
 	const inviteUser = useCallback(
-		(email: string, name: string) => {
+		(email: string, name: string, roleId?: string) => {
 			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
@@ -228,7 +254,8 @@ export function useTeamInvitations() {
 				name,
 				organizationId: user.employee.organizationId,
 				teamId: activeTeamId,
-				tenantId: user.tenantId
+				tenantId: user.tenantId,
+				roleId
 			});
 		},
 		[inviteUserMutation, user, activeTeamId]
@@ -269,9 +296,9 @@ export function useTeamInvitations() {
 
 	const acceptRejectMyInvitation = useCallback(
 		(id: string, action: EInviteAction) => {
-			return acceptRejectInvitationMutation.mutateAsync({ id, action });
+			return acceptOrRejectInvitationMutation.mutateAsync({ id, action });
 		},
-		[acceptRejectInvitationMutation]
+		[acceptOrRejectInvitationMutation]
 	);
 	const hydratedInvitations = useMemo(() => {
 		return teamInvitationsData?.items ?? teamInvitations;
@@ -296,6 +323,12 @@ export function useTeamInvitations() {
 		myInvitations,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading: acceptRejectInvitationMutation.isPending
+		acceptRejectMyInvitationsLoading: acceptOrRejectInvitationMutation.isPending,
+		validateInviteByTokenAndEmail: validateInviteByTokenAndEmailQueryCall,
+		validateInviteByTokenAndEmailLoading,
+		acceptInvitationMutation,
+		acceptInvitationLoading: acceptInvitationMutation.isPending,
+		validateInviteByCode: validateInviteByCodeQueryCall,
+		validateInviteByCodeLoading
 	};
 }

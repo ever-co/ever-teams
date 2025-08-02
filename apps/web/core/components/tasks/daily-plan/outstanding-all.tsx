@@ -1,5 +1,6 @@
 import { EmptyPlans } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
@@ -10,7 +11,6 @@ import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello
 import { useState } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface OutstandingAll {
@@ -25,7 +25,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 	const tasks = outstandingPlans.flatMap(
 		(plan) =>
 			(user
-				? plan.tasks?.filter((task) => task.members?.some((member: IEmployee) => member.userId === user.id))
+				? plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				: plan.tasks) ?? []
 	);
 
@@ -75,7 +75,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 															marginBottom: 4
 														}}
 													>
-														<TaskCard
+														<LazyTaskCard
 															key={`${task.id}`}
 															isAuthUser={true}
 															activeAuthTask={true}

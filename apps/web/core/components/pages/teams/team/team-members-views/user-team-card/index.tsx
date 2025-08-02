@@ -20,7 +20,7 @@ import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { useCallback, useMemo, useState } from 'react';
-import UserTeamActivity from '@/core/components/activities/user-team-card-activity';
+import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -33,7 +33,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
+import { LazyUserProfileTask } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
@@ -42,6 +42,7 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -94,6 +95,7 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	const hook = useTaskFilter(profile);
@@ -165,12 +167,23 @@ export function UserTeamCard({
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
-	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee?.user} />,
-		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab />,
-		'Visited Sites': <VisitedSitesTab />
-	};
+	const activityScreens = useMemo(
+		() => ({
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED} // Only virtualize for large lists
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		}),
+		[profile, hook, member?.employee?.user]
+	);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
@@ -327,7 +340,7 @@ export function UserTeamCard({
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
-				<UserTeamActivity showActivity={showActivity} member={member} />
+				<LazyUserTeamActivity showActivity={showActivity} member={member} />
 			</EverCard>
 			<EverCard
 				shadow="bigger"

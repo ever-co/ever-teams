@@ -39,30 +39,13 @@ import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-// Lazy load SidebarCommandModal for performance optimization - unified loading state
-const LazySidebarCommandModal = dynamic(
-	() => import('./default-layout/header/sidebar-command-modal').then((mod) => ({ default: mod.SidebarCommandModal })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
+// Import optimized components from centralized location
+import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
+import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
-// Lazy load CreateTeamModal for performance optimization
-import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-const LazyCreateTeamModal = dynamic(
-	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';

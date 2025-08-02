@@ -8,6 +8,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
 import { Button } from '../../common/button';
+import { isEqual } from 'lodash';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -31,15 +32,15 @@ export function DailyPlanDropDownItem({
 		>
 			<div
 				className={cn(
-					'flex items-center space-x-2 whitespace-nowrap text-ellipsis text-gray-700 dark:text-gray-200'
+					'flex items-center space-x-2 text-gray-700 whitespace-nowrap text-ellipsis dark:text-gray-200'
 				)}
 			>
 				{checked ? (
-					<Check className="h-4 w-4 text-gray-700 dark:text-white" />
+					<Check className="w-4 h-4 text-gray-700 dark:text-white" />
 				) : (
 					<>{showIcon && active && icon}</>
 				)}
-				<div className="text-sm text-gray-400 dark:text-gray-300 font-normal">{label}</div>
+				<div className="text-sm font-normal text-gray-400 dark:text-gray-300">{label}</div>
 			</div>
 			{children}
 		</div>
@@ -64,8 +65,8 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 				selectedPlans.length > 0 ? selectedPlans.includes(plan.date.toString()) : true
 			);
 
-			// Only update if the items have changed
-			if (JSON.stringify(filtered) !== JSON.stringify(employeePlans)) {
+			// Only update if the items have changed - use efficient deep comparison
+			if (!isEqual(filtered, prevState.items)) {
 				return { ...prevState, items: filtered };
 			}
 			return prevState;
@@ -95,15 +96,15 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 								label={selectedPlans.length > 0 ? `Items(${selectedPlans.length})` : 'Plans'}
 								icon={
 									<span>
-										<CircleIcon className="h-4 w-4" />
+										<CircleIcon className="w-4 h-4" />
 									</span>
 								}
 								active={true}
 							>
 								{open ? (
-									<ChevronUp className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+									<ChevronUp className="w-4 h-4 text-gray-400 dark:text-gray-500" />
 								) : (
-									<ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+									<ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
 								)}
 							</DailyPlanDropDownItem>
 						</Button>
@@ -123,9 +124,9 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 											onSelect={() => togglePlanSelection(item.date.toString())}
 											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-gray-800 dark:text-white whitespace-nowrap text-ellipsis"
 										>
-											<div className="flex-1 flex items-center whitespace-nowrap text-ellipsis">
+											<div className="flex flex-1 items-center whitespace-nowrap text-ellipsis">
 												{selectedPlans?.includes(item.date.toString()) && (
-													<Check className="mr-2 h-4 w-4 text-primary dark:text-white" />
+													<Check className="mr-2 w-4 h-4 text-primary dark:text-white" />
 												)}
 												<span className="text-sm text-gray-600 dark:text-gray-300">
 													{formatDayPlanDate(item.date.toString())}

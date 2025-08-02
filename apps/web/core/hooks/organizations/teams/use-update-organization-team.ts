@@ -7,6 +7,7 @@ import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { useTeamsState } from './use-teams-state';
 import { toast } from 'sonner';
+
 /**
  * Hook for updating an organization team with full validation and cache management.
  *
@@ -58,26 +59,14 @@ export function useUpdateOrganizationTeam() {
 	// Preserve exact same interface and logic as original
 	const updateOrganizationTeam = useCallback(
 		(team: TOrganizationTeam, data: Partial<TOrganizationTeamEmployeeUpdate> = {}) => {
-			const members = team.members;
-
-			const body: Partial<TOrganizationTeamEmployeeUpdate> = {
-				id: team.id,
-				memberIds: members
-					?.map((t) => t.employee?.id || '')
-					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				managerIds: members
-					?.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t) => t.employee?.id || '')
-					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				name: team.name,
-				tenantId: team.tenantId,
-				organizationId: team.organizationId,
-				tags: [],
-				...data
-			};
-
 			// Use React Query mutation instead of legacy queryCall
-			updateOrganizationTeamMutation.mutate({ teamId: team.id, data: body });
+			updateOrganizationTeamMutation.mutate({
+				teamId: team.id,
+				data: {
+					...team,
+					...data
+				}
+			});
 		},
 		[updateOrganizationTeamMutation]
 	);

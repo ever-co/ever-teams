@@ -64,6 +64,7 @@ export interface IInviteRequest {
 	name: string;
 	teamId: string;
 	organizationId: string;
+	roleId?: string;
 }
 
 // Types for better security and performance
@@ -76,4 +77,10 @@ export interface TeamInvitationsQueryParams {
 	organizationId: string;
 	role: string;
 	teamId: string;
+}
+
+export interface IGetInvitationRequest {
+	role?: string;
+	teamId?: string;
+	status?: EInviteStatus;
 }

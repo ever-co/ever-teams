@@ -8,7 +8,6 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import dynamic from 'next/dynamic';
 
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
@@ -18,14 +17,8 @@ import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
 import Link from 'next/link';
 
-// Lazy load TaskDetailsComponent for better performance
-const LazyTaskDetailsComponent = dynamic(
-	() => import('@/core/components/pages/task/task-details').then((mod) => ({ default: mod.TaskDetailsComponent })),
-	{
-		ssr: false,
-		loading: () => <TaskDetailsPageSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();

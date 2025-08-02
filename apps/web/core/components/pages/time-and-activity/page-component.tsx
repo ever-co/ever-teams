@@ -15,31 +15,14 @@ import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-repo
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
 import { ViewOption } from '@/core/components/common/view-select';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import dynamic from 'next/dynamic';
 import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
-
-const LazyTimeActivityHeader = dynamic(
-	() => import('./time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
-	{
-		ssr: false
-	}
-);
-
-const LazyCardTimeAndActivity = dynamic(() => import('./card-time-and-activity'), {
-	ssr: false
-});
-
-const LazyActivityTable = dynamic(() => import('./activity-table'), {
-	ssr: false
-});
-
-const LazyTimeActivityTable = dynamic(
-	() => import('./time-activity-table').then((mod) => ({ default: mod.TimeActivityTable })),
-	{
-		ssr: false
-	}
-);
+import {
+	LazyTimeActivityHeader,
+	LazyCardTimeAndActivity,
+	LazyActivityTable,
+	LazyTimeActivityTable
+} from '@/core/components/optimized-components/reports';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -53,11 +36,28 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { rapportDailyActivity, updateDateRange, loading, statisticsCounts, isManage, updateFilters } =
-		useReportActivity({
-			types: 'TEAM-DASHBOARD'
-		});
+	const {
+		rapportDailyActivity,
+		updateDateRange,
+		loading,
+		statisticsCounts,
+		isManage,
+		updateFilters,
+		currentFilters
+	} = useReportActivity({
+		types: 'TEAM-DASHBOARD'
+	});
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
+	const [dateRange, setDateRange] = useState<{ startDate?: Date; endDate?: Date }>(() => {
+		// Initialize with current filter dates if available
+		if (currentFilters?.startDate && currentFilters?.endDate) {
+			return {
+				startDate: new Date(currentFilters.startDate),
+				endDate: new Date(currentFilters.endDate)
+			};
+		}
+		return {};
+	});
 	const t = useTranslations();
 
 	// Handle filter application from the filter popover
@@ -94,6 +94,15 @@ const TimeActivityComponents = () => {
 	const handleGroupByChange = useCallback((type: GroupByType) => {
 		setGroupByType(type);
 	}, []);
+
+	// Handle date range updates
+	const handleUpdateDateRange = useCallback(
+		(startDate: Date, endDate: Date) => {
+			setDateRange({ startDate, endDate });
+			updateDateRange(startDate, endDate);
+		},
+		[updateDateRange]
+	);
 
 	// Memoize column visibility checks
 	const [viewOptions, setViewOptions] = useState<ViewOption[]>(() => {
@@ -168,10 +177,16 @@ const TimeActivityComponents = () => {
 								projects={organizationProjects}
 								tasks={tasks}
 								activeTeam={activeTeam}
-								onUpdateDateRange={updateDateRange}
+								onUpdateDateRange={handleUpdateDateRange}
 								onGroupByChange={handleGroupByChange}
 								groupByType={groupByType}
 								onFiltersApply={handleFiltersApply}
+								// Export-related props
+								rapportDailyActivity={rapportDailyActivity}
+								isManage={isManage || false}
+								currentFilters={currentFilters as FilterState}
+								startDate={dateRange.startDate}
+								endDate={dateRange.endDate}
 							/>
 
 							{/* Statistics Cards */}

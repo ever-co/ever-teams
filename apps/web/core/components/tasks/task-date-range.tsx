@@ -16,8 +16,16 @@ interface ITaskDatePickerWithRange {
 	onSelect?: (range: DateRange | undefined) => void;
 	label?: string;
 	data?: TDailyPlan[];
+	contentClassName?: string;
 }
-export function TaskDatePickerWithRange({ className, date, onSelect, label, data }: ITaskDatePickerWithRange) {
+export function TaskDatePickerWithRange({
+	className,
+	contentClassName,
+	date,
+	onSelect,
+	label,
+	data
+}: ITaskDatePickerWithRange) {
 	const isDateDisabled = (dateToCheck: Date) => {
 		if (!data || !Array.isArray(data)) return true;
 
@@ -40,8 +48,9 @@ export function TaskDatePickerWithRange({ className, date, onSelect, label, data
 						id="date"
 						variant={'outline'}
 						className={cn(
-							'w-[230px] justify-start text-left font-normal dark:bg-dark--theme-light rounded-xl  mt-4 mb-2 lg:mt-0 h-9',
-							!date && 'text-muted-foreground'
+							'w-[230px] justify-start text-left font-normal dark:bg-dark--theme-light rounded-xl  mt-4 mb-2 lg:mt-0 h-8',
+							!date && 'text-muted-foreground',
+							contentClassName
 						)}
 					>
 						<CalendarDays className="mr-2 w-4 h-4" />

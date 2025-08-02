@@ -24,8 +24,7 @@ type ITabs = {
 
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
- * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
- * component.
+ * @param {I_UserProfilePage} profile - User profile page data containing task groups
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
@@ -56,6 +55,21 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>({} as StatusFilter);
 
 	const [taskName, setTaskName] = useState('');
+	/*
+	 * TASK FILTERING LOGIC WITH DAILY PLANS INTEGRATION
+	 *
+	 * Original Problem: The dailyplan tab always returned an empty array ([])
+	 * with a "Change this soon" comment, making the daily plans functionality
+	 * completely non-functional in the task filter system.
+	 *
+	 * Solution: Implemented proper daily plans task extraction using:
+	 * - profileDailyPlans?.items?.flatMap() to flatten all tasks from all plans
+	 * - Null-safe operations with optional chaining and fallback to empty array
+	 * - Added profileDailyPlans?.items to dependency array for proper reactivity
+	 *
+	 * Impact: The dailyplan tab now correctly displays all tasks from user's
+	 * daily plans, enabling the full daily plans workflow in the UI.
+	 */
 
 	const tasksFiltered: { [x in ITab]: TTask[] } = useMemo(
 		() => ({
@@ -63,12 +77,17 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			assigned: profile.tasksGrouped.assignedTasks,
 			worked: profile.tasksGrouped.workedTasks,
 			stats: [],
-			dailyplan: [] // Change this soon
+
+			// Changed from empty array [] to extract tasks from daily plans
+			// Extract all tasks from all daily plans and flatten into single array
+			// flatMap: [plan1.tasks, plan2.tasks, ...] → [task1, task2, task3, ...]
+			dailyplan: profileDailyPlans?.items?.flatMap((plan) => plan.tasks || []) || []
 		}),
 		[
 			profile?.tasksGrouped?.assignedTasks,
 			profile?.tasksGrouped?.unassignedTasks,
-			profile?.tasksGrouped?.workedTasks
+			profile?.tasksGrouped?.workedTasks,
+			profileDailyPlans?.items // Added dependency for daily plans reactivity
 		]
 	);
 

@@ -22,8 +22,16 @@ export function useManualTime() {
 			setTimeLog(data);
 			// Invalidate related queries to refresh data
 			queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeLogs.all });
+
+			// Format dates for display
+			const startDate = new Date(data.startedAt);
+			const endDate = new Date(data.stoppedAt);
+			const dateStr = startDate.toLocaleDateString();
+			const startTimeStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			const endTimeStr = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
 			toast.success('Time added successfully', {
-				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${data.date} from ${data.startTime} to ${data.endTime}`
+				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${dateStr} from ${startTimeStr} to ${endTimeStr}`
 			});
 		},
 		onError: (error) => {
@@ -52,7 +60,15 @@ export function useManualTime() {
 
 	return {
 		addManualTimeLoading: addManualTimeMutation.isPending,
+		addManualTimeSuccess: addManualTimeMutation.isSuccess,
+		addManualTimeError: addManualTimeMutation.isError,
+		addManualTimeErrorMessage: addManualTimeMutation.error?.message,
 		addManualTime,
-		timeLog
+		timeLog,
+		// Reset function to clear states when modal reopens
+		resetManualTimeState: () => {
+			addManualTimeMutation.reset();
+			setTimeLog(undefined);
+		}
 	};
 }

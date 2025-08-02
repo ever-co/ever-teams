@@ -1,61 +1,13 @@
 import TaskTitleBlock from '@/core/components/pages/task/title-block/task-title-block';
 import TaskProperties from '@/core/components/pages/task/task-properties';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import dynamic from 'next/dynamic';
 import {
-	RichTextEditorSkeleton,
-	TaskActivitySkeleton,
-	DetailsAsideSkeleton,
-	IssueCardSkeleton
-} from '@/core/components/common/skeleton/rich-text-editor-skeleton';
-
-// Lazy load heavy components for Task Details page optimization
-// Priority 1: RichTextEditor (heaviest component with Slate.js)
-const LazyRichTextEditor = dynamic(
-	() =>
-		import('@/core/components/pages/task/description-block/task-description-editor').then((mod) => ({
-			default: mod.default
-		})),
-	{
-		ssr: false,
-		loading: () => <RichTextEditorSkeleton />
-	}
-);
-
-// Priority 2: TaskActivity (complex component with timesheets)
-const LazyTaskActivity = dynamic(
-	() => import('@/core/components/pages/task/task-activity').then((mod) => ({ default: mod.TaskActivity })),
-	{
-		ssr: false,
-		loading: () => <TaskActivitySkeleton />
-	}
-);
-
-// Priority 3: TaskDetailsAside (sidebar with multiple sections)
-const LazyTaskDetailsAside = dynamic(
-	() => import('@/core/components/pages/task/task-details-aside').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false,
-		loading: () => <DetailsAsideSkeleton />
-	}
-);
-
-// Priority 4: Issue cards (conditional components)
-const LazyChildIssueCard = dynamic(
-	() => import('@/core/components/pages/task/child-issue-card').then((mod) => ({ default: mod.ChildIssueCard })),
-	{
-		ssr: false,
-		loading: () => <IssueCardSkeleton title="Child Issues" />
-	}
-);
-
-const LazyRelatedIssueCard = dynamic(
-	() => import('@/core/components/pages/task/issue-card').then((mod) => ({ default: mod.RelatedIssueCard })),
-	{
-		ssr: false,
-		loading: () => <IssueCardSkeleton title="Related Issues" />
-	}
-);
+	LazyRichTextEditor,
+	LazyTaskActivity,
+	LazyTaskDetailsAside,
+	LazyChildIssueCard,
+	LazyRelatedIssueCard
+} from '@/core/components/optimized-components/tasks';
 
 interface ITaskDetailsComponentProps {
 	task: TTask;

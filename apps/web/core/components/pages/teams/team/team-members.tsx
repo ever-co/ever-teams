@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
+import { useOrganizationTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';
@@ -16,6 +16,7 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
 import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
+import { userState } from '@/core/stores';
 
 // Types for better performance and security
 
@@ -46,7 +47,7 @@ const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee)
 // Main component optimized with refactored hooks
 export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {
 	// Hooks
-	const { user } = useAuthenticateUser();
+	const user = useAtomValue(userState);
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const fullWidth = useAtomValue(fullWidthState);
 	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();

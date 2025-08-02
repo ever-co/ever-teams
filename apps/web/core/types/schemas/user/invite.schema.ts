@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { inviteStatusSchema } from '../common/enums.schema';
 import { idSchema } from '../common/base.schema';
+import { userSchema } from './user.schema';
+import { organizationTeamSchema } from '../team/organization-team.schema';
 
 /**
  * Zod schemas for Invitation-related interfaces
@@ -16,7 +18,7 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
 		status: inviteStatusSchema.optional().nullable(),
 		expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
 		actionDate: z.string().optional(), // API returns string, keep as string for consistency
-		fullName: z.string().optional(),
+		fullName: z.string().optional().nullable(),
 		isExpired: z.boolean().optional()
 	})
 	.passthrough(); // - Allow additional fields from API
@@ -68,9 +70,9 @@ export const inviteVerifiedSchema = z.object({
 	email: z.string().email(),
 	fullName: z.string(),
 	organization: z.object({
-		name: z.string()
-	}),
-	isExpired: z.boolean()
+		name: z.string(),
+		image: z.string().nullable()
+	})
 });
 
 // Invite request schema (IInviteRequest interface)
@@ -88,6 +90,69 @@ export const inviteResendResultSchema = z.object({
 	affected: z.number().optional().nullable()
 });
 
+export const validateInviteByTokenAndEmailRequest = z.object({
+	token: z.string(),
+	email: z.string().email('Valid email is required')
+});
+
+export const acceptInvitationRequest = z.object({
+	user: z.object({
+		firstName: z.string().optional().nullable(),
+		lastName: z.string().optional().nullable(),
+		email: z.string().email('Valid email is required')
+	}),
+	password: z.string().min(8, 'Password must be at least 8 characters long'),
+	email: z.string().email('Valid email is required'),
+	code: z.string().min(1, 'Verification code is required')
+});
+
+export const invitationAcceptedResponse = z.object({
+	user: userSchema,
+	token: z.string(),
+	refresh_token: z.string().optional(),
+	team: organizationTeamSchema.optional().nullable()
+});
+
+export enum EInvitationState {
+	IDLE = 'idle',
+	LOADING = 'loading',
+	VALIDATED = 'validated',
+	FAILED = 'failed'
+}
+
+type TInvitationValidated = {
+	state: EInvitationState.VALIDATED;
+	loading: false;
+	data: TInviteVerified;
+	error: null;
+};
+
+type TInvitationValidationFailed = {
+	state: EInvitationState.FAILED;
+	loading: false;
+	data: null;
+	error: unknown;
+};
+
+type TInvitationLoading = {
+	state: EInvitationState.LOADING;
+	loading: true;
+	data: null;
+	error: null;
+};
+
+type TInvitationIdle = {
+	state: EInvitationState.IDLE;
+	data: null;
+	error: null;
+};
+
+export type TInvitationState =
+	| TInvitationValidated
+	| TInvitationValidationFailed
+	| TInvitationLoading
+	| TInvitationIdle;
+
 // Inferred TypeScript types from Zod schemas - use these for consistency with validation
 export type TBaseInvite = z.infer<typeof baseInviteSchema>;
 export type TInviteAssociations = z.infer<typeof inviteAssociationsSchema>;
@@ -97,3 +162,6 @@ export type TInviteVerifyCode = z.infer<typeof inviteVerifyCodeSchema>;
 export type TInviteVerified = z.infer<typeof inviteVerifiedSchema>;
 export type TInviteRequest = z.infer<typeof inviteRequestSchema>;
 export type TInviteResendResult = z.infer<typeof inviteResendResultSchema>;
+export type TValidateInviteRequest = z.infer<typeof validateInviteByTokenAndEmailRequest>;
+export type TAcceptInvitationRequest = z.infer<typeof acceptInvitationRequest>;
+export type TInvitationAcceptedResponse = z.infer<typeof invitationAcceptedResponse>;

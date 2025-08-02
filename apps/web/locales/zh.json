@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "无可用活动数据",
 		"SELECT_DIFFERENT_DATE": "选择不同的日期范围或稍后再试",
 		"PENDING_TASKS": "待处理任务",
+		"RECENT_TASKS": "最近任务",
+		"OLDER_TASKS": "较早任务",
 		"SHOW_MORE": "显示更多",
 		"TASKS": "任务",
 		"MEN_HOURS": "工时",
@@ -143,7 +145,7 @@
 		"CREATE_TASK": "创建新任务",
 		"REMOVE_FAVORITE_TASK": "从收藏夹中移除任务",
 		"ADD_FAVORITE_TASK": "添加任务到收藏夹",
-		"NO_PROJECT": "没有项目",
+		"NO_PROJECT": "无项目",
 		"NO_FAVORITE_TASK": "尚无收藏任务",
 		"LINK_TASK": "选择相关议题",
 		"LINK": "链接",
@@ -349,6 +351,8 @@
 		"APPLY_FILTER": "应用筛选",
 		"CREATE_NEW": "创建新的",
 		"NO_RESULT": "没有结果",
+		"NO_TEAM_MEMBERS_FOUND": "未找到团队成员",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "尝试调整您的搜索或筛选条件以找到您要查找的内容。",
 		"PICK_A_DATE": "选择日期",
 		"THIS_WEEK": "本周",
 		"LAST_WEEK": "上周",
@@ -385,7 +389,6 @@
 		"NEUTRAL": "中性",
 		"UNPRODUCTIVE": "低效",
 		"ACTIVITIES": "活动",
-		"NO_PROJECT": "无项目",
 		"DURATION": "持续时间",
 		"PROGRESS": "进度",
 		"EMPLOYEE": "员工",
@@ -523,7 +526,6 @@
 					"uploadingImage": "正在上传项目图片"
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "标签",
@@ -675,6 +677,7 @@
 			"HEADING_TITLE": "创建新团队",
 			"HEADING_DESCRIPTION": "请输入团队信息以创建新团队。",
 			"LOADING_TEXT": "正在为您创建新的工作区,请稍候......",
+			"LOADING_WORKSPACE": "正在加载工作空间,请稍候......",
 			"REDIRECT_TO_WORSPACE_LOADING": "正在重定向到您的工作空间......",
 			"VERIFY_EMAIL_LOADING_TEXT": "正在验证您的电子邮箱,请稍候......",
 			"INPUT_TEAM_NAME": "输入您的团队名称",
@@ -835,6 +838,25 @@
 				"POSITION": "职位",
 				"DATE_AND_TIME_REQUEST": "日期和时间请求",
 				"CV_OR_ATTACHMENT": "简历/附件"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "接受加入 {team} 团队的邀请",
+				"USER_DETAILS": "用户详情",
+				"COMPLETE_REGISTRATION": "完成您的注册 {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "此邀请不再有效",
+						"DESCRIPTION": "请联系工作区管理员请求新的邀请。您输入了错误的URL或邀请已过期"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "此工作区不再存在",
+						"DESCRIPTION": "请联系工作区管理员请求新的工作区"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "返回仪表板",
+					"CREATE_NEW_WORKSPACE": "创建新工作区"
+				}
 			}
 		},
 		"permissions": {
@@ -977,6 +999,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "员工今天和总共在任务上工作了多少小时",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "员工今天在所选团队的所有任务上工作了多少小时"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "团队成员",
+			"TASK": "任务",
+			"WORKED_ON_TASK": "处理 任务",
+			"ESTIMATE": "估算",
+			"ACTION": "操作"
+		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "任务未分配",
@@ -1038,12 +1067,14 @@
 		"LAST_NAME_PLACEHOLDER": "姓",
 		"EMAIL_PLACEHOLDER": "输入您的电子邮箱",
 		"PASSWORD_PLACEHOLDER": "输入您的密码",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "确认您的密码",
 		"PHONE_PLACEHOLDER": "电话号码",
 		"ISSUE_NAME_PLACEHOLDER": "议题名称",
 		"TEAM_NAME_PLACEHOLDER": "请输入您的团队名称",
 		"TASK_INPUT_PLACEHOLDER": "您在做什么?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "团队成员姓名",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "团队成员电子邮箱",
+		"TEAM_MEMBER_ROLE": "团队成员角色",
 		"COMPLETION_DESCRIPTION": "编写描述",
 		"UPLOAD_FILES": "上传文件",
 		"ATTACHMENT_FILE": "附件文件",
@@ -1051,7 +1082,8 @@
 		"SET_THEME": "设置主题",
 		"CHANGE_AVATAR": "更改头像",
 		"SELECT_TEAM_SIZE": "选择团队规模",
-		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字"
+		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
+		"AGREE_TO": "同意"
 	},
 	"layout": {
 		"footer": {
@@ -1061,6 +1093,7 @@
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
 			"TERMS": "服务条款",
+			"TERMS_AND_CONDITIONS": "条款和条件",
 			"PRIVACY_POLICY": "隐私政策",
 			"COOKIES": "Cookie政策",
 			"BY": "by"
@@ -1071,7 +1104,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "验证码验证时出错。",
 		"LENGTH_NUMBER_ERROR": "长度应为数字且大于0",
 		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
-		"VALID_EMAIL": "请输入有效的电子邮箱"
+		"VALID_EMAIL": "请输入有效的电子邮箱",
+		"SELECT_ROLE": "请选择角色",
+		"PASSWORDS_DO_NOT_MATCH": "密码不匹配"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "按Enter键验证"

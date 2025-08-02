@@ -63,6 +63,7 @@ type Props = {
 	taskTitleClassName?: string;
 	plan?: TDailyPlan;
 	planMode?: FilterTabs;
+	taskContentClassName?: string;
 } & IClassName;
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
@@ -79,6 +80,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		profile,
 		taskBadgeClassName,
 		taskTitleClassName,
+		taskContentClassName,
 		plan,
 		planMode
 	} = props;
@@ -164,7 +166,12 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
-				<div className="flex-1 min-w-[12rem] max-w-[22rem] flex flex-row justify-between">
+				<div
+					className={clsxm(
+						'flex flex-row flex-1 justify-between min-w-[12rem] max-w-[22rem]',
+						taskContentClassName
+					)}
+				>
 					{/* Task information */}
 					<TaskInfo
 						task={task}
@@ -573,7 +580,7 @@ export function TaskCardMenu({
 											)}
 										>
 											{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-												<LoaderCircle size={15} className=" animate-spin" />
+												<LoaderCircle size={15} className="animate-spin" />
 											) : isFavoriteTask(task.id) ? (
 												t('common.REMOVE_FAVORITE_TASK')
 											) : (

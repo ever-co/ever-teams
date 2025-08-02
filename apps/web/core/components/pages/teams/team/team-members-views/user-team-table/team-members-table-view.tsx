@@ -28,7 +28,7 @@ const TeamMembersTableView = memo(
 			() => [
 				{
 					id: 'name',
-					header: 'Team Member',
+					header: t('task.teamMemberTableHead.TEAM_MEMBER'),
 					tooltip: '',
 					cell: UserInfoCell,
 					meta: {
@@ -37,25 +37,25 @@ const TeamMembersTableView = memo(
 				},
 				{
 					id: 'task',
-					header: 'Task',
+					header: t('task.teamMemberTableHead.TASK'),
 					tooltip: '',
 					cell: TaskCell
 				},
 				{
 					id: 'workedOnTask',
-					header: 'Worked on \n task',
+					header: t('task.teamMemberTableHead.WORKED_ON_TASK'),
 					tooltip: t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP'),
 					cell: WorkedOnTaskCell
 				},
 				{
 					id: 'estimate',
-					header: 'Estimate',
+					header: t('task.teamMemberTableHead.ESTIMATE'),
 					tooltip: '',
 					cell: TaskEstimateInfoCell
 				},
 				{
 					id: 'action',
-					header: 'Action',
+					header: t('task.teamMemberTableHead.ACTION'),
 					tooltip: '',
 					cell: ActionMenuCell,
 					meta: {
@@ -81,8 +81,8 @@ const TeamMembersTableView = memo(
 					data={sortedTeamMembers}
 					isScrollable
 					noResultsMessage={{
-						heading: 'No team members found',
-						content: 'Try adjusting your search or filter to find what you’re looking for.'
+						heading: t('common.NO_TEAM_MEMBERS_FOUND'),
+						content: t('common.NO_TEAM_MEMBERS_FOUND_MESSAGE')
 					}}
 				/>
 				<Invite />
