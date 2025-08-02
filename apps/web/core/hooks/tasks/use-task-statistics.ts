@@ -169,14 +169,19 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) =>
-			Math.min(
-				Math.floor(
-					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
-						(estimate || _task?.estimate || 0)
-				),
+		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
+			const totalEstimate = estimate || _task?.estimate || 0;
+
+			// Return 0 (neutral state) when there's no estimation data
+			if (totalEstimate === 0) {
+				return 0;
+			}
+
+			return Math.min(
+				Math.floor((((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) / totalEstimate),
 				100
-			),
+			);
+		},
 		[]
 	);
 

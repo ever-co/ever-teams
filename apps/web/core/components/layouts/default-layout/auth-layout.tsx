@@ -8,6 +8,7 @@ import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constan
 import { clsxm } from '@/core/lib/utils';
 
 import { Footer } from './footer';
+import { cn } from '@/core/lib/helpers';
 
 type Props = {
 	title?: string;
@@ -91,11 +92,16 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						'flex flex-col items-center justify-between ml-auto'
 					)}
 				>
-					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
+					<div
+						className={cn(
+							isAuthPage && 'flex flex-col items-center gap-10 justify-center',
+							'w-full flex-grow'
+						)}
+					>
 						{isAuthPage && (
-							<div className="w-11/12 flex-col flex justify-center items-center mb-[103px]">
+							<div className="w-11/12 flex-col gap-1 flex justify-center items-center ">
 								{title && (
-									<Text.Heading as="h1" className="mb-3 text-center">
+									<Text.Heading as="h1" className="text-center">
 										{title}
 									</Text.Heading>
 								)}
@@ -110,7 +116,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 
 						{children}
 					</div>
-					<Footer className="md:flex-col xl:flex-row" />
+					<Footer className="md:flex-col h-[4.5rem] flex-shrink border xl:flex-row" />
 				</div>
 			</div>
 		</>

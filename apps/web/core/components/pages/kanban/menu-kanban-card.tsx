@@ -10,7 +10,6 @@ import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -247,9 +246,8 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 										task={task}
 										member={member}
 										isAssignee={
-											task.members?.some(
-												(el: IEmployee) => el.user?.id == member?.employee?.user?.id
-											) ?? false
+											task.members?.some((el) => el.user?.id == member?.employee?.user?.id) ??
+											false
 										}
 									/>
 								</Combobox.Option>

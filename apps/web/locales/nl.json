@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Geen activiteitsgegevens beschikbaar",
 		"SELECT_DIFFERENT_DATE": "Selecteer een andere datumbereik of probeer later opnieuw",
 		"PENDING_TASKS": "In afwachting Taken",
+		"RECENT_TASKS": "Recente taken",
+		"OLDER_TASKS": "Oudere taken",
 		"SHOW_MORE": "Meer weergeven",
 		"TASKS": "Taken",
 		"MEN_HOURS": "Manuren",
@@ -349,6 +351,8 @@
 		"APPLY_FILTER": "Filter toepassen",
 		"CREATE_NEW": "Nieuwe maken",
 		"NO_RESULT": "Geen resultaat",
+		"NO_TEAM_MEMBERS_FOUND": "Geen teamleden gevonden",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Probeer je zoekopdracht of filter aan te passen om te vinden wat je zoekt.",
 		"PICK_A_DATE": "Kies een datum",
 		"THIS_WEEK": "Deze week",
 		"LAST_WEEK": "Vorige week",
@@ -385,7 +389,6 @@
 		"NEUTRAL": "Neutraal",
 		"UNPRODUCTIVE": "Onproductief",
 		"ACTIVITIES": "activiteiten",
-		"NO_PROJECT": "Geen project",
 		"DURATION": "Duur",
 		"PROGRESS": "Voortgang",
 		"EMPLOYEE": "Medewerker",
@@ -674,6 +677,7 @@
 			"HEADING_TITLE": "Nieuw team maken",
 			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
+			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
@@ -822,6 +826,25 @@
 				"POSITION": "Positie",
 				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
 				"CV_OR_ATTACHMENT": "CV / Bijlage"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accepteer uitnodiging voor team {team}",
+				"USER_DETAILS": "Gebruikersgegevens",
+				"COMPLETE_REGISTRATION": "Voltooi je registratie {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Deze uitnodiging is niet meer geldig",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen. Je hebt een onjuiste URL ingevoerd of de uitnodiging is verlopen"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Deze workspace bestaat niet meer",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Terug naar dashboard",
+					"CREATE_NEW_WORKSPACE": "Nieuwe workspace maken"
+				}
 			}
 		},
 		"permissions": {
@@ -976,6 +999,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer in totaal en vandaag aan de taak gewerkt",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer vandaag gewerkt aan alle taken voor het geselecteerde team"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Teamlid",
+			"TASK": "Taak",
+			"WORKED_ON_TASK": "Gewerkt aan taak",
+			"ESTIMATE": "Schatting",
+			"ACTION": "Actie"
+		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Taak niet toegewezen",
@@ -1037,12 +1067,14 @@
 		"LAST_NAME_PLACEHOLDER": "Achternaam",
 		"EMAIL_PLACEHOLDER": "Voer uw e-mailadres in",
 		"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Bevestig uw wachtwoord",
 		"PHONE_PLACEHOLDER": "Telefoonnummer",
 		"ISSUE_NAME_PLACEHOLDER": "Probleemnaam",
 		"TEAM_NAME_PLACEHOLDER": "Voer uw teamnaam in",
 		"TASK_INPUT_PLACEHOLDER": "Waar werk je aan?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Teamlidnaam",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "E-mailadres teamlid",
+		"TEAM_MEMBER_ROLE": "Teamlidrol",
 		"COMPLETION_DESCRIPTION": "Schrijf de omschrijving",
 		"UPLOAD_FILES": "Bestanden uploaden",
 		"ATTACHMENT_FILE": "Bijgevoegde bestanden",
@@ -1050,7 +1082,8 @@
 		"SET_THEME": "Thema instellen",
 		"CHANGE_AVATAR": "Avatar wijzigen",
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
-		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek"
+		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
+		"AGREE_TO": "Akkoord met"
 	},
 	"layout": {
 		"footer": {
@@ -1060,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",
+			"TERMS_AND_CONDITIONS": "Algemene voorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"COOKIES": "Cookiebeleid",
 			"BY": "Door"
@@ -1070,7 +1104,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Fout tijdens verificatiecode.",
 		"LENGTH_NUMBER_ERROR": "Lengte moet een getal zijn en groter dan 0",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
-		"VALID_EMAIL": "Voer een geldig e-mailadres in"
+		"VALID_EMAIL": "Voer een geldig e-mailadres in",
+		"SELECT_ROLE": "Selecteer een rol",
+		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"

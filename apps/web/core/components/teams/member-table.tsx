@@ -1,8 +1,8 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useOrganizationTeams, useSettings, useSyncRef } from '@/core/hooks';
+import { useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
+import { activeTeamIdState, activeTeamState, organizationTeamsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
@@ -19,13 +19,16 @@ import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
+import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
 		usePagination<TOrganizationTeamEmployee>({ items: members, defaultItemsPerPage: 5 });
-	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { updateOrganizationTeam } = useUpdateOrganizationTeam();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
@@ -63,7 +66,7 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					?.filter((member) => member.role?.name === 'MANAGER')
+					?.filter((member) => member.role?.name === ERoleName.MANAGER)
 					.map((manager) => manager.employee?.id || '') || [];
 
 			if (isPromotingToManager) {

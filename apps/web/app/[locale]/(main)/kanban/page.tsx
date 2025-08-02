@@ -19,103 +19,31 @@ import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import dynamic from 'next/dynamic';
+// dynamic import removed - using optimized components
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { KanbanPageSkeleton } from '@/core/components/layouts/skeletons/kanban-page-skeleton';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 
-// Next.js official patterns for always-rendered components
-const LazyKanbanView = dynamic(
-	() =>
-		import('@/core/components/pages/kanban/team-members-kanban-view').then((mod) => ({ default: mod.KanbanView })),
-	{
-		ssr: false,
-		loading: () => <KanbanViewSkeleton fullWidth={true} />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyKanbanView,
+	LazyEpicPropertiesDropdown,
+	LazyStatusDropdown,
+	LazyTaskLabelsDropdown,
+	LazyTaskPropertiesDropdown,
+	LazyTaskSizesDropdown
+} from '@/core/components/optimized-components';
 
-const LazyImageComponent = dynamic(() => import('@/core/components/common/image-overlapper'), {
-	ssr: false,
-	loading: () => <div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-});
+// Next.js official patterns for always-rendered components (Kanban-specific)
 
-const LazyKanbanSearch = dynamic(() => import('@/core/components/pages/kanban/search-bar'), {
-	ssr: false,
-	loading: () => (
-		<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-			<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-		</div>
-	)
-});
-
-const LazyEpicPropertiesDropdown = dynamic(
-	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.EpicPropertiesDropdown })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-		)
-	}
-);
-
-const LazyStatusDropdown = dynamic(
-	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.StatusDropdown })),
-	{
-		ssr: false,
-		loading: () => <div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-	}
-);
-
-const LazyTaskLabelsDropdown = dynamic(
-	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskLabelsDropdown })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-		)
-	}
-);
-
-const LazyTaskPropertiesDropdown = dynamic(
-	() => import('@/core/components/tasks/task-status').then((mod) => ({ default: mod.TaskPropertiesDropdown })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center">
-				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-2" />
-			</div>
-		)
-	}
-);
-
-const LazyTaskSizesDropdown = dynamic(
-	() => import('@/core/components/tasks/task-sizes-dropdown').then((mod) => ({ default: mod.TaskSizesDropdown })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-		)
-	}
-);
-
-// Medium article pattern for conditional rendering (modals)
-const LazyInviteFormModal = dynamic(
-	() =>
-		import('@/core/components/features/teams/invite-form-modal').then((mod) => ({ default: mod.InviteFormModal })),
-	{
-		ssr: false
-		// Note: No loading property for conditional components
-		// Suspense fallback will handle loading states
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyImageComponent,
+	LazyKanbanSearch,
+	LazyInviteFormModal
+} from '@/core/components/optimized-components/kanban';
 
 const Kanban = () => {
 	// Get all required hooks and states

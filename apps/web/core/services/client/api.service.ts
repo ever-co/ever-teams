@@ -384,7 +384,8 @@ export class APIService {
 	async post<T = any>(
 		url: string,
 		data?: Record<string, any> | FormData,
-		config?: APIConfig
+		config?: APIConfig,
+		includeTenantAndOrganizationIds = true
 	): Promise<AxiosResponse<T>> {
 		const { baseURL, headers, tenantId, organizationId } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
@@ -399,7 +400,7 @@ export class APIService {
 		try {
 			return await this.executeRequest<T>(() => {
 				// Automatically add tenantId / organizationId
-				if (data && !(data instanceof FormData)) {
+				if (data && !(data instanceof FormData) && includeTenantAndOrganizationIds) {
 					if (!('tenantId' in data) && tenantId !== undefined) {
 						(data as any).tenantId = tenantId;
 					}

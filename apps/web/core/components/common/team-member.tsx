@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
 
-const TeamMemberSection = () => {
+export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
@@ -67,10 +67,10 @@ const TeamMemberSection = () => {
 											<div className="w-32 h-3 mb-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
 										</div>
 									</div>
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24"></div>
+									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
+									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
+									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
+									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24" />
 								</div>
 							</li>
 						);
@@ -116,4 +116,3 @@ const Header = () => {
 		</li>
 	);
 };
-export default TeamMemberSection;

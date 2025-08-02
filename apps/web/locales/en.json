@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "No activity data available",
 		"SELECT_DIFFERENT_DATE": "Select a different date range or check back later",
 		"PENDING_TASKS": "Pending Tasks",
+		"RECENT_TASKS": "Recent Tasks",
+		"OLDER_TASKS": "Older Tasks",
 		"SHOW_MORE": "Show More",
 		"TASKS": "Tasks",
 		"MEN_HOURS": "Men Hours",
@@ -370,6 +372,8 @@
 		"APPLY_FILTER": "Apply Filter",
 		"CREATE_NEW": "Create New",
 		"NO_RESULT": "No result",
+		"NO_TEAM_MEMBERS_FOUND": "No team members found",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Try adjusting your search or filter to find what you're looking for.",
 		"PICK_A_DATE": "Pick a date",
 		"THIS_WEEK": "This week",
 		"LAST_WEEK": "Last week",
@@ -677,6 +681,7 @@
 			"HEADING_TITLE": "Create New Team",
 			"HEADING_DESCRIPTION": "Please enter your team details to create a new team.",
 			"LOADING_TEXT": "We are now creating your new workplace, hold on...",
+			"LOADING_WORKSPACE": "We are loading the workspace, hold on...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecting to your workspace...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We are verifying your email, hold on...",
 			"INPUT_TEAM_NAME": "Input your team name",
@@ -825,6 +830,25 @@
 				"POSITION": "Position",
 				"DATE_AND_TIME_REQUEST": "Date & Time Request",
 				"CV_OR_ATTACHMENT": "CV / Attachment"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accept invitation to {team} team",
+				"USER_DETAILS": "User details",
+				"COMPLETE_REGISTRATION": "Complete your registration {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "This invitation is no longer valid",
+						"DESCRIPTION": "Please contact the workspace admin to request a new one. Either you entered an incorrect URL or the invitation has expired"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "This workspace no longer exists",
+						"DESCRIPTION": "Please contact the workspace admin to request a new one"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Return to dashboard",
+					"CREATE_NEW_WORKSPACE": "Create a new workspace"
+				}
 			}
 		},
 		"permissions": {
@@ -979,6 +1003,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours an employee worked for total and today on task",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours did employees work today on all tasks for the selected Team"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Team Member",
+			"TASK": "Task",
+			"WORKED_ON_TASK": "Worked on task",
+			"ESTIMATE": "Estimate",
+			"ACTION": "Action"
+		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Task unassigned",
@@ -1040,12 +1071,14 @@
 		"LAST_NAME_PLACEHOLDER": "Last Name",
 		"EMAIL_PLACEHOLDER": "Enter your email address",
 		"PASSWORD_PLACEHOLDER": "Enter your password",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirm your password",
 		"PHONE_PLACEHOLDER": "Phone Number",
 		"ISSUE_NAME_PLACEHOLDER": "Issue name",
 		"TEAM_NAME_PLACEHOLDER": "Please Enter your team name",
 		"TASK_INPUT_PLACEHOLDER": "What you working on?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Team member name",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Team member email address",
+		"TEAM_MEMBER_ROLE": "Team member role",
 		"COMPLETION_DESCRIPTION": "Write the description",
 		"UPLOAD_FILES": "Upload Files",
 		"ATTACHMENT_FILE": "Attachment files",
@@ -1053,7 +1086,8 @@
 		"SET_THEME": "Set Theme",
 		"CHANGE_AVATAR": "Change Avatar",
 		"SELECT_TEAM_SIZE": "Select Team Size",
-		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
+		"AGREE_TO": "Agree to"
 	},
 	"layout": {
 		"footer": {
@@ -1063,6 +1097,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Terms of Service",
+			"TERMS_AND_CONDITIONS": "Terms and Conditions",
 			"PRIVACY_POLICY": "Privacy Policy",
 			"COOKIES": "Cookie Policy",
 			"BY": "By"
@@ -1073,7 +1108,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",
 		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
 		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
-		"VALID_EMAIL": "Please enter valid email"
+		"VALID_EMAIL": "Please enter valid email",
+		"SELECT_ROLE": "Please select a role",
+		"PASSWORDS_DO_NOT_MATCH": "Passwords do not match"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate"

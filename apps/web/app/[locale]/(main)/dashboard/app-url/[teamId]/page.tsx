@@ -30,46 +30,14 @@ import {
 	ProductivityEmployeeTableSkeleton,
 	ProductivityApplicationTableSkeleton
 } from '@/core/components/common/skeleton/productivity-skeletons';
-import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 import { AppUrlsDashboardPageSkeleton } from '@/core/components/common/skeleton/app-urls-dashboard-page-skeleton';
-import { ProductivityHeaderSkeleton } from '@/core/components/common/skeleton/productivity-header-skeleton';
-import { ProductivityStatsSkeleton } from '@/core/components/common/skeleton/productivity-stats-skeleton';
-import dynamic from 'next/dynamic';
 
-const LazyProductivityChart = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url/productivity-chart').then((mod) => ({
-			default: mod.ProductivityChart
-		})),
-	{
-		ssr: false,
-		loading: () => <ChartSkeleton />
-	}
-);
-
-// Lazy load ProductivityHeader for performance optimization
-const LazyProductivityHeader = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
-			default: mod.ProductivityHeader
-		})),
-	{
-		ssr: false,
-		loading: () => <ProductivityHeaderSkeleton />
-	}
-);
-
-// Lazy load ProductivityStats for performance optimization
-const LazyProductivityStats = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
-			default: mod.ProductivityStats
-		})),
-	{
-		ssr: false,
-		loading: () => <ProductivityStatsSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyProductivityChart,
+	LazyProductivityHeader,
+	LazyProductivityStats
+} from '@/core/components/optimized-components';
 interface ProductivityData {
 	date: string;
 	productive: number;

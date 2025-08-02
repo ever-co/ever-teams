@@ -3,18 +3,6 @@
 
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
-// Lazy load GroupBySelectTimeActivity for performance optimization
-const LazyGroupBySelectTimeActivity = dynamic(
-	() =>
-		import('@/core/components/pages/time-and-activity/group-by-select-time-activity').then((mod) => ({
-			default: mod.GroupBySelectTimeActivity
-		})),
-	{
-		ssr: false,
-		loading: () => <div className="w-[180px] h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-	}
-);
-import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 // import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
@@ -22,30 +10,13 @@ import { ExportMenu } from './export-menu';
 import { TeamStatsPDF } from './pdf';
 import { ExportPDFSkeleton } from '../../common/skeleton/export-pdf-skeleton';
 
-// Lazy load heavy components for performance optimization
-const LazyDateRangePicker = dynamic(
-	() => import('../../common/date-range-picker').then((mod) => ({ default: mod.DateRangePicker })),
-	{
-		ssr: false,
-		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-	}
-);
-
-const LazyTeamDashboardFilter = dynamic(
-	() => import('./team-dashboard-filter').then((mod) => ({ default: mod.TeamDashboardFilter })),
-	{
-		ssr: false,
-		loading: () => <div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-	}
-);
-
-const LazyExportDialog = dynamic(
-	() => import('@/core/components/pages/dashboard/export-dialog').then((mod) => ({ default: mod.ExportDialog })),
-	{
-		ssr: false
-		// Note: No loading property for conditional components
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyDateRangePicker,
+	LazyTeamDashboardFilter,
+	LazyExportDialog,
+	LazyGroupBySelectTimeActivity
+} from '@/core/components/optimized-components';
 
 const formatDate = (date: Date | undefined): string => {
 	if (!date) return '';

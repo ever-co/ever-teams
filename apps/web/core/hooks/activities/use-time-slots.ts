@@ -57,8 +57,10 @@ export function useTimeSlots(hasFilter?: boolean) {
 			return response;
 		},
 		enabled: !!(queryParams && isAuthorized),
-		staleTime: 1000 * 60 * 3, // 3 minutes - time slots change frequently
-		gcTime: 1000 * 60 * 15 // 15 minutes in cache
+		staleTime: 1000 * 60 * 5, // Increased to 5 minutes to prevent recalculation on tab switch
+		gcTime: 1000 * 60 * 30, // Increased to 30 minutes for better caching
+		refetchOnWindowFocus: false, // Disable aggressive refetching
+		refetchOnReconnect: false // Disable aggressive refetching
 	});
 
 	// React Query mutation for deleting time slots

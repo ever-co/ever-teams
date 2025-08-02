@@ -11,14 +11,13 @@ import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TEmployee, TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -67,22 +66,22 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState<IEmployee[]>([...(item?.members || [])]);
-	const [unassignedMembers, setUnassignedMembers] = useState<IEmployee[]>([]);
+	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
+	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [validate, setValidate] = useState<boolean>(false);
 	const [showInfo, setShowInfo] = useState<boolean>(false);
 
 	const t = useTranslations();
 
 	const onCheckMember = (member: any) => {
-		const checkUser = assignedMembers.some((el: IEmployee) => el.id === member.id);
+		const checkUser = assignedMembers.some((el: TEmployee) => el.id === member.id);
 		if (checkUser) {
-			const updatedMembers = assignedMembers.filter((el: IEmployee) => el.id != member.id);
+			const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id != member.id);
 			setAssignedMembers(updatedMembers);
 			setUnassignedMembers([...unassignedMembers, member]);
 		} else {
 			setAssignedMembers([...assignedMembers, member]);
-			const updatedUnassign = unassignedMembers.filter((el: IEmployee) => el.id != member.id);
+			const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id != member.id);
 			setUnassignedMembers(updatedUnassign);
 		}
 	};

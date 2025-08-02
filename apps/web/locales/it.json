@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Nessun dato di attività disponibile",
 		"SELECT_DIFFERENT_DATE": "Seleziona un intervallo di date diverso o riprova più tardi",
 		"PENDING_TASKS": "Compiti in sospeso",
+		"RECENT_TASKS": "Compiti recenti",
+		"OLDER_TASKS": "Compiti precedenti",
 		"SHOW_MORE": "Mostra di più",
 		"TASKS": "Compiti",
 		"MEN_HOURS": "Ore Uomo",
@@ -270,7 +272,6 @@
 			"SINGULAR": "Scheda attività",
 			"PLURAL": "Schede attività"
 		},
-
 		"DAYS": {
 			"sun": "Dom",
 			"mon": "Lun",
@@ -344,6 +345,8 @@
 		"APPLY_FILTER": "Applica filtro",
 		"CREATE_NEW": "Crea nuovo",
 		"NO_RESULT": "Nessun risultato",
+		"NO_TEAM_MEMBERS_FOUND": "Nessun membro del team trovato",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Prova ad aggiustare la tua ricerca o filtro per trovare quello che stai cercando.",
 		"PICK_A_DATE": "Seleziona una data",
 		"THIS_WEEK": "Questa settimana",
 		"LAST_WEEK": "La settimana scorsa",
@@ -386,7 +389,6 @@
 		"NEUTRAL": "Neutrale",
 		"UNPRODUCTIVE": "Improduttivo",
 		"ACTIVITIES": "attività",
-		"NO_PROJECT": "Nessun progetto",
 		"DURATION": "Durata",
 		"PROGRESS": "Progresso",
 		"EMPLOYEE": "Dipendente",
@@ -675,6 +677,7 @@
 			"HEADING_TITLE": "Crea un Nuovo Team",
 			"HEADING_DESCRIPTION": "Inserisci i dettagli del tuo team per crearne uno nuovo.",
 			"LOADING_TEXT": "Stiamo creando il tuo nuovo spazio di lavoro, attendi...",
+			"LOADING_WORKSPACE": "Stiamo caricando lo spazio di lavoro, attendi...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Reindirizzamento al tuo spazio di lavoro...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Stiamo verificando la tua email, attendi...",
 			"INPUT_TEAM_NAME": "Inserisci il nome del tuo team",
@@ -823,6 +826,25 @@
 				"POSITION": "Posizione",
 				"DATE_AND_TIME_REQUEST": "Richiesta Data e Ora",
 				"CV_OR_ATTACHMENT": "CV / Allegato"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accetta invito al team {team}",
+				"USER_DETAILS": "Dettagli utente",
+				"COMPLETE_REGISTRATION": "Completa la tua registrazione {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Questo invito non è più valido",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo. O hai inserito un URL errato o l'invito è scaduto"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Questo spazio di lavoro non esiste più",
+						"DESCRIPTION": "Contatta l'amministratore dello spazio di lavoro per richiederne uno nuovo"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Torna alla dashboard",
+					"CREATE_NEW_WORKSPACE": "Crea un nuovo spazio di lavoro"
+				}
 			}
 		},
 		"permissions": {
@@ -977,6 +999,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato in totale e oggi sul compito",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato oggi su tutte le attività per il team selezionato"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Membro del team",
+			"TASK": "Attività",
+			"WORKED_ON_TASK": "Lavorato su attività",
+			"ESTIMATE": "Stima",
+			"ACTION": "Azione"
+		},
 		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Attività non assegnata",
@@ -1038,12 +1067,14 @@
 		"LAST_NAME_PLACEHOLDER": "Cognome",
 		"EMAIL_PLACEHOLDER": "Inserisci il tuo indirizzo email",
 		"PASSWORD_PLACEHOLDER": "Inserisci la tua password",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Conferma la tua password",
 		"PHONE_PLACEHOLDER": "Numero di telefono",
 		"ISSUE_NAME_PLACEHOLDER": "Nome del problema",
 		"TEAM_NAME_PLACEHOLDER": "Inserisci il nome del tuo team",
 		"TASK_INPUT_PLACEHOLDER": "Su cosa stai lavorando?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nome del membro del team",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Indirizzo email del membro del team",
+		"TEAM_MEMBER_ROLE": "Ruolo del membro del team",
 		"COMPLETION_DESCRIPTION": "Scrivi la descrizione",
 		"UPLOAD_FILES": "Carica File",
 		"ATTACHMENT_FILE": "File allegati",
@@ -1051,7 +1082,8 @@
 		"SET_THEME": "Imposta il Tema",
 		"CHANGE_AVATAR": "Cambia Avatar",
 		"SELECT_TEAM_SIZE": "Seleziona la Dimensione del Team",
-		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici"
+		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici",
+		"AGREE_TO": "Accetto"
 	},
 	"layout": {
 		"footer": {
@@ -1061,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Termini di servizio",
+			"TERMS_AND_CONDITIONS": "Termini e condizioni",
 			"PRIVACY_POLICY": "politica sulla riservatezza",
 			"COOKIES": "Gestione dei Cookie",
 			"BY": "Di"
@@ -1071,7 +1104,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Errore durante la verifica del codice.",
 		"LENGTH_NUMBER_ERROR": "La lunghezza deve essere un numero maggiore di 0",
 		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Usa alpha, numeric o alphanumeric",
-		"VALID_EMAIL": "Inserisci un indirizzo email valido"
+		"VALID_EMAIL": "Inserisci un indirizzo email valido",
+		"SELECT_ROLE": "Seleziona un ruolo",
+		"PASSWORDS_DO_NOT_MATCH": "Le password non corrispondono"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Premi Invio per convalidare"

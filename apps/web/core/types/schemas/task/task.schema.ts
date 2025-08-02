@@ -109,7 +109,7 @@ const baseTaskSchema = z.object({
 	version: z.string().optional().nullable(),
 	tags: z.array(tagSchema).optional().nullable(),
 	projectId: z.string().optional().nullable(),
-	members: z.array(z.any()).optional(),
+	members: z.array(employeeSchema).optional().nullable(),
 	teams: z.array(organizationTeamSchema).optional(),
 
 	parentId: z.string().optional().nullable(),

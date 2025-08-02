@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, idSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
-import { TUser, userSchema } from '../user/user.schema';
+import { userSchema } from '../user/user.schema';
 import { teamSchema } from '../team/team.schema';
 
 /**
@@ -38,7 +38,7 @@ export const employeeSchema = z
 		tasks: z.array(z.any()).optional(), // Will be properly typed when task schema is created
 		timeSlots: z.array(z.any()).optional(), // Will be properly typed when time slot schema is created
 		averageIncome: z.number().optional().nullable(),
-		totalWorkHours: z.number().optional(),
+		totalWorkHours: z.number().optional().nullable(),
 		averageExpenses: z.number().optional().nullable(),
 		averageBonus: z.number().nullable().optional(),
 		show_anonymous_bonus: z.boolean().optional().nullable(),
@@ -60,8 +60,8 @@ export const employeeSchema = z
 		isVerified: z.boolean().optional().nullable(),
 		isVetted: z.boolean().optional().nullable(),
 		totalJobs: z.number().nullable().optional(),
-		fullName: z.string().optional(),
-		profile_link: z.string().optional(),
+		fullName: z.string().optional().nullable(),
+		profile_link: z.string().optional().nullable(),
 		isTrackingEnabled: z.boolean().optional().nullable(),
 		isDeleted: z.boolean().optional().nullable(),
 		allowScreenshotCapture: z.boolean().optional().nullable(),
@@ -116,5 +116,5 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateHours: z.number(),
 	estimateMinutes: z.number()
 });
-export type TEmployee = z.infer<typeof employeeSchema> & { user: TUser };
+export type TEmployee = z.infer<typeof employeeSchema>;
 export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;

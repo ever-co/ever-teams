@@ -11,19 +11,10 @@ import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams
 import React from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { toast } from 'sonner';
-// Lazy load CreateTeamModal for performance optimization
-import dynamic from 'next/dynamic';
+// Import optimized components from centralized location
+import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-const LazyCreateTeamModal = dynamic(
-	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();

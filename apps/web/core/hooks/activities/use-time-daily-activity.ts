@@ -71,7 +71,10 @@ export function useTimeDailyActivity(type?: string) {
 			return response;
 		},
 		enabled: isEnabled,
-		gcTime: 1000 * 60 * 15 // 15 minutes in cache
+		staleTime: 1000 * 60 * 5, // 5 minutes to prevent recalculation on tab switch
+		gcTime: 1000 * 60 * 30, // Increased to 30 minutes for better caching
+		refetchOnWindowFocus: false, // Disable aggressive refetching
+		refetchOnReconnect: false // Disable aggressive refetching
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility

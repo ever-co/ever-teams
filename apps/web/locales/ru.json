@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Данные о активности недоступны",
 		"SELECT_DIFFERENT_DATE": "Выберите другой диапазон дат или попробуйте позже",
 		"PENDING_TASKS": "Ожидающие задачи",
+		"RECENT_TASKS": "Недавние задачи",
+		"OLDER_TASKS": "Старые задачи",
 		"SHOW_MORE": "Показать больше",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Часы работы",
@@ -349,6 +351,8 @@
 		"APPLY_FILTER": "Применить фильтр",
 		"CREATE_NEW": "Создать новый",
 		"NO_RESULT": "Нет результатов",
+		"NO_TEAM_MEMBERS_FOUND": "Участники команды не найдены",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Попробуйте изменить поиск или фильтр, чтобы найти то, что вы ищете.",
 		"PICK_A_DATE": "Выберите дату",
 		"THIS_WEEK": "На этой неделе",
 		"LAST_WEEK": "На прошлой неделе",
@@ -385,7 +389,6 @@
 		"NEUTRAL": "Нейтральный",
 		"UNPRODUCTIVE": "Непродуктивный",
 		"ACTIVITIES": "активности",
-		"NO_PROJECT": "Нет проекта",
 		"DURATION": "Продолжительность",
 		"PROGRESS": "Прогресс",
 		"EMPLOYEE": "Сотрудник",
@@ -674,6 +677,7 @@
 			"HEADING_TITLE": "Создать новую команду",
 			"HEADING_DESCRIPTION": "Введите данные вашей команды, чтобы создать новую команду.",
 			"LOADING_TEXT": "Мы сейчас создаем ваше новое рабочее место, подождите...",
+			"LOADING_WORKSPACE": "Мы загружаем рабочее пространство, подождите...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Перенаправление на ваше рабочее пространство...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Мы проверяем вашу электронную почту, подождите...",
 			"INPUT_TEAM_NAME": "Введите название вашей команды",
@@ -822,6 +826,25 @@
 				"POSITION": "Должность",
 				"DATE_AND_TIME_REQUEST": "Дата и время запроса",
 				"CV_OR_ATTACHMENT": "Резюме / Вложение"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Принять приглашение в команду {team}",
+				"USER_DETAILS": "Данные пользователя",
+				"COMPLETE_REGISTRATION": "Завершите регистрацию {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Это приглашение больше не действительно",
+						"DESCRIPTION": "Обратитесь к администратору рабочего пространства, чтобы запросить новое. Либо вы ввели неправильный URL, либо срок действия приглашения истек"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Это рабочее пространство больше не существует",
+						"DESCRIPTION": "Обратитесь к администратору рабочего пространства, чтобы запросить новое"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Вернуться к панели управления",
+					"CREATE_NEW_WORKSPACE": "Создать новое рабочее пространство"
+				}
 			}
 		},
 		"permissions": {
@@ -976,6 +999,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Сколько часов сотрудник поработал всего и сегодня по задаче",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Сколько часов сотрудник поработал сегодня по всем задачам для выбранной команды"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Участник команды",
+			"TASK": "Задача",
+			"WORKED_ON_TASK": "Работал над задачей",
+			"ESTIMATE": "Оценка",
+			"ACTION": "Действие"
+		},
 		"CONFIRM_CLOSE_TASK": "Пожалуйста, подтвердите, что вы хотите закрыть задачу",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Задача не назначена",
@@ -1037,12 +1067,14 @@
 		"LAST_NAME_PLACEHOLDER": "Фамилия",
 		"EMAIL_PLACEHOLDER": "Введите ваш адрес электронной почты",
 		"PASSWORD_PLACEHOLDER": "Введите ваш пароль",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Подтвердите ваш пароль",
 		"PHONE_PLACEHOLDER": "Номер телефона",
 		"ISSUE_NAME_PLACEHOLDER": "Название задачи",
 		"TEAM_NAME_PLACEHOLDER": "Введите название вашей команды",
 		"TASK_INPUT_PLACEHOLDER": "Над чем вы работаете?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Имя участника команды",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Адрес электронной почты участника команды",
+		"TEAM_MEMBER_ROLE": "Роль участника команды",
 		"COMPLETION_DESCRIPTION": "Напишите описание",
 		"UPLOAD_FILES": "Загрузить файлы",
 		"ATTACHMENT_FILE": "Прикрепленные файлы",
@@ -1050,7 +1082,8 @@
 		"SET_THEME": "Установить тему",
 		"CHANGE_AVATAR": "Изменить аватар",
 		"SELECT_TEAM_SIZE": "Выберите размер команды",
-		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы"
+		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы",
+		"AGREE_TO": "Согласен с"
 	},
 	"layout": {
 		"footer": {
@@ -1060,6 +1093,7 @@
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Условия предоставления услуг",
+			"TERMS_AND_CONDITIONS": "Условия и положения",
 			"PRIVACY_POLICY": "Политика конфиденциальности",
 			"COOKIES": "Политика использования файлов cookie",
 			"BY": "От"
@@ -1070,7 +1104,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Ошибка при проверке кода.",
 		"LENGTH_NUMBER_ERROR": "Длина должна быть числом и больше 0",
 		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы",
-		"VALID_EMAIL": "Пожалуйста, введите действительный адрес электронной почты"
+		"VALID_EMAIL": "Пожалуйста, введите действительный адрес электронной почты",
+		"SELECT_ROLE": "Пожалуйста, выберите роль",
+		"PASSWORDS_DO_NOT_MATCH": "Пароли не совпадают"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения"

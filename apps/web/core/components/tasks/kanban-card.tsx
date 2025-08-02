@@ -20,36 +20,12 @@ import { ETaskPriority } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 
-import dynamic from 'next/dynamic';
-
-// Next.js official patterns for always-rendered components
-const LazyImageComponent = dynamic(() => import('../common/image-overlapper'), {
-	ssr: false,
-	loading: () => <div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-});
-
-const LazyMenuKanbanCard = dynamic(() => import('@/core/components/pages/kanban/menu-kanban-card'), {
-	ssr: false,
-	loading: () => <div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-});
-
-const LazyTaskAllStatusTypes = dynamic(
-	() => import('./task-all-status-type').then((mod) => ({ default: mod.TaskAllStatusTypes })),
-	{
-		ssr: false,
-		loading: () => <div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-	}
-);
-
-const LazyTaskInput = dynamic(() => import('./task-input').then((mod) => ({ default: mod.TaskInput })), {
-	ssr: false,
-	loading: () => <div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-});
-
-const LazyTaskIssueStatus = dynamic(() => import('./task-issue').then((mod) => ({ default: mod.TaskIssueStatus })), {
-	ssr: false,
-	loading: () => <div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-});
+import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
+import {
+	LazyTaskAllStatusTypes,
+	LazyTaskInput,
+	LazyTaskIssueStatus
+} from '@/core/components/optimized-components/tasks';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {

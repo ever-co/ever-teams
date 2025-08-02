@@ -14,6 +14,7 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from '../../tasks/daily-plan/daily-plan-filter';
 import { Divider } from '@/core/components';
 
+import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
@@ -23,10 +24,10 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
-import { AddManualTimeModal } from '../../features/manual-time/add-manual-time-modal';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { TaskSizesDropdown } from '../../tasks/task-sizes-dropdown';
-
+import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
+import { Suspense } from 'react';
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -62,7 +63,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
-				className="w-full"
+				className="mt-5 w-full"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
 				{hook.filterType !== undefined && <Divider className="mt-1" />}
@@ -162,7 +163,16 @@ function InputFilters({ hook, profile }: Props) {
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
-			<AddManualTimeModal closeModal={closeManualTimeModal} isOpen={isManualTimeModalOpen} params="AddTime" />
+
+			{isManualTimeModalOpen && (
+				<Suspense fallback={<AddManualTimeModalSkeleton />}>
+					<LazyAddManualTimeModal
+						closeModal={closeManualTimeModal}
+						isOpen={isManualTimeModalOpen}
+						params="AddTime"
+					/>
+				</Suspense>
+			)}
 		</div>
 	);
 }
@@ -219,11 +229,11 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const { date, setDate, data } = useDateRange(dailyPlanTab);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap flex-1 justify-center space-x-3 md:justify-start">
+			<div className="flex flex-wrap flex-1 justify-center mb-2 space-x-3 h-9 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -231,7 +241,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -239,7 +249,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -247,7 +257,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mt-0 bg-[#F2F2F2] rounded-xl"
+					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7 !rounded-[8px] text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -259,6 +269,8 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 						date={date}
 						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"
+						className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+						contentClassName="h-7"
 					/>
 				)}
 				<VerticalSeparator />

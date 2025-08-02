@@ -7,33 +7,16 @@ import { format } from 'date-fns';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';
 import { ChartIcon } from '../../../common/team-icon';
-import dynamic from 'next/dynamic';
+// Import optimized components from centralized location
+import { LazyActivityModal } from '@/core/components/optimized-components/dashboard';
+import { LazyAnimatedEmptyState } from '@/core/components/optimized-components/common';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-const LazyActivityModal = dynamic(() => import('../activity-modal').then((mod) => ({ default: mod.ActivityModal })), {
-	ssr: false
-	// Note: No loading property for conditional components
-});
 import { useModal, usePagination } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
-// Lazy load AnimatedEmptyState for performance optimization
-const LazyAnimatedEmptyState = dynamic(
-	() => import('@/core/components/common/empty-state').then((mod) => ({ default: mod.AnimatedEmptyState })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
-				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mb-4" />
-				<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
-				<div className="w-64 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-		)
-	}
-);
 import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 
@@ -338,7 +321,7 @@ export function TeamStatsTable({
 						itemOffset={itemOffset}
 						endOffset={endOffset}
 						setItemsPerPage={setItemsPerPage}
-						className="w-full px-1"
+						className="px-1 w-full"
 					/>
 				</div>
 			</div>

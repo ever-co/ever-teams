@@ -26,10 +26,11 @@ import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } fr
 import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -154,9 +155,18 @@ export function useTeamTasks() {
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
 			return await taskService.updateTask(taskId, taskData);
 		},
-		onSuccess: ({ id }) => {
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.tasks.detail(id)
+		onSuccess: (updatedTask, { taskId }) => {
+			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
+				if (!oldTasks) return oldTasks;
+
+				const updatedItems = oldTasks?.items?.map((task) =>
+					task.id === taskId ? { ...task, ...updatedTask } : task
+				);
+
+				// Sync the tasks store
+				setAllTasks(updatedItems);
+
+				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
 		}
 	});
@@ -339,7 +349,7 @@ export function useTeamTasks() {
 			tags?: TTag[] | null;
 			description?: string | null;
 			projectId?: string | null;
-			members?: { id: string }[];
+			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
 			try {
 				const res = await createTaskMutation.mutateAsync({
@@ -353,7 +363,7 @@ export function useTeamTasks() {
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					projectId,
 					...(description ? { description: `<p>${description}</p>` } : {}),
-					members,
+					members: members ?? [],
 					taskStatusId: taskStatusId
 				});
 				return res;

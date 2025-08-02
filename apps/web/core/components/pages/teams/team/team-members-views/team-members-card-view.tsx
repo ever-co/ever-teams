@@ -6,6 +6,7 @@ import { UserTeamCard } from './user-team-card';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -105,12 +106,14 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						);
 					})}
 
-					{members.length > 0 &&
-						teamInvitations.map((invitation) => (
-							<li key={invitation.id}>
-								<InvitedCard invitation={invitation} />
-							</li>
-						))}
+					{teamInvitations.length > 0 &&
+						teamInvitations
+							.filter((invitation) => invitation.status !== EInviteStatus.ACCEPTED)
+							.map((invitation) => (
+								<li key={invitation.id}>
+									<InvitedCard invitation={invitation} />
+								</li>
+							))}
 
 					{/* Loader skeleton */}
 					<Transition

@@ -388,14 +388,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// TODO: Add onclick handler
 	const TimeSheetsButton = (
-		<Button className="w-full px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
 			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
 
 	const content = (
 		<div className="flex flex-col justify-between w-full">
-			<div className="flex flex-col w-full gap-4">
+			<div className="flex flex-col gap-4 w-full">
 				{isRenderedInSoftFlow && (
 					<Text.Heading as="h3" className="mb-3 text-center">
 						{t('timer.todayPlanSettings.TITLE')}
@@ -417,7 +417,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							checkPastDate(plan?.date ?? selectedDate) && 'flex items-center justify-between gap-2'
 						)}
 					>
-						<div className="flex flex-col w-full gap-2 ">
+						<div className="flex flex-col gap-2 w-full">
 							{checkPastDate(plan?.date ?? selectedDate) ? (
 								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
 							) : (
@@ -428,7 +428,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							)}
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
-									<div className="flex items-center w-full h-full gap-3 px-3 border rounded-lg">
+									<div className="flex gap-3 items-center px-3 w-full h-full rounded-lg border">
 										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 									</div>
 								) : (
@@ -477,7 +477,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										onClick={() => {
 											setShowSearchInput(true);
 										}}
-										className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
+										className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
 									>
 										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
 									</button>
@@ -485,7 +485,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 						</div>
 						{checkPastDate(plan?.date ?? selectedDate) && (
-							<div className="flex flex-col w-full gap-2 ">
+							<div className="flex flex-col gap-2 w-full">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
 									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
@@ -500,23 +500,23 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						<div className="flex flex-col gap-3 text-sm">
 							<div className="flex flex-col gap-3 text-sm">
 								<div className="flex flex-col gap-2 text-sm">
-									<div className="flex items-center justify-between w-full gap-2">
-										<div className="flex items-center justify-center gap-1">
+									<div className="flex gap-2 justify-between items-center w-full">
+										<div className="flex gap-1 justify-center items-center">
 											<span>{t('task.TITLE_PLURAL')}</span>
 											{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
 										</div>
-										<div className="flex items-center justify-center gap-1">
+										<div className="flex gap-1 justify-center items-center">
 											{checkPastDate(plan.date) ? (
 												<>
 													<span>{t('dailyPlan.ESTIMATED')} :</span>
-													<span className="font-medium ">
+													<span className="font-medium">
 														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 													</span>
 												</>
 											) : tasksEstimationTimes ? (
 												<>
 													<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
-													<span className="font-medium ">
+													<span className="font-medium">
 														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 													</span>
 												</>
@@ -524,7 +524,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</div>
 									</div>
 									<div className="w-full h-full">
-										<ul className="flex flex-col gap-2 overflow-y-auto h-80 ">
+										<ul className="flex overflow-y-auto flex-col gap-2 h-80">
 											{sortedTasks.map((task, index) => (
 												<TaskCard
 													plan={plan}
@@ -537,22 +537,22 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</ul>
 									</div>
 								</div>
-								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
+								<div className="flex gap-2 items-center h-6 text-sm text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
 											<IconsErrorWarningFill className="text-[14px]" />
-											<span className="text-xs ">{warning}</span>
+											<span className="text-xs">{warning}</span>
 										</>
 									)}
 								</div>
 							</div>
 						</div>
-						<div className="flex items-center justify-between ">
+						<div className="flex justify-between items-center">
 							<Button
 								disabled={loading}
 								variant="outline"
 								type="submit"
-								className="w-40 px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								className="px-5 py-3 w-40 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
@@ -695,7 +695,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	return (
 		<Popover className={clsxm('relative z-20 w-full')}>
-			<div className="flex flex-col items-start w-full gap-2">
+			<div className="flex flex-col gap-2 items-start w-full">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
 					<PopoverButton
@@ -703,10 +703,10 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						className={clsxm(
 							'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
 							'input-border',
-							'py-2 px-4 rounded-[10px]',
-							'text-sm outline-none ',
-							'h-12 w-full',
-							'h-full z-50 w-full px-3 focus:outline-none'
+							'px-4 py-2 rounded-[10px]',
+							'text-sm outline-none',
+							'w-full h-12',
+							'z-50 px-3 w-full h-full focus:outline-none'
 						)}
 						required
 						as="input"
@@ -719,7 +719,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						onClick={() => {
 							setShowSearchInput(false);
 						}}
-						className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
+						className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
 					>
 						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" />
@@ -728,7 +728,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				</div>
 			</div>
 
-			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
+			<PopoverPanel static={isSearchInputFocused} className={clsxm('absolute mt-1 w-full')}>
 				{tasks.length ? (
 					<EverCard shadow="custom" className="border shadow-lg !p-3">
 						<ul className="flex h-[25rem] overflow-y-auto flex-col w-full gap-2">
@@ -883,17 +883,17 @@ function TaskCard(props: ITaskCardProps) {
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
-			<div className="flex items-center justify-end h-full gap-2 grow">
+			<div className="flex gap-2 justify-end items-center h-full grow">
 				{viewListMode === 'searched' ? (
-					<Button onClick={handleAddTask} variant="outline" className=" mon-h-12" type="button">
+					<Button onClick={handleAddTask} variant="outline" className="mon-h-12" type="button">
 						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex items-center h-full gap-1 min-w-fit">
+						<div className="flex gap-1 items-center h-full min-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
+									className="flex justify-center items-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor:
 											status.taskStatuses.filter((s) => s.value === task.status)[0].color ??
@@ -903,12 +903,12 @@ function TaskCard(props: ITaskCardProps) {
 									{task.status}
 								</span>
 							) : (
-								<span className="text-nowrap whitespace-nowrap">{t('dailyPlan.ESTIMATED')} :</span>
+								<span className="whitespace-nowrap text-nowrap">{t('dailyPlan.ESTIMATED')} :</span>
 							)}
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
-						<span className="flex items-center justify-center w-4 h-full">
+						<span className="flex justify-center items-center w-4 h-full">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
 								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
@@ -1031,7 +1031,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 	return (
 		<Popover>
-			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex justify-center items-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
 			</PopoverButton>
 
@@ -1049,7 +1049,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					{({ close }) => {
 						return (
 							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
-								<ul className="flex flex-col justify-end gap-3 ">
+								<ul className="flex flex-col gap-3 justify-end">
 									<li
 										onClick={openTaskDetailsModal}
 										className={clsxm('hover:font-semibold hover:transition-all')}
@@ -1202,7 +1202,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 	return (
 		<Popover>
 			<PopoverButton>
-				<span className={clsxm(' text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
+				<span className={clsxm('text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
 			</PopoverButton>
 
 			<Transition
@@ -1222,7 +1222,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
-								<ul className="flex flex-col justify-end w-full gap-3 p-3 border">
+								<ul className="flex flex-col gap-3 justify-end p-3 w-full border">
 									<li
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(
@@ -1251,7 +1251,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 									onClick={() => {
 										close();
 									}}
-									className={clsxm('w-full bg-primary/5 px-3 py-2')}
+									className={clsxm('px-3 py-2 w-full bg-primary/5')}
 								>
 									<span>Cancel</span>
 								</button>

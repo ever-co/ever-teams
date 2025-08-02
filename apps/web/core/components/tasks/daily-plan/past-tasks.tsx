@@ -1,7 +1,8 @@
 import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
-import { TaskCard } from '../task-card';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
@@ -75,7 +76,7 @@ export function PastTasks({
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-6 border-none dark:bg-dark--theme">
+								<AccordionContent className="pb-6 border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (
@@ -118,7 +119,7 @@ export function PastTasks({
 																			marginBottom: 4
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			key={`${task.id}${plan.id}`}
 																			isAuthUser={true}
 																			activeAuthTask={true}
@@ -134,6 +135,7 @@ export function PastTasks({
 																					? 'Past Tasks'
 																					: undefined
 																			}
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>
