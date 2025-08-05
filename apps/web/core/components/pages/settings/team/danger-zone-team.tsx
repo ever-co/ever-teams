@@ -37,9 +37,7 @@ export const DangerZoneTeam = () => {
 				// Remove from Team API call
 				return deleteOrganizationTeamEmployee({
 					id: currentEmployeeDetails.id,
-					employeeId: currentEmployeeDetails.employeeId || '',
-					organizationId: activeTeam.organizationId || '',
-					tenantId: activeTeam.tenantId || ''
+					employeeId: currentEmployeeDetails.employeeId || ''
 				});
 			}
 		}

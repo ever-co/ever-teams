@@ -1,8 +1,6 @@
 'use client';
 import {
 	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie,
 	setActiveProjectIdCookie,
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
@@ -156,8 +154,6 @@ export function useOrganizationTeams() {
 	const queryClient = useQueryClient();
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
-	const organizationId = getOrganizationIdCookie();
-	const tenantId = getTenantIdCookie();
 	const { logOut } = useAuthenticateUser();
 
 	const deleteOrganizationTeamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -234,13 +230,7 @@ export function useOrganizationTeams() {
 	const organizationTeamsQuery = useQuery({
 		queryKey: queryKeys.organizationTeams.all,
 		queryFn: async () => {
-			if (!user?.employee?.organizationId || !user?.employee?.tenantId) {
-				throw new Error('Organization ID and Tenant ID are required');
-			}
-			return await organizationTeamService.getOrganizationTeams(
-				user.employee.organizationId,
-				user.employee.tenantId
-			);
+			return await organizationTeamService.getOrganizationTeams();
 		},
 		enabled: !!(user?.employee?.organizationId && user?.employee?.tenantId),
 		staleTime: 1000 * 60 * 10, // PERFORMANCE FIX: Increased to 10 minutes to reduce refetching
@@ -253,14 +243,10 @@ export function useOrganizationTeams() {
 	const organizationTeamQuery = useQuery({
 		queryKey: queryKeys.organizationTeams.detail(activeTeamId),
 		queryFn: async () => {
-			if (!activeTeamId || !user?.employee?.organizationId || !user?.employee?.tenantId) {
-				throw new Error('Team ID, Organization ID and Tenant ID are required');
+			if (!activeTeamId) {
+				throw new Error('Team ID is required');
 			}
-			return await organizationTeamService.getOrganizationTeam(
-				activeTeamId,
-				user.employee.organizationId,
-				user.employee.tenantId
-			);
+			return await organizationTeamService.getOrganizationTeam(activeTeamId);
 		},
 		enabled: !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
 		staleTime: 1000 * 60 * 10, // PERFORMANCE FIX: Increased to 10 minutes
@@ -365,13 +351,7 @@ export function useOrganizationTeams() {
 			const teamsResult = await queryClient.fetchQuery({
 				queryKey: queryKeys.organizationTeams.all,
 				queryFn: async () => {
-					if (!user.employee?.organizationId || !user.employee?.tenantId) {
-						throw new Error('Organization ID and Tenant ID are required');
-					}
-					return await organizationTeamService.getOrganizationTeams(
-						user.employee.organizationId,
-						user.employee.tenantId
-					);
+					return await organizationTeamService.getOrganizationTeams();
 				}
 			});
 
@@ -391,18 +371,11 @@ export function useOrganizationTeams() {
 			}
 
 			// Fetch specific team details if teamId exists
-			if (teamId && user?.employee?.organizationId && user?.employee.tenantId) {
+			if (teamId) {
 				await queryClient.fetchQuery({
 					queryKey: queryKeys.organizationTeams.detail(teamId),
 					queryFn: async () => {
-						if (!user.employee?.organizationId || !user.employee?.tenantId) {
-							throw new Error('Organization ID and Tenant ID are required');
-						}
-						return await organizationTeamService.getOrganizationTeam(
-							teamId,
-							user.employee.organizationId,
-							user.employee.tenantId
-						);
+						return await organizationTeamService.getOrganizationTeam(teamId);
 					}
 				});
 			}
@@ -568,9 +541,9 @@ export function useOrganizationTeams() {
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
 
-		if (activeTeamId && organizationId && tenantId) {
+		if (activeTeamId) {
 			try {
-				const res = await organizationTeamService.getOrganizationTeam(activeTeamId, organizationId, tenantId);
+				const res = await organizationTeamService.getOrganizationTeam(activeTeamId);
 				if (res) {
 					setTeamsUpdate(res.data);
 				}
@@ -580,7 +553,7 @@ export function useOrganizationTeams() {
 		}
 
 		firstLoadTeamsData();
-	}, [activeTeamId, firstLoadTeamsData, loadTeamsData, organizationId, setTeamsUpdate, tenantId]);
+	}, [activeTeamId, firstLoadTeamsData, loadTeamsData, setTeamsUpdate]);
 
 	return {
 		loadTeamsData,

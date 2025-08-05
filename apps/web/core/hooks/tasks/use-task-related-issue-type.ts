@@ -41,7 +41,7 @@ export function useTaskRelatedIssueType() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
+			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList();
 			return res.data;
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId

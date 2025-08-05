@@ -9,17 +9,13 @@ import { activitySchema, TActivity } from '@/core/types/schemas/activities/activ
 class ActivityService extends APIService {
 	getActivities = async ({
 		taskId,
-		tenantId,
-		organizationId,
 		defaultRange,
 		unitOfTime
 	}: {
-		tenantId: string;
-		organizationId: string;
 		defaultRange?: string;
 		taskId?: string;
 		unitOfTime?: 'day';
-	}): Promise<TActivity[]> => {
+	} = {}): Promise<TActivity[]> => {
 		try {
 			const params: {
 				tenantId: string;
@@ -29,8 +25,8 @@ class ActivityService extends APIService {
 				unitOfTime?: 'day';
 			} = {
 				'taskIds[0]': taskId,
-				tenantId,
-				organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				defaultRange,
 				unitOfTime
 			};
@@ -60,8 +56,8 @@ class ActivityService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						taskId,
-						tenantId,
-						organizationId
+						tenantId: this.tenantId,
+						organizationId: this.organizationId
 					},
 					'ActivityService'
 				);
@@ -78,8 +74,6 @@ class ActivityService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getDailyActivities = async (params: {
-		tenantId: string;
-		organizationId: string;
 		employeeId: string;
 		todayEnd: Date;
 		todayStart: Date;
@@ -96,8 +90,8 @@ class ActivityService extends APIService {
 				'types[0]'?: string;
 				'title[0]'?: string;
 			} = {
-				tenantId: params.tenantId,
-				organizationId: params.organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				'employeeIds[0]': params.employeeId,
 				startDate: params.todayStart.toISOString(),
 				endDate: params.todayEnd.toISOString()
@@ -130,8 +124,8 @@ class ActivityService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						employeeId: params.employeeId,
-						tenantId: params.tenantId,
-						organizationId: params.organizationId
+						tenantId: this.tenantId,
+						organizationId: this.organizationId
 					},
 					'ActivityService'
 				);

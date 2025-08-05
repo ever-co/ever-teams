@@ -41,7 +41,7 @@ export function useTaskPriorities() {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
 
-			return await taskPriorityService.getTaskPrioritiesList(tenantId, organizationId, teamId);
+			return await taskPriorityService.getTaskPrioritiesList();
 		},
 		enabled: isEnabled
 	});
@@ -59,7 +59,7 @@ export function useTaskPriorities() {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
-			return taskPriorityService.createTaskPriority(requestData, tenantId);
+			return taskPriorityService.createTaskPriority(requestData);
 		},
 		onSuccess: invalidateTaskPrioritiesData
 	});
@@ -70,7 +70,7 @@ export function useTaskPriorities() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return taskPriorityService.editTaskPriority(id, data, tenantId);
+			return taskPriorityService.editTaskPriority({ taskPriorityId: id, data });
 		},
 		onSuccess: invalidateTaskPrioritiesData
 	});

@@ -23,14 +23,10 @@ class TaskRelatedIssueTypeService extends APIService {
 		// return this.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
 	};
 
-	getTaskRelatedIssueTypeList = async (
-		tenantId: string,
-		organizationId: string,
-		organizationTeamId: string | null
-	) => {
-		const endpoint = `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
+	getTaskRelatedIssueTypeList = async () => {
+		const endpoint = `/task-related-issue-types?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, { tenantId: this.tenantId });
 	};
 }
 

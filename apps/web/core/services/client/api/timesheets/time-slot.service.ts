@@ -21,8 +21,8 @@ class TimeSlotService extends APIService {
 		try {
 			// Build query parameters according to API documentation
 			const queryParams = {
-				tenantId: params.tenantId,
-				organizationId: params.organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				ids: params.ids,
 				forceDelete: params.forceDelete ?? false
 			};

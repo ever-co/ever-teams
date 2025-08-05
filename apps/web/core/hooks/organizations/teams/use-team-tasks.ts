@@ -91,31 +91,15 @@ export function useTeamTasks() {
 	const teamTasksQuery = useQuery({
 		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
 		queryFn: async () => {
-			if (!user?.employee?.organizationId || !user?.employee?.tenantId || !activeTeam?.id) {
+			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
 			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks(
-				user.employee.organizationId,
-				user.employee.tenantId,
-				projectId,
-				activeTeam.id
-			);
+			return await taskService.getTasks({ projectId });
 		},
-		enabled: !!user?.employee?.organizationId && !!user?.employee?.tenantId && !!activeTeam?.id,
+		enabled: !!activeTeam?.id,
 		gcTime: 1000 * 60 * 60
 	});
-
-	// const getTaskByIdQuery = useQuery({
-	// 	queryKey: queryKeys.tasks.detail(detailedTask?.id),
-	// 	queryFn: async () => {
-	// 		if (!detailedTask?.id) {
-	// 			throw new Error('Task ID is required');
-	// 		}
-	// 		return await taskService.getTaskById(detailedTask?.id);
-	// 	},
-	// 	enabled: !!detailedTask?.id
-	// });
 
 	const { queryCall: getTaskByIdQuery, loading: getTasksByIdLoading } = useQueryCall(async (taskId: string) =>
 		queryClient.fetchQuery({
@@ -135,7 +119,7 @@ export function useTeamTasks() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			return await taskService.getTasksByEmployeeId(selectedEmployeeId!, selectedOrganizationTeamId!);
+			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
 		},
 		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
 		gcTime: 1000 * 60 * 60
@@ -153,7 +137,7 @@ export function useTeamTasks() {
 
 	const updateTaskMutation = useMutation({
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask(taskId, taskData);
+			return await taskService.updateTask({ taskId, data: taskData });
 		},
 		onSuccess: (updatedTask, { taskId }) => {
 			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
@@ -181,8 +165,8 @@ export function useTeamTasks() {
 	});
 
 	const deleteEmployeeFromTasksMutation = useMutation({
-		mutationFn: async ({ employeeId, organizationTeamId }: { employeeId: string; organizationTeamId: string }) => {
-			return await taskService.deleteEmployeeFromTasks(employeeId, organizationTeamId);
+		mutationFn: async (employeeId: string) => {
+			return await taskService.deleteEmployeeFromTasks(employeeId);
 		},
 		onSuccess: () => {
 			invalidateTeamTasksData();
@@ -522,9 +506,9 @@ export function useTeamTasks() {
 	);
 
 	const deleteEmployeeFromTasks = useCallback(
-		async (employeeId: string, organizationTeamId: string) => {
+		async (employeeId: string) => {
 			try {
-				await deleteEmployeeFromTasksMutation.mutateAsync({ employeeId, organizationTeamId });
+				await deleteEmployeeFromTasksMutation.mutateAsync(employeeId);
 			} catch (error) {
 				console.error('Error deleting employee from tasks:', error);
 				throw error;

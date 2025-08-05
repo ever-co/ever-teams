@@ -327,8 +327,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw new Error('User not authenticated');
 			}
 			return await timeLogService.deleteTaskTimesheetLogs({
-				organizationId: user.employee?.organizationId || '',
-				tenantId: user.tenantId ?? '',
 				logIds
 			});
 		},

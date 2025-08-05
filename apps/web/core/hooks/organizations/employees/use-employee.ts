@@ -28,7 +28,7 @@ export const useEmployee = () => {
 	// React Query for fetching working employees
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
 		queryKey: queryKeys.users.employees.working(queryParams.tenantId, queryParams.organizationId),
-		queryFn: () => employeeService.getWorkingEmployees(queryParams.tenantId!, queryParams.organizationId!),
+		queryFn: () => employeeService.getWorkingEmployees(),
 		enabled: !!queryParams.tenantId && !!queryParams.organizationId
 	});
 
@@ -42,8 +42,8 @@ export const useEmployee = () => {
 	}, [employeesData, setWorkingEmployees, setWorkingEmployeesEmail]);
 
 	// Legacy function to maintain backward compatibility
-	const getWorkingEmployeeQueryCall = useCallback((tenantId: string, organizationId: string) => {
-		return employeeService.getWorkingEmployees(tenantId, organizationId);
+	const getWorkingEmployeeQueryCall = useCallback(() => {
+		return employeeService.getWorkingEmployees();
 	}, []);
 
 	return {

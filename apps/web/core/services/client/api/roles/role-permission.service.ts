@@ -1,4 +1,3 @@
-import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -22,13 +21,11 @@ class RolePermissionService extends APIService {
 	 */
 	getRolePermission = async (id: string) => {
 		try {
-			const tenantId = getTenantIdCookie();
-
 			const params = {
 				data: JSON.stringify({
 					findInput: {
 						roleId: id,
-						tenantId
+						tenantId: this.tenantId
 					}
 				})
 			};
