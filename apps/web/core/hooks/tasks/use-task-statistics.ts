@@ -49,12 +49,9 @@ export function useTaskStatistics(addSeconds = 0) {
 				return;
 			}
 			statisticsService
-				.tasksTimesheetStatistics(
-					user?.employee?.tenantId,
-					'',
-					user?.employee?.organizationId || '',
+				.tasksTimesheetStatistics({
 					employeeId
-				)
+				})
 				.then(({ data }) => {
 					setStatTasks({
 						all: data.global || [],
@@ -107,12 +104,10 @@ export function useTaskStatistics(addSeconds = 0) {
 			});
 		}
 
-		const promise = statisticsService.activeTaskTimesheetStatistics(
-			user?.employee?.tenantId,
-			activeTeamTask?.id || '',
-			user?.employee?.organizationId || '',
-			user?.employee?.id
-		);
+		const promise = statisticsService.activeTaskTimesheetStatistics({
+			activeTaskId: activeTeamTask?.id || '',
+			employeeId: user?.employee?.id
+		});
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,

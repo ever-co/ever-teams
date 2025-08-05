@@ -1,4 +1,3 @@
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -24,12 +23,9 @@ class CurrencyService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getCurrencies = async (): Promise<PaginationResponse<TCurrencyList>> => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-
 		const obj = {
-			'where[organizationId]': organizationId,
-			'where[tenantId]': tenantId
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId
 		} as Record<string, string>;
 
 		const query = qs.stringify(obj);

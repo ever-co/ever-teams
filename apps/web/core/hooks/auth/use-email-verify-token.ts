@@ -28,10 +28,10 @@ export function useEmailVerifyToken() {
 			if (!verificationParams) {
 				throw new Error('Email and token are required for verification');
 			}
-			return await emailVerificationService.verifyUserEmailByToken(
-				verificationParams.email,
-				verificationParams.token
-			);
+			return await emailVerificationService.verifyUserEmailByToken({
+				email: verificationParams.email,
+				token: verificationParams.token
+			});
 		},
 		enabled: !!verificationParams, // Only run when email and token are available
 		retry: 1, // Only retry once for email verification

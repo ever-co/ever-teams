@@ -169,7 +169,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			}
 		}
 
-		deleteEmployeeFromTasks(employeeId, team.id);
+		deleteEmployeeFromTasks(employeeId);
 		updateOrganizationTeam(team, {
 			memberIds: Array.from(memberIdSet),
 			managerIds: Array.from(managerIdSet)

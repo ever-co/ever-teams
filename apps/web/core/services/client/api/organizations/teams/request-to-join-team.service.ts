@@ -1,4 +1,3 @@
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -30,8 +29,8 @@ class RequestToJoinTeamService extends APIService {
 	 */
 	getRequestToJoin = async (): Promise<TGetRequestToJoinResponse> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
+			const organizationId = this.organizationId;
+			const tenantId = this.tenantId;
 
 			const query = qs.stringify({
 				'where[organizationId]': organizationId,
@@ -139,7 +138,13 @@ class RequestToJoinTeamService extends APIService {
 	 * @param action - Accept/Reject action
 	 * @returns Validated accept/reject response
 	 */
-	acceptRejectRequestToJoin = async (id: string, action: ERequestStatus): Promise<TAcceptRejectResponse> => {
+	acceptRejectRequestToJoin = async ({
+		id,
+		action
+	}: {
+		id: string;
+		action: ERequestStatus;
+	}): Promise<TAcceptRejectResponse> => {
 		try {
 			// Validate input parameters
 			const validatedParams = acceptRejectParamsSchema.parse({ id, action });

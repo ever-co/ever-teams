@@ -4,17 +4,17 @@ import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/comm
 import { ITag, ITagCreate } from '@/core/types/interfaces/tag/tag';
 
 class TaskLabelService extends APIService {
-	createTaskLabels = async (data: ITagCreate, tenantId?: string) => {
+	createTaskLabels = async (data: ITagCreate) => {
 		return this.post<ITag>('/tags', data, {
 			headers: {
-				'Tenant-Id': tenantId
+				'Tenant-Id': this.tenantId
 			}
 		});
 	};
 
-	editTaskLabels = async (id: string, data: ITagCreate, tenantId?: string) => {
-		return this.put<ITag>(`/tags/${id}`, data, {
-			tenantId
+	editTaskLabels = async ({ tagId, data }: { tagId: string; data: ITagCreate }) => {
+		return this.put<ITag>(`/tags/${tagId}`, data, {
+			tenantId: this.tenantId
 		});
 	};
 
@@ -22,10 +22,10 @@ class TaskLabelService extends APIService {
 		return this.delete<DeleteResponse>(`/tags/${id}`);
 	};
 
-	getTaskLabelsList = async (tenantId: string, organizationId: string, organizationTeamId: string | null) => {
-		const endpoint = `/tags/level?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
+	getTaskLabelsList = async () => {
+		const endpoint = `/tags/level?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<ITag>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<ITag>>(endpoint, { tenantId: this.tenantId });
 	};
 }
 

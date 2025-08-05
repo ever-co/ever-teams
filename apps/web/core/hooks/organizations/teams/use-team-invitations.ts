@@ -88,7 +88,7 @@ export function useTeamInvitations() {
 
 		queryFn: async () => {
 			if (!user?.tenantId) return { items: [] };
-			return await inviteService.getMyInvitations(user.tenantId);
+			return await inviteService.getMyInvitations();
 		},
 		enabled: !!user?.tenantId, // Disabled by default, enabled manually via refetch
 		staleTime: 2 * 60 * 1000, // 2 minutes
@@ -121,16 +121,13 @@ export function useTeamInvitations() {
 	// Mutation to invite a user
 	const inviteUserMutation = useMutation({
 		mutationFn: async (params: InviteUserParams) => {
-			return await inviteService.inviteByEmails(
-				{
-					email: params.email,
-					name: params.name,
-					organizationId: params.organizationId,
-					teamId: params.teamId,
-					roleId: params.roleId
-				},
-				params.tenantId
-			);
+			return await inviteService.inviteByEmails({
+				email: params.email,
+				name: params.name,
+				organizationId: params.organizationId,
+				teamId: params.teamId,
+				roleId: params.roleId
+			});
 		},
 		onSuccess: (data) => {
 			// Optimistic update of the cache
@@ -146,13 +143,11 @@ export function useTeamInvitations() {
 		mutationFn: async ({ invitationId, email }: { invitationId: string; email?: string }) => {
 			if (!teamInvitationsParams) throw new Error('Missing parameters');
 
-			const result = await inviteService.removeTeamInvitations(
+			const result = await inviteService.removeTeamInvitations({
 				invitationId,
-				teamInvitationsParams.tenantId,
-				teamInvitationsParams.organizationId,
-				teamInvitationsParams.role,
-				teamInvitationsParams.teamId
-			);
+				role: teamInvitationsParams.role,
+				teamId: teamInvitationsParams.teamId
+			});
 
 			return { result, email };
 		},

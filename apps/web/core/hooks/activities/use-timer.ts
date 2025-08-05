@@ -168,10 +168,10 @@ export function useTimer() {
 	const queryClient = useQueryClient();
 
 	// Queries
-	const { queryCall, loading, loadingRef } = useQueryCall(async (tenantId: string, organizationId: string) =>
+	const { queryCall, loading, loadingRef } = useQueryCall(async () =>
 		queryClient.fetchQuery({
 			queryKey: queryKeys.timer.timer,
-			queryFn: () => timerService.getTimerStatus(tenantId, organizationId)
+			queryFn: () => timerService.getTimerStatus()
 		})
 	);
 
@@ -183,7 +183,7 @@ export function useTimer() {
 
 	const stopTimerMutation = useMutation({
 		mutationFn: async (source: ETimeLogSource) => {
-			return await timerService.stopTimer(source);
+			return await timerService.stopTimer({ source });
 		}
 	});
 
@@ -193,7 +193,7 @@ export function useTimer() {
 
 	const syncTimerMutation = useMutation({
 		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
-			await timerService.syncTimer(data.source, data.user);
+			await timerService.syncTimer({ source: data.source, user: data.user });
 		}
 	});
 
@@ -253,7 +253,7 @@ export function useTimer() {
 			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall(user?.tenantId, user?.employee?.organizationId || '').then((res) => {
+			return queryCall().then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {

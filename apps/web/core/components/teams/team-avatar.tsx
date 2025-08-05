@@ -37,12 +37,7 @@ export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?:
 	const onChangeAvatar = useCallback(
 		async (e: any) => {
 			if (e.target.files && activeTeam && user) {
-				createImageAssets(
-					e.target.files[0],
-					'organization_teams_avatars',
-					user.tenantId as string,
-					user.employee?.organizationId || ''
-				)
+				createImageAssets(e.target.files[0], 'organization_teams_avatars')
 					.then((image) => {
 						updateOrganizationTeam(activeTeam, {
 							...activeTeam,

@@ -1,5 +1,4 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '@/core/services/client/api.service';
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {
@@ -10,11 +9,10 @@ import {
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 
 class EmailVerificationService extends APIService {
-	verifyUserEmailByCode = async (code: string, email: string) => {
-		const tenantId = getTenantIdCookie();
+	verifyUserEmailByCode = async ({ code, email }: { code: string; email: string }) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/code' : `/auth/verify/code`;
 
-		return this.post<ISuccessResponse>(endpoint, { code, tenantId, email });
+		return this.post<ISuccessResponse>(endpoint, { code, tenantId: this.tenantId, email });
 	};
 
 	/**
@@ -25,7 +23,13 @@ class EmailVerificationService extends APIService {
 	 * @returns Promise<TEmailVerificationResponse> - Validated email verification response
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	verifyUserEmailByToken = async (email: string, token: string): Promise<TEmailVerificationResponse> => {
+	verifyUserEmailByToken = async ({
+		email,
+		token
+	}: {
+		email: string;
+		token: string;
+	}): Promise<TEmailVerificationResponse> => {
 		try {
 			// Validate input parameters
 			const validatedRequest = emailVerificationRequestSchema.parse({ email, token });

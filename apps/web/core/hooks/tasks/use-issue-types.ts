@@ -43,7 +43,7 @@ export function useIssueType() {
 			}
 
 			// Clean queryFn - only fetch and return data
-			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId);
+			const res = await issueTypeService.getIssueTypeList();
 			return res.data;
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId, // Only fetch when all required params are available
@@ -70,7 +70,7 @@ export function useIssueType() {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
-			return issueTypeService.createIssueType(requestData, tenantId);
+			return issueTypeService.createIssueType(requestData);
 		},
 		onSuccess: () => {
 			teamId &&
@@ -85,7 +85,7 @@ export function useIssueType() {
 			if (!tenantId || !teamId) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return issueTypeService.editIssueType(id, data, tenantId);
+			return issueTypeService.editIssueType({ issueTypeId: id, data });
 		},
 		onSuccess: () => {
 			teamId &&

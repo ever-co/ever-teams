@@ -43,9 +43,9 @@ export function useTaskSizes() {
 	});
 
 	const updateTaskSizeMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ITaskSizesCreate }) => {
+		mutationFn: ({ taskSizeId, data }: { taskSizeId: string; data: ITaskSizesCreate }) => {
 			const requestData = { ...data, organizationTeamId: teamId };
-			return taskSizeService.editTaskSize(id, requestData);
+			return taskSizeService.editTaskSize({ taskSizeId, data: requestData });
 		},
 		onSuccess: invalidateTaskSizesData
 	});
@@ -75,7 +75,7 @@ export function useTaskSizes() {
 		firstLoadTaskSizesData();
 	}, [firstLoadTaskSizesData, loadTaskSizes]);
 	const editTaskSize = useCallback(
-		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ taskSizeId: id, data }),
 		[updateTaskSizeMutation]
 	);
 	return {

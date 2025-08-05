@@ -41,17 +41,20 @@ export function useDailyPlan() {
 	const getDayPlansByEmployeeQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.byEmployee(user?.employee?.id, activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getDayPlansByEmployee(user?.employee?.id, activeTeam?.id);
+			if (!user?.employee?.id) {
+				throw new Error('Employee ID is required to fetch daily plans');
+			}
+			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId: user?.employee?.id });
 			return res;
 		},
-		enabled: !!user?.employee?.id && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
+		enabled: !!user?.employee?.id,
+		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
 	const getMyDailyPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans(activeTeam?.id);
+			const res = await dailyPlanService.getMyDailyPlans();
 			return res;
 		},
 		enabled: !!activeTeam?.id,
@@ -61,7 +64,7 @@ export function useDailyPlan() {
 	const getAllDayPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans(activeTeam?.id);
+			const res = await dailyPlanService.getAllDayPlans();
 			return res;
 		},
 		enabled: !!activeTeam?.id,
@@ -72,7 +75,7 @@ export function useDailyPlan() {
 		queryClient.fetchQuery({
 			queryKey: queryKeys.dailyPlans.byTask(taskId),
 			queryFn: async () => {
-				const res = await dailyPlanService.getPlansByTask(taskId);
+				const res = await dailyPlanService.getPlansByTask({ taskId });
 				return res;
 			},
 			gcTime: 1000 * 60 * 60

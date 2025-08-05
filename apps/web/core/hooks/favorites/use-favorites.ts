@@ -32,7 +32,7 @@ export const useFavorites = () => {
 	// Query for getting favorites by employee
 	const favoritesQuery = useQuery({
 		queryKey: queryKeys.favorites.byEmployee(employeeId),
-		queryFn: () => favoriteService.getFavoritesByEmployee(employeeId),
+		queryFn: () => favoriteService.getFavoritesByEmployee({ employeeId }),
 		enabled: Boolean(employeeId),
 		staleTime: 30 * 60 * 1000, // 30 minutes
 		gcTime: 60 * 60 * 1000 // 1 hour - favorites are relatively stable, cache for 1 hour
@@ -84,7 +84,7 @@ export const useFavorites = () => {
 		async (employeeId: ID) => {
 			return queryClient.fetchQuery({
 				queryKey: queryKeys.favorites.byEmployee(employeeId),
-				queryFn: () => favoriteService.getFavoritesByEmployee(employeeId)
+				queryFn: () => favoriteService.getFavoritesByEmployee({ employeeId })
 			});
 		},
 		[queryClient]

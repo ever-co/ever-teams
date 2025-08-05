@@ -11,7 +11,12 @@ export const getFallbackAPI = async () => {
 	return await getAPI();
 };
 
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import {
+	getAccessTokenCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@/core/lib/helpers/cookies';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIConfig, desktopServerOverride } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
@@ -88,6 +93,47 @@ export class APIService {
 		this.setupRequestInterceptors();
 		this.setupResponseInterceptors();
 	}
+
+	/**
+	 * Gets the active team ID from cookies
+	 * @returns {string} The active team ID
+	 */
+	protected get activeTeamId(): string {
+		return getActiveTeamIdCookie();
+	}
+
+	/**
+	 * Gets the organization ID from cookies
+	 * @returns {string} The organization ID
+	 */
+	protected get organizationId(): string {
+		return getOrganizationIdCookie();
+	}
+
+	/**
+	 * Gets the tenant ID from cookies
+	 * @returns {string} The tenant ID
+	 */
+	protected get tenantId(): string {
+		return getTenantIdCookie();
+	}
+
+	/**
+	 * Gets all active team-based query parameters
+	 * @returns {object} Object containing organizationTeamId, organizationId, and tenantId
+	 */
+	protected get activeTeamBasedQueries(): {
+		organizationTeamId: string;
+		organizationId: string;
+		tenantId: string;
+	} {
+		return {
+			organizationTeamId: this.activeTeamId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
+		};
+	}
+
 	getConfig() {
 		return this.config;
 	}

@@ -21,14 +21,13 @@ class TaskPriorityService extends APIService {
 	 * Create a new task priority with validation
 	 *
 	 * @param data - Task priority data without ID
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TTaskPriority> - Validated created task priority
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	createTaskPriority = async (data: TTaskPriorityCreate, tenantId?: string): Promise<TTaskPriority> => {
+	createTaskPriority = async (data: TTaskPriorityCreate): Promise<TTaskPriority> => {
 		try {
 			const response = await this.post<TTaskPriority>('/task-priorities', data, {
-				tenantId
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -51,16 +50,15 @@ class TaskPriorityService extends APIService {
 	/**
 	 * Update a task priority with validation
 	 *
-	 * @param id - Task priority ID to update
+	 * @param taskPriorityId - Task priority ID to update
 	 * @param data - Task priority data to update
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TTaskPriority> - Validated updated task priority
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskPriority = async (id: string, data: TTaskPriorityCreate, tenantId?: string): Promise<TTaskPriority> => {
+	editTaskPriority = async ({ taskPriorityId, data }: { taskPriorityId: string; data: TTaskPriorityCreate }) => {
 		try {
-			const response = await this.put<TTaskPriority>(`/task-priorities/${id}`, data, {
-				tenantId
+			const response = await this.put<TTaskPriority>(`/task-priorities/${taskPriorityId}`, data, {
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -83,13 +81,13 @@ class TaskPriorityService extends APIService {
 	/**
 	 * Delete a task priority with validation
 	 *
-	 * @param id - Task priority ID to delete
+	 * @param taskPriorityId - Task priority ID to delete
 	 * @returns Promise<TTaskPriority> - Validated deleted task priority data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteTaskPriority = async (id: string) => {
+	deleteTaskPriority = async (taskPriorityId: string) => {
 		try {
-			return await this.delete<TTaskPriority>(`/task-priorities/${id}`);
+			return await this.delete<TTaskPriority>(`/task-priorities/${taskPriorityId}`);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -108,21 +106,14 @@ class TaskPriorityService extends APIService {
 	/**
 	 * Get task priorities list with validation
 	 *
-	 * @param tenantId - Tenant ID
-	 * @param organizationId - Organization ID
-	 * @param organizationTeamId - Organization team ID (nullable)
 	 * @returns Promise<PaginationResponse<TTaskPriority>> - Validated task priorities data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskPrioritiesList = async (
-		tenantId: string,
-		organizationId: string,
-		organizationTeamId: string | null
-	): Promise<PaginationResponse<TTaskPriority>> => {
+	getTaskPrioritiesList = async (): Promise<PaginationResponse<TTaskPriority>> => {
 		try {
-			const endpoint = `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
+			const endpoint = `/task-priorities?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskPrioritySchema, response.data, 'getTaskPrioritiesList API response');

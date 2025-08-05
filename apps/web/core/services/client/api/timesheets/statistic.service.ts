@@ -1,7 +1,6 @@
 import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
 import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
@@ -18,8 +17,8 @@ class StatisticsService extends APIService {
 	getTimerLogsRequest = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
-				tenantId: params.tenantId,
-				organizationId: params.organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				employeeId: params.employeeId,
 				todayEnd: params.todayEnd.toISOString(),
 				todayStart: params.todayStart.toISOString()
@@ -58,23 +57,18 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string>, tenantId: string) => {
+	getStatisticsForTasks = async (queries: Record<string, string>) => {
 		const query = qs.stringify(queries);
 
 		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
-			tenantId
+			tenantId: this.tenantId
 		});
 	};
 
-	tasksTimesheetStatistics = async (
-		tenantId: string,
-		activeTaskId: string,
-		organizationId: string,
-		employeeId?: string
-	) => {
+	tasksTimesheetStatistics = async ({ activeTaskId, employeeId }: { activeTaskId?: string; employeeId?: string }) => {
 		const api = await getFallbackAPI();
 		try {
-			if (!tenantId || !organizationId) {
+			if (!this.tenantId || !this.organizationId) {
 				throw new Error('TenantId and OrganizationId are required');
 			}
 
@@ -86,8 +80,8 @@ class StatisticsService extends APIService {
 						})
 					: {};
 				const commonParams = {
-					tenantId,
-					organizationId,
+					tenantId: this.tenantId,
+					organizationId: this.organizationId,
 					// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
 					...employeesParams
 				};
@@ -96,14 +90,14 @@ class StatisticsService extends APIService {
 					defaultRange: 'false'
 				};
 
-				const globalData = await this.getStatisticsForTasks(globalParams, tenantId);
+				const globalData = await this.getStatisticsForTasks(globalParams);
 
 				const todayParams = {
 					...commonParams,
 					defaultRange: 'true',
 					unitOfTime: 'day'
 				};
-				const todayData = await this.getStatisticsForTasks(todayParams, tenantId);
+				const todayData = await this.getStatisticsForTasks(todayParams);
 
 				return {
 					data: {
@@ -121,14 +115,15 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	activeTaskTimesheetStatistics = async (
-		tenantId: string,
-		activeTaskId: string,
-		organizationId: string,
-		employeeId?: string
-	) => {
+	activeTaskTimesheetStatistics = async ({
+		activeTaskId,
+		employeeId
+	}: {
+		activeTaskId: string;
+		employeeId?: string;
+	}) => {
 		try {
-			if (!tenantId || !organizationId || !activeTaskId) {
+			if (!this.tenantId || !this.organizationId || !activeTaskId) {
 				throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');
 			}
 
@@ -141,8 +136,8 @@ class StatisticsService extends APIService {
 					: {};
 
 				const commonParams = {
-					tenantId,
-					organizationId,
+					tenantId: this.tenantId,
+					organizationId: this.organizationId,
 					'taskIds[0]': activeTaskId,
 					...employeesParams
 				};
@@ -152,12 +147,12 @@ class StatisticsService extends APIService {
 					defaultRange: 'false'
 				});
 				const globalData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-					tenantId
+					tenantId: this.tenantId
 				});
 
 				const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
 				const todayData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-					tenantId
+					tenantId: this.tenantId
 				});
 
 				return {
@@ -179,12 +174,9 @@ class StatisticsService extends APIService {
 
 	allTaskTimesheetStatistics = async () => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			const tenantId = getTenantIdCookie();
-			const organizationId = getOrganizationIdCookie();
-
 			const params: TTasksTimesheetStatisticsParams = {
-				tenantId,
-				organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				employeeIds: [],
 				defaultRange: 'false'
 			};
@@ -202,7 +194,9 @@ class StatisticsService extends APIService {
 				)
 			});
 
-			return this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+			return this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${queries.toString()}`, {
+				tenantId: this.tenantId
+			});
 		}
 
 		const api = await getFallbackAPI();
@@ -236,8 +230,6 @@ class StatisticsService extends APIService {
 	getTimesheetStatisticsCounts = async ({
 		activityLevel,
 		logType,
-		organizationId,
-		tenantId,
 		startDate,
 		endDate,
 		timeZone = 'Etc/UTC'
@@ -246,7 +238,7 @@ class StatisticsService extends APIService {
 			{
 				activityLevel,
 				logType,
-				organizationId,
+				organizationId: this.organizationId,
 				startDate,
 				endDate,
 				timeZone
@@ -257,7 +249,9 @@ class StatisticsService extends APIService {
 				strictNullHandling: true
 			}
 		);
-		return this.get<ITimesheetCountsStatistics>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
+		return this.get<ITimesheetCountsStatistics>(`/timesheet/statistics/counts?${queryString}`, {
+			tenantId: this.tenantId
+		});
 	};
 }
 

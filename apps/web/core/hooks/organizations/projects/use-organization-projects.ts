@@ -71,17 +71,20 @@ export function useOrganizationProjects() {
 
 	// Mutations
 	const editOrganizationProjectMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: TEditProjectRequest }) =>
-			organizationProjectService.editOrganizationProject(id, data),
+		mutationFn: ({ projectId, data }: { projectId: string; data: TEditProjectRequest }) =>
+			organizationProjectService.editOrganizationProject({ organizationProjectId: projectId, data }),
 		onSuccess: invalidateOrganizationProjectsData
 	});
 
 	const editOrganizationProjectSettingMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: any }) => {
+		mutationFn: ({ projectId, data }: { projectId: string; data: any }) => {
 			if (!tenantId) {
 				throw new Error('Required parameters missing: tenantId. Ensure you have tenantId set in cookies.');
 			}
-			return organizationProjectService.editOrganizationProjectSetting(id, data, tenantId);
+			return organizationProjectService.editOrganizationProjectSetting({
+				organizationProjectId: projectId,
+				data
+			});
 		},
 		onSuccess: invalidateOrganizationProjectsData
 	});
@@ -112,7 +115,7 @@ export function useOrganizationProjects() {
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
 			try {
-				return editOrganizationProjectSettingMutation.mutateAsync({ id, data });
+				return editOrganizationProjectSettingMutation.mutateAsync({ projectId: id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project setting', error);
 			}
@@ -123,7 +126,7 @@ export function useOrganizationProjects() {
 	const editOrganizationProject = useCallback(
 		async (id: string, data: TEditProjectRequest) => {
 			try {
-				return await editOrganizationProjectMutation.mutateAsync({ id, data });
+				return await editOrganizationProjectMutation.mutateAsync({ projectId: id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project', error);
 			}

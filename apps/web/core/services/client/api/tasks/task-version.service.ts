@@ -1,4 +1,4 @@
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+// Removed cookie imports as they are now handled by the base APIService class
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -24,24 +24,6 @@ import {
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskVersionService extends APIService {
-	get organizationId() {
-		return getOrganizationIdCookie();
-	}
-	get tenantId() {
-		return getTenantIdCookie();
-	}
-	get activeTeamId() {
-		return getActiveTeamIdCookie();
-	}
-
-	get activeTeamBasedQueries() {
-		return {
-			organizationTeamId: this.activeTeamId,
-			organizationId: this.organizationId,
-			tenantId: this.tenantId
-		};
-	}
-
 	/**
 	 * Create a new task version with validation
 	 *
@@ -78,16 +60,16 @@ class TaskVersionService extends APIService {
 	/**
 	 * Update a task version with validation
 	 *
-	 * @param id - Task version ID to update
+	 * @param taskVersionId - Task version ID to update
 	 * @param data - Partial task version data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	updateTaskVersion = async (id: string, data: TTaskVersionUpdate) => {
+	updateTaskVersion = async ({ taskVersionId, data }: { taskVersionId: string; data: TTaskVersionUpdate }) => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(taskVersionUpdateSchema, data, 'updateTaskVersion input data');
 
-			const response = await this.put(`/task-versions/${id}`, validatedInput, {
+			const response = await this.put(`/task-versions/${taskVersionId}`, validatedInput, {
 				tenantId: this.tenantId
 			});
 
@@ -111,12 +93,12 @@ class TaskVersionService extends APIService {
 	/**
 	 * Delete a task version with validation
 	 *
-	 * @param id - Task version ID to delete
+	 * @param taskVersionId - Task version ID to delete
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteTaskVersion = async (id: string) => {
+	deleteTaskVersion = async (taskVersionId: string) => {
 		try {
-			const response = await this.delete(`/task-versions/${id}`, { tenantId: this.tenantId });
+			const response = await this.delete(`/task-versions/${taskVersionId}`, { tenantId: this.tenantId });
 
 			// Validate the response data
 			return validateApiResponse(deleteTaskVersionResultSchema, response.data, 'deleteTaskVersion API response');

@@ -110,7 +110,7 @@ export function ConfirmUserModal({
 			e.preventDefault();
 			if (code.length < 6 || !user) return;
 
-			queryCall(code, user.email || '').finally(() => {
+			queryCall({ code, email: user.email || '' }).finally(() => {
 				window.location.reload();
 			});
 		},

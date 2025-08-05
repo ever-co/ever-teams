@@ -41,7 +41,7 @@ export function useTaskLabels() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskLabelService.getTaskLabelsList(tenantId, organizationId, teamId);
+			const res = await taskLabelService.getTaskLabelsList();
 			return res.data;
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId
@@ -58,7 +58,7 @@ export function useTaskLabels() {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
-			return taskLabelService.createTaskLabels(requestData, tenantId);
+			return taskLabelService.createTaskLabels(requestData);
 		},
 		onSuccess: invalidateTaskLabelsData
 	});
@@ -69,7 +69,7 @@ export function useTaskLabels() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return taskLabelService.editTaskLabels(id, data, tenantId);
+			return taskLabelService.editTaskLabels({ tagId: id, data });
 		},
 		onSuccess: invalidateTaskLabelsData
 	});

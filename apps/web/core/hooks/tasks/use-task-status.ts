@@ -37,7 +37,7 @@ export function useTaskStatus() {
 			if (!organizationId || !teamId || !tenantId) {
 				throw new Error('Required parameters missing: organizationId, teamId, and tenantId are required');
 			}
-			return taskStatusService.getTaskStatuses(tenantId, organizationId, teamId);
+			return taskStatusService.getTaskStatuses();
 		},
 		enabled: Boolean(organizationId) && Boolean(teamId) && Boolean(tenantId)
 	});
@@ -49,7 +49,7 @@ export function useTaskStatus() {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
-			return taskStatusService.createTaskStatus(requestData, tenantId);
+			return taskStatusService.createTaskStatus(requestData);
 		},
 		onSuccess: () => {
 			teamId &&
@@ -64,7 +64,7 @@ export function useTaskStatus() {
 			if (!tenantId || !teamId) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return taskStatusService.editTaskStatus(id, data, tenantId);
+			return taskStatusService.editTaskStatus({ taskStatusId: id, data });
 		},
 		onSuccess: () => {
 			teamId &&
@@ -89,7 +89,7 @@ export function useTaskStatus() {
 			if (!tenantId) {
 				throw new Error('Required parameters missing: tenantId is required');
 			}
-			return taskStatusService.editTaskStatusOrder(data, tenantId);
+			return taskStatusService.editTaskStatusOrder(data);
 		},
 		onSuccess: () => {
 			teamId &&

@@ -18,7 +18,8 @@ export function useSettings() {
 
 	// React Query mutation for update user avatar
 	const updateAvatarMutation = useMutation({
-		mutationFn: ({ id, body }: { id: string; body: Partial<TUser> }) => userService.updateUserAvatar(id, body),
+		mutationFn: ({ userId, body }: { userId: string; body: Partial<TUser> }) =>
+			userService.updateUserAvatar({ userId, body }),
 		mutationKey: queryKeys.users.settings.updateAvatar(undefined), // Use undefined for mutation key
 		onSuccess: () => {
 			// Invalidate user queries to ensure UI reflects the updated avatar
@@ -39,7 +40,7 @@ export function useSettings() {
 	// Preserve exact interface - update avatar function
 	const updateAvatar = useCallback(
 		(userData: Partial<TUser> & { id: string }) => {
-			return updateAvatarMutation.mutateAsync({ id: userData.id, body: userData }).then((res) => {
+			return updateAvatarMutation.mutateAsync({ userId: userData.id, body: userData }).then((res) => {
 				// Chain the refresh user call to maintain existing behavior
 				refreshUserMutation.mutateAsync().then((result) => {
 					setUser(result);
