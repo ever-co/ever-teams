@@ -57,11 +57,11 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string>, tenantId: string) => {
+	getStatisticsForTasks = async (queries: Record<string, string>) => {
 		const query = qs.stringify(queries);
 
 		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
-			tenantId
+			tenantId: this.tenantId
 		});
 	};
 
@@ -90,14 +90,14 @@ class StatisticsService extends APIService {
 					defaultRange: 'false'
 				};
 
-				const globalData = await this.getStatisticsForTasks(globalParams, this.tenantId);
+				const globalData = await this.getStatisticsForTasks(globalParams);
 
 				const todayParams = {
 					...commonParams,
 					defaultRange: 'true',
 					unitOfTime: 'day'
 				};
-				const todayData = await this.getStatisticsForTasks(todayParams, this.tenantId);
+				const todayData = await this.getStatisticsForTasks(todayParams);
 
 				return {
 					data: {
