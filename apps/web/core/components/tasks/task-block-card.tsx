@@ -59,7 +59,11 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || task?.id);
 
-	const { h, m, s } = secondsToTime(
+	const {
+		hours: h,
+		minutes: m,
+		seconds: s
+	} = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks

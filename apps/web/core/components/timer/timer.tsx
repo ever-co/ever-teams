@@ -1,4 +1,4 @@
-import { pad } from '@/core/lib/helpers/index';
+import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -63,7 +63,6 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	// Handling Hotkeys
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
-			console.log('h?.shortcut', h?.shortcut);
 			// Start Timer
 			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
 				timerHanlder();
@@ -77,6 +76,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		[timerHanlder, timerStatus]
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
+
+	// Used to display the timer duration in seconds after the timer is stopped
+	const timerDurationInseconds = secondsToTime(timerStatus?.duration || 0);
 
 	return (
 		<div
@@ -98,7 +100,10 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 									: ''
 							} `}
 						>
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+							{timerStatus?.running
+								? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+								: `${pad(timerDurationInseconds.hours)}:${pad(timerDurationInseconds.minutes)}:${pad(timerDurationInseconds.seconds)}`}
+
 							<span className="text-sm">:{pad(ms_p)}</span>
 						</Text.Heading>
 

@@ -36,7 +36,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 		);
 	}
 
-	const { m, h } = secondsToTime((task && task.estimate) || 0);
+	const { minutes: m, hours: h } = secondsToTime((task && task.estimate) || 0);
 	secondsToTime((taskStat && taskStat.duration) || 0);
 	// const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 	return (

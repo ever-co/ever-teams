@@ -170,7 +170,11 @@ export default function Item(props: ItemProps) {
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
 
-	const { h, m, s } = secondsToTime(
+	const {
+		hours: h,
+		minutes: m,
+		seconds: s
+	} = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks

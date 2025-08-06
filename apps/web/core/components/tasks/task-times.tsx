@@ -30,7 +30,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
 
-	const { h, m } = useMemo(
+	const { hours: h, minutes: m } = useMemo(
 		() =>
 			secondsToTime(
 				(currentMember?.totalWorkedTasks &&
@@ -47,7 +47,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 		[currentMember?.totalWorkedTasks, task?.id]
 	);
 
-	const { h: dh, m: dm } = useMemo(
+	const { hours: dh, minutes: dm } = useMemo(
 		() =>
 			secondsToTime(
 				(currentMember?.totalTodayTasks &&
@@ -217,7 +217,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	const t = useTranslations();
 
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id);
-	const { h, m } = secondsToTime(
+	const { hours: h, minutes: m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
 				(previousValue: number, currentValue: ITasksStatistics) =>

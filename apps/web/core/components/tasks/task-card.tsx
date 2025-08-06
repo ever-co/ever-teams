@@ -102,7 +102,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => m.employee?.user?.id === profile?.userProfile?.id);
 
-	const { h, m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
+	const { hours: h, minutes: m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
@@ -118,7 +118,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		[activeAuthTask, h, isAuthUser, m, t]
 	);
 	// Daily work
-	const { h: dh, m: dm } = useMemo(
+	const { hours: dh, minutes: dm } = useMemo(
 		() => secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds),
 		[activeTaskDailyStat?.duration, addSeconds]
 	);

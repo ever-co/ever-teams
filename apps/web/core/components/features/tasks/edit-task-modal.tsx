@@ -40,7 +40,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		dataTimesheet.startedAt && dataTimesheet.stoppedAt
 			? differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt))
 			: 0;
-	const { h: hours, m: minutes } = secondsToTime(seconds);
+	const { hours, minutes } = secondsToTime(seconds);
 
 	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>(initialTimeRange);
 

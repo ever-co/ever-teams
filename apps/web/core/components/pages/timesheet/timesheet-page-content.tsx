@@ -194,7 +194,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 					.reduce((total, current) => total + current, 0)
 			: 0;
 	}, [statusTimesheet]);
-	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+	const { hours: hours, minutes: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
 

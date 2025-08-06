@@ -14,7 +14,7 @@ export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const seconds = useAtomValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
-	const { h, m } = secondsToTime(
+	const { hours: h, minutes: m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
 				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),

@@ -129,7 +129,7 @@ export function UserTeamCard({
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
-		const { h, m } = secondsToTime(
+		const { hours: h, minutes: m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
 					(previousValue: number, currentValue: ITasksStatistics) =>
