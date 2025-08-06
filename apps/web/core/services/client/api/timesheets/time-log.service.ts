@@ -55,7 +55,7 @@ class TimeLogService extends APIService {
 	};
 
 	/**
-	 * Get timer logs daily report with validation
+	 * Get timer logs daily report
 	 *
 	 * @param params - Timer logs daily report request parameters
 	 * @returns Promise<TTimeLogReportDaily[]> - Validated timer logs daily report data
@@ -64,7 +64,7 @@ class TimeLogService extends APIService {
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
 		try {
 			// Format dates using the utility function to avoid same-day API errors
-			const { start, end } = formatStartAndEndDateRange(params.startDate, params.endDate);
+			const { start, end } = formatStartAndEndDateRange(params.startDate || '', params.endDate || '');
 
 			const queryParams = {
 				tenantId: this.tenantId,
@@ -136,7 +136,7 @@ class TimeLogService extends APIService {
 		}
 	};
 
-	getTaskTimesheetLogs = async ({
+	getTimeLogs = async ({
 		startDate,
 		endDate,
 		timeZone,

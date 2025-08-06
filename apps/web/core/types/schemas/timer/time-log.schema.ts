@@ -110,4 +110,4 @@ export const getTimerLogsDailyReportRequestSchema = z.object({
 export type TAddManualTimeRequest = z.infer<typeof addManualTimeRequestSchema>;
 export type TTimeLog = z.infer<typeof timeLogSchema>;
 export type TTimeLogReportDaily = z.infer<typeof timeLogReportDailySchema>;
-export type TGetTimerLogsDailyReportRequest = z.infer<typeof getTimerLogsDailyReportRequestSchema>;
+export type TGetTimerLogsDailyReportRequest = z.infer<typeof timerLogReportRequestSchema>;

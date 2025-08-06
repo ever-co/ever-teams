@@ -312,7 +312,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			if (!timesheetParams) {
 				throw new Error('Timesheet query parameters are required');
 			}
-			const response = await timeLogService.getTaskTimesheetLogs(timesheetParams);
+			const response = await timeLogService.getTimeLogs(timesheetParams);
 			return response.data as unknown as ITimeLog[];
 		},
 		enabled: !!timesheetParams && !!timesheetParams.startDate && !!timesheetParams.endDate,

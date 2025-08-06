@@ -1,6 +1,6 @@
 'use client';
 
-import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
+import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { Fragment, useMemo, useState } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import moment from 'moment';

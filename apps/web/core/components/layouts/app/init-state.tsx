@@ -1,6 +1,6 @@
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 
-import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
+import { useTimeLogs as firstLoadTodayTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { publicState, userState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
@@ -64,7 +64,6 @@ function InitState() {
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
 	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlan();
-	const { firstLoadTimeLogs } = useTimeLogs();
 
 	const { firstLoadDataEmployee } = useEmployee();
 
@@ -91,7 +90,7 @@ function InitState() {
 		firstLoadIssueTypeData();
 		firstLoadTaskRelatedIssueTypeData();
 		firstLoadDailyPlanData();
-		firstLoadTimeLogs();
+		firstLoadTodayTimeLogs();
 		firstLoadDataEmployee();
 		firstLoadRolesData();
 		// --------------
