@@ -17,48 +17,6 @@ export abstract class APIService {
 	protected params: object = {};
 
 	/**
-	 * Gets the active team ID from cookies
-	 * @returns {string} The active team ID
-	 */
-	protected get activeTeamId(): string {
-		// This will be implemented by the web app's APIService extension
-		throw new Error('activeTeamId getter must be implemented by extending class');
-	}
-
-	/**
-	 * Gets the organization ID from cookies
-	 * @returns {string} The organization ID
-	 */
-	protected get organizationId(): string {
-		// This will be implemented by the web app's APIService extension
-		throw new Error('organizationId getter must be implemented by extending class');
-	}
-
-	/**
-	 * Gets the tenant ID from cookies
-	 * @returns {string} The tenant ID
-	 */
-	protected get tenantId(): string {
-		// This will be implemented by the web app's APIService extension
-		throw new Error('tenantId getter must be implemented by extending class');
-	}
-
-	/**
-	 * Gets all active team-based query parameters
-	 * @returns {object} Object containing organizationTeamId, organizationId, and tenantId
-	 */
-	protected get activeTeamBasedQueries(): {
-		organizationTeamId: string;
-		organizationId: string;
-		tenantId: string;
-	} {
-		return {
-			organizationTeamId: this.activeTeamId,
-			organizationId: this.organizationId,
-			tenantId: this.tenantId,
-		};
-	}
-	/**
 	 * Initializes a new instance of the APIService.
 	 *
 	 * @param {string} baseURL - The base URL for all HTTP requests.
