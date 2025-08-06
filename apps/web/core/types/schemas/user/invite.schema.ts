@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { inviteStatusSchema } from '../common/enums.schema';
-import { idSchema } from '../common/base.schema';
+import { uuIdSchema } from '../common/base.schema';
 import { userSchema } from './user.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
 
@@ -28,9 +28,9 @@ export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
 export const inviteAssociationsSchema = z.object({
 	id: z.string().optional().nullable(),
 	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
-	userId: idSchema.optional().nullable(),
+	userId: uuIdSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available
-	roleId: idSchema.optional(),
+	roleId: uuIdSchema.optional(),
 	projects: z.array(z.any()).optional(), // IOrganizationProject[] - schema not created yet
 	teams: z.array(z.any()).optional() // IOrganizationTeam[] - schema not created yet
 });
@@ -38,7 +38,7 @@ export const inviteAssociationsSchema = z.object({
 // Main invite schema (IInvite interface)
 export const inviteSchema = baseInviteSchema.merge(inviteAssociationsSchema).extend({
 	invitedByUser: z.any().optional(), // TUser - will be properly typed when userSchema is available
-	invitedByUserId: idSchema.optional()
+	invitedByUserId: uuIdSchema.optional()
 });
 
 // Invite create schema (IInviteCreate interface)

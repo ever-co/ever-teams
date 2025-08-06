@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema } from '../common/base.schema';
+import { uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { organizationSchema } from './organization.schema';
 
@@ -10,7 +10,7 @@ import { organizationSchema } from './organization.schema';
 // Base user organization schema
 export const baseUserOrganizationSchema = z
 	.object({
-		userId: idSchema.optional(),
+		userId: uuIdSchema.optional(),
 		isDefault: z.boolean()
 	})
 	.merge(basePerTenantAndOrganizationEntityModelSchema)

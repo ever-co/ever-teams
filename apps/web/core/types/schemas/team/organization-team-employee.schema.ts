@@ -3,7 +3,7 @@ import {
 	relationalOrganizationTeamSchema,
 	managerAssignableSchema,
 	relationalEmployeeSchema,
-	idSchema
+	uuIdSchema
 } from '../common/base.schema';
 import { relationalRoleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
@@ -28,8 +28,14 @@ export const baseOrganizationTeamEmployeeSchema = z
 // Organization team employee schema
 export const organizationTeamEmployeeSchema = z
 	.object({
-		id: idSchema.optional().nullable(),
-		activeTaskId: idSchema.optional().nullable(),
+		id: z
+			.lazy(() => uuIdSchema)
+			.optional()
+			.nullable(),
+		activeTaskId: z
+			.lazy(() => uuIdSchema)
+			.optional()
+			.nullable(),
 		activeTask: z.any().optional(), // Will be properly typed when task schema is created
 		isManager: z.boolean().optional(),
 		isActive: z.boolean().optional(),
@@ -84,7 +90,10 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	order: z.number().optional().nullable(),
 	imageId: z.string().optional().nullable(),
-	image: z.object({}).merge(imageAssetSchema).optional().nullable()
+	image: z
+		.lazy(() => imageAssetSchema)
+		.optional()
+		.nullable()
 });
 
 // Organization team employee update schema

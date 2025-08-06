@@ -88,8 +88,6 @@ function WeeklyLimitReport() {
 	// Get Time limits data
 	useEffect(() => {
 		getTimeLimitsReport({
-			organizationId,
-			tenantId,
 			employeeIds: [
 				...(member === 'all' ? (activeTeam?.members?.map((m: any) => m.employeeId) ?? []) : [member])
 			],

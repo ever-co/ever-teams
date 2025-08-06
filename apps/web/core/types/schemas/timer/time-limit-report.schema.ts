@@ -7,8 +7,6 @@ import { employeeSchema } from '../organization/employee.schema';
 
 // Time limit report request parameters schema
 export const getTimeLimitReportSchema = z.object({
-	organizationId: z.string().min(1, 'Organization ID is required'),
-	tenantId: z.string().min(1, 'Tenant ID is required'),
 	startDate: z.coerce.date().optional(),
 	endDate: z.coerce.date().optional(),
 	employeeIds: z.array(z.string()).optional(),

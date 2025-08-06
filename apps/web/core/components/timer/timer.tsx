@@ -78,7 +78,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	// Used to display the timer duration in seconds after the timer is stopped
-	const timerDurationInseconds = secondsToTime(timerStatus?.duration || 0);
+	const timerDurationInseconds = secondsToTime(activeTaskEstimation || 0);
 
 	return (
 		<div

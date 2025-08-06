@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
+import { uuIdSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
@@ -102,7 +102,7 @@ export const organizationTeamUpdateSchema = z.object({
 // Base team properties schema
 export const baseTeamPropertiesSchema = z
 	.object({
-		id: idSchema,
+		id: z.lazy(() => uuIdSchema),
 		name: z.string(),
 		color: z.string().optional().nullable(),
 		emoji: z.string().optional().nullable(),
@@ -121,8 +121,14 @@ export const baseTeamPropertiesSchema = z
 // Team associations schema
 
 export const teamAssociationsSchema = z.object({
-	members: z.array(organizationTeamEmployeeSchema).optional().nullable(),
-	managers: z.array(organizationTeamEmployeeSchema).optional().nullable(),
+	members: z
+		.array(z.lazy(() => organizationTeamEmployeeSchema))
+		.optional()
+		.nullable(),
+	managers: z
+		.array(z.lazy(() => organizationTeamEmployeeSchema))
+		.optional()
+		.nullable(),
 	projects: z.array(baseProjectSchema).optional(),
 	tasks: z.array(z.any()).optional()
 });
@@ -191,7 +197,7 @@ export const organizationTeamCreateResponseSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
 	createdAt: z.coerce.date().optional(),
 	updatedAt: z.coerce.date().optional(),
-	id: idSchema,
+	id: uuIdSchema,
 	taskListType: z.enum(['GRID', 'KANBAN', 'LIST']).optional().nullable(),
 
 	emoji: z.string().optional().nullable(),

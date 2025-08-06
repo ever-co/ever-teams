@@ -2,6 +2,7 @@
 
 import {
 	activeTaskStatisticsState,
+	activeTeamState,
 	activeTeamTaskState,
 	allTaskStatisticsState,
 	tasksFetchingState,
@@ -15,7 +16,6 @@ import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -30,7 +30,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs
 	const initialLoad = useRef(false);
