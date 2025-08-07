@@ -203,7 +203,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	const { activeTeam, activeTeamTask } = useTeamTasks();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
-	const timerDurationInseconds = secondsToTime(timerStatus?.duration || 0);
+	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 
 	return (
 		<div
@@ -216,8 +216,8 @@ export function MinTimerFrame({ className }: IClassName) {
 			<Text className="text-lg tracking-wide font-normal w-[110px]">
 				{timerStatus?.running
 					? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-					: `${pad(timerDurationInseconds.hours)}:${pad(timerDurationInseconds.minutes)}:${pad(
-							timerDurationInseconds.seconds
+					: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(
+							todayLoggedDurationFormated.seconds
 						)}`}
 				<span className="text-sm">:{pad(ms_p)}</span>
 			</Text>
