@@ -3,7 +3,7 @@ export * from './use-report-activity';
 export * from './use-start-stop-timer-handler';
 export * from './use-time-daily-activity';
 export * from './use-time-limits';
-export * from './time-logs/use-time-logs';
+export * from './time-logs/use-time-logs-daily-report';
 export * from './use-time-slots';
 export * from './use-timelog-filter-options';
 export * from './use-timer';

@@ -1,6 +1,5 @@
 'use client';
 
-import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { Fragment, useMemo, useState } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import moment from 'moment';
@@ -8,20 +7,25 @@ import Separator from '@/core/components/common/separator';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
+import { useGetTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-get-time-logs-daily-report';
 
 export function ActivityCalendar() {
 	const t = useTranslations();
-	const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
+	const { data: timeLogsDailyReport = [], isLoading: timerLogsDailyReportLoading } = useGetTimeLogsDailyReport({
+		startDate: moment().year(selectedYear).startOf('year').toDate(),
+		endDate: moment().year(selectedYear).endOf('year').toDate()
+	});
+
 	const filteredData = useMemo(() => {
-		return timerLogsDailyReport
+		return timeLogsDailyReport
 			.filter((item) => new Date(item.date).getFullYear() === selectedYear)
 			.map((el) => ({
 				value: Number((el.sum / 3600).toPrecision(2)),
 				day: String(el.date)
 			}));
-	}, [timerLogsDailyReport, selectedYear]);
+	}, [timeLogsDailyReport, selectedYear]);
 
 	const colorRange = useMemo(
 		() => [

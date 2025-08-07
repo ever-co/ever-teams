@@ -1,6 +1,6 @@
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 
-import { useTimeLogs as firstLoadTodayTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
+import { useTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-time-logs-daily-report';
 import { publicState, userState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
@@ -67,6 +67,9 @@ function InitState() {
 
 	const { firstLoadDataEmployee } = useEmployee();
 
+	// Load time logs for the current year (global state)
+	useTimeLogsDailyReport();
+
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
 
@@ -90,7 +93,6 @@ function InitState() {
 		firstLoadIssueTypeData();
 		firstLoadTaskRelatedIssueTypeData();
 		firstLoadDailyPlanData();
-		firstLoadTodayTimeLogs();
 		firstLoadDataEmployee();
 		firstLoadRolesData();
 		// --------------

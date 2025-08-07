@@ -19,7 +19,8 @@ interface IFilterOption {
 	label: string;
 }
 
-export const timerLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
+export const timeLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
+export const timeLogsDailyReportFetchingState = atom<boolean>(false);
 
 export const timesheetRapportState = atom<ITimeLog[]>([]);
 

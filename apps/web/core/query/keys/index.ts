@@ -535,6 +535,7 @@ export const queryKeys = {
 	},
 
 	timeLog: {
+		all: ['time-log'] as const,
 		today: ['time-log', 'today'] as const,
 		withParams: (params: Record<string, any> | null) =>
 			[
