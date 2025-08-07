@@ -19,13 +19,11 @@ export function ActivityCalendar() {
 	});
 
 	const filteredData = useMemo(() => {
-		return timeLogsDailyReport
-			.filter((item) => new Date(item.date).getFullYear() === selectedYear)
-			.map((el) => ({
-				value: Number((el.sum / 3600).toPrecision(2)),
-				day: String(el.date)
-			}));
-	}, [timeLogsDailyReport, selectedYear]);
+		return timeLogsDailyReport.map((el) => ({
+			value: Number((el.sum / 3600).toPrecision(2)),
+			day: String(el.date)
+		}));
+	}, [timeLogsDailyReport]);
 
 	const colorRange = useMemo(
 		() => [

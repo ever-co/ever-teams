@@ -3,19 +3,16 @@ import { timeLogService } from '@/core/services/client/api';
 import { TGetTimerLogsDailyReportRequest } from '@/core/types/schemas';
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
-import { toast } from 'sonner';
 
 export function useGetTimeLogs(params?: TGetTimerLogsDailyReportRequest) {
 	return useQuery({
 		queryKey: params ? queryKeys.timeLogs.withParams(params) : queryKeys.timeLogs.all,
 		queryFn: async () => {
 			if (!params?.startDate && !params?.endDate && !params?.date) {
-				toast.error('Timer logs parameters (startDate or endDate or date) are required');
 				throw new Error('Timer logs parameters (startDate or endDate or date) are required');
 			}
 
-			if (moment(params.endDate).isBefore(params.startDate)) {
-				toast.error('End date must be after start date');
+			if (moment(params?.endDate).isBefore(params?.startDate)) {
 				throw new Error('End date must be after start date');
 			}
 

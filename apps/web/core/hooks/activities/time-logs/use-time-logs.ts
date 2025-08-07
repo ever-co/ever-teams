@@ -24,9 +24,7 @@ export function useTimeLogs() {
 
 	// Track / sync the fetching state
 	useEffect(() => {
-		if (timeLogs.isLoading) {
-			setTimeLogsLoading(timeLogs.isLoading);
-		}
+		setTimeLogsLoading(timeLogs.isLoading);
 	}, [timeLogs.isLoading, setTimeLogsLoading]);
 
 	// Track / sync the fetched data

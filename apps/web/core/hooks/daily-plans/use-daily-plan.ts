@@ -198,6 +198,11 @@ export function useDailyPlan() {
 			if (getMyDailyPlansQuery.data) {
 				setProfileDailyPlans(getMyDailyPlansQuery.data);
 				if (process.env.NODE_ENV === 'development') {
+					console.log(
+						'[Daily Plans] Profile plans synchronized:',
+						getMyDailyPlansQuery.data.items?.length || 0,
+						'plans'
+					);
 				}
 			}
 		},

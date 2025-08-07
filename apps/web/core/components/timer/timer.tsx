@@ -1,5 +1,5 @@
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
-import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
+import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -105,7 +105,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 								? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 								: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(todayLoggedDurationFormated.seconds)}`}
 
-							<span className="text-sm">:{pad(ms_p)}</span>
+							{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
 						</Text.Heading>
 
 						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
@@ -200,7 +200,8 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer } = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
 	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
@@ -219,7 +220,7 @@ export function MinTimerFrame({ className }: IClassName) {
 					: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(
 							todayLoggedDurationFormated.seconds
 						)}`}
-				<span className="text-sm">:{pad(ms_p)}</span>
+				{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
 			</Text>
 
 			{timerStatus && timerStatus.running && (
