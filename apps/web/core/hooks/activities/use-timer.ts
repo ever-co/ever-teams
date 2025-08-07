@@ -185,6 +185,9 @@ export function useTimer() {
 		mutationFn: async (source: ETimeLogSource) => {
 			return await timerService.stopTimer({ source });
 		}
+		// onSuccess: () => {
+		// 	refetchEmployeeTodayTimeLogs?.();
+		// }
 	});
 
 	const startTimerMutation = useMutation({

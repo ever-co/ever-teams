@@ -13,8 +13,6 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import { TTimeLogReportDaily } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamTaskId } from '../teams/team-tasks';
-import { userState } from '../user';
 
 interface IFilterOption {
 	value: string;
@@ -27,30 +25,6 @@ export const timeLogsDailyReportFetchingState = atom<boolean>(false);
 // Time Logs
 export const timeLogsState = atom<ITimeLog[]>([]);
 export const timeLogsFetchingState = atom<boolean>(false);
-
-/**
- * Derived atoms for active task time logs
- * */
-
-export const activeTaskTimeLogsAtom = atom((get) => {
-	const activeTaskId = get(activeTeamTaskId)?.id;
-	const timeLogs = get(timeLogsState);
-	console.log('activeTaskTimeLogsAtom', activeTaskId);
-	if (!activeTaskId) return [];
-	return timeLogs.filter((log) => log.taskId === activeTaskId);
-});
-
-export const activeEmployeeTaskTimeLogsAtom = atom((get) => {
-	const logs = get(activeTaskTimeLogsAtom);
-	const employeeId = get(userState)?.employee?.id;
-	if (!employeeId) return [];
-	return logs.filter((log) => log.employeeId === employeeId);
-});
-
-export const timeSpentOnActiveTaskByEmployeeAtom = atom((get) => {
-	const logs = get(activeEmployeeTaskTimeLogsAtom);
-	return logs.reduce((acc, log) => acc + log.duration, 0);
-});
 
 export const timesheetRapportState = atom<ITimeLog[]>([]);
 

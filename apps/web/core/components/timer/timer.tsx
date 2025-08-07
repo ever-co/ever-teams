@@ -22,12 +22,10 @@ import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { timeSpentOnActiveTaskByEmployeeAtom } from '@/core/stores/timer/time-logs';
+import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
-
-	const x = useAtomValue(timeSpentOnActiveTaskByEmployeeAtom);
 
 	const {
 		hours,
@@ -43,7 +41,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		startTimer
 	} = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	const { os } = useDetectOS();
@@ -81,11 +81,6 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
-	// Used to display the timer duration in seconds after the timer is stopped
-	const timerDurationInseconds = secondsToTime(activeTaskEstimation || 0);
-
-	console.log('timerDurationInseconds', x);
-
 	return (
 		<div
 			className={clsxm(
@@ -108,7 +103,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						>
 							{timerStatus?.running
 								? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-								: `${pad(timerDurationInseconds.hours)}:${pad(timerDurationInseconds.minutes)}:${pad(timerDurationInseconds.seconds)}`}
+								: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(todayLoggedDurationFormated.seconds)}`}
 
 							<span className="text-sm">:{pad(ms_p)}</span>
 						</Text.Heading>

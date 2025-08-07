@@ -63,24 +63,18 @@ class TimeLogService extends APIService {
 	 */
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
 		try {
-			// Format dates using the utility function to avoid same-day API errors
-			const { start, end } = formatStartAndEndDateRange(params?.startDate || '', params?.endDate || '');
-
 			const queryParams = {
+				'activityLevel[start]': '0',
+				'activityLevel[end]': '100',
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
-				employeeIds: params.employeeIds,
-				todayStart: start,
-				todayEnd: end
+				timeZone: params.timeZone || getDefaultTimezone(),
+				...params
 			};
 
 			const query = qs.stringify(queryParams);
 
-			console.log('FETCHIIING');
-
 			const response = await this.get<TTimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
-
-			console.log('response', response.data);
 
 			// Validate the response data using Zod schema
 			if (Array.isArray(response.data)) {
@@ -184,8 +178,6 @@ class TimeLogService extends APIService {
 		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
 			tenantId: this.tenantId
 		});
-
-		console.log('response', response.data);
 
 		return response.data;
 	};

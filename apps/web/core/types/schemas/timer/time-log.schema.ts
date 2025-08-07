@@ -55,7 +55,7 @@ export const addManualTimeRequestSchema = z.object({
 
 export const timerLogFiltersSchema = z.object({
 	date: z.date().or(z.string()).optional(),
-	startDate: z.date().or(z.string()),
+	startDate: z.date().or(z.string()).optional(),
 	endDate: z.date().or(z.string()),
 	isCustomDate: z.boolean().optional(),
 	employeeIds: z.array(z.string()).optional(),
@@ -92,18 +92,31 @@ export const timerLogReportRequestSchema = z
 	})
 	.merge(timerLogRequestSchema);
 
-// Schema for time log daily report (ITimeLogReportDaily interface)
-export const timeLogReportDailySchema = z.object({
-	activity: z.coerce.number(),
-	date: z.string(),
-	sum: z.coerce.number()
-});
-
 // Schema for get timer logs daily report request parameters
 export const getTimerLogsDailyReportRequestSchema = z.object({
 	employeeIds: z.array(z.string().min(1, 'Employee ID is required')).min(1, 'At least one employee ID is required'),
 	startDate: z.date(),
 	endDate: z.date()
+});
+
+const employeeLogSchema = z.object({
+	employee: employeeSchema,
+	sum: z.number(),
+	tasks: z.array(z.any()),
+	activity: z.number()
+});
+
+export const logSchema = z.object({
+	employeeLogs: z.array(employeeLogSchema),
+	project: z.any().nullable()
+	// Add other fields as needed
+});
+
+export const timeLogReportDailySchema = z.object({
+	date: z.string(),
+	logs: z.array(logSchema),
+	sum: z.number(),
+	activity: z.number()
 });
 
 // Inferred TypeScript types from Zod schemas

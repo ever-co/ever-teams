@@ -9,9 +9,9 @@ export function useGetTimeLogsDailyReport(params?: TGetTimerLogsDailyReportReque
 	return useQuery({
 		queryKey: params ? queryKeys.timeLogs.dailyReport.withParams(params) : queryKeys.timeLogs.all,
 		queryFn: async () => {
-			if (!params?.startDate || !params?.endDate) {
-				toast.error('Timer logs daily report parameters (startDate and endDate) are required');
-				throw new Error('Timer logs daily report parameters (startDate and endDate) are required');
+			if (!params?.startDate && !params?.endDate && !params?.date) {
+				toast.error('Timer logs daily report parameters (startDate or endDate or date) are required');
+				throw new Error('Timer logs daily report parameters (startDate or endDate or date) are required');
 			}
 
 			if (moment(params.endDate).isBefore(params.startDate)) {
