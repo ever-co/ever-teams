@@ -6,13 +6,13 @@ import { useEffect } from 'react';
 
 /**
  * To be used only in the top level component init-state, so we avoid unnecessary re-rendering
- * due to the useEffects
+ * due to side effects
  */
 export function useTimeLogsDailyReport() {
 	const [, setTimeLogsDailyReport] = useAtom(timeLogsDailyReportState);
 	const [, setTimeLogsDailyReportLoading] = useAtom(timeLogsDailyReportFetchingState);
 
-	const todayTimeLogs = useGetTimeLogsDailyReport({
+	const timeLogsDailyReport = useGetTimeLogsDailyReport({
 		/**
 		 * Get all time logs for the current year for global state across the app (it can be changed if needed)
 		 *
@@ -24,15 +24,15 @@ export function useTimeLogsDailyReport() {
 
 	// Track / sync the fetching state
 	useEffect(() => {
-		if (todayTimeLogs.isLoading) {
-			setTimeLogsDailyReportLoading(todayTimeLogs.isLoading);
+		if (timeLogsDailyReport.isLoading) {
+			setTimeLogsDailyReportLoading(timeLogsDailyReport.isLoading);
 		}
-	}, [todayTimeLogs.isLoading, setTimeLogsDailyReportLoading]);
+	}, [timeLogsDailyReport.isLoading, setTimeLogsDailyReportLoading]);
 
 	// Track / sync the fetched data
 	useEffect(() => {
-		if (todayTimeLogs.data) {
-			setTimeLogsDailyReport(todayTimeLogs.data);
+		if (timeLogsDailyReport.data) {
+			setTimeLogsDailyReport(timeLogsDailyReport.data);
 		}
-	}, [todayTimeLogs.data, setTimeLogsDailyReport]);
+	}, [timeLogsDailyReport.data, setTimeLogsDailyReport]);
 }

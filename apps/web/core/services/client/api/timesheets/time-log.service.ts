@@ -148,19 +148,9 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		status = []
-	}: {
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		taskIds?: string[];
-		status?: string[];
-	}) => {
-		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
-			throw new Error(
-				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
-			);
+	}: TGetTimerLogsDailyReportRequest) => {
+		if (!startDate || !endDate) {
+			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
 
 		// Format dates using the utility function
@@ -191,9 +181,13 @@ class TimeLogService extends APIService {
 		addArrayParam('taskIds', taskIds);
 		addArrayParam('status', status);
 
-		return this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
+		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
 			tenantId: this.tenantId
 		});
+
+		console.log('response', response.data);
+
+		return response.data;
 	};
 
 	deleteTaskTimesheetLogs = async ({ logIds }: { logIds: string[] }) => {

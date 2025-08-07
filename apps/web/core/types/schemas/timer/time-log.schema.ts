@@ -54,9 +54,9 @@ export const addManualTimeRequestSchema = z.object({
 });
 
 export const timerLogFiltersSchema = z.object({
-	date: z.date().optional(),
-	startDate: z.date().optional(),
-	endDate: z.date().optional(),
+	date: z.date().or(z.string()).optional(),
+	startDate: z.date().or(z.string()),
+	endDate: z.date().or(z.string()),
 	isCustomDate: z.boolean().optional(),
 	employeeIds: z.array(z.string()).optional(),
 	projectIds: z.array(z.string()).optional(),
@@ -75,7 +75,7 @@ export const timerLogFiltersSchema = z.object({
 	categoryId: z.string().optional(),
 	timeZone: z.string().optional(),
 	timeFormat: z.string().optional(),
-	status: z.nativeEnum(ETimesheetStatus).optional()
+	status: z.array(z.nativeEnum(ETimesheetStatus)).optional()
 });
 
 export const timerLogRequestSchema = z

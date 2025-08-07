@@ -1,17 +1,17 @@
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api';
-import { TGetTimerLogsDailyReportRequest } from '@/core/types/schemas/timer/time-log.schema';
+import { TGetTimerLogsDailyReportRequest } from '@/core/types/schemas';
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import { toast } from 'sonner';
 
-export function useGetTimeLogsDailyReport(params?: TGetTimerLogsDailyReportRequest) {
+export function useGetTimeLogs(params?: TGetTimerLogsDailyReportRequest) {
 	return useQuery({
-		queryKey: params ? queryKeys.timeLogs.dailyReport.withParams(params) : queryKeys.timeLogs.all,
+		queryKey: params ? queryKeys.timeLogs.withParams(params) : queryKeys.timeLogs.all,
 		queryFn: async () => {
 			if (!params?.startDate || !params?.endDate) {
-				toast.error('Timer logs daily report parameters (startDate and endDate) are required');
-				throw new Error('Timer logs daily report parameters (startDate and endDate) are required');
+				toast.error('Timer logs parameters (startDate and endDate) are required');
+				throw new Error('Timer logs parameters (startDate and endDate) are required');
 			}
 
 			if (moment(params.endDate).isBefore(params.startDate)) {
@@ -19,9 +19,7 @@ export function useGetTimeLogsDailyReport(params?: TGetTimerLogsDailyReportReque
 				throw new Error('End date must be after start date');
 			}
 
-			return timeLogService.getTimerLogsDailyReport({
-				...params
-			});
+			return timeLogService.getTimeLogs(params);
 		},
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30 // 30 minutes in cache

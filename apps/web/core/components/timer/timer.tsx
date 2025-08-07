@@ -21,9 +21,13 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { useAtomValue } from 'jotai';
+import { timeSpentOnActiveTaskByEmployeeAtom } from '@/core/stores/timer/time-logs';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
+
+	const x = useAtomValue(timeSpentOnActiveTaskByEmployeeAtom);
 
 	const {
 		hours,
@@ -79,6 +83,8 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 
 	// Used to display the timer duration in seconds after the timer is stopped
 	const timerDurationInseconds = secondsToTime(activeTaskEstimation || 0);
+
+	console.log('timerDurationInseconds', x);
 
 	return (
 		<div

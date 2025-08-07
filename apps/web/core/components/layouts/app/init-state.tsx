@@ -28,6 +28,7 @@ import {
 	useIssueType,
 	useTaskRelatedIssueType
 } from '@/core/hooks/tasks';
+import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 
 export function AppState() {
 	const user = useAtomValue(userState);
@@ -67,8 +68,10 @@ function InitState() {
 
 	const { firstLoadDataEmployee } = useEmployee();
 
-	// Load time logs for the current year (global state)
+	// Load time logs / daily report for the current year (global state)
 	useTimeLogsDailyReport();
+	// Load time logs for the current year (global state)
+	useTimeLogs();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);

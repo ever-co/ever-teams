@@ -48,8 +48,6 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 	const path = usePathname();
 
-	console.log('timeLogsDailyReport', timeLogsDailyReport);
-
 	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);

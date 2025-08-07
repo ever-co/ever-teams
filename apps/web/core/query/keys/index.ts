@@ -534,12 +534,20 @@ export const queryKeys = {
 		liveCollaboration: ['live-collaboration'] as const
 	},
 
-	timeLog: {
-		all: ['time-log'] as const,
-		today: ['time-log', 'today'] as const,
+	timeLogs: {
+		all: ['time-logs'] as const,
+		dailyReport: {
+			withParams: (params: Record<string, any> | null) =>
+				[
+					'time-logs',
+					'daily-report',
+					'with-params',
+					...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+				] as const
+		},
 		withParams: (params: Record<string, any> | null) =>
 			[
-				'time-log',
+				'time-logs',
 				'with-params',
 				...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
 			] as const

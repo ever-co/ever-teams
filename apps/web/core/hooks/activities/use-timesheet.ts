@@ -293,7 +293,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		projectIds?: string[] | undefined;
 		employeeIds?: string[] | undefined;
 		taskIds?: string[] | undefined;
-		status?: string[] | undefined;
+		status?: ETimesheetStatus[] | undefined;
 	} | null>(null);
 
 	// React Query for timesheet logs
@@ -313,7 +313,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw new Error('Timesheet query parameters are required');
 			}
 			const response = await timeLogService.getTimeLogs(timesheetParams);
-			return response.data as unknown as ITimeLog[];
+			return response as unknown as ITimeLog[];
 		},
 		enabled: !!timesheetParams && !!timesheetParams.startDate && !!timesheetParams.endDate,
 		staleTime: 1000 * 60 * 3, // 3 minutes - timesheet data changes moderately
@@ -414,7 +414,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			employeeIds: memoizedFilterIds.employeeIds,
 			projectIds: memoizedFilterIds.projectIds,
 			taskIds: memoizedFilterIds.taskIds,
-			status: memoizedFilterIds.status
+			status: memoizedFilterIds.status as ETimesheetStatus[]
 		};
 
 		// Deep comparison to prevent unnecessary updates and infinite API calls
@@ -525,7 +525,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					employeeIds: memoizedFilterIds.employeeIds,
 					projectIds: memoizedFilterIds.projectIds,
 					taskIds: memoizedFilterIds.taskIds,
-					status: memoizedFilterIds.status
+					status: memoizedFilterIds.status as ETimesheetStatus[]
 				};
 
 				// React Query will automatically refetch when queryKey changes (no manual refetch needed)
