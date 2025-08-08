@@ -51,7 +51,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 
 	useEffect(() => {
 		if (memberTask) {
-			const { m, h } = secondsToTime(memberTask.estimate || 0);
+			const { minutes: m, hours: h } = secondsToTime(memberTask.estimate || 0);
 			setFormValues((d) => {
 				return {
 					...d,
@@ -122,7 +122,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(memberTask.estimate || 0);
+		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime(memberTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			setEstimateEditMode(false);

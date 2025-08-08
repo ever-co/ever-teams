@@ -79,7 +79,7 @@ export function TaskEstimateInput({ memberInfo, edition, plan }: Omit<Props, 'cl
 	};
 	edition.estimateEditIgnoreElement.onOutsideClick(closeFn);
 
-	const { h, m } = secondsToTime(task?.estimate || 0);
+	const { hours: h, minutes: m } = secondsToTime(task?.estimate || 0);
 
 	return (
 		<>

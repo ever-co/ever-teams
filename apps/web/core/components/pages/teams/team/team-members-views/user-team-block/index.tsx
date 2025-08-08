@@ -51,7 +51,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
-	const { h, m } = secondsToTime(
+	const { hours: h, minutes: m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
 				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),

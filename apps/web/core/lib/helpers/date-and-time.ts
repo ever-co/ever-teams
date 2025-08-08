@@ -52,9 +52,9 @@ export function secondsToTime(secs: number) {
 	const seconds = Math.ceil(divisor_for_seconds);
 
 	return {
-		h: hours,
-		m: minutes,
-		s: seconds
+		hours: hours,
+		minutes: minutes,
+		seconds: seconds
 	};
 }
 

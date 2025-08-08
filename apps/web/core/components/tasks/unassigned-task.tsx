@@ -36,9 +36,8 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 		);
 	}
 
-	const { m, h } = secondsToTime((task && task.estimate) || 0);
+	const { minutes: m, hours: h } = secondsToTime((task && task.estimate) || 0);
 	secondsToTime((taskStat && taskStat.duration) || 0);
-	// const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 	return (
 		<div
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${

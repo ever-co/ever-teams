@@ -532,5 +532,24 @@ export const queryKeys = {
 
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
+	},
+
+	timeLogs: {
+		all: ['time-logs'] as const,
+		dailyReport: {
+			withParams: (params: Record<string, any> | null) =>
+				[
+					'time-logs',
+					'daily-report',
+					'with-params',
+					...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+				] as const
+		},
+		withParams: (params: Record<string, any> | null) =>
+			[
+				'time-logs',
+				'with-params',
+				...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+			] as const
 	}
 };

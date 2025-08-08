@@ -282,9 +282,9 @@ export function TaskInput(props: Props) {
 				// Only close if it's not a dropdown interaction and we're not creating a new task
 				if (!isDropdownClick && !datas.isCreatingTask && taskName == inputTaskTitle) {
 					setEditMode(false);
-					setActiveTask({
-						id: ''
-					});
+					// setActiveTask({
+					// 	id: ''
+					// });
 				}
 			}
 		};

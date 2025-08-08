@@ -49,7 +49,7 @@ const TaskProgress = () => {
 		const totalOnTaskInSeconds: number =
 			currentUser?.totalWorkedTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
 		setUserTotalTime({ hours: h, minutes: m });
 	}, [currentUser?.totalWorkedTasks, task?.id]);
@@ -62,7 +62,7 @@ const TaskProgress = () => {
 		const totalOnTaskInSeconds: number =
 			currentUser?.totalTodayTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
 		setUserTotalTimeToday({ hours: h, minutes: m });
 	}, [currentUser?.totalTodayTasks, task?.id]);
@@ -90,7 +90,7 @@ const TaskProgress = () => {
 			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined ? 0 : usersTotalTimeInSeconds;
 
 		const timeObj = secondsToTime(usersTotalTime);
-		const { h: hoursTotal, m: minutesTotal } = timeObj;
+		const { hours: hoursTotal, minutes: minutesTotal } = timeObj;
 		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
 
 		const remainingTime: number =
@@ -101,7 +101,7 @@ const TaskProgress = () => {
 				? 0
 				: task?.estimate - usersTotalTimeInSeconds;
 
-		const { h, m } = secondsToTime(remainingTime);
+		const { hours: h, minutes: m } = secondsToTime(remainingTime);
 		setTimeRemaining({ hours: h, minutes: m });
 		if (remainingTime <= 0) {
 			setTimeRemaining({ hours: 0, minutes: 0 });
@@ -197,7 +197,7 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 			{matchingMembers?.slice(0, numMembersToShow)?.map((member) => {
 				const taskDurationInSeconds = findUserTotalWorked(member, task?.id);
 
-				const { h, m } = secondsToTime(taskDurationInSeconds);
+				const { hours: h, minutes: m } = secondsToTime(taskDurationInSeconds);
 
 				const time = `${h}h : ${m}m`;
 

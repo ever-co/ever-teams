@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { baseEntitySchema, idSchema } from '../common/base.schema';
+import { baseEntitySchema, uuIdSchema } from '../common/base.schema';
 import { tagSchema } from '../tag/tag.schema';
 import { employeeSchema } from '../organization/employee.schema';
 import { taskStatusNameSchema } from '../common/enums.schema';
@@ -10,8 +10,8 @@ import { organizationTeamSchema } from '../team/organization-team.schema';
 import { EIssueType } from '../../generics/enums/task';
 
 export const basePerTenantAndOrganizationEntitySchema = baseEntitySchema.extend({
-	tenantId: idSchema.optional(),
-	organizationId: idSchema.optional()
+	tenantId: uuIdSchema.optional(),
+	organizationId: uuIdSchema.optional()
 });
 
 // schema for ITaskSize
@@ -46,7 +46,7 @@ export const issueTypeEntitySchema = basePerTenantAndOrganizationEntitySchema.ex
 	isSystem: z.boolean().optional(),
 	imageId: z.string().nullable().optional(),
 	projectId: z.string().nullable().optional(),
-	organizationTeamId: idSchema.optional(),
+	organizationTeamId: uuIdSchema.optional(),
 	image: z.string().nullable().optional(),
 	fullIconUrl: z.string().optional(),
 	template: z.string().optional()

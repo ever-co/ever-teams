@@ -185,6 +185,9 @@ export function useTimer() {
 		mutationFn: async (source: ETimeLogSource) => {
 			return await timerService.stopTimer({ source });
 		}
+		// onSuccess: () => {
+		// 	refetchEmployeeTodayTimeLogs?.();
+		// }
 	});
 
 	const startTimerMutation = useMutation({
@@ -480,7 +483,7 @@ export function useLiveTimerStatus() {
 	const seconds = useAtomValue(timerSecondsState);
 
 	const timerStatus = useAtomValue(timerStatusState);
-	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+	const { hours: h, minutes: m } = secondsToTime((timerStatus?.duration || 0) + seconds);
 
 	return {
 		time: { h, m },

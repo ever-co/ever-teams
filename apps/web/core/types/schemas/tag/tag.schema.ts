@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { relationalOrganizationTeamSchema, idSchema } from '../common/base.schema';
+import { relationalOrganizationTeamSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 
 /**
@@ -28,7 +28,7 @@ export const tagSchema = z
 		icon: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
 		isSystem: z.boolean().optional(),
-		tagTypeId: idSchema.optional().nullable(),
+		tagTypeId: uuIdSchema.optional().nullable(),
 		tagTypeName: z.string().optional().nullable(),
 		fix_relational_custom_fields: z.any().optional().nullable(),
 		customFields: z.any().optional().nullable(),

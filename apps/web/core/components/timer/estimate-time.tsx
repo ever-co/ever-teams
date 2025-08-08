@@ -15,7 +15,7 @@ export function EstimateTime() {
 	const editMode = useRef(false);
 	const t = useTranslations();
 	useEffect(() => {
-		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
+		const { hours: h, minutes: m } = secondsToTime(activeTeamTask?.estimate || 0);
 		setValue({
 			hours: h.toString(),
 			minutes: pad(m).toString()
@@ -103,7 +103,7 @@ export function EstimateTime() {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(activeTeamTask.estimate || 0);
+		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime(activeTeamTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			return;

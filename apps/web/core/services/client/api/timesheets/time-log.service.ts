@@ -55,7 +55,7 @@ class TimeLogService extends APIService {
 	};
 
 	/**
-	 * Get timer logs daily report with validation
+	 * Get timer logs daily report
 	 *
 	 * @param params - Timer logs daily report request parameters
 	 * @returns Promise<TTimeLogReportDaily[]> - Validated timer logs daily report data
@@ -63,15 +63,13 @@ class TimeLogService extends APIService {
 	 */
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
 		try {
-			// Format dates using the utility function to avoid same-day API errors
-			const { start, end } = formatStartAndEndDateRange(params.startDate, params.endDate);
-
 			const queryParams = {
+				'activityLevel[start]': '0',
+				'activityLevel[end]': '100',
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
-				employeeIds: params.employeeIds,
-				todayStart: start,
-				todayEnd: end
+				timeZone: params.timeZone || getDefaultTimezone(),
+				...params
 			};
 
 			const query = qs.stringify(queryParams);
@@ -136,7 +134,7 @@ class TimeLogService extends APIService {
 		}
 	};
 
-	getTaskTimesheetLogs = async ({
+	getTimeLogs = async ({
 		startDate,
 		endDate,
 		timeZone,
@@ -144,19 +142,9 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		status = []
-	}: {
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		taskIds?: string[];
-		status?: string[];
-	}) => {
-		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
-			throw new Error(
-				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
-			);
+	}: TGetTimerLogsDailyReportRequest) => {
+		if (!startDate || !endDate) {
+			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
 
 		// Format dates using the utility function
@@ -187,9 +175,11 @@ class TimeLogService extends APIService {
 		addArrayParam('taskIds', taskIds);
 		addArrayParam('status', status);
 
-		return this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
+		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
 			tenantId: this.tenantId
 		});
+
+		return response.data;
 	};
 
 	deleteTaskTimesheetLogs = async ({ logIds }: { logIds: string[] }) => {

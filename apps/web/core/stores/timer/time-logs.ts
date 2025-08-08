@@ -18,8 +18,13 @@ interface IFilterOption {
 	value: string;
 	label: string;
 }
+// Time Logs daily report
+export const timeLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
+export const timeLogsDailyReportFetchingState = atom<boolean>(false);
 
-export const timerLogsDailyReportState = atom<TTimeLogReportDaily[]>([]);
+// Time Logs
+export const timeLogsState = atom<ITimeLog[]>([]);
+export const timeLogsFetchingState = atom<boolean>(false);
 
 export const timesheetRapportState = atom<ITimeLog[]>([]);
 
