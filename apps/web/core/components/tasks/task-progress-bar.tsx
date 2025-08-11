@@ -22,7 +22,7 @@ export function TaskProgressBar({
 	radial?: boolean;
 }) {
 	const seconds = useAtomValue(timerSecondsState);
-	const { getTaskCompletionPercentage: getEstimation /*, addSeconds*/ } = useTaskStatistics(
+	const { getTaskCompletionPercentage /*, addSeconds*/ } = useTaskStatistics(
 		isAuthUser && activeAuthTask ? seconds : 0
 	);
 
@@ -39,7 +39,7 @@ export function TaskProgressBar({
 		}
 	});
 
-	const progress = getEstimation(
+	const progress = getTaskCompletionPercentage(
 		null,
 		task,
 		/*addSeconds || */ totalWorkedTasksTimer || 1,
