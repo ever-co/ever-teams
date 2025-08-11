@@ -29,7 +29,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const { data: user } = useUserQuery();
-	const { getEstimation } = useTaskStatistics(0);
+	const { getTaskCompletionPercentage: getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 

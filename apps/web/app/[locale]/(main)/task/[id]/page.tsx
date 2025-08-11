@@ -30,7 +30,7 @@ const TaskDetails = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const detailedTask = useAtomValue(detailedTaskState);
-	const { getTaskById, getTasksByIdLoading } = useTeamTasks();
+	const { getTaskById, getTasksByIdLoading, activeTeamTask } = useTeamTasks();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task
@@ -45,6 +45,8 @@ const TaskDetails = () => {
 			href: `/task/${id}`
 		}
 	];
+
+	console.log('totalworkedtime', activeTeamTask, activeTeamTask?.totalWorkedTime);
 
 	useEffect(() => {
 		if (

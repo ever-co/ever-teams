@@ -172,16 +172,16 @@ export function useTaskStatistics(addSeconds = 0) {
 	}, [firstLoad, activeTeamTask?.id, setStatActiveTask]);
 
 	/**
-	 * Get task estimation in
+	 * Get task completion percentage
 	 *
 	 * @param timeSheet
-	 * @param _task
+	 * @param task
 	 * @param addSeconds
 	 * @returns
 	 */
-	const getEstimation = useCallback(
-		(timeSheet: Nullable<TTaskStatistic>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
-			const totalEstimate = estimate || _task?.estimate || 0;
+	const getTaskCompletionPercentage = useCallback(
+		(timeSheet: Nullable<TTaskStatistic>, task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
+			const totalEstimate = estimate || task?.estimate || 0;
 
 			// Return 0 (neutral state) when there's no estimation data
 			if (totalEstimate === 0) {
@@ -189,7 +189,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			}
 
 			return Math.min(
-				Math.floor((((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) / totalEstimate),
+				Math.floor((((task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) / totalEstimate),
 				100
 			);
 		},
@@ -198,7 +198,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const activeTaskEstimation = useMemo(() => {
 		let totalWorkedTasksTimer = 0;
-		activeTeam?.members?.forEach((member: any) => {
+		activeTeam?.members?.forEach((member) => {
 			const totalWorkedTasks =
 				member?.totalWorkedTasks?.find((item: TTask) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
@@ -206,11 +206,13 @@ export function useTaskStatistics(addSeconds = 0) {
 			}
 		});
 
-		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0);
-	}, [activeTeam, activeTeamTask, getEstimation]);
+		return getTaskCompletionPercentage(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0);
+	}, [activeTeam, activeTeamTask, getTaskCompletionPercentage]);
 
 	const activeTaskDailyEstimation =
-		activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.today, activeTeamTask, addSeconds) : 0;
+		activeTeamTask && activeTeamTask.estimate
+			? getTaskCompletionPercentage(statActiveTask.today, activeTeamTask, addSeconds)
+			: 0;
 
 	return {
 		firstLoadtasksStatisticsData,
@@ -223,7 +225,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTaskDailyEstimation,
 		activeTeamTask,
 		addSeconds,
-		getEstimation,
+		getTaskCompletionPercentage,
 		allTaskStatistics
 	};
 }

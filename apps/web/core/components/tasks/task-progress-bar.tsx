@@ -22,7 +22,9 @@ export function TaskProgressBar({
 	radial?: boolean;
 }) {
 	const seconds = useAtomValue(timerSecondsState);
-	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
+	const { getTaskCompletionPercentage: getEstimation /*, addSeconds*/ } = useTaskStatistics(
+		isAuthUser && activeAuthTask ? seconds : 0
+	);
 
 	const activeTeam = useAtomValue(activeTeamState);
 	//removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
