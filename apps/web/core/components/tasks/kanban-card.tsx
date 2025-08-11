@@ -141,7 +141,7 @@ export default function Item(props: ItemProps) {
 	const { item, isDragging, provided, style } = props;
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { getEstimation } = useTaskStatistics(0);
+	const { getTaskCompletionPercentage: getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const { activeTeamTask } = useTeamTasks();
 	const { timerStatus } = useTimerView();

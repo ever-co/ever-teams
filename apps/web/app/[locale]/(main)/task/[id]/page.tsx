@@ -26,7 +26,7 @@ const TaskDetails = () => {
 	const router = useRouter();
 	const params = useParams();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { getTaskById, detailedTask, getTasksByIdLoading } = useTeamTasks();
+	const { getTaskById, detailedTask, getTasksByIdLoading, activeTeamTask } = useTeamTasks();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task
@@ -41,6 +41,8 @@ const TaskDetails = () => {
 			href: `/task/${id}`
 		}
 	];
+
+	console.log('totalworkedtime', activeTeamTask, activeTeamTask?.totalWorkedTime);
 
 	useEffect(() => {
 		if (
