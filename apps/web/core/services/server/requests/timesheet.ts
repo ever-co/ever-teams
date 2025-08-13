@@ -16,24 +16,13 @@ export type TTasksTimesheetStatisticsParams = {
 	organizationId: string;
 	startDate?: string;
 	endDate?: string;
-	employeeIds: string[];
+	employeeIds?: string[];
 	defaultRange?: string;
-	'taskIds[0]'?: string;
+	taskIds?: string[];
 	unitOfTime?: 'day';
 };
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
-	const { employeeIds, ...rest } = params;
-
-	const queries = qs.stringify({
-		...rest,
-		...employeeIds.reduce(
-			(acc, v, i) => {
-				acc[`employeeIds[${i}]`] = v;
-				return acc;
-			},
-			{} as Record<string, any>
-		)
-	});
+	const queries = qs.stringify(params, { arrayFormat: 'indices' });
 
 	return serverFetch<ITasksStatistics[]>({
 		path: `/timesheet/statistics/tasks?${queries}`,
@@ -47,7 +36,7 @@ export type TTaskActivityParams = {
 	tenantId: string;
 	organizationId: string;
 	defaultRange?: string;
-	'taskIds[0]'?: string;
+	taskIds?: string[];
 	unitOfTime?: 'day';
 };
 

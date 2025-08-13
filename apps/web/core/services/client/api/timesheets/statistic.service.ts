@@ -9,12 +9,12 @@ import {
 	validateApiResponse,
 	timerSlotDataRequestSchema,
 	ZodValidationError,
-	TGetTimerLogsRequest,
+	TGetTimeSlotsStatisticsRequest,
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 
 class StatisticsService extends APIService {
-	getTimeLogs = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
+	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
 				tenantId: this.tenantId,
@@ -23,7 +23,7 @@ class StatisticsService extends APIService {
 				todayEnd: params.todayEnd.toISOString(),
 				todayStart: params.todayStart.toISOString(),
 				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
-			} as Record<string, string | string[] | number>;
+			} satisfies Record<string, string | string[] | number>;
 
 			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
@@ -39,11 +39,11 @@ class StatisticsService extends APIService {
 			return validateApiResponse(
 				timerSlotDataRequestSchema.array(),
 				responseData,
-				'getTimerLogsRequest API response'
+				'getTimeSlotsStatistics API response'
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				this.logger.error('Timer logs request validation failed:', {
+				this.logger.error('Time slots statistics request validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
@@ -52,15 +52,15 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string>) => {
-		const query = qs.stringify(queries);
+	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
+		const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
 		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
 			tenantId: this.tenantId
 		});
 	};
 
-	tasksTimesheetStatistics = async ({ activeTaskId, employeeId }: { activeTaskId?: string; employeeId?: string }) => {
+	tasksTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
 		const api = await getFallbackAPI();
 		try {
 			if (!this.tenantId || !this.organizationId) {
@@ -68,17 +68,10 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const employeesParams = employeeId
-					? [employeeId].reduce((acc: any, v, i) => {
-							acc[`employeeIds[${i}]`] = v;
-							return acc;
-						})
-					: {};
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
-					...employeesParams
+					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 				const globalParams = {
 					...commonParams,
@@ -123,18 +116,11 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const employeesParams = employeeId
-					? [employeeId].reduce((acc: any, v, i) => {
-							acc[`employeeIds[${i}]`] = v;
-							return acc;
-						}, {})
-					: {};
-
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					'taskIds[0]': activeTaskId,
-					...employeesParams
+					taskIds: [activeTaskId],
+					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 
 				const globalParams = {
@@ -177,22 +163,7 @@ class StatisticsService extends APIService {
 				defaultRange: 'false'
 			};
 
-			const { employeeIds, ...rest } = params;
-
-			const queries = qs.stringify({
-				...rest,
-				...employeeIds.reduce(
-					(acc, v, i) => {
-						acc[`employeeIds[${i}]`] = v;
-						return acc;
-					},
-					{} as Record<string, any>
-				)
-			});
-
-			return this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${queries.toString()}`, {
-				tenantId: this.tenantId
-			});
+			return this.getStatisticsForTasks(params);
 		}
 
 		const api = await getFallbackAPI();
