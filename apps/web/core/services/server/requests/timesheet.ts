@@ -1,6 +1,6 @@
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	ITimesheet,
@@ -24,7 +24,7 @@ export type TTasksTimesheetStatisticsParams = {
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
 	const queries = qs.stringify(params, { arrayFormat: 'indices' });
 
-	return serverFetch<ITasksStatistics[]>({
+	return serverFetch<TTaskStatistics[]>({
 		path: `/timesheet/statistics/tasks?${queries}`,
 		method: 'POST',
 		bearer_token,
@@ -43,7 +43,7 @@ export type TTaskActivityParams = {
 export function taskActivityRequest(params: TTaskActivityParams, bearer_token: string) {
 	const queries = qs.stringify(params);
 
-	return serverFetch<ITasksStatistics[]>({
+	return serverFetch<TTaskStatistics[]>({
 		path: `/timesheet/activity?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,

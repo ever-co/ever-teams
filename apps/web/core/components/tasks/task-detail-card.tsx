@@ -1,6 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 import { ProgressBar } from '@/core/components/common/progress-bar';
@@ -9,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -20,7 +20,7 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 	const timerReconds = useAtomValue(timerSecondsState);
 	const t = useTranslations();
 
-	let taskStat: ITasksStatistics | null | undefined = null;
+	let taskStat: TTaskStatistic | null | undefined = null;
 
 	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
 

@@ -176,7 +176,7 @@ export const taskSchema = baseTaskPropertiesSchema
 		estimateMinutes: z.number().optional()
 	});
 
-// schema for ITasksStatistics
+// schema for TTaskStatistics
 export const taskStatisticsSchema = taskSchema.extend({
 	duration: z.number().optional(),
 	durationPercentage: z.number().optional()
