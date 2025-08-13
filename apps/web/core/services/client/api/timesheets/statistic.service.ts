@@ -2,7 +2,6 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import {
@@ -12,6 +11,7 @@ import {
 	TGetTimeSlotsStatisticsRequest,
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
+import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
 
 class StatisticsService extends APIService {
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
@@ -53,11 +53,23 @@ class StatisticsService extends APIService {
 	};
 
 	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
-		const query = qs.stringify(queries, { arrayFormat: 'indices' });
+		try {
+			const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
-		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
-			tenantId: this.tenantId
-		});
+			const reponse = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
+				tenantId: this.tenantId
+			});
+
+			return validateApiResponse(taskStatisticsSchema, reponse.data, 'getStatisticsForTasks API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Tasks statistics validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
 	};
 
 	tasksTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
@@ -89,12 +101,12 @@ class StatisticsService extends APIService {
 
 				return {
 					data: {
-						global: globalData.data,
-						today: todayData.data
+						global: globalData,
+						today: todayData
 					}
 				};
 			} else {
-				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
+				return api.get<{ global: TTaskStatistics; today: TTaskStatistics }>(
 					`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
 				);
 			}
@@ -139,13 +151,13 @@ class StatisticsService extends APIService {
 
 				return {
 					data: {
-						global: globalData.data,
-						today: todayData.data
+						global: globalData,
+						today: todayData
 					}
 				};
 			} else {
 				const api = await getFallbackAPI();
-				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
+				return api.get<{ global: TTaskStatistics; today: TTaskStatistics }>(
 					`/timer/timesheet/statistics-tasks?activeTask=true`
 				);
 			}
@@ -167,7 +179,7 @@ class StatisticsService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.get<ITasksStatistics[]>(`/timer/timesheet/all-statistics-tasks`);
+		return api.get<TTaskStatistics>(`/timer/timesheet/all-statistics-tasks`);
 	};
 
 	/**

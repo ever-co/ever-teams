@@ -2,13 +2,13 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -19,7 +19,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
 	const timerReconds = useAtomValue(timerSecondsState);
 	const t = useTranslations();
-	let taskStat: ITasksStatistics | null | undefined = null;
+	let taskStat: TTaskStatistic | null | undefined = null;
 
 	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
 
