@@ -53,7 +53,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 			if (!queryParams) {
 				throw new Error('Time slots parameters are required');
 			}
-			const response = await statisticsService.getTimerLogsRequest(queryParams);
+			const response = await statisticsService.getTimeLogs(queryParams);
 			return response;
 		},
 		enabled: !!(queryParams && isAuthorized),

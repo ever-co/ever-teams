@@ -14,23 +14,18 @@ import {
 } from '@/core/types/schemas';
 
 class StatisticsService extends APIService {
-	getTimerLogsRequest = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
+	getTimeLogs = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
 				employeeId: params.employeeId,
 				todayEnd: params.todayEnd.toISOString(),
-				todayStart: params.todayStart.toISOString()
-			} as Record<string, string>;
+				todayStart: params.todayStart.toISOString(),
+				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
+			} as Record<string, string | string[] | number>;
 
-			const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
-
-			relations.forEach((rl, i) => {
-				queryParams[`relations[${i}]`] = rl;
-			});
-
-			const query = qs.stringify(queryParams);
+			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/timesheet/statistics/time-slots?${query}`
@@ -142,18 +137,19 @@ class StatisticsService extends APIService {
 					...employeesParams
 				};
 
-				const globalQueries = qs.stringify({
+				const globalParams = {
 					...commonParams,
 					defaultRange: 'false'
-				});
-				const globalData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-					tenantId: this.tenantId
-				});
+				};
 
-				const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-				const todayData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-					tenantId: this.tenantId
-				});
+				const globalData = await this.getStatisticsForTasks(globalParams);
+
+				const todayParams = {
+					...commonParams,
+					defaultRange: 'true',
+					unitOfTime: 'day'
+				};
+				const todayData = await this.getStatisticsForTasks(todayParams);
 
 				return {
 					data: {
