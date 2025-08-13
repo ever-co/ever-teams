@@ -56,11 +56,11 @@ class StatisticsService extends APIService {
 		try {
 			const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
-			const reponse = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
+			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
 				tenantId: this.tenantId
 			});
 
-			return validateApiResponse(taskStatisticsSchema, reponse.data, 'getStatisticsForTasks API response');
+			return validateApiResponse(taskStatisticsSchema, response.data, 'getStatisticsForTasks API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error('Tasks statistics validation failed:', {
