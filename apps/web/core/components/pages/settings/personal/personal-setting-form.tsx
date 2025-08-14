@@ -1,18 +1,7 @@
-import { useLanguage, useSettings } from '@/core/hooks';
-import { userState } from '@/core/stores';
 import { Button, Text, ThemeToggler } from '@/core/components';
-import { useTheme } from 'next-themes';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
-import validator from 'validator';
-import { EmailResetModal } from '../../../features/users/email-reset-modal';
-import { LanguageDropDown } from '../../../common/language-dropdown';
-import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
-import { useRouter } from 'next/navigation';
 import InternationalPhoneInput from '@/core/components/common/international-phone-Input';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { useLanguage, useSettings } from '@/core/hooks';
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
@@ -20,6 +9,17 @@ import {
 	setActiveTimezoneCookie,
 	userTimezone
 } from '@/core/lib/helpers/index';
+import { userState } from '@/core/stores';
+import { useAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import validator from 'validator';
+import { LanguageDropDown } from '../../../common/language-dropdown';
+import { EmailResetModal } from '../../../features/users/email-reset-modal';
+import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
 
 interface IValidation {
 	email: boolean;
