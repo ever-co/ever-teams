@@ -557,22 +557,25 @@ export function TaskCardMenu({
 				align="end"
 				className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
 			>
-				<DropdownMenuItem className="p-0 mb-2">
+				<DropdownMenuItem className="p-0 mb-2 hover:!bg-transparent">
 					<Link
 						href={`/task/${task.id}`}
 						className={clsxm(
 							'w-full font-normal whitespace-nowrap transition-all',
-							'hover:font-semibold transition-all duration-300 hover:!bg-transparent hover:transition-all'
+							'transition-all duration-300 hover:font-semibold hover:transition-all'
 						)}
 					>
 						{t('common.TASK_DETAILS')}
 					</Link>
 				</DropdownMenuItem>
-				<DropdownMenuItem className="p-0 mb-2" onSelect={() => toggleFavoriteTask(task)}>
+				<DropdownMenuItem
+					className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent"
+					onSelect={() => toggleFavoriteTask(task)}
+				>
 					<span
 						className={clsxm(
 							'w-full font-normal whitespace-nowrap transition-all',
-							'cursor-pointer hover:font-semibold hover:transition-all'
+							'cursor-pointer hover:font-semibold hover:transition-all hover:!bg-transparent'
 						)}
 					>
 						{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
@@ -584,7 +587,10 @@ export function TaskCardMenu({
 						)}
 					</span>
 				</DropdownMenuItem>
-				<DropdownMenuItem className="p-0 mb-3" onSelect={handleAssignment}>
+				<DropdownMenuItem
+					className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent"
+					onSelect={handleAssignment}
+				>
 					<span
 						className={clsxm(
 							'w-full font-normal whitespace-nowrap transition-all',
@@ -600,7 +606,7 @@ export function TaskCardMenu({
 						<DropdownMenuSeparator className="my-3" />
 						<div className="mt-3">
 							{!taskPlannedToday && (
-								<DropdownMenuItem className="p-0 mb-2">
+								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TODAY']}
 										taskId={task.id}
@@ -610,7 +616,7 @@ export function TaskCardMenu({
 								</DropdownMenuItem>
 							)}
 							{!taskPlannedTomorrow && (
-								<DropdownMenuItem className="p-0 mb-2">
+								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TOMORROW']}
 										taskId={task.id}
@@ -619,7 +625,7 @@ export function TaskCardMenu({
 									/>
 								</DropdownMenuItem>
 							)}
-							<DropdownMenuItem className="p-0 mb-2">
+							<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
 								<PlanTask
 									planMode={EDailyPlanMode['CUSTOM']}
 									taskId={task.id}
@@ -635,11 +641,11 @@ export function TaskCardMenu({
 						{canSeeActivity ? (
 							<div>
 								<DropdownMenuSeparator className="my-2" />
-								<DropdownMenuItem className="p-0 mt-2">
+								<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
 									<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
 								</DropdownMenuItem>
 								{isTaskPlannedMultipleTimes && (
-									<DropdownMenuItem className="p-0 mt-2">
+									<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
 										<RemoveManyTaskFromPlan task={task} member={profile?.member} />
 									</DropdownMenuItem>
 								)}
