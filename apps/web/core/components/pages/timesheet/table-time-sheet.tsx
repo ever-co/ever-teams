@@ -299,7 +299,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																<div className="flex items-center flex-1 gap-x-2">
 																	<EmployeeAvatar
 																		className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
-																		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 																		imageUrl={task.employee?.user.imageUrl!}
 																	/>
 																	<span className="flex-1 font-medium">

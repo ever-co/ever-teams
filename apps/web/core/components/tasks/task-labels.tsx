@@ -49,7 +49,6 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 			taskUpdateQueue.task(
 				(task, taskLabels, values) => {
 					return updateTask({
-						// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
 						...task.current!,
 						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
 					})
@@ -98,7 +97,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				isLoading={isLoading}
 			>
 				<Button
-					className="px-2 py-1 mt-4 w-full text-xs dark:text-white dark:border-white"
+					className="w-full px-2 py-1 mt-4 text-xs dark:text-white dark:border-white"
 					variant="outline"
 					onClick={modal.openModal}
 				>

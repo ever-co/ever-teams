@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
-
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
 import { Suspense } from 'react';
@@ -88,9 +86,9 @@ export function DashboardHeader({
 				</Suspense>
 			)}
 
-			<div className="flex justify-between items-center w-full">
+			<div className="flex items-center justify-between w-full">
 				<h1 className="text-2xl font-semibold">{title}</h1>
-				<div className="flex gap-4 items-center">
+				<div className="flex items-center gap-4">
 					{showGroupBy && (
 						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}

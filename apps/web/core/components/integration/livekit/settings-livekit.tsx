@@ -7,7 +7,6 @@ import styles from '@/styles/settings.module.css';
 import { shortenLink } from '@/core/lib/helpers';
 import { IconsContentCopy, IconsLoader } from '@/core/components/icons';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SettingsMenu(props: SettingsMenuProps) {

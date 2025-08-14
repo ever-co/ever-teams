@@ -52,10 +52,6 @@ interface TimeActivityTableProps {
 export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = false }) => {
 	const t = useTranslations();
 
-	if (!loading && (!data || data.length === 0)) {
-		return <EmptyTimeActivity />;
-	}
-
 	const columns: Column<TimeEntry>[] = [
 		{
 			header: t('common.MEMBER'),
@@ -63,7 +59,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			cell: (value) => {
 				if (!value) return <div>{t('common.NO_MEMBER_DATA')}</div>;
 				return (
-					<div className="flex gap-3 items-center">
+					<div className="flex items-center gap-3">
 						<Avatar className="w-8 h-8 rounded-full">
 							<Image
 								src={value.imageUrl || '/assets/images/avatar.png'}
@@ -84,8 +80,8 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			cell: (value) => {
 				if (!value) return <div>{t('common.NO_PROJECT_DATA')}</div>;
 				return (
-					<div className="flex gap-3 items-center">
-						<Avatar className="flex justify-center items-center bg-gray-100 rounded-xl dark:bg-gray-800">
+					<div className="flex items-center gap-3">
+						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-gray-800">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}
@@ -105,7 +101,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			header: t('timeActivity.TRACKED_HOURS'),
 			accessorKey: 'trackedHours',
 			cell: (value, row) => (
-				<div className="flex gap-2 justify-end items-center">
+				<div className="flex items-center justify-end gap-2">
 					<div
 						className="w-2 h-2 rounded-full"
 						style={{
@@ -126,7 +122,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			header: t('timeActivity.ACTIVITY_LEVEL'),
 			accessorKey: 'activityLevel',
 			cell: (value) => (
-				<div className="flex gap-3 items-center">
+				<div className="flex items-center gap-3">
 					<ProgressBar progress={value} color="bg-[#0088CC]" isLoading={loading} size="sm" />
 					<span className="font-medium min-w-[3rem] text-right">{value}%</span>
 				</div>
@@ -263,5 +259,8 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		});
 	}, [weeklyData, getPrimaryCurrency, calculateEarnings, t]);
 
+	if (!loading && (!data || data.length === 0)) {
+		return <EmptyTimeActivity />;
+	}
 	return <TimeActivityTableAdapter data={formattedData} columns={columns} loading={loading} />;
 };

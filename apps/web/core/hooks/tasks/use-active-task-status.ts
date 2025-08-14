@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';

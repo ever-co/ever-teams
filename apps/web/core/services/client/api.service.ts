@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,

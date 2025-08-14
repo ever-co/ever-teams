@@ -98,7 +98,6 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	};
 
 	const name = searchParams?.get('name');
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`@/locales/${locale}.json`);
 
 	useEffect(() => {
