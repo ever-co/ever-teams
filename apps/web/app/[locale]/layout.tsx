@@ -54,8 +54,6 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	const params = use(props.params);
 	const { locale } = params;
 	const { children, pageProps } = props;
-	// Validate that the incoming `locale` parameter is valid
-	if (!LOCALES.includes(locale as string)) notFound();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -104,6 +102,9 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
+
+	// Validate that the incoming `locale` parameter is valid
+	if (!LOCALES.includes(locale as string)) notFound();
 	return (
 		<html lang={locale} className={`${font.variable} ${font.className}`} suppressHydrationWarning>
 			<head>
