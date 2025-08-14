@@ -4,7 +4,7 @@ import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-
 import { useStatusValue, useSyncRef, useTaskLabels, useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
-import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAtom, useAtomValue } from 'jotai';

@@ -11,7 +11,7 @@ import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 
 type Props = {
 	task: Nullable<TTask>;
