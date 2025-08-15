@@ -13,6 +13,8 @@ import {
 } from '@/core/components/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 const Timer = () => {
 	const t = useTranslations();
@@ -30,7 +32,8 @@ const Timer = () => {
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
