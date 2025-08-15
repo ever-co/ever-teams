@@ -7,7 +7,8 @@ import {
 } from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
 import { useTimer } from './use-timer';
-import { useTeamTasks } from '../organizations';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export function useStartStopTimerHandler() {
 	const {
@@ -37,7 +38,7 @@ export function useStartStopTimerHandler() {
 	const { timerStatus, timerStatusFetching, startTimer, stopTimer, hasPlan, canRunTimer, activeTeamTask } =
 		useTimer();
 
-	const { activeTeam } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
