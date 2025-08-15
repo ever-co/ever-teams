@@ -5,7 +5,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const t = useTranslations();
@@ -17,7 +17,7 @@ export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const { hours: h, minutes: m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),
+				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue.duration || 0),
 				0
 			)) ||
 			activeTaskTotalStat?.duration ||

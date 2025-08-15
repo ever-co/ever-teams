@@ -18,7 +18,7 @@ import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -180,7 +180,7 @@ export default function Item(props: ItemProps) {
 			currentMember?.totalWorkedTasks
 				.filter((t: TTask) => t.id === item?.id)
 				.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||

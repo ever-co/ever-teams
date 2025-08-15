@@ -23,7 +23,7 @@ const cardColorType = {
 // 	teams: { team: IOrganizationTeam; activeTaskId?: string | null }[];
 // 	user?: IUser;
 // 	userId?: ID;
-// 	totalTodayTasks?: ITasksStatistics[];
+// 	totalTodayTasks?: TTaskStatistics[];
 // }
 
 export default function UserTeamBlockCard({ member }: { member: any }) {

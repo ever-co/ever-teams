@@ -9,7 +9,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { ITime } from '@/core/types/interfaces/common/time';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
@@ -47,7 +47,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalWorkedTasks?.find((object: TTaskStatistics) => object.id === task?.id)?.duration || 0;
 
 		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -60,7 +60,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalTodayTasks?.find((object: TTaskStatistics) => object.id === task?.id)?.duration || 0;
 
 		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -76,7 +76,7 @@ const TaskProgress = () => {
 			task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
-		const usersTaskArray: ITasksStatistics[] =
+		const usersTaskArray: TTaskStatistics[] =
 			matchingMembers
 				?.flatMap((obj) => obj.totalWorkedTasks || [])
 				.filter((taskObj) => taskObj?.id === task?.id) || [];

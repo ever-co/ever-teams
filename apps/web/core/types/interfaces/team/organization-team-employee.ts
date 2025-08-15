@@ -2,7 +2,7 @@ import { TTask } from '../../schemas/task/task.schema';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IManagerAssignable, IRelationalEmployee } from '../organization/employee';
 import { IRelationalRole } from '../role/role';
-import { ITasksStatistics } from '../task/task';
+import { TTaskStatistics } from '../task/task';
 import { ITimerStatus } from '../timer/timer-status';
 import { IRelationalOrganizationTeam } from './organization-team';
 
@@ -25,8 +25,8 @@ export interface IOrganizationTeamEmployee
 	activeTask?: TTask;
 	isManager?: boolean;
 	isActive?: boolean;
-	totalWorkedTasks?: ITasksStatistics[];
-	totalTodayTasks?: ITasksStatistics[];
+	totalWorkedTasks?: TTaskStatistics[];
+	totalTodayTasks?: TTaskStatistics[];
 }
 
 export interface IOrganizationTeamEmployeeCreate {
@@ -61,8 +61,8 @@ export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmploy
 // 	running?: boolean;
 // 	duration?: number;
 // 	isTrackingEnabled?: boolean;
-// 	totalTodayTasks: ITasksStatistics[];
-// 	totalWorkedTasks: ITasksStatistics[];
+// 	totalTodayTasks: TTaskStatistics[];
+// 	totalWorkedTasks: TTaskStatistics[];
 // 	timerStatus?: ITimerStatusEnum;
 // 	activeTaskId?: string;
 // 	isManager: boolean;

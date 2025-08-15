@@ -2,35 +2,30 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import {
 	validateApiResponse,
 	timerSlotDataRequestSchema,
 	ZodValidationError,
-	TGetTimerLogsRequest,
+	TGetTimeSlotsStatisticsRequest,
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
+import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
 
 class StatisticsService extends APIService {
-	getTimerLogsRequest = async (params: TGetTimerLogsRequest): Promise<TTimerSlotDataRequest[]> => {
+	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
 				employeeId: params.employeeId,
 				todayEnd: params.todayEnd.toISOString(),
-				todayStart: params.todayStart.toISOString()
-			} as Record<string, string>;
+				todayStart: params.todayStart.toISOString(),
+				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
+			} satisfies Record<string, string | string[] | number>;
 
-			const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
-
-			relations.forEach((rl, i) => {
-				queryParams[`relations[${i}]`] = rl;
-			});
-
-			const query = qs.stringify(queryParams);
+			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/timesheet/statistics/time-slots?${query}`
@@ -44,11 +39,11 @@ class StatisticsService extends APIService {
 			return validateApiResponse(
 				timerSlotDataRequestSchema.array(),
 				responseData,
-				'getTimerLogsRequest API response'
+				'getTimeSlotsStatistics API response'
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				this.logger.error('Timer logs request validation failed:', {
+				this.logger.error('Time slots statistics request validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
@@ -57,15 +52,27 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string>) => {
-		const query = qs.stringify(queries);
+	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
+		try {
+			const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
-		return await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${query}`, {
-			tenantId: this.tenantId
-		});
+			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
+				tenantId: this.tenantId
+			});
+
+			return validateApiResponse(taskStatisticsSchema, response.data, 'getStatisticsForTasks API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Tasks statistics validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
 	};
 
-	tasksTimesheetStatistics = async ({ activeTaskId, employeeId }: { activeTaskId?: string; employeeId?: string }) => {
+	tasksTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
 		const api = await getFallbackAPI();
 		try {
 			if (!this.tenantId || !this.organizationId) {
@@ -73,17 +80,10 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const employeesParams = employeeId
-					? [employeeId].reduce((acc: any, v, i) => {
-							acc[`employeeIds[${i}]`] = v;
-							return acc;
-						})
-					: {};
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
-					...employeesParams
+					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 				const globalParams = {
 					...commonParams,
@@ -101,12 +101,12 @@ class StatisticsService extends APIService {
 
 				return {
 					data: {
-						global: globalData.data,
-						today: todayData.data
+						global: globalData,
+						today: todayData
 					}
 				};
 			} else {
-				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
+				return api.get<{ global: TTaskStatistics; today: TTaskStatistics }>(
 					`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
 				);
 			}
@@ -128,42 +128,36 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const employeesParams = employeeId
-					? [employeeId].reduce((acc: any, v, i) => {
-							acc[`employeeIds[${i}]`] = v;
-							return acc;
-						}, {})
-					: {};
-
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					'taskIds[0]': activeTaskId,
-					...employeesParams
+					taskIds: [activeTaskId],
+					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 
-				const globalQueries = qs.stringify({
+				const globalParams = {
 					...commonParams,
 					defaultRange: 'false'
-				});
-				const globalData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-					tenantId: this.tenantId
-				});
+				};
 
-				const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-				const todayData = await this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-					tenantId: this.tenantId
-				});
+				const globalData = await this.getStatisticsForTasks(globalParams);
+
+				const todayParams = {
+					...commonParams,
+					defaultRange: 'true',
+					unitOfTime: 'day'
+				};
+				const todayData = await this.getStatisticsForTasks(todayParams);
 
 				return {
 					data: {
-						global: globalData.data,
-						today: todayData.data
+						global: globalData,
+						today: todayData
 					}
 				};
 			} else {
 				const api = await getFallbackAPI();
-				return api.get<{ global: ITasksStatistics[]; today: ITasksStatistics[] }>(
+				return api.get<{ global: TTaskStatistics; today: TTaskStatistics }>(
 					`/timer/timesheet/statistics-tasks?activeTask=true`
 				);
 			}
@@ -181,26 +175,11 @@ class StatisticsService extends APIService {
 				defaultRange: 'false'
 			};
 
-			const { employeeIds, ...rest } = params;
-
-			const queries = qs.stringify({
-				...rest,
-				...employeeIds.reduce(
-					(acc, v, i) => {
-						acc[`employeeIds[${i}]`] = v;
-						return acc;
-					},
-					{} as Record<string, any>
-				)
-			});
-
-			return this.post<ITasksStatistics[]>(`/timesheet/statistics/tasks?${queries.toString()}`, {
-				tenantId: this.tenantId
-			});
+			return this.getStatisticsForTasks(params);
 		}
 
 		const api = await getFallbackAPI();
-		return api.get<ITasksStatistics[]>(`/timer/timesheet/all-statistics-tasks`);
+		return api.get<TTaskStatistics>(`/timer/timesheet/all-statistics-tasks`);
 	};
 
 	/**

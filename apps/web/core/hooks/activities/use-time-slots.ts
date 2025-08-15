@@ -11,7 +11,7 @@ import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot
 import { useAuthenticateUser } from '../auth';
 
 import { queryKeys } from '@/core/query/keys';
-import { TGetTimerLogsRequest, TDeleteTimeSlotsRequest } from '@/core/types/schemas';
+import { TGetTimeSlotsStatisticsRequest, TDeleteTimeSlotsRequest } from '@/core/types/schemas';
 import { toast } from 'sonner';
 
 export function useTimeSlots(hasFilter?: boolean) {
@@ -22,20 +22,18 @@ export function useTimeSlots(hasFilter?: boolean) {
 
 	// Memoized parameters to avoid unnecessary re-renders
 	const queryParams = useMemo(() => {
-		if (!user?.tenantId || !user?.employee?.organizationId) return null;
+		if (!user) return null;
 
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
 
 		return {
-			tenantId: user.tenantId,
-			organizationId: user.employee.organizationId,
 			employeeId: employeeId ?? '',
 			todayEnd,
 			todayStart
-		} as TGetTimerLogsRequest;
-	}, [user?.tenantId, user?.employee?.organizationId, user?.employee?.id, activityFilter.member?.employeeId]);
+		} satisfies TGetTimeSlotsStatisticsRequest;
+	}, [user?.employee?.id, activityFilter.member?.employeeId]);
 
 	// Check if user is authorized to view time slots
 	const isAuthorized = useMemo(() => {
@@ -53,7 +51,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 			if (!queryParams) {
 				throw new Error('Time slots parameters are required');
 			}
-			const response = await statisticsService.getTimerLogsRequest(queryParams);
+			const response = await statisticsService.getTimeSlotsStatistics(queryParams);
 			return response;
 		},
 		enabled: !!(queryParams && isAuthorized),
