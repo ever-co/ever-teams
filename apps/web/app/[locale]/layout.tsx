@@ -96,7 +96,6 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	};
 
 	const name = searchParams?.get('name');
-	const messages = require(`@/locales/${locale}.json`);
 
 	useEffect(() => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);
@@ -104,7 +103,11 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 	}, [isApiWork, loading, router, pathname]);
 
 	// Validate that the incoming `locale` parameter is valid
-	if (!LOCALES.includes(locale as string)) notFound();
+	if (!LOCALES.includes(locale as string)) {
+		notFound();
+	}
+
+	const messages = require(`@/locales/${locale}.json`);
 	return (
 		<html lang={locale} className={`${font.variable} ${font.className}`} suppressHydrationWarning>
 			<head>

@@ -85,13 +85,12 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
+		// Check all required conditions before setting loading state
 		if (!user?.employee?.tenantId || !user?.employee?.organizationId) {
 			return new Promise((resolve) => {
 				resolve(true);
 			});
 		}
-
-		setTasksFetching(true);
 
 		if (
 			!user?.employee?.tenantId ||
@@ -103,6 +102,9 @@ export function useTaskStatistics(addSeconds = 0) {
 				resolve(true);
 			});
 		}
+
+		// Only set loading state after all guards pass
+		setTasksFetching(true);
 
 		const promise = statisticsService.activeTaskTimesheetStatistics({
 			activeTaskId: activeTeamTask?.id || '',
@@ -127,8 +129,14 @@ export function useTaskStatistics(addSeconds = 0) {
 		user?.employee?.tenantId
 	]);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
+	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [getActiveTaskStatData]);
+
+	// Cleanup debounced function when getActiveTaskStatData changes or component unmounts
+	useEffect(() => {
+		return () => {
+			debounceLoadActiveTaskStat.cancel?.();
+		};
+	}, [debounceLoadActiveTaskStat]);
 
 	/**
 	 * Get statistics of the active tasks at the component load

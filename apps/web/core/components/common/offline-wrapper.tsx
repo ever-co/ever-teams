@@ -28,7 +28,7 @@ const OfflineWrapper = ({ children }: PropsWithChildren) => {
 
 	// Compute conditions after all hooks are called
 	const isAuthPage = pathname?.startsWith('/auth');
-	const shouldShowOffline = !online && !isAuthPage;
+	const shouldShowOffline = online === false && !isAuthPage;
 
 	// Conditional rendering after all hooks
 	if (shouldShowOffline) {

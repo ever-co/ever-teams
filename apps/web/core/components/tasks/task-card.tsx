@@ -557,27 +557,19 @@ export function TaskCardMenu({
 				align="end"
 				className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
 			>
-				<DropdownMenuItem className="p-0 mb-2 hover:!bg-transparent">
-					<Link
-						href={`/task/${task.id}`}
-						className={clsxm(
-							'w-full font-normal whitespace-nowrap transition-all',
-							'transition-all duration-300 hover:font-semibold hover:transition-all'
-						)}
-					>
+				<DropdownMenuItem
+					className="p-0 mb-2 font-normal hover:!bg-transparent duration-300 hover:font-semibold transition-all"
+					asChild
+				>
+					<Link href={`/task/${task.id}`} className={clsxm('w-full whitespace-nowrap')}>
 						{t('common.TASK_DETAILS')}
 					</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem
-					className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent"
+					className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
 					onSelect={() => toggleFavoriteTask(task)}
 				>
-					<span
-						className={clsxm(
-							'w-full font-normal whitespace-nowrap transition-all',
-							'cursor-pointer hover:font-semibold hover:transition-all hover:!bg-transparent'
-						)}
-					>
+					<span className={clsxm('w-full whitespace-nowrap')}>
 						{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
 							<LoaderCircle size={15} className="animate-spin" />
 						) : isFavoriteTask(task.id) ? (
@@ -588,15 +580,10 @@ export function TaskCardMenu({
 					</span>
 				</DropdownMenuItem>
 				<DropdownMenuItem
-					className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent"
+					className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
 					onSelect={handleAssignment}
 				>
-					<span
-						className={clsxm(
-							'w-full font-normal whitespace-nowrap transition-all',
-							'cursor-pointer hover:font-semibold hover:transition-all'
-						)}
-					>
+					<span className={clsxm('w-full whitespace-nowrap')}>
 						{viewType === 'unassign' ? t('common.ASSIGN_TASK') : t('common.UNASSIGN_TASK')}
 					</span>
 				</DropdownMenuItem>
@@ -606,7 +593,7 @@ export function TaskCardMenu({
 						<DropdownMenuSeparator className="my-3" />
 						<div className="mt-3">
 							{!taskPlannedToday && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
+								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TODAY']}
 										taskId={task.id}
@@ -616,7 +603,7 @@ export function TaskCardMenu({
 								</DropdownMenuItem>
 							)}
 							{!taskPlannedTomorrow && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
+								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TOMORROW']}
 										taskId={task.id}
@@ -625,7 +612,7 @@ export function TaskCardMenu({
 									/>
 								</DropdownMenuItem>
 							)}
-							<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
+							<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 								<PlanTask
 									planMode={EDailyPlanMode['CUSTOM']}
 									taskId={task.id}
@@ -641,11 +628,11 @@ export function TaskCardMenu({
 						{canSeeActivity ? (
 							<div>
 								<DropdownMenuSeparator className="my-2" />
-								<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
+								<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 									<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
 								</DropdownMenuItem>
 								{isTaskPlannedMultipleTimes && (
-									<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold hover:transition-all hover:!bg-transparent">
+									<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 										<RemoveManyTaskFromPlan task={task} member={profile?.member} />
 									</DropdownMenuItem>
 								)}
@@ -664,7 +651,7 @@ export function TaskCardMenu({
 					>
 						<Text
 							className={clsxm(
-								'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
+								'font-normal whitespace-nowrap hover:font-semibold',
 								'text-red-500'
 							)}
 						>
@@ -767,7 +754,7 @@ export function PlanTask({
 			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
-					'h-auto cursor-pointer hover:font-semibold hover:transition-all'
+					'h-auto cursor-pointer hover:font-semibold'
 				)}
 				onClick={handleOpenModal}
 				disabled={planMode === 'today' && createDailyPlanLoading}
@@ -801,10 +788,7 @@ export function AddTaskToPlanComponent({ task, employee }: { task: TTask; employ
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
 		<span
-			className={clsxm(
-				'font-normal whitespace-nowrap transition-all',
-				'cursor-pointer hover:font-semibold hover:transition-all'
-			)}
+			className={clsxm('font-normal whitespace-nowrap transition-all', 'cursor-pointer hover:font-semibold')}
 			onClick={openModal}
 		>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
@@ -835,7 +819,7 @@ export function RemoveTaskFromPlan({
 		<span
 			className={clsxm(
 				'font-normal text-red-600 whitespace-nowrap transition-all',
-				'cursor-pointer hover:font-semibold hover:transition-all'
+				'cursor-pointer hover:font-semibold'
 			)}
 			onClick={onClick}
 		>
@@ -858,7 +842,7 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?:
 		<span
 			className={clsxm(
 				'font-normal text-red-600 whitespace-nowrap transition-all',
-				'cursor-pointer hover:font-semibold hover:transition-all'
+				'cursor-pointer hover:font-semibold'
 			)}
 			onClick={onClick}
 		>
