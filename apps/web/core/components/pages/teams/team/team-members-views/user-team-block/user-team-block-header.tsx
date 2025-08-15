@@ -1,7 +1,7 @@
 import { Button } from '@/core/components';
-import { useAuthenticateUser, useModal, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
+import { useModal, useUserProfilePage } from '@/core/hooks';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { clsxm } from '@/core/lib/utils';
@@ -13,7 +13,9 @@ import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
-import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
+import { activeTeamState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 // Interface for filter stats (kept for UI compatibility)
 interface IFilter {
@@ -64,8 +66,9 @@ const statusButtons = (
 
 export function UserTeamBlockHeader() {
 	const t = useTranslations();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
 
@@ -73,8 +76,8 @@ export function UserTeamBlockHeader() {
 	const hook = useTaskFilter(profile);
 
 	// Use refactored hooks for member processing and stats
-	const processedMembers = useProcessedTeamMembers(activeTeam, user);
-	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user);
+	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
+	const filterStats = useTeamMemberFilterStatsForUI(processedMembers.allMembersWithCurrent, user!);
 
 	// Convert filter stats to the format expected by the UI
 	const membersStatusNumber = useMemo(

@@ -9,7 +9,7 @@ import { cn } from '@/core/lib/helpers';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
-import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
+import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
@@ -23,6 +23,7 @@ import {
 	LazyActivityTable,
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -130,11 +131,11 @@ const TimeActivityComponents = () => {
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const { isTrackingEnabled } = useOrganizationTeams();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const { activeTeam } = useOrganizationTeams();
 	const { organizationProjects } = useOrganizationProjects();
 	const { tasks } = useTeamTasks();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const breadcrumbPath = useMemo(
 		() => [

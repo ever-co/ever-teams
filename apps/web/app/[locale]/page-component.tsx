@@ -1,7 +1,7 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { useAuthenticateUser, useDailyPlan, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -14,7 +14,7 @@ import { Analytics } from '@vercel/analytics/react';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
@@ -40,12 +40,19 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
 
 function MainPage() {
 	const t = useTranslations();
 
-	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const isTeamMember = useAtomValue(isTeamMemberState);
+
 	const { outstandingPlans, dailyPlan } = useDailyPlan();
+
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { myInvitationsList, myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);

@@ -9,12 +9,14 @@ import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
+	isTeamManagerState,
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
+	isTrackingEnabledState,
 	timerStatusState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 // import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
@@ -209,8 +211,9 @@ export function useOrganizationTeams() {
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
+	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
-	const [isTeamManager, setIsTeamManager] = useState(false);
+	const [isTeamManager, setIsTeamManager] = useAtom(isTeamManagerState);
 
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentUser = members.find((member) => member.employee?.userId === user?.id);
@@ -531,6 +534,7 @@ export function useOrganizationTeams() {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
+		setIsTrackingEnabledState(isTrackingEnabled);
 		isManager();
 	}, [activeTeam]);
 	useEffect(() => {

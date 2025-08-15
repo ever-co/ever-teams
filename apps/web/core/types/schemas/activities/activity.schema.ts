@@ -30,7 +30,7 @@ export const timeSlotSchema = z
 	.object({
 		id: uuIdSchema,
 		employeeId: uuIdSchema,
-		employee: employeeBaseSchema.optional(),
+		employee: z.lazy(() => employeeBaseSchema).optional(),
 		activities: z.array(z.any()).optional(), // IActivity[] - circular reference
 		screenshots: z.array(z.any()).optional(),
 		timeLogs: z.array(z.any()).optional(),

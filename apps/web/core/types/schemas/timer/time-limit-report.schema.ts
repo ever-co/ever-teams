@@ -22,7 +22,7 @@ export const timeLimitReportListSchema = z
 		date: z.string(),
 		employees: z.array(
 			z.object({
-				employee: employeeSchema.passthrough(),
+				employee: z.lazy(() => employeeSchema),
 				duration: z.coerce.number().min(0),
 				durationPercentage: z.coerce.number().min(0).max(100),
 				limit: z.coerce.number().min(0)
@@ -45,7 +45,7 @@ export const minimalTimeLimitReportListSchema = z
 	.passthrough(); // Allow any additional fields
 
 export const timeLimitReportByEmployeeSchema = z.object({
-	employee: employeeSchema,
+	employee: z.lazy(() => employeeSchema),
 	reports: z.array(
 		z.object({
 			date: z.string(),

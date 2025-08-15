@@ -1,11 +1,11 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useAuthenticateUser, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { fetchingTeamInvitationsState } from '@/core/stores';
+import { useAuthenticateUser } from '@/core/hooks';
+import { activeTeamState, fetchingTeamInvitationsState, isTeamMemberState, teamInvitationsState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Accordian } from '@/core/components/common/accordian';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
@@ -38,15 +38,16 @@ const Team = () => {
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 	const { user, isTeamManager } = useAuthenticateUser();
 
-	const { isTeamMember, activeTeam } = useOrganizationTeams();
-	const { teamInvitations } = useTeamInvitations();
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
+	const teamInvitations = useAtomValue(teamInvitationsState);
 
 	if (!user) {
 		return (
-			<div className="pb-16 overflow-hidden">
+			<div className="overflow-hidden pb-16">
 				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 					<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-						<div className="flex items-center justify-center p-8">
+						<div className="flex justify-center items-center p-8">
 							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 							<span className="ml-3 text-gray-600 dark:text-gray-400">Loading team settings...</span>
 						</div>
@@ -55,12 +56,16 @@ const Team = () => {
 			</div>
 		);
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 238da821e (refactor(web): Replace useOrganizationTeams with useAtomValue for state management in various components)
 	return (
-		<div className="pb-16 overflow-hidden">
+		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
-						<button className="w-full p-4 mt-2 border rounded-xl lg:hidden hover:bg-white border-dark text-dark">
+						<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
 							{t('pages.settingsTeam.GO_TO_PERSONAL_SETTINGS')}
 						</button>
 					</Link>

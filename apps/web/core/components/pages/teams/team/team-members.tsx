@@ -15,8 +15,9 @@ import TeamMembersBlockView from './team-members-views/team-members-block-view';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
 import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
-import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
-import { userState } from '@/core/stores';
+import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
+import { activeTeamState, userState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 // Types for better performance and security
 
@@ -47,13 +48,15 @@ const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee)
 // Main component optimized with refactored hooks
 export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {
 	// Hooks
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const fullWidth = useAtomValue(fullWidthState);
-	const { activeTeam, getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
 
 	// Use refactored hooks for member processing
-	const processedMembers = useProcessedTeamMembers(activeTeam, user);
+	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
 	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
 
 	// Simple calculation without useless memoization

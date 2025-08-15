@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
+import { useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
@@ -15,10 +15,17 @@ import { toast } from 'sonner';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
-	const { user } = useAuthenticateUser();
-	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+
+	const { setActiveTeam } = useOrganizationTeams();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();

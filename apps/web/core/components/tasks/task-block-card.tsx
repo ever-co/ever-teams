@@ -2,16 +2,10 @@ import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
-import { useAtom } from 'jotai';
-import { activeTeamTaskId } from '@/core/stores';
+import { useAtom, useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskId } from '@/core/stores';
 import Link from 'next/link';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useTaskStatistics,
-	useTeamMemberCard,
-	useTimerView
-} from '@/core/hooks';
+import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
@@ -20,6 +14,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface TaskItemProps {
 	task: TTask;
@@ -28,10 +23,11 @@ interface TaskItemProps {
 export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+
 	const { timerStatus, activeTeamTask } = useTimerView();
 
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);

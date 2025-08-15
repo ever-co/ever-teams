@@ -1,6 +1,4 @@
-// import { useOrganizationTeams } from '@app/hooks';
-import { useOrganizationTeams } from '@/core/hooks';
-import { activeTeamTaskState } from '@/core/stores';
+import { activeTeamTaskState, isTrackingEnabledState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { TaskEstimate } from '../tasks/task-estimate';
@@ -14,7 +12,8 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { isTrackingEnabled } = useOrganizationTeams();
+
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	return (
 		<div className={clsxm('flex flex-col flex-1 mt-8 lg:mt-0', className)}>

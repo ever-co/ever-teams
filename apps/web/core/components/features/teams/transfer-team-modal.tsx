@@ -1,5 +1,5 @@
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
-import { activeTeamManagersState } from '@/core/stores';
+import { useOrganizationTeams } from '@/core/hooks';
+import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -7,6 +7,7 @@ import { useAtomValue } from 'jotai';
 import { EverCard } from '../../common/ever-card';
 import { TransferTeamDropdown } from '../../teams/transfer-team/transfer-team-dropdown';
 import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 /**
  * Transfer team modal
@@ -14,8 +15,10 @@ import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organiza
 export function TransferTeamModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { activeTeam, editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 
 	const [selectedMember, setSelectedMember] = useState<IOrganizationTeamEmployee>();
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { userState } from '@/core/stores';
+import { activeTeamManagersState, rolesState, userState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { CommonToggle, Container, Divider, Text } from '@/core/components';
@@ -9,28 +9,29 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks/organizations';
-import { useRolePermissions, useRoles } from '@/core/hooks/roles';
+import { useIsMemberManager } from '@/core/hooks/organizations';
+import { useRolePermissions } from '@/core/hooks/roles';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { EverCard } from '../../common/ever-card';
 import { TRole } from '@/core/types/schemas';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Permissions = () => {
 	// Translations
 	const t = useTranslations();
 
 	// Global state
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// Local state
 	const [selectedRole, setSelectedRole] = useState<TRole | null>(null);
 
 	// Hooks with data fetching
-	const { activeTeamManagers } = useOrganizationTeams();
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 	const { isTeamManager } = useIsMemberManager(user);
-	const { roles } = useRoles();
+	const roles = useAtomValue(rolesState);
 
 	// Memoized values
 	const canAccessPermissions = useMemo(() => {
@@ -101,14 +102,14 @@ const Permissions = () => {
 
 					<Divider type="VERTICAL" />
 
-					<div className="flex flex-col w-full pt-3 pl-5 overflow-auto">
+					<div className="flex overflow-auto flex-col pt-3 pl-5 w-full">
 						{selectedRole && (
 							<div className="overflow-y-auto">
 								<div className="flex w-full items-center justify-between gap-[2rem]">
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.TRACK_TIME')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -123,7 +124,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ESTIMATE_ISSUE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -143,7 +144,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.EPICS_CREATE_CLOSE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -163,7 +164,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ISSUE_CREATE_CLOSE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -183,7 +184,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ISSUE_ASSIGN_UNASSIGN')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -203,7 +204,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.INVITE_MEMBERS')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -218,7 +219,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.REMOVE_MEMBERS')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -238,7 +239,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.HANDLE_REQUESTS')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -256,7 +257,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ROLES_POSITIONS_CHANGE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -271,7 +272,7 @@ const Permissions = () => {
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.VIEW_DETAILS')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
+									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"

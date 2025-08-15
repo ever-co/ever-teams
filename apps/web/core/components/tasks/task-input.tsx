@@ -7,12 +7,10 @@ import {
 	useHotkeys,
 	useIssueType,
 	useOrganizationEmployeeTeams,
-	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput,
-	useTaskLabels
+	useTaskInput
 } from '@/core/hooks';
-import { activeTeamTaskId, timerStatusState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskId, taskLabelsListState, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
@@ -40,6 +38,7 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -91,8 +90,9 @@ export function TaskInput(props: Props) {
 	});
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
@@ -503,8 +503,9 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { taskLabels: taskLabelsData } = useTaskLabels();
-	const { activeTeam } = useOrganizationTeams();
+	const taskLabelsData = useAtomValue(taskLabelsListState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs for dropdown elements to exclude from outside click detection
 	const statusDropdownRef = useRef<HTMLDivElement>(null);

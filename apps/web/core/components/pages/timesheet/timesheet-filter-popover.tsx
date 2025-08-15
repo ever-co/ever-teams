@@ -1,5 +1,4 @@
 import React from 'react';
-import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
@@ -9,13 +8,17 @@ import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	const { activeTeam } = useOrganizationTeams();
-	const { organizationProjects } = useOrganizationProjects();
 
-	const { tasks } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
+	const tasks = useAtomValue(tasksByTeamState);
+
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();

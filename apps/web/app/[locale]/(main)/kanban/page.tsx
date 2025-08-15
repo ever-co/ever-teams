@@ -1,6 +1,6 @@
 'use client';
 import { KanbanTabs } from '@/core/constants/config/constants';
-import { useAuthenticateUser, useModal, useOrganizationTeams, useStatusValue } from '@/core/hooks';
+import { useModal, useStatusValue } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -44,6 +44,8 @@ import {
 	LazyKanbanSearch,
 	LazyInviteFormModal
 } from '@/core/components/optimized-components/kanban';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Kanban = () => {
 	// Get all required hooks and states
@@ -60,14 +62,16 @@ const Kanban = () => {
 		issues
 	} = useKanban();
 
-	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 	const employee = useSearchParams().get('employee');
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 	const timezone = userTimezone();
 

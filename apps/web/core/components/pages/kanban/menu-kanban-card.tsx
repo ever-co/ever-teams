@@ -1,11 +1,11 @@
-import { useOrganizationTeams, useTaskStatus, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
-import { activeTeamTaskId } from '@/core/stores';
+import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { activeTeamState, activeTeamTaskId, taskStatusesState } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
@@ -19,8 +19,9 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
-	const { taskStatuses } = useTaskStatus();
-	const { activeTeam } = useOrganizationTeams();
+	const taskStatuses = useAtomValue(taskStatusesState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const menu = [
 		{
 			name: t('common.EDIT_TASK'),
@@ -154,7 +155,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 						return (
 							<li key={item.name} onClick={async () => await item?.onClick?.()}>
 								{item.action == 'assignee' ? (
-									<div className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap">
+									<div className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20">
 										<TeamMembersSelect
 											key={item.name}
 											task={task}
@@ -162,7 +163,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 										/>
 									</div>
 								) : (
-									<button className="flex items-center justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
+									<button className="flex justify-between items-center px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
 										<p>{item.name}</p>
 										{item.loading && <SpinnerLoader size={15} />}
 									</button>
@@ -173,13 +174,13 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 				</ul>
 				<HorizontalSeparator />
 				<ul className="list-none">
-					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
+					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
 						<PlanTask planMode={EDailyPlanMode.TODAY} taskId={task.id} chooseMember={true} />
 					</li>
-					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
+					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
 						<PlanTask planMode={EDailyPlanMode.TOMORROW} taskId={task.id} chooseMember={true} />
 					</li>
-					<li className="flex justify-between w-full px-2 py-1 text-sm font-normal text-left capitalize hover:bg-secondary-foreground/20 whitespace-nowrap hover:font-semibold hover:transition-all">
+					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
 						<PlanTask planMode={EDailyPlanMode.CUSTOM} taskId={task.id} chooseMember={true} />
 					</li>
 				</ul>
@@ -217,9 +218,9 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 		<div className="w-full">
 			<Combobox multiple={true}>
 				<div className="relative">
-					<div className="relative w-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+					<div className="overflow-hidden relative w-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
 						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="absolute inset-y-0 right-0 flex items-center justify-between w-full pr-2 hover:font-semibold hover:transition-all">
+						<Combobox.Button className="flex absolute inset-y-0 right-0 justify-between items-center pr-2 w-full hover:font-semibold hover:transition-all">
 							<span>{t('common.ASSIGNEE')}</span>
 							<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
 						</Combobox.Button>
@@ -230,7 +231,7 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute w-full h-auto py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="overflow-auto absolute py-1 mt-1 w-full h-auto max-h-60 text-base bg-white rounded-md ring-1 shadow-lg ring-black/5 focus:outline-none sm:text-sm">
 							{teamMembers.map((member) => (
 								<Combobox.Option
 									key={member.id}
@@ -288,13 +289,13 @@ function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps):
 		<div className="cursor-pointer" onClick={handleAssignTask}>
 			<span className="block truncate">{member?.employee?.fullName}</span>
 			{!(assignTaskLoading || unAssignTaskLoading) && isAssignee ? (
-				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
+				<span className="flex absolute inset-y-0 left-0 items-center pl-3">
 					<CheckIcon className="w-5 h-5" aria-hidden="true" />
 				</span>
 			) : null}
 
 			{(assignTaskLoading || unAssignTaskLoading) && (
-				<span className="absolute inset-y-0 left-0 flex items-center pl-3">
+				<span className="flex absolute inset-y-0 left-0 items-center pl-3">
 					<SpinnerLoader size={15} />
 				</span>
 			)}

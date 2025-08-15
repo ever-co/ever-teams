@@ -1,5 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
+import { I_TeamMemberCardHook } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { Nullable } from '@/core/types/generics/utils';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
@@ -10,7 +10,9 @@ import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -24,7 +26,8 @@ type Props = {
 
 export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true, isBlock = false }: Props) {
 	// For public page
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const currentMember = useMemo(
 		() => activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
@@ -212,7 +215,8 @@ function TimeBlockInfo({
 
 export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const t = useTranslations();
 

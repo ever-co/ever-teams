@@ -13,7 +13,6 @@ import { Container } from '@/core/components';
 
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { Card } from '@/core/components/common/card';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
 import {
@@ -38,6 +37,7 @@ import {
 	LazyProductivityHeader,
 	LazyProductivityStats
 } from '@/core/components/optimized-components';
+import { isTrackingEnabledState } from '@/core/stores';
 interface ProductivityData {
 	date: string;
 	productive: number;
@@ -51,7 +51,7 @@ function AppUrls() {
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type', 'date');
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
