@@ -33,7 +33,10 @@ export const dailyPlanSchema = dailyPlanBaseSchema.extend({
 	organizationTeam: z.any().optional().nullable(), // IOrganizationTeam - complex interface, using any for now
 
 	// Tasks relation
-	tasks: z.array(taskSchema).optional().nullable()
+	tasks: z
+		.array(z.lazy(() => taskSchema))
+		.optional()
+		.nullable()
 });
 
 /**

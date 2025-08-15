@@ -1,4 +1,3 @@
-import { useOrganizationTeams } from '@/core/hooks';
 import {
 	Select,
 	SelectContent,
@@ -9,6 +8,8 @@ import {
 } from '@/core/components/common/select';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 interface IProps {
 	onChange: (value: string) => void;
@@ -27,7 +28,8 @@ interface IProps {
 
 export function MembersSelect(props: IProps) {
 	const { onChange } = props;
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const [selected, setSelected] = useState<string>('all');
 	const t = useTranslations();
 	const handleChange = useCallback(
@@ -41,7 +43,7 @@ export function MembersSelect(props: IProps) {
 	return (
 		<Select value={selected} onValueChange={handleChange}>
 			<SelectTrigger className="w-48 truncate overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
-				<SelectValue className=" truncate" placeholder="Select a member" />
+				<SelectValue className="truncate" placeholder="Select a member" />
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>
@@ -52,7 +54,7 @@ export function MembersSelect(props: IProps) {
 							</SelectItem>
 						);
 					})}
-					<SelectItem className=" capitalize" key={'all'} value={'all'}>
+					<SelectItem className="capitalize" key={'all'} value={'all'}>
 						{t('common.ALL_MEMBERS')}
 					</SelectItem>
 				</SelectGroup>

@@ -9,7 +9,7 @@ export const activeTeamIdState = atom<string | null>(null);
 export const teamsFetchingState = atom<boolean>(false);
 
 export const isTeamMemberState = atom<boolean>(true);
-
+export const isTeamManagerState = atom<boolean>(false);
 export const isTeamMemberJustDeletedState = atom<boolean>(false);
 
 export const isTeamJustDeletedState = atom<boolean>(false);

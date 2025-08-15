@@ -1,6 +1,6 @@
 import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { activeTeamState, userState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
@@ -17,9 +17,10 @@ import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { toast } from 'sonner';
 import { TOrganizationTeam } from '@/core/types/schemas';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const TeamSettingForm = () => {
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit } = useForm();
 	const t = useTranslations();
 

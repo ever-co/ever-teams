@@ -1,10 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@/core/hooks';
+import { useModal, useOrganizationTeams, useUser } from '@/core/hooks';
 import { Button, Text } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { RemoveModal } from '../../../settings/remove-modal';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
 
@@ -14,7 +15,7 @@ export const DangerZone = () => {
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useOrganizationTeams();
 	const handleRemoveUser = useCallback(() => {
@@ -42,15 +43,15 @@ export const DangerZone = () => {
 
 	return (
 		<>
-			<div className="flex flex-col items-center justify-between">
-				<div className="w-full mt-5">
+			<div className="flex flex-col justify-between items-center">
+				<div className="mt-5 w-full">
 					<div className="">
-						<div className="flex flex-col items-center justify-between w-full gap-6 lg:flex-row">
-							<div className="flex items-center justify-center flex-auto opacity-50 sm:w-32">
+						<div className="flex flex-col gap-6 justify-between items-center w-full lg:flex-row">
+							<div className="flex flex-auto justify-center items-center opacity-50 sm:w-32">
 								<Image alt="Danger zone" src="/assets/svg/danger-zones.svg" width={150} height={150} />
 							</div>
 							<div className="flex-auto sm:w-96">
-								<div className="flex flex-col items-center justify-between w-full gap-6 sm:flex-row">
+								<div className="flex flex-col gap-6 justify-between items-center w-full sm:flex-row">
 									<div className="flex-auto sm:w-64">
 										<Text className="font-normal text-gray-400 text-md">
 											{t('alerts.ALERT_DELETE_ACCOUNT')}
@@ -70,7 +71,7 @@ export const DangerZone = () => {
 										</Button>
 									</div>
 								</div>
-								<div className="flex flex-col items-center justify-between w-full gap-6 mt-5 sm:flex-row">
+								<div className="flex flex-col gap-6 justify-between items-center mt-5 w-full sm:flex-row">
 									<div className="flex-auto sm:w-64">
 										<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
 											{t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')}
@@ -90,7 +91,7 @@ export const DangerZone = () => {
 										</Button>
 									</div>
 								</div>
-								<div className="flex flex-col items-center justify-between w-full gap-6 mt-5 sm:flex-row">
+								<div className="flex flex-col gap-6 justify-between items-center mt-5 w-full sm:flex-row">
 									<div className="flex-auto sm:w-64">
 										<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
 											{t('alerts.ALERT_REMOVE_ALL_DATA')}

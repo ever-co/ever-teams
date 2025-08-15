@@ -2,18 +2,15 @@ import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/re
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
-import { useAuthenticateUser } from '@/core/hooks/auth';
-import {
-	useEmployeeUpdate,
-	useOrganizationTeams,
-	useTeamMemberCard,
-	useTMCardTaskEdit
-} from '@/core/hooks/organizations';
+import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
 import { useRoles } from '@/core/hooks/roles';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { activeTeamManagersState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	member: TOrganizationTeamEmployee;
@@ -27,8 +24,8 @@ type Props = {
 export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 	const t = useTranslations();
-	const { user } = useAuthenticateUser();
-	const { activeTeamManagers } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -85,7 +82,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 							</div> */}
 							<RolePopover />
 							{isManager !== -1 && member.role?.name !== ERoleName.MANAGER && (
-								<div className="flex items-center justify-between gap-x-2">
+								<div className="flex gap-x-2 justify-between items-center">
 									<span>Time tracking</span>
 									<div
 										className={`w-16 h-6 flex items-center   bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
@@ -163,7 +160,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 					</Transition>
 					{(status === 'settings' ||
 						(status === 'profile' && isManager !== -1 && member.role?.name !== ERoleName.MANAGER)) && (
-						<PopoverButton className="w-full mt-2 outline-none">
+						<PopoverButton className="mt-2 w-full outline-none">
 							<ThreeCircleOutlineHorizontalIcon
 								className="w-6 text-[#292D32] relative dark:text-white"
 								strokeWidth="2.5"

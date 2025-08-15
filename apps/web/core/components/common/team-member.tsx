@@ -5,11 +5,15 @@ import UsersCard from '@/core/components/teams/members-card/members-card';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { activeTeamState, getTeamInvitationsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
-	const { activeTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
-	const { teamInvitations } = useTeamInvitations();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { getOrganizationTeamsLoading } = useOrganizationTeams();
+	const teamInvitations = useAtomValue(getTeamInvitationsState);
 	const members = activeTeam?.members || [];
 	// const style = { width: `${100 / members.length}%` };
 
@@ -57,14 +61,14 @@ export const TeamMemberSection = () => {
 							<li
 								key={i}
 								role="status"
-								className="p-4 mt-3 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+								className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 							>
-								<div className="flex items-center justify-between">
+								<div className="flex justify-between items-center">
 									<div className="flex items-center space-x-3">
 										<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 										<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 										<div>
-											<div className="w-32 h-3 mb-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+											<div className="mb-2 w-32 h-3 bg-gray-200 rounded-full dark:bg-gray-700"></div>
 										</div>
 									</div>
 									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
@@ -79,12 +83,12 @@ export const TeamMemberSection = () => {
 				{$teamsFetching && (
 					<li
 						role="status"
-						className="p-4 mt-3 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+						className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 					>
-						<div className="flex items-center justify-between">
+						<div className="flex justify-between items-center">
 							<div className="flex items-center space-x-3">
 								<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-								<div className="w-24 bg-gray-200 h-9 rounded-xl dark:bg-gray-700"></div>
+								<div className="w-24 h-9 bg-gray-200 rounded-xl dark:bg-gray-700"></div>
 							</div>
 						</div>
 					</li>

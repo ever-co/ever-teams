@@ -1,7 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
+import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
 // dynamic import removed - using optimized components
@@ -52,6 +52,7 @@ import {
 	LazyProjectsGridView,
 	LazyProjectExportMenu
 } from '@/core/components/optimized-components/projects';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -63,7 +64,9 @@ function PageComponent() {
 		openModal: openFiltersCardModal
 	} = useModal();
 	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 

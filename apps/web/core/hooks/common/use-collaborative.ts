@@ -1,19 +1,18 @@
-import { collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
+import { activeTeamState, collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { BOARD_APP_DOMAIN } from '@/core/constants/config/constants';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';
-import { useOrganizationTeams } from '../organizations';
-import { useAuthenticateUser } from '../auth';
 import { TUser } from '@/core/types/schemas';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useCollaborative(user?: TUser) {
 	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
 
-	const { activeTeam } = useOrganizationTeams();
-	const { user: authUser } = useAuthenticateUser();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: authUser } = useUserQuery();
 	const [collaborativeSelect, setCollaborativeSelect] = useAtom(collaborativeSelectState);
 	const [collaborativeMembers, setCollaborativeMembers] = useAtom(collaborativeMembersState);
 

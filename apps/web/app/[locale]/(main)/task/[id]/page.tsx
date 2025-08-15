@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@/core/hooks';
+import { useTeamTasks, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -19,13 +19,16 @@ import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();
 	const params = useParams();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const { getTaskById, detailedTask, getTasksByIdLoading } = useTeamTasks();
 	const fullWidth = useAtomValue(fullWidthState);
 

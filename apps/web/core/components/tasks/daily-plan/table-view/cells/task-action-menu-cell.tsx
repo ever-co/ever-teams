@@ -1,14 +1,17 @@
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
-import { I_UserProfilePage, useOrganizationTeams, useTeamMemberCard } from '@/core/hooks';
+import { I_UserProfilePage, useTeamMemberCard } from '@/core/hooks';
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 	const [loading, setLoading] = useState(false);
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 	const plan = get(props.column, 'columnDef.meta.plan');
@@ -23,9 +26,9 @@ export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 
 	return (
-		<div className="flex items-center justify-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
+		<div className="flex justify-center items-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
 			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-			<div className="flex items-center justify-center ">
+			<div className="flex justify-center items-center">
 				<ActiveTaskStatusDropdown
 					task={props.row.original}
 					onChangeLoading={(load: boolean) => setLoading(load)}
@@ -33,7 +36,7 @@ export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 				/>
 			</div>
 			{/* TaskCardMenu */}
-			<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
+			<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
 				{props.row.original && currentMember && (
 					<TaskCardMenu
 						task={props.row.original}

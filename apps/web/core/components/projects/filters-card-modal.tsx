@@ -3,11 +3,13 @@ import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from '../common/multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
+import { useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState, organizationTeamsState } from '@/core/stores';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -22,8 +24,9 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 	const [selectedBudgetType, setSelectedBudgetType] = useState<string[]>([]);
 	const params = useSearchParams();
-	const { teams } = useOrganizationTeams();
-	const { organizationProjects } = useOrganizationProjects();
+	const teams = useAtomValue(organizationTeamsState);
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
 	const teamMembers = useMemo(
 		() => organizationProjects?.flatMap((project) => project.members ?? []),
 		[organizationProjects]

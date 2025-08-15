@@ -24,17 +24,9 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import {
-	useAuthenticateUser,
-	useFavorites,
-	useModal,
-	useOrganizationProjects,
-	useOrganizationTeams,
-	useTeamTasks
-} from '@/core/hooks';
+import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
-import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
@@ -50,18 +42,22 @@ import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
+import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
-	const { isTeamManager } = useOrganizationTeams();
+
+	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { state } = useSidebar();
 	const currentEmployeeFavorites = useAtomValue(currentEmployeeFavoritesState);
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { activeTeam } = useActiveTeam();
-	const { organizationProjects } = useOrganizationProjects();
+	const activeTeam = useAtomValue(activeTeamState);
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
 	const projects = useMemo(
 		() =>
 			activeTeam

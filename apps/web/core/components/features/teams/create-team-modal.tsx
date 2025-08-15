@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
+import { organizationTeamsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 /**
  * Create team modal
@@ -21,7 +23,8 @@ export function CreateTeamModal({
 }) {
 	const t = useTranslations();
 
-	const { createOTeamLoading, createOrganizationTeam, teams } = useOrganizationTeams();
+	const teams = useAtomValue(organizationTeamsState);
+	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
 
 	const [name, setName] = useState('');
@@ -49,12 +52,12 @@ export function CreateTeamModal({
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<form className="sm:w-[530px] w-[330px]" autoComplete="off" onSubmit={handleSubmit}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.CREATE_TEAM')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<InputField
 								name="name"
 								autoCustomFocus
@@ -67,7 +70,7 @@ export function CreateTeamModal({
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-3">
+						<div className="flex justify-between items-center mt-3 w-full">
 							{!joinTeamModal && <BackButton onClick={closeModal} />}
 
 							{joinTeamModal && (
