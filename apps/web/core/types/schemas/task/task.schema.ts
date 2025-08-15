@@ -176,12 +176,6 @@ export const taskSchema = baseTaskPropertiesSchema
 		estimateMinutes: z.number().optional()
 	});
 
-// schema for TTaskStatistics
-export const taskStatisticsSchema = taskSchema.extend({
-	duration: z.number().optional(),
-	durationPercentage: z.number().optional()
-});
-
 // schema for ICreateTask
 export const createTaskSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
@@ -221,7 +215,6 @@ export const updateActiveTaskSchema = z.object({
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
 export type TTask = z.infer<typeof taskSchema>;
-export type TTaskStatistics = z.infer<typeof taskStatisticsSchema>;
 export type TCreateTask = z.infer<typeof createTaskSchema>;
 export type TEmployee = z.infer<typeof employeeSchema>;
 export type TTag = z.infer<typeof tagSchema>;
@@ -266,11 +259,4 @@ export const validateCreateTask = (data: unknown): TCreateTask => {
  */
 export const validatePartialTask = (data: unknown) => {
 	return taskSchema.partial().parse(data);
-};
-
-/**
- * Validate the statistics of a task
- */
-export const validateTaskStatistics = (data: unknown): TTaskStatistics => {
-	return taskStatisticsSchema.parse(data);
 };

@@ -129,11 +129,11 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks at the component load
 	 */
 	useEffect(() => {
-		// if (firstLoad) {
-		getActiveTaskStatData().then(() => {
-			initialLoad.current = true;
-		});
-		// }
+		if (firstLoad) {
+			getActiveTaskStatData().then(() => {
+				initialLoad.current = true;
+			});
+		}
 	}, [firstLoad, getActiveTaskStatData, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	/**
