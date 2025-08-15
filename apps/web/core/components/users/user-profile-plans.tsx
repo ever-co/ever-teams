@@ -3,7 +3,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { useCanSeeActivityScreen, useDailyPlan, useTeamTasks, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -13,7 +13,7 @@ import {
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { dataDailyPlanState } from '@/core/stores';
+import { activeTeamState, dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -84,7 +84,8 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
 	const { hasPlan } = useTimer();
-	const { activeTeam } = useTeamTasks();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const [popupOpen, setPopupOpen] = useState(false);
 	const canSeeActivity = useCanSeeActivityScreen();

@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
@@ -20,7 +22,8 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	const t = useTranslations();
 	const { updateDailyPlan } = useDailyPlan();
 	const { startTimer } = useTimerView();
-	const { activeTeam } = useTeamTasks();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -59,7 +62,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('timer.todayPlanSettings.TITLE')}
 						</Text.Heading>
-						<div className="flex flex-col w-full gap-4 mb-7">
+						<div className="flex flex-col gap-4 mb-7 w-full">
 							<span className="text-sm">
 								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
 							</span>
@@ -77,7 +80,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 							/>
 						</div>
 					</div>
-					<div className="flex items-center justify-between mt-6">
+					<div className="flex justify-between items-center mt-6">
 						<Button
 							variant="outline"
 							type="submit"
