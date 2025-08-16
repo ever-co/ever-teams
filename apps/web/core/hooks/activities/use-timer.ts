@@ -7,7 +7,8 @@ import {
 	timeCounterState,
 	timerSecondsState,
 	timerStatusFetchingState,
-	timerStatusState
+	timerStatusState,
+	taskStatusesState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -18,7 +19,6 @@ import { useTaskStatistics } from '../tasks/use-task-statistics';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
-import { useTaskStatus } from '../tasks/use-task-status';
 import { useDailyPlan } from '../daily-plans/use-daily-plan';
 import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
@@ -155,7 +155,8 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 export function useTimer() {
 	const pathname = usePathname();
 	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
-	const { taskStatuses } = useTaskStatus();
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 	const { myDailyPlans } = useDailyPlan();

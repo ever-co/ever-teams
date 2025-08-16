@@ -2,7 +2,7 @@ import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';
-import { useModal, useTaskStatus } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@/core/components/common/avatar-stack';
@@ -10,6 +10,8 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { ProjectItemActions, ProjectViewDataType } from '..';
 import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
+import { useAtomValue } from 'jotai';
+import { taskStatusesState } from '@/core/stores';
 
 interface IGridItemProps {
 	data: ProjectViewDataType;
@@ -24,7 +26,8 @@ export default function GridItem(props: IGridItemProps) {
 		closeModal: closeRestoreProjectModal,
 		isOpen: isRestoreProjectModalOpen
 	} = useModal();
-	const { taskStatuses } = useTaskStatus();
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));

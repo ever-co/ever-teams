@@ -4,7 +4,7 @@ import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
 import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
-import { useRoles } from '@/core/hooks/roles';
+import { rolesState } from '@/core/stores';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -181,7 +181,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 };
 
 const RolePopover = () => {
-	const { roles } = useRoles();
+	const roles = useAtomValue(rolesState);
 
 	return (
 		<Popover className="relative w-full no-underline border-none">
