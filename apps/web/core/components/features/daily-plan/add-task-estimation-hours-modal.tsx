@@ -3,7 +3,7 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -814,7 +814,6 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
-	const status = useTaskStatus();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 

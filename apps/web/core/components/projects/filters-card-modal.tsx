@@ -3,13 +3,12 @@ import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from '../common/multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState, organizationTeamsState } from '@/core/stores';
+import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -47,7 +46,8 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 		],
 		[t]
 	);
-	const { taskStatuses } = useTaskStatus();
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const router = useRouter();
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));

@@ -15,7 +15,8 @@ import {
 	userState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState
+	teamTasksState,
+	taskStatusesState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useState } from 'react';
@@ -23,7 +24,6 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
-import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
@@ -79,7 +79,7 @@ export function useTeamTasks() {
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const { taskStatuses } = useTaskStatus();
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);

@@ -23,7 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { useModal, useTaskStatus } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
@@ -36,6 +36,8 @@ import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { useAtomValue } from 'jotai';
+import { taskStatusesState } from '@/core/stores';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -74,7 +76,8 @@ export const ProjectsTable = memo(
 		const [sorting, setSorting] = React.useState<SortingState>([]);
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
-		const { taskStatuses } = useTaskStatus();
+
+		const taskStatuses = useAtomValue(taskStatusesState);
 		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
 		}, [taskStatuses]);
