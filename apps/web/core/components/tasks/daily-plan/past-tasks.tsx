@@ -3,7 +3,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
-import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
@@ -16,6 +15,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
+import { pastPlansState } from '@/core/stores';
 
 export function PastTasks({
 	user,
@@ -26,7 +26,7 @@ export function PastTasks({
 	currentTab?: FilterTabs;
 	user?: TUser;
 }) {
-	const { pastPlans: _pastPlans } = useDailyPlan();
+	const _pastPlans = useAtomValue(pastPlansState);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);

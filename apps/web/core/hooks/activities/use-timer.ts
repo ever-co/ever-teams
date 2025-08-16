@@ -8,7 +8,8 @@ import {
 	timerSecondsState,
 	timerStatusFetchingState,
 	timerStatusState,
-	taskStatusesState
+	taskStatusesState,
+	myDailyPlanListState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -19,7 +20,6 @@ import { useTaskStatistics } from '../tasks/use-task-statistics';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
-import { useDailyPlan } from '../daily-plans/use-daily-plan';
 import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
@@ -159,7 +159,7 @@ export function useTimer() {
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
-	const { myDailyPlans } = useDailyPlan();
+	const myDailyPlans = useAtomValue(myDailyPlanListState);
 
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 

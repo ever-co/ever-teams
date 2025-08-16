@@ -1,10 +1,11 @@
 'use client';
 
-import { useCustomEmblaCarousel, useDailyPlan, useSyncRef, useTaskStatusValue } from '@/core/hooks';
+import { useCustomEmblaCarousel, useTaskStatusValue } from '@/core/hooks';
 import { RoundedButton } from '@/core/components';
 import { useEffect, useMemo } from 'react';
 import { TaskStatus } from './task-status';
 import { clsxm } from '@/core/lib/utils';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { planBadgeContent, planBadgeContPast } from '@/core/lib/helpers/index';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../users/user-profile-plans';
@@ -16,6 +17,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { dailyPlanListState } from '@/core/stores';
 
 export function TaskAllStatusTypes({
 	task,
@@ -41,8 +43,7 @@ export function TaskAllStatusTypes({
 		() => (task ? projects.find((project) => project.tasks?.some((el: TTask) => el.id === task.id)) : null),
 		[projects, task]
 	);
-
-	const { dailyPlan } = useDailyPlan();
+	const dailyPlan = useAtomValue(dailyPlanListState);
 
 	const { viewportRef, nextBtnEnabled, scrollNext, prevBtnEnabled, scrollPrev, emblaApi } = useCustomEmblaCarousel(
 		0,
