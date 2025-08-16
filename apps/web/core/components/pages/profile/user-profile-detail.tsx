@@ -1,4 +1,3 @@
-import { useTimer } from '@/core/hooks';
 import { isValidUrl } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
 import { useMemo } from 'react';
@@ -10,6 +9,8 @@ import { getTimerStatusValue, TimerStatus } from '../../timer/timer-status';
 import { Avatar } from '../../duplicated-components/avatar';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 
 export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmployee }) {
 	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
@@ -18,7 +19,7 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const size = 100;
-	const { timerStatus } = useTimer();
+	const timerStatus = useAtomValue(timerStatusState);
 	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
@@ -64,7 +65,7 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 				)}
 			</div>
 			<div className="flex flex-col gap-3.5 w-full">
-				<div className="flex items-center gap-x-4">
+				<div className="flex gap-x-4 items-center">
 					<Text.Heading as="h3" className="text-2xl md:text-4xl">
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>

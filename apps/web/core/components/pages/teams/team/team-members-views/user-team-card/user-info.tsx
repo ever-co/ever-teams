@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
+import { I_TeamMemberCardHook } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import Link from 'next/link';
@@ -15,6 +15,8 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { ManagerIcon, CreatorIcon } from '@/core/components/icons/icons';
+import { timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
@@ -29,8 +31,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const imageUrl = useMemo(() => {
 		return memberUser?.image?.thumbUrl || memberUser?.image?.fullUrl || memberUser?.imageUrl || '';
 	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
-
-	const { timerStatus } = useTimer();
+	const timerStatus = useAtomValue(timerStatusState);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);

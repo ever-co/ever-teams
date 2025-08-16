@@ -16,7 +16,7 @@ import { LazyCreateTeamModal } from '@/core/components/optimized-components/team
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
@@ -27,7 +27,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	const { setActiveTeam } = useOrganizationTeams();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const { timerStatus, stopTimer } = useTimer();
+	const timerStatus = useAtomValue(timerStatusState);
+	const { stopTimer } = useTimer();
 	const t = useTranslations();
 
 	const onChangeActiveTeam = useCallback(
