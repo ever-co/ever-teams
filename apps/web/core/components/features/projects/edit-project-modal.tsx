@@ -1,9 +1,9 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
+import { organizationProjectsState, rolesState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import AddOrEditProjectForm from './add-or-edit-project';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { useOrganizationProjects } from '@/core/hooks/organizations';
-import { useRoles } from '@/core/hooks/roles';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 
 interface IEditProjectModalProps {
@@ -22,9 +22,9 @@ interface IEditProjectModalProps {
  */
 export function EditProjectModal(props: IEditProjectModalProps) {
 	const { open, closeModal, projectId } = props;
-	const { organizationProjects } = useOrganizationProjects();
-	const { roles } = useRoles();
+	const organizationProjects = useAtomValue(organizationProjectsState);
 
+	const roles = useAtomValue(rolesState);
 	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 

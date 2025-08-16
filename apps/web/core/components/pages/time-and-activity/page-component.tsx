@@ -9,7 +9,6 @@ import { cn } from '@/core/lib/helpers';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
-import { useOrganizationProjects } from '@/core/hooks';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
@@ -23,7 +22,7 @@ import {
 	LazyActivityTable,
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, isTrackingEnabledState, tasksByTeamState, organizationProjectsState } from '@/core/stores';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -132,7 +131,7 @@ const TimeActivityComponents = () => {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const { organizationProjects } = useOrganizationProjects();
+	const organizationProjects = useAtomValue(organizationProjectsState);
 
 	const tasks = useAtomValue(tasksByTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
