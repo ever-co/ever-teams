@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@/core/hooks';
+import { useModal, useSyncRef, useTeamTasks } from '@/core/hooks';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
@@ -11,7 +11,9 @@ import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
+import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { taskLabelsListState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -23,7 +25,7 @@ type Props = {
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
 	const { updateTask } = useTeamTasks();
-	const { taskLabels } = useTaskLabels();
+	const taskLabels = useAtomValue(taskLabelsListState);
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +99,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				isLoading={isLoading}
 			>
 				<Button
-					className="w-full px-2 py-1 mt-4 text-xs dark:text-white dark:border-white"
+					className="px-2 py-1 mt-4 w-full text-xs dark:text-white dark:border-white"
 					variant="outline"
 					onClick={modal.openModal}
 				>

@@ -1,5 +1,4 @@
 import { pad } from '@/core/lib/helpers/number';
-import { useTeamTasks } from '@/core/hooks';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useTimer } from '@/core/hooks/activities/use-timer';
@@ -13,7 +12,7 @@ import {
 } from '@/core/components/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 const Timer = () => {

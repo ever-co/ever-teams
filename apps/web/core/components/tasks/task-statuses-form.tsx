@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@/core/hooks';
-import { userState } from '@/core/stores';
+import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
+import { tasksByTeamState, userState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -8,7 +8,7 @@ import { Button, ColorPicker, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -139,7 +139,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		openModal: openDeleteConfirmationModal
 	} = useModal();
 	const [statusToDelete, setStatusToDelete] = useState<TTaskStatus | null>(null);
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 
 	/**
 	 * Get Icon by status name
@@ -201,7 +201,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center gap-2 sm:items-start">
+						<div className="flex flex-col gap-2 items-center sm:items-start">
 							<div className="flex gap-2">
 								{!createNew && !edit && (
 									<Button
@@ -235,7 +235,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
-											className="w-full mb-0"
+											className="mb-0 w-full"
 											wrapperClassName="mb-0 rounded-lg flex-grow"
 											{...register('name')}
 										/>
@@ -261,10 +261,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										<ColorPicker
 											defaultColor={edit ? (edit.color ?? undefined) : randomColor}
 											onChange={(color) => setValue('color', color)}
-											className=" shrink-0"
+											className="shrink-0"
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -299,7 +299,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_STATUSES')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 										{getTaskStatusesLoading && <Spinner dark={false} />}
 										{!getTaskStatusesLoading && sortedArray.length ? (
 											sortedArray.map((status) => (
