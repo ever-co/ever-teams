@@ -1,6 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
+import { organizationProjectsState } from '@/core/stores';
 import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
@@ -73,8 +74,9 @@ function PageComponent() {
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
+	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { getOrganizationProjectsLoading, organizationProjects, setSearchQueries } = useOrganizationProjects();
+	const { getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjects();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
 	const router = useRouter();

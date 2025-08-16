@@ -3,12 +3,14 @@ import { Modal } from '@/core/components';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
+import { useTeamTasks } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState } from '@/core/stores';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -40,8 +42,8 @@ const ScreenshotDetailsModal = ({
 
 	const [project, setProject] = useState<TOrganizationProject | null>(null);
 	const [task, setTask] = useState<TTask | null>(null);
+	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { organizationProjects } = useOrganizationProjects();
 	const { getTaskById } = useTeamTasks();
 
 	const getProject = useCallback(
@@ -81,8 +83,8 @@ const ScreenshotDetailsModal = ({
 			closeModal={closeModal}
 			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border rounded-[1rem] h-[44rem] lg:w-[50rem]"
 		>
-			<div className="flex flex-col w-full h-full gap-5 p-5 overflow-x-auto">
-				<div className="flex flex-col w-full gap-2">
+			<div className="flex overflow-x-auto flex-col gap-5 p-5 w-full h-full">
+				<div className="flex flex-col gap-2 w-full">
 					<h4 className="space-x-2 text-lg font-semibold">
 						<span>
 							{new Date(slot?.startedAt ?? '').toLocaleDateString('en-US', {
@@ -98,10 +100,10 @@ const ScreenshotDetailsModal = ({
 					<span>{timeInterval}</span>
 				</div>
 
-				<div className="flex flex-col w-full gap-3">
-					<h4 className="text-lg font-medium ">{t('common.SCREENSHOTS')}</h4>
+				<div className="flex flex-col gap-3 w-full">
+					<h4 className="text-lg font-medium">{t('common.SCREENSHOTS')}</h4>
 
-					<div className="flex w-full gap-2 overflow-x-auto">
+					<div className="flex overflow-x-auto gap-2 w-full">
 						{slot?.screenshots?.map((screenshot, i) => (
 							<div className="w-[12rem] space-y-2 shrink-0" key={i}>
 								<ScreenshotItem
@@ -134,14 +136,14 @@ const ScreenshotDetailsModal = ({
 					</div>
 				</div>
 
-				<div className="flex flex-col w-full gap-3">
-					<h4 className="text-lg font-medium ">{t('common.TIME_LOG')}</h4>
+				<div className="flex flex-col gap-3 w-full">
+					<h4 className="text-lg font-medium">{t('common.TIME_LOG')}</h4>
 
 					<div className="w-full bg-[#E9E9E9] dark:bg-[#e9e9e90b] p-4 rounded-lg flex-col flex gap-3">
 						{/* Source */}
-						<div className="flex flex-col w-full gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-[#707070] font-medium">{t('common.SOURCE')} : </p>
-							<div className="flex gap-1 ">
+							<div className="flex gap-1">
 								{slot?.timeLogs?.[0]?.source && (
 									<div className="px-3 py-1  text-xs font-medium bg-[#4B2EFF] text-white rounded-sm">
 										{slot?.timeLogs?.[0]?.source}
@@ -157,9 +159,9 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* Client */}
-						<div className="flex flex-col w-full gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-[#707070] font-medium">{t('common.CLIENT')} : </p>
-							<div className="flex gap-1 ">
+							<div className="flex gap-1">
 								{project?.owner ? (
 									<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
 										{project?.owner}
@@ -173,11 +175,11 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* Project */}
-						<div className="flex flex-col w-full gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-[#707070] font-medium">{t('pages.taskDetails.PROJECT')} : </p>
 							{project ? (
-								<div className="flex gap-1 ">
-									<div className="flex h-8 gap-2">
+								<div className="flex gap-1">
+									<div className="flex gap-2 h-8">
 										<div
 											className={cn(
 												'w-8 overflow-hidden  h-full uppercase  rounded-sm flex items-center justify-center text-[1rem]',
@@ -213,7 +215,7 @@ const ScreenshotDetailsModal = ({
 						</div>
 
 						{/* To do */}
-						<div className="flex flex-col w-full gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							<p className="text-[#707070] font-medium">{t('common.TO_DO')}</p>
 							<div className="flex gap-1 text-xs">{task?.title}</div>
 						</div>
