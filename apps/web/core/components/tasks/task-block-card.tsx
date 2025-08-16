@@ -3,9 +3,9 @@ import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
 import { useAtom, useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskId } from '@/core/stores';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import Link from 'next/link';
-import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
+import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
@@ -24,8 +24,9 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const activeTeam = useAtomValue(activeTeamState);
+	const timerStatus = useAtomValue(timerStatusState);
 
-	const { timerStatus, activeTeamTask } = useTimerView();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);

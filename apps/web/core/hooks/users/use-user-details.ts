@@ -6,12 +6,14 @@ import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 
 export function useUserDetails(memberId: string) {
 	const activeTeam = useAtomValue(activeTeamState);
-	const { activeTeamTask, updateTask } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const { updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 

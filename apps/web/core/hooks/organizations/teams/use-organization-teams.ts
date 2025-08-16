@@ -13,15 +13,16 @@ import {
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
 	isTrackingEnabledState,
+	organizationTeamsState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 // import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad } from '../../common';
+import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 import { TOrganizationTeam } from '@/core/types/schemas';
@@ -154,7 +155,10 @@ import { toast } from 'sonner';
 
 export function useOrganizationTeams() {
 	const queryClient = useQueryClient();
-	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
+	const [teams, setTeams] = useAtom(organizationTeamsState);
+	const teamsRef = useSyncRef(teams);
+
+	const { setTeamsUpdate } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { logOut } = useAuthenticateUser();
 

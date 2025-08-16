@@ -1,7 +1,7 @@
 import React from 'react';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import { timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -45,7 +45,10 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+	const { addSeconds } = useTaskStatistics(seconds);
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const timerStatusValue: ETimerStatus = React.useMemo(() => {
