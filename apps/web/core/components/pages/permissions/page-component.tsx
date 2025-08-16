@@ -1,6 +1,6 @@
 'use client';
 
-import { activeTeamManagersState, rolesState, userState } from '@/core/stores';
+import { activeTeamManagersState, rolesState } from '@/core/stores';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { CommonToggle, Container, Divider, Text } from '@/core/components';

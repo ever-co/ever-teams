@@ -12,7 +12,6 @@ import {
 	activeTeamTaskId,
 	detailedTaskState,
 	memberActiveTaskIdState,
-	userState,
 	activeTeamTaskState,
 	tasksByTeamState,
 	teamTasksState,
@@ -31,6 +30,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { useUserQuery } from '../../queries/user-user.query';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -74,8 +74,8 @@ export function useTeamTasks() {
 	const tasks = useAtomValue(tasksByTeamState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const tasksRef = useSyncRef(tasks);
-
-	const authUser = useSyncRef(useAtomValue(userState));
+	const { data: userData } = useUserQuery();
+	const authUser = useSyncRef(userData);
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);

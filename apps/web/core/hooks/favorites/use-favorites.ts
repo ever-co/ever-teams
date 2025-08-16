@@ -3,13 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { favoriteService } from '@/core/services/client/api';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
-import { userState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { currentEmployeeFavoritesState, organizationFavoritesState } from '@/core/stores/common/favorites';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * A React hook that manages favorites operations.
@@ -23,7 +23,7 @@ import { useTranslations } from 'next-intl';
  */
 export const useFavorites = () => {
 	const t = useTranslations();
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id || user?.employeeId || '';
 	const [currentEmployeeFavorites, setCurrentEmployeeFavorites] = useAtom(currentEmployeeFavoritesState);
 	const [organizationFavorites] = useAtom(organizationFavoritesState);

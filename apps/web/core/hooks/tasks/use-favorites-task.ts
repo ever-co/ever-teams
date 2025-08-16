@@ -4,8 +4,8 @@ import { useCallback, useMemo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useFavorites } from '../favorites';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { userState } from '@/core/stores';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * A React hook that manages a list of favorite tasks for a team.
@@ -20,7 +20,7 @@ import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite'
 
 export const useFavoriteTasks = () => {
 	const tasks = useAtomValue(tasksByTeamState);
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 
 	const { currentEmployeeFavorites, createFavorite, deleteFavorite, createFavoriteLoading, deleteFavoriteLoading } =
 		useFavorites();

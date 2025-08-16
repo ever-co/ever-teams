@@ -1,22 +1,23 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIssueType } from '@/core/hooks';
-import { userState, issueTypesListState } from '@/core/stores';
+import { issueTypesListState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const IssueTypesForm = () => {
 	const t = useTranslations();
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueType | null>(null);

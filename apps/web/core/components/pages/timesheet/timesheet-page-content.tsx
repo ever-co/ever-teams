@@ -30,7 +30,7 @@ import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filte
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState, userState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import {
 	LazyCalendarView,
 	LazyTimesheetView,
@@ -39,13 +39,14 @@ import {
 	LazyTimesheetCard,
 	LazyTimesheetPagination
 } from '@/core/components/optimized-components/calendar';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 export function TimeSheetPageContent({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = use(params as any) as { memberId: string };
 	const t = useTranslations();
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const [pageSize, setPageSize] = useState(10);
 
 	const getPageSizeOptions = (total: number) => {
