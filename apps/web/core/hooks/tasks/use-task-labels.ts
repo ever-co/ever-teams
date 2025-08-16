@@ -1,6 +1,5 @@
 'use client';
-
-import { userState, taskLabelsListState, activeTeamIdState } from '@/core/stores';
+import { taskLabelsListState, activeTeamIdState, activeTeamState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,28 +8,21 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskLabels() {
-	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { user: authUser } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: authUser } = useUserQuery();
+	const activeTeam = useAtomValue(activeTeamState);
+
 	const queryClient = useQueryClient();
 
 	const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
 	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
 
-	const organizationId = useMemo(
-		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
-		[authUser, user]
-	);
-	const tenantId = useMemo(
-		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
-		[authUser, user]
-	);
+	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
+	const tenantId = useMemo(() => authUser?.employee?.tenantId || getTenantIdCookie(), [authUser]);
 	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 
 	// useQuery for fetching task labels
@@ -92,7 +84,7 @@ export function useTaskLabels() {
 	const loadTaskLabels = useCallback(async () => {
 		return taskLabelsQuery.data;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, activeTeamId]);
+	}, [authUser, activeTeamId]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskLabels();

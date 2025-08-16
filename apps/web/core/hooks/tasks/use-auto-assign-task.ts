@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { activeTeamState, timerStatusState, userState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerStatusState, userState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
@@ -16,8 +16,9 @@ export function useAutoAssignTask() {
 
 	const timerStatus = useAtomValue(timerStatusState);
 	const authUser = useAtomValue(userState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { updateTask, updateLoading, activeTeamTask } = useTeamTasks();
+	const { updateTask, updateLoading } = useTeamTasks();
 
 	const updateLoadingRef = useSyncRef(updateLoading);
 

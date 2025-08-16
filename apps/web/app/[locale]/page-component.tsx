@@ -40,7 +40,7 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, getTeamInvitationsState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
@@ -57,7 +57,7 @@ function MainPage() {
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const myInvitationsList = useAtomValue(getTeamInvitationsState);
+	const myInvitationsList = useAtomValue(myInvitationsState);
 	const { myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);

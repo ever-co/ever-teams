@@ -1,5 +1,4 @@
 'use client';
-
 import {
 	activeTaskStatisticsState,
 	activeTeamState,
@@ -15,14 +14,14 @@ import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskStatistics(addSeconds = 0) {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const [statActiveTask, setStatActiveTask] = useAtom(activeTaskStatisticsState);
 	const [statTasks, setStatTasks] = useAtom(tasksStatisticsState);
 	const setTasksFetching = useSetAtom(tasksFetchingState);

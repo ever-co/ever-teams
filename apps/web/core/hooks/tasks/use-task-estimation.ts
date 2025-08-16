@@ -6,9 +6,13 @@ import { useTeamTasks } from '../organizations';
 import { useOutsideClick } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 export function useTaskEstimation(task?: Nullable<TTask>) {
-	const { activeTeamTask, updateTask, updateLoading, activeTeamId } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const { updateTask, updateLoading, activeTeamId } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);

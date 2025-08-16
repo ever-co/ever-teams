@@ -17,7 +17,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, timerSecondsState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -359,6 +359,8 @@ const TimerButtonCall = React.memo(
 		activeTeam: TOrganizationTeam | null;
 		className?: string;
 	}) => {
+		const activeTeamTask = useAtomValue(activeTeamTaskState);
+
 		const {
 			loading,
 			activeTaskStatus,
@@ -369,7 +371,6 @@ const TimerButtonCall = React.memo(
 			canTrack,
 			disabled,
 			hasPlan,
-			activeTeamTask,
 			startTimer,
 			t
 		} = useTimerButtonLogic({ task, currentMember, activeTeam });
