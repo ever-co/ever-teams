@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { useStatusValue, useSyncRef, useTaskLabels, useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
-import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAtom, useAtomValue } from 'jotai';

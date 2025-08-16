@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';

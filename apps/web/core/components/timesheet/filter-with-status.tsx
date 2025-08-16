@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+'use client';
 import React, { HTMLAttributes } from 'react';
 import { Button } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';

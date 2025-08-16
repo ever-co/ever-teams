@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';

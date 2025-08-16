@@ -14,7 +14,6 @@ const ReCaptchaClientBoundary: React.FC<GoogleReCaptchaV3ProviderProps> = ({ chi
 
 	// Remove possible siteKey/type from providerProps to avoid duplicate props
 	// (TypeScript will warn if these are present twice)
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { siteKey: _siteKey, type: _type, ...restProviderProps } = providerProps;
 
 	if (!siteKey) {

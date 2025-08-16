@@ -137,7 +137,6 @@ function InitState() {
 		const five_minutes = 1000 * 60 * 5; // in milliseconds
 		const one_minute = 1000 * 60; // in milliseconds
 
-		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
 			useSyncTimer();
 

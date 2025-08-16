@@ -121,7 +121,7 @@ export function useTaskStatus() {
 		} catch (error) {
 			console.error('Failed to load task statuses:', error);
 		}
-	}, [setTaskStatuses, taskStatusesQuery.data]);
+	}, [taskStatusesQuery.data]);
 
 	const handleFirstLoad = useCallback(() => {
 		loadTaskStatuses();

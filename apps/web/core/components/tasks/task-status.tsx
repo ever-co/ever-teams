@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName } from '@/core/types/interfaces/common/class-name';
@@ -741,7 +740,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="w-full cursor-pointer outline-none">
+							<div className="w-full outline-none cursor-pointer">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}

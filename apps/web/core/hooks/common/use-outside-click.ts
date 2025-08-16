@@ -14,9 +14,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	useEffect(() => {
 		const onBodyClick = (ev: MouseEvent) => {
 			if (!targetEl.current) return;
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const el = targetEl.current!;
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const tnode = ev.target! as Node;
 
 			if (

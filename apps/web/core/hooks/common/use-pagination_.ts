@@ -19,7 +19,7 @@ interface UsePaginationReturn {
 	paginatedData: <T>(data: T[]) => T[];
 }
 
-export function _usePagination({
+export function usePaginationDerived({
 	totalItems,
 	initialPageSize = 10,
 	initialPage = 1

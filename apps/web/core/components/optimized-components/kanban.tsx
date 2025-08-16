@@ -1,15 +1,12 @@
 import dynamic from 'next/dynamic';
+import { KanbanViewSkeleton } from '../common/skeleton/kanban-view-skeleton';
 
 // Kanban View Components
 export const LazyKanbanView = dynamic(
 	() => import('@/core/components/pages/kanban/team-members-kanban-view').then((mod) => mod.KanbanView),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-full h-96 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Kanban...</div>
-			</div>
-		)
+		loading: () => <KanbanViewSkeleton />
 	}
 );
 

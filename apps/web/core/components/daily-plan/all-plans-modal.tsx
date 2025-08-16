@@ -482,7 +482,6 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 	 * @returns {void} Nothing
 	 */
 	const handleDayClick = useCallback(
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		(day: Date, activeModifiers: ActiveModifiers, e: React.MouseEvent) => {
 			if (activeModifiers.disabled) return;
 

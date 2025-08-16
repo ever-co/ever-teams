@@ -6,7 +6,6 @@ import { TRole } from '@/core/types/schemas';
 export type RoleItem = DropdownItem<TRole>;
 
 export function mapRoleItems(roles: TRole[]) {
-	// eslint-disable-next-line react/display-name
 	const RoleLabel = React.memo(({ selected, name }: { selected: boolean | undefined; name: string }) => (
 		<div className="flex justify-between">
 			<RoleItem title={name} className={selected ? 'font-medium' : ''} />

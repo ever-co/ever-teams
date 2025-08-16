@@ -40,7 +40,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
 					)}
 				>
 					<div className="flex items-center justify-start w-full text-[14px] font-normal">
-						<TimerIcon className="mr-2 h-4 w-4" />
+						<TimerIcon className="w-4 h-4 mr-2" />
 						{time.hours !== '--' && time.minute !== '--' ? (
 							`${time.hours}:${time.minute} ${time.meridiem}`
 						) : (
@@ -124,7 +124,7 @@ const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) =
 
 	return (
 		<div className="h-48 justify-normal ">
-			<div className="flex items-start justify-center h-48 w-full p-1">
+			<div className="flex items-start justify-center w-full h-48 p-1">
 				<div
 					style={{
 						scrollbarWidth: 'none',
@@ -132,7 +132,7 @@ const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) =
 						WebkitOverflowScrolling: 'touch',
 						overflow: '-moz-scrollbars-none'
 					}}
-					className="flex flex-col h-48  overflow-auto  p-1"
+					className="flex flex-col h-48 p-1 overflow-auto"
 				>
 					{renderButtons(12, handleHoursClick, time.hours)}
 				</div>
@@ -143,11 +143,11 @@ const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) =
 						WebkitOverflowScrolling: 'touch',
 						overflow: '-moz-scrollbars-none'
 					}}
-					className="flex flex-col h-48  overflow-auto  p-1"
+					className="flex flex-col h-48 p-1 overflow-auto"
 				>
 					{renderButtons(60, handleMinutesClick, time.minutes)}
 				</div>
-				<div className="flex flex-col py-1 p-1">
+				<div className="flex flex-col p-1 py-1">
 					<TimerPickerButton
 						onClick={() => handleMeridiemClick(!time.meridiem)} // deepscan-disable-line
 						variant={time.meridiem ? 'outline' : 'default'}
@@ -174,11 +174,10 @@ interface TimerPickerButtonProps {
 	variant?: 'link' | 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null;
 }
 
-// eslint-disable-next-line react/display-name
 const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(
 	({
 		title = '',
-		className = 'border-none border-gray-100 dark:border-gray-700',
+		className = 'border-gray-100 border-none dark:border-gray-700',
 		onClick = () => null,
 		loading = false,
 		variant = 'default'

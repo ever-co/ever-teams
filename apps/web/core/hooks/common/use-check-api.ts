@@ -51,14 +51,15 @@ export function useCheckAPI() {
 	});
 
 	useEffect(() => {
-		if (apiCheckQuery.data) {
+		if (apiCheckQuery.data && apiCheckQuery.isSuccess) {
 			logApiCheckSuccess(apiCheckQuery.data);
 			setIsApiWork(apiCheckQuery.data.status === 200);
 		}
-	}, [apiCheckQuery.data, logApiCheckSuccess]);
+	}, [apiCheckQuery.data, apiCheckQuery.isSuccess, logApiCheckSuccess]);
 
 	useEffect(() => {
-		if (apiCheckQuery.error) {
+		if (apiCheckQuery.error && apiCheckQuery.isError) {
+			console.error('API CHECK ERROR:', apiCheckQuery.error);
 			logApiCheckError(apiCheckQuery.error);
 			setIsApiWork(false);
 		}
