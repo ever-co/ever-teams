@@ -1,7 +1,7 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useAuthenticateUser, useDailyPlan, useTeamInvitations } from '@/core/hooks';
+import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -40,7 +40,8 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, getTeamInvitationsState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
 	const t = useTranslations();
@@ -53,8 +54,11 @@ function MainPage() {
 
 	const { outstandingPlans, dailyPlan } = useDailyPlan();
 
-	const { user, isTeamManager } = useAuthenticateUser();
-	const { myInvitationsList, myInvitations } = useTeamInvitations();
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+
+	const myInvitationsList = useAtomValue(getTeamInvitationsState);
+	const { myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -124,7 +128,7 @@ function MainPage() {
 													outstandingPlans={outstandingPlans}
 													dailyPlan={dailyPlan}
 													isTeamManager={isTeamManager}
-													user={user}
+													user={user!}
 												/>
 											</Suspense>
 										)}

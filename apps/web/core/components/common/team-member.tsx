@@ -1,4 +1,3 @@
-import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
 import InviteCard from '@/core/components/teams/invite/invite-card';
 import { InvitedCard } from '@/core/components/teams/invite/invited-card';
 import UsersCard from '@/core/components/teams/members-card/members-card';
