@@ -349,42 +349,23 @@ export function useOrganizationTeams() {
 	// ===== BACKWARD COMPATIBLE FUNCTIONS =====
 
 	const loadTeamsData = useCallback(async () => {
-		console.log('🚀 loadTeamsData called with user:', {
-			hasUser: !!user,
-			organizationId: user?.employee?.organizationId,
-			tenantId: user?.employee?.tenantId
-		});
-
 		if (!user?.employee?.organizationId || !user?.employee?.tenantId) {
-			console.warn('❌ loadTeamsData aborted - missing user data');
 			return;
 		}
 
 		// 🎯 TEAM SELECTION PRIORITY LOGIC
 		// 1. Try cookie first (current session)
 		let teamId = getActiveTeamIdCookie();
-		let source = 'cookie';
 
 		// 2. Fallback to localStorage (user's last selected team)
 		if (!teamId && typeof window !== 'undefined') {
 			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
-			if (teamId) source = 'localStorage';
 		}
 
 		// 3. Fallback to user's last team from server
 		if (!teamId && user?.lastTeamId) {
 			teamId = user.lastTeamId;
-			source = 'user.lastTeamId';
 		}
-
-		console.log('🔄 loadTeamsData - Team selection:', {
-			teamId,
-			source,
-			cookieValue: getActiveTeamIdCookie(),
-			localStorageValue:
-				typeof window !== 'undefined' ? window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) : null,
-			userLastTeamId: user?.lastTeamId
-		});
 
 		setActiveTeamId(teamId);
 
@@ -408,21 +389,11 @@ export function useOrganizationTeams() {
 			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
 
 			if (!selectedTeamExists && teamId && latestTeams.length) {
-				console.warn('🚨 Selected team no longer exists:', {
-					selectedTeamId: teamId,
-					availableTeams: latestTeams.map((t) => ({ id: t.id, name: t.name }))
-				});
 				setIsTeamMemberJustDeleted(true);
 				// Only fallback to first team if the selected team truly doesn't exist
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
-				console.warn('🚨 No teams available for user');
 				teamId = '';
-			} else if (selectedTeamExists) {
-				console.log('✅ Selected team exists and is valid:', {
-					teamId: selectedTeamExists.id,
-					teamName: selectedTeamExists.name
-				});
 			}
 
 			// Fetch specific team details if teamId exists

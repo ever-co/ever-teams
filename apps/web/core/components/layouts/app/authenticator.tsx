@@ -1,16 +1,15 @@
 'use client';
 import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
-import { useQueryCall } from '@/core/hooks/common/use-query';
 import { isTeamMemberState, userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { userService } from '@/core/services/client/api';
 import { BackdropLoader } from '@/core/components';
 import GlobalSkeleton from '../../common/global-skeleton';
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Params = {
 	displayName: string;
@@ -20,12 +19,19 @@ type Params = {
 
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
 	const AppComponent = (props: any) => {
-		// const { trans } = useTranslation();
-
 		const [user, setUser] = useAtom(userState);
-		const { queryCall, loading } = useQueryCall(userService.getAuthenticatedUserData);
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 		const isTeamMember = useAtom(isTeamMemberState);
+
+		// PRIMARY DATA SOURCE, Use useUserQuery for reliable user data
+		const userQuery = useUserQuery();
+
+		// Sync useUserQuery data with userState for backward compatibility
+		useEffect(() => {
+			if (userQuery.data && userQuery.isSuccess && !user) {
+				setUser(userQuery.data);
+			}
+		}, [userQuery.data, userQuery.isSuccess, user, setUser]);
 
 		const [showCreateTeamModal, setShowCreateTeamModal] = useState<boolean>(false);
 		const [showJoinTeamModal, setShowJoinTeamModal] = useState<boolean>(false);
@@ -44,23 +50,11 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			setNoTeamPopupShowCookie(false);
 		}, []);
 
-		const fetchUserData = useCallback(async () => {
-			if (!user && !loading) {
-				try {
-					const data = await queryCall();
-					setUser(data);
-				} catch (error) {
-					console.error('Failed to fetch user data:', error);
-				}
-			}
-		}, [user, loading, queryCall, setUser]);
-
-		useEffect(() => {
-			fetchUserData();
-		}, [fetchUserData]);
+		// REMOVED: fetchUserData is now redundant since useEffect above handles sync
 
 		// Show proper loading state instead of empty fragment
-		if (!user || loading) {
+		// SIMPLIFIED: Only use useUserQuery states
+		if (!userQuery.data || userQuery.isLoading) {
 			if (params.showPageSkeleton) {
 				// For pages that support page skeleton, show BackdropLoader
 				// This prevents blank pages and browser crashes during direct URL access
