@@ -1,4 +1,4 @@
-import { userState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useCallback, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +19,7 @@ export function useOrganizationProjects() {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const [organizationProjects, setOrganizationProjects] = useAtom(organizationProjectsState);
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const queryClient = useQueryClient();
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
