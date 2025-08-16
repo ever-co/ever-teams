@@ -4,6 +4,14 @@ import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import {
+	futurePlansState,
+	pastPlansState,
+	profileDailyPlanListState,
+	sortedPlansState,
+	todayPlanState,
+	outstandingPlansState
+} from '@/core/stores';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -49,17 +57,19 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const { user } = props;
 
 	const profile = useUserProfilePage();
-	const {
-		todayPlan,
-		futurePlans,
-		pastPlans,
-		outstandingPlans,
-		sortedPlans,
-		profileDailyPlans,
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
-		getMyDailyPlansLoading
-	} = useDailyPlan();
+
+	const futurePlans = useAtomValue(futurePlansState);
+
+	const pastPlans = useAtomValue(pastPlansState);
+
+	const todayPlan = useAtomValue(todayPlanState);
+
+	const outstandingPlans = useAtomValue(outstandingPlansState);
+
+	const sortedPlans = useAtomValue(sortedPlansState);
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+
+	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');

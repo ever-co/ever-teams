@@ -3,7 +3,6 @@ import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
-	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
 	useModal,
@@ -11,13 +10,14 @@ import {
 	useTaskStatistics,
 	useTeamMemberCard
 } from '@/core/hooks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, todayPlanState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -55,6 +55,7 @@ import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { LoaderCircle } from 'lucide-react';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { sortedPlansState } from '@/core/stores';
 
 type Props = {
 	active?: boolean;
@@ -98,7 +99,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		isAuthUser && activeAuthTask ? seconds : 0
 	);
 
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const isTrackingEnabled = useMemo(
@@ -515,7 +516,9 @@ export function TaskCardMenu({
 	}, [memberInfo, task, viewType, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const { todayPlan, futurePlans } = useDailyPlan();
+	const futurePlans = useAtomValue(sortedPlansState);
+
+	const todayPlan = useAtomValue(todayPlanState);
 
 	const taskPlannedToday = useMemo(
 		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -684,7 +687,7 @@ export function PlanTask({
 	const [isPending, startTransition] = useTransition();
 	const { closeModal, isOpen, openModal } = useModal();
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 
 	const handleOpenModal = async () => {
 		try {

@@ -1,7 +1,7 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -40,7 +40,14 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
+import {
+	activeTeamState,
+	isTeamMemberState,
+	isTrackingEnabledState,
+	myInvitationsState,
+	dailyPlanListState,
+	outstandingPlansState
+} from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
@@ -52,7 +59,9 @@ function MainPage() {
 
 	const isTeamMember = useAtomValue(isTeamMemberState);
 
-	const { outstandingPlans, dailyPlan } = useDailyPlan();
+	const dailyPlan = useAtomValue(dailyPlanListState);
+
+	const outstandingPlans = useAtomValue(outstandingPlansState);
 
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);

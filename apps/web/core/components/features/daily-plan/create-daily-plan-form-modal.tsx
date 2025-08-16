@@ -28,7 +28,7 @@ import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/da
 import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
-import { activeTeamManagersState, activeTeamState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState, profileDailyPlanListState } from '@/core/stores';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -51,7 +51,8 @@ export function CreateDailyPlanFormModal({
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
 	) as 'Select' | 'Select & Close';

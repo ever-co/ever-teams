@@ -1,13 +1,13 @@
 import { EmptyPlans } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
-import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
+import { outstandingPlansState } from '@/core/stores';
 import { useState } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
@@ -18,7 +18,8 @@ interface OutstandingAll {
 	user?: TUser;
 }
 export function OutstandingAll({ profile, user }: OutstandingAll) {
-	const { outstandingPlans } = useDailyPlan();
+	const outstandingPlans = useAtomValue(outstandingPlansState);
+
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const displayedTaskId = new Set();
 

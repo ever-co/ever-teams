@@ -29,7 +29,15 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamTaskState,
+	tasksByTeamState,
+	taskStatusesState,
+	timerStatusState,
+	profileDailyPlanListState,
+	myDailyPlanListState,
+	todayPlanState
+} from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 /**
@@ -63,7 +71,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const { updateDailyPlan, myDailyPlans, profileDailyPlans } = useDailyPlan();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const myDailyPlans = useAtomValue(myDailyPlanListState);
+
+	const { updateDailyPlan } = useDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -1154,7 +1165,9 @@ function UnplanTask(props: IUnplanTaskProps) {
 		unPlanSelectedDateLoading
 	} = props;
 	const { data: user } = useUserQuery();
-	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
+	const todayPlan = useAtomValue(todayPlanState);
+
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
