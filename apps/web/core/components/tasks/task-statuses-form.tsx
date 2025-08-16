@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
-import { tasksByTeamState, userState } from '@/core/stores';
+import { tasksByTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -8,7 +8,7 @@ import { Button, ColorPicker, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -17,6 +17,7 @@ import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/ta
 import { StandardTaskStatusDropDown } from './task-status';
 import { InputField } from '../duplicated-components/_input';
 import { TTaskStatus } from '@/core/types/schemas';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -24,7 +25,7 @@ type StatusForm = {
 };
 
 export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) => {
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskStatus | null>(null);

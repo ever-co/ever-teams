@@ -3,7 +3,7 @@ import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/conf
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -16,15 +16,15 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
-	const [user, setUser] = useAtom(userState);
+	const userDataQuery = useUserQuery();
+	const user = userDataQuery.data;
+	const setUser = useSetAtom(userState);
 	const $user = useRef<TUser | null>(defaultUser || null);
 	const intervalRt = useRef(0);
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const { isTeamManager } = useIsMemberManager(user);
-
-	const userDataQuery = useUserQuery();
 
 	const refreshTokenMutation = useMutation({
 		mutationKey: queryKeys.users.auth.refreshToken,
@@ -42,7 +42,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	});
 
 	useEffect(() => {
-		if (userDataQuery.data && userDataQuery.data !== user) {
+		if (userDataQuery.data && userDataQuery.isFetched && userDataQuery.data !== user) {
 			if (!user || userDataQuery.data.id !== user.id || userDataQuery.data.updatedAt !== user.updatedAt) {
 				setUser(userDataQuery.data);
 			}

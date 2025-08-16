@@ -2,6 +2,7 @@ import { Button, Text, ThemeToggler } from '@/core/components';
 import InternationalPhoneInput from '@/core/components/common/international-phone-Input';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { useLanguage, useSettings } from '@/core/hooks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
@@ -9,8 +10,6 @@ import {
 	setActiveTimezoneCookie,
 	userTimezone
 } from '@/core/lib/helpers/index';
-import { userState } from '@/core/stores';
-import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
@@ -35,7 +34,7 @@ interface FormValues {
 }
 
 export const PersonalSettingForm: React.FC = () => {
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { currentLanguage, changeLanguage } = useLanguage();
 	const {
 		register,
@@ -152,16 +151,16 @@ export const PersonalSettingForm: React.FC = () => {
 					handleContactChange();
 				}}
 			>
-				<div id="general" className="flex flex-col items-center justify-between">
-					<div className="w-full mt-5">
+				<div id="general" className="flex flex-col justify-between items-center">
+					<div className="mt-5 w-full">
 						<div>
 							{/* Full name */}
-							<div className="flex flex-col items-center justify-between w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+							<div className="flex flex-col justify-between items-center w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.FULL_NAME')}
 									</Text>
-									<div className="flex flex-col justify-start w-full gap-2 lg:flex-row">
+									<div className="flex flex-col gap-2 justify-start w-full lg:flex-row">
 										<InputField
 											type="text"
 											placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
@@ -205,12 +204,12 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Contact */}
-							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.CONTACT')}
 									</Text>
-									<div className="flex flex-col justify-start w-full gap-2 lg:flex-row">
+									<div className="flex flex-col gap-2 justify-start w-full lg:flex-row">
 										<div className="relative">
 											<InputField
 												type="email"
@@ -227,7 +226,7 @@ export const PersonalSettingForm: React.FC = () => {
 												wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5 "
 											/>
 											{!isValid.email && (
-												<p className="absolute text-xs text-red-500 -bottom-5">
+												<p className="absolute -bottom-5 text-xs text-red-500">
 													{t('pages.settingsPersonal.emailNotValid')}
 												</p>
 											)}
@@ -274,8 +273,8 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Theme */}
-							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.THEME')}
 									</Text>
@@ -289,12 +288,12 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Language */}
-							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.LANGUAGE')}
 									</Text>
-									<div className="relative flex flex-col w-full lg:flex-row">
+									<div className="flex relative flex-col w-full lg:flex-row">
 										<LanguageDropDown
 											currentLanguage={currentLanguage}
 											onChangeLanguage={handleChangeLanguage}
@@ -304,12 +303,12 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Timezone */}
-							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.TIME_ZONE')}
 									</Text>
-									<div className="relative flex flex-col w-full gap-2 lg:flex-row">
+									<div className="flex relative flex-col gap-2 w-full lg:flex-row">
 										<TimezoneDropDown
 											currentTimezone={currentTimezone}
 											onChange={handleChangeTimezone}
@@ -330,9 +329,9 @@ export const PersonalSettingForm: React.FC = () => {
 							{/* Work schedule */}
 							<div
 								id="work-schedule"
-								className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row"
+								className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row"
 							>
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('pages.settingsPersonal.WORK_SCHEDULE')}
 									</Text>
@@ -345,9 +344,9 @@ export const PersonalSettingForm: React.FC = () => {
 							{/* Subscription */}
 							<div
 								id="subscription"
-								className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row"
+								className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row"
 							>
-								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
+								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('pages.settingsPersonal.SUBSCRIPTION')}
 									</Text>

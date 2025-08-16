@@ -16,7 +16,7 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
 import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
-import { activeTeamState, userState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 // Types for better performance and security

@@ -353,7 +353,7 @@ export function useOrganizationTeams() {
 			return;
 		}
 
-		// 🎯 TEAM SELECTION PRIORITY LOGIC
+		// TEAM SELECTION PRIORITY LOGIC
 		// 1. Try cookie first (current session)
 		let teamId = getActiveTeamIdCookie();
 
