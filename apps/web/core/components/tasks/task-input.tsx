@@ -5,12 +5,17 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
-	useIssueType,
 	useOrganizationEmployeeTeams,
 	useOutsideClick,
 	useTaskInput
 } from '@/core/hooks';
-import { activeTeamState, activeTeamTaskId, taskLabelsListState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamState,
+	activeTeamTaskId,
+	issueTypesListState,
+	timerStatusState,
+	taskLabelsListState
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
@@ -78,7 +83,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
-	const { issueTypes } = useIssueType();
+
+	const issueTypes = useAtomValue(issueTypesListState);
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
