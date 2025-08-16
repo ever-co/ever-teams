@@ -1,25 +1,28 @@
 'use client';
-
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
 	activeTeamState,
 	dailyPlanListState,
 	employeePlansListState,
+	futurePlansState,
 	myDailyPlanListState,
 	profileDailyPlanListState,
-	taskPlans
+	pastPlansState,
+	taskPlans,
+	todayPlanState,
+	outstandingPlansState,
+	sortedPlansState
 } from '@/core/stores';
+import { useUserQuery } from '../queries/user-user.query';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
-import { useAuthenticateUser } from '../auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import {
 	TCreateDailyPlan,
 	TDailyPlanTasksUpdate,
@@ -31,7 +34,7 @@ import { useConditionalUpdateEffect, useQueryCall } from '../common';
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function useDailyPlan() {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	// const [taskId, setTaskId] = useState('');
 	const [employeeId, setEmployeeId] = useState('');
@@ -353,93 +356,15 @@ export function useDailyPlan() {
 		[deleteDailyPlanMutation]
 	);
 
-	const ascSortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
-	}, [profileDailyPlans]);
+	const futurePlans = useAtomValue(futurePlansState);
 
-	const futurePlans = useMemo(() => {
-		return ascSortedPlans?.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() >= today.getTime();
-		});
-	}, [ascSortedPlans]);
+	const pastPlans = useAtomValue(pastPlansState);
 
-	const descSortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-		);
-	}, [profileDailyPlans]);
+	const todayPlan = useAtomValue(todayPlanState);
 
-	const pastPlans = useMemo(() => {
-		return descSortedPlans?.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() < today.getTime();
-		});
-	}, [descSortedPlans]);
+	const outstandingPlans = useAtomValue(outstandingPlansState);
 
-	const todayPlan = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
-	}, [profileDailyPlans]);
-
-	const todayTasks = useMemo(() => {
-		return todayPlan
-			.map((plan) => {
-				return plan.tasks ? plan.tasks : [];
-			})
-			.flat();
-	}, [todayPlan]);
-
-	const futureTasks = useMemo(() => {
-		return futurePlans
-			.map((plan) => {
-				return plan.tasks ? plan.tasks : [];
-			})
-			.flat();
-	}, [futurePlans]);
-
-	const outstandingPlans = useMemo(() => {
-		return (
-			[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
-				// Exclude today plans
-				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
-
-				// Exclude future plans
-				.filter((plan) => {
-					const planDate = new Date(plan.date);
-					const today = new Date();
-					today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-					return planDate.getTime() <= today.getTime();
-				})
-				.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-				.map((plan) => ({
-					...plan,
-					// Include only no completed tasks
-					tasks: plan.tasks?.filter((task: TTask) => task.status !== 'completed')
-				}))
-				.map((plan) => ({
-					...plan,
-					// Include only tasks that are not added yet to the today plan or future plans
-					tasks: plan.tasks?.filter(
-						(_task: TTask) => ![...todayTasks, ...futureTasks].find((task: TTask) => task.id === _task.id)
-					)
-				}))
-				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
-		);
-	}, [profileDailyPlans, todayTasks, futureTasks]);
-
-	const sortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
-	}, [profileDailyPlans]);
+	const sortedPlans = useAtomValue(sortedPlansState);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadAllDayPlans();

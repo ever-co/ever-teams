@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
+import { I_TeamMemberCardHook } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -9,6 +9,8 @@ import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -23,7 +25,7 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 		return memberUser?.image?.thumbUrl || memberUser?.image?.fullUrl || memberUser?.imageUrl || '';
 	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
 
-	const { timerStatus } = useTimer();
+	const timerStatus = useAtomValue(timerStatusState);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
@@ -31,7 +33,7 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
-			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
+			className={clsxm('flex items-center space-x-2 lg:space-x-4', className)}
 		>
 			<div
 				className={clsxm(

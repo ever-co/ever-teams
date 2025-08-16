@@ -1,5 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useCollaborative, useModal } from '@/core/hooks';
 import { TUser } from '@/core/types/schemas';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import {
@@ -29,6 +29,9 @@ import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { JitsuAnalytics } from '../analytics/jitsu-analytics';
 import { Avatar } from '../duplicated-components/avatar';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -36,8 +39,9 @@ const Collaborate = () => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 
-	const { user } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const members = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
@@ -90,12 +94,12 @@ const Collaborate = () => {
 						isOpen ? closeModal() : openModal();
 					}}
 					className={clsxm(
-						'flex flex-row items-center justify-center py-3 text-xs px-4 gap-2 h-fit rounded-lg outline-none',
-						'bg-primary dark:bg-primary-light text-white text-sm',
+						'flex flex-row gap-2 justify-center items-center px-4 py-3 text-xs rounded-lg outline-none h-fit',
+						'text-sm text-white bg-primary dark:bg-primary-light',
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
 				>
-					<UserLinearIcon className="w-4 h-4 text-white " />
+					<UserLinearIcon className="w-4 h-4 text-white" />
 					{t('common.COLLABORATE')}
 				</DialogTrigger>
 				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
@@ -160,7 +164,7 @@ const Collaborate = () => {
 												<p className="text-xs text-muted-foreground">{member?.email}</p>
 											</div>
 											{selectedMemberIds.includes(member?.id) ? (
-												<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
+												<Check className="flex ml-auto w-5 h-5 text-primary dark:text-white" />
 											) : null}
 										</CommandItem>
 									))}
@@ -177,8 +181,8 @@ const Collaborate = () => {
 										className={clsxm(
 											'w-[2rem] h-[2rem]',
 											'flex justify-center items-center',
-											'rounded-full text-xs text-default dark:text-white',
-											'shadow-md text-lg font-normal'
+											'text-xs rounded-full text-default dark:text-white',
+											'text-lg font-normal shadow-md'
 										)}
 										style={{
 											backgroundColor: `${stc(member?.name || '')}80`
@@ -213,10 +217,10 @@ const Collaborate = () => {
 							</p>
 						)}
 
-						<div className="flex space-x-3 ">
+						<div className="flex space-x-3">
 							<Button
 								onClick={handleMeetClick}
-								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
+								className={clsxm('flex w-28 min-w-0 h-12 rounded-xl', 'gap-1 items-center')}
 								variant="outline"
 							>
 								<PhoneUpArrowIcon className="w-4 h-4" />
@@ -225,7 +229,7 @@ const Collaborate = () => {
 
 							<Button
 								onClick={handleBoardClick}
-								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
+								className={clsxm('flex w-28 min-w-0 h-12 rounded-xl', 'gap-1 items-center')}
 							>
 								<BrushSquareIcon className="w-4 h-4" />
 								{t('common.BOARD')}

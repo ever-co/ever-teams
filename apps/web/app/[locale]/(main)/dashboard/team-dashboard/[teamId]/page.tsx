@@ -13,7 +13,6 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
 import { TeamDashboardPageSkeleton } from '@/core/components/common/skeleton/team-dashboard-page-skeleton';
@@ -26,6 +25,7 @@ import {
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
+import { isTrackingEnabledState } from '@/core/stores';
 
 function TeamDashboard() {
 	const t = useTranslations();
@@ -33,7 +33,7 @@ function TeamDashboard() {
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const {
 		rapportChartActivity,

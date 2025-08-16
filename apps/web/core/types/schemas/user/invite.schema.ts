@@ -107,7 +107,7 @@ export const acceptInvitationRequest = z.object({
 });
 
 export const invitationAcceptedResponse = z.object({
-	user: userSchema,
+	user: z.lazy(() => userSchema),
 	token: z.string(),
 	refresh_token: z.string().optional(),
 	team: organizationTeamSchema.optional().nullable()

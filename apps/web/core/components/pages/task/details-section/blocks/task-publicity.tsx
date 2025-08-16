@@ -3,12 +3,12 @@ import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { GlobeIcon, LockIcon } from 'assets/svg';
 
 const TaskPublicity = () => {
-	const [task] = useAtom(detailedTaskState);
+	const task = useAtomValue(detailedTaskState);
 	const t = useTranslations();
 	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined | null>(task?.public);
 	const { updatePublicity } = useTeamTasks();

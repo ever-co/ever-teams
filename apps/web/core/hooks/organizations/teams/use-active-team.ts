@@ -6,9 +6,12 @@ import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from './use-organization-teams';
 import { useTimer } from '../../activities';
 import { toast } from 'sonner';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export const useActiveTeam = () => {
-	const { activeTeam, setActiveTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { setActiveTeam } = useOrganizationTeams();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
 	const onChangeActiveTeam = useCallback(

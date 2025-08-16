@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { TOrganizationProject } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState } from '@/core/stores';
 
 interface IRestoreProjectModalProps {
 	open: boolean;
@@ -23,7 +25,9 @@ interface IRestoreProjectModalProps {
 export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
-	const { editOrganizationProject, editOrganizationProjectLoading, setOrganizationProjects, organizationProjects } =
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const { editOrganizationProject, editOrganizationProjectLoading, setOrganizationProjects } =
 		useOrganizationProjects();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
@@ -58,11 +62,11 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex items-center justify-center w-full py-3 text-primary">
+				<div className="flex justify-center items-center py-3 w-full text-primary">
 					<RotateCcw size={45} />
 				</div>
 
-				<div className="flex flex-col items-center justify-between gap-5">
+				<div className="flex flex-col gap-5 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.projects.restoreModal.title')}
 					</Text.Heading>
@@ -71,7 +75,7 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 						{t('pages.projects.restoreModal.description', { projectName: project?.name })}
 					</p>
 
-					<div className="flex items-center justify-between w-full">
+					<div className="flex justify-between items-center w-full">
 						<Button onClick={closeModal} className="h-[2.75rem]" variant="outline">
 							{t('common.CANCEL')}
 						</Button>

@@ -6,7 +6,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
-import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useAuthenticateUser, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,9 +15,11 @@ import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
@@ -75,7 +77,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem
-					className="cursor-pointer "
+					className="cursor-pointer"
 					onClick={() => taskEdition?.task?.id && navigator.clipboard.writeText(taskEdition.task.id)}
 				>
 					Copy Task ID
@@ -86,7 +88,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem className=" cursor-pointer" onClick={async () => await toggleFavoriteTask(task)}>
+				<DropdownMenuItem className="cursor-pointer" onClick={async () => await toggleFavoriteTask(task)}>
 					{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
 						<Spinner />
 					) : isFavoriteTask(task.id) ? (
@@ -96,7 +98,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 					)}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem className="cursor-pointer " onClick={handleAssignment}>
+				<DropdownMenuItem className="cursor-pointer" onClick={handleAssignment}>
 					{isAssigned ? t('common.UNASSIGN_TASK') : t('common.ASSIGN_TASK')}
 				</DropdownMenuItem>
 			</DropdownMenuContent>

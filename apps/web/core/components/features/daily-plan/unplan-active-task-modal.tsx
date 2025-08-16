@@ -1,9 +1,12 @@
-import { useAuthenticateUser, useDailyPlan, useTimerView } from '@/core/hooks';
+import { useDailyPlan, useTimerView } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
@@ -25,9 +28,11 @@ interface UnplanActiveTaskModalProps {
  */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
+	const timerStatus = useAtomValue(timerStatusState);
+
 	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-	const { stopTimer, timerStatus } = useTimerView();
+	const { stopTimer } = useTimerView();
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();
@@ -53,11 +58,11 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between w-full gap-6">
+				<div className="flex flex-col gap-6 justify-between w-full">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						You are about to unplan the current active task, please confirm the action
 					</Text.Heading>
-					<div className="flex items-center w-full justify-evenly">
+					<div className="flex justify-evenly items-center w-full">
 						<Button
 							disabled={removeTaskFromPlanLoading}
 							variant="outline"
@@ -73,7 +78,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 							onClick={onYes}
 							variant="primary"
 							type="submit"
-							className="font-light rounded-md  text-md dark:text-white"
+							className="font-light rounded-md text-md dark:text-white"
 						>
 							Yes
 						</Button>

@@ -6,9 +6,7 @@ import moment from 'moment';
 
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
-import { useRoles } from '@/core/hooks/roles';
-import { useAuthenticateUser } from '@/core/hooks';
+import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
@@ -18,6 +16,9 @@ import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
+import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -29,9 +30,10 @@ export default function FinalReview(props: IStepElementProps) {
 		setOrganizationProjects
 	} = useOrganizationProjects();
 	const t = useTranslations();
-	const { activeTeam } = useOrganizationTeams();
-	const { roles } = useRoles();
-	const { user } = useAuthenticateUser();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const roles = useAtomValue(rolesState);
+	const { data: user } = useUserQuery();
 
 	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
@@ -137,10 +139,10 @@ export default function FinalReview(props: IStepElementProps) {
 	}, [finalData, goToPrevious]);
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
-			<div className="flex flex-col w-full gap-6">
-				<h2 className="text-xl font-medium ">{t('common.REVIEW')}</h2>
-				<div className="flex flex-col w-full gap-8">
+		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
+			<div className="flex flex-col gap-6 w-full">
+				<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
+				<div className="flex flex-col gap-8 w-full">
 					<BasicInformation
 						projectTitle={finalData?.name ?? '-'}
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
@@ -173,7 +175,7 @@ export default function FinalReview(props: IStepElementProps) {
 					/>
 				</div>
 			</div>
-			<div className="flex items-center justify-between w-full">
+			<div className="flex justify-between items-center w-full">
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
@@ -216,7 +218,7 @@ function Attribute(props: IAttribute) {
 	return (
 		<div className="flex min-w-[6rem] text-xs flex-col justify-between  gap-2 items-start">
 			<div className="font-medium">{_key}</div>
-			<div className="flex items-center gap-1 text-gray-500">
+			<div className="flex gap-1 items-center text-gray-500">
 				{value ? (
 					<>
 						{icon ? icon : null} <span>{value}</span>
@@ -245,8 +247,8 @@ function BasicInformation(props: IBasicInformationProps) {
 	const { projectTitle, projectImageUrl, description, startDate, endDate, websiteUrl } = props;
 	const t = useTranslations();
 	return (
-		<div className="flex flex-col w-full gap-8">
-			<div className="flex w-full gap-5">
+		<div className="flex flex-col gap-8 w-full">
+			<div className="flex gap-5 w-full">
 				<Attribute
 					_key={t('pages.projects.basicInformationForm.formFields.title')}
 					icon={<Thumbnail imgUrl={projectImageUrl} size={'20px'} identifier={projectTitle} />}
@@ -259,7 +261,7 @@ function BasicInformation(props: IBasicInformationProps) {
 				<Attribute
 					_key={t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 					value={
-						<div className="flex items-center gap-1">
+						<div className="flex gap-1 items-center">
 							{websiteUrl ? (
 								<>
 									<Clipboard size={10} /> <span>{websiteUrl}</span>
@@ -272,9 +274,9 @@ function BasicInformation(props: IBasicInformationProps) {
 				/>
 			</div>
 
-			<div className="flex flex-col w-full gap-2">
+			<div className="flex flex-col gap-2 w-full">
 				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? <p className="p-3 text-xs border rounded-lg min-h-20">{description}</p> : <span>-</span>}
+				{description ? <p className="p-3 text-xs rounded-lg border min-h-20">{description}</p> : <span>-</span>}
 			</div>
 		</div>
 	);
@@ -318,7 +320,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 	];
 
 	return (
-		<div className="flex w-full gap-5">
+		<div className="flex gap-5 w-full">
 			{data?.map(({ key, value }, index) => {
 				const isLastItem = index === data.length - 1;
 
@@ -355,10 +357,10 @@ function Categorization(props: ICategorizationProps) {
 	);
 
 	return (
-		<div className="flex flex-wrap items-center w-full gap-8">
+		<div className="flex flex-wrap gap-8 items-center w-full">
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium ">{t('pages.projects.categorizationForm.formFields.tags')}</p>
-				<div className="flex items-center w-full gap-2 wrap">
+				<p className="text-xs font-medium">{t('pages.projects.categorizationForm.formFields.tags')}</p>
+				<div className="flex gap-2 items-center w-full wrap">
 					{tags?.length ? (
 						tags?.map((el) => {
 							return <ItemWithColor key={el.name} label={el.name} color={el.color} />;
@@ -369,7 +371,7 @@ function Categorization(props: ICategorizationProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium ">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
+				<p className="text-xs font-medium">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
 				<ItemWithColor color={colorCode ?? 'black'} label={colorCode ?? '-'} />
 			</div>
 		</div>
@@ -392,8 +394,9 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	const { managerIds, memberIds, relations, projectImageUrl, projectTitle } = props;
 	const t = useTranslations();
 
-	const { organizationProjects } = useOrganizationProjects();
-	const { teams } = useOrganizationTeams();
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const teams = useAtomValue(organizationTeamsState);
 
 	// Deduplicated list of all team members to prevent user duplication
 	const allMembers = useMemo(() => {
@@ -415,17 +418,17 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	}, [teams]);
 
 	const Item = ({ name, imgUrl }: { name: string; imgUrl?: string }) => (
-		<div className="flex items-center gap-2">
+		<div className="flex gap-2 items-center">
 			<Thumbnail className="rounded-full" size={'24px'} identifier={name} imgUrl={imgUrl} />
-			<span className="text-xs font-medium ">{name}</span>
+			<span className="text-xs font-medium">{name}</span>
 		</div>
 	);
 
 	return (
-		<div className="flex flex-col w-full gap-8">
+		<div className="flex flex-col gap-8 w-full">
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium ">{t('common.MANAGERS')}</p>
-				<div className="flex items-center w-full gap-2 wrap">
+				<p className="text-xs font-medium">{t('common.MANAGERS')}</p>
+				<div className="flex gap-2 items-center w-full wrap">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
 							const member = allMembers?.find((el) => el?.employeeId === managerId);
@@ -448,8 +451,8 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium ">Members</p>
-				<div className="flex items-center w-full gap-2 wrap">
+				<p className="text-xs font-medium">Members</p>
+				<div className="flex gap-2 items-center w-full wrap">
 					{memberIds?.length ? (
 						memberIds?.map((memberId) => {
 							const member = allMembers?.find((el) => el?.employeeId === memberId);
@@ -474,14 +477,14 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 			{
 				// Will be implemented later on the api side (we keep this here)
 			}
-			<div className="flex-col hidden gap-2">
+			<div className="hidden flex-col gap-2">
 				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.relations')}</p>
-				<div className="flex flex-col w-full gap-2">
+				<div className="flex flex-col gap-2 w-full">
 					{relations?.length ? (
 						relations?.map((relation) => {
 							const project = organizationProjects?.find((el) => el.id === relation.projectId);
 							return (
-								<div key={project?.id} className="flex items-center gap-3">
+								<div key={project?.id} className="flex gap-3 items-center">
 									<Item name={projectTitle ?? '-'} imgUrl={projectImageUrl} />
 									<span className="text-xs italic text-gray-500 min-w-20">
 										{relation.relationType}

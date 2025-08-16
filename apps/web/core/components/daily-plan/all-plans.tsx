@@ -5,11 +5,11 @@ import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStat
 
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import { FilterTabs, useDailyPlan } from '@/core/hooks';
+import { FilterTabs } from '@/core/hooks';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
+import { dailyPlanViewHeaderTabs, sortedPlansState, todayPlanState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import TaskBlockCard from '@/core/components/tasks/task-block-card';
@@ -36,7 +36,10 @@ export function AllPlans({
 }) {
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
-	const { sortedPlans, todayPlan } = useDailyPlan();
+
+	const sortedPlans = useAtomValue(sortedPlansState);
+
+	const todayPlan = useAtomValue(todayPlanState);
 	const { date } = useDateRange(currentTab);
 
 	if (currentTab === 'Today Tasks') {

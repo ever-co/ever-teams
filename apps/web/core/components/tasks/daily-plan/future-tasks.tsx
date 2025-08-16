@@ -3,7 +3,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
-import { useDailyPlan } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
@@ -15,9 +14,10 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
+import { futurePlansState } from '@/core/stores';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
-	const { futurePlans } = useDailyPlan();
+	const futurePlans = useAtomValue(futurePlansState);
 	// Use a safe default instead of direct localStorage access
 	const { setDate, date } = useDateRange('Future Tasks');
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);

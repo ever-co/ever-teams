@@ -1,25 +1,28 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIssueType } from '@/core/hooks';
-import { userState } from '@/core/stores';
+import { issueTypesListState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const IssueTypesForm = () => {
 	const t = useTranslations();
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueType | null>(null);
+
+	const issueTypes = useAtomValue(issueTypesListState);
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -34,15 +37,8 @@ export const IssueTypesForm = () => {
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
-	const {
-		loading,
-		issueTypes,
-		createIssueType,
-		deleteIssueType,
-		editIssueType,
-		createIssueTypeLoading,
-		editIssueTypeLoading
-	} = useIssueType();
+	const { loading, createIssueType, deleteIssueType, editIssueType, createIssueTypeLoading, editIssueTypeLoading } =
+		useIssueType();
 
 	useEffect(() => {
 		if (!edit) {
@@ -125,7 +121,7 @@ export const IssueTypesForm = () => {
 										{createNew && t('common.NEW')}
 										{edit && t('common.EDIT')} {t('common.ISSUE_TYPE')}
 									</Text>
-									<div className="flex items-center w-full mt-3 gap-x-5">
+									<div className="flex gap-x-5 items-center mt-3 w-full">
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
@@ -149,7 +145,7 @@ export const IssueTypesForm = () => {
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -176,7 +172,7 @@ export const IssueTypesForm = () => {
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 								{t('pages.settingsTeam.LIST_OF_STATUSES')}
 							</Text>
-							<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+							<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 								{loading && !issueTypes?.length && <Spinner dark={false} />}
 								{issueTypes && issueTypes?.length ? (
 									issueTypes.map((type) => (

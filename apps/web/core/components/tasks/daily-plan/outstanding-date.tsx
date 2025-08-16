@@ -3,7 +3,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
-import { useDailyPlan } from '@/core/hooks';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
@@ -14,13 +13,14 @@ import { TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { outstandingPlansState } from '@/core/stores';
 
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
 }
 export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
-	const { outstandingPlans } = useDailyPlan();
+	const outstandingPlans = useAtomValue(outstandingPlansState);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Performance: useMemo prevents recalculating filtered plans on every render

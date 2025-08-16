@@ -11,12 +11,14 @@ import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
 import { useTranslations } from 'next-intl';
+import { tasksByTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const [hidden, setHidden] = useState(false);
 
 	const childTasks = useMemo(() => {
@@ -70,9 +72,9 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
+	const tasks = useAtomValue(tasksByTeamState);
 
-	const { tasks, loadTeamTasksData } = useTeamTasks();
-	const { updateTask } = useTeamTasks();
+	const { updateTask, loadTeamTasksData } = useTeamTasks();
 
 	const [loading, setLoading] = useState(false);
 

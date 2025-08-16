@@ -12,10 +12,10 @@ import {
 	activeTeamTaskId,
 	detailedTaskState,
 	memberActiveTaskIdState,
-	userState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState
+	teamTasksState,
+	taskStatusesState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useState } from 'react';
@@ -23,7 +23,6 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
-import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
@@ -31,6 +30,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { useUserQuery } from '../../queries/user-user.query';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -74,12 +74,12 @@ export function useTeamTasks() {
 	const tasks = useAtomValue(tasksByTeamState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const tasksRef = useSyncRef(tasks);
-
-	const authUser = useSyncRef(useAtomValue(userState));
+	const { data: userData } = useUserQuery();
+	const authUser = useSyncRef(userData);
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const { taskStatuses } = useTaskStatus();
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);

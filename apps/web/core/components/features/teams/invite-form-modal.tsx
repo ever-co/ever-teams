@@ -6,26 +6,28 @@ import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useEmployee, useTeamInvitations } from '@/core/hooks/organizations';
+import { useTeamInvitations } from '@/core/hooks/organizations';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, rolesState, userState } from '@/core/stores';
+import { activeTeamState, getTeamInvitationsState, rolesState, workingEmployeesState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const roles = useAtomValue(rolesState);
 	const t = useTranslations();
-	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
-		useTeamInvitations();
+
+	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useTeamInvitations();
 
 	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
-	const { workingEmployees } = useEmployee();
+	const workingEmployees = useAtomValue(workingEmployeesState);
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const activeTeam = useAtomValue(activeTeamState);
 	const nameInputRef = useRef<HTMLInputElement>(null);
@@ -143,7 +145,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<div className="mb-7">
 							<Text.Heading as="h3" className="mb-3 text-center">
 								{t('pages.invite.HEADING_TITLE')}
@@ -154,7 +156,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							</Text>
 						</div>
 
-						<div className="flex flex-col w-full gap-3">
+						<div className="flex flex-col gap-3 w-full">
 							<InviteEmailDropdown
 								emails={currentOrgEmails}
 								setSelectedEmail={setSelectedEmail}
@@ -204,7 +206,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							) : null}
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-6">
+						<div className="flex justify-between items-center mt-6 w-full">
 							<BackButton onClick={closeModal} />
 							<Button type="submit" disabled={isLoading} loading={isLoading}>
 								{t('pages.invite.SEND_INVITE')}

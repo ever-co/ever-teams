@@ -1,6 +1,9 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntitySchema } from '../task/task.schema';
-import { relationalOrganizationProjectSchema, relationalOrganizationTeamSchema } from '../common/base.schema';
+import {
+	relationalOrganizationProjectSchema,
+	relationalOrganizationTeamSchema,
+	basePerTenantEntityModelSchema
+} from '../common/base.schema';
 import { ETimeLogSource, ETimeLogType } from '../../generics/enums/timer';
 import { ETimesheetStatus } from '../../generics/enums/timesheet';
 import { employeeSchema } from '../organization/employee.schema';
@@ -12,7 +15,10 @@ import { employeeSchema } from '../organization/employee.schema';
 export const timeLogSchema = z
 	.object({
 		employeeId: z.string(),
-		employee: employeeSchema.optional().nullable(),
+		employee: z
+			.lazy(() => employeeSchema)
+			.optional()
+			.nullable(),
 		projectId: z.string().optional().nullable(),
 		taskId: z.string().optional().nullable(),
 		organizationContactId: z.string().optional().nullable(),
@@ -32,7 +38,11 @@ export const timeLogSchema = z
 	})
 	.merge(relationalOrganizationProjectSchema)
 	.merge(relationalOrganizationTeamSchema)
-	.merge(basePerTenantAndOrganizationEntitySchema);
+	.merge(
+		basePerTenantEntityModelSchema.extend({
+			organizationId: z.string().optional()
+		})
+	);
 
 // Add manual time request schema
 export const addManualTimeRequestSchema = z.object({
@@ -100,7 +110,7 @@ export const getTimerLogsDailyReportRequestSchema = z.object({
 });
 
 const employeeLogSchema = z.object({
-	employee: employeeSchema,
+	employee: z.lazy(() => employeeSchema),
 	sum: z.number(),
 	tasks: z.array(z.any()),
 	activity: z.number()

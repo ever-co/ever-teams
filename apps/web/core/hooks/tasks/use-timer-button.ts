@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 // Custom hook to extract TimerButtonCall business logic
 export function useTimerButtonLogic({
@@ -19,7 +21,9 @@ export function useTimerButtonLogic({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
+	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { canTrack, disabled, startTimer, stopTimer, hasPlan } = useTimerView();
 	const { setActiveTask } = useTeamTasks();
 	const t = useTranslations();
 

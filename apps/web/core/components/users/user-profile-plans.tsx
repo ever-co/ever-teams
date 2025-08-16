@@ -3,7 +3,15 @@ import { useAtom, useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { useCanSeeActivityScreen, useDailyPlan, useTeamTasks, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import {
+	futurePlansState,
+	pastPlansState,
+	profileDailyPlanListState,
+	sortedPlansState,
+	todayPlanState,
+	outstandingPlansState
+} from '@/core/stores';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -13,7 +21,7 @@ import {
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { dataDailyPlanState } from '@/core/stores';
+import { activeTeamState, dataDailyPlanState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -49,17 +57,19 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const { user } = props;
 
 	const profile = useUserProfilePage();
-	const {
-		todayPlan,
-		futurePlans,
-		pastPlans,
-		outstandingPlans,
-		sortedPlans,
-		profileDailyPlans,
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
-		getMyDailyPlansLoading
-	} = useDailyPlan();
+
+	const futurePlans = useAtomValue(futurePlansState);
+
+	const pastPlans = useAtomValue(pastPlansState);
+
+	const todayPlan = useAtomValue(todayPlanState);
+
+	const outstandingPlans = useAtomValue(outstandingPlansState);
+
+	const sortedPlans = useAtomValue(sortedPlansState);
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+
+	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
@@ -84,7 +94,8 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
 	const { hasPlan } = useTimer();
-	const { activeTeam } = useTeamTasks();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const [popupOpen, setPopupOpen] = useState(false);
 	const canSeeActivity = useCanSeeActivityScreen();

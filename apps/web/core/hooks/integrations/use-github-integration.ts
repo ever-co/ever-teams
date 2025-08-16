@@ -1,4 +1,4 @@
-import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
+import { integrationGithubMetadataState, integrationGithubRepositoriesState } from '@/core/stores';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,9 +9,10 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
 import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
 import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useGitHubIntegration() {
-	const [user] = useAtom(userState); // Phase 2: Still needed for install/oauth parameters
+	const { data: user } = useUserQuery();
 	const queryClient = useQueryClient(); // Phase 2: Now used for mutations
 
 	const [integrationGithubMetadata, setIntegrationGithubMetadata] = useAtom(integrationGithubMetadataState);

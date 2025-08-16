@@ -3,7 +3,7 @@ import { detailedTaskState } from '@/core/stores';
 import { Button } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { slateToHtml } from 'slate-serializers';
 import { configSlateToHtml } from '../../../../lib/helpers/text-editor-serializer-configurations';
 import { useTranslations } from 'next-intl';
@@ -18,7 +18,7 @@ interface IDFooterProps {
 
 const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
 	const $setIsUpdated = useCallbackRef(setIsUpdated);
-	const [task] = useAtom(detailedTaskState);
+	const task = useAtomValue(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
 	const t = useTranslations();
 	const saveDescription = useCallback(
@@ -68,7 +68,7 @@ const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUn
 						setIsUpdated();
 					}}
 					className={
-						'bg-primary min-w-[5rem] w-[3rem] text-sm text-white px-6 py-2 m-1 rounded-lg font-medium transition-all'
+						'px-6 py-2 m-1 text-sm font-medium text-white rounded-lg transition-all bg-primary min-w-[5rem] w-[3rem]'
 					}
 				>
 					{t('common.SAVE')}

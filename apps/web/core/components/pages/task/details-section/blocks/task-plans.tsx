@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { useDailyPlan } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
-import { useAtom } from 'jotai';
+import { detailedTaskState, taskPlans } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 
 export function TaskPlans() {
-	const [task] = useAtom(detailedTaskState);
-	const { taskPlanList, getPlansByTask } = useDailyPlan();
+	const task = useAtomValue(detailedTaskState);
+
+	const taskPlanList = useAtomValue(taskPlans);
+	const { getPlansByTask } = useDailyPlan();
 
 	useEffect(() => {
 		if (task?.id) {

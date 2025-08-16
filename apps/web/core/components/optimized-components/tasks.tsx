@@ -6,6 +6,7 @@ import {
 } from '../common/skeleton/profile-component-skeletons';
 import {
 	RichTextEditorSkeleton,
+	DetailsAsideSkeleton,
 	TaskActivitySkeleton,
 	IssueCardSkeleton
 } from '../common/skeleton/rich-text-editor-skeleton';
@@ -133,11 +134,7 @@ export const LazyTaskDetailsAside = dynamic(
 	() => import('@/core/components/pages/task/task-details-aside').then((mod) => ({ default: mod.default })),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Task Aside...</div>
-			</div>
-		)
+		loading: () => <DetailsAsideSkeleton />
 	}
 );
 

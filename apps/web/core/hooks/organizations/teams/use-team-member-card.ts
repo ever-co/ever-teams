@@ -1,6 +1,6 @@
 'use client';
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -33,7 +33,8 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
