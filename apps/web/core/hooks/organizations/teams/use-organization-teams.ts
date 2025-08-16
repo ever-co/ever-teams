@@ -5,6 +5,8 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
+
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
@@ -212,7 +214,8 @@ export function useOrganizationTeams() {
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
-	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
+	const { updateUserFromAPI, refreshToken } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
@@ -346,11 +349,43 @@ export function useOrganizationTeams() {
 	// ===== BACKWARD COMPATIBLE FUNCTIONS =====
 
 	const loadTeamsData = useCallback(async () => {
+		console.log('🚀 loadTeamsData called with user:', {
+			hasUser: !!user,
+			organizationId: user?.employee?.organizationId,
+			tenantId: user?.employee?.tenantId
+		});
+
 		if (!user?.employee?.organizationId || !user?.employee?.tenantId) {
+			console.warn('❌ loadTeamsData aborted - missing user data');
 			return;
 		}
 
+		// 🎯 TEAM SELECTION PRIORITY LOGIC
+		// 1. Try cookie first (current session)
 		let teamId = getActiveTeamIdCookie();
+		let source = 'cookie';
+
+		// 2. Fallback to localStorage (user's last selected team)
+		if (!teamId && typeof window !== 'undefined') {
+			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+			if (teamId) source = 'localStorage';
+		}
+
+		// 3. Fallback to user's last team from server
+		if (!teamId && user?.lastTeamId) {
+			teamId = user.lastTeamId;
+			source = 'user.lastTeamId';
+		}
+
+		console.log('🔄 loadTeamsData - Team selection:', {
+			teamId,
+			source,
+			cookieValue: getActiveTeamIdCookie(),
+			localStorageValue:
+				typeof window !== 'undefined' ? window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) : null,
+			userLastTeamId: user?.lastTeamId
+		});
+
 		setActiveTeamId(teamId);
 
 		try {
@@ -369,12 +404,25 @@ export function useOrganizationTeams() {
 				setIsTeamMemberJustDeleted(true);
 			}
 
-			// Handle case where user might be removed from all teams
-			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
+			// Handle case where user might be removed from selected team
+			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
+
+			if (!selectedTeamExists && teamId && latestTeams.length) {
+				console.warn('🚨 Selected team no longer exists:', {
+					selectedTeamId: teamId,
+					availableTeams: latestTeams.map((t) => ({ id: t.id, name: t.name }))
+				});
 				setIsTeamMemberJustDeleted(true);
+				// Only fallback to first team if the selected team truly doesn't exist
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
+				console.warn('🚨 No teams available for user');
 				teamId = '';
+			} else if (selectedTeamExists) {
+				console.log('✅ Selected team exists and is valid:', {
+					teamId: selectedTeamExists.id,
+					teamName: selectedTeamExists.name
+				});
 			}
 
 			// Fetch specific team details if teamId exists
