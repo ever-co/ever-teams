@@ -7,11 +7,13 @@ import { StatusIcon, statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
 import { useTeamTasks } from '@/core/hooks/organizations';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 const statusKeys = Object.keys(statusIcons) as ETaskStatusName[];
 
 const StatusDropdown = () => {
-	const { activeTeamTask } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	return <RawStatusDropdown task={activeTeamTask} />;
 };
@@ -70,14 +72,14 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 							placeholder={t('common.STATUS')}
 						/>
 					</div>
-					<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+					<Combobox.Button className="flex absolute inset-y-0 right-0 items-center pr-2">
 						{updateLoading ? (
-							<span className="w-5 h-5 ml-2">
+							<span className="ml-2 w-5 h-5">
 								<Spinner dark={false} />
 							</span>
 						) : (
 							<ChevronDownIcon
-								className={`ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
+								className={`ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-opacity-80`}
 								aria-hidden="true"
 							/>
 						)}

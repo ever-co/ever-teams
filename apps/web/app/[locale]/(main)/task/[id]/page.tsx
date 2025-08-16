@@ -19,7 +19,7 @@ import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -29,7 +29,8 @@ const TaskDetails = () => {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const { getTaskById, detailedTask, getTasksByIdLoading } = useTeamTasks();
+	const detailedTask = useAtomValue(detailedTaskState);
+	const { getTaskById, getTasksByIdLoading } = useTeamTasks();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task

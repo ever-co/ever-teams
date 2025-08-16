@@ -15,13 +15,13 @@ import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { detailedTaskState } from '@/core/stores';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { detailedTaskState, tasksByTeamState } from '@/core/stores';
 export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const [hidden, setHidden] = useState(false);
 
 	// const { actionType, actionTypeItems, onChange } = useActionType();
@@ -110,7 +110,9 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const { tasks, loadTeamTasksData, detailedTask } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
+	const detailedTask = useAtomValue(detailedTaskState);
+	const { loadTeamTasksData } = useTeamTasks();
 	const setDetailedTask = useSetAtom(detailedTaskState);
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);

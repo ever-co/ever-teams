@@ -73,7 +73,7 @@ DateCustomInput.displayName = 'DateCustomInput';
 
 function DueDates() {
 	const { updateTask } = useTeamTasks();
-	const [task] = useAtom(detailedTaskState);
+	const task = useAtomValue(detailedTaskState);
 	const t = useTranslations();
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [dueDate, setDueDate] = useState<Date | null>(null);

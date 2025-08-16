@@ -37,7 +37,7 @@ export default function UserTeamCard({
 					className
 				)}
 			>
-				<div className="relative flex items-center justify-between w-full m-0">
+				<div className="flex relative justify-between items-center m-0 w-full">
 					<div className="absolute left-0 cursor-pointer w-fit">
 						<SixSquareGridIcon className="w-2 max-w-fit text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
