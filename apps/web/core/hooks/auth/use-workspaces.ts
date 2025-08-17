@@ -83,8 +83,8 @@ export function useWorkspaces() {
 
 			// If no active workspace is defined, take the first one
 			if (!activeWorkspaceId && workspacesQuery.data.length > 0) {
-				const activeWorkspace = workspacesQuery.data.find((w) => w.isActive) || workspacesQuery.data[0];
-				setActiveWorkspaceId(activeWorkspace.id);
+				const activeWorkspace = workspacesQuery.data[0]; // No isActive field in API, use first workspace
+				setActiveWorkspaceId(activeWorkspace.user.tenant.id);
 			}
 
 			setIsInitialized(true);
@@ -115,18 +115,14 @@ export function useWorkspaces() {
 	 */
 	const setActiveWorkspace = useCallback(
 		(workspaceId: string) => {
-			const workspace = workspaces.find((w) => w.id === workspaceId);
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
 			if (workspace) {
 				setActiveWorkspaceId(workspaceId);
-				// Update the isActive state of the workspaces
-				const updatedWorkspaces = workspaces.map((w) => ({
-					...w,
-					isActive: w.id === workspaceId
-				}));
-				setWorkspaces(updatedWorkspaces);
+				// Note: No need to update isActive state since API doesn't provide it
+				// The active state is managed by activeWorkspaceId only
 			}
 		},
-		[workspaces, setActiveWorkspaceId, setWorkspaces]
+		[workspaces, setActiveWorkspaceId]
 	);
 
 	/**
@@ -134,7 +130,7 @@ export function useWorkspaces() {
 	 */
 	const getWorkspaceById = useCallback(
 		(workspaceId: string): TWorkspace | undefined => {
-			return workspaces.find((w) => w.id === workspaceId);
+			return workspaces.find((w) => w.user.tenant.id === workspaceId);
 		},
 		[workspaces]
 	);
@@ -144,7 +140,7 @@ export function useWorkspaces() {
 	 */
 	const hasWorkspace = useCallback(
 		(workspaceId: string): boolean => {
-			return workspaces.some((w) => w.id === workspaceId);
+			return workspaces.some((w) => w.user.tenant.id === workspaceId);
 		},
 		[workspaces]
 	);
@@ -153,7 +149,7 @@ export function useWorkspaces() {
 	 * Get inactive workspaces
 	 */
 	const inactiveWorkspaces = useMemo(() => {
-		return workspaces.filter((w) => w.id !== activeWorkspaceId);
+		return workspaces.filter((w) => w.user.tenant.id !== activeWorkspaceId);
 	}, [workspaces, activeWorkspaceId]);
 
 	/**

@@ -282,29 +282,11 @@ export const workspaceResponseSchema = z.object({
 	total_workspaces: z.number()
 });
 
-// TWorkspace type based on real data structure
-export type TWorkspace = {
-	id: string; // tenant.id (workspace ID)
-	name: string; // tenant.name (workspace name)
-	logo: string; // tenant.logo (workspace logo)
-	plan: string; // plan information
-	token: string; // authentication token
-	isActive: boolean; // is currently active workspace
-	isDefault: boolean; // is default workspace
-	user: z.infer<typeof workspaceUserSchema>; // user information
-	currentTeams: z.infer<typeof workspaceTeamSchema>[]; // teams in this workspace
-	// Legacy compatibility fields (to be deprecated)
-	teams: Partial<z.infer<typeof teamSchema>>[];
-	organization: Partial<z.infer<typeof organizationSchema>> & {
-		organizationId: string;
-		organizationName: string;
-	};
-	organizationTeams: Partial<z.infer<typeof organizationTeamSchema>>[];
-};
-
 // Export types for the new schemas
 export type TWorkspaceTenant = z.infer<typeof workspaceTenantSchema>;
 export type TWorkspaceUser = z.infer<typeof workspaceUserSchema>;
 export type TWorkspaceTeam = z.infer<typeof workspaceTeamSchema>;
-export type TWorkspaceData = z.infer<typeof workspaceDataSchema>;
 export type TWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;
+
+// TWorkspace type based on real data structure (workspace-data.json)
+export type TWorkspace = z.infer<typeof workspaceDataSchema>;
