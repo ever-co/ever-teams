@@ -6,10 +6,16 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { TOrganizationTeam, TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
+import {
+	TOrganizationTeam,
+	TWorkspace,
+	TWorkspaceResponse,
+	TWorkspaceData,
+	workspaceResponseSchema
+} from '@/core/types/schemas/team/organization-team.schema';
 import { AxiosResponse } from 'axios';
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import QueryString from 'qs';
+import { validateApiResponse } from '@/core/types/schemas/utils/validation';
 
 /**
  * Service for workspace management
@@ -17,7 +23,7 @@ import QueryString from 'qs';
 class WorkspaceService extends APIService {
 	/**
 	 * Retrieves all available workspaces for the authenticated user
-	 * Uses the same approach as the authentication flow to get multiple workspaces
+	 * Uses /auth/workspaces endpoint which returns data in workspace-data.json format
 	 */
 	getUserWorkspaces = async (user: TUser | null): Promise<TWorkspace[]> => {
 		try {
@@ -28,103 +34,97 @@ class WorkspaceService extends APIService {
 				throw new Error('User not authenticated');
 			}
 
-			const tenantId = user.tenantId;
-			if (!tenantId) {
-				throw new Error('Incomplete user data - missing tenant');
-			}
-
-			// Use the same approach as authentication flow
-			// Get ALL organizations where the user is a member (owned + invited)
-
-			// Create a new instance of URLSearchParams for query string construction
+			// Call /auth/workspaces endpoint (same format as workspace-data.json)
 			const query = QueryString.stringify({
-				relations: [
-					'organization',
-					'user',
-					'organization.tags',
-					'organization.contact',
-					'organization.employees',
-					'organization.featureOrganizations',
-					'organization.featureOrganizations.feature'
-				],
-				where: {
-					userId,
-					tenantId
-				},
-				includeEmployee: true
+				includeTeams: true
 			});
-			const userOrganizations = await this.get<PaginationResponse<TOrganizationTeam>>(
-				`/user-organization?${query}`
-			);
 
-			if (!userOrganizations.data?.items?.length) {
+			const response = await this.get<TWorkspaceResponse>(`/auth/workspaces?${query}`);
+
+			// Validate API response using the schema
+			const validatedData = validateApiResponse(
+				workspaceResponseSchema,
+				response.data,
+				'getUserWorkspaces'
+			) as TWorkspaceResponse;
+
+			if (!validatedData.workspaces?.length) {
 				return [];
 			}
 
-			const workspaces: TWorkspace[] = [];
+			// Transform workspace data to TWorkspace format
+			const workspaces: TWorkspace[] = validatedData.workspaces.map(
+				(workspaceData: TWorkspaceData, index: number) => {
+					const isActive = index === 0; // Mark first workspace as active by default
 
-			// Process each organization as a potential workspace
-			for (const organization of userOrganizations.data.items) {
-				const orgId = organization.organizationId;
-				if (!orgId) continue;
-
-				try {
-					// Get teams for this organization
-					const organizationTeams = await this.getAllOrganizationTeamRequest(orgId, tenantId);
-
-					const teamsData = organizationTeams.data as any;
-					if (!teamsData?.items?.length) {
-						this.logger.warn(`No teams found for organization ${orgId}`);
-						continue;
-					}
-
-					// Create workspace for this organization
-					const isActive = workspaces.length === 0; // Mark first workspace as active
-					const primaryTeam = teamsData.items[0];
-
-					const workspace: TWorkspace = {
-						id: orgId, // Use organization ID as workspace ID
-						name: organization.organization?.name || primaryTeam.name || 'Workspace',
-						logo: organization.imageUrl || primaryTeam.logo || '',
-						plan: 'Free',
-						token: accessToken,
+					return {
+						id: workspaceData.user.tenant.id, // Use tenant.id as workspace ID
+						name: workspaceData.user.tenant.name, // Use tenant.name as workspace name
+						logo: workspaceData.user.tenant.logo || '', // Use tenant.logo as workspace logo
+						plan: 'Free', // Default plan
+						token: workspaceData.token,
 						isActive,
 						isDefault: isActive,
-						teams: teamsData.items.map((team: any) => ({
-							id: team.id,
-							name: team.name,
-							logo: team.logo,
-							prefix: team.prefix,
-							profile_link: team.profile_link,
-							organizationId: team.organizationId,
-							tenantId: team.tenantId,
-							members: team.members || [],
-							managers: team.managers || [],
-							projects: team.projects || [],
-							tasks: team.tasks || []
-						})), // All teams in this workspace
+						user: workspaceData.user, // Full user data
+						currentTeams: workspaceData.current_teams, // Teams in this workspace
+						// Legacy compatibility fields (to be deprecated)
+						teams: workspaceData.current_teams.map((team) => ({
+							id: team.team_id,
+							name: team.team_name,
+							logo: team.team_logo
+						})),
 						organization: {
-							id: orgId,
-							name: organization.organization?.name || primaryTeam.name,
-							imageUrl: organization.organization?.imageUrl || primaryTeam.logo,
-							tenantId: tenantId,
-							isDefault: organization.organization?.isDefault || false,
-							organizationId: orgId,
-							organizationName: organization.organization?.name || primaryTeam.name
+							id: workspaceData.user.tenant.id,
+							name: workspaceData.user.tenant.name,
+							imageUrl: workspaceData.user.tenant.logo,
+							tenantId: workspaceData.user.tenant.id,
+							isDefault: isActive,
+							organizationId: workspaceData.user.tenant.id,
+							organizationName: workspaceData.user.tenant.name
 						},
-						organizationTeams: teamsData.items // Store all original team data
+						organizationTeams: workspaceData.current_teams.map((team) => ({
+							id: team.team_id,
+							name: team.team_name,
+							organizationId: workspaceData.user.tenant.id
+						}))
 					};
-
-					workspaces.push(workspace);
-				} catch (error) {
-					this.logger.error(`Error fetching teams for organization ${orgId}:`, error);
-					// Continue with other organizations
 				}
-			}
+			);
 
 			return workspaces;
 		} catch (error) {
 			this.logger.error('Error retrieving workspaces:', error);
+			throw error;
+		}
+	};
+
+	/**
+	 * Switch to a different workspace
+	 * Reuses the same logic as authentication flow
+	 */
+	switchToWorkspace = async (params: {
+		email: string;
+		token: string;
+		selectedTeam: string;
+		defaultTeamId?: string;
+		lastTeamId?: string;
+	}): Promise<void> => {
+		try {
+			// Use the same signInWorkspace logic from authService
+			const response = await authService.signInWorkspace({
+				email: params.email,
+				token: params.token,
+				selectedTeam: params.selectedTeam,
+				defaultTeamId: params.defaultTeamId,
+				lastTeamId: params.lastTeamId
+			});
+
+			this.logger.info('Successfully switched to workspace', {
+				tenantId: response.user?.tenantId,
+				selectedTeam: params.selectedTeam
+			});
+		} catch (error) {
+			this.logger.error('Error switching workspace:', error);
 			throw error;
 		}
 	};

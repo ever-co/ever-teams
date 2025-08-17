@@ -229,14 +229,71 @@ export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchem
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;
 
+/**
+ * Schema for workspace tenant information
+ */
+export const workspaceTenantSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	logo: z.string().optional()
+});
+
+/**
+ * Schema for workspace user information
+ */
+export const workspaceUserSchema = z.object({
+	id: z.string(),
+	email: z.string().email(),
+	name: z.string(),
+	imageUrl: z.string().optional(),
+	lastTeamId: z.string().nullable(),
+	lastLoginAt: z.string(),
+	tenant: workspaceTenantSchema
+});
+
+/**
+ * Schema for current teams in workspace
+ */
+export const workspaceTeamSchema = z.object({
+	team_id: z.string(),
+	team_name: z.string(),
+	team_logo: z.string().optional(),
+	team_member_count: z.string(),
+	profile_link: z.string(),
+	prefix: z.string().nullable()
+});
+
+/**
+ * Schema for individual workspace data (from API response)
+ */
+export const workspaceDataSchema = z.object({
+	user: workspaceUserSchema,
+	token: z.string(),
+	current_teams: z.array(workspaceTeamSchema)
+});
+
+/**
+ * Schema for complete workspace response from /auth/workspaces endpoint
+ */
+export const workspaceResponseSchema = z.object({
+	workspaces: z.array(workspaceDataSchema),
+	confirmed_email: z.string().email(),
+	show_popup: z.boolean(),
+	total_workspaces: z.number()
+});
+
+// TWorkspace type based on real data structure
 export type TWorkspace = {
-	id: string;
-	name: string;
-	logo: string;
-	plan: string;
-	token: string;
-	isActive: boolean;
-	isDefault: boolean;
+	id: string; // tenant.id (workspace ID)
+	name: string; // tenant.name (workspace name)
+	logo: string; // tenant.logo (workspace logo)
+	plan: string; // plan information
+	token: string; // authentication token
+	isActive: boolean; // is currently active workspace
+	isDefault: boolean; // is default workspace
+	user: z.infer<typeof workspaceUserSchema>; // user information
+	currentTeams: z.infer<typeof workspaceTeamSchema>[]; // teams in this workspace
+	// Legacy compatibility fields (to be deprecated)
 	teams: Partial<z.infer<typeof teamSchema>>[];
 	organization: Partial<z.infer<typeof organizationSchema>> & {
 		organizationId: string;
@@ -244,3 +301,10 @@ export type TWorkspace = {
 	};
 	organizationTeams: Partial<z.infer<typeof organizationTeamSchema>>[];
 };
+
+// Export types for the new schemas
+export type TWorkspaceTenant = z.infer<typeof workspaceTenantSchema>;
+export type TWorkspaceUser = z.infer<typeof workspaceUserSchema>;
+export type TWorkspaceTeam = z.infer<typeof workspaceTeamSchema>;
+export type TWorkspaceData = z.infer<typeof workspaceDataSchema>;
+export type TWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;
