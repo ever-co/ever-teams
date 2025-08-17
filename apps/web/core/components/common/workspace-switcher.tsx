@@ -81,11 +81,11 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						<div className="text-sm text-muted-foreground">
 							You are going to switch the workspace{' '}
 							<span className="font-medium text-foreground">
-								"{currentWorkspace?.name || 'Current workspace'}"
+								"{currentWorkspace?.user.tenant.name || 'Current workspace'}"
 							</span>{' '}
 							to{' '}
 							<span className="font-medium text-foreground">
-								"{targetWorkspace?.name || 'New workspace'}"
+								"{targetWorkspace?.user.tenant.name || 'New workspace'}"
 							</span>
 							.
 						</div>
@@ -114,7 +114,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
-						aria-label={`Confirm the change to ${targetWorkspace?.name}`}
+						aria-label={`Confirm the change to ${targetWorkspace?.user.tenant.name}`}
 					>
 						{isLoading ? (
 							<>
@@ -182,17 +182,8 @@ export function WorkspacesSwitcher() {
 			return currentWorkspace;
 		}
 
-		// Priority 2: Find workspace marked as active
-		const activeWorkspace = workspaces.find((workspace) => workspace.isActive);
-		if (activeWorkspace) {
-			return activeWorkspace;
-		}
-
-		// Priority 3: Find workspace marked as default (legacy)
-		const defaultWorkspace = workspaces.find((workspace) => workspace.isDefault);
-		if (defaultWorkspace) {
-			return defaultWorkspace;
-		}
+		// Priority 2: Since API doesn't provide isActive/isDefault, use first workspace
+		// (Active workspace is managed by activeWorkspaceId in the store)
 
 		// Priority 4: First workspace if any exist
 		if (workspaces.length > 0) {
@@ -202,7 +193,9 @@ export function WorkspacesSwitcher() {
 		return null;
 	}, [currentWorkspace, workspaces]);
 	// Workspaces for dropdown - exclude only the actual current workspace
-	const availableWorkspaces = workspaces.filter((workspace) => workspace.id !== actualCurrentWorkspace?.id);
+	const availableWorkspaces = workspaces.filter(
+		(workspace) => workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
+	);
 
 	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
 
@@ -218,7 +211,7 @@ export function WorkspacesSwitcher() {
 			}
 
 			// Find the target workspace
-			const workspace = workspaces.find((w) => w.id === workspaceId);
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
 			if (!workspace) {
 				return;
 			}
@@ -242,7 +235,7 @@ export function WorkspacesSwitcher() {
 		}
 
 		try {
-			await switchToWorkspace(targetWorkspace.id);
+			await switchToWorkspace(targetWorkspace.user.tenant.id);
 			// Modal will be closed automatically on success via the effect or component unmount
 		} catch (error) {
 			// Error handling is managed by the switchToWorkspace function
@@ -283,26 +276,26 @@ export function WorkspacesSwitcher() {
 			return (
 				<>
 					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
-						{actualCurrentWorkspace.logo || actualCurrentWorkspace.name ? (
+						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
 							<Avatar className="rounded !size-6">
 								<AvatarImage
 									width={24}
 									height={24}
-									src={actualCurrentWorkspace.logo}
-									alt={actualCurrentWorkspace.name}
+									src={actualCurrentWorkspace.user.tenant.logo}
+									alt={actualCurrentWorkspace.user.tenant.name}
 								/>
-								<AvatarFallback>{actualCurrentWorkspace.name.charAt(0)}</AvatarFallback>
+								<AvatarFallback>{actualCurrentWorkspace.user.tenant.name.charAt(0)}</AvatarFallback>
 							</Avatar>
 						) : (
 							<DefaultWorkspaceIcon className="size-4" />
 						)}
 					</div>
 					<div className="grid flex-1 text-sm leading-tight text-left">
-						<span className="font-semibold truncate">{actualCurrentWorkspace.name}</span>
-						{actualCurrentWorkspace.teams.length > 0 && (
+						<span className="font-semibold truncate">{actualCurrentWorkspace.user.tenant.name}</span>
+						{actualCurrentWorkspace.current_teams.length > 0 && (
 							<span className="text-xs text-muted-foreground">
-								{actualCurrentWorkspace.teams.length} team
-								{actualCurrentWorkspace.teams.length > 1 ? 's' : ''}
+								{actualCurrentWorkspace.current_teams.length} team
+								{actualCurrentWorkspace.current_teams.length > 1 ? 's' : ''}
 							</span>
 						)}
 					</div>
@@ -337,7 +330,7 @@ export function WorkspacesSwitcher() {
 								aria-label={
 									isWorkspaceLoading
 										? 'Loading workspace information...'
-										: `Current workspace: ${actualCurrentWorkspace?.name || 'No workspace'}. Click to change the workspace`
+										: `Current workspace: ${actualCurrentWorkspace?.user.tenant.name || 'No workspace'}. Click to change the workspace`
 								}
 								aria-expanded={false}
 								aria-haspopup="menu"
@@ -367,24 +360,22 @@ export function WorkspacesSwitcher() {
 									{
 										// Only show OTHER workspaces
 										availableWorkspaces.map((workspace) => {
-											const totalMembers = workspace.teams.reduce(
-												(total: number, team: any) => total + (team.members?.length || 0),
-												0
-											);
+											// Note: current_teams doesn't have members data, so we show team count only
+											const teamCount = workspace.current_teams.length;
 											return (
 												<DropdownMenuItem
-													key={workspace.id}
-													onClick={() => handleWorkspaceClick(workspace.id)}
+													key={workspace.user.tenant.id}
+													onClick={() => handleWorkspaceClick(workspace.user.tenant.id)}
 													className="gap-2 p-2"
 													disabled={isSwitching}
 													role="menuitem"
-													aria-label={`Change to the workspace ${workspace.name} with ${workspace.teams.length} team${workspace.teams.length > 1 ? 's' : ''}`}
+													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
 													<div className="flex justify-center items-center rounded-sm border size-6">
-														{workspace.logo ? (
+														{workspace.user.tenant.logo ? (
 															<img
-																src={workspace.logo}
-																alt={workspace.name}
+																src={workspace.user.tenant.logo}
+																alt={workspace.user.tenant.name}
 																className="rounded size-4"
 															/>
 														) : (
@@ -392,12 +383,9 @@ export function WorkspacesSwitcher() {
 														)}
 													</div>
 													<div className="flex-1">
-														<div className="font-medium">{workspace.name}</div>
+														<div className="font-medium">{workspace.user.tenant.name}</div>
 														<div className="text-xs text-muted-foreground">
-															{workspace.teams.length} team
-															{workspace.teams.length > 1 ? 's' : ''} • {totalMembers}{' '}
-															member
-															{totalMembers > 1 ? 's' : ''}
+															{teamCount} team{teamCount > 1 ? 's' : ''}
 														</div>
 													</div>
 												</DropdownMenuItem>

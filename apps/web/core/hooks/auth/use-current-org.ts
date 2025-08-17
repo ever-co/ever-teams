@@ -94,7 +94,7 @@ export function useCurrentOrg() {
 	 */
 	const getOrgById = useCallback(
 		(orgId: string): TWorkspace | undefined => {
-			return workspaces.find((w) => w.id === orgId);
+			return workspaces.find((w) => w.user.tenant.id === orgId);
 		},
 		[workspaces]
 	);

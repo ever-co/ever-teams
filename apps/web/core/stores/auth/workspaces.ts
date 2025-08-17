@@ -43,7 +43,7 @@ export const currentWorkspaceState = atom<TWorkspace | null>((get) => {
 		return null;
 	}
 
-	return workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null;
+	return workspaces.find((workspace) => workspace.user.tenant.id === activeWorkspaceId) || null;
 });
 
 /**
@@ -61,7 +61,7 @@ export const inactiveWorkspacesState = atom<TWorkspace[]>((get) => {
 	const workspaces = get(workspacesState);
 	const activeWorkspaceId = get(activeWorkspaceIdState);
 
-	return workspaces.filter((workspace) => workspace.id !== activeWorkspaceId);
+	return workspaces.filter((workspace) => workspace.user.tenant.id !== activeWorkspaceId);
 });
 
 /**
