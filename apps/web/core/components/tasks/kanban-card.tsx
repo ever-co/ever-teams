@@ -141,7 +141,7 @@ export default function Item(props: ItemProps) {
 	const { item, isDragging, provided, style } = props;
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { getEstimation } = useTaskStatistics(0);
+	const { getTaskCompletionPercentage } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const { activeTeamTask } = useTeamTasks();
 	const { timerStatus } = useTimerView();
@@ -167,7 +167,7 @@ export default function Item(props: ItemProps) {
 			};
 		}) || [];
 
-	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
+	const progress = getTaskCompletionPercentage(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
 
 	const {
