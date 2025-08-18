@@ -12,7 +12,6 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
-import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 
 class StatisticsService extends APIService {
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
@@ -53,9 +52,9 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, any | string[] | number>) => {
+	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
 		try {
-			const query = qs.stringify(queries, { arrayFormat: 'indices' });
+			const query = qs.stringify(queries);
 
 			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
 				tenantId: this.tenantId
@@ -81,14 +80,21 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
+				const employeesParams = employeeId
+					? [employeeId].reduce((acc: any, v, i) => {
+							acc[`employeeIds[${i}]`] = v;
+							return acc;
+						})
+					: {};
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					...(employeeId ? { employeeIds: [employeeId] } : {})
+					// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
+					...employeesParams
 				};
 				const globalParams = {
-					...commonParams
-					// defaultRange: 'false'
+					...commonParams,
+					defaultRange: 'false'
 				};
 
 				const globalData = await this.getStatisticsForTasks(globalParams);
@@ -116,19 +122,31 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	activeTaskTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
-		const activeTaskId = getActiveTaskIdCookie();
+	activeTaskTimesheetStatistics = async ({
+		activeTaskId,
+		employeeId
+	}: {
+		activeTaskId: string;
+		employeeId?: string;
+	}) => {
 		try {
 			if (!this.tenantId || !this.organizationId || !activeTaskId) {
 				throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
+				const employeesParams = employeeId
+					? [employeeId].reduce((acc: any, v, i) => {
+							acc[`employeeIds[${i}]`] = v;
+							return acc;
+						}, {})
+					: {};
+
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					taskIds: [activeTaskId],
-					...(employeeId ? { employeeIds: [employeeId] } : {})
+					'taskIds[0]': activeTaskId,
+					...employeesParams
 				};
 
 				const globalParams = {

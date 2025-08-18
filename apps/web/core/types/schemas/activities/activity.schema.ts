@@ -3,7 +3,6 @@ import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-
 import { uuIdSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
 import { employeeBaseSchema } from '../common/employee.schema';
-import { timeLogFiltersSchema } from '../timer/time-log.schema';
 
 /**
  * Zod schemas for Activity-related interfaces
@@ -134,12 +133,10 @@ export const activityFilterSchema = z.object({
 	dateStop: z.coerce.date().optional()
 });
 
-export const timeTrackingStatisticRequestSchema = z
-	.object({
-		todayStart: z.date().or(z.string()).optional(),
-		todayEnd: z.date().or(z.string()).optional()
-	})
-	.merge(timeLogFiltersSchema);
+export const timeTrackingStatisticRequestSchema = z.object({
+	todayStart: z.date().or(z.string()).optional(),
+	todayEnd: z.date().or(z.string()).optional()
+});
 
 // Inferred TypeScript types from Zod schemas - use these for consistency with validation
 export type TActivity = z.infer<typeof activitySchema>;

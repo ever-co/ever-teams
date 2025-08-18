@@ -63,7 +63,7 @@ export const addManualTimeRequestSchema = z.object({
 	source: z.nativeEnum(ETimeLogSource)
 });
 
-export const timeLogFiltersSchema = z.object({
+export const timerLogFiltersSchema = z.object({
 	date: z.date().or(z.string()).optional(),
 	startDate: z.date().or(z.string()).optional(),
 	endDate: z.date().or(z.string()),
@@ -88,22 +88,22 @@ export const timeLogFiltersSchema = z.object({
 	status: z.array(z.nativeEnum(ETimesheetStatus)).optional()
 });
 
-export const timeLogRequestSchema = z
+export const timerLogRequestSchema = z
 	.object({
 		onlyMe: z.boolean().optional(),
 		timesheetId: z.string().optional()
 	})
-	.merge(timeLogFiltersSchema);
+	.merge(timerLogFiltersSchema);
 
-export const timeLogReportRequestSchema = z
+export const timerLogReportRequestSchema = z
 	.object({
 		isEdited: z.boolean().optional(),
 		groupBy: z.enum(['date', 'employee', 'project', 'client']).optional()
 	})
-	.merge(timeLogRequestSchema);
+	.merge(timerLogRequestSchema);
 
 // Schema for get timer logs daily report request parameters
-export const getTimeLogsDailyReportRequestSchema = z.object({
+export const getTimerLogsDailyReportRequestSchema = z.object({
 	employeeIds: z.array(z.string().min(1, 'Employee ID is required')).min(1, 'At least one employee ID is required'),
 	startDate: z.date(),
 	endDate: z.date()
@@ -133,4 +133,4 @@ export const timeLogReportDailySchema = z.object({
 export type TAddManualTimeRequest = z.infer<typeof addManualTimeRequestSchema>;
 export type TTimeLog = z.infer<typeof timeLogSchema>;
 export type TTimeLogReportDaily = z.infer<typeof timeLogReportDailySchema>;
-export type TGetTimerLogsDailyReportRequest = z.infer<typeof timeLogReportRequestSchema>;
+export type TGetTimerLogsDailyReportRequest = z.infer<typeof timerLogReportRequestSchema>;
