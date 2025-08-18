@@ -2,3 +2,4 @@ import { IUserOrganization } from '@/core/types/interfaces/organization/user-org
 import { atom } from 'jotai';
 
 export const currentUserOrganizationState = atom<IUserOrganization>();
+export const currentUserOrganizationFetchingState = atom<boolean>(false);
