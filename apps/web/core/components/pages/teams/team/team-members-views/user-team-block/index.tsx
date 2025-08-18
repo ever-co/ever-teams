@@ -18,7 +18,7 @@ import { HorizontalSeparator } from '@/core/components/duplicated-components/sep
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 type IUserTeamBlock = {
 	active?: boolean;
@@ -54,7 +54,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 	const { hours: h, minutes: m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),
+				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue.duration || 0),
 				0
 			)) ||
 			activeTaskTotalStat?.duration ||

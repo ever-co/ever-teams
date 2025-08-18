@@ -1,4 +1,4 @@
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
@@ -69,7 +69,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 			currentMember?.totalWorkedTasks
 				.filter((t: TTask) => t.id === task?.id)
 				.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||

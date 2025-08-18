@@ -19,7 +19,7 @@ import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
@@ -62,8 +62,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		[setStatTasks, user?.employee?.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
-		statisticsService.allTaskTimesheetStatistics().then(({ data }) => {
-			setAllTaskStatistics(data);
+		statisticsService.allTaskTimesheetStatistics().then((data) => {
+			if (Array.isArray(data)) {
+				setAllTaskStatistics(data);
+			}
 		});
 	}, [setAllTaskStatistics]);
 
@@ -179,7 +181,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
+		(timeSheet: Nullable<TTaskStatistic>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
 			const totalEstimate = estimate || _task?.estimate || 0;
 
 			// Return 0 (neutral state) when there's no estimation data
