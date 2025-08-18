@@ -7,9 +7,12 @@ import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '@/core/hooks/common';
 import { useTeamTasks } from '@/core/hooks/organizations';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 export function EstimateTime() {
-	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { updateTask, updateLoading } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -126,7 +129,7 @@ export function EstimateTime() {
 
 	return (
 		<>
-			<div className="flex items-end ">
+			<div className="flex items-end">
 				<span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] items-end">
 					{t('timer.ESTIMATION.ESTIMATE_LABEL')} :{' '}
 				</span>

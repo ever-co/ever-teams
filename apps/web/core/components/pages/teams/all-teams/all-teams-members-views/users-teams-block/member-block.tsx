@@ -1,4 +1,3 @@
-import { useTimer } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { getTimerStatusValue } from '@/core/components/timer/timer-status';
 import { useMemo } from 'react';
@@ -10,6 +9,8 @@ import UserTeamActiveTaskEstimateBlock from './user-team-task-estimate';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 
 const cardColorType = {
 	running: ' border-green-300',
@@ -27,8 +28,7 @@ const cardColorType = {
 // }
 
 export default function UserTeamBlockCard({ member }: { member: any }) {
-	const { timerStatus } = useTimer();
-
+	const timerStatus = useAtomValue(timerStatusState);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, true);
 	}, [timerStatus, member]);
@@ -42,12 +42,12 @@ export default function UserTeamBlockCard({ member }: { member: any }) {
 					cardColorType[timerStatusValue]
 				])}
 			>
-				<div className="flex items-center justify-between w-full py-2">
+				<div className="flex justify-between items-center py-2 w-full">
 					<MemberBoxInfo member={member} />
 					{/* total time  */}
-					<div className="flex items-center justify-end w-2/5 gap-1">
+					<div className="flex gap-1 justify-end items-center w-2/5">
 						<BlockCardMemberTodayWorked member={member} />
-						{/* <div className="w-2 right-2">{menu}</div> */}
+						{/* <div className="right-2 w-2">{menu}</div> */}
 					</div>
 				</div>
 
@@ -61,8 +61,8 @@ export default function UserTeamBlockCard({ member }: { member: any }) {
 								<UserTeamActiveBlockTaskInfo member={member} activeTaskId={team.activeTaskId || ''} />
 
 								<HorizontalSeparator />
-								<div className="flex items-center justify-between w-full py-2">
-									<div className="flex items-center justify-start">
+								<div className="flex justify-between items-center py-2 w-full">
+									<div className="flex justify-start items-center">
 										<UserTeamActiveTaskTimesBlock
 											member={member}
 											activeTaskId={team.activeTaskId || ''}

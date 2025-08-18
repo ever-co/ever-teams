@@ -6,7 +6,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { PropsWithChildren, useMemo } from 'react';
-import { useStatusValue, useTaskSizes, useTaskStatusValue, useTeamTasks } from '@/core/hooks';
+import { useStatusValue, useTaskStatusValue } from '@/core/hooks';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -27,6 +27,8 @@ import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-v
 import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { useAtomValue } from 'jotai';
+import { tasksByTeamState, taskSizesListState } from '@/core/stores';
 
 /**
  * Task status dropwdown
@@ -235,7 +237,7 @@ export function EpicPropertiesDropdown({
 	children,
 	taskStatusClassName
 }: TTaskStatusesDropdown<'epic'>) {
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const status = useMemo(() => {
 		const temp: any = {};
 		tasks.forEach((task) => {
@@ -376,7 +378,7 @@ export function TaskPriorityStatus({
 }
 
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
-	const { taskSizes } = useTaskSizes();
+	const taskSizes = useAtomValue(taskSizesListState);
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 
 	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(props, taskSizesValue, 'size');

@@ -1,13 +1,13 @@
 import { TUser } from '@/core/types/schemas';
 import { userState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
 
 export function useSettings() {
-	const [, setUser] = useAtom(userState);
+	const setUser = useSetAtom(userState);
 	const queryClient = useQueryClient();
 
 	// Optimized invalidation function for user-related queries

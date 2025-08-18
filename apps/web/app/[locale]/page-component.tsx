@@ -1,7 +1,7 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -14,7 +14,7 @@ import { Analytics } from '@vercel/analytics/react';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
@@ -40,14 +40,34 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
+import {
+	activeTeamState,
+	isTeamMemberState,
+	isTrackingEnabledState,
+	myInvitationsState,
+	dailyPlanListState,
+	outstandingPlansState
+} from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
 	const t = useTranslations();
 
-	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { outstandingPlans, dailyPlan } = useDailyPlan();
-	const { user, isTeamManager } = useAuthenticateUser();
-	const { myInvitationsList, myInvitations } = useTeamInvitations();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const isTeamMember = useAtomValue(isTeamMemberState);
+
+	const dailyPlan = useAtomValue(dailyPlanListState);
+
+	const outstandingPlans = useAtomValue(outstandingPlansState);
+
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+
+	const myInvitationsList = useAtomValue(myInvitationsState);
+	const { myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -117,7 +137,7 @@ function MainPage() {
 													outstandingPlans={outstandingPlans}
 													dailyPlan={dailyPlan}
 													isTeamManager={isTeamManager}
-													user={user}
+													user={user!}
 												/>
 											</Suspense>
 										)}

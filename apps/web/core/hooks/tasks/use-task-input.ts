@@ -1,10 +1,9 @@
 'use client';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { memberActiveTaskIdState } from '@/core/stores';
+import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
-import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
@@ -39,10 +38,11 @@ export function useTaskInput({
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<TTask | null>(null);
-	const { taskStatuses: taskStatusList } = useTaskStatus();
+	const taskStatusList = useAtomValue(taskStatusesState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
 	const {
 		tasks: teamTasks,
-		activeTeamTask,
 		setActiveTask,
 		createLoading,
 		tasksFetching,

@@ -1,7 +1,8 @@
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 
 import { useTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-time-logs-daily-report';
-import { publicState, userState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { publicState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -31,7 +32,7 @@ import {
 import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 
 export function AppState() {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 
 	// const { currentLanguage } = useLanguage();
 	// useSyncLanguage(currentLanguage);

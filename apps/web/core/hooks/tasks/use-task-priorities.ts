@@ -1,6 +1,5 @@
 'use client';
-
-import { userState, taskPrioritiesListState, activeTeamIdState } from '@/core/stores';
+import { taskPrioritiesListState, activeTeamIdState, activeTeamState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,28 +8,20 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import { taskPriorityService } from '@/core/services/client/api/tasks/task-priority.service';
 import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskPriorities() {
-	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { user: authUser } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: authUser } = useUserQuery();
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const [taskPriorities, setTaskPriorities] = useAtom(taskPrioritiesListState);
 	const { firstLoadData: firstLoadTaskPrioritiesData } = useFirstLoad();
 
-	const organizationId = useMemo(
-		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
-		[authUser, user]
-	);
-	const tenantId = useMemo(
-		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
-		[authUser, user]
-	);
+	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
+	const tenantId = useMemo(() => authUser?.employee?.tenantId || getTenantIdCookie(), [authUser]);
 	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 	const isEnabled = useMemo(() => !!tenantId && !!organizationId && !!teamId, [tenantId, organizationId, teamId]);
 	// useQuery for fetching task priorities

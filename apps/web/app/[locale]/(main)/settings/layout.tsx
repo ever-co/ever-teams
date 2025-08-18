@@ -9,15 +9,16 @@ import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { ReactNode } from 'react';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 // Import optimized components from centralized location
 import { LazyLeftSideSettingMenu } from '@/core/components/optimized-components/settings';
+import { isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const t = useTranslations();
-	const { user, userLoading } = useAuthenticateUser();
+	const { data: user, isFetching: userLoading } = useUserQuery();
 	const fullWidth = useAtomValue(fullWidthState);
 	const pathName = usePathname();
 
@@ -29,18 +30,19 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
 
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	if (userLoading && !user) {
 		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
 	}
+
 	return (
 		<MainLayout
 			showTimer={isTrackingEnabled}
-			className="items-start w-full pb-1 overflow-hidden"
+			className="overflow-hidden items-start pb-1 w-full"
 			childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
 			mainHeaderSlot={
-				<div className="w-full py-6 bg-white dark:bg-dark--theme">
+				<div className="py-6 w-full bg-white dark:bg-dark--theme">
 					<Container
 						fullWidth={fullWidth}
 						className={cn('flex flex-row gap-8 justify-start items-center w-full')}

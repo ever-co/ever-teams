@@ -8,9 +8,14 @@ import { Spinner } from '../common/spinner';
 import { useTranslations } from 'next-intl';
 import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { clsxm } from '@/core/lib/utils';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
-	const { teams, activeTeam, setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+	const { setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
@@ -19,7 +24,7 @@ export const TeamsDropDown = () => {
 					<>
 						<PopoverButton
 							className={`w-[290px] h-12
-                ${open ? '':'text-opacity-90'}
+                ${open ? '' : 'text-opacity-90'}
                 group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
 						>
 							<div className="flex justify-between items-center w-full">
@@ -37,7 +42,7 @@ export const TeamsDropDown = () => {
 								) : (
 									<ChevronDownIcon
 										className={clsxm(
-											open ? '':'text-opacity-70',
+											open ? '' : 'text-opacity-70',
 											'ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-opacity-80'
 										)}
 										aria-hidden="true"

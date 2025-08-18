@@ -5,21 +5,26 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
+
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
+	isTeamManagerState,
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
+	isTrackingEnabledState,
+	organizationTeamsState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 // import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad } from '../../common';
+import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 import { TOrganizationTeam } from '@/core/types/schemas';
@@ -152,7 +157,10 @@ import { toast } from 'sonner';
 
 export function useOrganizationTeams() {
 	const queryClient = useQueryClient();
-	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
+	const [teams, setTeams] = useAtom(organizationTeamsState);
+	const teamsRef = useSyncRef(teams);
+
+	const { setTeamsUpdate } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { logOut } = useAuthenticateUser();
 
@@ -206,11 +214,13 @@ export function useOrganizationTeams() {
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
-	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
+	const { updateUserFromAPI, refreshToken } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
+	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
-	const [isTeamManager, setIsTeamManager] = useState(false);
+	const [isTeamManager, setIsTeamManager] = useAtom(isTeamManagerState);
 
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentUser = members.find((member) => member.employee?.userId === user?.id);
@@ -343,7 +353,20 @@ export function useOrganizationTeams() {
 			return;
 		}
 
+		// TEAM SELECTION PRIORITY LOGIC
+		// 1. Try cookie first (current session)
 		let teamId = getActiveTeamIdCookie();
+
+		// 2. Fallback to localStorage (user's last selected team)
+		if (!teamId && typeof window !== 'undefined') {
+			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+		}
+
+		// 3. Fallback to user's last team from server
+		if (!teamId && user?.lastTeamId) {
+			teamId = user.lastTeamId;
+		}
+
 		setActiveTeamId(teamId);
 
 		try {
@@ -362,9 +385,12 @@ export function useOrganizationTeams() {
 				setIsTeamMemberJustDeleted(true);
 			}
 
-			// Handle case where user might be removed from all teams
-			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
+			// Handle case where user might be removed from selected team
+			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
+
+			if (!selectedTeamExists && teamId && latestTeams.length) {
 				setIsTeamMemberJustDeleted(true);
+				// Only fallback to first team if the selected team truly doesn't exist
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
@@ -531,6 +557,7 @@ export function useOrganizationTeams() {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
+		setIsTrackingEnabledState(isTrackingEnabled);
 		isManager();
 	}, [activeTeam]);
 	useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
-import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/core/hooks';
+import { useTimelogFilterOptions } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
@@ -21,6 +21,8 @@ import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -48,10 +50,11 @@ interface FormState {
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const { organizationProjects } = useOrganizationProjects();
-	const { activeTeam } = useOrganizationTeams();
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
 
 	const timeOptions = generateTimeOptions(5);
@@ -195,7 +198,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						className="w-full font-medium"
 						options={tasks}
 						renderOption={(option) => (
-							<div className="flex items-center overflow-y-auto gap-x-2">
+							<div className="flex overflow-y-auto gap-x-2 items-center">
 								<TaskNameInfoDisplay
 									task={option as any}
 									className={clsxm(
@@ -225,7 +228,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 							updateFormState('employeeId', value);
 						}}
 						renderOption={(option) => (
-							<div className="flex items-center gap-x-2">
+							<div className="flex gap-x-2 items-center">
 								<img
 									className="w-6 h-6 rounded-full"
 									src={option.employee.user.imageUrl}
@@ -257,11 +260,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						itemToValue={itemToValue}
 					/>
 				</div>
-				<div className="flex flex-col items-start w-full ">
+				<div className="flex flex-col items-start w-full">
 					<label className="text-[#282048] dark:text-gray-400 font-medium mr-12 capitalize">
 						{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 					</label>
-					<div className="flex items-start gap-3">
+					<div className="flex gap-3 items-start">
 						<ToggleButton
 							isActive={formState.isBillable}
 							onClick={() => updateFormState('isBillable', true)}
@@ -296,7 +299,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
-				<div className="flex items-center justify-end w-full gap-x-2">
+				<div className="flex gap-x-2 justify-end items-center w-full">
 					<button
 						type="button"
 						onClick={closeModal}
@@ -314,7 +317,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 							'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
 						)}
 					>
-						{loadingCreateTimesheet && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
+						{loadingCreateTimesheet && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
 						{t('common.SAVE')}
 					</button>
 				</div>
@@ -332,17 +335,17 @@ interface ShiftTimingSelectProps {
 }
 
 const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChange, value }: ShiftTimingSelectProps) => (
-	<div className="flex items-center w-full gap-2 border border-gray-200 rounded dark:border-gray-700">
+	<div className="flex gap-2 items-center w-full rounded border border-gray-200 dark:border-gray-700">
 		<button
 			className={clsxm(
-				'  border-r px-2 py-2 text-center flex items-center font-medium hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
+				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
 				className
 			)}
 		>
 			{label}
 		</button>
 		<Select onValueChange={onChange} value={value}>
-			<SelectTrigger className="w-full bg-white border-transparent rounded-none text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="w-full bg-white rounded-none border-transparent text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
@@ -440,10 +443,10 @@ const OptimizedAccordion = ({
 		<>
 			{shifts.map((element, index) => {
 				return (
-					<Accordion key={index} type="single" collapsible className="w-full p-1">
-						<AccordionItem value={`item-${index}`} className="border rounded">
-							<AccordionTrigger className="flex flex-row-reverse items-center justify-end h-10 p-1 hover:no-underline">
-								<div className="flex items-center justify-between w-full">
+					<Accordion key={index} type="single" collapsible className="p-1 w-full">
+						<AccordionItem value={`item-${index}`} className="rounded border">
+							<AccordionTrigger className="flex flex-row-reverse justify-end items-center p-1 h-10 hover:no-underline">
+								<div className="flex justify-between items-center w-full">
 									<label className="block text-[#282048] dark:text-gray-400 mb-1 px-2">
 										{t('common.DATE_AND_TIME')}
 										<span className="text-[#de5505e1] ml-1">*</span>:
@@ -471,7 +474,7 @@ const OptimizedAccordion = ({
 					</Accordion>
 				);
 			})}
-			<button onClick={handleAddShift} className="flex items-center justify-start gap-2 cursor-pointer">
+			<button onClick={handleAddShift} className="flex gap-2 justify-start items-center cursor-pointer">
 				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded text-white">
 					<PlusIcon />
 				</div>
@@ -506,9 +509,9 @@ const ShiftManagement = ({
 					setDate={(value) => onChange(index, 'dateFrom', value as any)}
 				/>
 			</div>
-			<div className="flex flex-col items-start w-full gap-2">
+			<div className="flex flex-col gap-2 items-start w-full">
 				<span className="font-medium">{t('common.SHIFT_TIMING')}</span>
-				<div className="flex items-center justify-between w-full gap-4 mb-4">
+				<div className="flex gap-4 justify-between items-center mb-4 w-full">
 					<ShiftTimingSelect
 						label="Start"
 						timeOptions={timeOptions}

@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
+import { useAuthenticateUser, useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import React, { memo, useCallback } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
@@ -7,6 +7,9 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
+import { useAtomValue } from 'jotai';
+import { getTeamInvitationsState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -17,8 +20,11 @@ interface Props {
 
 const TeamMembersCardView: React.FC<Props> = memo(
 	({ teamMembers: members, currentUser, teamsFetching = false, publicTeam = false }) => {
-		const { isTeamManager } = useAuthenticateUser();
-		const { teamInvitations } = useTeamInvitations();
+		const { data: user } = useUserQuery();
+
+		const { isTeamManager } = useIsMemberManager(user);
+
+		const teamInvitations = useAtomValue(getTeamInvitationsState);
 
 		const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 

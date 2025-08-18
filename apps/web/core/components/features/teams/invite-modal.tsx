@@ -1,4 +1,5 @@
 import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { AxiosError } from 'axios';
@@ -12,7 +13,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
-import { rolesState, userState } from '@/core/stores';
+import { rolesState } from '@/core/stores';
 
 const initialValues: Pick<TInvite, 'email' | 'fullName' | 'roleId'> = {
 	email: '',
@@ -27,7 +28,7 @@ export interface IInviteProps {
 	task: TTask | null;
 }
 const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const roles = useAtomValue(rolesState);
 	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
 	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName' | 'roleId'>>({

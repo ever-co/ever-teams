@@ -6,7 +6,6 @@ import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal } from '@/core/hooks';
 import { Modal, Divider } from '@/core/components';
-import { useOrganizationTeams } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
@@ -18,6 +17,8 @@ import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { TEmployee, TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -64,7 +65,8 @@ export default function ImageOverlapper({
 	const isMoreThanDisplay = images?.length > displayImageCount;
 	const imageLength = images?.length;
 	const { isOpen, openModal, closeModal } = useModal();
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const allMembers = activeTeam?.members || [];
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
@@ -182,12 +184,12 @@ export default function ImageOverlapper({
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="p-5 py-6 overflow-auto">
+						<ul className="overflow-auto p-5 py-6">
 							{allMembers?.map((member: any) => {
 								return (
 									<li
 										key={member.employee}
-										className="border border-transparent rounded-lg cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
+										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
 									>
 										<TeamMember
 											member={member}
@@ -207,7 +209,7 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex flex-row items-center justify-center h-12 min-w-0 gap-1 px-4 py-2 text-sm text-white bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40 rounded-xl w-28"
+										className="flex flex-row gap-1 justify-center items-center px-4 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
 										onClick={() => {
 											onCLickValidate();
 										}}
@@ -224,8 +226,8 @@ export default function ImageOverlapper({
 		);
 	}
 	return (
-		<div className="relative flex items-center min-w-fit">
-			<div className="relative flex items-center">
+		<div className="flex relative items-center min-w-fit">
+			<div className="flex relative items-center">
 				{firstArray.map((image, index) => (
 					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
 						<div
@@ -261,7 +263,7 @@ export default function ImageOverlapper({
 					</PopoverTrigger>
 					<PopoverContent className="!py-2 !px-0 bg-white dark:bg-dark--theme input-border">
 						<ScrollArea className="h-40">
-							<div className="flex flex-col m-2 gap-y-2">
+							<div className="flex flex-col gap-y-2 m-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link

@@ -1,6 +1,5 @@
 'use client';
-
-import { taskStatusesState, activeTeamIdState } from '@/core/stores';
+import { taskStatusesState, activeTeamState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,19 +10,19 @@ import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../commo
 import { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskStatuses, setTaskStatuses] = useAtom(taskStatusesState);
 	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
-	const { user } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;

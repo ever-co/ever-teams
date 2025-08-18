@@ -7,9 +7,12 @@ import {
 } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useAuthenticateUser, useTeamTasks, useTimer } from '@/core/hooks';
+import { useTimer } from '@/core/hooks';
 import { usePathname } from 'next/navigation';
 import { EverCard } from '../../common/ever-card';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -19,8 +22,9 @@ interface ISuggestDailyPlanModalProps {
 export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const { isOpen, closeModal } = props;
 	const { hasPlan } = useTimer();
-	const { activeTeam } = useTeamTasks();
-	const { user } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 	const name = useMemo(
 		() => user?.name || user?.firstName || user?.lastName || user?.username || '',
 		[user?.firstName, user?.lastName, user?.name, user?.username]
@@ -51,7 +55,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 			showCloseIcon={requirePlan}
 		>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('dailyPlan.CREATE_A_PLAN_FOR_TODAY')}
@@ -62,10 +66,10 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 							{t('dailyPlan.DAILY_PLAN_DESCRIPTION')}
 						</Text>
 					</div>
-					<Link href={`/profile/${user?.id}?name=${name || ''}`} className="flex flex-col w-full gap-3">
+					<Link href={`/profile/${user?.id}?name=${name || ''}`} className="flex flex-col gap-3 w-full">
 						<Button
 							variant="default"
-							className="font-normal p-7 rounded-xl text-md"
+							className="p-7 font-normal rounded-xl text-md"
 							onClick={handleCloseModal}
 						>
 							OK

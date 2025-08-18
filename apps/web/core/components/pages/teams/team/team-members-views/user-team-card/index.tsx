@@ -4,13 +4,16 @@ import {
 	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useOrganizationTeams,
-	useAuthenticateUser,
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
+import {
+	activeTaskStatisticsState,
+	activeTeamManagersState,
+	timerSecondsState,
+	userDetailAccordion as userAccordion
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -43,6 +46,7 @@ import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -106,10 +110,13 @@ export function UserTeamCard({
 
 	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
-	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const { activeTeamManagers } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { data: user } = useUserQuery();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 

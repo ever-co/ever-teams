@@ -1,8 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@/core/hooks';
-import { publicState } from '@/core/stores';
+import { useAuthenticateUser } from '@/core/hooks';
+import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
@@ -38,13 +38,15 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ThemeInterface } from '@/core/types/interfaces/common/theme';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export function UserNavAvatar() {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
-	const { timerStatus } = useTimer();
-	const { activeTeam } = useOrganizationTeams();
+	const timerStatus = useAtomValue(timerStatusState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
@@ -136,8 +138,11 @@ function UserNavMenu() {
 	const t = useTranslations();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
-	const { timerStatus } = useTimer();
-	const { activeTeam, isTeamMember } = useOrganizationTeams();
+	const timerStatus = useAtomValue(timerStatusState);
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
+
 	const publicTeam = useAtomValue(publicState);
 
 	const members = activeTeam?.members || [];

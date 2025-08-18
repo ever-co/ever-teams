@@ -8,9 +8,7 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
-import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -19,6 +17,9 @@ import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -51,9 +52,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
-	const { teams } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const tasks = useAtomValue(tasksByTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
 	const {

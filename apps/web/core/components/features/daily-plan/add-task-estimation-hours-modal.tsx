@@ -3,7 +3,7 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -28,6 +28,17 @@ import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import {
+	activeTeamTaskState,
+	tasksByTeamState,
+	taskStatusesState,
+	timerStatusState,
+	profileDailyPlanListState,
+	myDailyPlanListState,
+	todayPlanState
+} from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -60,7 +71,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const { updateDailyPlan, myDailyPlans, profileDailyPlans } = useDailyPlan();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const myDailyPlans = useAtomValue(myDailyPlanListState);
+
+	const { updateDailyPlan } = useDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -77,9 +91,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		return plan?.tasks || propsTasks;
 	}, [plan?.tasks, propsTasks]);
 
-	const { tasks: globalTasks } = useTeamTasks();
-	const { startTimer, timerStatus } = useTimerView();
-	const { activeTeamTask, setActiveTask } = useTeamTasks();
+	const globalTasks = useAtomValue(tasksByTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const timerStatus = useAtomValue(timerStatusState);
+
+	const { startTimer } = useTimerView();
+	const { setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -628,8 +645,10 @@ interface ISearchTaskInputProps {
  */
 export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
-	const { tasks: teamTasks, createTask } = useTeamTasks();
-	const { taskStatuses } = useTaskStatus();
+
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const { createTask } = useTeamTasks();
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -782,8 +801,10 @@ function TaskCard(props: ITaskCardProps) {
 	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
 	const { getTaskById } = useTeamTasks();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const isTaskRenderedInTodayPlan =
 		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
@@ -804,8 +825,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
-	const status = useTaskStatus();
-	const { activeTeamTask } = useTeamTasks();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -895,8 +916,7 @@ function TaskCard(props: ITaskCardProps) {
 									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor:
-											status.taskStatuses.filter((s) => s.value === task.status)[0].color ??
-											undefined
+											taskStatuses.filter((s) => s.value === task.status)[0].color ?? undefined
 									}}
 								>
 									{task.status}
@@ -958,10 +978,12 @@ interface ITaskCardActionsProps {
 
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-	const { activeTeamTask } = useTeamTasks();
-	const { timerStatus } = useTimerView();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const timerStatus = useAtomValue(timerStatusState);
 	const otherPlanIds = useMemo(
 		() =>
 			[...futurePlans, ...todayPlan]
@@ -1142,9 +1164,12 @@ function UnplanTask(props: IUnplanTaskProps) {
 		openUnplanActiveTaskModal,
 		unPlanSelectedDateLoading
 	} = props;
-	const { user } = useAuthenticateUser();
-	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
-	const { activeTeamTask } = useTeamTasks();
+	const { data: user } = useUserQuery();
+	const todayPlan = useAtomValue(todayPlanState);
+
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
 		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),

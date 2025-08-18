@@ -1,6 +1,5 @@
 'use client';
-
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, activeTeamState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -9,14 +8,14 @@ import { useFirstLoad } from '../common/use-first-load';
 import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { queryKeys } from '@/core/query/keys';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const teamId = activeTeam?.id || activeTeamId;

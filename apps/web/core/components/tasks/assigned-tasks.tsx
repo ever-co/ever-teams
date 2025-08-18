@@ -2,7 +2,7 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
@@ -21,7 +21,11 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const t = useTranslations();
 	let taskStat: TTaskStatistic | null | undefined = null;
 
-	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { getTaskStat, activeTaskEstimation } = useTaskStatistics(timerReconds);
 
 	if (activeTeamTask?.id === task?.id) {
 		estimationPourtcent.current = activeTaskEstimation;
@@ -45,7 +49,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 					: ' hover:border hover:border-primary dark:border-[#202023]'
 			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
 		>
-			<div className="flex items-center justify-between ">
+			<div className="flex justify-between items-center">
 				<div
 					className={`text-black dark:text-[#FFFFFF] text-[14px] ${
 						now == true ? 'font-semibold' : 'font-normal'

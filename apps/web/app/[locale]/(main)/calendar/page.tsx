@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocalStorageState, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/common/header-tabs';
@@ -25,11 +25,15 @@ import {
 	LazySetupTimeSheet,
 	LazyAddManualTimeModal
 } from '@/core/components/optimized-components/calendar';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const CalendarPage = () => {
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
-	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const [calendarTimeSheet, setCalendarTimeSheet] = useLocalStorageState<timesheetCalendar>(
 		'calendar-timesheet',
 		'Calendar'
