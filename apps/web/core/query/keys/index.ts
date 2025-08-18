@@ -45,7 +45,7 @@ export const queryKeys = {
 		me: ['users', 'me'] as const,
 		all: ['users'] as const,
 		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const,
-		currentOrganization: () => ['users', 'current-organization'] as const,
+		currentOrganization: (id: string) => ['users', 'current-organization', id] as const,
 		// Employee-related keys under users
 		employees: {
 			all: ['users', 'employees'] as const,

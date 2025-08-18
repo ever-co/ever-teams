@@ -15,7 +15,7 @@ export const useCurrentUserOrganization = () => {
 	const organizationId = getOrganizationIdCookie();
 
 	const currentUserOrganizationQuery = useQuery({
-		queryKey: queryKeys.users.currentOrganization(),
+		queryKey: queryKeys.users.currentOrganization(organizationId),
 		queryFn: async () => {
 			return await organizationService.getOrganizationById(organizationId);
 		},
