@@ -1,6 +1,7 @@
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { organizationSchema, validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 
 class OrganizationService extends APIService {
 	createOrganization = async (data: IOrganizationCreate, bearer_token: string) => {
@@ -10,10 +11,24 @@ class OrganizationService extends APIService {
 	};
 
 	getOrganizationById = async (id: string) => {
-		const response = await this.get<IOrganization>(`/organization/${id}`, {
-			tenantId: this.tenantId
-		});
-		return response.data;
+		try {
+			const response = await this.get<IOrganization>(`/organization/${id}`, {
+				tenantId: this.tenantId
+			});
+			return validateApiResponse(organizationSchema, response.data, 'getOrganizationById API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Organization validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'OrganizationService'
+				);
+			}
+			throw error;
+		}
 	};
 }
 

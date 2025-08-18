@@ -1,5 +1,5 @@
-import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
+import { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import { atom } from 'jotai';
 
-export const currentUserOrganizationState = atom<IUserOrganization>();
-export const currentUserOrganizationFetchingState = atom<boolean>(false);
+export const currentOrganizationState = atom<TOrganization>();
+export const currentOrganizationFetchingState = atom<boolean>(false);
