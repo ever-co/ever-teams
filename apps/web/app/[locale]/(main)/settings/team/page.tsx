@@ -56,10 +56,6 @@ const Team = () => {
 			</div>
 		);
 	}
-<<<<<<< HEAD
-=======
-
->>>>>>> 238da821e (refactor(web): Replace useOrganizationTeams with useAtomValue for state management in various components)
 	return (
 		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
