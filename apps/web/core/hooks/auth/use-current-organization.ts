@@ -27,10 +27,10 @@ export const useGetCurrentOrganization = () => {
 		if (currentOrganizationQuery.data) {
 			setCurrentOrganization(currentOrganizationQuery.data);
 		}
-	}, [currentOrganizationQuery.data]);
+	}, [currentOrganizationQuery.data, setCurrentOrganization]);
 
 	// Track fetching state
 	useEffect(() => {
 		setCurrentOrganizationFetching(currentOrganizationQuery.isLoading);
-	}, [currentOrganizationQuery.isLoading]);
+	}, [currentOrganizationQuery.isLoading, setCurrentOrganizationFetching]);
 };
