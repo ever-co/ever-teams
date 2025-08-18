@@ -29,6 +29,7 @@ import {
 	useTaskRelatedIssueType
 } from '@/core/hooks/tasks';
 import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
+import { useCurrentUserOrganization } from '@/core/hooks/auth/use-current-user-organization';
 
 export function AppState() {
 	const user = useAtomValue(userState);
@@ -72,6 +73,8 @@ function InitState() {
 	useTimeLogsDailyReport();
 	// Load time logs for the current year (global state)
 	useTimeLogs();
+	// Load current user organization
+	useCurrentUserOrganization();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
