@@ -11,7 +11,9 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
-import { useWorkspaces, useWorkspaceSwitcher } from '@/core/hooks/auth';
+import { useWorkspaces, useAuthenticateUser } from '@/core/hooks/auth';
+import { workspaceService } from '@/core/services/client/api/auth';
+import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import {
 	Dialog,
@@ -169,7 +171,6 @@ export function WorkspacesSwitcher() {
 	const {
 		workspaces,
 		currentWorkspace,
-		error,
 		isLoading: workspacesLoading,
 		isInitialized: workspacesInitialized,
 		workspacesQuery
@@ -197,11 +198,28 @@ export function WorkspacesSwitcher() {
 		(workspace) => workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
 	);
 
-	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
+	// Get current user
+	const { user } = useAuthenticateUser();
+
+	// Simple state management
+	const [isSwitching, setIsSwitching] = React.useState(false);
+	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
 
 	// Modal state for workspace switch confirmation
 	const { isOpen: isConfirmModalOpen, openModal: openConfirmModal, closeModal: closeConfirmModal } = useModal();
-	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
+
+	// Simple function to check if workspace switch is possible
+	const canSwitchToWorkspace = React.useCallback(
+		(workspaceId: string): boolean => {
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
+			return !!(
+				workspace &&
+				workspace.current_teams.length > 0 &&
+				workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
+			);
+		},
+		[workspaces, actualCurrentWorkspace]
+	);
 
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(
@@ -216,16 +234,42 @@ export function WorkspacesSwitcher() {
 				return;
 			}
 
-			// Clear previous errors
-			if (error) {
-				clearError();
-			}
-
 			// Set target workspace and open confirmation modal
 			setTargetWorkspace(workspace);
 			openConfirmModal();
 		},
-		[isSwitching, canSwitchToWorkspace, workspaces, error, clearError, setTargetWorkspace, openConfirmModal]
+		[isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
+	);
+
+	// Simple workspace switch function
+	const switchToWorkspace = React.useCallback(
+		async (targetWorkspaceId: string) => {
+			if (!user) {
+				toast.error('User not authenticated');
+				return;
+			}
+
+			setIsSwitching(true);
+			try {
+				// Call service directly with all needed data
+				await workspaceService.loginInToWorkspace({
+					user,
+					targetWorkspaceId
+				});
+
+				// Show success message
+				toast.success('Workspace changed successfully');
+
+				// Navigate to home (like in passcode)
+				window.location.href = '/';
+			} catch (error: any) {
+				console.error('Error switching workspace:', error);
+				toast.error(error.message || 'Error switching workspace');
+			} finally {
+				setIsSwitching(false);
+			}
+		},
+		[user, workspaces]
 	);
 
 	// Handle confirmed workspace switch
@@ -236,12 +280,13 @@ export function WorkspacesSwitcher() {
 
 		try {
 			await switchToWorkspace(targetWorkspace.user.tenant.id);
-			// Modal will be closed automatically on success via the effect or component unmount
+			// Close modal on success
+			closeConfirmModal();
+			setTargetWorkspace(null);
 		} catch (error) {
-			// Error handling is managed by the switchToWorkspace function
-			console.error('Error switching workspace:', error);
+			// Error already handled in switchToWorkspace
 		}
-	}, [targetWorkspace, switchToWorkspace]);
+	}, [targetWorkspace, switchToWorkspace, closeConfirmModal]);
 
 	// Handle modal close
 	const handleCloseModal = React.useCallback(() => {

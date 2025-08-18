@@ -104,7 +104,7 @@ export function useCurrentOrg() {
 	 */
 	const hasOrg = useCallback(
 		(orgId: string): boolean => {
-			return workspaces.some((w) => w.id === orgId);
+			return workspaces.some((w) => w.user.tenant.id === orgId);
 		},
 		[workspaces]
 	);
@@ -114,7 +114,7 @@ export function useCurrentOrg() {
 	 */
 	const setActiveOrg = useCallback(
 		(orgId: string) => {
-			const workspace = workspaces.find((w) => w.id === orgId);
+			const workspace = workspaces.find((w) => w.user.tenant.id === orgId);
 			if (workspace) {
 				setActiveWorkspaceId(orgId);
 				// Note: Full workspace state update is handled by useWorkspaces
@@ -135,7 +135,7 @@ export function useCurrentOrg() {
 	 * Get inactive organizations (maps to inactive workspaces)
 	 */
 	const inactiveOrgs = useMemo(() => {
-		return workspaces.filter((w) => w.id !== activeWorkspaceId);
+		return workspaces.filter((w) => w.user.tenant.id !== activeWorkspaceId);
 	}, [workspaces, activeWorkspaceId]);
 
 	/**
@@ -223,11 +223,11 @@ export function useCurrentOrg() {
 
 			// Check if current active organization is valid
 			if (activeWorkspaceId) {
-				const currentOrg = workspaces.find((w) => w.id === activeWorkspaceId);
+				const currentOrg = workspaces.find((w) => w.user.tenant.id === activeWorkspaceId);
 				if (!currentOrg) {
 					console.warn('Organization Validation: Active organization not found in user organizations', {
 						activeOrgId: activeWorkspaceId,
-						availableOrgs: workspaces.map((w) => w.id)
+						availableOrgs: workspaces.map((w) => w.user.tenant.id)
 					});
 					return {
 						isValid: false,
@@ -238,15 +238,15 @@ export function useCurrentOrg() {
 				}
 
 				// Check if user is active in the organization
-				const isActiveInOrg = currentOrg.teams.some((team) =>
-					team.members?.some((member) => member.employee?.userId === user.id && member.isActive)
+				const isActiveInOrg = currentOrg.current_teams.some((team: any) =>
+					team.members?.some((member: any) => member.employee?.userId === user.id && member.isActive)
 				);
 
 				if (!isActiveInOrg) {
 					console.warn('Organization Validation: User not active in current organization', {
 						userId: user.id,
 						orgId: activeWorkspaceId,
-						orgName: currentOrg.name
+						orgName: currentOrg.user.tenant.name
 					});
 					return {
 						isValid: false,
