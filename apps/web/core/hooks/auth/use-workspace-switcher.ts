@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { workspaceService } from '@/core/services/client/api/auth';
 import { workspaceSwitchingState, workspacesErrorState, activeWorkspaceIdState } from '@/core/stores/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
@@ -16,40 +16,12 @@ import { queryKeys } from '@/core/query/keys';
  * Hook for managing workspace switching
  */
 export function useWorkspaceSwitcher() {
-	const queryClient = useQueryClient();
 	const { user } = useAuthenticateUser();
-	const { workspaces, setActiveWorkspace } = useWorkspaces();
+	const { workspaces } = useWorkspaces();
 
 	const [isSwitching, setIsSwitching] = useAtom(workspaceSwitchingState);
 	const [error, setError] = useAtom(workspacesErrorState);
 	const [activeWorkspaceId, setActiveWorkspaceId] = useAtom(activeWorkspaceIdState);
-
-	/**
-	 * Intelligent cache management utility
-	 */
-	const manageCacheIntelligently = useCallback(
-		async (teamId: string) => {
-			// Prefetch related data that will likely be needed
-			const prefetchPromises = [
-				// Prefetch team data for the new workspace
-				queryClient.prefetchQuery({
-					queryKey: queryKeys.organizationTeams.detail(teamId),
-					staleTime: 1000 * 60 * 10 // 10 minutes
-				}),
-				// Prefetch tasks for the new team
-				queryClient.prefetchQuery({
-					queryKey: queryKeys.tasks.byTeam(teamId),
-					staleTime: 1000 * 60 * 5 // 5 minutes
-				})
-			];
-
-			// Execute prefetches in background (don't wait for them)
-			Promise.allSettled(prefetchPromises).catch((error) => {
-				console.warn('Prefetch error (non-critical):', error);
-			});
-		},
-		[queryClient]
-	);
 
 	/**
 	 * Retrieves the last used team from localStorage
@@ -154,70 +126,25 @@ export function useWorkspaceSwitcher() {
 	const switchWorkspaceMutation = useMutation({
 		mutationKey: queryKeys.auth.switchWorkspace(undefined, user?.id),
 
-		mutationFn: async (request: { teamId: string; email: string }) => {
+		mutationFn: async (request: { targetWorkspaceId: string }) => {
 			return await workspaceService.switchToWorkspace({
-				email: request.email,
-				token: '', // Will be retrieved inside the method
-				selectedTeam: request.teamId
+				targetWorkspaceId: request.targetWorkspaceId,
+				user: user,
+				workspaces: workspaces // Pass existing workspaces to avoid 401 call
 			});
 		},
-		onSuccess: async (response, variables) => {
-			// Update local state
-			setActiveWorkspace(variables.teamId);
-			setActiveWorkspaceId(variables.teamId);
-
-			// Save the last used team (global and per workspace)
-			saveLastUsedTeamId(variables.teamId);
-
-			// Find the workspace to save team preference per workspace
-			const currentWorkspace = workspaces.find((w) =>
-				w.current_teams.some((team) => team.team_id === variables.teamId)
-			);
-			if (currentWorkspace) {
-				saveLastUsedTeamForWorkspace(currentWorkspace.user.tenant.id, variables.teamId);
-			}
-
-			// Intelligent cache management and prefetching
-			manageCacheIntelligently(variables.teamId);
-
-			// Optimistic cache updates for better performance
-			try {
-				// Note: No need to update isActive since API doesn't provide it
-				// Active workspace is managed by activeWorkspaceIdState only
-
-				// Invalidate only critical queries that need fresh data
-				await Promise.all([
-					queryClient.invalidateQueries({ queryKey: queryKeys.users.me }),
-					queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }),
-					// Selectively invalidate team-related queries
-					queryClient.invalidateQueries({
-						queryKey: ['organization-teams'],
-						exact: false,
-						refetchType: 'active' // Only refetch active queries
-					})
-				]);
-
-				// Background refresh of workspaces to ensure consistency
-				queryClient.refetchQueries({
-					queryKey: queryKeys.auth.workspaces(user?.id),
-					type: 'active'
-				});
-			} catch (cacheError) {
-				console.warn('Cache update error:', cacheError);
-				// Fallback to full invalidation if optimistic update fails
-				await queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
-			}
+		onSuccess: async (_, variables) => {
+			// Update local state with the target workspace
+			setActiveWorkspaceId(variables.targetWorkspaceId);
 
 			// Show success message
 			toast.success('Workspace changed successfully');
 
-			// Use optimized navigation instead of brutal reload
-			try {
-				// Workspace switch completed - reload to apply changes
-				window.location.reload();
-			} catch (navigationError) {
-				console.warn('Navigation optimization failed, falling back to reload:', navigationError);
-				window.location.reload();
+			// Navigation (EXACT same as passcode) - NO reload, just navigation!
+			if (typeof window !== 'undefined') {
+				// The localStorage save is already done in the service
+				// Just navigate like in passcode
+				window.location.href = '/';
 			}
 		},
 		onError: (error: any) => {
@@ -255,17 +182,10 @@ export function useWorkspaceSwitcher() {
 					throw new Error('No teams available in this workspace');
 				}
 
-				// Select target team according to defined logic
-				const targetTeamId = selectTargetTeam(targetWorkspace);
-
-				// Prepare switch request
-				const switchRequest: { teamId: string; email: string } = {
-					teamId: targetTeamId,
-					email: user.email
-				};
-
-				// Execute the switch
-				await switchWorkspaceMutation.mutateAsync(switchRequest);
+				// Execute the switch (service handles team selection and localStorage)
+				await switchWorkspaceMutation.mutateAsync({
+					targetWorkspaceId: targetWorkspaceId
+				});
 			} catch (error: any) {
 				const errorMessage = error.message || 'Error switching workspace';
 				setError(errorMessage);
@@ -273,7 +193,7 @@ export function useWorkspaceSwitcher() {
 				toast.error(errorMessage);
 			}
 		},
-		[user?.email, workspaces, selectTargetTeam, switchWorkspaceMutation, setIsSwitching, setError]
+		[user?.email, switchWorkspaceMutation, setIsSwitching, setError]
 	);
 
 	/**
