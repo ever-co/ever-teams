@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 
 export const useGetCurrentOrganization = () => {
 	const [, setCurrentOrganization] = useAtom(currentOrganizationState);
-	const [, setCurrenOrganizationFetching] = useAtom(currentOrganizationFetchingState);
+	const [, setCurrentOrganizationFetching] = useAtom(currentOrganizationFetchingState);
 	const organizationId = getOrganizationIdCookie();
 
 	const currentOrganizationQuery = useQuery({
@@ -31,6 +31,6 @@ export const useGetCurrentOrganization = () => {
 
 	// Track fetching state
 	useEffect(() => {
-		setCurrenOrganizationFetching(currentOrganizationQuery.isLoading);
+		setCurrentOrganizationFetching(currentOrganizationQuery.isLoading);
 	}, [currentOrganizationQuery.isLoading]);
 };
