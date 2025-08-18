@@ -186,10 +186,8 @@ export function WorkspacesSwitcher() {
 			return currentWorkspace;
 		}
 
-		// Priority 2: Since API doesn't provide isActive/isDefault, use first workspace
 		// (Active workspace is managed by activeWorkspaceId in the store)
 
-		// Priority 4: First workspace if any exist
 		if (workspaces.length > 0) {
 			return workspaces[0];
 		}
