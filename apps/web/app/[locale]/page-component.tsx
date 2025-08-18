@@ -65,7 +65,6 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
@@ -80,13 +79,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex gap-8 justify-center items-center h-10">
+									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex gap-1 justify-center items-center w-max h-10">
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>

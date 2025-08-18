@@ -29,19 +29,18 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
 
+	const { isTrackingEnabled } = useOrganizationTeams();
+
 	if (userLoading && !user) {
 		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
 	}
-
-	const { isTrackingEnabled } = useOrganizationTeams();
-
 	return (
 		<MainLayout
 			showTimer={isTrackingEnabled}
-			className="overflow-hidden items-start pb-1 w-full"
+			className="items-start w-full pb-1 overflow-hidden"
 			childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
 			mainHeaderSlot={
-				<div className="py-6 w-full bg-white dark:bg-dark--theme">
+				<div className="w-full py-6 bg-white dark:bg-dark--theme">
 					<Container
 						fullWidth={fullWidth}
 						className={cn('flex flex-row gap-8 justify-start items-center w-full')}

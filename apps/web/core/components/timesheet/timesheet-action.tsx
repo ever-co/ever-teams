@@ -33,7 +33,6 @@ export const TimesheetButton = ({ className, icon, onClick, title, disabled }: I
 export type StatusType = 'PENDING' | 'APPROVED' | 'Denied';
 export type StatusAction = 'Deleted' | 'Approved' | 'Denied';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 export const getTimesheetButtons = (
 	status: StatusType,
 	t: TranslationHooks,
@@ -86,7 +85,7 @@ export const getTimesheetButtons = (
 
 	return (buttonsConfig[status] || buttonsConfig.Denied).map((button, index) => (
 		<TimesheetButton
-			className="hover:underline text-sm gap-2"
+			className="gap-2 text-sm hover:underline"
 			disabled={disabled}
 			key={index}
 			icon={button.icon}
