@@ -8,6 +8,13 @@ class OrganizationService extends APIService {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
 	};
+
+	getOrganizationById = async (id: string) => {
+		const response = await this.get<IOrganization>(`/organization/${id}`, {
+			tenantId: this.tenantId
+		});
+		return response.data;
+	};
 }
 
 export const organizationService = new OrganizationService(GAUZY_API_BASE_SERVER_URL.value);
