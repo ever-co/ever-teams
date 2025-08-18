@@ -11,7 +11,8 @@ import {
 	workspacesErrorState,
 	currentWorkspaceState,
 	hasMultipleWorkspacesState,
-	workspacesInitializedState
+	workspacesInitializedState,
+	syncActiveWorkspaceIdState
 } from '@/core/stores/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
@@ -29,6 +30,7 @@ export function useWorkspaces() {
 	const [error, setError] = useAtom(workspacesErrorState);
 	const [isInitialized, setIsInitialized] = useAtom(workspacesInitializedState);
 	const currentWorkspace = useAtomValue(currentWorkspaceState);
+	const [, syncActiveWorkspaceId] = useAtom(syncActiveWorkspaceIdState);
 	const { user } = useAuthenticateUser();
 	const hasMultipleWorkspaces = useAtomValue(hasMultipleWorkspacesState);
 
@@ -81,15 +83,12 @@ export function useWorkspaces() {
 		if (workspacesQuery.data) {
 			setWorkspaces(workspacesQuery.data);
 
-			// If no active workspace is defined, take the first one
-			if (!activeWorkspaceId && workspacesQuery.data.length > 0) {
-				const activeWorkspace = workspacesQuery.data[0]; // No isActive field in API, use first workspace
-				setActiveWorkspaceId(activeWorkspace.user.tenant.id);
-			}
+			// Sync activeWorkspaceId with the smart-detected current workspace
+			syncActiveWorkspaceId();
 
 			setIsInitialized(true);
 		}
-	}, [workspacesQuery.data, activeWorkspaceId, setWorkspaces, setActiveWorkspaceId, setIsInitialized]);
+	}, [workspacesQuery.data, setWorkspaces, setIsInitialized, syncActiveWorkspaceId]);
 
 	// Update the loading state
 	useEffect(() => {

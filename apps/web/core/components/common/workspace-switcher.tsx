@@ -11,9 +11,8 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
-import { useWorkspaces, useAuthenticateUser } from '@/core/hooks/auth';
-import { workspaceService } from '@/core/services/client/api/auth';
-import { toast } from 'sonner';
+import { useWorkspaces } from '@/core/hooks/auth';
+import { useWorkspaceSwitcherSmart } from '@/core/hooks/auth/use-workspace-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import {
 	Dialog,
@@ -167,6 +166,7 @@ const WorkspaceSkeleton: React.FC = () => {
 
 export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
+
 	// Use the new hooks with comprehensive state management
 	const {
 		workspaces,
@@ -175,6 +175,9 @@ export function WorkspacesSwitcher() {
 		isInitialized: workspacesInitialized,
 		workspacesQuery
 	} = useWorkspaces();
+
+	// Use the smart workspace switcher hook (based on password component logic)
+	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcherSmart();
 
 	// Determine the actual current workspace with robust fallback logic
 	const actualCurrentWorkspace = React.useMemo(() => {
@@ -198,13 +201,8 @@ export function WorkspacesSwitcher() {
 		(workspace) => workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
 	);
 
-	// Get current user
-	const { user } = useAuthenticateUser();
-
-	// Simple state management
-	const [isSwitching, setIsSwitching] = React.useState(false);
+	// Simple state management for modal
 	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
-
 	// Modal state for workspace switch confirmation
 	const { isOpen: isConfirmModalOpen, openModal: openConfirmModal, closeModal: closeConfirmModal } = useModal();
 
@@ -241,36 +239,7 @@ export function WorkspacesSwitcher() {
 		[isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
 	);
 
-	// Simple workspace switch function
-	const switchToWorkspace = React.useCallback(
-		async (targetWorkspaceId: string) => {
-			if (!user) {
-				toast.error('User not authenticated');
-				return;
-			}
-
-			setIsSwitching(true);
-			try {
-				// Call service directly with all needed data
-				await workspaceService.loginInToWorkspace({
-					user,
-					targetWorkspaceId
-				});
-
-				// Show success message
-				toast.success('Workspace changed successfully');
-
-				// Navigate to home (like in passcode)
-				window.location.href = '/';
-			} catch (error: any) {
-				console.error('Error switching workspace:', error);
-				toast.error(error.message || 'Error switching workspace');
-			} finally {
-				setIsSwitching(false);
-			}
-		},
-		[user, workspaces]
-	);
+	// Note: switchToWorkspace function is now provided by useWorkspaceSwitcherSmart hook
 
 	// Handle confirmed workspace switch
 	const handleConfirmWorkspaceSwitch = React.useCallback(async () => {
@@ -278,14 +247,12 @@ export function WorkspacesSwitcher() {
 			return;
 		}
 
-		try {
-			await switchToWorkspace(targetWorkspace.user.tenant.id);
-			// Close modal on success
-			closeConfirmModal();
-			setTargetWorkspace(null);
-		} catch (error) {
-			// Error already handled in switchToWorkspace
-		}
+		// Switch to workspace using the smart hook
+		switchToWorkspace(targetWorkspace);
+
+		// Close modal and reset state
+		closeConfirmModal();
+		setTargetWorkspace(null);
 	}, [targetWorkspace, switchToWorkspace, closeConfirmModal]);
 
 	// Handle modal close
@@ -320,9 +287,9 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
 						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
-							<Avatar className="rounded !size-6">
+							<Avatar className="rounded !size-8">
 								<AvatarImage
 									width={24}
 									height={24}
@@ -416,13 +383,17 @@ export function WorkspacesSwitcher() {
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex justify-center items-center rounded-sm border size-6">
+													<div className="flex justify-center items-center rounded-sm border size-8">
 														{workspace.user.tenant.logo ? (
-															<img
-																src={workspace.user.tenant.logo}
-																alt={workspace.user.tenant.name}
-																className="rounded size-4"
-															/>
+															<Avatar className="rounded !size-6">
+																<AvatarImage
+																	src={workspace.user.tenant.logo}
+																	alt={workspace.user.tenant.name}
+																/>
+																<AvatarFallback>
+																	{workspace.user.tenant.name.charAt(0)}
+																</AvatarFallback>
+															</Avatar>
 														) : (
 															<DefaultWorkspaceIcon className="size-4" />
 														)}
