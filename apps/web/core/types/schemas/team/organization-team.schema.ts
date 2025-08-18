@@ -6,7 +6,6 @@ import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
-import { teamSchema } from './team.schema';
 
 export const baseProjectSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
