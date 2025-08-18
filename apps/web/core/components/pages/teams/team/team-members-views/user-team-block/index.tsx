@@ -18,7 +18,7 @@ import { HorizontalSeparator } from '@/core/components/duplicated-components/sep
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { timerStatusState } from '@/core/stores';
 
 type IUserTeamBlock = {

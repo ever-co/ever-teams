@@ -10,9 +10,9 @@ import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -41,7 +41,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 					currentMember?.totalWorkedTasks
 						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
-							(previousValue: number, currentValue: TTaskStatistics) =>
+							(previousValue: number, currentValue: TTaskStatistic) =>
 								previousValue + (currentValue?.duration || 0),
 							0
 						)) ||
@@ -58,7 +58,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 					currentMember?.totalTodayTasks
 						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
-							(previousValue: number, currentValue: TTaskStatistics) =>
+							(previousValue: number, currentValue: TTaskStatistic) =>
 								previousValue + (currentValue?.duration || 0),
 							0
 						)) ||
@@ -224,7 +224,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	const { hours: h, minutes: m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue?.duration || 0),
+				(previousValue: number, currentValue: TTaskStatistic) => previousValue + (currentValue?.duration || 0),
 				0
 			)) ||
 			0

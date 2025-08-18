@@ -1,6 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
 import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 import { ProgressBar } from '@/core/components/common/progress-bar';

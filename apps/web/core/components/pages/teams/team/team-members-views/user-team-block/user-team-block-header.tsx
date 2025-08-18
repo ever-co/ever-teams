@@ -13,9 +13,9 @@ import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
-import { TeamMemberFilterType } from '@/core/utils/team-members.utils';
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 
 // Interface for filter stats (kept for UI compatibility)
 interface IFilter {
