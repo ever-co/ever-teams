@@ -133,11 +133,6 @@ export const activityFilterSchema = z.object({
 	dateStop: z.coerce.date().optional()
 });
 
-export const timeTrackingStatisticRequestSchema = z.object({
-	todayStart: z.date().or(z.string()).optional(),
-	todayEnd: z.date().or(z.string()).optional()
-});
-
 // Inferred TypeScript types from Zod schemas - use these for consistency with validation
 export type TActivity = z.infer<typeof activitySchema>;
 export type TActivityFilter = z.infer<typeof activityFilterSchema>;
