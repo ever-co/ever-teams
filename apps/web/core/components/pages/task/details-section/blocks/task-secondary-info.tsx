@@ -425,7 +425,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 											!selected && '!text-[#64748b] dark:text-white/70'
 										)}
 									>
-										{selected?.name || 'Project'}
+										{selected?.name || t('pages.projects.projectTitle.SINGULAR')}
 									</span>
 								</div>
 
