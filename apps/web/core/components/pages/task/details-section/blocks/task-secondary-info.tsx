@@ -41,6 +41,7 @@ import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { cn } from '@/core/lib/helpers';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -384,47 +385,60 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		<>
 			<div
 				className={clsxm(
-					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-[7.6875rem] rounded-[8px]',
+					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-[10rem] min-w-[6rem] !rounded-[8px]',
 					styles?.container
 				)}
 			>
 				<DropdownMenu>
-					<div>
-						<DropdownMenuTrigger asChild>
+					<div className="w-full">
+						<DropdownMenuTrigger className="w-full" asChild>
 							<button
 								className={clsxm(
 									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
-										dark:bg-[#1B1D22] dark:border dark:border-gray-800 rounded-lg`,
+										dark:bg-[#1B1D22] dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
 									styles?.value
 								)}
 								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
 							>
-								{selected ? (
-									<div className="flex gap-1 items-center mx-1 w-fit">
-										{selected.imageUrl && (
-											<Image
-												className="w-4 h-4 rounded-full"
-												src={selected.imageUrl}
-												alt={selected.name || ''}
-												width={25}
-												height={25}
-											/>
-										)}
-										<span className="overflow-hidden whitespace-nowrap max-w-20 text-ellipsis">
-											{updateLoading ? <SpinnerLoader size={10} /> : selected?.name || 'Project'}
-										</span>
-									</div>
-								) : (
-									<CircleIcon className="w-4 h-4" />
-								)}
-								<ChevronDownIcon
-									className={clsxm(
-										'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
+								<div className="flex gap-1 items-center w-fit">
+									{selected?.imageUrl ? (
+										<Image
+											className="w-4 h-4 rounded-full"
+											src={selected.imageUrl}
+											alt={selected.name || ''}
+											width={25}
+											height={25}
+										/>
+									) : (
+										<CircleIcon
+											className={clsxm(
+												'w-4 h-4',
+												!selected && '!text-[#64748b] dark:text-white/70'
+											)}
+										/>
 									)}
-									aria-hidden="true"
-								/>
+									<span
+										className={cn(
+											'overflow-hidden whitespace-nowrap max-w-20 text-ellipsis',
+											!selected && '!text-[#64748b] dark:text-white/70'
+										)}
+									>
+										{selected?.name || 'Project'}
+									</span>
+								</div>
+
+								{updateLoading ? (
+									<SpinnerLoader size={10} />
+								) : (
+									<ChevronDownIcon
+										className={clsxm(
+											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
+										)}
+										aria-hidden="true"
+									/>
+								)}
 							</button>
 						</DropdownMenuTrigger>
 
