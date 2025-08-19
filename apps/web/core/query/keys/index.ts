@@ -10,7 +10,8 @@ export const queryKeys = {
 		currentWorkspace: (userId: string | undefined | null) =>
 			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
 		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
-			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
+			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const,
+		currentOrganization: (id: string) => ['auth', 'current-organization', id] as const
 	},
 	// Keys related to users
 	users: {

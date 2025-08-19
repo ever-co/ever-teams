@@ -2,6 +2,7 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITag, ITagCreate } from '@/core/types/interfaces/tag/tag';
+import { TTag } from '@/core/types/schemas';
 
 class TaskLabelService extends APIService {
 	createTaskLabels = async (data: ITagCreate) => {
@@ -25,7 +26,7 @@ class TaskLabelService extends APIService {
 	getTaskLabelsList = async () => {
 		const endpoint = `/tags/level?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<ITag>>(endpoint, { tenantId: this.tenantId });
+		return this.get<PaginationResponse<TTag>>(endpoint, { tenantId: this.tenantId });
 	};
 }
 
