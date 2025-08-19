@@ -454,12 +454,12 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<EverCard
 								shadow="bigger"
 								className={clsxm(
-									'p-0 md:p-0 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 h-[13rem] max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 min-h-[6rem]  h-[13rem]  max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
 									styles?.listCard
 								)}
 							>
-								<ScrollArea className="w-full h-full">
-									<div className="flex flex-col gap-2.5 w-full p-4">
+								<ScrollArea className="w-full !h-full ">
+									<div className="flex flex-col gap-2.5 h-[11rem]  w-full">
 										{validProjects?.map((item) => {
 											return (
 												<DropdownMenuItem
@@ -489,7 +489,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												</DropdownMenuItem>
 											);
 										})}
-										<div className="mt-2">
+										<div className="mt-auto">
 											{!controlled && (
 												<Button
 													className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-gray-800"
