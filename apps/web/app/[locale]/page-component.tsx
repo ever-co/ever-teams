@@ -89,8 +89,6 @@ function MainPage() {
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
 
-	console.log(user);
-
 	return (
 		<>
 			<div className="flex flex-col justify-between h-full min-h-screen">
