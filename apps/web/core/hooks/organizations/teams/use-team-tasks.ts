@@ -147,6 +147,8 @@ export function useTeamTasks() {
 					task.id === taskId ? { ...task, ...updatedTask } : task
 				);
 
+				setDetailedTask(updatedTask);
+
 				// Sync the tasks store
 				setAllTasks(updatedItems);
 
