@@ -482,8 +482,8 @@ export function useTeamTasks() {
 					(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
