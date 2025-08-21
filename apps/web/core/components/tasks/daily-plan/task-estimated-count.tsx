@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
 interface ITaskEstimatedCount {
-	outstandingPlans: any[];
+	outstandingPlans: TDailyPlan[];
 }
 export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
 	// Extract tasks from plans correctly - estimatedTotalTime expects array of task arrays

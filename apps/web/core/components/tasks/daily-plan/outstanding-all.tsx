@@ -23,7 +23,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 
 	// Memoized user filter function for performance
 	const filterTasksByUser = useCallback(
-		(tasks: any[]) => {
+		(tasks: TTask[]) => {
 			if (!user?.id) return tasks;
 			return tasks.filter((task) => task.members?.some((member: any) => member.userId === user.id));
 		},
@@ -42,7 +42,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 		});
 
 		// Use Map for deduplication by task ID to handle large datasets efficiently
-		const taskMap = new Map<string, any>();
+		const taskMap = new Map<string, TTask>();
 		allTasks.forEach((task) => {
 			if (task?.id && !taskMap.has(task.id)) {
 				taskMap.set(task.id, task);

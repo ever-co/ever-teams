@@ -227,7 +227,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
 	const filterTasksByTeamAndRole = useCallback(
-		(tasks: any[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
+		(tasks: TTask[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
 			if (!tasks || !Array.isArray(tasks) || !teamId) {
 				return [];
 			}
