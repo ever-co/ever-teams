@@ -7,7 +7,8 @@ interface ITaskEstimatedCount {
 	outstandingPlans: any[];
 }
 export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
-	const element = outstandingPlans?.map((plan: TDailyPlan) => plan.tasks?.map((task) => task));
+	// Extract tasks from plans correctly - estimatedTotalTime expects array of task arrays
+	const element = outstandingPlans?.map((plan: TDailyPlan) => plan.tasks || []);
 	const { timesEstimated, totalTasks } = estimatedTotalTime(element || []);
 	const { hours: hour, minutes: minute } = secondsToTime(timesEstimated || 0);
 	const t = useTranslations();

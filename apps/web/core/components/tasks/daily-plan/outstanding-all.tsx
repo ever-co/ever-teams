@@ -67,9 +67,19 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 		setDragTasks(uniqueTasks);
 	}, [uniqueTasks]);
 
+	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	const filteredPlansForCount = useMemo(() => {
+		return outstandingPlans
+			.map((plan) => ({
+				...plan,
+				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, filterTasksByUser, user]);
+
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={outstandingPlans} />
+			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
 
 			{uniqueTasks.length > 0 ? (
 				<>

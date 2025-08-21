@@ -69,7 +69,34 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const sortedPlans = useAtomValue(sortedPlansState);
 	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
 
-	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
+	const {
+		deleteDailyPlan,
+		deleteDailyPlanLoading,
+		getMyDailyPlansLoading,
+		getEmployeeDayPlans,
+		setProfileDailyPlans
+	} = useDailyPlan();
+
+	// Load daily plans for the profile being viewed (not the connected user)
+	useEffect(() => {
+		const loadProfileDailyPlans = async () => {
+			if (profile.member?.employeeId) {
+				// Load plans for the profile being viewed
+				const employeePlans = await getEmployeeDayPlans(profile.member.employeeId);
+				if (employeePlans) {
+					setProfileDailyPlans(employeePlans);
+				}
+			} else if (profile.isAuthUser && user?.employee?.id) {
+				// If viewing own profile, load own plans
+				const employeePlans = await getEmployeeDayPlans(user.employee.id);
+				if (employeePlans) {
+					setProfileDailyPlans(employeePlans);
+				}
+			}
+		};
+
+		loadProfileDailyPlans();
+	}, [profile.member?.employeeId, profile.isAuthUser, user?.employee?.id, getEmployeeDayPlans, setProfileDailyPlans]);
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
@@ -225,7 +252,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
 							{getMyDailyPlansLoading ? (
-								<div className="flex justify-center items-center py-8">
+								<div className="flex items-center justify-center py-8">
 									<ReloadIcon className="w-6 h-6 animate-spin" />
 									<span className="ml-2">{t('common.LOADING')}</span>
 								</div>
@@ -236,7 +263,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 											{Object.keys(tabsScreens).map((filter, i) => (
 												<div
 													key={i}
-													className="flex gap-4 justify-start items-center cursor-pointer"
+													className="flex items-center justify-start gap-4 cursor-pointer"
 												>
 													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 													<div
@@ -267,7 +294,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												</div>
 											))}
 										</div>
-										<div className="flex gap-2 items-center">
+										<div className="flex items-center gap-2">
 											{currentTab === 'Today Tasks' && todayPlan[0] && (
 												<>
 													{canSeeActivity ? (
@@ -308,10 +335,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																		}
 																	}}
 																	variant="destructive"
-																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 																	)}
 																	{t('common.DELETE')}
 																</Button>
