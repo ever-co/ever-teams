@@ -69,34 +69,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const sortedPlans = useAtomValue(sortedPlansState);
 	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
 
-	const {
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
-		getMyDailyPlansLoading,
-		getEmployeeDayPlans,
-		setProfileDailyPlans
-	} = useDailyPlan();
-
-	// Load daily plans for the profile being viewed (not the connected user)
-	useEffect(() => {
-		const loadProfileDailyPlans = async () => {
-			if (profile.member?.employeeId) {
-				// Load plans for the profile being viewed
-				const employeePlans = await getEmployeeDayPlans(profile.member.employeeId);
-				if (employeePlans) {
-					setProfileDailyPlans(employeePlans);
-				}
-			} else if (profile.isAuthUser && user?.employee?.id) {
-				// If viewing own profile, load own plans
-				const employeePlans = await getEmployeeDayPlans(user.employee.id);
-				if (employeePlans) {
-					setProfileDailyPlans(employeePlans);
-				}
-			}
-		};
-
-		loadProfileDailyPlans();
-	}, [profile.member?.employeeId, profile.isAuthUser, user?.employee?.id, getEmployeeDayPlans, setProfileDailyPlans]);
+	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
