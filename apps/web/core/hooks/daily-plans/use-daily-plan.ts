@@ -38,13 +38,12 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
 
-	// Update employeeId when targetEmployeeId changes
+	// Keep employeeId in sync with targetEmployeeId unless intentionally overridden elsewhere
 	useEffect(() => {
-		if (targetEmployeeId && !employeeId) {
+		if (targetEmployeeId && targetEmployeeId !== employeeId) {
 			setEmployeeId(targetEmployeeId);
 		}
 	}, [targetEmployeeId, employeeId]);
-
 	// Queries
 	const getDayPlansByEmployeeQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.byEmployee(employeeId, activeTeam?.id),
