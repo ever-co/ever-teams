@@ -41,7 +41,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 			return user ? filterTasksByUser(tasks) : tasks;
 		});
 
-		// Use Map for O(1) deduplication by task ID to handle large datasets efficiently
+		// Use Map for deduplication by task ID to handle large datasets efficiently
 		const taskMap = new Map<string, any>();
 		allTasks.forEach((task) => {
 			if (task?.id && !taskMap.has(task.id)) {
