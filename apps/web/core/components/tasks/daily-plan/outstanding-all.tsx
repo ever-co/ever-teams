@@ -1,10 +1,3 @@
-/**
- * OutstandingAll Component
- *
- * Displays outstanding tasks with proper deduplication to fix count/display mismatch bug.
- * Optimized for performance with large datasets using memoization and efficient data structures.
- */
-
 import { EmptyPlans } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
