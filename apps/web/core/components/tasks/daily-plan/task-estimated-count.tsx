@@ -4,10 +4,11 @@ import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
 interface ITaskEstimatedCount {
-	outstandingPlans: any[];
+	outstandingPlans: TDailyPlan[];
 }
 export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
-	const element = outstandingPlans?.map((plan: TDailyPlan) => plan.tasks?.map((task) => task));
+	// Extract tasks from plans correctly - estimatedTotalTime expects array of task arrays
+	const element = outstandingPlans?.map((plan: TDailyPlan) => plan.tasks || []);
 	const { timesEstimated, totalTasks } = estimatedTotalTime(element || []);
 	const { hours: hour, minutes: minute } = secondsToTime(timesEstimated || 0);
 	const t = useTranslations();
