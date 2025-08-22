@@ -14,59 +14,61 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 export type TeamItem = DropdownItem<TOrganizationTeam>;
 
 export function mapTeamItems(teams: TOrganizationTeam[], onChangeActiveTeam: (item: TeamItem) => void) {
-	const items = teams.map<TeamItem>((team) => {
-		return {
-			key: team.id,
-			Label: ({ selected }) => (
-				<Tooltip
-					label={team.name || ''}
-					placement="auto"
-					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
-				>
-					<div className="flex items-center justify-between w-full my-1 gap-x-2">
-						<div className="max-w-[90%] flex items-center">
-							<TeamItem
-								title={team.name}
-								count={team.members?.length}
-								className={clsxm(selected && ['font-medium'])}
-								logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-								color={team.color || ''}
-							/>
-						</div>
+	const items = teams
+		.filter((team) => team.id && team.name)
+		.map<TeamItem>((team) => {
+			return {
+				key: team.id,
+				Label: ({ selected }) => (
+					<Tooltip
+						label={team.name || ''}
+						placement="auto"
+						enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
+					>
+						<div className="flex gap-x-2 justify-between items-center my-1 w-full">
+							<div className="max-w-[90%] flex items-center">
+								<TeamItem
+									title={team.name}
+									count={team.members?.length}
+									className={clsxm(selected && ['font-medium'])}
+									logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+									color={team.color || ''}
+								/>
+							</div>
 
-						<Link
-							className="flex items-center justify-center"
-							onClick={(e) => {
-								onChangeActiveTeam({
-									data: team
-								} as TeamItem);
-								e.stopPropagation();
-							}}
-							href="/settings/team"
-						>
-							<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
-						</Link>
-					</div>
-				</Tooltip>
-			),
-			selectedLabel: (
-				<Tooltip
-					label={team.name || ''}
-					placement="auto"
-					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
-				>
-					<TeamItem
-						title={team.name}
-						count={team.members?.length || 0}
-						className="py-2 mb-0"
-						logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-						color={team.color}
-					/>
-				</Tooltip>
-			),
-			data: team
-		};
-	});
+							<Link
+								className="flex justify-center items-center"
+								onClick={(e) => {
+									onChangeActiveTeam({
+										data: team
+									} as TeamItem);
+									e.stopPropagation();
+								}}
+								href="/settings/team"
+							>
+								<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
+							</Link>
+						</div>
+					</Tooltip>
+				),
+				selectedLabel: (
+					<Tooltip
+						label={team.name || ''}
+						placement="auto"
+						enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
+					>
+						<TeamItem
+							title={team.name}
+							count={team.members?.length || 0}
+							className="py-2 mb-0"
+							logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+							color={team.color}
+						/>
+					</Tooltip>
+				),
+				data: team
+			};
+		});
 
 	// if (items.length > 0) {
 	// 	items.unshift({
@@ -109,8 +111,8 @@ export function TeamItem({
 	return (
 		<div
 			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm',
-				'cursor-pointer max-w-full',
+				'flex justify-start items-center space-x-2 text-sm',
+				'max-w-full cursor-pointer',
 				className
 			)}
 		>
@@ -140,7 +142,7 @@ export function TeamItem({
 			</div>
 			<div className="flex gap-1">
 				<span
-					className={clsxm('text-normal md:max-w-[100px]', 'whitespace-nowrap text-ellipsis overflow-hidden')}
+					className={clsxm('text-normal md:max-w-[100px]', 'overflow-hidden whitespace-nowrap text-ellipsis')}
 				>
 					{title}
 				</span>
@@ -161,14 +163,14 @@ export function AllTeamItem({ title, count }: { title: string; count: number }) 
 	return (
 		<Link href="/all-teams">
 			<div
-				className={clsxm('flex items-center justify-start space-x-2 text-sm', 'cursor-pointer mb-4 max-w-full')}
+				className={clsxm('flex justify-start items-center space-x-2 text-sm', 'mb-4 max-w-full cursor-pointer')}
 			>
 				<div>
 					<div
 						className={clsxm(
 							'w-[27px] h-[27px]',
 							'flex justify-center items-center',
-							'rounded-full text-xs text-default dark:text-white',
+							'text-xs rounded-full text-default dark:text-white',
 							'shadow-md'
 						)}
 					>
@@ -179,7 +181,7 @@ export function AllTeamItem({ title, count }: { title: string; count: number }) 
 					<span
 						className={clsxm(
 							'text-normal md:max-w-[100px]',
-							'whitespace-nowrap text-ellipsis overflow-hidden'
+							'overflow-hidden whitespace-nowrap text-ellipsis'
 						)}
 					>
 						{title}

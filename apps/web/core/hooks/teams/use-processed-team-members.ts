@@ -7,7 +7,7 @@ import {
 	sortByWorkStatus,
 	filterAndPositionTeamMembers,
 	TeamMemberFilterType
-} from '@/core/utils/team-members.utils';
+} from '@/core/lib/utils/team-members.utils';
 
 interface ProcessedTeamMembersResult {
 	members: TOrganizationTeamEmployee[];

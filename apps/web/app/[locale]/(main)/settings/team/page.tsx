@@ -1,11 +1,11 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useAuthenticateUser, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { fetchingTeamInvitationsState } from '@/core/stores';
+import { useAuthenticateUser } from '@/core/hooks';
+import { activeTeamState, fetchingTeamInvitationsState, isTeamMemberState, teamInvitationsState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Accordian } from '@/core/components/common/accordian';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
@@ -38,6 +38,10 @@ const Team = () => {
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 	const { user, isTeamManager } = useAuthenticateUser();
 
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
+	const teamInvitations = useAtomValue(teamInvitationsState);
+
 	if (!user) {
 		return (
 			<div className="overflow-hidden pb-16">
@@ -52,10 +56,6 @@ const Team = () => {
 			</div>
 		);
 	}
-
-	const { isTeamMember, activeTeam } = useOrganizationTeams();
-	const { teamInvitations } = useTeamInvitations();
-
 	return (
 		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@/core/hooks';
+import { useAuthenticationPasscode, useRequestToJoinTeam } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -11,6 +11,8 @@ import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
 import { TJoinTeamRequest } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
@@ -70,7 +72,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 
 	return (
 		<form autoComplete="off" onSubmit={handleCodeSubmit}>
-			<div className="w-full mt-8">
+			<div className="mt-8 w-full">
 				<InputField
 					type="email"
 					placeholder="Yourmail@mail.com"
@@ -83,7 +85,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 				/>
 			</div>
 			<div className="mt-5">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<>
 						<div className="w-full">
 							<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
@@ -99,10 +101,10 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 								}}
 							/>
 							{errors['code'] && (
-								<Text.Error className="self-start justify-self-start">{errors['code']}</Text.Error>
+								<Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>
 							)}
 						</div>
-						<div className="flex items-center justify-between w-full mt-5">
+						<div className="flex justify-between items-center mt-5 w-full">
 							<div className="flex flex-col items-start">
 								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{t('pages.auth.UNRECEIVED_CODE')}
@@ -124,7 +126,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 						</div>
 					</>
 
-					<div className="flex items-center justify-between w-full mt-5">
+					<div className="flex justify-between items-center mt-5 w-full">
 						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
 							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
@@ -132,7 +134,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 						<Button
 							type="submit"
 							className={
-								'font-normal border border-primary disabled:border-0 md:min-w-[180px] rounded-xl'
+								'font-normal rounded-xl border border-primary disabled:border-0 md:min-w-[180px]'
 							}
 							loading={loading}
 							disabled={loading || formValues.code.length !== 6}
@@ -152,7 +154,8 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 	const t = useTranslations();
 	const { formValues, setFormValues, errors, setErrors, sendCodeLoading, inputCodeRef } = useAuthenticationPasscode();
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const {
 		requestToJoinTeam,
 		validateRequestToJoinTeam,
@@ -225,7 +228,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 	return (
 		<form autoComplete="off" onSubmit={handleSubmitRequest}>
-			<div className="w-full mt-8">
+			<div className="mt-8 w-full">
 				<InputField
 					type="text"
 					placeholder="Enter your name"
@@ -257,11 +260,11 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 					disabled={joinButtonAction === 'CONFIRM'}
 				/>
 
-				{message && <Text.Error className="self-start justify-self-start">{message}</Text.Error>}
+				{message && <Text.Error className="justify-self-start self-start">{message}</Text.Error>}
 			</div>
 
 			<div className="mt-5">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					{joinButtonAction === 'CONFIRM' && (
 						<>
 							<div className="w-full">
@@ -278,10 +281,10 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 									}}
 								/>
 								{errors['code'] && (
-									<Text.Error className="self-start justify-self-start">{errors['code']}</Text.Error>
+									<Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>
 								)}
 							</div>
-							<div className="flex items-center justify-between w-full mt-5">
+							<div className="flex justify-between items-center mt-5 w-full">
 								<div className="flex flex-col items-start">
 									<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 										{t('pages.auth.UNRECEIVED_CODE')}
@@ -307,7 +310,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 						</>
 					)}
 
-					<div className="flex items-center justify-between w-full mt-5">
+					<div className="flex justify-between items-center mt-5 w-full">
 						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
 							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
@@ -315,7 +318,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 						<Button
 							type="submit"
 							className={
-								'font-normal border border-primary disabled:border-0 md:min-w-[180px] rounded-xl'
+								'font-normal rounded-xl border border-primary disabled:border-0 md:min-w-[180px]'
 							}
 							loading={requestToJoinLoading || validateRequestToJoinLoading}
 							disabled={

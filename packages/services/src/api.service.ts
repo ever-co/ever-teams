@@ -6,12 +6,16 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
  *
  * Used internally to create feature-specific services (Tasks, Projects, Teams, etc.) in Ever Teams.
  *
+ * Provides shared getters for common identifiers (activeTeamId, organizationId, tenantId)
+ * to eliminate duplication across service implementations.
+ *
  * @abstract
  */
 export abstract class APIService {
 	protected readonly baseURL: string;
 	protected readonly axiosInstance: AxiosInstance;
 	protected params: object = {};
+
 	/**
 	 * Initializes a new instance of the APIService.
 	 *

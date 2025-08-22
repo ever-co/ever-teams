@@ -1,9 +1,4 @@
-import {
-	getActiveProjectIdCookie,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@/core/lib/helpers/cookies';
+import { getActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService, getFallbackAPI } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -27,8 +22,8 @@ class TaskService extends APIService {
 	 */
 	getTaskById = async (taskId: string): Promise<TTask> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
+			const organizationId = this.organizationId;
+			const tenantId = this.tenantId;
 
 			const relations = [
 				'tags',
@@ -83,19 +78,11 @@ class TaskService extends APIService {
 	/**
 	 * Fetches a paginated list of tasks with validation
 	 *
-	 * @param {string} organizationId - Organization identifier
-	 * @param {string} tenantId - Tenant identifier
 	 * @param {string} projectId - Project identifier
-	 * @param {string} teamId - Team identifier
 	 * @returns {Promise<PaginationResponse<TTask>>} - Validated paginated tasks data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasks = async (
-		organizationId: string,
-		tenantId: string,
-		projectId: string,
-		teamId: string
-	): Promise<PaginationResponse<TTask>> => {
+	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
 		try {
 			const relations = [
 				'tags',
@@ -111,13 +98,13 @@ class TaskService extends APIService {
 			];
 
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
 				'where[projectId]': projectId,
 				'join[alias]': 'task',
 				'join[leftJoinAndSelect][members]': 'task.members',
 				'join[leftJoinAndSelect][user]': 'members.user',
-				'where[teams][0]': teamId
+				'where[teams][0]': this.activeTeamId
 			} as Record<string, string>;
 
 			relations.forEach((rl, i) => {
@@ -127,7 +114,7 @@ class TaskService extends APIService {
 			const query = qs.stringify(obj);
 			const endpoint = `/tasks/team?${query}`;
 
-			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskSchema, response.data, 'getTasks API response');
@@ -138,10 +125,10 @@ class TaskService extends APIService {
 					{
 						message: error.message,
 						issues: error.issues,
-						organizationId,
-						tenantId,
+						organizationId: this.organizationId,
+						tenantId: this.tenantId,
 						projectId,
-						teamId
+						activeTeamId: this.activeTeamId
 					},
 					'TaskService'
 				);
@@ -187,12 +174,12 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Updated tasks list or single task response
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
-	updateTask = async (taskId: string, body: Partial<TTask>): Promise<TTask> => {
+	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
 		try {
 			// Validate input data before sending (partial validation)
 			const validatedInput = validateApiResponse(
 				taskSchema.partial(),
-				body,
+				data,
 				'updateTask input data'
 			) as Partial<TTask>;
 
@@ -236,9 +223,9 @@ class TaskService extends APIService {
 	createTask = async (body: Partial<TCreateTask> & { title: string }): Promise<PaginationResponse<TTask>> => {
 		try {
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const organizationId = getOrganizationIdCookie();
-				const teamId = getActiveTeamIdCookie();
-				const tenantId = getTenantIdCookie();
+				const organizationId = this.organizationId;
+				const teamId = this.activeTeamId;
+				const tenantId = this.tenantId;
 				const projectId = getActiveProjectIdCookie();
 				const title = body.title.trim() || '';
 
@@ -267,7 +254,7 @@ class TaskService extends APIService {
 
 				await this.post('/tasks', validatedInput, { tenantId });
 
-				return this.getTasks(organizationId, tenantId, projectId, teamId);
+				return this.getTasks({ projectId });
 			}
 
 			const api = await getFallbackAPI();
@@ -294,13 +281,12 @@ class TaskService extends APIService {
 	 * Deletes an employee from tasks with validation
 	 *
 	 * @param {string} employeeId - Employee identifier
-	 * @param {string} organizationTeamId - Organization team identifier
 	 * @returns {Promise<DeleteResponse>} - Delete operation response
 	 */
-	deleteEmployeeFromTasks = async (employeeId: string, organizationTeamId: string): Promise<DeleteResponse> => {
+	deleteEmployeeFromTasks = async (employeeId: string): Promise<DeleteResponse> => {
 		try {
 			const response = await this.delete<DeleteResponse>(
-				`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`
+				`/tasks/employee/${employeeId}?organizationTeamId=${this.activeTeamId}`
 			);
 			return response.data;
 		} catch (error) {
@@ -311,7 +297,7 @@ class TaskService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						employeeId,
-						organizationTeamId
+						activeTeamId: this.activeTeamId
 					},
 					'TaskService'
 				);
@@ -324,18 +310,17 @@ class TaskService extends APIService {
 	 * Fetches tasks by employee ID with validation
 	 *
 	 * @param {string} employeeId - Employee identifier
-	 * @param {string} organizationTeamId - Organization team identifier
 	 * @returns {Promise<TTask[]>} - Validated array of tasks
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasksByEmployeeId = async (employeeId: string, organizationTeamId: string): Promise<TTask[]> => {
+	getTasksByEmployeeId = async ({ employeeId }: { employeeId: string }): Promise<TTask[]> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
+			const organizationId = this.organizationId;
+			const tenantId = this.tenantId;
 			const obj = {
 				'where[tenantId]': tenantId,
 				'where[organizationId]': organizationId,
-				'teams[0]': organizationTeamId
+				'teams[0]': this.activeTeamId
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
@@ -353,7 +338,7 @@ class TaskService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						employeeId,
-						organizationTeamId
+						activeTeamId: this.activeTeamId
 					},
 					'TaskService'
 				);

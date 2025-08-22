@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import '@/styles/style.css';
 
 import { format } from 'date-fns';
@@ -9,9 +8,7 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
-import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -20,6 +17,9 @@ import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -52,9 +52,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
-	const { teams } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const tasks = useAtomValue(tasksByTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
 	const {
@@ -224,7 +227,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
 	const filterTasksByTeamAndRole = useCallback(
-		(tasks: any[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
+		(tasks: TTask[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
 			if (!tasks || !Array.isArray(tasks) || !teamId) {
 				return [];
 			}
@@ -392,7 +395,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="p-2 w-full text-sm font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -407,7 +410,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -464,7 +467,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What did you worked on..."
 								onChange={(e) => setDescription(e.target.value)}
-								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 					</>
@@ -522,7 +525,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="p-2 w-full text-sm rounded-md border border-gray-300 resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 

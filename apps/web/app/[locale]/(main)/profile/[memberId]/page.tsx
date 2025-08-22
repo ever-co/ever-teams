@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
+import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -27,14 +27,21 @@ import {
 	LazyTimer,
 	LazyTaskFilter
 } from '@/core/components/optimized-components';
+import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const profile = useUserProfilePage();
-	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const members = activeTeam?.members;
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');

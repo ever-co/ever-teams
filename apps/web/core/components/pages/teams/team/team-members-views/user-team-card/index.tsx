@@ -4,13 +4,16 @@ import {
 	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useOrganizationTeams,
-	useAuthenticateUser,
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
+import {
+	activeTaskStatisticsState,
+	activeTeamManagersState,
+	timerSecondsState,
+	userDetailAccordion as userAccordion
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -39,10 +42,11 @@ import { VerticalSeparator } from '@/core/components/duplicated-components/separ
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -106,10 +110,13 @@ export function UserTeamCard({
 
 	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
-	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const { activeTeamManagers } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { data: user } = useUserQuery();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
@@ -129,10 +136,10 @@ export function UserTeamCard({
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
-		const { h, m } = secondsToTime(
+		const { hours: h, minutes: m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||

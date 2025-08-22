@@ -16,26 +16,19 @@ class ImageAssetsService extends APIService {
 	 *
 	 * @param file - The file to upload
 	 * @param folder - The folder to upload to
-	 * @param tenantId - The tenant ID
-	 * @param organizationId - The organization ID
 	 * @returns Promise<TImageAsset> - Validated image asset data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	uploadImageAsset = async (
-		file: File,
-		folder: string,
-		tenantId: string,
-		organizationId: string
-	): Promise<TImageAsset> => {
+	uploadImageAsset = async ({ file, folder }: { file: File; folder: string }): Promise<TImageAsset> => {
 		const bearer_token = getAccessTokenCookie();
 		const formData = new FormData();
 		formData.append('file', file);
-		formData.append('tenantId', tenantId);
-		formData.append('organizationId', organizationId);
+		formData.append('tenantId', this.tenantId);
+		formData.append('organizationId', this.organizationId);
 
 		const response = await this.post<TImageAsset>(`/image-assets/upload/${folder}`, formData, {
 			headers: {
-				'tenant-id': tenantId,
+				'tenant-id': this.tenantId,
 				Authorization: `Bearer ${bearer_token}`
 			}
 		});

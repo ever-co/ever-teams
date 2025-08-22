@@ -4,14 +4,14 @@ import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { employeeService } from '@/core/services/client/api/organizations/teams';
-import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad } from '../../common';
 import { queryKeys } from '@/core/query/keys';
 import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { toast } from 'sonner';
+import { useUserQuery } from '../../queries/user-user.query';
 
 export const useEmployee = () => {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const [workingEmployees, setWorkingEmployees] = useAtom(workingEmployeesState);
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
 	const { firstLoadData: firstLoadDataEmployee } = useFirstLoad();
@@ -28,7 +28,7 @@ export const useEmployee = () => {
 	// React Query for fetching working employees
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
 		queryKey: queryKeys.users.employees.working(queryParams.tenantId, queryParams.organizationId),
-		queryFn: () => employeeService.getWorkingEmployees(queryParams.tenantId!, queryParams.organizationId!),
+		queryFn: () => employeeService.getWorkingEmployees(),
 		enabled: !!queryParams.tenantId && !!queryParams.organizationId
 	});
 
@@ -42,8 +42,8 @@ export const useEmployee = () => {
 	}, [employeesData, setWorkingEmployees, setWorkingEmployeesEmail]);
 
 	// Legacy function to maintain backward compatibility
-	const getWorkingEmployeeQueryCall = useCallback((tenantId: string, organizationId: string) => {
-		return employeeService.getWorkingEmployees(tenantId, organizationId);
+	const getWorkingEmployeeQueryCall = useCallback(() => {
+		return employeeService.getWorkingEmployees();
 	}, []);
 
 	return {

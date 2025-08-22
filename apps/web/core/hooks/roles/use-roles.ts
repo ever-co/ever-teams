@@ -1,5 +1,5 @@
-import { rolesState, userState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
+import { rolesState } from '@/core/stores';
+import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
 import { queryKeys } from '@/core/query/keys';
@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { useConditionalUpdateEffect } from '../common';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * Enhanced useRoles hook with proper authentication context and caching
@@ -22,7 +23,7 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 export const useRoles = () => {
 	const [roles, setRoles] = useAtom(rolesState);
 	const queryClient = useQueryClient();
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const isAdmin = user?.role?.name
 		? [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName)
 		: false;

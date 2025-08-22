@@ -6,7 +6,6 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
@@ -24,13 +23,15 @@ import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
 
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -40,7 +41,7 @@ const TeamTask = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const [searchTaskTerm, setSearchTaskTerm] = useState('');
 	const filteredTasks = useMemo(
 		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),

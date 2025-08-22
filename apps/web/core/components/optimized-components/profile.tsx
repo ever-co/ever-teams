@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import {
 	AppsTabSkeleton,
 	ScreenshootTabSkeleton,
+	UserProfileTaskSkeleton,
 	VisitedSitesTabSkeleton
 } from '../common/skeleton/profile-component-skeletons';
 
@@ -76,6 +77,6 @@ export const LazyOptimizedTasksTab = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div>Loading tasks...</div>
+		loading: () => <UserProfileTaskSkeleton />
 	}
 );

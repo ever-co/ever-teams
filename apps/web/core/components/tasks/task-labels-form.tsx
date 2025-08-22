@@ -1,14 +1,15 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useTaskLabels } from '@/core/hooks';
-import { userState } from '@/core/stores';
+import { taskLabelsListState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -21,12 +22,14 @@ type StatusForm = {
 };
 
 export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, watch } = useForm();
 	const [edit, setEdit] = useState<ITag | null>(null);
 	const [isCreating, setIsCreating] = useState(formOnly);
 	const t = useTranslations();
 	const initialRender = useRef(true);
+	const taskLabels = useAtomValue(taskLabelsListState);
+
 	const formValues = watch();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
@@ -43,7 +46,6 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 	const {
 		loading,
-		taskLabels,
 		deleteTaskLabels,
 		createTaskLabels,
 		editTaskLabels,
@@ -98,7 +100,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	);
 
 	return (
-		<form className="w-full z-50" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+		<form className="z-50 w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 			<div className="flex justify-center sm:justify-start">
 				<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 					{!formOnly && (
@@ -155,7 +157,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 										onChange={(color) => setValue('color', color)}
 									/>
 								</div>
-								<div className="flex mt-5 gap-x-4">
+								<div className="flex gap-x-4 mt-5">
 									<Button
 										variant="primary"
 										className="px-4 py-4 font-normal rounded-xl text-md"
@@ -187,7 +189,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 									{t('pages.settingsTeam.LIST_OF_LABELS')}
 								</Text>
-								<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+								<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 									{loading && !taskLabels?.length && <Spinner dark={false} />}
 									{taskLabels?.map((label: any) => (
 										<StatusesListCard

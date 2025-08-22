@@ -1,19 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useStatusValue, useSyncRef, useTaskLabels, useTaskStatus, useTeamTasks } from '@/core/hooks';
+import { useStatusValue, useSyncRef, useTeamTasks } from '@/core/hooks';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
-import { taskUpdateQueue } from '@/core/utils/task.utils';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	setOptimisticValueAtom,
 	clearOptimisticValueAtom,
 	getOptimisticValueAtom
 } from '@/core/stores/tasks/task-optimistic-updates';
+import { activeTeamTaskState, taskLabelsListState, taskStatusesState } from '@/core/stores';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -74,13 +74,15 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	status: TStatus<ITaskStatusStack[T]>,
 	field: T
 ) {
-	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
-	const { taskLabels } = useTaskLabels();
-	const { taskStatuses } = useTaskStatus();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { handleStatusUpdate } = useTeamTasks();
+	const taskLabels = useAtomValue(taskLabelsListState);
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 
 	// Global optimistic state for synchronization between instances
-	const [, setOptimisticValue] = useAtom(setOptimisticValueAtom);
-	const [, clearOptimisticValue] = useAtom(clearOptimisticValueAtom);
+	const setOptimisticValue = useSetAtom(setOptimisticValueAtom);
+	const clearOptimisticValue = useSetAtom(clearOptimisticValueAtom);
 	const getOptimisticValue = useAtomValue(getOptimisticValueAtom);
 
 	// Local loading state (per component instance)

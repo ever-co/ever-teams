@@ -62,7 +62,7 @@ export function useTaskVersion() {
 
 	const editTaskVersionMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: TTaskVersionUpdate }) => {
-			return taskVersionService.updateTaskVersion(id, data);
+			return taskVersionService.updateTaskVersion({ taskVersionId: id, data });
 		},
 		onSuccess: () => {
 			toast.success('Task version updated successfully');

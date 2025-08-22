@@ -104,6 +104,8 @@ spec:
                         value: '$CAPTCHA_SECRET_KEY'
                       - name: NEXT_PUBLIC_CAPTCHA_SITE_KEY
                         value: '$NEXT_PUBLIC_CAPTCHA_SITE_KEY'
+                      - name: AUTH_SECRET
+                        value: '$AUTH_SECRET'
 
                   ports:
                       - containerPort: 3030

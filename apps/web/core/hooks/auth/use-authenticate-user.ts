@@ -1,44 +1,30 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { removeAuthCookies, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
-import { activeTeamState, userState } from '@/core/stores';
+import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSetAtom, useAtomValue } from 'jotai';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { userService } from '@/core/services/client/api';
-import { useIsMemberManager, useOrganizationTeams } from '../organizations';
+import { useIsMemberManager } from '../organizations';
 import { useUserProfilePage } from '../users';
 import { TUser } from '@/core/types/schemas';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
+import { useUserQuery } from '../queries/user-user.query';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
-	const [user, setUser] = useAtom(userState);
+	const userDataQuery = useUserQuery();
+	const user = userDataQuery.data;
+	const setUser = useSetAtom(userState);
 	const $user = useRef<TUser | null>(defaultUser || null);
 	const intervalRt = useRef(0);
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const { isTeamManager } = useIsMemberManager(user);
-	const checkTokenExist = (): boolean => {
-		const token = getAccessTokenCookie();
-		return typeof token === 'string' && token.length > 0;
-	};
-
-	const userDataQuery = useQuery({
-		queryKey: queryKeys.users.me,
-		queryFn: async () => {
-			return await userService.getAuthenticatedUserData();
-		},
-		staleTime: 1000 * 60 * 15,
-		gcTime: 1000 * 60 * 30,
-		refetchOnWindowFocus: true,
-		refetchOnReconnect: checkTokenExist(),
-		enabled: checkTokenExist()
-	});
 
 	const refreshTokenMutation = useMutation({
 		mutationKey: queryKeys.users.auth.refreshToken,
@@ -56,7 +42,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	});
 
 	useEffect(() => {
-		if (userDataQuery.data && userDataQuery.data !== user) {
+		if (userDataQuery.data && userDataQuery.isFetched && userDataQuery.data !== user) {
 			if (!user || userDataQuery.data.id !== user.id || userDataQuery.data.updatedAt !== user.updatedAt) {
 				setUser(userDataQuery.data);
 			}
@@ -132,8 +118,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
  */
 
 export const useCanSeeActivityScreen = () => {
-	const { user } = useAuthenticateUser();
-	const { activeTeamManagers } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+
 	const profile = useUserProfilePage();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);

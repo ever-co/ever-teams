@@ -4,15 +4,15 @@ import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/comm
 import { IIssueTypesCreate, IIssueType } from '@/core/types/interfaces/task/issue-type';
 
 class IssueTypeService extends APIService {
-	createIssueType = async (data: IIssueTypesCreate, tenantId?: string) => {
+	createIssueType = async (data: IIssueTypesCreate) => {
 		return this.post<IIssueTypesCreate>('/issue-types', data, {
-			tenantId
+			tenantId: this.tenantId
 		});
 	};
 
-	editIssueType = async (id: string, data: IIssueTypesCreate, tenantId?: string) => {
-		return this.put<IIssueTypesCreate>(`/issue-types/${id}`, data, {
-			tenantId
+	editIssueType = async ({ issueTypeId, data }: { issueTypeId: string; data: IIssueTypesCreate }) => {
+		return this.put<IIssueTypesCreate>(`/issue-types/${issueTypeId}`, data, {
+			tenantId: this.tenantId
 		});
 	};
 
@@ -20,10 +20,10 @@ class IssueTypeService extends APIService {
 		return this.delete<DeleteResponse>(`/issue-types/${id}`);
 	};
 
-	getIssueTypeList = async (tenantId: string, organizationId: string, activeTeamId: string | null) => {
-		const endpoint = `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
+	getIssueTypeList = async () => {
+		const endpoint = `/issue-types?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId });
+		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId: this.tenantId });
 	};
 }
 

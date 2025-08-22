@@ -1,4 +1,3 @@
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -27,12 +26,9 @@ class TagService extends APIService {
 	 */
 	getTags = async (): Promise<PaginationResponse<TTag>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId
 			} as Record<string, string>;
 
 			const query = qs.stringify(obj);
@@ -152,16 +148,14 @@ class TagService extends APIService {
 	/**
 	 * Get tags by organization with validation
 	 *
-	 * @param organizationId - Organization ID
-	 * @param tenantId - Tenant ID
 	 * @returns Promise<PaginationResponse<Tag>> - Validated tags data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTagsByOrganization = async (organizationId: string, tenantId: string): Promise<PaginationResponse<TTag>> => {
+	getTagsByOrganization = async (): Promise<PaginationResponse<TTag>> => {
 		try {
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId
 			} as Record<string, string>;
 
 			const query = qs.stringify(obj);

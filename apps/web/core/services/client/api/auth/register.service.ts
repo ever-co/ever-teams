@@ -116,26 +116,26 @@ class RegisterService extends APIService {
 		);
 
 		// Create employee
-		const employee = await employeeService.createEmployeeFromUser(
-			{
+		const employee = await employeeService.createEmployeeFromUser({
+			data: {
 				organizationId: organization.id,
 				startedWorkOn: new Date(),
-				tenantId: tenant.id,
-				userId: user.id
+				userId: user.id,
+				tenantId: tenant.id
 			},
-			auth_token
-		);
+			bearer_token: auth_token
+		});
 
-		const { data: team } = await organizationTeamService.createOrganizationTeamGauzy(
-			{
+		const { data: team } = await organizationTeamService.createOrganizationTeamGauzy({
+			data: {
 				name: body.team,
 				tenantId: tenant.id,
 				organizationId: organization.id,
 				managerIds: [employee.id],
 				public: true // By default team should be public,
 			},
-			auth_token
-		);
+			bearer_token: auth_token
+		});
 
 		const refreshTokenRes = await this.refreshToken(loginRes.refresh_token);
 		auth_token = refreshTokenRes.token;

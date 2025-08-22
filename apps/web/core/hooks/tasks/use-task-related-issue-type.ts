@@ -1,6 +1,5 @@
 'use client';
-
-import { userState, taskRelatedIssueTypeListState, activeTeamIdState } from '@/core/stores';
+import { activeTeamState, taskRelatedIssueTypeListState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,28 +8,20 @@ import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } fro
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskRelatedIssueType() {
-	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { user: authUser } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: authUser } = useUserQuery();
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const [taskRelatedIssueType, setTaskRelatedIssueType] = useAtom(taskRelatedIssueTypeListState);
 	const { firstLoadData: firstLoadTaskRelatedIssueTypeData } = useFirstLoad();
 
-	const organizationId = useMemo(
-		() => authUser?.employee?.organizationId || user?.employee?.organizationId || getOrganizationIdCookie(),
-		[authUser, user]
-	);
-	const tenantId = useMemo(
-		() => authUser?.employee?.tenantId || user?.tenantId || getTenantIdCookie(),
-		[authUser, user]
-	);
+	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
+	const tenantId = useMemo(() => authUser?.employee?.tenantId || getTenantIdCookie(), [authUser]);
 	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
 
 	// useQuery for fetching task related issue types
@@ -41,7 +32,7 @@ export function useTaskRelatedIssueType() {
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
 			}
-			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(tenantId, organizationId, teamId);
+			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList();
 			return res.data;
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId

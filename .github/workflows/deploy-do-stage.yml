@@ -65,6 +65,7 @@ jobs:
           SMTP_PASSWORD: '${{ secrets.SMTP_PASSWORD }}'
           CAPTCHA_SECRET_KEY: '${{ secrets.CAPTCHA_SECRET_KEY }}'
           NEXT_PUBLIC_CAPTCHA_SITE_KEY: '${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}'
+          AUTH_SECRET: '${{ secrets.AUTH_SECRET }}'
 
       # we need this step because for now we just use :latest tag
       # note: for production we will use different strategy later

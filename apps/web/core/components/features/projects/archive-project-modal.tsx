@@ -8,6 +8,8 @@ import moment from 'moment';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TOrganizationProject } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState } from '@/core/stores';
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -27,7 +29,9 @@ interface IArchiveProjectModalProps {
 export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
-	const { setOrganizationProjects, organizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { setOrganizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
 		useOrganizationProjects();
 
 	const { updateTask } = useTeamTasks();
@@ -100,7 +104,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<EverCard className=" sm:w-[28rem] w-[16rem]" shadow="custom">
-				<div className="flex flex-col items-center justify-between gap-8">
+				<div className="flex flex-col gap-8 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.projects.archiveModal.title', { projectName: project?.name })}
 					</Text.Heading>
@@ -114,8 +118,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 								})}
 							</p>
 
-							<ScrollArea style={{ height: scrollAreaHeight }} className="w-full ">
-								<div className="flex flex-col w-full h-full gap-2 p-2 m-auto border rounded-md">
+							<ScrollArea style={{ height: scrollAreaHeight }} className="w-full">
+								<div className="flex flex-col gap-2 p-2 m-auto w-full h-full rounded-md border">
 									{affectedTasks.map((task) => (
 										<TaskNameInfoDisplay
 											key={task.id}
@@ -131,7 +135,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 						</>
 					) : null}
 
-					<div className="flex items-center justify-between w-full gap-3">
+					<div className="flex gap-3 justify-between items-center w-full">
 						<Button
 							disabled={editOrganizationProjectLoading}
 							onClick={closeModal}

@@ -1,7 +1,8 @@
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { useTaskPriorities } from './use-task-priorities';
+import { taskPrioritiesListState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export function useTaskPrioritiesValue() {
-	const { taskPriorities } = useTaskPriorities();
+	const taskPriorities = useAtomValue(taskPrioritiesListState);
 	return useMapToTaskStatusValues(taskPriorities, false);
 }

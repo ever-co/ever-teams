@@ -4,16 +4,16 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { useAuthenticateUser } from '../auth';
 import { useAuthTeamTasks, useTeamTasks } from '../organizations';
 import { useGetTasksStatsData } from '../tasks';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useUserProfilePage() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const { activeTeamTask, updateTask } = useTeamTasks();
 	const userMemberId = useAtomValue(userDetailAccordion);
 
-	const { user: auth } = useAuthenticateUser();
+	const { data: auth } = useUserQuery();
 	const params = useParams();
 	const memberId: string = useMemo(() => {
 		return (params?.memberId ?? userMemberId) as string;

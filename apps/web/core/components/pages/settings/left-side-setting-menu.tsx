@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIsMemberManager, useLeftSettingData } from '@/core/hooks';
-import { userState } from '@/core/stores';
 import { scrollToElement } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { SidebarAccordian } from '@/core/components/layouts/sidebar-accordian';
@@ -8,11 +7,12 @@ import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import Link from 'next/link';
 import { clsxm } from '@/core/lib/utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
@@ -25,7 +25,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	}, [params]);
 	const [activePage, setActivePage] = useState('');
 
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
 	useEffect(() => {
@@ -68,7 +68,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	);
 
 	return (
-		<div className={clsxm(' ', className)}>
+		<div className={clsxm('', className)}>
 			<Text className="text-4xl font-normal my-10 min-w-[16rem] text-center sm:text-left">
 				{t('common.SETTINGS')}
 			</Text>

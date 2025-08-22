@@ -1,15 +1,15 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { userState } from '@/core/stores';
+import { isTeamMemberState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { Button, Container } from '@/core/components';
 import { usePathname } from 'next/navigation';
 import { useMemo, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 // dynamic import removed - using optimized components
 import { DefaultCreateAction } from '../../features/layouts/header/create-default-action';
 import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
@@ -29,6 +29,7 @@ import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-d
 import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const HeaderSkeleton = () => {
 	return (
@@ -60,8 +61,9 @@ export function Navbar({
 	notFound?: boolean;
 }) {
 	const t = useTranslations();
-	const { isTeamMember } = useOrganizationTeams();
-	const [user] = useAtom(userState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
+
+	const { data: user, isLoading } = useUserQuery();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const pathname = usePathname();
@@ -74,7 +76,7 @@ export function Navbar({
 		return !notAllowedList.includes(pathname);
 	}, [pathname]);
 
-	return !user && !notFound && !publicTeam ? (
+	return (!user && !notFound && !publicTeam) || isLoading ? (
 		<HeaderSkeleton />
 	) : (
 		<nav className={cn('flex gap-3 items-center', className)}>

@@ -104,7 +104,7 @@ export const DisplayTimeForTimesheet = ({
 		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(String(timesheetLog.stoppedAt))
 	);
 
-	const { h: hours, m: minute } = secondsToTime(seconds);
+	const { hours: hours, minutes: minute } = secondsToTime(seconds);
 
 	const iconClasses = 'text-[14px] h-4 w-4';
 	const icons = {
@@ -135,7 +135,7 @@ export const TotalTimeDisplay = React.memo(
 				}, 0)
 			: 0;
 
-		const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+		const { hours: hours, minutes: minute } = secondsToTime(totalDuration || 0);
 		return <div className={cn('flex items-center text-[#868688]', className)}>{formatTime(hours, minute)}</div>;
 	}
 );
@@ -165,7 +165,7 @@ export const TotalDurationByDate = React.memo(
 				}, 0)
 			: 0;
 
-		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
+		const { hours: hours, minutes: minutes } = secondsToTime(totalDurationInSeconds);
 		return <div className={clsxm('flex items-center text-[#868688]', className)}>{formatTime(hours, minutes)}</div>;
 	}
 );

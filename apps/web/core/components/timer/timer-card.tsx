@@ -1,5 +1,4 @@
 import { pad } from '@/core/lib/helpers/number';
-import { useTeamTasks } from '@/core/hooks';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useTimer } from '@/core/hooks/activities/use-timer';
@@ -13,6 +12,8 @@ import {
 } from '@/core/components/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 const Timer = () => {
 	const t = useTranslations();
@@ -30,7 +31,8 @@ const Timer = () => {
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 

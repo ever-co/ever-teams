@@ -37,7 +37,7 @@ export function useTimeActivityStats({
 	const totalHours = useMemo(() => {
 		if (!statisticsCounts) return '0h';
 		const totalDurationSeconds = statisticsCounts.weekDuration || 0;
-		const { h: hours, m: minutes } = secondsToTime(totalDurationSeconds);
+		const { hours: hours, minutes: minutes } = secondsToTime(totalDurationSeconds);
 		return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
 	}, [statisticsCounts?.weekDuration]);
 

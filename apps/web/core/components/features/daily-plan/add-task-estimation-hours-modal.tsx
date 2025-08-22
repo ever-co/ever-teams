@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -29,6 +28,17 @@ import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import {
+	activeTeamTaskState,
+	tasksByTeamState,
+	taskStatusesState,
+	timerStatusState,
+	profileDailyPlanListState,
+	myDailyPlanListState,
+	todayPlanState
+} from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -61,7 +71,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const { updateDailyPlan, myDailyPlans, profileDailyPlans } = useDailyPlan();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const myDailyPlans = useAtomValue(myDailyPlanListState);
+
+	const { updateDailyPlan } = useDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -78,9 +91,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		return plan?.tasks || propsTasks;
 	}, [plan?.tasks, propsTasks]);
 
-	const { tasks: globalTasks } = useTeamTasks();
-	const { startTimer, timerStatus } = useTimerView();
-	const { activeTeamTask, setActiveTask } = useTeamTasks();
+	const globalTasks = useAtomValue(tasksByTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const timerStatus = useAtomValue(timerStatusState);
+
+	const { startTimer } = useTimerView();
+	const { setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -388,14 +404,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// TODO: Add onclick handler
 	const TimeSheetsButton = (
-		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+		<Button className="w-full px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
 			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
 
 	const content = (
 		<div className="flex flex-col justify-between w-full">
-			<div className="flex flex-col gap-4 w-full">
+			<div className="flex flex-col w-full gap-4">
 				{isRenderedInSoftFlow && (
 					<Text.Heading as="h3" className="mb-3 text-center">
 						{t('timer.todayPlanSettings.TITLE')}
@@ -417,7 +433,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							checkPastDate(plan?.date ?? selectedDate) && 'flex items-center justify-between gap-2'
 						)}
 					>
-						<div className="flex flex-col gap-2 w-full">
+						<div className="flex flex-col w-full gap-2">
 							{checkPastDate(plan?.date ?? selectedDate) ? (
 								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
 							) : (
@@ -428,7 +444,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							)}
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
-									<div className="flex gap-3 items-center px-3 w-full h-full rounded-lg border">
+									<div className="flex items-center w-full h-full gap-3 px-3 border rounded-lg">
 										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 									</div>
 								) : (
@@ -477,7 +493,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										onClick={() => {
 											setShowSearchInput(true);
 										}}
-										className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
+										className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
 									>
 										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
 									</button>
@@ -485,7 +501,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 						</div>
 						{checkPastDate(plan?.date ?? selectedDate) && (
-							<div className="flex flex-col gap-2 w-full">
+							<div className="flex flex-col w-full gap-2">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
 									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
@@ -500,12 +516,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						<div className="flex flex-col gap-3 text-sm">
 							<div className="flex flex-col gap-3 text-sm">
 								<div className="flex flex-col gap-2 text-sm">
-									<div className="flex gap-2 justify-between items-center w-full">
-										<div className="flex gap-1 justify-center items-center">
+									<div className="flex items-center justify-between w-full gap-2">
+										<div className="flex items-center justify-center gap-1">
 											<span>{t('task.TITLE_PLURAL')}</span>
 											{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
 										</div>
-										<div className="flex gap-1 justify-center items-center">
+										<div className="flex items-center justify-center gap-1">
 											{checkPastDate(plan.date) ? (
 												<>
 													<span>{t('dailyPlan.ESTIMATED')} :</span>
@@ -524,7 +540,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</div>
 									</div>
 									<div className="w-full h-full">
-										<ul className="flex overflow-y-auto flex-col gap-2 h-80">
+										<ul className="flex flex-col gap-2 overflow-y-auto h-80">
 											{sortedTasks.map((task, index) => (
 												<TaskCard
 													plan={plan}
@@ -537,7 +553,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</ul>
 									</div>
 								</div>
-								<div className="flex gap-2 items-center h-6 text-sm text-red-500">
+								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
 											<IconsErrorWarningFill className="text-[14px]" />
@@ -547,12 +563,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								</div>
 							</div>
 						</div>
-						<div className="flex justify-between items-center">
+						<div className="flex items-center justify-between">
 							<Button
 								disabled={loading}
 								variant="outline"
 								type="submit"
-								className="px-5 py-3 w-40 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								className="w-40 px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
@@ -629,8 +645,10 @@ interface ISearchTaskInputProps {
  */
 export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
-	const { tasks: teamTasks, createTask } = useTeamTasks();
-	const { taskStatuses } = useTaskStatus();
+
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const { createTask } = useTeamTasks();
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -695,7 +713,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	return (
 		<Popover className={clsxm('relative z-20 w-full')}>
-			<div className="flex flex-col gap-2 items-start w-full">
+			<div className="flex flex-col items-start w-full gap-2">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
 					<PopoverButton
@@ -719,7 +737,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						onClick={() => {
 							setShowSearchInput(false);
 						}}
-						className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
+						className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
 					>
 						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" />
@@ -783,8 +801,10 @@ function TaskCard(props: ITaskCardProps) {
 	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
 	const { getTaskById } = useTeamTasks();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const isTaskRenderedInTodayPlan =
 		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
@@ -805,8 +825,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
-	const status = useTaskStatus();
-	const { activeTeamTask } = useTeamTasks();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -883,21 +903,20 @@ function TaskCard(props: ITaskCardProps) {
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
-			<div className="flex gap-2 justify-end items-center h-full grow">
+			<div className="flex items-center justify-end h-full gap-2 grow">
 				{viewListMode === 'searched' ? (
 					<Button onClick={handleAddTask} variant="outline" className="mon-h-12" type="button">
 						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex gap-1 items-center h-full min-w-fit">
+						<div className="flex items-center h-full gap-1 min-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex justify-center items-center h-6 truncate min-w-fit max-w-28"
+									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor:
-											status.taskStatuses.filter((s) => s.value === task.status)[0].color ??
-											undefined
+											taskStatuses.filter((s) => s.value === task.status)[0].color ?? undefined
 									}}
 								>
 									{task.status}
@@ -908,7 +927,7 @@ function TaskCard(props: ITaskCardProps) {
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
-						<span className="flex justify-center items-center w-4 h-full">
+						<span className="flex items-center justify-center w-4 h-full">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
 								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
@@ -959,10 +978,12 @@ interface ITaskCardActionsProps {
 
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-	const { activeTeamTask } = useTeamTasks();
-	const { timerStatus } = useTimerView();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const timerStatus = useAtomValue(timerStatusState);
 	const otherPlanIds = useMemo(
 		() =>
 			[...futurePlans, ...todayPlan]
@@ -1031,7 +1052,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 	return (
 		<Popover>
-			<PopoverButton className="flex justify-center items-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
 			</PopoverButton>
 
@@ -1049,7 +1070,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					{({ close }) => {
 						return (
 							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
-								<ul className="flex flex-col gap-3 justify-end">
+								<ul className="flex flex-col justify-end gap-3">
 									<li
 										onClick={openTaskDetailsModal}
 										className={clsxm('hover:font-semibold hover:transition-all')}
@@ -1143,9 +1164,12 @@ function UnplanTask(props: IUnplanTaskProps) {
 		openUnplanActiveTaskModal,
 		unPlanSelectedDateLoading
 	} = props;
-	const { user } = useAuthenticateUser();
-	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
-	const { activeTeamTask } = useTeamTasks();
+	const { data: user } = useUserQuery();
+	const todayPlan = useAtomValue(todayPlanState);
+
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
 		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
@@ -1222,7 +1246,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
-								<ul className="flex flex-col gap-3 justify-end p-3 w-full border">
+								<ul className="flex flex-col justify-end w-full gap-3 p-3 border">
 									<li
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(

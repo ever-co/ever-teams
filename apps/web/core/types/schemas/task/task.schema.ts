@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { baseEntitySchema, idSchema } from '../common/base.schema';
+import { baseEntitySchema, uuIdSchema } from '../common/base.schema';
 import { tagSchema } from '../tag/tag.schema';
 import { employeeSchema } from '../organization/employee.schema';
 import { taskStatusNameSchema } from '../common/enums.schema';
@@ -10,8 +10,8 @@ import { organizationTeamSchema } from '../team/organization-team.schema';
 import { EIssueType } from '../../generics/enums/task';
 
 export const basePerTenantAndOrganizationEntitySchema = baseEntitySchema.extend({
-	tenantId: idSchema.optional(),
-	organizationId: idSchema.optional()
+	tenantId: uuIdSchema.optional(),
+	organizationId: uuIdSchema.optional()
 });
 
 // schema for ITaskSize
@@ -46,7 +46,7 @@ export const issueTypeEntitySchema = basePerTenantAndOrganizationEntitySchema.ex
 	isSystem: z.boolean().optional(),
 	imageId: z.string().nullable().optional(),
 	projectId: z.string().nullable().optional(),
-	organizationTeamId: idSchema.optional(),
+	organizationTeamId: uuIdSchema.optional(),
 	image: z.string().nullable().optional(),
 	fullIconUrl: z.string().optional(),
 	template: z.string().optional()
@@ -176,12 +176,6 @@ export const taskSchema = baseTaskPropertiesSchema
 		estimateMinutes: z.number().optional()
 	});
 
-// schema for ITasksStatistics
-export const taskStatisticsSchema = taskSchema.extend({
-	duration: z.number().optional(),
-	durationPercentage: z.number().optional()
-});
-
 // schema for ICreateTask
 export const createTaskSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
@@ -221,7 +215,6 @@ export const updateActiveTaskSchema = z.object({
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
 export type TTask = z.infer<typeof taskSchema>;
-export type TTaskStatistics = z.infer<typeof taskStatisticsSchema>;
 export type TCreateTask = z.infer<typeof createTaskSchema>;
 export type TEmployee = z.infer<typeof employeeSchema>;
 export type TTag = z.infer<typeof tagSchema>;
@@ -266,11 +259,4 @@ export const validateCreateTask = (data: unknown): TCreateTask => {
  */
 export const validatePartialTask = (data: unknown) => {
 	return taskSchema.partial().parse(data);
-};
-
-/**
- * Validate the statistics of a task
- */
-export const validateTaskStatistics = (data: unknown): TTaskStatistics => {
-	return taskStatisticsSchema.parse(data);
 };

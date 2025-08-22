@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { useMemo } from 'react';
@@ -17,7 +16,7 @@ export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], borde
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="flex relative items-center">
+					<div className="relative flex items-center">
 						{item.fullIconUrl && (
 							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
 						)}

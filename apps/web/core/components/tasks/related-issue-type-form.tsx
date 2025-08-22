@@ -4,26 +4,27 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { userState } from '@/core/stores';
+import { taskRelatedIssueTypeListState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
 import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();
 
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
+	const taskRelatedIssueTypes = useAtomValue(taskRelatedIssueTypeListState);
 	const {
 		loading,
-		taskRelatedIssueTypes,
 		createTaskRelatedIssueType,
 		deleteTaskRelatedIssueType,
 		editTaskRelatedIssueType,
@@ -115,7 +116,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 										{createNew && 'New'}
 										{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
 									</Text>
-									<div className="flex items-center w-full mt-3 gap-x-5">
+									<div className="flex gap-x-5 items-center mt-3 w-full">
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
@@ -124,7 +125,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 											{...register('name')}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -160,7 +161,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
 										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 										{loading && !taskRelatedIssueTypes?.length && <Spinner dark={false} />}
 										{taskRelatedIssueTypes && taskRelatedIssueTypes?.length ? (
 											taskRelatedIssueTypes.map((relatedIssueType) => (

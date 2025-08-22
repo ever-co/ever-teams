@@ -109,7 +109,9 @@ export const columns: ColumnDef<TTask>[] = [
 		header: 'Title',
 		id: 'title',
 		cell: ({ row }) => (
-			<div className="text-sm font-medium text-indigo-950 dark:text-gray-200">{row.original.title}</div>
+			<div className="overflow-x-hidden text-sm font-medium text-indigo-950 dark:text-gray-200 max-w-96 text-ellipsis text-nowrap min-w-80">
+				{row.original.title}
+			</div>
 		),
 		enableColumnFilter: true
 	},

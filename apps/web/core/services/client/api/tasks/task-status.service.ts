@@ -26,11 +26,10 @@ class TaskStatusService extends APIService {
 	 * Create a new task status with validation
 	 *
 	 * @param data - Task status data
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TTaskStatus> - Validated created task status
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	createTaskStatus = async (data: ITaskStatusCreate, tenantId?: string): Promise<TTaskStatus> => {
+	createTaskStatus = async (data: ITaskStatusCreate): Promise<TTaskStatus> => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
@@ -40,7 +39,7 @@ class TaskStatusService extends APIService {
 			);
 
 			const response = await this.post<TTaskStatus>('/task-statuses', validatedInput, {
-				tenantId
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -63,13 +62,12 @@ class TaskStatusService extends APIService {
 	/**
 	 * Edit an existing task status with validation
 	 *
-	 * @param id - Task status ID to edit
+	 * @param taskStatusId - Task status ID to edit
 	 * @param data - Task status data
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TTaskStatus> - Validated updated task status
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskStatus = async (id: string, data: ITaskStatusCreate, tenantId?: string): Promise<TTaskStatus> => {
+	editTaskStatus = async ({ taskStatusId, data }: { taskStatusId: string; data: ITaskStatusCreate }) => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
@@ -78,8 +76,8 @@ class TaskStatusService extends APIService {
 				'editTaskStatus input data'
 			);
 
-			const response = await this.put<TTaskStatus>(`/task-statuses/${id}`, validatedInput, {
-				tenantId
+			const response = await this.put<TTaskStatus>(`/task-statuses/${taskStatusId}`, validatedInput, {
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -103,17 +101,16 @@ class TaskStatusService extends APIService {
 	 * Edit task status order with validation
 	 *
 	 * @param data - Task status order data
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TTaskStatusOrder['reorder']> - Validated reorder response
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskStatusOrder = async (data: ITaskStatusOrder, tenantId?: string): Promise<TTaskStatusOrder['reorder']> => {
+	editTaskStatusOrder = async (data: ITaskStatusOrder): Promise<TTaskStatusOrder['reorder']> => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(taskStatusOrderSchema, data, 'editTaskStatusOrder input data');
 
 			const response = await this.patch<TTaskStatusOrder['reorder']>(`/task-statuses/reorder`, validatedInput, {
-				tenantId,
+				tenantId: this.tenantId,
 				method: 'PATCH'
 			});
 
@@ -138,13 +135,13 @@ class TaskStatusService extends APIService {
 	/**
 	 * Delete a task status with validation
 	 *
-	 * @param id - Task status ID to delete
+	 * @param taskStatusId - Task status ID to delete
 	 * @returns Promise<TTaskStatus> - Validated deleted task status data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteTaskStatus = async (id: string): Promise<TTaskStatus> => {
+	deleteTaskStatus = async (taskStatusId: string): Promise<TTaskStatus> => {
 		try {
-			const response = await this.delete<TTaskStatus>(`/task-statuses/${id}`);
+			const response = await this.delete<TTaskStatus>(`/task-statuses/${taskStatusId}`);
 
 			// Validate the response data
 			return validateApiResponse(taskStatusSchema, response.data, 'deleteTaskStatus API response');
@@ -166,27 +163,20 @@ class TaskStatusService extends APIService {
 	/**
 	 * Get all task statuses with validation
 	 *
-	 * @param tenantId - Tenant ID
-	 * @param organizationId - Organization ID
-	 * @param organizationTeamId - Organization team ID (optional)
 	 * @returns Promise<PaginationResponse<TTaskStatus>> - Validated task statuses data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskStatuses = async (
-		tenantId: string,
-		organizationId: string,
-		organizationTeamId: string | null
-	): Promise<PaginationResponse<TTaskStatus>> => {
+	getTaskStatuses = async (): Promise<PaginationResponse<TTaskStatus>> => {
 		try {
 			const query = qs.stringify({
-				tenantId,
-				organizationId,
-				organizationTeamId
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
+				organizationTeamId: this.activeTeamId
 			});
 
 			const endpoint = `/task-statuses?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');

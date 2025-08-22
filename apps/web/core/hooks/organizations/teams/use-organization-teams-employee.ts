@@ -1,8 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useOrganizationTeams } from './use-organization-teams';
-import { userState } from '@/core/stores';
-import { useAtom } from 'jotai';
 import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
@@ -10,27 +8,14 @@ import { TOrganizationTeamEmployee, TOrganizationTeamEmployeeUpdate } from '@/co
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
-	const [user] = useAtom(userState);
 	const queryClient = useQueryClient();
 
 	// React Query mutation for delete organization employee team
 	const deleteOrganizationEmployeeTeamMutation = useMutation({
-		mutationFn: ({
-			id,
-			employeeId,
-			organizationId,
-			tenantId
-		}: {
-			id: string;
-			employeeId: string;
-			organizationId: string;
-			tenantId: string;
-		}) =>
-			organizationTeamEmployeeService.deleteOrganizationEmployeeTeam({
-				id,
-				employeeId,
-				organizationId,
-				tenantId
+		mutationFn: ({ id, employeeId }: { id: string; employeeId: string }) =>
+			organizationTeamEmployeeService.deleteOrganizationTeamEmployee({
+				organizationTeamEmployeeId: id,
+				employeeId
 			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.delete(undefined),
 		onSuccess: async () => {
@@ -55,7 +40,10 @@ export function useOrganizationEmployeeTeams() {
 			if (!id) {
 				throw new Error('Id is required');
 			}
-			return organizationTeamEmployeeService.updateOrganizationEmployeeTeam(id, data);
+			return organizationTeamEmployeeService.updateOrganizationTeamEmployee({
+				organizationTeamEmployeeId: id,
+				data
+			});
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.employee.update(undefined),
 		onSuccess: async () => {
@@ -76,13 +64,15 @@ export function useOrganizationEmployeeTeams() {
 	const editEmployeeOrderMutation = useMutation({
 		mutationFn: ({
 			employeeId,
-			data,
-			tenantId
+			data
 		}: {
 			employeeId: string;
 			data: { order: number; organizationTeamId: string; organizationId: string };
-			tenantId?: string;
-		}) => organizationTeamEmployeeService.editEmployeeOrderOrganizationTeam(employeeId, data, tenantId),
+		}) =>
+			organizationTeamEmployeeService.editOrganizationTeamEmployeeOrder({
+				organizationTeamEmployeeId: employeeId,
+				data
+			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.updateOrder(undefined),
 		onSuccess: async () => {
 			// Invalidate organization teams queries to refresh data
@@ -101,7 +91,10 @@ export function useOrganizationEmployeeTeams() {
 	// React Query mutation for update employee active task
 	const updateActiveTaskMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: Partial<TOrganizationTeamEmployeeUpdate> }) =>
-			organizationTeamEmployeeService.updateOrganizationTeamEmployeeActiveTask(id, data),
+			organizationTeamEmployeeService.updateOrganizationTeamEmployeeActiveTask({
+				organizationTeamEmployeeId: id,
+				data
+			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.updateActiveTask(undefined),
 		onSuccess: async () => {
 			// Invalidate organization teams queries to refresh data
@@ -116,22 +109,10 @@ export function useOrganizationEmployeeTeams() {
 
 	// Delete organization team employee function
 	const deleteOrganizationTeamEmployee = useCallback(
-		async ({
-			id,
-			employeeId,
-			organizationId,
-			tenantId
-		}: {
-			id: string;
-			employeeId: string;
-			organizationId: string;
-			tenantId: string;
-		}) => {
+		async ({ id, employeeId }: { id: string; employeeId: string }) => {
 			return await deleteOrganizationEmployeeTeamMutation.mutateAsync({
 				id,
-				employeeId,
-				organizationId,
-				tenantId
+				employeeId
 			});
 		},
 		[deleteOrganizationEmployeeTeamMutation]
@@ -154,11 +135,10 @@ export function useOrganizationEmployeeTeams() {
 					order,
 					organizationTeamId: employee.organizationTeamId ?? '',
 					organizationId: employee.organizationId ?? ''
-				},
-				tenantId: user?.tenantId || ''
+				}
 			});
 		},
-		[editEmployeeOrderMutation, user?.tenantId]
+		[editEmployeeOrderMutation]
 	);
 
 	// Update employee active task function

@@ -1,22 +1,23 @@
-import { detailedTaskState } from '@/core/stores';
-import { useAtom } from 'jotai';
+import { activeTeamState, detailedTaskState } from '@/core/stores';
+import { useAtom, useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { ITime } from '@/core/types/interfaces/common/time';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
-	const { user } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: user } = useUserQuery();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
@@ -47,9 +48,9 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalWorkedTasks?.find((object: TTaskStatistics) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
 		setUserTotalTime({ hours: h, minutes: m });
 	}, [currentUser?.totalWorkedTasks, task?.id]);
@@ -60,9 +61,9 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks?.find((object: ITasksStatistics) => object.id === task?.id)?.duration || 0;
+			currentUser?.totalTodayTasks?.find((object: TTaskStatistics) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { hours: h, minutes: m } = secondsToTime(totalOnTaskInSeconds);
 
 		setUserTotalTimeToday({ hours: h, minutes: m });
 	}, [currentUser?.totalTodayTasks, task?.id]);
@@ -76,7 +77,7 @@ const TaskProgress = () => {
 			task?.members?.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
-		const usersTaskArray: ITasksStatistics[] =
+		const usersTaskArray: TTaskStatistics[] =
 			matchingMembers
 				?.flatMap((obj) => obj.totalWorkedTasks || [])
 				.filter((taskObj) => taskObj?.id === task?.id) || [];
@@ -90,7 +91,7 @@ const TaskProgress = () => {
 			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined ? 0 : usersTotalTimeInSeconds;
 
 		const timeObj = secondsToTime(usersTotalTime);
-		const { h: hoursTotal, m: minutesTotal } = timeObj;
+		const { hours: hoursTotal, minutes: minutesTotal } = timeObj;
 		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
 
 		const remainingTime: number =
@@ -101,7 +102,7 @@ const TaskProgress = () => {
 				? 0
 				: task?.estimate - usersTotalTimeInSeconds;
 
-		const { h, m } = secondsToTime(remainingTime);
+		const { hours: h, minutes: m } = secondsToTime(remainingTime);
 		setTimeRemaining({ hours: h, minutes: m });
 		if (remainingTime <= 0) {
 			setTimeRemaining({ hours: 0, minutes: 0 });
@@ -134,7 +135,7 @@ const TaskProgress = () => {
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.1875rem]">
 							{task?.members && task?.members.length > 1 ? (
-								<DisclosureButton className="flex items-center justify-between w-full">
+								<DisclosureButton className="flex justify-between items-center w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 									</div>
@@ -182,7 +183,8 @@ export default TaskProgress;
 
 const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: number }) => {
 	const [task] = useAtom(detailedTaskState);
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const matchingMembers = activeTeam?.members?.filter((member) =>
 		task?.members?.some((taskMember) => taskMember.id === member.employeeId)
@@ -197,7 +199,7 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 			{matchingMembers?.slice(0, numMembersToShow)?.map((member) => {
 				const taskDurationInSeconds = findUserTotalWorked(member, task?.id);
 
-				const { h, m } = secondsToTime(taskDurationInSeconds);
+				const { hours: h, minutes: m } = secondsToTime(taskDurationInSeconds);
 
 				const time = `${h}h : ${m}m`;
 
