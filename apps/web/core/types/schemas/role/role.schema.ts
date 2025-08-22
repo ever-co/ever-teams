@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantEntityModelSchema, idSchema } from '../common/base.schema';
+import { basePerTenantEntityModelSchema, uuIdSchema } from '../common/base.schema';
 import { roleNameSchema } from '../common/enums.schema';
 
 /**
@@ -22,7 +22,7 @@ export const roleSchema = z
 // Relational role schema
 export const relationalRoleSchema = z.object({
 	role: roleSchema.optional().nullable(),
-	roleId: idSchema.optional().nullable()
+	roleId: uuIdSchema.optional().nullable()
 });
 
 // Role list schema (for API responses)

@@ -5,7 +5,6 @@ import {
 	INVITE_CALLBACK_URL
 } from '@/core/constants/config/constants';
 import qs from 'qs';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IGetInvitationRequest, IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
@@ -30,22 +29,14 @@ import {
 } from '@/core/types/schemas/user/invite.schema';
 
 class InviteService extends APIService {
-	get organizationId() {
-		return getOrganizationIdCookie();
-	}
-	get tenantId() {
-		return getTenantIdCookie();
-	}
-	get activeTeamId() {
-		return getActiveTeamIdCookie();
-	}
-
-	inviteByEmails = async (data: IInviteRequest, tenantId: string): Promise<PaginationResponse<TInvite>> => {
+	inviteByEmails = async (data: IInviteRequest): Promise<PaginationResponse<TInvite>> => {
 		try {
 			const endpoint = '/invite/emails';
 
 			if (!GAUZY_API_BASE_SERVER_URL.value) {
-				const response = await this.post<PaginationResponse<TInvite>>(endpoint, data, { tenantId });
+				const response = await this.post<PaginationResponse<TInvite>>(endpoint, data, {
+					tenantId: this.tenantId
+				});
 				return validatePaginationResponse(inviteSchema, response.data, 'inviteByEmails API response');
 			}
 
@@ -54,7 +45,9 @@ class InviteService extends APIService {
 
 			const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
 
-			const employeeRoleId = await this.get<TRole>(getRoleEndpoint, { tenantId }).then((res) => res.data.id);
+			const employeeRoleId = await this.get<TRole>(getRoleEndpoint, { tenantId: this.tenantId }).then(
+				(res) => res.data.id
+			);
 
 			const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 				emailIds: [data.email],
@@ -69,11 +62,13 @@ class InviteService extends APIService {
 				fullName: data.name,
 				callbackUrl: INVITE_CALLBACK_URL,
 				organizationId: data.organizationId,
-				tenantId,
+				tenantId: this.tenantId,
 				startedWorkOn: date.toISOString()
 			};
 
-			const response = await this.post<PaginationResponse<TInvite>>(endpoint, dataToInviteUser, { tenantId });
+			const response = await this.post<PaginationResponse<TInvite>>(endpoint, dataToInviteUser, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(inviteSchema, response.data, 'inviteByEmails API response');
@@ -136,15 +131,19 @@ class InviteService extends APIService {
 		}
 	};
 
-	removeTeamInvitations = async (
-		invitationId: string,
-		tenantId: string,
-		organizationId: string,
-		role: string,
-		teamId: string
-	): Promise<PaginationResponse<TInvite>> => {
+	removeTeamInvitations = async ({
+		invitationId,
+		role,
+		teamId
+	}: {
+		invitationId: string;
+		role: string;
+		teamId: string;
+	}): Promise<PaginationResponse<TInvite>> => {
 		try {
-			let response = await this.delete<PaginationResponse<TInvite>>(`/invite/${invitationId}`, { tenantId });
+			let response = await this.delete<PaginationResponse<TInvite>>(`/invite/${invitationId}`, {
+				tenantId: this.tenantId
+			});
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				// Use the already validated getTeamInvitations method
@@ -214,8 +213,8 @@ class InviteService extends APIService {
 	 * Build request data for resend operation based on server configuration
 	 */
 	private buildResendRequestData(inviteId: string) {
-		const tenantId = getTenantIdCookie();
-		const organizationId = getOrganizationIdCookie();
+		const tenantId = this.tenantId;
+		const organizationId = this.organizationId;
 
 		return GAUZY_API_BASE_SERVER_URL.value
 			? {
@@ -228,11 +227,11 @@ class InviteService extends APIService {
 			: { inviteId };
 	}
 
-	getMyInvitations = async (tenantId: string): Promise<PaginationResponse<TInvite>> => {
+	getMyInvitations = async (): Promise<PaginationResponse<TInvite>> => {
 		try {
 			const endpoint = '/invite/me';
 
-			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(inviteSchema, response.data, 'getMyInvitations API response');

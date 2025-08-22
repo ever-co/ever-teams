@@ -1,5 +1,5 @@
-import { pad } from '@/core/lib/helpers/index';
-import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@/core/hooks';
+import { pad, secondsToTime } from '@/core/lib/helpers/index';
+import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -21,6 +21,8 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
@@ -39,7 +41,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		startTimer
 	} = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	const { os } = useDetectOS();
@@ -63,7 +67,6 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	// Handling Hotkeys
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
-			console.log('h?.shortcut', h?.shortcut);
 			// Start Timer
 			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
 				timerHanlder();
@@ -98,8 +101,11 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 									: ''
 							} `}
 						>
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-							<span className="text-sm">:{pad(ms_p)}</span>
+							{timerStatus?.running
+								? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+								: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(todayLoggedDurationFormated.seconds)}`}
+
+							{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
 						</Text.Heading>
 
 						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
@@ -194,9 +200,11 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer } = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
+	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 
 	return (
 		<div
@@ -207,8 +215,12 @@ export function MinTimerFrame({ className }: IClassName) {
 			)}
 		>
 			<Text className="text-lg tracking-wide font-normal w-[110px]">
-				{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-				<span className="text-sm">:{pad(ms_p)}</span>
+				{timerStatus?.running
+					? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+					: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(
+							todayLoggedDurationFormated.seconds
+						)}`}
+				{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
 			</Text>
 
 			{timerStatus && timerStatus.running && (

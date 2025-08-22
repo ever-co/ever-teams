@@ -19,6 +19,105 @@ export const profileDailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	total: 0
 });
 
+export const ascSortedPlansState = atom((get) => {
+	const profileDailyPlans = get(profileDailyPlanListState);
+	return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+	);
+});
+
+export const futurePlansState = atom((get) => {
+	const ascSortedPlans = get(ascSortedPlansState);
+	return ascSortedPlans?.filter((plan) => {
+		const planDate = new Date(plan.date);
+		const today = new Date();
+		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+		return planDate.getTime() >= today.getTime();
+	});
+});
+
+export const descSortedPlansState = atom((get) => {
+	const profileDailyPlans = get(profileDailyPlanListState);
+	return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+	);
+});
+
+export const pastPlansState = atom((get) => {
+	const descSortedPlans = get(descSortedPlansState);
+	return descSortedPlans?.filter((plan) => {
+		const planDate = new Date(plan.date);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
+		return planDate.getTime() < today.getTime();
+	});
+});
+
+export const todayPlanState = atom((get) => {
+	const profileDailyPlans = get(profileDailyPlanListState);
+	return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
+		plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+	);
+});
+
+export const todayTasksState = atom((get) => {
+	const todayPlan = get(todayPlanState);
+	return todayPlan
+		.map((plan) => {
+			return plan.tasks ? plan.tasks : [];
+		})
+		.flat();
+});
+
+export const futureTasksState = atom((get) => {
+	const futurePlans = get(futurePlansState);
+	return futurePlans
+		.map((plan) => {
+			return plan.tasks ? plan.tasks : [];
+		})
+		.flat();
+});
+
+export const outstandingPlansState = atom((get) => {
+	const profileDailyPlans = get(profileDailyPlanListState);
+	const todayTasks = get(todayTasksState);
+	const futureTasks = get(futureTasksState);
+	return (
+		[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
+			// Exclude today plans
+			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+
+			// Exclude future plans
+			.filter((plan) => {
+				const planDate = new Date(plan.date);
+				const today = new Date();
+				today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+				return planDate.getTime() <= today.getTime();
+			})
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.map((plan) => ({
+				...plan,
+				// Include only no completed tasks
+				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+			}))
+			.map((plan) => ({
+				...plan,
+				// Include only tasks that are not added yet to the today plan or future plans
+				tasks: plan.tasks?.filter(
+					(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
+				)
+			}))
+			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
+	);
+});
+
+export const sortedPlansState = atom((get) => {
+	const profileDailyPlans = get(profileDailyPlanListState);
+	return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+	);
+});
+
 export const employeePlansListState = atom<TDailyPlan[]>([]);
 
 export const taskPlans = atom<TDailyPlan[]>([]);

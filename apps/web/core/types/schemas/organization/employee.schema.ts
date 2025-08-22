@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
-import { taggableSchema, idSchema } from '../common/base.schema';
+import { taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
 import { userSchema } from '../user/user.schema';
 import { teamSchema } from '../team/team.schema';
@@ -12,14 +12,14 @@ import { teamSchema } from '../team/team.schema';
 // Employee schema
 export const employeeSchema = z
 	.object({
-		id: idSchema,
+		id: uuIdSchema,
 		endWork: z.coerce.date().optional(),
 		startedWorkOn: z.coerce.date().optional(),
 		user: z
 			.lazy(() => userSchema)
 			.nullable()
 			.optional(), // Will be properly typed when user schema is created
-		userId: idSchema,
+		userId: uuIdSchema,
 		valueDate: z.coerce.date().optional(),
 		short_description: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
@@ -80,7 +80,7 @@ export const employeeSchema = z
 		organizationPositionId: z.string().nullable().optional(),
 		employee: z
 			.object({
-				id: idSchema,
+				id: uuIdSchema,
 				fullName: z.string(),
 				email: z.string(),
 				phone: z.string(),

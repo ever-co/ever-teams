@@ -16,7 +16,7 @@ export const organizationTimerSettingSchema = z.object({
 	allowScreenshotCapture: z.boolean().optional(),
 	randomScreenshot: z.boolean().optional(),
 	trackOnSleep: z.boolean().optional(),
-	screenshotFrequency: z.number().optional(),
+	screenshotFrequency: z.string().optional(),
 	enforced: z.boolean().optional(),
 	standardWorkHoursPerDay: z.number().optional()
 });
@@ -35,6 +35,7 @@ export const organizationLanguageSchema = z
 // Main organization schema
 export const organizationSchema = z
 	.object({
+		id: z.string(),
 		name: z.string(),
 		isDefault: z.boolean(),
 		profile_link: z.string(),
@@ -42,7 +43,7 @@ export const organizationSchema = z
 		totalEmployees: z.number(),
 		status: z.string().optional(),
 		imageUrl: z.string().optional(),
-		banner: z.string(),
+		banner: z.string().nullable(),
 		short_description: z.string().optional().nullable(),
 		client_focus: z.string().optional().nullable(),
 		show_income: z.boolean().optional(),
@@ -55,54 +56,54 @@ export const organizationSchema = z
 		show_employees_count: z.boolean().optional(),
 		overview: z.string().optional().nullable(),
 		currency: z.string().optional().nullable(),
-		defaultValueDateType: defaultValueDateTypeSchema,
-		defaultAlignmentType: z.string().optional(),
-		dateFormat: z.string().optional(),
-		brandColor: z.string().optional(),
-		timeZone: z.string().optional(),
-		officialName: z.string().optional(),
-		startWeekOn: weekDaysSchema.optional(),
-		taxId: z.string().optional(),
-		numberFormat: z.string().optional(),
-		bonusPercentage: z.number().optional(),
+		defaultValueDateType: defaultValueDateTypeSchema.optional().nullable(),
+		defaultAlignmentType: z.string().optional().nullable(),
+		dateFormat: z.string().optional().nullable(),
+		brandColor: z.string().optional().nullable(),
+		timeZone: z.string().optional().nullable(),
+		officialName: z.string().optional().nullable(),
+		startWeekOn: weekDaysSchema.optional().nullable(),
+		taxId: z.string().optional().nullable(),
+		numberFormat: z.string().optional().nullable(),
+		bonusPercentage: z.number().optional().nullable(),
 		employees: z.array(z.any()).optional(), // Will be properly typed when employee schema is created
-		invitesAllowed: z.boolean().optional(),
-		inviteExpiryPeriod: z.number().optional(),
-		futureDateAllowed: z.boolean().optional(),
-		allowManualTime: z.boolean().optional(),
-		allowModifyTime: z.boolean().optional(),
-		allowDeleteTime: z.boolean().optional(),
-		regionCode: z.string().optional(),
-		requireReason: z.boolean().optional(),
-		requireDescription: z.boolean().optional(),
-		requireProject: z.boolean().optional(),
-		requireTask: z.boolean().optional(),
-		requireClient: z.boolean().optional(),
-		timeFormat: timeFormatSchema.optional(),
-		defaultStartTime: z.string().optional(),
-		defaultEndTime: z.string().optional(),
-		registrationDate: z.coerce.date().optional(),
-		separateInvoiceItemTaxAndDiscount: z.boolean().optional(),
-		minimumProjectSize: z.string().optional(),
+		invitesAllowed: z.boolean().optional().nullable(),
+		inviteExpiryPeriod: z.number().optional().nullable(),
+		futureDateAllowed: z.boolean().optional().nullable(),
+		allowManualTime: z.boolean().optional().nullable(),
+		allowModifyTime: z.boolean().optional().nullable(),
+		allowDeleteTime: z.boolean().optional().nullable(),
+		regionCode: z.string().optional().nullable(),
+		requireReason: z.boolean().optional().nullable(),
+		requireDescription: z.boolean().optional().nullable(),
+		requireProject: z.boolean().optional().nullable(),
+		requireTask: z.boolean().optional().nullable(),
+		requireClient: z.boolean().optional().nullable(),
+		timeFormat: timeFormatSchema.optional().nullable(),
+		defaultStartTime: z.string().optional().nullable(),
+		defaultEndTime: z.string().optional().nullable(),
+		registrationDate: z.coerce.date().optional().nullable(),
+		separateInvoiceItemTaxAndDiscount: z.boolean().optional().nullable(),
+		minimumProjectSize: z.string().optional().nullable(),
 		show_clients: z.boolean().optional(),
-		currencyPosition: z.string().optional(),
-		website: z.string().optional(),
-		fiscalInformation: z.string().optional(),
-		fiscalStartDate: z.coerce.date().optional(),
-		fiscalEndDate: z.coerce.date().optional(),
-		discountAfterTax: z.boolean().optional(),
+		currencyPosition: z.string().optional().nullable(),
+		website: z.string().optional().nullable(),
+		fiscalInformation: z.string().optional().nullable(),
+		fiscalStartDate: z.coerce.date().optional().nullable(),
+		fiscalEndDate: z.coerce.date().optional().nullable(),
+		discountAfterTax: z.boolean().optional().nullable(),
 		languages: z.array(organizationLanguageSchema).optional(),
-		defaultInvoiceEstimateTerms: z.string().optional(),
-		convertAcceptedEstimates: z.boolean().optional(),
-		daysUntilDue: z.number().optional(),
-		upworkOrganizationId: z.string().optional(),
-		upworkOrganizationName: z.string().optional()
+		defaultInvoiceEstimateTerms: z.string().optional().nullable(),
+		convertAcceptedEstimates: z.boolean().optional().nullable(),
+		daysUntilDue: z.number().optional().nullable(),
+		upworkOrganizationId: z.string().optional().nullable(),
+		upworkOrganizationName: z.string().optional().nullable()
 	})
 	.merge(basePerTenantEntityModelSchema)
 	.merge(relationalImageAssetSchema)
 	.merge(organizationTimerSettingSchema)
 	.merge(taggableSchema)
-	.strict();
+	.passthrough();
 
 // Custom fields object schema
 export const customFieldsObjectSchema = z.record(z.any());
@@ -114,3 +115,5 @@ export const organizationCreateSchema = z.object({
 	tenantId: z.string(),
 	invitesAllowed: z.boolean()
 });
+
+export type TOrganization = z.infer<typeof organizationSchema>;

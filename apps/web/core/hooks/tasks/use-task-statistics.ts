@@ -1,7 +1,7 @@
 'use client';
-
 import {
 	activeTaskStatisticsState,
+	activeTeamState,
 	activeTeamTaskState,
 	allTaskStatisticsState,
 	tasksFetchingState,
@@ -14,15 +14,14 @@ import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { useUserQuery } from '../queries/user-user.query';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 export function useTaskStatistics(addSeconds = 0) {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const [statActiveTask, setStatActiveTask] = useAtom(activeTaskStatisticsState);
 	const [statTasks, setStatTasks] = useAtom(tasksStatisticsState);
 	const setTasksFetching = useSetAtom(tasksFetchingState);
@@ -30,7 +29,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs
 	const initialLoad = useRef(false);
@@ -49,12 +48,9 @@ export function useTaskStatistics(addSeconds = 0) {
 				return;
 			}
 			statisticsService
-				.tasksTimesheetStatistics(
-					user?.employee?.tenantId,
-					'',
-					user?.employee?.organizationId || '',
+				.tasksTimesheetStatistics({
 					employeeId
-				)
+				})
 				.then(({ data }) => {
 					setStatTasks({
 						all: data.global || [],
@@ -62,11 +58,13 @@ export function useTaskStatistics(addSeconds = 0) {
 					});
 				});
 		},
-		[setStatTasks, user?.employee?.organizationId, user?.employee?.tenantId]
+		[setStatTasks, user?.employee?.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
-		statisticsService.allTaskTimesheetStatistics().then(({ data }) => {
-			setAllTaskStatistics(data);
+		statisticsService.allTaskTimesheetStatistics().then((data) => {
+			if (Array.isArray(data)) {
+				setAllTaskStatistics(data);
+			}
 		});
 	}, [setAllTaskStatistics]);
 
@@ -88,13 +86,12 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
+		// Check all required conditions before setting loading state
 		if (!user?.employee?.tenantId || !user?.employee?.organizationId) {
 			return new Promise((resolve) => {
 				resolve(true);
 			});
 		}
-
-		setTasksFetching(true);
 
 		if (
 			!user?.employee?.tenantId ||
@@ -107,12 +104,13 @@ export function useTaskStatistics(addSeconds = 0) {
 			});
 		}
 
-		const promise = statisticsService.activeTaskTimesheetStatistics(
-			user?.employee?.tenantId,
-			activeTeamTask?.id || '',
-			user?.employee?.organizationId || '',
-			user?.employee?.id
-		);
+		// Only set loading state after all guards pass
+		setTasksFetching(true);
+
+		const promise = statisticsService.activeTaskTimesheetStatistics({
+			activeTaskId: activeTeamTask?.id || '',
+			employeeId: user?.employee?.id
+		});
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
@@ -123,10 +121,23 @@ export function useTaskStatistics(addSeconds = 0) {
 			setTasksFetching(false);
 		});
 		return promise;
-	}, [setStatActiveTask, setTasksFetching, user?.employee?.organizationId, user?.employee?.tenantId]);
+	}, [
+		setStatActiveTask,
+		setTasksFetching,
+		activeTeam?.id,
+		user?.employee?.id,
+		user?.employee?.organizationId,
+		user?.employee?.tenantId
+	]);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
+	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [getActiveTaskStatData]);
+
+	// Cleanup debounced function when getActiveTaskStatData changes or component unmounts
+	useEffect(() => {
+		return () => {
+			debounceLoadActiveTaskStat.cancel?.();
+		};
+	}, [debounceLoadActiveTaskStat]);
 
 	/**
 	 * Get statistics of the active tasks at the component load
@@ -169,7 +180,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(timeSheet: Nullable<ITasksStatistics>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
+		(timeSheet: Nullable<TTaskStatistic>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
 			const totalEstimate = estimate || _task?.estimate || 0;
 
 			// Return 0 (neutral state) when there's no estimation data

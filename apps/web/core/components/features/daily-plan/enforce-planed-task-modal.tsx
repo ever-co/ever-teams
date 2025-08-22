@@ -1,10 +1,12 @@
-import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@/core/hooks';
+import { useAuthenticateUser, useDailyPlan, useTimer } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
@@ -23,7 +25,8 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	const t = useTranslations();
 
 	const { hasPlan } = useTimer();
-	const { activeTeam } = useTeamTasks();
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
@@ -67,11 +70,11 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between w-full gap-6">
+				<div className="flex flex-col gap-6 justify-between w-full">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						{content}
 					</Text.Heading>
-					<div className="flex items-center w-full justify-evenly">
+					<div className="flex justify-evenly items-center w-full">
 						<Button
 							variant="outline"
 							type="button"
@@ -85,7 +88,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 							loading={addTaskToPlanLoading}
 							variant="primary"
 							type="submit"
-							className="font-light rounded-md  text-md dark:text-white"
+							className="font-light rounded-md text-md dark:text-white"
 						>
 							{t('common.YES')}
 						</Button>

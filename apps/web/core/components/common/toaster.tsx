@@ -1,11 +1,12 @@
 'use client';
 import { toast } from 'sonner';
-import { useOrganizationTeams } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAtom } from 'jotai';
+import { isTeamMemberJustDeletedState } from '@/core/stores';
 
 export function ToastMessageManager() {
-	const { isTeamMemberJustDeleted, setIsTeamMemberJustDeleted } = useOrganizationTeams();
+	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const [deletedNotifShown, setDeletedNotifShown] = useState(false);
 	const t = useTranslations();
 

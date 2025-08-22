@@ -23,7 +23,6 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 
 	if (!r_res || (r_res.data as any).statusCode === 401) {
 		return {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			$res: (data: any) => NextResponse.json({ statusCode: 401, message: data }),
 			user: null
 		};

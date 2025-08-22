@@ -8,12 +8,14 @@ import { Worked24Hours } from './worked-24-hours';
 import { MemberInfo } from './member-info';
 import { TaskInfo } from './task-info';
 import { EstimateTimeInfo } from './estimate-time-info';
-import { useAuthenticateUser } from '@/core/hooks/auth';
-import { useTeamTasks } from '@/core/hooks/organizations';
+import { useIsMemberManager, useTeamTasks } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -23,8 +25,11 @@ export type MembersCard_EditableValues = {
 };
 
 const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
-	const { isTeamManager, user } = useAuthenticateUser();
-	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
+	const { data: user } = useUserQuery();
+
+	const { isTeamManager } = useIsMemberManager(user);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { updateTask, updateLoading } = useTeamTasks();
 	const isAuthUser = member.employee?.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
 	const iuser = member.employee?.user;
@@ -51,7 +56,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 
 	useEffect(() => {
 		if (memberTask) {
-			const { m, h } = secondsToTime(memberTask.estimate || 0);
+			const { minutes: m, hours: h } = secondsToTime(memberTask.estimate || 0);
 			setFormValues((d) => {
 				return {
 					...d,
@@ -122,7 +127,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(memberTask.estimate || 0);
+		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime(memberTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			setEstimateEditMode(false);

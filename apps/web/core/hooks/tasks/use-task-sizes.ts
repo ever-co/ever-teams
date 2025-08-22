@@ -1,6 +1,5 @@
 'use client';
-
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, activeTeamState } from '@/core/stores';
 import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -9,14 +8,14 @@ import { useFirstLoad } from '../common/use-first-load';
 import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { queryKeys } from '@/core/query/keys';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const teamId = activeTeam?.id || activeTeamId;
@@ -43,9 +42,9 @@ export function useTaskSizes() {
 	});
 
 	const updateTaskSizeMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ITaskSizesCreate }) => {
+		mutationFn: ({ taskSizeId, data }: { taskSizeId: string; data: ITaskSizesCreate }) => {
 			const requestData = { ...data, organizationTeamId: teamId };
-			return taskSizeService.editTaskSize(id, requestData);
+			return taskSizeService.editTaskSize({ taskSizeId, data: requestData });
 		},
 		onSuccess: invalidateTaskSizesData
 	});
@@ -75,7 +74,7 @@ export function useTaskSizes() {
 		firstLoadTaskSizesData();
 	}, [firstLoadTaskSizesData, loadTaskSizes]);
 	const editTaskSize = useCallback(
-		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ id, data }),
+		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ taskSizeId: id, data }),
 		[updateTaskSizeMutation]
 	);
 	return {

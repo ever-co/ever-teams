@@ -13,21 +13,20 @@ import {
 } from '@/core/types/schemas';
 
 class EmployeeService extends APIService {
-	getWorkingEmployees = async (
-		tenantId: string,
-		organizationId: string
-	): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
+	getWorkingEmployees = async (): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
 		try {
 			const params = {
-				'where[tenantId]': tenantId,
-				'where[organizationId]': organizationId,
+				'where[tenantId]': this.tenantId,
+				'where[organizationId]': this.organizationId,
 				'relations[0]': 'user'
 			};
 			const query = qs.stringify(params);
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query}` : '/employee/working';
 
-			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(
@@ -77,10 +76,13 @@ class EmployeeService extends APIService {
 		}
 	};
 
-	createEmployeeFromUser = async (
-		data: ICreateEmployee,
-		bearer_token: string
-	): Promise<TOrganizationTeamEmployee> => {
+	createEmployeeFromUser = async ({
+		data,
+		bearer_token
+	}: {
+		data: ICreateEmployee;
+		bearer_token: string;
+	}): Promise<TOrganizationTeamEmployee> => {
 		try {
 			const response = await this.post<TOrganizationTeamEmployee>('/employee', data, {
 				tenantId: data.tenantId,

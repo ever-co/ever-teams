@@ -1,4 +1,4 @@
-import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@/core/stores';
+import { integrationGithubMetadataState, integrationGithubRepositoriesState } from '@/core/stores';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,9 +9,10 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
 import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
 import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useGitHubIntegration() {
-	const [user] = useAtom(userState); // Phase 2: Still needed for install/oauth parameters
+	const { data: user } = useUserQuery();
 	const queryClient = useQueryClient(); // Phase 2: Now used for mutations
 
 	const [integrationGithubMetadata, setIntegrationGithubMetadata] = useAtom(integrationGithubMetadataState);
@@ -34,7 +35,7 @@ export function useGitHubIntegration() {
 			: ['integrations', 'github', 'metadata', 'disabled'],
 		queryFn: () => {
 			if (!metadataIntegrationId) throw new Error('Integration ID is required for metadata');
-			return githubService.getGithubIntegrationMetadata(metadataIntegrationId);
+			return githubService.getGithubIntegrationMetadata({ integrationId: metadataIntegrationId });
 		},
 		enabled: !!metadataIntegrationId,
 		staleTime: 1000 * 60 * 30, // GitHub metadata is relatively stable, cache for 30 minutes
@@ -48,7 +49,7 @@ export function useGitHubIntegration() {
 			: ['integrations', 'github', 'repositories', 'disabled'],
 		queryFn: () => {
 			if (!repositoriesIntegrationId) throw new Error('Integration ID is required for repositories');
-			return githubService.getGithubIntegrationRepositories(repositoriesIntegrationId);
+			return githubService.getGithubIntegrationRepositories({ integrationId: repositoriesIntegrationId });
 		},
 		enabled: !!repositoriesIntegrationId
 	});
@@ -126,15 +127,14 @@ export function useGitHubIntegration() {
 
 			// 2. Side-effect - update organization project settings if sync successful
 			if (syncResult.data?.id) {
-				await organizationProjectService.editOrganizationProjectSetting(
-					params.projectId,
-					{
+				await organizationProjectService.editOrganizationProjectSetting({
+					organizationProjectId: params.projectId,
+					data: {
 						tenantId: params.tenantId,
 						organizationId: params.organizationId,
 						repositoryId: syncResult.data.id
-					},
-					params.tenantId
-				);
+					}
+				});
 			}
 
 			return syncResult.data;

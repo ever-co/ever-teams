@@ -189,12 +189,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 
 	const createProjectImage = useCallback(
 		async (file: File) => {
-			return createImageAssets(
-				file,
-				'project_images',
-				user?.tenantId as string,
-				user?.employee?.organizationId as string
-			).then((image) => {
+			return createImageAssets(file, 'project_images').then((image) => {
 				return image;
 			});
 		},

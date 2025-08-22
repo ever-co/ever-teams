@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
-import { idSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
+import { uuIdSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
 import { employeeBaseSchema } from '../common/employee.schema';
 
@@ -28,15 +28,15 @@ export const urlMetaDataSchema = z
 // Time Slot schema (simplified for ITimeSlot interface)
 export const timeSlotSchema = z
 	.object({
-		id: idSchema,
-		employeeId: idSchema,
-		employee: employeeBaseSchema.optional(),
+		id: uuIdSchema,
+		employeeId: uuIdSchema,
+		employee: z.lazy(() => employeeBaseSchema).optional(),
 		activities: z.array(z.any()).optional(), // IActivity[] - circular reference
 		screenshots: z.array(z.any()).optional(),
 		timeLogs: z.array(z.any()).optional(),
 		timeSlotMinutes: z.array(z.any()).optional(),
 		project: z.any().optional().nullable(), // Will be properly typed when organization project schema
-		projectId: idSchema.optional(),
+		projectId: uuIdSchema.optional(),
 		duration: z.number().optional(),
 		keyboard: z.number().optional(),
 		mouse: z.number().optional(),
@@ -55,7 +55,7 @@ export const timeSlotSchema = z
 // Task schema (simplified for ITask interface)
 export const taskSchema = z
 	.object({
-		id: idSchema,
+		id: uuIdSchema,
 		title: z.string(),
 		number: z.number().optional(),
 		public: z.boolean().nullable(),
@@ -79,15 +79,15 @@ export const taskSchema = z
 		tags: z.array(z.any()).optional(), // ITag[]
 		// Relations
 		parent: z.any().optional(), // ITask
-		parentId: idSchema.optional(),
+		parentId: uuIdSchema.optional(),
 		taskStatus: z.any().optional(),
-		taskStatusId: idSchema.optional(),
+		taskStatusId: uuIdSchema.optional(),
 		taskSize: z.any().optional(),
-		taskSizeId: idSchema.optional(),
+		taskSizeId: uuIdSchema.optional(),
 		taskPriority: z.any().optional(),
-		taskPriorityId: idSchema.optional(),
+		taskPriorityId: uuIdSchema.optional(),
 		taskType: z.any().optional(),
-		taskTypeId: idSchema.optional(),
+		taskTypeId: uuIdSchema.optional(),
 		rootEpic: z.any().optional(), // ITask
 		taskNumber: z.string().optional(),
 		totalWorkedTime: z.number().optional(),
@@ -109,9 +109,9 @@ export const activitySchema = basePerTenantAndOrganizationEntityModelSchema
 		title: z.string(),
 		description: z.string().nullable(),
 		timeSlot: timeSlotSchema.optional(),
-		timeSlotId: idSchema.optional(),
+		timeSlotId: uuIdSchema.optional(),
 		task: taskSchema.optional(),
-		taskId: idSchema.optional(),
+		taskId: uuIdSchema.optional(),
 		metaData: z.union([z.string(), urlMetaDataSchema]).optional(),
 		date: z.string(),
 		time: z.string(),

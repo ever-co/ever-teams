@@ -778,4 +778,4 @@ export const InviteStatusDisplayMap = {
 		background: 'rgba(255, 99, 71, 0.1)'
 	}
 } as const;
-export const ITEMS_LENGTH_TO_VIRTUALIZED = 25;
+export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;

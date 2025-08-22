@@ -1,5 +1,4 @@
 import { APIService } from '../../api.service';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
@@ -28,21 +27,26 @@ class OrganizationProjectService extends APIService {
 	/**
 	 * Edit organization project setting with validation
 	 *
-	 * @param id - Project ID
+	 * @param organizationProjectId - Project ID
 	 * @param data - Project setting data
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TOrganizationProjectSetting> - Validated project setting
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editOrganizationProjectSetting = async (
-		id: string,
-		data: any,
-		tenantId?: string
-	): Promise<TOrganizationProjectSetting> => {
+	editOrganizationProjectSetting = async ({
+		organizationProjectId,
+		data
+	}: {
+		organizationProjectId: string;
+		data: any;
+	}) => {
 		try {
-			const response = await this.put<TOrganizationProjectSetting>(`/organization-projects/setting/${id}`, data, {
-				tenantId
-			});
+			const response = await this.put<TOrganizationProjectSetting>(
+				`/organization-projects/setting/${organizationProjectId}`,
+				data,
+				{
+					tenantId: this.tenantId
+				}
+			);
 
 			// Validate the response data
 			return validateApiResponse(
@@ -107,15 +111,19 @@ class OrganizationProjectService extends APIService {
 	/**
 	 * Edit organization project with validation
 	 *
-	 * @param id - Project ID
+	 * @param organizationProjectId - Project ID
 	 * @param data - Project edit data
 	 * @returns Promise<TOrganizationProject> - Validated updated project
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editOrganizationProject = async (id: string, data: TEditProjectRequest): Promise<TOrganizationProject> => {
+	editOrganizationProject = async ({
+		organizationProjectId,
+		data
+	}: {
+		organizationProjectId: string;
+		data: TEditProjectRequest;
+	}): Promise<TOrganizationProject> => {
 		try {
-			const tenantId = getTenantIdCookie();
-
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
 				editProjectRequestSchema,
@@ -123,9 +131,13 @@ class OrganizationProjectService extends APIService {
 				'editOrganizationProject input data'
 			);
 
-			const response = await this.put<TOrganizationProject>(`/organization-projects/${id}`, validatedInput, {
-				tenantId
-			});
+			const response = await this.put<TOrganizationProject>(
+				`/organization-projects/${organizationProjectId}`,
+				validatedInput,
+				{
+					tenantId: this.tenantId
+				}
+			);
 
 			// Validate the response data
 			return validateApiResponse(
@@ -151,15 +163,14 @@ class OrganizationProjectService extends APIService {
 	/**
 	 * Get organization project with validation
 	 *
-	 * @param id - Project ID
-	 * @param tenantId - Optional tenant ID
+	 * @param organizationProjectId - Project ID
 	 * @returns Promise<TOrganizationProject> - Validated project data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getOrganizationProject = async (id: string, tenantId?: string): Promise<TOrganizationProject> => {
+	getOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
 		try {
-			const response = await this.get<TOrganizationProject>(`/organization-projects/${id}`, {
-				tenantId
+			const response = await this.get<TOrganizationProject>(`/organization-projects/${organizationProjectId}`, {
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -198,12 +209,9 @@ class OrganizationProjectService extends APIService {
 		take?: number;
 	} = {}): Promise<PaginationResponse<TOrganizationProject>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
 				'join[alias]': 'organization_project',
 				'join[leftJoin][tags]': 'organization_project.tags'
 			} as Record<string, string>;
@@ -235,7 +243,7 @@ class OrganizationProjectService extends APIService {
 			const response = await this.get<PaginationResponse<TOrganizationProject>>(
 				`/organization-projects?${query}`,
 				{
-					tenantId
+					tenantId: this.tenantId
 				}
 			);
 			// Validate the response data using Zod schema
@@ -268,13 +276,11 @@ class OrganizationProjectService extends APIService {
 	 */
 	deleteOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
 		try {
-			const tenantId = getTenantIdCookie();
-
 			const response = await this.delete<TOrganizationProject>(
 				`/organization-projects/${organizationProjectId}`,
 				{
 					data: {
-						tenantId
+						tenantId: this.tenantId
 					}
 				}
 			);

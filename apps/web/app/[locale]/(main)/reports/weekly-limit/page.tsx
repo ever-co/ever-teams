@@ -1,5 +1,4 @@
 'use client';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
@@ -29,10 +28,13 @@ import {
 	LazyTimeReportTableByMember,
 	LazyPaginate
 } from '@/core/components/optimized-components/reports';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function WeeklyLimitReport() {
-	const { isTrackingEnabled } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const { data: user } = useUserQuery();
 	const [organization, setOrganization] = useState<IOrganization>();
 	const { timeLimitsReports, getTimeLimitsReport, getTimeLimitReportLoading } = useTimeLimits();
 	const organizationId = getOrganizationIdCookie();
@@ -55,7 +57,7 @@ function WeeklyLimitReport() {
 			},
 		[organization]
 	);
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const [member, setMember] = useState<string>('all');
 	const [dateRange, setDateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
@@ -88,8 +90,6 @@ function WeeklyLimitReport() {
 	// Get Time limits data
 	useEffect(() => {
 		getTimeLimitsReport({
-			organizationId,
-			tenantId,
 			employeeIds: [
 				...(member === 'all' ? (activeTeam?.members?.map((m: any) => m.employeeId) ?? []) : [member])
 			],

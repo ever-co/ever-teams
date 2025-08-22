@@ -34,9 +34,7 @@ export function useTaskTimeSheets(id: string) {
 		queryKey: queryKeys.activities.byTask(id, tenantId, organizationId),
 		queryFn: () =>
 			activityService.getActivities({
-				taskId: id,
-				tenantId,
-				organizationId
+				taskId: id
 			}),
 		enabled: isEnabled,
 		staleTime: 1000 * 60 * 5, // 5 minutes - activities change frequently

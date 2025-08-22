@@ -21,13 +21,17 @@ import { usePathname } from 'next/navigation';
  * @returns {React.ReactElement} - The Offline component if the user is offline (except on auth pages), or the children components if the user is online
  */
 const OfflineWrapper = ({ children }: PropsWithChildren) => {
+	// All hooks must be called before any conditional returns
 	const { online } = useNetworkState();
 	const { timerStatus } = useTimerView();
 	const pathname = usePathname();
 
+	// Compute conditions after all hooks are called
 	const isAuthPage = pathname?.startsWith('/auth');
+	const shouldShowOffline = online === false && !isAuthPage;
 
-	if (!online && !isAuthPage) {
+	// Conditional rendering after all hooks
+	if (shouldShowOffline) {
 		return <Offline showTimer={timerStatus?.running} />;
 	}
 

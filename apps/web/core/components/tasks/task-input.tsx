@@ -5,14 +5,17 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
-	useIssueType,
 	useOrganizationEmployeeTeams,
-	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput,
-	useTaskLabels
+	useTaskInput
 } from '@/core/hooks';
-import { activeTeamTaskId, timerStatusState } from '@/core/stores';
+import {
+	activeTeamState,
+	activeTeamTaskId,
+	issueTypesListState,
+	timerStatusState,
+	taskLabelsListState
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
@@ -40,6 +43,7 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -79,7 +83,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
-	const { issueTypes } = useIssueType();
+
+	const issueTypes = useAtomValue(issueTypesListState);
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
@@ -91,8 +96,9 @@ export function TaskInput(props: Props) {
 	});
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
@@ -282,9 +288,9 @@ export function TaskInput(props: Props) {
 				// Only close if it's not a dropdown interaction and we're not creating a new task
 				if (!isDropdownClick && !datas.isCreatingTask && taskName == inputTaskTitle) {
 					setEditMode(false);
-					setActiveTask({
-						id: ''
-					});
+					// setActiveTask({
+					// 	id: ''
+					// });
 				}
 			}
 		};
@@ -503,8 +509,9 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { taskLabels: taskLabelsData } = useTaskLabels();
-	const { activeTeam } = useOrganizationTeams();
+	const taskLabelsData = useAtomValue(taskLabelsListState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs for dropdown elements to exclude from outside click detection
 	const statusDropdownRef = useRef<HTMLDivElement>(null);

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
 	const { data } = await taskActivityRequest(
 		{
-			'taskIds[0]': taskId,
+			taskIds: [taskId],
 			tenantId,
 			organizationId,
 			defaultRange: 'false'

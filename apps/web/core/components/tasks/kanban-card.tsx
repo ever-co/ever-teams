@@ -1,24 +1,17 @@
 import { DraggableProvided } from '@hello-pangea/dnd';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useTaskStatistics,
-	useTeamMemberCard,
-	useTeamTasks,
-	useTimerView
-} from '@/core/hooks';
+import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
 import { ImageOverlapperProps } from '../common/image-overlapper';
 import Link from 'next/link';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamTaskId } from '@/core/stores';
-import { useAtom } from 'jotai';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
+import { useAtom, useAtomValue } from 'jotai';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -26,6 +19,7 @@ import {
 	LazyTaskInput,
 	LazyTaskIssueStatus
 } from '@/core/components/optimized-components/tasks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -66,7 +60,7 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 				}}
 			>
 				<p
-					className={`text-xs `}
+					className={`text-xs`}
 					style={{
 						color: `${color}`
 					}}
@@ -103,7 +97,7 @@ export function Priority({ level }: { level: ETaskPriority }) {
 				style={{
 					marginTop: -4.5 * levelIntoNumber
 				}}
-				className="flex flex-col relative "
+				className="flex relative flex-col"
 			>
 				{numberArray.map((item: any, index: number) => {
 					return (
@@ -139,11 +133,11 @@ type ItemProps = {
  */
 export default function Item(props: ItemProps) {
 	const { item, isDragging, provided, style } = props;
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
-	const { activeTeamTask } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
 
 	const members = activeTeam?.members || [];
@@ -170,13 +164,17 @@ export default function Item(props: ItemProps) {
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
 
-	const { h, m, s } = secondsToTime(
+	const {
+		hours: h,
+		minutes: m,
+		seconds: s
+	} = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
 				.filter((t: TTask) => t.id === item?.id)
 				.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||
@@ -192,8 +190,8 @@ export default function Item(props: ItemProps) {
 			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
 			aria-label={item.title}
 		>
-			<div className="w-full justify-between h-fit">
-				<div className="w-full flex justify-between">
+			<div className="justify-between w-full h-fit">
+				<div className="flex justify-between w-full">
 					<span className="!w-64">
 						<LazyTaskAllStatusTypes
 							className="justify-start"
@@ -207,7 +205,7 @@ export default function Item(props: ItemProps) {
 						<LazyMenuKanbanCard member={currentMember} item={props.item} />
 					</span>
 				</div>
-				<div className="w-full flex justify-between my-3">
+				<div className="flex justify-between my-3 w-full">
 					<div className="flex items-center w-64">
 						{activeTask?.id == item.id ? (
 							<>
@@ -231,9 +229,9 @@ export default function Item(props: ItemProps) {
 							</>
 						) : (
 							<Link href={`/task/${item.id}`}>
-								<div className="w-64 relative overflow-hidden">
+								<div className="overflow-hidden relative w-64">
 									{item.issueType && (
-										<span className="h-5 w-6 inline-block ">
+										<span className="inline-block w-6 h-5">
 											<span className="absolute top-1">
 												<LazyTaskIssueStatus
 													showIssueLabels={false}
@@ -244,7 +242,7 @@ export default function Item(props: ItemProps) {
 											</span>
 										</span>
 									)}
-									<span className="text-grey text-normal mx-1">#{item.number}</span>
+									<span className="mx-1 text-grey text-normal">#{item.number}</span>
 									{item.title}
 									<span className="inline-block ml-1">
 										{item.priority && <Priority level={item.priority} />}
@@ -259,19 +257,19 @@ export default function Item(props: ItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="w-full h-10 flex items-center justify-between">
+				<div className="flex justify-between items-center w-full h-10">
 					<div>
 						{item.id === activeTeamTask?.id && timerStatus?.running ? (
-							<div className="flex items-center gap-2">
-								<small className="text-grey text-xs text-normal">Live:</small>
+							<div className="flex gap-2 items-center">
+								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex items-center gap-2">
-								<small className="text-grey text-xs text-normal">Worked:</small>
-								<p className="text-black dark:text-white font-medium text-sm">
+							<div className="flex gap-2 items-center">
+								<small className="text-xs text-grey text-normal">Worked:</small>
+								<p className="text-sm font-medium text-black dark:text-white">
 									{h}h : {m}m
 								</p>
 							</div>

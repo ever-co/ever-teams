@@ -1,14 +1,14 @@
 import { EmptyPlans } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
-import { useDailyPlan } from '@/core/hooks';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
-import { useState } from 'react';
+import { outstandingPlansState } from '@/core/stores';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -18,27 +18,66 @@ interface OutstandingAll {
 	user?: TUser;
 }
 export function OutstandingAll({ profile, user }: OutstandingAll) {
-	const { outstandingPlans } = useDailyPlan();
+	const outstandingPlans = useAtomValue(outstandingPlansState);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const displayedTaskId = new Set();
 
-	const tasks = outstandingPlans.flatMap(
-		(plan) =>
-			(user
-				? plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				: plan.tasks) ?? []
+	// Memoized user filter function for performance
+	const filterTasksByUser = useCallback(
+		(tasks: TTask[]) => {
+			if (!user?.id) return tasks;
+			return tasks.filter((task) => task.members?.some((member: any) => member.userId === user.id));
+		},
+		[user?.id]
 	);
 
-	const [task, setTask] = useState<TTask[]>(() => tasks);
+	// Memoized task deduplication to prevent unnecessary recalculations
+	// This fixes the bug where duplicate tasks caused count/display mismatch
+	const uniqueTasks = useMemo(() => {
+		// Early return for empty data to avoid unnecessary processing
+		if (!outstandingPlans.length) return [];
+
+		const allTasks = outstandingPlans.flatMap((plan) => {
+			const tasks = plan.tasks ?? [];
+			return user ? filterTasksByUser(tasks) : tasks;
+		});
+
+		// Use Map for deduplication by task ID to handle large datasets efficiently
+		const taskMap = new Map<string, TTask>();
+		allTasks.forEach((task) => {
+			if (task?.id && !taskMap.has(task.id)) {
+				taskMap.set(task.id, task);
+			}
+		});
+
+		return Array.from(taskMap.values());
+	}, [outstandingPlans, filterTasksByUser]);
+
+	// State for drag & drop functionality only
+	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
+
+	// Sync drag state only when source data changes
+	useEffect(() => {
+		setDragTasks(uniqueTasks);
+	}, [uniqueTasks]);
+
+	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	const filteredPlansForCount = useMemo(() => {
+		return outstandingPlans
+			.map((plan) => ({
+				...plan,
+				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, filterTasksByUser, user]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={outstandingPlans} />
+			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
 
-			{tasks.length > 0 ? (
+			{uniqueTasks.length > 0 ? (
 				<>
 					<DragDropContext
-						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
+						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, dragTasks, setDragTasks)}
 					>
 						<Droppable
 							droppableId="droppableId"
@@ -56,15 +95,9 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 										'flex gap-2 pb-[1.5rem] overflow-x-auto !flex-wrap'
 									)}
 								>
-									{tasks?.map((task, index) => {
-										//If the task is already displayed, skip it
-										if (displayedTaskId.has(task.id)) {
-											return null;
-										}
-										// Add the task to the Set to avoid displaying it again
-										displayedTaskId.add(task.id);
+									{uniqueTasks?.map((taskItem, index) => {
 										return view === 'CARDS' ? (
-											<Draggable key={task.id} draggableId={task.id} index={index}>
+											<Draggable key={taskItem.id} draggableId={taskItem.id} index={index}>
 												{(provided) => (
 													<div
 														ref={provided.innerRef}
@@ -76,11 +109,11 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 														}}
 													>
 														<LazyTaskCard
-															key={`${task.id}`}
+															key={`${taskItem.id}`}
 															isAuthUser={true}
 															activeAuthTask={true}
 															viewType={'dailyplan'}
-															task={task}
+															task={taskItem}
 															profile={profile}
 															type="HORIZONTAL"
 															taskBadgeClassName={`rounded-sm`}
@@ -92,7 +125,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 												)}
 											</Draggable>
 										) : (
-											<Draggable key={task.id} draggableId={task.id} index={index}>
+											<Draggable key={taskItem.id} draggableId={taskItem.id} index={index}>
 												{(provided) => (
 													<div
 														ref={provided.innerRef}
@@ -103,7 +136,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 															marginBottom: 8
 														}}
 													>
-														<TaskBlockCard key={task.id} task={task} />
+														<TaskBlockCard key={taskItem.id} task={taskItem} />
 													</div>
 												)}
 											</Draggable>

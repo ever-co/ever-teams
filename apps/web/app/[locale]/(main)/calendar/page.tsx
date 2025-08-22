@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocalStorageState, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/common/header-tabs';
@@ -25,11 +25,15 @@ import {
 	LazySetupTimeSheet,
 	LazyAddManualTimeModal
 } from '@/core/components/optimized-components/calendar';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const CalendarPage = () => {
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
-	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const [calendarTimeSheet, setCalendarTimeSheet] = useLocalStorageState<timesheetCalendar>(
 		'calendar-timesheet',
 		'Calendar'
@@ -40,10 +44,6 @@ const CalendarPage = () => {
 		closeModal: closeManualTimeModal
 	} = useModal();
 
-	// Show unified skeleton while components are loading
-	if (!activeTeam) {
-		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
-	}
 	const params = useParams<{ locale: string }>();
 	const currentLocale = params ? params.locale : null;
 	const breadcrumbPath = useMemo(
@@ -63,6 +63,11 @@ const CalendarPage = () => {
 	const renderComponent = useMemo(() => {
 		return calendarMap[calendarTimeSheet];
 	}, [calendarTimeSheet]);
+
+	// Show unified skeleton while components are loading
+	if (!activeTeam) {
+		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+	}
 	return (
 		<>
 			<MainLayout showTimer={isTrackingEnabled} footerClassName="hidden" className="h-full shadow-xl">
@@ -78,12 +83,12 @@ const CalendarPage = () => {
 				)}
 				<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
 					<Container fullWidth={fullWidth}>
-						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
-							<div className="flex gap-8 justify-center items-center h-10">
+						<div className="flex flex-row items-start justify-between mt-12 bg-white dark:bg-dark-high">
+							<div className="flex items-center justify-center h-10 gap-8">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
-							<div className="flex gap-1 justify-center items-center w-max h-10">
+							<div className="flex items-center justify-center h-10 gap-1 w-max">
 								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
 						</div>

@@ -9,15 +9,16 @@ import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { ReactNode } from 'react';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 // Import optimized components from centralized location
 import { LazyLeftSideSettingMenu } from '@/core/components/optimized-components/settings';
+import { isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const t = useTranslations();
-	const { user, userLoading } = useAuthenticateUser();
+	const { data: user, isFetching: userLoading } = useUserQuery();
 	const fullWidth = useAtomValue(fullWidthState);
 	const pathName = usePathname();
 
@@ -29,11 +30,11 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
 
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
 	if (userLoading && !user) {
 		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
 	}
-
-	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<MainLayout

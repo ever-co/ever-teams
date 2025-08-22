@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	activeTeamState,
 	dailyPlanListState,
@@ -16,7 +16,6 @@ import {
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
-import { useAuthenticateUser } from '../auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -27,31 +26,42 @@ import {
 	TUpdateDailyPlan
 } from '@/core/types/schemas/task/daily-plan.schema';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
+import { useUserQuery } from '../queries/user-user.query';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-export function useDailyPlan() {
-	const { user } = useAuthenticateUser();
+export function useDailyPlan(defaultEmployeeId: string = '') {
+	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
+	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
 	// const [taskId, setTaskId] = useState('');
-	const [employeeId, setEmployeeId] = useState('');
+	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
 
+	// Keep employeeId in sync with targetEmployeeId unless intentionally overridden elsewhere
+	useEffect(() => {
+		if (targetEmployeeId && targetEmployeeId !== employeeId) {
+			setEmployeeId(targetEmployeeId);
+		}
+	}, [targetEmployeeId, employeeId]);
 	// Queries
 	const getDayPlansByEmployeeQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.byEmployee(user?.employee?.id, activeTeam?.id),
+		queryKey: queryKeys.dailyPlans.byEmployee(employeeId, activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getDayPlansByEmployee(user?.employee?.id, activeTeam?.id);
+			if (!employeeId) {
+				throw new Error('Employee ID is required to fetch daily plans');
+			}
+			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId });
 			return res;
 		},
-		enabled: !!user?.employee?.id && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
+		enabled: !!employeeId,
+		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
 	const getMyDailyPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans(activeTeam?.id);
+			const res = await dailyPlanService.getMyDailyPlans();
 			return res;
 		},
 		enabled: !!activeTeam?.id,
@@ -61,7 +71,7 @@ export function useDailyPlan() {
 	const getAllDayPlansQuery = useQuery({
 		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
 		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans(activeTeam?.id);
+			const res = await dailyPlanService.getAllDayPlans();
 			return res;
 		},
 		enabled: !!activeTeam?.id,
@@ -72,7 +82,7 @@ export function useDailyPlan() {
 		queryClient.fetchQuery({
 			queryKey: queryKeys.dailyPlans.byTask(taskId),
 			queryFn: async () => {
-				const res = await dailyPlanService.getPlansByTask(taskId);
+				const res = await dailyPlanService.getPlansByTask({ taskId });
 				return res;
 			},
 			gcTime: 1000 * 60 * 60
@@ -256,37 +266,43 @@ export function useDailyPlan() {
 
 	// Employee day plans
 	const getEmployeeDayPlans = useCallback(
-		async (employeeId: string) => {
+		async (newEmployeeId: string) => {
 			try {
-				if (employeeId && typeof employeeId === 'string') {
-					setEmployeeId(employeeId);
-					const res = await getDayPlansByEmployeeQuery.refetch();
+				if (newEmployeeId && typeof newEmployeeId === 'string') {
+					// Update the employeeId state to trigger query refetch
+					setEmployeeId(newEmployeeId);
 
-					if (res) {
-						return res.data;
-					} else {
-						console.error('Error fetching day plans by employee:', employeeId);
-					}
+					// Wait for the query to refetch with the new employeeId
+					const res = await queryClient.fetchQuery({
+						queryKey: queryKeys.dailyPlans.byEmployee(newEmployeeId, activeTeam?.id),
+						queryFn: async () => {
+							const result = await dailyPlanService.getDayPlansByEmployee({ employeeId: newEmployeeId });
+							return result;
+						}
+					});
+
+					return res;
 				} else {
 					throw new Error('Employee ID should be a string');
 				}
 			} catch (error) {
-				console.error(`Error when fetching day plans for employee: ${employeeId}`, error);
+				console.error(`Error when fetching day plans for employee: ${newEmployeeId}`, error);
+				return null; // Return null on error to maintain consistent return type
 			}
 		},
-		[getDayPlansByEmployeeQuery]
+		[queryClient, activeTeam?.id]
 	);
 
 	const loadCurrentEmployeeDayPlans = useCallback(async () => {
-		if (user?.employee?.id) {
-			const employeeDayPlans = await getEmployeeDayPlans(user?.employee?.id);
+		if (targetEmployeeId) {
+			const employeeDayPlans = await getEmployeeDayPlans(targetEmployeeId);
 
 			if (employeeDayPlans) {
 				setEmployeePlans(employeeDayPlans.items);
 				setProfileDailyPlans(employeeDayPlans);
 			}
 		}
-	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, user?.employee?.id]);
+	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, targetEmployeeId]);
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
@@ -381,9 +397,15 @@ export function useDailyPlan() {
 	}, [descSortedPlans]);
 
 	const todayPlan = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
+		const now = new Date();
+		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+		const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();
+
+		return (profileDailyPlans.items ?? []).filter((plan) => {
+			if (!plan.date) return false;
+			const planTime = new Date(plan.date).getTime();
+			return planTime >= startOfToday && planTime < startOfTomorrow;
+		});
 	}, [profileDailyPlans]);
 
 	const todayTasks = useMemo(() => {
@@ -403,32 +425,26 @@ export function useDailyPlan() {
 	}, [futurePlans]);
 
 	const outstandingPlans = useMemo(() => {
-		return (
-			[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
-				// Exclude today plans
-				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+		const now = new Date();
+		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
-				// Exclude future plans
-				.filter((plan) => {
-					const planDate = new Date(plan.date);
-					const today = new Date();
-					today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-					return planDate.getTime() <= today.getTime();
-				})
+		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup)
+		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
+
+		return (
+			(profileDailyPlans.items ?? [])
+				// Strictly past plans only (numeric comparison)
+				.filter((plan) => new Date(plan.date).getTime() < startOfToday)
 				.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 				.map((plan) => ({
 					...plan,
-					// Include only no completed tasks
-					tasks: plan.tasks?.filter((task: TTask) => task.status !== 'completed')
-				}))
-				.map((plan) => ({
-					...plan,
-					// Include only tasks that are not added yet to the today plan or future plans
-					tasks: plan.tasks?.filter(
-						(_task: TTask) => ![...todayTasks, ...futureTasks].find((task: TTask) => task.id === _task.id)
+					// Keep only non-completed tasks not already scheduled today/future (single pass)
+					tasks: (plan.tasks ?? []).filter(
+						(task: TTask) => task.status !== 'completed' && !usedIds.has(task.id)
 					)
 				}))
-				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
+				// Drop any plans with no remaining tasks
+				.filter((plan) => plan.tasks.length > 0)
 		);
 	}, [profileDailyPlans, todayTasks, futureTasks]);
 

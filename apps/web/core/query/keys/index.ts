@@ -10,7 +10,8 @@ export const queryKeys = {
 		currentWorkspace: (userId: string | undefined | null) =>
 			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
 		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
-			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
+			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const,
+		currentOrganization: (id: string) => ['auth', 'current-organization', id] as const
 	},
 	// Keys related to users
 	users: {
@@ -532,5 +533,24 @@ export const queryKeys = {
 
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
+	},
+
+	timeLogs: {
+		all: ['time-logs'] as const,
+		dailyReport: {
+			withParams: (params: Record<string, any> | null) =>
+				[
+					'time-logs',
+					'daily-report',
+					'with-params',
+					...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+				] as const
+		},
+		withParams: (params: Record<string, any> | null) =>
+			[
+				'time-logs',
+				'with-params',
+				...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+			] as const
 	}
 };

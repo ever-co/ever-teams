@@ -2,7 +2,7 @@ import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
 import { useOrganizationTeams } from '../organizations';
 import { useAuthenticateUser } from '../auth';
-import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
+import { useLocalStorageState, useOutsideClick } from '..';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -10,6 +10,13 @@ import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/consta
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
+import {
+	timeLogsDailyReportState,
+	profileDailyPlanListState,
+	outstandingPlansState,
+	todayPlanState
+} from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -34,8 +41,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	// );
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { profileDailyPlans, outstandingPlans, todayPlan } = useDailyPlan();
-	const { timerLogsDailyReport } = useTimeLogs();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const outstandingPlans = useAtomValue(outstandingPlansState);
+	const todayPlan = useAtomValue(todayPlanState);
+	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
 		[activeTeamManagers, user?.id]
@@ -132,7 +141,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'stats',
 			name: 'Stats',
 			description: 'This tab shows all stats',
-			count: timerLogsDailyReport.length
+			count: timeLogsDailyReport.length
 		});
 		tabs.unshift({
 			tab: 'worked',

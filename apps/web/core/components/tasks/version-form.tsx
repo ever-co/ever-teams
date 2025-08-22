@@ -2,12 +2,10 @@ import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
-import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtom } from 'jotai';
 
 import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
@@ -15,6 +13,7 @@ import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
 import { TTaskVersion } from '@/core/types/schemas';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -26,7 +25,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 	const t = useTranslations();
 	const tenantId = getTenantIdCookie();
 	const activeTeamId = getActiveTeamIdCookie();
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskVersion | null>(null);
@@ -150,7 +149,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 											{...register('name')}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -182,7 +181,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_VERSONS')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 										{loading && !taskVersions?.length && <Spinner dark={false} />}
 										{taskVersions && taskVersions?.length ? (
 											taskVersions.map((version) => (

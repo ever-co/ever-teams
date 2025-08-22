@@ -1,7 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
 import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
-import { userState } from '@/core/stores';
+import { taskSizesListState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -22,8 +23,10 @@ type StatusForm = {
 };
 
 export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
+	const taskSizes = useAtomValue(taskSizesListState);
+
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskSize | null>(null);
 
@@ -48,15 +51,8 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
-	const {
-		loading,
-		taskSizes,
-		createTaskSize,
-		deleteTaskSize,
-		editTaskSize,
-		createTaskSizeLoading,
-		editTaskSizeLoading
-	} = useTaskSizes();
+	const { loading, createTaskSize, deleteTaskSize, editTaskSize, createTaskSizeLoading, editTaskSizeLoading } =
+		useTaskSizes();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -178,7 +174,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -210,7 +206,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_SIZES')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 										{loading && !taskSizes && <Spinner dark={false} />}
 										{taskSizes && taskSizes?.length ? (
 											taskSizes.map((size) => (

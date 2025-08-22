@@ -1,6 +1,5 @@
 import qs from 'qs';
 import { APIService } from '../../api.service';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	validateApiResponse,
@@ -24,10 +23,14 @@ class GithubService extends APIService {
 		return this.post<any>('/integration/github/oauth', body);
 	};
 
-	getGithubIntegrationMetadata = async (integrationId: string): Promise<TGithubMetadata | TMinimalGithubMetadata> => {
+	getGithubIntegrationMetadata = async ({
+		integrationId
+	}: {
+		integrationId: string;
+	}): Promise<TGithubMetadata | TMinimalGithubMetadata> => {
 		const query = qs.stringify({
-			tenantId: getTenantIdCookie(),
-			organizationId: getOrganizationIdCookie()
+			tenantId: this.tenantId,
+			organizationId: this.organizationId
 		});
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
@@ -68,12 +71,14 @@ class GithubService extends APIService {
 		}
 	};
 
-	getGithubIntegrationRepositories = async (
-		integrationId: string
-	): Promise<TGithubRepositories | TMinimalGithubRepositories> => {
+	getGithubIntegrationRepositories = async ({
+		integrationId
+	}: {
+		integrationId: string;
+	}): Promise<TGithubRepositories | TMinimalGithubRepositories> => {
 		const query = qs.stringify({
-			tenantId: getTenantIdCookie(),
-			organizationId: getOrganizationIdCookie()
+			tenantId: this.tenantId,
+			organizationId: this.organizationId
 		});
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value

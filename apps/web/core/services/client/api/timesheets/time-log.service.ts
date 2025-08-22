@@ -2,7 +2,6 @@ import { APIService } from '../../api.service';
 import qs from 'qs';
 
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
@@ -56,7 +55,7 @@ class TimeLogService extends APIService {
 	};
 
 	/**
-	 * Get timer logs daily report with validation
+	 * Get timer logs daily report
 	 *
 	 * @param params - Timer logs daily report request parameters
 	 * @returns Promise<TTimeLogReportDaily[]> - Validated timer logs daily report data
@@ -64,15 +63,13 @@ class TimeLogService extends APIService {
 	 */
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
 		try {
-			// Format dates using the utility function to avoid same-day API errors
-			const { start, end } = formatStartAndEndDateRange(params.startDate, params.endDate);
-
 			const queryParams = {
-				tenantId: params.tenantId,
-				organizationId: params.organizationId,
-				employeeIds: params.employeeIds,
-				todayStart: start,
-				todayEnd: end
+				'activityLevel[start]': '0',
+				'activityLevel[end]': '100',
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
+				timeZone: params.timeZone || getDefaultTimezone(),
+				...params
 			};
 
 			const query = qs.stringify(queryParams);
@@ -100,8 +97,8 @@ class TimeLogService extends APIService {
 					{
 						message: error.message,
 						issues: error.issues,
-						tenantId: params.tenantId,
-						organizationId: params.organizationId,
+						tenantId: this.tenantId,
+						organizationId: this.organizationId,
 						employeeIds: params.employeeIds
 					},
 					'TimeLogService'
@@ -116,6 +113,8 @@ class TimeLogService extends APIService {
 			const { startedAt, stoppedAt, ...rest } = request;
 			const data = {
 				...rest,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				startedAt: startedAt.toISOString(),
 				stoppedAt: stoppedAt.toISOString()
 			};
@@ -135,9 +134,7 @@ class TimeLogService extends APIService {
 		}
 	};
 
-	getTaskTimesheetLogs = async ({
-		organizationId,
-		tenantId,
+	getTimeLogs = async ({
 		startDate,
 		endDate,
 		timeZone,
@@ -145,21 +142,9 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		status = []
-	}: {
-		organizationId: string;
-		tenantId: string;
-		startDate: string | Date;
-		endDate: string | Date;
-		timeZone?: string;
-		projectIds?: string[];
-		employeeIds?: string[];
-		taskIds?: string[];
-		status?: string[];
-	}) => {
-		if (!organizationId || !tenantId || !startDate || !endDate) {
-			throw new Error(
-				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
-			);
+	}: TGetTimerLogsDailyReportRequest) => {
+		if (!startDate || !endDate) {
+			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
 
 		// Format dates using the utility function
@@ -168,8 +153,8 @@ class TimeLogService extends APIService {
 		const params = new URLSearchParams({
 			'activityLevel[start]': '0',
 			'activityLevel[end]': '100',
-			organizationId,
-			tenantId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
 			startDate: start,
 			endDate: end,
 			timeZone: timeZone || getDefaultTimezone()
@@ -190,20 +175,16 @@ class TimeLogService extends APIService {
 		addArrayParam('taskIds', taskIds);
 		addArrayParam('status', status);
 
-		return this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId });
+		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
+			tenantId: this.tenantId
+		});
+
+		return response.data;
 	};
 
-	deleteTaskTimesheetLogs = async ({
-		logIds,
-		organizationId,
-		tenantId
-	}: {
-		organizationId: string;
-		tenantId: string;
-		logIds: string[];
-	}) => {
+	deleteTaskTimesheetLogs = async ({ logIds }: { logIds: string[] }) => {
 		// Validate required parameters
-		if (!organizationId || !tenantId || !logIds?.length) {
+		if (!this.organizationId || !this.tenantId || !logIds?.length) {
 			throw new Error('Required parameters missing: organizationId, tenantId, and logIds are required');
 		}
 
@@ -213,8 +194,8 @@ class TimeLogService extends APIService {
 		}
 
 		const params = new URLSearchParams({
-			organizationId,
-			tenantId
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
 		});
 		logIds.forEach((id, index) => {
 			if (!id) {
@@ -225,20 +206,24 @@ class TimeLogService extends APIService {
 
 		const endPoint = `/timesheet/time-log?${params.toString()}`;
 		try {
-			return await this.delete<{ success: boolean; message: string }>(endPoint, { tenantId });
+			return await this.delete<{ success: boolean; message: string }>(endPoint, {
+				tenantId: this.tenantId
+			});
 		} catch (error) {
 			throw new Error(`Failed to delete timesheet logs`);
 		}
 	};
 
 	createTimesheetFrom = async (data: IUpdateTimesheetRequest) => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-		if (!organizationId || !tenantId) {
+		if (!this.organizationId || !this.tenantId) {
 			throw new Error('Required parameters missing: organizationId and tenantId are required');
 		}
 		try {
-			return this.post<ITimeLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId });
+			return this.post<ITimeLog>(
+				'/timesheet/time-log',
+				{ ...data, organizationId: this.organizationId },
+				{ tenantId: this.tenantId }
+			);
 		} catch (error) {
 			throw new Error('Failed to create timesheet log');
 		}
@@ -246,13 +231,15 @@ class TimeLogService extends APIService {
 
 	updateTimesheetFrom = async (params: IUpdateTimesheetRequest) => {
 		const { id, ...data } = params;
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-		if (!organizationId || !tenantId) {
+		if (!this.organizationId || !this.tenantId) {
 			throw new Error('Required parameters missing: organizationId and tenantId are required');
 		}
 		try {
-			return this.put<ITimeLog>(`/timesheet/time-log/${id}`, { ...data, organizationId }, { tenantId });
+			return this.put<ITimeLog>(
+				`/timesheet/time-log/${id}`,
+				{ ...data, organizationId: this.organizationId },
+				{ tenantId: this.tenantId }
+			);
 		} catch (error) {
 			throw new Error('Failed to update timesheet log');
 		}
@@ -260,8 +247,6 @@ class TimeLogService extends APIService {
 
 	getTimeLogReportDailyChart = async ({
 		activityLevel,
-		organizationId,
-		tenantId,
 		startDate,
 		endDate,
 		timeZone = getDefaultTimezone(),
@@ -271,7 +256,7 @@ class TimeLogService extends APIService {
 		logType = [],
 		teamIds = []
 	}: ITimeLogReportDailyChartProps) => {
-		if (!organizationId || !tenantId || !startDate || !endDate) {
+		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
 				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
 			);
@@ -286,8 +271,8 @@ class TimeLogService extends APIService {
 		const baseParams = {
 			'activityLevel[start]': activityLevel.start.toString(),
 			'activityLevel[end]': activityLevel.end.toString(),
-			organizationId,
-			tenantId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
 			startDate: formattedStartDate,
 			endDate: formattedEndDate,
 			timeZone,
@@ -309,13 +294,11 @@ class TimeLogService extends APIService {
 		const queryString = new URLSearchParams(queryParams).toString();
 
 		return this.get<ITimeLogReportDailyChart[]>(`/timesheet/time-log/report/daily-chart?${queryString}`, {
-			tenantId
+			tenantId: this.tenantId
 		});
 	};
 
 	getTimeLogReportDaily = async ({
-		organizationId,
-		tenantId,
 		startDate,
 		endDate,
 		timeZone = getDefaultTimezone(),
@@ -326,7 +309,7 @@ class TimeLogService extends APIService {
 		teamIds = [],
 		activityLevel = { start: 0, end: 100 }
 	}: ITimeLogReportDailyRequest) => {
-		if (!organizationId || !tenantId || !startDate || !endDate) {
+		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
 				'Required parameters missing: organizationId, tenantId, startDate, and endDate are required'
 			);
@@ -338,8 +321,8 @@ class TimeLogService extends APIService {
 		const baseParams: Record<string, string> = {
 			'activityLevel[start]': activityLevel.start.toString(),
 			'activityLevel[end]': activityLevel.end.toString(),
-			organizationId,
-			tenantId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
 			startDate: formattedStartDate,
 			endDate: formattedEndDate,
 			timeZone,
@@ -360,7 +343,9 @@ class TimeLogService extends APIService {
 
 		const queryString = new URLSearchParams(queryParams).toString();
 
-		return this.get<ITimeLogGroupedDailyReport[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
+		return this.get<ITimeLogGroupedDailyReport[]>(`/timesheet/time-log/report/daily?${queryString}`, {
+			tenantId: this.tenantId
+		});
 	};
 }
 

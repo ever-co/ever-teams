@@ -1,8 +1,6 @@
 import { APIService } from '../../api.service';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 import {
@@ -30,22 +28,17 @@ class DailyPlanService extends APIService {
 	/**
 	 * Get all daily plans with validation
 	 *
-	 * @param activeTeamId - Optional team ID to filter plans
 	 * @returns Promise<PaginationResponse<TDailyPlan>> - Validated daily plans data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getAllDayPlans = async (activeTeamId?: ID): Promise<PaginationResponse<TDailyPlan>> => {
+	getAllDayPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-			const organizationTeamId = getActiveTeamIdCookie();
-
 			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'where[organizationTeamId]': activeTeamId || organizationTeamId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
+				'where[organizationTeamId]': this.activeTeamId
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {
@@ -53,7 +46,9 @@ class DailyPlanService extends APIService {
 			});
 
 			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan?${query}`, { tenantId });
+			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan?${query}`, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(dailyPlanSchema, response.data, 'getAllDayPlans API response');
@@ -75,22 +70,17 @@ class DailyPlanService extends APIService {
 	/**
 	 * Get my daily plans with validation
 	 *
-	 * @param activeTeamId - Optional team ID to filter plans
 	 * @returns Promise<PaginationResponse<TDailyPlan>> - Validated daily plans data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getMyDailyPlans = async (activeTeamId?: ID): Promise<PaginationResponse<TDailyPlan>> => {
+	getMyDailyPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-			const organizationTeamId = getActiveTeamIdCookie();
-
 			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'where[organizationTeamId]': activeTeamId || organizationTeamId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
+				'where[organizationTeamId]': this.activeTeamId
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {
@@ -98,7 +88,9 @@ class DailyPlanService extends APIService {
 			});
 
 			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/me?${query}`, { tenantId });
+			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/me?${query}`, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(dailyPlanSchema, response.data, 'getMyDailyPlans API response');
@@ -121,22 +113,17 @@ class DailyPlanService extends APIService {
 	 * Get daily plans by employee with validation
 	 *
 	 * @param employeeId - Employee ID to get plans for
-	 * @param activeTeamId - Optional team ID to filter plans
 	 * @returns Promise<PaginationResponse<TDailyPlan>> - Validated daily plans data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getDayPlansByEmployee = async (employeeId?: string, activeTeamId?: ID): Promise<PaginationResponse<TDailyPlan>> => {
+	getDayPlansByEmployee = async ({ employeeId }: { employeeId: string }): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-			const organizationTeamId = getActiveTeamIdCookie();
-
 			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'where[organizationTeamId]': activeTeamId || organizationTeamId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
+				'where[organizationTeamId]': this.activeTeamId
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {
@@ -146,7 +133,7 @@ class DailyPlanService extends APIService {
 			const query = qs.stringify(obj);
 			const response = await this.get<PaginationResponse<TDailyPlan>>(
 				`/daily-plan/employee/${employeeId}?${query}`,
-				{ tenantId }
+				{ tenantId: this.tenantId }
 			);
 
 			// Validate the response data using Zod schema
@@ -173,21 +160,17 @@ class DailyPlanService extends APIService {
 	 * @returns Promise<PaginationResponse<TDailyPlan>> - Validated daily plans data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getPlansByTask = async (taskId?: string): Promise<PaginationResponse<TDailyPlan>> => {
+	getPlansByTask = async ({ taskId }: { taskId: string }): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-			const organizationTeamId = getActiveTeamIdCookie();
-
 			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'where[organizationTeamId]': organizationTeamId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId,
+				'where[organizationTeamId]': this.activeTeamId
 			} as Record<string, string>;
 
 			const query = qs.stringify(obj);
 			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/task/${taskId}?${query}`, {
-				tenantId
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data using Zod schema
@@ -211,11 +194,10 @@ class DailyPlanService extends APIService {
 	 * Create a new daily plan with validation
 	 *
 	 * @param data - Daily plan data without ID
-	 * @param tenantId - Optional tenant ID
 	 * @returns Promise<TDailyPlan> - Validated created daily plan
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	createDailyPlan = async (data: TCreateDailyPlan, tenantId?: string): Promise<TDailyPlan> => {
+	createDailyPlan = async (data: TCreateDailyPlan): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
@@ -225,7 +207,7 @@ class DailyPlanService extends APIService {
 			);
 
 			const response = await this.post<TDailyPlan>('/daily-plan', validatedInput as Record<string, any>, {
-				tenantId
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -291,20 +273,17 @@ class DailyPlanService extends APIService {
 	 */
 	addTaskToPlan = async (data: TDailyPlanTasksUpdate, planId: string): Promise<TDailyPlan> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
 				dailyPlanTasksUpdateSchema,
-				{ ...data, organizationId },
+				{ ...data, organizationId: this.organizationId },
 				'addTaskToPlan input data'
 			);
 
 			const response = await this.post<TDailyPlan>(
 				`/daily-plan/${planId}/task`,
 				validatedInput as Record<string, any>,
-				{ tenantId }
+				{ tenantId: this.tenantId }
 			);
 
 			// Validate the response data
@@ -334,17 +313,16 @@ class DailyPlanService extends APIService {
 	 */
 	removeTaskFromPlan = async (data: TRemoveTaskFromPlansRequest, planId: string): Promise<TDailyPlan> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ ...data, organizationId },
+				{ ...data, organizationId: this.organizationId },
 				'removeManyTaskFromPlans input data'
 			);
 
-			const response = await this.put<TDailyPlan>(`/daily-plan/${planId}/task`, validatedInput, { tenantId });
+			const response = await this.put<TDailyPlan>(`/daily-plan/${planId}/task`, validatedInput, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data
 			return validateApiResponse(dailyPlanSchema, response.data, 'removeTaskFromPlan API response');
@@ -378,17 +356,16 @@ class DailyPlanService extends APIService {
 		data: TRemoveTaskFromPlansRequest;
 	}): Promise<TDailyPlan[]> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ ...data, organizationId },
+				{ ...data, organizationId: this.organizationId },
 				'removeManyTaskFromPlans input data'
 			);
 
-			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, validatedInput, { tenantId });
+			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, validatedInput, {
+				tenantId: this.tenantId
+			});
 
 			// Validate the response data (array of daily plans)
 			const validatedPlans = response.data.map((plan, index) =>
