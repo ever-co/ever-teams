@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
+import { useLocalStorageState, useOrganizationAndTeamManagers, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -39,7 +39,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
+	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 	const activeTeam = useAtomValue(activeTeamState);
+	const profileUser = activeTeam?.members?.find((member) => member.id === unwrappedParams.memberId) ?? null;
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const members = activeTeam?.members;
@@ -169,7 +171,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
-					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
+					<div className={cn('flex items-center justify-start gap-4 mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
 							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
@@ -191,7 +193,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+					<LazyUserProfileTask
+						profile={profile}
+						tabFiltered={hook}
+						paginateTasks={true}
+						user={profileUser?.employee?.user}
+					/>
 				)}
 			</Container>
 		</MainLayout>

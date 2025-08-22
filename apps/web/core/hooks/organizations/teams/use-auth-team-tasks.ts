@@ -11,7 +11,8 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
-	const { futurePlans, todayPlan, outstandingPlans } = useDailyPlan(user?.employeeId!);
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { futurePlans, todayPlan, outstandingPlans } = useDailyPlan(employeeId);
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];

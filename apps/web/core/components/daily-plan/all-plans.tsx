@@ -37,7 +37,8 @@ export function AllPlans({
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
 
-	const { sortedPlans, todayPlan } = useDailyPlan();
+	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
 
 	const { date } = useDateRange(currentTab);
 
