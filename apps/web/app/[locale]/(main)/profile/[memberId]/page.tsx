@@ -41,7 +41,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 	const activeTeam = useAtomValue(activeTeamState);
-	const profileUser = activeTeam?.members?.find((member) => member.id === unwrappedParams.memberId) ?? null;
+	const profileUser =
+		activeTeam?.members?.find((member) => member.employee?.userId === unwrappedParams.memberId) ?? null;
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const members = activeTeam?.members;
