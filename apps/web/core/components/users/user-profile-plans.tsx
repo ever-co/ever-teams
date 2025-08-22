@@ -60,10 +60,17 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		}
 	}, [profile.isAuthUser, authUser, user]);
 
-	const { futurePlans, pastPlans, todayPlan, outstandingPlans, sortedPlans, profileDailyPlans } =
-		useDailyPlan(targetEmployeeId);
-
-	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
+	const {
+		futurePlans,
+		pastPlans,
+		todayPlan,
+		outstandingPlans,
+		sortedPlans,
+		profileDailyPlans,
+		deleteDailyPlan,
+		deleteDailyPlanLoading,
+		getMyDailyPlansLoading
+	} = useDailyPlan(targetEmployeeId);
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
