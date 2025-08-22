@@ -13,14 +13,15 @@ import { TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { outstandingPlansState } from '@/core/stores';
+import { useDailyPlan } from '@/core/hooks';
 
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
 }
 export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
-	const outstandingPlans = useAtomValue(outstandingPlansState);
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { outstandingPlans } = useDailyPlan(employeeId);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Performance: useMemo prevents recalculating filtered plans on every render
@@ -108,8 +109,8 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
+									<div className="flex items-center justify-between w-full gap-3">
+										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

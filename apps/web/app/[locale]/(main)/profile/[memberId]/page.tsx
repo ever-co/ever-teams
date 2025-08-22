@@ -34,7 +34,6 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
-	const profile = useUserProfilePage();
 	const { data: user } = useUserQuery();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
@@ -44,6 +43,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profileUser =
 		activeTeam?.members?.find((member) => member.employee?.userId === unwrappedParams.memberId) ?? null;
 
+	const profile = useUserProfilePage();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const members = activeTeam?.members;
 	const fullWidth = useAtomValue(fullWidthState);

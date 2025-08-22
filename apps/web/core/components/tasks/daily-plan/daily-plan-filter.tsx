@@ -1,6 +1,5 @@
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { useDailyPlan } from '@/core/hooks';
-import { employeePlansListState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren, useEffect, useState } from 'react';
@@ -51,7 +50,7 @@ export function DailyPlanDropDownItem({
 
 export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
-	const employeePlans = useAtomValue(employeePlansListState);
+	const { employeePlans } = useDailyPlan(employeeId);
 
 	const { getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan();
 	const filteredPlans = employeePlans;
@@ -128,9 +127,9 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 											onSelect={() => togglePlanSelection(item.date.toString())}
 											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-gray-800 dark:text-white whitespace-nowrap text-ellipsis"
 										>
-											<div className="flex flex-1 items-center whitespace-nowrap text-ellipsis">
+											<div className="flex items-center flex-1 whitespace-nowrap text-ellipsis">
 												{selectedPlans?.includes(item.date.toString()) && (
-													<Check className="mr-2 w-4 h-4 text-primary dark:text-white" />
+													<Check className="w-4 h-4 mr-2 text-primary dark:text-white" />
 												)}
 												<span className="text-sm text-gray-600 dark:text-gray-300">
 													{formatDayPlanDate(item.date.toString())}

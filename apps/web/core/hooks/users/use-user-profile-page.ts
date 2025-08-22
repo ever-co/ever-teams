@@ -20,7 +20,7 @@ export function useUserProfilePage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params, userMemberId]);
 
-	const members = useMemo(() => activeTeam?.members || [], [activeTeam]);
+	const members = activeTeam?.members || [];
 
 	const matchUser = useMemo(() => {
 		return members.find((m) => {
