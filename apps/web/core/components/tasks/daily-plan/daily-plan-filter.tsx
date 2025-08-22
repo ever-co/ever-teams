@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
 import { Button } from '../../common/button';
 import { isEqual } from 'lodash';
-import { useAtomValue } from 'jotai';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -50,9 +49,8 @@ export function DailyPlanDropDownItem({
 
 export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
-	const { employeePlans } = useDailyPlan(employeeId);
 
-	const { getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan();
+	const { employeePlans, getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan(employeeId);
 	const filteredPlans = employeePlans;
 	const [open, setOpen] = useState(false);
 

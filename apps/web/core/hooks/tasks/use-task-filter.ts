@@ -1,8 +1,6 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
-import { useOrganizationTeams } from '../organizations';
-import { useAuthenticateUser } from '../auth';
-import { useDailyPlan, useLocalStorageState, useOutsideClick } from '..';
+import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -10,7 +8,7 @@ import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/consta
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
-import { timeLogsDailyReportState, profileDailyPlanListState } from '@/core/stores';
+import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
 
@@ -35,10 +33,13 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
 	// 	[]
 	// );
-	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
+
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const activeTeam = useAtomValue(activeTeamState);
+
 	const { data: user } = useUserQuery();
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { todayPlan, outstandingPlans } = useDailyPlan();
+	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(profile.member?.employee.id);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),

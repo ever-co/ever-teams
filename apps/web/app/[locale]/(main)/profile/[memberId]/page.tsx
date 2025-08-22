@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useLocalStorageState, useOrganizationAndTeamManagers, useUserProfilePage } from '@/core/hooks';
+import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container, Text } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
