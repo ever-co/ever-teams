@@ -39,7 +39,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const { data: user } = useUserQuery();
 	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(profile.member?.employee.id);
+	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(profile?.member?.employee.id);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
