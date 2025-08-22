@@ -4,14 +4,6 @@ import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
-import {
-	futurePlansState,
-	pastPlansState,
-	profileDailyPlanListState,
-	sortedPlansState,
-	todayPlanState,
-	outstandingPlansState
-} from '@/core/stores';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -58,16 +50,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const profile = useUserProfilePage();
 
-	const futurePlans = useAtomValue(futurePlansState);
-
-	const pastPlans = useAtomValue(pastPlansState);
-
-	const todayPlan = useAtomValue(todayPlanState);
-
-	const outstandingPlans = useAtomValue(outstandingPlansState);
-
-	const sortedPlans = useAtomValue(sortedPlansState);
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const { futurePlans, pastPlans, todayPlan, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan(
+		user?.employeeId!
+	);
 
 	const { deleteDailyPlan, deleteDailyPlanLoading, getMyDailyPlansLoading } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -225,7 +210,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
 							{getMyDailyPlansLoading ? (
-								<div className="flex items-center justify-center py-8">
+								<div className="flex justify-center items-center py-8">
 									<ReloadIcon className="w-6 h-6 animate-spin" />
 									<span className="ml-2">{t('common.LOADING')}</span>
 								</div>
@@ -236,7 +221,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 											{Object.keys(tabsScreens).map((filter, i) => (
 												<div
 													key={i}
-													className="flex items-center justify-start gap-4 cursor-pointer"
+													className="flex gap-4 justify-start items-center cursor-pointer"
 												>
 													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 													<div
@@ -267,7 +252,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												</div>
 											))}
 										</div>
-										<div className="flex items-center gap-2">
+										<div className="flex gap-2 items-center">
 											{currentTab === 'Today Tasks' && todayPlan[0] && (
 												<>
 													{canSeeActivity ? (
@@ -308,10 +293,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																		}
 																	}}
 																	variant="destructive"
-																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 																	)}
 																	{t('common.DELETE')}
 																</Button>

@@ -17,7 +17,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, activeTeamTaskState, todayPlanState, timerSecondsState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -516,9 +516,8 @@ export function TaskCardMenu({
 	}, [memberInfo, task, viewType, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const futurePlans = useAtomValue(sortedPlansState);
 
-	const todayPlan = useAtomValue(todayPlanState);
+	const { todayPlan, futurePlans } = useDailyPlan();
 
 	const taskPlannedToday = useMemo(
 		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),

@@ -14,10 +14,10 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { futurePlansState } from '@/core/stores';
+import { useDailyPlan } from '@/core/hooks';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
-	const futurePlans = useAtomValue(futurePlansState);
+	const { futurePlans } = useDailyPlan(user?.employeeId!);
 	// Use a safe default instead of direct localStorage access
 	const { setDate, date } = useDateRange('Future Tasks');
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);

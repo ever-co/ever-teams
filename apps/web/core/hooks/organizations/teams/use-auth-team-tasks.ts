@@ -1,22 +1,17 @@
+import { useDailyPlan } from '@/core/hooks';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { outstandingPlansState, todayPlanState, futurePlansState } from '@/core/stores';
 
 export function useAuthTeamTasks(user: TUser | undefined) {
 	const tasks = useAtomValue(tasksByTeamState);
 
-	const futurePlans = useAtomValue(futurePlansState);
-
-	const todayPlan = useAtomValue(todayPlanState);
-
-	const outstandingPlans = useAtomValue(outstandingPlansState);
-
 	const activeTeam = useAtomValue(activeTeamState);
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
+	const { futurePlans, todayPlan, outstandingPlans } = useDailyPlan(user?.employeeId!);
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];

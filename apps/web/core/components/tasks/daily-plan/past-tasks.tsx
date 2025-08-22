@@ -15,7 +15,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { pastPlansState } from '@/core/stores';
+import { useDailyPlan } from '@/core/hooks';
 
 export function PastTasks({
 	user,
@@ -26,7 +26,7 @@ export function PastTasks({
 	currentTab?: FilterTabs;
 	user?: TUser;
 }) {
-	const _pastPlans = useAtomValue(pastPlansState);
+	const { pastPlans: _pastPlans } = useDailyPlan(user?.employeeId!);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);

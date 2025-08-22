@@ -18,7 +18,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { myDailyPlanListState, pastPlansState } from '@/core/stores';
+import { myDailyPlanListState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 
 interface IAllPlansModal {
@@ -51,7 +51,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
 
-	const pastPlans = useAtomValue(pastPlansState);
+	const { pastPlans } = useDailyPlan();
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
