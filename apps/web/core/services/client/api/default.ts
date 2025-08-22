@@ -1,4 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import axios, { AxiosResponse } from 'axios';
 
 /**
  * Health check API function that intelligently chooses between local and remote endpoints
@@ -6,75 +7,66 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
  * Local (Next.js): /api/health → calls Gauzy API and returns formatted response
  * Remote (Gauzy): /api/health → returns direct health status
  *
- * This avoids the problematic /api endpoint that was causing 503 cascading failures
  */
-export async function getDefaultAPI() {
-	try {
-		// Use native fetch to avoid axios interceptor issues mentioned in the conversation
-		const response = await fetch('/api/health', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json'
-			}
-		});
-
-		if (!response.ok) {
-			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+export async function getDefaultAPI(): Promise<AxiosResponse> {
+	// Create a clean axios instance without interceptors for health checks
+	const cleanAxios = axios.create({
+		timeout: 10000, // 10 second timeout for health checks
+		headers: {
+			'Content-Type': 'application/json',
+			Accept: 'application/json'
 		}
+	});
 
-		const data = await response.json();
+	try {
+		// Primary: Use local Next.js health endpoint
+		const response = await cleanAxios.get('/api/health');
 
-		// Return axios-like response object for compatibility with existing code
+		// Detect if this is Next.js API response (has nested data structure)
+		const isNextJsResponse = response.data?.data && response.data?.response !== undefined;
+
+		// Enhance response data with clear source identification
+		const enhancedData = {
+			...response.data,
+			message: isNextJsResponse
+				? `Next.js API → ${response.data.data?.message || 'Gauzy API'}`
+				: response.data?.message || 'Next.js API Health Check',
+			source: 'next-js',
+			endpoint: '/api/health'
+		};
+
 		return {
-			status: response.status,
-			statusText: response.statusText,
-			data: data,
-			config: {
-				url: response.url,
-				method: 'GET'
-			}
+			...response,
+			data: enhancedData
 		};
 	} catch (error) {
-		console.error('API Health Check Error:', error);
+		console.error('Local API Health Check Error:', error);
 
-		// Fallback: try direct Gauzy API health endpoint if local fails
+		// Fallback: Try direct Gauzy API health endpoint
 		try {
-			const fallbackResponse = await fetch(`${GAUZY_API_BASE_SERVER_URL.value}/api/health`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json'
-				}
-			});
+			const fallbackResponse = await cleanAxios.get(`${GAUZY_API_BASE_SERVER_URL.value}/api/health`);
 
-			if (!fallbackResponse.ok) {
-				throw new Error(`Fallback HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
-			}
-
-			const fallbackData = await fallbackResponse.json();
-
-			// Transform Gauzy API response to match Next.js API format for consistency
+			// Transform Gauzy API response to match expected format with clear source indication
 			const transformedData = {
 				data: {
-					status: fallbackData.status === 'ok' ? 200 : 500,
-					message: fallbackData.status === 'ok' ? 'Gauzy API' : 'Gauzy API Error'
+					status: fallbackResponse.data.status === 'ok' ? 200 : 500,
+					message: fallbackResponse.data.status === 'ok' ? 'Direct Gauzy API' : 'Gauzy API Error'
 				},
-				response: fallbackData
+				response: fallbackResponse.data,
+				message: `Direct Gauzy API → ${fallbackResponse.data.status === 'ok' ? 'Healthy' : 'Error'}`,
+				source: 'gauzy-direct',
+				endpoint: `${GAUZY_API_BASE_SERVER_URL.value}/api/health`,
+				fallbackReason: 'Next.js API failed'
 			};
 
+			// Return transformed response maintaining axios structure
 			return {
-				status: fallbackResponse.status,
-				statusText: fallbackResponse.statusText,
-				data: transformedData,
-				config: {
-					url: fallbackResponse.url,
-					method: 'GET'
-				}
+				...fallbackResponse,
+				data: transformedData
 			};
 		} catch (fallbackError) {
 			console.error('Fallback API Health Check Error:', fallbackError);
-			throw error; // Throw original error
+			throw error; // Throw original error for proper error handling
 		}
 	}
 }
