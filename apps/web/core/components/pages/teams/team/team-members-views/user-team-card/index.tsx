@@ -22,7 +22,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
@@ -47,6 +47,7 @@ import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -347,7 +348,11 @@ export function UserTeamCard({
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
-				<LazyUserTeamActivity showActivity={showActivity} member={member} />
+				{showActivity && (
+					<Suspense fallback={<UserTeamActivitySkeleton />}>
+						<LazyUserTeamActivity showActivity={showActivity} member={member} />
+					</Suspense>
+				)}
 			</EverCard>
 			<EverCard
 				shadow="bigger"
