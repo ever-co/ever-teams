@@ -33,22 +33,23 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	}, [tasks, targetUser]);
 
 	const planned = useMemo(() => {
+		// Return stable 0 until we know whose plans to show
+		if (!targetUser || !employeeId) return 0;
+
 		// Helper function to filter tasks by user
-		const filterTasksByUser = (tasks: TTask[]) => {
-			if (!targetUser) return tasks;
-			return tasks.filter((task) => task.members?.some((member) => member.userId === targetUser.id));
-		};
+		const filterTasksByUser = (tasks: TTask[]) =>
+			tasks.filter((task) => task.members?.some((member) => member.userId === targetUser.id));
 
 		// Filter outstanding plans tasks by user before calculating
-		const filteredOutstandingTasks = outstandingPlans?.map((plan) => filterTasksByUser(plan.tasks || [])) || [];
-		const outStandingTasksCount = estimatedTotalTime(filteredOutstandingTasks).totalTasks;
+		const filteredOutstandingTasks = outstandingPlans?.map((plan) => filterTasksByUser(plan.tasks || [])) ?? [];
+		const outstandingTasksCount = estimatedTotalTime(filteredOutstandingTasks).totalTasks;
 
 		// Pass targetUser to getTotalTasks for proper filtering
 		const todayTasksCount = getTotalTasks(todayPlan, targetUser);
 		const futureTasksCount = getTotalTasks(futurePlans, targetUser);
 
-		return outStandingTasksCount + futureTasksCount + todayTasksCount;
-	}, [futurePlans, outstandingPlans, todayPlan, targetUser]);
+		return outstandingTasksCount + futureTasksCount + todayTasksCount;
+	}, [futurePlans, outstandingPlans, todayPlan, targetUser, employeeId]);
 
 	const totalTodayTasks = useMemo(
 		() =>
