@@ -26,7 +26,9 @@ export function PastTasks({
 	currentTab?: FilterTabs;
 	user?: TUser;
 }) {
-	const { pastPlans: _pastPlans } = useDailyPlan(user?.employeeId!);
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+
+	const { pastPlans: _pastPlans } = useDailyPlan(employeeId);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);
@@ -69,8 +71,8 @@ export function PastTasks({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
+									<div className="flex items-center justify-between w-full gap-3">
+										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
