@@ -63,7 +63,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
-				className="mt-5 w-full"
+				className="w-full mt-5"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
 				{hook.filterType !== undefined && <Divider className="mt-1" />}
@@ -101,7 +101,7 @@ function InputFilters({ hook, profile }: Props) {
 	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (
-		<div className="flex items-center mt-8 space-x-2 lg:space-x-5 xs:mt-4">
+		<div className="flex items-center mt-8 gap-x-2 lg:gap-x-5 xs:mt-4">
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm('outline-none')}
@@ -130,8 +130,8 @@ function InputFilters({ hook, profile }: Props) {
 			<Button
 				onClick={() => openManualTimeModal()}
 				className={clsxm(
-					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base flex items-center space-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
-					'min-w-[8.25rem] w-fit h-[2.75rem] !text-nowrap whitespace-nowrap'
+					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-sm flex items-center gap-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
+					'min-w-fit w-fit h-[2.75rem] !text-nowrap whitespace-nowrap'
 				)}
 			>
 				<span className="text-xl">+</span>
@@ -155,8 +155,8 @@ function InputFilters({ hook, profile }: Props) {
 					<Button
 						loading={loading}
 						className={clsxm(
-							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base',
-							'min-w-[8.25rem] h-[2.75rem]'
+							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-sm',
+							'min-w-fit h-[2.75rem] !text-white text-nowrap whitespace-nowrap'
 						)}
 					>
 						{t('common.ASSIGN_TASK')}
@@ -180,7 +180,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex gap-1 justify-center items-center -mb-1 w-full md:justify-start md:gap-4 md:mt-0">
+		<nav className="flex items-center justify-center w-full gap-1 -mb-1 md:justify-start md:gap-4 md:mt-0 max-w-fit">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -189,14 +189,14 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								`md:text-lg text-xs text-gray-500 font-normal outline-none px-[1rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
+								'text-sm text-gray-500 font-normal outline-none px-4 relative mt-4 md:mt-0 w-full md:min-w-fit flex flex-col md:flex-row gap-1 items-center',
 								active && ['text-primary dark:text-white']
 							)}
 						>
 							{item.name}{' '}
 							<span
 								className={clsxm(
-									'bg-gray-lighter p-1 px-2 text-xs rounded-md m-1',
+									'bg-gray-lighter p-1 px-2 !text-xs rounded-md m-1',
 									active && ['bg-primary dark:bg-[#47484D] text-white']
 								)}
 							>
@@ -229,7 +229,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const { date, setDate, data } = useDateRange(dailyPlanTab);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap flex-1 justify-center mb-2 space-x-3 h-9 md:justify-start">
+			<div className="flex flex-wrap justify-center flex-1 mb-2 space-x-3 h-9 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}

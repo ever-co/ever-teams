@@ -14,10 +14,11 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { futurePlansState } from '@/core/stores';
+import { useDailyPlan } from '@/core/hooks';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
-	const futurePlans = useAtomValue(futurePlansState);
+	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { futurePlans } = useDailyPlan(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
 	const { setDate, date } = useDateRange('Future Tasks');
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);
@@ -60,8 +61,8 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
+									<div className="flex items-center justify-between w-full gap-3">
+										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

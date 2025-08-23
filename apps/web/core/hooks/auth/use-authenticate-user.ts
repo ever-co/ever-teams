@@ -123,6 +123,6 @@ export const useCanSeeActivityScreen = () => {
 
 	const profile = useUserProfilePage();
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
-	return profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
+	return profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1;
 };

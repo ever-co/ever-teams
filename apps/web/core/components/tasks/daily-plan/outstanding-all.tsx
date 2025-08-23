@@ -7,18 +7,19 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
-import { outstandingPlansState } from '@/core/stores';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useDailyPlan } from '@/core/hooks';
 
 interface OutstandingAll {
 	profile: any;
 	user?: TUser;
 }
 export function OutstandingAll({ profile, user }: OutstandingAll) {
-	const outstandingPlans = useAtomValue(outstandingPlansState);
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const outstandingPlans = useDailyPlan(employeeId).outstandingPlans;
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
