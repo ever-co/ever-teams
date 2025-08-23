@@ -38,8 +38,12 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const { data: user } = useUserQuery();
+	const targetEmployeeId = useMemo(
+		() => profile?.member?.employee?.id ?? user?.employee?.id ?? '',
+		[profile?.member?.employee?.id, user?.employee?.id]
+	);
 	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(profile?.member?.employee.id);
+	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),

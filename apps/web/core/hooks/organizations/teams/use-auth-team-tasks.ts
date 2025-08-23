@@ -15,7 +15,7 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	// Use provided user or fallback to authenticated user
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);
-	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? '';
+	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? currentMember?.employee?.id ?? '';
 	const { futurePlans, todayPlan, outstandingPlans } = useDailyPlan(employeeId);
 
 	const assignedTasks = useMemo(() => {
