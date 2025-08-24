@@ -183,7 +183,7 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		overscanMultiplier = 2
 	} = options;
 
-	// FIXED: Cache data only, not React components to prevent memory leaks and stale closures
+	// Cache data only, not React components to prevent memory leaks and stale closures
 	const renderedItemsCacheRef = useRef<Map<string, T>>(new Map());
 	const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | 'idle'>('idle');
 	const [lastScrollTop, setLastScrollTop] = useState(0);
@@ -212,7 +212,7 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		[lastScrollTop]
 	);
 
-	// FIXED: Cache cleanup without dependency on cache state to prevent infinite re-renders
+	// Cache cleanup without dependency on cache state to prevent infinite re-renders
 	const cleanupCache = useCallback(
 		(visibleRange: { start: number; end: number }) => {
 			// Simple validation
@@ -248,25 +248,31 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 				}
 			}
 		},
-		[cacheSize, dynamicOverscan, items] // FIXED: Removed renderedItemsCache from dependencies
+		[cacheSize, dynamicOverscan, items] // Removed renderedItemsCache from dependencies
 	);
 
-	// Call both hooks unconditionally to comply with Rules of Hooks
+	// Call both hooks unconditionally with stable enabled state to comply with Rules of Hooks
+	// The enabled state must be consistent across renders to prevent hook count changes
 	const windowResult = useWindowVirtual(items, {
 		itemHeight,
 		overscan: dynamicOverscan,
-		enabled: enabled && items.length > 20 && shouldUseWindow
+		enabled: enabled && items.length > 0 // Always call the hook, let internal logic handle conditions
 	});
 
 	const containerResult = useTanStackVirtual(items, {
 		itemHeight,
 		containerHeight,
 		overscan: dynamicOverscan,
-		enabled: enabled && items.length > 20 && !shouldUseWindow
+		enabled: enabled && items.length > 0 // Always call the hook, let internal logic handle conditions
 	});
 
-	// Select which result to use based on shouldUseWindow
-	const selectedResult = shouldUseWindow ? windowResult : containerResult;
+	// Select which result to use based on shouldUseWindow with stable logic
+	// Use useMemo to prevent unnecessary recalculations and ensure stable selection
+	const selectedResult = useMemo(() => {
+		// Only use window virtualization for very large lists and when explicitly enabled
+		const useWindowVirtualization = shouldUseWindow && items.length > 20 && enabled;
+		return useWindowVirtualization ? windowResult : containerResult;
+	}, [shouldUseWindow, items.length, enabled, windowResult, containerResult]);
 
 	// Create getVisibleRange function based on selected result - simple fix
 	const getVisibleRange = useCallback(() => {
@@ -286,7 +292,7 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		};
 	}, [selectedResult.virtualItems]);
 
-	// FIXED: Return cache ref and helper functions instead of state
+	// Return cache ref and helper functions instead of state
 	const getCachedItem = useCallback((itemId: string) => {
 		return renderedItemsCacheRef.current.get(itemId);
 	}, []);

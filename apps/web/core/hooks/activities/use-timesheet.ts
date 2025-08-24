@@ -446,7 +446,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		timesheetParams // Current params for comparison
 	]);
 
-	// Fixed: Sync React Query data with Jotai state (removed problematic condition)
+	// Sync React Query data with Jotai state (removed problematic condition)
 	useConditionalUpdateEffect(
 		() => {
 			if (timesheetLogsQuery.data) {

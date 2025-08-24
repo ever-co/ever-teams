@@ -38,10 +38,20 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const { data: user } = useUserQuery();
-	const targetEmployeeId = useMemo(
-		() => profile?.member?.employee?.id ?? user?.employee?.id ?? '',
-		[profile?.member?.employee?.id, user?.employee?.id]
-	);
+
+	// Correct employee ID selection based on context (auth user vs profile user)
+	// Following the pattern from user-employee-id-management.md guide
+	const targetEmployeeId = useMemo(() => {
+		return profile.isAuthUser
+			? (user?.employee?.id ?? user?.employeeId ?? '')
+			: (profile?.member?.employeeId ?? profile?.member?.employee?.id ?? '');
+	}, [
+		profile.isAuthUser,
+		user?.employee?.id,
+		user?.employeeId,
+		profile?.member?.employeeId,
+		profile?.member?.employee?.id
+	]);
 	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
 	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
