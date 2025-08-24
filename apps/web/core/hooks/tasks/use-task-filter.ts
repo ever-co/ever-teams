@@ -42,11 +42,11 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	// Correct employee ID selection based on context (auth user vs profile user)
 	// Following the pattern from user-employee-id-management.md guide
 	const targetEmployeeId = useMemo(() => {
-		return profile.isAuthUser
+		return profile?.isAuthUser
 			? (user?.employee?.id ?? user?.employeeId ?? '')
 			: (profile?.member?.employeeId ?? profile?.member?.employee?.id ?? '');
 	}, [
-		profile.isAuthUser,
+		profile?.isAuthUser,
 		user?.employee?.id,
 		user?.employeeId,
 		profile?.member?.employeeId,
