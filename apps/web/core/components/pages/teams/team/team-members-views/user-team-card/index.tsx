@@ -198,14 +198,18 @@ export function UserTeamCard({
 		},
 		[setActivity]
 	);
-	const canSeeActivity = useMemo(
-		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
-		[profile?.userProfile?.id, user?.id, isManagerConnectedUser]
-	);
-	const isUserDetailAccordion = useMemo(
-		() => userDetailAccordion == memberInfo.memberUser?.id,
-		[userDetailAccordion, memberInfo.memberUser?.id]
-	);
+	const canSeeActivity = useMemo(() => {
+		// Correct logic for team-members context
+		// In team-members view, we compare memberUserId with connectedUserId, not profile
+		const isOwnCard = memberInfo.memberUser?.id === user?.id;
+		const isManager = isManagerConnectedUser !== -1;
+		const result = isOwnCard || isManager;
+
+		return result;
+	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
+	const isUserDetailAccordion = useMemo(() => {
+		return userDetailAccordion == memberInfo.memberUser?.id;
+	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
@@ -241,14 +245,17 @@ export function UserTeamCard({
 					{/* Show user name, email and image */}
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
-						{!publicTeam && (
-							<ChevronToggleButton
-								isExpanded={isUserDetailAccordion}
-								userId={memberInfo.memberUser?.id}
-								onToggle={setUserDetailAccordion}
-								onActivityClose={handleActivityClose}
-							/>
-						)}
+						{(() => {
+							const shouldShowChevron = !publicTeam && canSeeActivity;
+							return shouldShowChevron ? (
+								<ChevronToggleButton
+									isExpanded={isUserDetailAccordion}
+									userId={memberInfo.memberUser?.id}
+									onToggle={setUserDetailAccordion}
+									onActivityClose={handleActivityClose}
+								/>
+							) : null;
+						})()}
 					</div>
 					<VerticalSeparator />
 
@@ -257,14 +264,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="flex-1 px-2 overflow-y-hidden lg:px-4"
+							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
-						{isManagerConnectedUser !== 1 ? (
+						{canSeeActivity ? (
 							<p
-								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer -left-1 dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -303,10 +310,10 @@ export function UserTeamCard({
 					{/* TodayWorkedTime */}
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
-						{isManagerConnectedUser !== -1 ? (
+						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
+								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -325,7 +332,7 @@ export function UserTeamCard({
 							<Container fullWidth={fullWidth} className="px-3 py-5">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -344,7 +351,7 @@ export function UserTeamCard({
 						{activityScreens[activityFilter] ?? null}
 					</div>
 				) : isUserDetailAccordion ? (
-					<div className="flex items-center justify-center w-full h-20">
+					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -362,12 +369,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
