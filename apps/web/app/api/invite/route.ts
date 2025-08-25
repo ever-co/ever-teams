@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getTeamInvitationsRequest } from '@/core/services/server/requests';
+import { getAllTeamInvitationsRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -9,12 +9,12 @@ export async function GET(req: Request) {
 		return NextResponse.json({ error: 'Unauthorized' });
 	}
 
-	const { data } = await getTeamInvitationsRequest(
+	// WORKAROUND: Use combined request to get all invitations (EMPLOYEE + non-EMPLOYEE)
+	const { data } = await getAllTeamInvitationsRequest(
 		{
 			tenantId,
 			teamId,
-			organizationId,
-			role: 'EMPLOYEE'
+			organizationId
 		},
 		access_token
 	);
