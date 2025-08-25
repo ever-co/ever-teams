@@ -46,8 +46,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 		{
 			tenantId: tenantId || '',
 			teamId: teamId || '',
-			organizationId: organizationId || '',
-			role: 'EMPLOYEE'
+			organizationId: organizationId || ''
+			// Get all invitations regardless of role
 		},
 		access_token || ''
 	);

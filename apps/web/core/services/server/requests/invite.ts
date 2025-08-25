@@ -6,6 +6,7 @@ import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { TInvite } from '@/core/types/schemas';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 /**
  * Invite user using email request
@@ -53,7 +54,7 @@ export function removeTeamInvitationsRequest({
 type ITeamInvitationsRequest = {
 	tenantId: string;
 	organizationId: string;
-	role: 'EMPLOYEE';
+	role?: ERoleName;
 	teamId: string;
 };
 
@@ -68,13 +69,19 @@ export function getTeamInvitationsRequest(
 	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
 	bearer_token: string
 ) {
-	const query = qs.stringify({
+	const queryParams: Record<string, string> = {
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
-		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
 		'where[status]': 'INVITED'
-	});
+	};
+
+	// Only add role filter if role is specified
+	if (role) {
+		queryParams['where[role][name]'] = role;
+	}
+
+	const query = qs.stringify(queryParams);
 
 	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite?${query}`,

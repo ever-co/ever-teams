@@ -58,8 +58,8 @@ export async function POST(req: Request) {
 		{
 			tenantId,
 			teamId,
-			organizationId,
-			role: 'EMPLOYEE'
+			organizationId
+			// No role specified = get all invitations regardless of role (EMPLOYEE, MANAGER, etc.)
 		},
 		access_token
 	);

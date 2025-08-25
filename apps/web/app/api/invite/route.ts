@@ -13,8 +13,8 @@ export async function GET(req: Request) {
 		{
 			tenantId,
 			teamId,
-			organizationId,
-			role: 'EMPLOYEE'
+			organizationId
+			// Get all invitations regardless of role
 		},
 		access_token
 	);
