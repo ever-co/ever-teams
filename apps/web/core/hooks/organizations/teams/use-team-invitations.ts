@@ -221,11 +221,6 @@ export function useTeamInvitations() {
 
 	useEffect(() => {
 		if (teamInvitationsSuccess && teamInvitationsData?.items) {
-			console.log('🔍 [useTeamInvitations] Updating teamInvitations state from query:', {
-				currentState: teamInvitations.length,
-				newData: teamInvitationsData.items.length,
-				items: teamInvitationsData.items.map((inv) => ({ id: inv.id, email: inv.email }))
-			});
 			setTeamInvitations(teamInvitationsData.items);
 		}
 	}, [teamInvitationsSuccess, teamInvitationsUpdatedAt]);

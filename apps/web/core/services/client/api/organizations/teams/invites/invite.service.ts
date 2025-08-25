@@ -8,7 +8,7 @@ import qs from 'qs';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IGetInvitationRequest, IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
 import { IInviteRequest } from '@/core/types/interfaces/user/invite';
-import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { EInviteAction, EInviteStatus } from '@/core/types/generics/enums/invite';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import {
 	TInvite,
@@ -103,7 +103,7 @@ class InviteService extends APIService {
 			const baseQuery: Record<string, string> = {
 				'where[tenantId]': this.tenantId,
 				'where[organizationId]': this.organizationId,
-				'where[status]': 'INVITED'
+				'where[status]': EInviteStatus.INVITED
 			};
 
 			if (teamId) {

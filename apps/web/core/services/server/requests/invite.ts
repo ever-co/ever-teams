@@ -4,7 +4,7 @@ import { IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { EInviteAction, EInviteStatus } from '@/core/types/generics/enums/invite';
 import { TInvite } from '@/core/types/schemas';
 import { ERoleName } from '@/core/types/generics/enums/role';
 
@@ -73,7 +73,7 @@ export function getTeamInvitationsRequest(
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
 		'where[teams][id][0]': teamId,
-		'where[status]': 'INVITED'
+		'where[status]': EInviteStatus.INVITED
 	};
 
 	// Only add role filter if role is specified
