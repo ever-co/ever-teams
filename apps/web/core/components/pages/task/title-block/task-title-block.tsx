@@ -62,7 +62,7 @@ const TaskTitleBlock = () => {
 				return;
 			}
 
-			updateTitle(newTitle, task, true);
+			updateTitle({ newTitle, task, loader: true, isDetailedTask: true });
 			setEdit(false);
 		},
 		[task, updateTitle, t]

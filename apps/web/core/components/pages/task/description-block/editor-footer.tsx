@@ -23,7 +23,7 @@ const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUn
 	const t = useTranslations();
 	const saveDescription = useCallback(
 		(newDescription: string) => {
-			updateDescription(newDescription, task, true);
+			updateDescription({ newDescription, task, loader: true, isDetailedTask: true });
 		},
 		[task, updateDescription]
 	);

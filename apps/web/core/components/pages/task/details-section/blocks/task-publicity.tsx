@@ -17,7 +17,7 @@ const TaskPublicity = () => {
 		(value: boolean) => {
 			setIsTaskPublic(value);
 			const debounceUpdatePublicity = debounce((value) => {
-				updatePublicity(value, task, true);
+				updatePublicity({ publicity: value, task, loader: true, isDetailedTask: true });
 			}, 500);
 			debounceUpdatePublicity(value);
 		},

@@ -386,41 +386,84 @@ export function useTeamTasks() {
 	);
 
 	const updateTitle = useCallback(
-		async (newTitle: string, task?: TTask | null, loader?: boolean) => {
+		async ({
+			newTitle,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			newTitle: string;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && newTitle !== task.title) {
 				const res = await updateTask({
 					...task,
 					title: newTitle
 				});
+				if (isDetailedTask) {
+					setDetailedTask(res);
+				}
 				return res;
 			}
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const updateDescription = useCallback(
-		(newDescription: string, task?: TTask | null, loader?: boolean) => {
+		async ({
+			newDescription,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			newDescription: string;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && newDescription !== task.description) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					description: newDescription
 				});
+				if (isDetailedTask) {
+					setDetailedTask(res);
+				}
+				return res;
 			}
+			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const updatePublicity = useCallback(
-		(publicity: boolean, task?: TTask | null, loader?: boolean) => {
+		async ({
+			publicity,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			publicity: boolean;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && publicity !== task.public) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					public: publicity
 				});
+				if (isDetailedTask) {
+					setDetailedTask(res);
+				}
+				return res;
 			}
+			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const handleStatusUpdate = useCallback(
