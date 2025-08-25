@@ -117,3 +117,7 @@ export function getStatusColor(status: ETaskStatusName) {
 export function isServer() {
 	return typeof window === 'undefined';
 }
+export function dumpAndDie(message?: any, ...optionalParams: any[]) {
+	console.log(message, optionalParams);
+	throw new Error('Execution stopped (dumpAndDie)');
+}

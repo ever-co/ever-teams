@@ -11,7 +11,8 @@ import {
 	workspacesErrorState,
 	currentWorkspaceState,
 	hasMultipleWorkspacesState,
-	workspacesInitializedState
+	workspacesInitializedState,
+	syncActiveWorkspaceIdState
 } from '@/core/stores/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
@@ -29,6 +30,7 @@ export function useWorkspaces() {
 	const [error, setError] = useAtom(workspacesErrorState);
 	const [isInitialized, setIsInitialized] = useAtom(workspacesInitializedState);
 	const currentWorkspace = useAtomValue(currentWorkspaceState);
+	const [, syncActiveWorkspaceId] = useAtom(syncActiveWorkspaceIdState);
 	const { user } = useAuthenticateUser();
 	const hasMultipleWorkspaces = useAtomValue(hasMultipleWorkspacesState);
 
@@ -81,15 +83,12 @@ export function useWorkspaces() {
 		if (workspacesQuery.data) {
 			setWorkspaces(workspacesQuery.data);
 
-			// If no active workspace is defined, take the first one
-			if (!activeWorkspaceId && workspacesQuery.data.length > 0) {
-				const activeWorkspace = workspacesQuery.data.find((w) => w.isActive) || workspacesQuery.data[0];
-				setActiveWorkspaceId(activeWorkspace.id);
-			}
+			// Sync activeWorkspaceId with the smart-detected current workspace
+			syncActiveWorkspaceId();
 
 			setIsInitialized(true);
 		}
-	}, [workspacesQuery.data, activeWorkspaceId, setWorkspaces, setActiveWorkspaceId, setIsInitialized]);
+	}, [workspacesQuery.data, setWorkspaces, setIsInitialized, syncActiveWorkspaceId]);
 
 	// Update the loading state
 	useEffect(() => {
@@ -115,18 +114,14 @@ export function useWorkspaces() {
 	 */
 	const setActiveWorkspace = useCallback(
 		(workspaceId: string) => {
-			const workspace = workspaces.find((w) => w.id === workspaceId);
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
 			if (workspace) {
 				setActiveWorkspaceId(workspaceId);
-				// Update the isActive state of the workspaces
-				const updatedWorkspaces = workspaces.map((w) => ({
-					...w,
-					isActive: w.id === workspaceId
-				}));
-				setWorkspaces(updatedWorkspaces);
+				// Note: No need to update isActive state since API doesn't provide it
+				// The active state is managed by activeWorkspaceId only
 			}
 		},
-		[workspaces, setActiveWorkspaceId, setWorkspaces]
+		[workspaces, setActiveWorkspaceId]
 	);
 
 	/**
@@ -134,7 +129,7 @@ export function useWorkspaces() {
 	 */
 	const getWorkspaceById = useCallback(
 		(workspaceId: string): TWorkspace | undefined => {
-			return workspaces.find((w) => w.id === workspaceId);
+			return workspaces.find((w) => w.user.tenant.id === workspaceId);
 		},
 		[workspaces]
 	);
@@ -144,7 +139,7 @@ export function useWorkspaces() {
 	 */
 	const hasWorkspace = useCallback(
 		(workspaceId: string): boolean => {
-			return workspaces.some((w) => w.id === workspaceId);
+			return workspaces.some((w) => w.user.tenant.id === workspaceId);
 		},
 		[workspaces]
 	);
@@ -153,7 +148,7 @@ export function useWorkspaces() {
 	 * Get inactive workspaces
 	 */
 	const inactiveWorkspaces = useMemo(() => {
-		return workspaces.filter((w) => w.id !== activeWorkspaceId);
+		return workspaces.filter((w) => w.user.tenant.id !== activeWorkspaceId);
 	}, [workspaces, activeWorkspaceId]);
 
 	/**
