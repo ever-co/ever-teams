@@ -209,7 +209,7 @@ export function UserTeamCard({
 	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
 	const isUserDetailAccordion = useMemo(() => {
 		return userDetailAccordion == memberInfo.memberUser?.id;
-	}, [userDetailAccordion, memberInfo.memberUser?.id, showActivity]);
+	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div

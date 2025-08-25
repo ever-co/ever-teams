@@ -54,15 +54,14 @@ export const UserProfileTask = memo(
 
 					// Deduplicate tasks to prevent duplicate keys in React rendering
 					// This fixes the "Encountered two children with the same key" error
-					const uniqueTasks = tasks.reduce(
-						(acc, task) => {
-							if (!acc.find((t) => t.id === task.id)) {
-								acc.push(task);
-							}
-							return acc;
-						},
-						[] as typeof tasks
-					);
+					const seen = new Set();
+					const uniqueTasks = tasks.filter((task) => {
+						if (seen.has(task.id)) {
+							return false;
+						}
+						seen.add(task.id);
+						return true;
+					});
 
 					// Early return if no filtering needed
 					if (!isRunning || !activeTaskId) {

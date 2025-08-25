@@ -1,4 +1,4 @@
-import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 

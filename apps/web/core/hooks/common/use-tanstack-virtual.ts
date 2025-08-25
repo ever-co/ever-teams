@@ -272,7 +272,7 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		// Only use window virtualization for very large lists and when explicitly enabled
 		const useWindowVirtualization = shouldUseWindow && items.length > 20 && enabled;
 		return useWindowVirtualization ? windowResult : containerResult;
-	}, [shouldUseWindow, items.length, enabled, windowResult, containerResult]);
+	}, [shouldUseWindow, items.length, enabled]);
 
 	// Create getVisibleRange function based on selected result - simple fix
 	const getVisibleRange = useCallback(() => {
