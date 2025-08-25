@@ -110,6 +110,9 @@ class InviteService extends APIService {
 				query['where[teams][id][0]'] = teamId;
 			}
 
+			// Add status filter to only get INVITED invitations (matching server behavior)
+			query['where[status]'] = 'INVITED';
+
 			const endpoint = `/invite?${qs.stringify(query)}`;
 
 			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId: this.tenantId });
@@ -137,7 +140,7 @@ class InviteService extends APIService {
 		teamId
 	}: {
 		invitationId: string;
-		role: string;
+		role?: string;
 		teamId: string;
 	}): Promise<PaginationResponse<TInvite>> => {
 		try {
