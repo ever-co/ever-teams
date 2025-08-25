@@ -386,12 +386,13 @@ export function useTeamTasks() {
 	);
 
 	const updateTitle = useCallback(
-		(newTitle: string, task?: TTask | null, loader?: boolean) => {
+		async (newTitle: string, task?: TTask | null, loader?: boolean) => {
 			if (task && newTitle !== task.title) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					title: newTitle
 				});
+				return res;
 			}
 			return Promise.resolve();
 		},
