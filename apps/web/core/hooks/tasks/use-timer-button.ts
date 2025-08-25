@@ -49,8 +49,8 @@ export function useTimerButtonLogic({
 
 		// Update Current user's active task to sync across multiple devices
 		const currentEmployeeDetails = activeTeam?.members?.find((member) => member.id === currentMember?.id);
-		if (currentEmployeeDetails && currentEmployeeDetails.id) {
-			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+		if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+			updateOrganizationTeamEmployee(currentEmployeeDetails.employeeId, {
 				organizationId: task.organizationId,
 				activeTaskId: task.id,
 				organizationTeamId: activeTeam?.id,
