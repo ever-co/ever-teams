@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
-	getTeamInvitationsRequest,
+	getAllTeamInvitationsRequest,
 	removeTeamInvitationsRequest,
 	getMyInvitationsRequest,
 	acceptRejectMyInvitationsRequest
@@ -42,12 +42,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 		invitationId
 	});
 
-	const { data } = await getTeamInvitationsRequest(
+	// WORKAROUND: Use combined request to get all invitations (EMPLOYEE + non-EMPLOYEE)
+	const { data } = await getAllTeamInvitationsRequest(
 		{
 			tenantId: tenantId || '',
 			teamId: teamId || '',
 			organizationId: organizationId || ''
-			// Get all invitations regardless of role
 		},
 		access_token || ''
 	);

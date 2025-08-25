@@ -87,38 +87,63 @@ class InviteService extends APIService {
 		}
 	};
 
+	/**
+	 * WORKAROUND: Get all team invitations by combining EMPLOYEE and non-EMPLOYEE requests
+	 *
+	 * This is needed due to a bug in Gauzy API where:
+	 * - No role filter = automatically applies `role: { name: Not(RolesEnum.EMPLOYEE) }`
+	 * - This excludes EMPLOYEE invitations by default
+	 *
+	 * TODO: Remove this workaround once Gauzy API is fixed
+	 */
 	getTeamInvitations = async (requestParams: IGetInvitationRequest): Promise<PaginationResponse<TInvite>> => {
 		try {
-			// Base queries
-			const query: Record<string, string> = {
+			const { teamId, ...remainingParams } = requestParams;
+
+			const baseQuery: Record<string, string> = {
 				'where[tenantId]': this.tenantId,
-				'where[organizationId]': this.organizationId
+				'where[organizationId]': this.organizationId,
+				'where[status]': 'INVITED'
 			};
 
-			const { role, teamId, ...remainingParams } = requestParams;
+			if (teamId) {
+				baseQuery['where[teams][id][0]'] = teamId;
+			}
 
+			// Add remaining params (excluding role as we handle it specially)
 			(Object.keys(remainingParams) as (keyof typeof remainingParams)[]).forEach((key) => {
-				if (remainingParams[key]) {
-					query[`where[${key}]`] = remainingParams[key];
+				if (remainingParams[key] && key !== 'role') {
+					baseQuery[`where[${key}]`] = remainingParams[key] as string;
 				}
 			});
 
-			if (role) {
-				query['where[role][name]'] = role;
-			}
-			if (teamId) {
-				query['where[teams][id][0]'] = teamId;
-			}
+			// Execute both requests in parallel for better performance
+			const [employeeResponse, nonEmployeeResponse] = await Promise.all([
+				// Request 1: Get EMPLOYEE invitations explicitly
+				this.get<PaginationResponse<TInvite>>(
+					`/invite?${qs.stringify({ ...baseQuery, 'where[role][name]': 'EMPLOYEE' })}`,
+					{ tenantId: this.tenantId }
+				),
+				// Request 2: Get non-EMPLOYEE invitations (no role filter = gets MANAGER, ADMIN, etc.)
+				this.get<PaginationResponse<TInvite>>(`/invite?${qs.stringify(baseQuery)}`, { tenantId: this.tenantId })
+			]);
 
-			// Add status filter to only get INVITED invitations (matching server behavior)
-			query['where[status]'] = 'INVITED';
+			// Combine results and deduplicate by invitation ID
+			const allInvitations = [...(employeeResponse.data.items || []), ...(nonEmployeeResponse.data.items || [])];
 
-			const endpoint = `/invite?${qs.stringify(query)}`;
+			// Remove duplicates based on invitation ID (safety measure)
+			const uniqueInvitations = allInvitations.filter(
+				(invitation, index, array) => array.findIndex((inv) => inv.id === invitation.id) === index
+			);
 
-			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId: this.tenantId });
+			const combinedResult = {
+				...employeeResponse.data,
+				items: uniqueInvitations,
+				total: uniqueInvitations.length
+			};
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(inviteSchema, response.data, 'getTeamInvitations API response');
+			// Validate the combined response data using Zod schema
+			return validatePaginationResponse(inviteSchema, combinedResult, 'getTeamInvitations API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -130,17 +155,16 @@ class InviteService extends APIService {
 					'InviteService'
 				);
 			}
+			this.logger.error('Error fetching team invitations:', error, 'InviteService');
 			throw error;
 		}
 	};
 
 	removeTeamInvitations = async ({
 		invitationId,
-		role,
 		teamId
 	}: {
 		invitationId: string;
-		role?: string;
 		teamId: string;
 	}): Promise<PaginationResponse<TInvite>> => {
 		try {
@@ -149,9 +173,8 @@ class InviteService extends APIService {
 			});
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				// Use the already validated getTeamInvitations method
+				// Use the already validated getTeamInvitations method (now gets all roles automatically)
 				return await this.getTeamInvitations({
-					role,
 					teamId
 				});
 			}

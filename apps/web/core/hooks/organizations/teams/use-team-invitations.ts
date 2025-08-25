@@ -65,8 +65,8 @@ export function useTeamInvitations() {
 		queryFn: async () => {
 			if (!teamInvitationsParams) return { items: [] };
 
+			// WORKAROUND: getTeamInvitations now automatically fetches all roles (EMPLOYEE + non-EMPLOYEE)
 			return await inviteService.getTeamInvitations({
-				role: teamInvitationsParams.role,
 				teamId: teamInvitationsParams.teamId
 			});
 		},
@@ -147,7 +147,6 @@ export function useTeamInvitations() {
 
 			const result = await inviteService.removeTeamInvitations({
 				invitationId,
-				role: teamInvitationsParams.role,
 				teamId: teamInvitationsParams.teamId
 			});
 
