@@ -207,19 +207,21 @@ const TeamTask = () => {
 			}
 			childrenClassName="bg-white dark:bg-dark--theme"
 		>
-			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
+			<div className="flex flex-col p-4 mt-6 w-full min-h-full">
 				<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
 
-				<Paginate
-					total={total}
-					onPageChange={onPageChange}
-					pageCount={pageCount}
-					itemsPerPage={itemsPerPage}
-					itemOffset={itemOffset}
-					endOffset={endOffset}
-					setItemsPerPage={setItemsPerPage}
-					className="mt-auto"
-				/>
+				{tasks.length > 0 && (
+					<Paginate
+						total={total}
+						onPageChange={onPageChange}
+						pageCount={pageCount}
+						itemsPerPage={itemsPerPage}
+						itemOffset={itemOffset}
+						endOffset={endOffset}
+						setItemsPerPage={setItemsPerPage}
+						className="mt-auto"
+					/>
+				)}
 			</div>
 		</MainLayout>
 	);
