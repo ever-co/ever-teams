@@ -16,12 +16,12 @@
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
 	},
 	"dependencies": {
-		"react": "^19.1.0"
+		"react": "19.1.0"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
 		"@types/node": "^20.12.2",
-		"@types/react": "^19.1.2",
+		"@types/react": "19.1.2",
 		"tsup": "^8.4.0",
 		"typescript": "^5.3.3"
 	}

@@ -20,7 +20,7 @@
 		"date-fns": "^4.1.0",
 		"isomorphic-dompurify": "^2.16.0",
 		"lodash": "^4.17.21",
-		"react": "^ 19.1.0",
+		"react": "19.1.0",
 		"@ever-teams/constants": "*",
 		"tailwind-merge": "^2.5.5",
 		"zxcvbn": "^4.4.2"
@@ -28,7 +28,7 @@
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
 		"@types/node": "^20.12.2",
-		"@types/react": "^ 19.1.0",
+		"@types/react": "19.1.2",
 		"@types/zxcvbn": "^4.4.5",
 		"tsup": "^8.4.0",
 		"typescript": "^5.3.3"
