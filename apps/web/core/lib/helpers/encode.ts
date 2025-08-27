@@ -12,10 +12,10 @@ export const toByteString = (data: string | Uint8Array | ArrayBuffer): Promise<s
 		if (typeof data === 'string') {
 			blobData = new TextEncoder().encode(data);
 		} else if (data instanceof Uint8Array) {
-			// Create a new Uint8Array to ensure it has an ArrayBuffer (not ArrayBufferLike)
-			blobData = new Uint8Array(data);
+			// Use the existing Uint8Array directly
+			blobData = data;
 		} else {
-			// data is ArrayBuffer
+			// data is ArrayBuffer - create new Uint8Array
 			blobData = new Uint8Array(data);
 		}
 		const blob = new Blob([blobData as BlobPart]);
