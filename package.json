@@ -277,7 +277,9 @@
 		},
 		"twing": {
 			"locutus": "2.0.30"
-		}
+		},
+		"@babel/traverse": ">=7.23.2",
+		"vue": ">=3.4.0"
 	},
 	"engines": {
 		"node": ">=20.x.x <=22.x.x",
