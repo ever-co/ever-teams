@@ -76,16 +76,6 @@ const TeamTask = () => {
 		return <TeamTasksPageSkeleton fullWidth={fullWidth} />;
 	}
 
-	if (tasks.length === 0) {
-		return (
-			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
-				<div className="flex flex-col p-4 pt-6 w-full min-h-full">
-					<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
-				</div>
-			</div>
-		);
-	}
-
 	return (
 		<MainLayout
 			mainHeaderSlot={
