@@ -4,6 +4,7 @@ import { JitsuProvider } from '@jitsu/jitsu-react';
 import { setNextPublicEnv } from '@/env-config';
 import React, { useMemo } from 'react';
 import { JitsuAnalytics } from '@/core/components/analytics/jitsu-analytics';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type MyAppProps = {
 	pageProps?: {
@@ -16,6 +17,9 @@ type MyAppProps = {
 };
 
 export function JitsuRoot({ pageProps, children }: MyAppProps) {
+	// Get user data directly if not provided via pageProps
+	const { data: user } = useUserQuery();
+
 	pageProps?.envs && setNextPublicEnv(pageProps?.envs);
 
 	const options = useMemo(() => {
@@ -46,7 +50,7 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 	return (
 		<JitsuProvider options={options as any}>
 			{React.Children.map(
-				[<JitsuAnalytics user={pageProps?.user} key="analytics" />, children],
+				[<JitsuAnalytics user={pageProps?.user || user} key="analytics" />, children],
 				(child, index) => (
 					<React.Fragment key={`jitsu-child-${index}`}>{child}</React.Fragment>
 				)
