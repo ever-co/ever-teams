@@ -63,19 +63,17 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					/**
 					 * If user is on task page and switches the team,
 					 *
-					 * If the task is not in the new team, set the detailed task to null
+					 * If the task is not in the new team, set the detailed task to null and redirect to home page.
 					 */
-					const doesDetailedTaskExtisInNewTeam = item.data.tasks?.some(
-						(task) => task.id === detailedTask?.id
-					);
-					if (!doesDetailedTaskExtisInNewTeam) {
+					const taskBelongsToNewTeam = item.data.tasks?.some((task) => task.id === detailedTask?.id);
+					if (!taskBelongsToNewTeam) {
 						setDetailedTask(null);
 						router.push('/');
 					}
 				}
 			}
 		},
-		[setActiveTeam, stopTimer, t, setDetailedTask, path, router] // Removed timerStatus and activeTeam to prevent constant recreation
+		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, detailedTask] // Removed timerStatus and activeTeam to prevent constant recreation
 	);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
