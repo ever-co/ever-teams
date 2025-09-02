@@ -19,6 +19,7 @@ import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { TEmployee, TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -76,15 +77,15 @@ export default function ImageOverlapper({
 	const t = useTranslations();
 
 	const handleMemberClick = useCallback(
-		(member: any) => {
+		(member: TEmployee) => {
 			const checkUser = assignedMembers.some((el: TEmployee) => el.id === member.id);
 			if (checkUser) {
-				const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id != member.id);
+				const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id !== member.id);
 				setAssignedMembers(updatedMembers);
 				setUnassignedMembers([...unassignedMembers, member]);
 			} else {
 				setAssignedMembers([...assignedMembers, member]);
-				const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id != member.id);
+				const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id !== member.id);
 				setUnassignedMembers(updatedUnassign);
 			}
 		},
@@ -128,7 +129,7 @@ export default function ImageOverlapper({
 
 	const hasMembers = item?.members?.length > 0;
 
-	if (imageLength == undefined) {
+	if (imageLength === undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
 
@@ -196,7 +197,7 @@ export default function ImageOverlapper({
 					>
 						<Divider className="mt-4" />
 						<ul className="overflow-auto p-5 py-6">
-							{allMembers?.map((member: any) => {
+							{allMembers?.map((member: TOrganizationTeamEmployee) => {
 								return (
 									<li
 										key={member.id}

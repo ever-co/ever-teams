@@ -196,7 +196,6 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
-			console.log(task.members, member);
 			setAssignTaskLoading(true);
 			return updateTask({
 				...task,
