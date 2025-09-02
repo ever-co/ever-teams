@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { useModal } from '@/core/hooks';
+import { useModal, useTeamTasks } from '@/core/hooks';
 import { Modal, Divider } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
@@ -67,26 +67,29 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const allMembers = activeTeam?.members || [];
+	const allMembers = useMemo(() => activeTeam?.members || [], [activeTeam]);
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
-	const [validate, setValidate] = useState<boolean>(false);
 	const [showInfo, setShowInfo] = useState<boolean>(false);
+	const { updateTask } = useTeamTasks();
 
 	const t = useTranslations();
 
-	const onCheckMember = (member: any) => {
-		const checkUser = assignedMembers.some((el: TEmployee) => el.id === member.id);
-		if (checkUser) {
-			const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id != member.id);
-			setAssignedMembers(updatedMembers);
-			setUnassignedMembers([...unassignedMembers, member]);
-		} else {
-			setAssignedMembers([...assignedMembers, member]);
-			const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id != member.id);
-			setUnassignedMembers(updatedUnassign);
-		}
-	};
+	const handleMemberClick = useCallback(
+		(member: any) => {
+			const checkUser = assignedMembers.some((el: TEmployee) => el.id === member.id);
+			if (checkUser) {
+				const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id != member.id);
+				setAssignedMembers(updatedMembers);
+				setUnassignedMembers([...unassignedMembers, member]);
+			} else {
+				setAssignedMembers([...assignedMembers, member]);
+				const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id != member.id);
+				setUnassignedMembers(updatedUnassign);
+			}
+		},
+		[assignedMembers, unassignedMembers]
+	);
 
 	const onRedirect = useCallback(
 		(image: ImageOverlapperProps): Url => {
@@ -109,13 +112,20 @@ export default function ImageOverlapper({
 		[activeTeam?.members, onAvatarClickRedirectTo]
 	);
 
-	const onCLickValidate = () => {
-		setValidate(!validate);
-		closeModal();
-	};
+	const onConfirm = useCallback(async () => {
+		try {
+			await updateTask({
+				...item,
+				members: assignedMembers
+			});
+
+			closeModal();
+		} catch (error) {
+			console.error('Error updating task members:', error);
+		}
+	}, [closeModal, updateTask, item, assignedMembers]);
 
 	const hasMembers = item?.members?.length > 0;
-	const membersList = { assignedMembers, unassignedMembers };
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
@@ -188,15 +198,13 @@ export default function ImageOverlapper({
 							{allMembers?.map((member: any) => {
 								return (
 									<li
-										key={member.employee}
+										key={member.id}
 										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
 									>
 										<TeamMember
 											member={member}
-											item={item}
-											onCheckMember={onCheckMember}
-											membersList={membersList}
-											validate={validate}
+											onClick={handleMemberClick}
+											assigned={assignedMembers.some((el) => el.id === member.employee?.id)}
 										/>
 									</li>
 								);
@@ -211,7 +219,7 @@ export default function ImageOverlapper({
 									<button
 										className="flex flex-row gap-1 justify-center items-center px-4 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
 										onClick={() => {
-											onCLickValidate();
+											onConfirm();
 										}}
 									>
 										<IconsCheck fill="#ffffff" />
