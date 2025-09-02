@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal, useTeamTasks } from '@/core/hooks';
-import { Modal, Divider } from '@/core/components';
+import { Modal, Divider, SpinnerLoader } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
@@ -71,7 +71,7 @@ export default function ImageOverlapper({
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [showInfo, setShowInfo] = useState<boolean>(false);
-	const { updateTask } = useTeamTasks();
+	const { updateTask, updateLoading } = useTeamTasks();
 
 	const t = useTranslations();
 
@@ -113,6 +113,7 @@ export default function ImageOverlapper({
 	);
 
 	const onConfirm = useCallback(async () => {
+		if (updateLoading) return;
 		try {
 			await updateTask({
 				...item,
@@ -123,7 +124,7 @@ export default function ImageOverlapper({
 		} catch (error) {
 			console.error('Error updating task members:', error);
 		}
-	}, [closeModal, updateTask, item, assignedMembers]);
+	}, [closeModal, updateTask, item, assignedMembers, updateLoading]);
 
 	const hasMembers = item?.members?.length > 0;
 
@@ -217,12 +218,13 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex flex-row gap-1 justify-center items-center px-4 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
+										className="flex flex-row gap-3 justify-center items-center px-2 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
+										disabled={updateLoading}
 										onClick={() => {
 											onConfirm();
 										}}
 									>
-										<IconsCheck fill="#ffffff" />
+										{updateLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
 										{t('common.CONFIRM')}
 									</button>
 								</div>
