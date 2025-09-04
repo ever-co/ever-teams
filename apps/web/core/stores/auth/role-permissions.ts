@@ -7,3 +7,8 @@ export const myRolePermissionsState = atom<TRolePermission[]>([]);
 export const rolePermissionsFormatedState = atom<{
 	[key: string]: TRolePermission;
 }>({});
+
+export const myPermissions = atom<string[]>((get) => {
+	const myRolePermissions = get(myRolePermissionsState);
+	return myRolePermissions.map((item) => item.permission);
+});
