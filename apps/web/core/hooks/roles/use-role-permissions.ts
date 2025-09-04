@@ -7,6 +7,7 @@ import { rolePermissionService } from '@/core/services/client/api/roles/role-per
 import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect, useFirstLoad } from '../common';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
@@ -14,6 +15,7 @@ export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissionsFormated, setRolePermissionsFormated] = useAtom(rolePermissionsFormatedState);
 	const { firstLoadData: firstLoadMyRolePermissionsData } = useFirstLoad();
 	const queryClient = useQueryClient();
+	const tenantId = getTenantIdCookie();
 
 	// Query for fetching role permissions
 	const rolePermissionsQuery = useQuery({
@@ -26,9 +28,9 @@ export const useRolePermissions = (roleId?: string) => {
 	});
 
 	const myRolePermissionsQuery = useQuery({
-		queryKey: queryKeys.roles.myPermissions,
+		queryKey: queryKeys.roles.myPermissions(tenantId),
 		queryFn: () => rolePermissionService.getMyRolePermissions(),
-		enabled: true
+		enabled: !!tenantId
 	});
 
 	// Mutation for updating role permissions
@@ -90,18 +92,13 @@ export const useRolePermissions = (roleId?: string) => {
 	);
 
 	const getMyRolePermissions = useCallback(() => {
-		queryClient.invalidateQueries({ queryKey: queryKeys.roles.myPermissions });
-	}, [queryClient]);
-
-	const loadMyRolePermissions = useCallback(async () => {
-		return myRolePermissionsQuery.data?.items;
-	}, [myRolePermissionsQuery.data]);
+		queryClient.invalidateQueries({ queryKey: queryKeys.roles.myPermissions(tenantId) });
+	}, [queryClient, tenantId]);
 
 	const handleFirstLoad = useCallback(async () => {
-		await loadMyRolePermissions();
-
+		await myRolePermissionsQuery.refetch();
 		firstLoadMyRolePermissionsData();
-	}, [firstLoadMyRolePermissionsData, loadMyRolePermissions]);
+	}, [firstLoadMyRolePermissionsData, myRolePermissionsQuery]);
 
 	return {
 		loading: rolePermissionsQuery.isLoading,
