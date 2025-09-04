@@ -111,7 +111,8 @@ export const queryKeys = {
 		detail: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : [])] as const,
 		permissions: (roleId: string | undefined | null) =>
 			['roles', ...(roleId ? [roleId] : []), 'permissions'] as const,
-		users: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : []), 'users'] as const
+		users: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : []), 'users'] as const,
+		myPermissions: ['roles', 'my-permissions'] as const
 	},
 	permissions: {
 		all: ['permissions'] as const,

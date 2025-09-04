@@ -17,7 +17,7 @@ import {
 	useEmployee
 } from '@/core/hooks/organizations';
 import { useWorkspaces, useCurrentOrg } from '@/core/hooks/auth';
-import { useRoles } from '@/core/hooks/roles';
+import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
 	useAutoAssignTask,
@@ -52,6 +52,7 @@ function InitState() {
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 	const { firstLoadRolesData } = useRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
+	const { firstLoadMyRolePermissionsData } = useRolePermissions();
 
 	// Load workspaces data on app initialization
 	const { firstLoadWorkspacesData } = useWorkspaces();
@@ -102,6 +103,7 @@ function InitState() {
 		firstLoadDailyPlanData();
 		firstLoadDataEmployee();
 		firstLoadRolesData();
+		firstLoadMyRolePermissionsData();
 		// --------------
 
 		getTimerStatus();
