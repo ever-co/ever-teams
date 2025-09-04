@@ -107,7 +107,7 @@ export const useRolePermissions = (roleId?: string) => {
 		updateRolePermission: updateRolePermissionMutation.mutate,
 		updateRolePermissionLoading: updateRolePermissionMutation.isPending,
 		rolePermissionsFormated,
-		myRolePermissions: myRolePermissionsQuery.data?.items,
+		myRolePermissions,
 		getMyRolePermissions,
 		firstLoadMyRolePermissionsData: handleFirstLoad
 	};
