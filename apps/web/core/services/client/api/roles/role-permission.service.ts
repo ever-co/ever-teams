@@ -83,6 +83,9 @@ class RolePermissionService extends APIService {
 
 	/**
 	 * Get my role permissions
+	 *
+	 * @returns Promise<PaginationResponse<TRolePermission>> - Validated role permissions for current user
+	 * @throws ValidationError if response data doesn't match schema
 	 */
 
 	getMyRolePermissions = async () => {

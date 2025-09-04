@@ -12,7 +12,7 @@ export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
 	const [myRolePermissions, setMyRolePermissions] = useAtom(myRolePermissionsState);
 	const [rolePermissionsFormated, setRolePermissionsFormated] = useAtom(rolePermissionsFormatedState);
-	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
+	const { firstLoadData: firstLoadMyRolePermissionsData } = useFirstLoad();
 	const queryClient = useQueryClient();
 
 	// Query for fetching role permissions
@@ -74,13 +74,7 @@ export const useRolePermissions = (roleId?: string) => {
 	useConditionalUpdateEffect(
 		() => {
 			if (myRolePermissionsQuery.data?.items?.length) {
-				const tempRolePermissions = myRolePermissionsQuery.data.items;
-				const formatedItems: { [key: string]: TRolePermission } = {};
-
-				tempRolePermissions.forEach((item: TRolePermission) => {
-					formatedItems[item.permission] = item;
-				});
-				setMyRolePermissions(tempRolePermissions);
+				setMyRolePermissions(myRolePermissionsQuery.data.items);
 			}
 		},
 		[myRolePermissionsQuery.data],
@@ -100,14 +94,14 @@ export const useRolePermissions = (roleId?: string) => {
 	}, [queryClient]);
 
 	const loadMyRolePermissions = useCallback(async () => {
-		return myRolePermissionsQuery.data;
+		return myRolePermissionsQuery.data?.items;
 	}, [myRolePermissionsQuery.data]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadMyRolePermissions();
 
-		firstLoadTaskSizesData();
-	}, [firstLoadTaskSizesData, loadMyRolePermissions]);
+		firstLoadMyRolePermissionsData();
+	}, [firstLoadMyRolePermissionsData, loadMyRolePermissions]);
 
 	return {
 		loading: rolePermissionsQuery.isLoading,
