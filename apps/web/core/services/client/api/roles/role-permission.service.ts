@@ -4,6 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import { rolePermissionSchema, TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
+import { z } from 'zod';
 
 /**
  * Enhanced Role Permission Service with Zod validation
@@ -93,7 +94,11 @@ class RolePermissionService extends APIService {
 			const response = await this.get<PaginationResponse<TRolePermission>>('/role-permissions/me');
 
 			// Validate the response data using Zod schema
-			return validatePaginationResponse(rolePermissionSchema, response.data, 'getMyRolePermissions API response');
+			return validateApiResponse(
+				z.array(rolePermissionSchema),
+				response.data,
+				'getMyRolePermissions API response'
+			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
