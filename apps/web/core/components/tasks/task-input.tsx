@@ -167,8 +167,8 @@ export function TaskInput(props: Props) {
 				const currentEmployeeDetails = activeTeam?.members?.find(
 					(member) => member.employeeId === user?.employee?.id
 				);
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+					updateOrganizationTeamEmployee(currentEmployeeDetails.employeeId, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,

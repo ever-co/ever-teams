@@ -16,8 +16,9 @@ import { LazyCreateTeamModal } from '@/core/components/optimized-components/team
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { activeTeamState, organizationTeamsState, timerStatusState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import { useAtomValue, useAtom } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -30,6 +31,9 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const timerStatus = useAtomValue(timerStatusState);
 	const { stopTimer } = useTimer();
 	const t = useTranslations();
+	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	const path = usePathname();
+	const router = useRouter();
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
@@ -54,9 +58,22 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 
 				setActiveTeam(item.data);
+
+				if (path.split('/')[1] === 'task') {
+					/**
+					 * If user is on task page and switches the team,
+					 *
+					 * If the task is not in the new team, set the detailed task to null and redirect to home page.
+					 */
+					const taskBelongsToNewTeam = item.data.tasks?.some((task) => task.id === detailedTask?.id);
+					if (!taskBelongsToNewTeam) {
+						setDetailedTask(null);
+						router.push('/');
+					}
+				}
 			}
 		},
-		[setActiveTeam, stopTimer, t] // Removed timerStatus and activeTeam to prevent constant recreation
+		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, detailedTask] // Removed timerStatus and activeTeam to prevent constant recreation
 	);
 
 	// Create items from teams - keep it simple to avoid circular dependencies

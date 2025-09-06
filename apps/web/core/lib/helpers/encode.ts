@@ -8,10 +8,17 @@ import { encryptData } from './encryption';
 // fast, Buffer-compatible implem
 export const toByteString = (data: string | Uint8Array | ArrayBuffer): Promise<string> => {
 	return new Promise((resolve, reject) => {
-		const blob =
-			typeof data === 'string'
-				? new Blob([new TextEncoder().encode(data)])
-				: new Blob([data instanceof Uint8Array ? data : new Uint8Array(data)]);
+		let blobData: Uint8Array;
+		if (typeof data === 'string') {
+			blobData = new TextEncoder().encode(data);
+		} else if (data instanceof Uint8Array) {
+			// Use the existing Uint8Array directly
+			blobData = data;
+		} else {
+			// data is ArrayBuffer - create new Uint8Array
+			blobData = new Uint8Array(data);
+		}
+		const blob = new Blob([blobData as BlobPart]);
 		const reader = new FileReader();
 		reader.onload = (event) => {
 			if (!event.target || typeof event.target.result !== 'string') {

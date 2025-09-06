@@ -7,25 +7,19 @@ import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PropsWithChildren, useEffect, use } from 'react';
+import { useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import OfflineWrapper from '@/core/components/common/offline-wrapper';
-import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
 import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 // import { cn } from '@ever-teams/ui';
 
-interface Props extends PropsWithChildren {
+interface Props {
+	children: React.ReactNode;
 	params: Promise<{ locale: string }>;
-	pageProps: {
-		jitsuConf?: JitsuOptions;
-		jitsuHost?: string;
-		envs: Record<string, string>;
-		user?: any;
-	};
 }
 
 const font = Geist({
@@ -50,10 +44,10 @@ const PostHogPageView = dynamic(() => import('./(main)/integration/posthog/page-
 // 	};
 // }
 
-const LocaleLayout = (props: PropsWithChildren<Props>) => {
+const LocaleLayout = (props: Props) => {
 	const params = use(props.params);
 	const { locale } = params;
-	const { children, pageProps } = props;
+	const { children } = props;
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -146,7 +140,7 @@ const LocaleLayout = (props: PropsWithChildren<Props>) => {
 									disableTransitionOnChange
 								>
 									<OfflineWrapper>
-										<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+										<JitsuRoot>{children}</JitsuRoot>
 									</OfflineWrapper>
 								</ThemeProvider>
 							</JotaiProvider>

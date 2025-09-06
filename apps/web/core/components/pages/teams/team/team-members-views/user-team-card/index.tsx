@@ -22,7 +22,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
@@ -47,6 +47,7 @@ import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -118,7 +119,7 @@ export function UserTeamCard({
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const { data: user } = useUserQuery();
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
 	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
@@ -197,14 +198,18 @@ export function UserTeamCard({
 		},
 		[setActivity]
 	);
-	const canSeeActivity = useMemo(
-		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
-		[profile?.userProfile?.id, user?.id, isManagerConnectedUser]
-	);
-	const isUserDetailAccordion = useMemo(
-		() => userDetailAccordion == memberInfo.memberUser?.id,
-		[userDetailAccordion, memberInfo.memberUser?.id]
-	);
+	const canSeeActivity = useMemo(() => {
+		// Correct logic for team-members context
+		// In team-members view, we compare memberUserId with connectedUserId, not profile
+		const isOwnCard = memberInfo.memberUser?.id === user?.id;
+		const isManager = isManagerConnectedUser !== -1;
+		const result = isOwnCard || isManager;
+
+		return result;
+	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
+	const isUserDetailAccordion = useMemo(() => {
+		return userDetailAccordion == memberInfo.memberUser?.id;
+	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
@@ -240,14 +245,17 @@ export function UserTeamCard({
 					{/* Show user name, email and image */}
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
-						{!publicTeam && (
-							<ChevronToggleButton
-								isExpanded={isUserDetailAccordion}
-								userId={memberInfo.memberUser?.id}
-								onToggle={setUserDetailAccordion}
-								onActivityClose={handleActivityClose}
-							/>
-						)}
+						{(() => {
+							const shouldShowChevron = !publicTeam && canSeeActivity;
+							return shouldShowChevron ? (
+								<ChevronToggleButton
+									isExpanded={isUserDetailAccordion}
+									userId={memberInfo.memberUser?.id}
+									onToggle={setUserDetailAccordion}
+									onActivityClose={handleActivityClose}
+								/>
+							) : null;
+						})()}
 					</div>
 					<VerticalSeparator />
 
@@ -261,7 +269,7 @@ export function UserTeamCard({
 							tab="default"
 						/>
 
-						{isManagerConnectedUser != 1 ? (
+						{canSeeActivity ? (
 							<p
 								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
@@ -302,7 +310,7 @@ export function UserTeamCard({
 					{/* TodayWorkedTime */}
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
-						{isManagerConnectedUser != -1 ? (
+						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
 								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
@@ -347,7 +355,11 @@ export function UserTeamCard({
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
-				<LazyUserTeamActivity showActivity={showActivity} member={member} />
+				{showActivity && (
+					<Suspense fallback={<UserTeamActivitySkeleton />}>
+						<LazyUserTeamActivity showActivity={showActivity} member={member} />
+					</Suspense>
+				)}
 			</EverCard>
 			<EverCard
 				shadow="bigger"
