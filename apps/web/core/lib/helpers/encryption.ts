@@ -67,10 +67,10 @@ export const encryptData = async (
 		typeof data === 'string'
 			? new TextEncoder().encode(data)
 			: data instanceof Uint8Array
-			? data
-			: data instanceof Blob
-			? await blobToArrayBuffer(data)
-			: data;
+				? data
+				: data instanceof Blob
+					? await blobToArrayBuffer(data)
+					: data;
 
 	// We use symmetric encryption. AES-GCM is the recommended algorithm and
 	// includes checks that the ciphertext has not been modified by an attacker.
@@ -80,7 +80,7 @@ export const encryptData = async (
 			iv
 		},
 		importedKey,
-		buffer as ArrayBuffer | Uint8Array
+		buffer instanceof Uint8Array ? new Uint8Array(buffer) : buffer
 	);
 
 	return { encryptedBuffer, iv };
@@ -95,9 +95,9 @@ export const decryptData = async (
 	return window.crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
-			iv
+			iv: new Uint8Array(iv)
 		},
 		key,
-		encrypted
+		encrypted instanceof Uint8Array ? new Uint8Array(encrypted) : encrypted
 	);
 };

@@ -350,8 +350,8 @@ export function useTimer() {
 			const currentEmployeeDetails = activeTeam?.members?.find(
 				(member) => member.employeeId === user?.employee?.id
 			);
-			if (currentEmployeeDetails && currentEmployeeDetails.id) {
-				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+			if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,

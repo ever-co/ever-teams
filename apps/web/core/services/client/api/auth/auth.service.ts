@@ -141,7 +141,7 @@ class AuthService extends APIService {
 		return this.signInEmailConfirm(email, code);
 	};
 
-	// FIXED: Workspace signin following mobile approach
+	// Workspace signin following mobile approach
 	signInWorkspace = async (params: {
 		email: string;
 		token: string;

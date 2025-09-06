@@ -1,265 +1,265 @@
 {
-    "name": "ever-teams-web-server",
-    "version": "0.1.0",
-    "description": "Ever Teams Web Server",
-    "license": "AGPL-3.0",
-    "homepage": "https://ever.team",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ever-co/ever-teams.git"
-    },
-    "bugs": {
-        "url": "https://github.com/ever-co/ever-teams/issues"
-    },
-    "private": true,
-    "author": {
-        "name": "Ever Co. LTD",
-        "email": "ever@ever.co",
-        "url": "https://ever.co"
-    },
-    "main": "./src/main/main.ts",
-    "scripts": {
-        "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
-        "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
-        "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
-        "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-        "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
-        "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
-        "pack:mac": "electron-builder build --mac --publish always && npm run build:dll",
-        "pack:win": "electron-builder build --win --publish always && npm run build:dll",
-        "pack:linux": "electron-builder build --linux --publish always && npm run build:dll",
-        "package": "electron-builder build --publish never && npm run build:dll",
-        "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-        "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
-        "start:main": "cross-env NODE_ENV=development electronmon electronmon.js",
-        "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
-        "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-        "prepare:electron": "ts-node ./.erb/scripts/clean.js dist",
-        "test": "jest"
-    },
-    "dependencies": {
-        "electron-debug": "^3.2.0",
-        "electron-log": "^4.4.8",
-        "electron-updater": "^6.1.4",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
-        "react-router-dom": "^6.16.0",
-        "electron-store": "^8.1.0",
-        "i18next-browser-languagedetector": "^7.2.1",
-        "i18next-electron-fs-backend": "^3.0.1",
-        "i18next-fs-backend": "^2.3.1",
-        "i18next-resources-to-backend": "^1.2.1",
-        "react-i18next": "^14.1.0",
-        "@radix-ui/react-switch": "^1.1.0",
-        "classnames": "^2.5.1",
-        "fast-glob": "^3.3.2",
-        "sharp": "^0.33.4"
-    },
-    "devDependencies": {
-        "electron": "28.3.2",
-        "electron-builder": "^24.6.4",
-        "@electron/notarize": "^2.1.0",
-        "@electron/rebuild": "^3.3.0",
-        "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
-        "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
-        "@testing-library/jest-dom": "^6.1.3",
-        "@testing-library/react": "^14.0.0",
-        "@types/jest": "^29.5.5",
-        "@types/react-test-renderer": "^18.0.1",
-        "@types/terser-webpack-plugin": "^5.0.4",
-        "@types/webpack-bundle-analyzer": "^4.6.0",
-        "@typescript-eslint/eslint-plugin": "^6.7.0",
-        "@typescript-eslint/parser": "^6.7.0",
-        "browserslist-config-erb": "^0.0.3",
-        "chalk": "^4.1.2",
-        "concurrently": "^8.2.1",
-        "core-js": "^3.32.2",
-        "cross-env": "^7.0.3",
-        "css-loader": "^6.8.1",
-        "css-minimizer-webpack-plugin": "^5.0.1",
-        "detect-port": "^1.5.1",
-        "electron-devtools-installer": "^3.2.0",
-        "electronmon": "^2.0.2",
-        "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-config-erb": "^4.1.0-0",
-        "eslint-import-resolver-typescript": "^3.6.0",
-        "eslint-import-resolver-webpack": "^0.13.7",
-        "eslint-plugin-compat": "^4.2.0",
-        "eslint-plugin-import": "^2.28.1",
-        "eslint-plugin-jest": "^27.4.0",
-        "eslint-plugin-jsx-a11y": "^6.7.1",
-        "eslint-plugin-promise": "^6.1.1",
-        "eslint-plugin-react": "^7.33.2",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "file-loader": "^6.2.0",
-        "html-webpack-plugin": "^5.5.3",
-        "identity-obj-proxy": "^3.0.0",
-        "jest": "^29.7.0",
-        "jest-environment-jsdom": "^29.7.0",
-        "mini-css-extract-plugin": "^2.7.6",
-        "prettier": "^3.0.3",
-        "react-refresh": "^0.14.0",
-        "react-test-renderer": "^18.2.0",
-        "rimraf": "^5.0.1",
-        "sass": "^1.67.0",
-        "sass-loader": "^13.3.2",
-        "style-loader": "^3.3.3",
-        "terser-webpack-plugin": "^5.3.9",
-        "ts-jest": "^29.1.1",
-        "ts-loader": "^9.4.4",
-        "ts-node": "^10.9.1",
-        "tsconfig-paths-webpack-plugin": "^4.1.0",
-        "url-loader": "^4.1.1",
-        "webpack": "^5.88.2",
-        "webpack-bundle-analyzer": "^4.9.1",
-        "webpack-cli": "^5.1.4",
-        "webpack-dev-server": "^5.2.1",
-        "webpack-merge": "^5.9.0",
-        "postcss-loader": "^8.1.1",
-        "custom-electron-titlebar": "^4.2.8"
-    },
-    "prettier": {
-        "singleQuote": true,
-        "overrides": [
-            {
-                "files": [
-                    ".prettierrc",
-                    ".eslintrc"
-                ],
-                "options": {
-                    "parser": "json"
-                }
-            }
-        ]
-    },
-    "jest": {
-        "moduleDirectories": [
-            "node_modules",
-            "release/app/node_modules",
-            "src"
-        ],
-        "moduleFileExtensions": [
-            "js",
-            "jsx",
-            "ts",
-            "tsx",
-            "json"
-        ],
-        "moduleNameMapper": {
-            "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
-            "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-        },
-        "setupFiles": [
-            "./.erb/scripts/check-build-exists.ts"
-        ],
-        "testEnvironment": "jsdom",
-        "testEnvironmentOptions": {
-            "url": "http://localhost/"
-        },
-        "testPathIgnorePatterns": [
-            "release/app/dist",
-            ".erb/dll"
-        ],
-        "transform": {
-            "\\.(ts|tsx|js|jsx)$": "ts-jest"
-        }
-    },
-    "engines": {
-        "node": ">=16.0.0",
-        "yarn": ">=1.13.0"
-    },
-    "build": {
-        "appId": "com.ever.everteamswebserver",
-        "artifactName": "${name}-${version}.${ext}",
-        "productName": "Ever Teams Web Server",
-        "copyright": "Copyright © 2024-Present. Ever Co. LTD",
-        "asar": true,
-        "asarUnpack": "**\\*.{node,dll}",
+  "name": "ever-teams-web-server",
+  "version": "0.1.0",
+  "description": "Ever Teams Web Server",
+  "license": "AGPL-3.0",
+  "homepage": "https://ever.team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ever-co/ever-teams.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ever-co/ever-teams/issues"
+  },
+  "private": true,
+  "author": {
+    "name": "Ever Co. LTD",
+    "email": "ever@ever.co",
+    "url": "https://ever.co"
+  },
+  "main": "./src/main/main.ts",
+  "scripts": {
+    "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
+    "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
+    "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
+    "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
+    "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
+    "pack:mac": "electron-builder build --mac --publish always && npm run build:dll",
+    "pack:win": "electron-builder build --win --publish always && npm run build:dll",
+    "pack:linux": "electron-builder build --linux --publish always && npm run build:dll",
+    "package": "electron-builder build --publish never && npm run build:dll",
+    "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
+    "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
+    "start:main": "cross-env NODE_ENV=development electronmon electronmon.js",
+    "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
+    "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "prepare:electron": "ts-node ./.erb/scripts/clean.js dist",
+    "test": "jest"
+  },
+  "dependencies": {
+    "electron-debug": "^3.2.0",
+    "electron-log": "^4.4.8",
+    "electron-updater": "^6.1.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "^6.16.0",
+    "electron-store": "^8.1.0",
+    "i18next-browser-languagedetector": "^7.2.1",
+    "i18next-electron-fs-backend": "^3.0.1",
+    "i18next-fs-backend": "^2.3.1",
+    "i18next-resources-to-backend": "^1.2.1",
+    "react-i18next": "^14.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "classnames": "^2.5.1",
+    "fast-glob": "^3.3.2",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "electron": "28.3.2",
+    "electron-builder": "^24.6.4",
+    "@electron/notarize": "^2.1.0",
+    "@electron/rebuild": "^3.3.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
+    "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
+    "@testing-library/jest-dom": "^6.1.3",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.5",
+    "@types/react-test-renderer": "^18.0.1",
+    "@types/terser-webpack-plugin": "^5.0.4",
+    "@types/webpack-bundle-analyzer": "^4.6.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "browserslist-config-erb": "^0.0.3",
+    "chalk": "^4.1.2",
+    "concurrently": "^8.2.1",
+    "core-js": "^3.32.2",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.8.1",
+    "css-minimizer-webpack-plugin": "^5.0.1",
+    "detect-port": "^1.5.1",
+    "electron-devtools-installer": "^3.2.0",
+    "electronmon": "^2.0.2",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-erb": "^4.1.0-0",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-import-resolver-webpack": "^0.13.7",
+    "eslint-plugin-compat": "^4.2.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jest": "^27.4.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.3",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "mini-css-extract-plugin": "^2.7.6",
+    "prettier": "^3.0.3",
+    "react-refresh": "^0.14.0",
+    "react-test-renderer": "^18.2.0",
+    "rimraf": "^5.0.1",
+    "sass": "^1.67.0",
+    "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-jest": "^29.1.1",
+    "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.88.2",
+    "webpack-bundle-analyzer": "^4.9.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.1",
+    "webpack-merge": "^5.9.0",
+    "postcss-loader": "^8.1.1",
+    "custom-electron-titlebar": "^4.2.8"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "overrides": [
+      {
         "files": [
-            "dist",
-            "node_modules",
-            "package.json"
+          ".prettierrc",
+          ".eslintrc"
         ],
-        "afterSign": ".erb/scripts/notarize.js",
-        "mac": {
-            "category": "public.app-category.developer-tools",
-            "target": [
-                "zip",
-                "dmg"
-            ],
-            "asarUnpack": "**/*.node",
-            "artifactName": "${name}-${version}.${ext}",
-            "type": "distribution",
-            "hardenedRuntime": true,
-            "gatekeeperAssess": false,
-            "entitlements": "assets/entitlements.mac.plist",
-            "entitlementsInherit": "assets/entitlements.mac.plist"
-        },
-        "dmg": {
-            "icon": "icon.icns",
-            "sign": false,
-            "contents": [
-                {
-                    "x": 130,
-                    "y": 220
-                },
-                {
-                    "x": 410,
-                    "y": 220,
-                    "type": "link",
-                    "path": "/Applications"
-                }
-            ]
-        },
-        "win": {
-            "icon": "icon.ico",
-            "publisherName": "Ever",
-            "target": [
-                {
-                    "target": "nsis",
-                    "arch": [
-                        "x64"
-                    ]
-                }
-            ],
-            "verifyUpdateCodeSignature": false,
-            "requestedExecutionLevel": "requireAdministrator"
-        },
-        "linux": {
-            "icon": "linux",
-            "target": [
-                "AppImage",
-                "deb",
-                "tar.gz"
-            ],
-            "executableName": "ever-teams-web-server",
-            "artifactName": "${name}-${version}.${ext}",
-            "synopsis": "Server",
-            "category": "Development"
-        },
-        "directories": {
-            "app": "release/app",
-            "buildResources": "assets",
-            "output": "release/build"
-        },
-        "extraResources": [
-            "./assets/**",
-            "./release/app/dist/standalone/**",
-            "./src/locales"
-        ],
-        "publish": [
-            {
-                "provider": "github",
-                "repo": "ever-teams",
-                "releaseType": "release"
-            }
-        ]
+        "options": {
+          "parser": "json"
+        }
+      }
+    ]
+  },
+  "jest": {
+    "moduleDirectories": [
+      "node_modules",
+      "release/app/node_modules",
+      "src"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "json"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
-    "electronmon": {
-        "patterns": [
-            "!**/**",
-            "src/main/**"
-        ],
-        "logLevel": "quiet"
+    "setupFiles": [
+      "./.erb/scripts/check-build-exists.ts"
+    ],
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "url": "http://localhost/"
+    },
+    "testPathIgnorePatterns": [
+      "release/app/dist",
+      ".erb/dll"
+    ],
+    "transform": {
+      "\\.(ts|tsx|js|jsx)$": "ts-jest"
     }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "yarn": ">=1.13.0"
+  },
+  "build": {
+    "appId": "com.ever.everteamswebserver",
+    "artifactName": "${name}-${version}.${ext}",
+    "productName": "Ever Teams Web Server",
+    "copyright": "Copyright © 2024-Present. Ever Co. LTD",
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}",
+    "files": [
+      "dist",
+      "node_modules",
+      "package.json"
+    ],
+    "afterSign": ".erb/scripts/notarize.js",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "zip",
+        "dmg"
+      ],
+      "asarUnpack": "**/*.node",
+      "artifactName": "${name}-${version}.${ext}",
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist"
+    },
+    "dmg": {
+      "icon": "icon.icns",
+      "sign": false,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "icon": "icon.ico",
+      "publisherName": "Ever",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "linux": {
+      "icon": "linux",
+      "target": [
+        "AppImage",
+        "deb",
+        "tar.gz"
+      ],
+      "executableName": "ever-teams-web-server",
+      "artifactName": "${name}-${version}.${ext}",
+      "synopsis": "Server",
+      "category": "Development"
+    },
+    "directories": {
+      "app": "release/app",
+      "buildResources": "assets",
+      "output": "release/build"
+    },
+    "extraResources": [
+      "./assets/**",
+      "./release/app/dist/standalone/**",
+      "./src/locales"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "repo": "ever-teams",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "electronmon": {
+    "patterns": [
+      "!**/**",
+      "src/main/**"
+    ],
+    "logLevel": "quiet"
+  }
 }

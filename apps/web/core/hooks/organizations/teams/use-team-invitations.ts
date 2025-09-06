@@ -19,6 +19,8 @@ import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { IInviteVerifyCode, InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
 import { useQueryCall } from '../../common';
 import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
+import { useIsMemberManager } from './use-team-member';
+import { useUserQuery } from '../../queries/user-user.query';
 
 export function useTeamInvitations() {
 	const queryClient = useQueryClient();
@@ -30,7 +32,10 @@ export function useTeamInvitations() {
 
 	const activeTeamId = getActiveTeamIdCookie();
 	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
-	const { isTeamManager, refreshToken, user } = useAuthenticateUser();
+
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+	const { refreshToken } = useAuthenticateUser();
 
 	// Request params memoized
 	const teamInvitationsParams: TeamInvitationsQueryParams | null =
@@ -38,7 +43,7 @@ export function useTeamInvitations() {
 			? {
 					tenantId: user.tenantId,
 					organizationId: user.employee.organizationId,
-					role: 'EMPLOYEE',
+					// No role specified = get all invitations (EMPLOYEE, MANAGER, etc.)
 					teamId: activeTeamId
 				}
 			: null;
@@ -60,8 +65,8 @@ export function useTeamInvitations() {
 		queryFn: async () => {
 			if (!teamInvitationsParams) return { items: [] };
 
+			// WORKAROUND: getTeamInvitations now automatically fetches all roles (EMPLOYEE + non-EMPLOYEE)
 			return await inviteService.getTeamInvitations({
-				role: teamInvitationsParams.role,
 				teamId: teamInvitationsParams.teamId
 			});
 		},
@@ -129,11 +134,8 @@ export function useTeamInvitations() {
 				roleId: params.roleId
 			});
 		},
-		onSuccess: (data) => {
-			// Optimistic update of the cache
-			const items = data.items || [];
-			setTeamInvitations((prev) => [...prev, ...items]);
-
+		onSuccess: () => {
+			// Just invalidate - let the query refetch handle the state update
 			invalidateTeamInvitationData();
 		}
 	});
@@ -145,7 +147,6 @@ export function useTeamInvitations() {
 
 			const result = await inviteService.removeTeamInvitations({
 				invitationId,
-				role: teamInvitationsParams.role,
 				teamId: teamInvitationsParams.teamId
 			});
 
@@ -296,8 +297,10 @@ export function useTeamInvitations() {
 		[acceptOrRejectInvitationMutation]
 	);
 	const hydratedInvitations = useMemo(() => {
-		return teamInvitationsData?.items ?? teamInvitations;
-	}, [teamInvitationsData?.items, teamInvitations]);
+		return teamInvitationsSuccess && teamInvitationsData?.items
+			? (teamInvitationsData?.items ?? teamInvitations)
+			: [];
+	}, [teamInvitationsData?.items, teamInvitationsSuccess, teamInvitations]);
 	const hydratedMyInvitations = useMemo(() => {
 		return myInvitationsData?.items ?? myInvitationsList;
 	}, [myInvitationsData?.items, myInvitationsList]);

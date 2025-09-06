@@ -1,4 +1,4 @@
-import { rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
+import { myRolePermissionsState, rolePermissionsFormatedState, rolePermissionsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,12 +6,16 @@ import cloneDeep from 'lodash/cloneDeep';
 import { rolePermissionService } from '@/core/services/client/api/roles/role-permission.service';
 import { TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
 import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
+import { useConditionalUpdateEffect, useFirstLoad } from '../common';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 
 export const useRolePermissions = (roleId?: string) => {
 	const [rolePermissions, setRolePermissions] = useAtom(rolePermissionsState);
+	const [myRolePermissions, setMyRolePermissions] = useAtom(myRolePermissionsState);
 	const [rolePermissionsFormated, setRolePermissionsFormated] = useAtom(rolePermissionsFormatedState);
+	const { firstLoadData: firstLoadMyRolePermissionsData } = useFirstLoad();
 	const queryClient = useQueryClient();
+	const tenantId = getTenantIdCookie();
 
 	// Query for fetching role permissions
 	const rolePermissionsQuery = useQuery({
@@ -21,6 +25,12 @@ export const useRolePermissions = (roleId?: string) => {
 			return rolePermissionService.getRolePermission(roleId);
 		},
 		enabled: !!roleId
+	});
+
+	const myRolePermissionsQuery = useQuery({
+		queryKey: queryKeys.roles.myPermissions(tenantId),
+		queryFn: () => rolePermissionService.getMyRolePermissions(),
+		enabled: !!tenantId
 	});
 
 	// Mutation for updating role permissions
@@ -63,6 +73,16 @@ export const useRolePermissions = (roleId?: string) => {
 		Boolean(rolePermissions?.length)
 	);
 
+	useConditionalUpdateEffect(
+		() => {
+			if (myRolePermissionsQuery.data?.items?.length) {
+				setMyRolePermissions(myRolePermissionsQuery.data.items);
+			}
+		},
+		[myRolePermissionsQuery.data],
+		Boolean(myRolePermissions?.length)
+	);
+
 	// For backward compatibility
 	const getRolePermissions = useCallback(
 		(id: string) => {
@@ -71,12 +91,24 @@ export const useRolePermissions = (roleId?: string) => {
 		[queryClient]
 	);
 
+	const getMyRolePermissions = useCallback(() => {
+		queryClient.invalidateQueries({ queryKey: queryKeys.roles.myPermissions(tenantId) });
+	}, [queryClient, tenantId]);
+
+	const handleFirstLoad = useCallback(async () => {
+		await myRolePermissionsQuery.refetch();
+		firstLoadMyRolePermissionsData();
+	}, [firstLoadMyRolePermissionsData, myRolePermissionsQuery]);
+
 	return {
 		loading: rolePermissionsQuery.isLoading,
 		rolePermissions,
 		getRolePermissions,
 		updateRolePermission: updateRolePermissionMutation.mutate,
 		updateRolePermissionLoading: updateRolePermissionMutation.isPending,
-		rolePermissionsFormated
+		rolePermissionsFormated,
+		myRolePermissions,
+		getMyRolePermissions,
+		firstLoadMyRolePermissionsData: handleFirstLoad
 	};
 };

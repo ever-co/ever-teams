@@ -80,6 +80,34 @@ class RolePermissionService extends APIService {
 			throw error;
 		}
 	};
+
+	/**
+	 * Get my role permissions
+	 *
+	 * @returns Promise<PaginationResponse<TRolePermission>> - Validated role permissions for current user
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+
+	getMyRolePermissions = async () => {
+		try {
+			const response = await this.get<PaginationResponse<TRolePermission>>('/role-permissions/me');
+
+			// Validate the response data using Zod schema
+			return validatePaginationResponse(rolePermissionSchema, response.data, 'getMyRolePermissions API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Get my role permissions validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RolePermissionService'
+				);
+			}
+			throw error;
+		}
+	};
 }
 
 export const rolePermissionService = new RolePermissionService(GAUZY_API_BASE_SERVER_URL.value);

@@ -83,7 +83,7 @@ export const employeeSchema = z
 				id: uuIdSchema,
 				fullName: z.string(),
 				email: z.string(),
-				phone: z.string(),
+				phone: z.string().nullable().optional(),
 				avatar: z.string().nullable().optional()
 			})
 			.passthrough()

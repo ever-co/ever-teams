@@ -4,8 +4,9 @@ import { IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { EInviteAction, EInviteStatus } from '@/core/types/generics/enums/invite';
 import { TInvite } from '@/core/types/schemas';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 /**
  * Invite user using email request
@@ -53,7 +54,7 @@ export function removeTeamInvitationsRequest({
 type ITeamInvitationsRequest = {
 	tenantId: string;
 	organizationId: string;
-	role: 'EMPLOYEE';
+	role?: ERoleName;
 	teamId: string;
 };
 
@@ -68,13 +69,19 @@ export function getTeamInvitationsRequest(
 	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
 	bearer_token: string
 ) {
-	const query = qs.stringify({
+	const queryParams: Record<string, string> = {
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
-		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
-		'where[status]': 'INVITED'
-	});
+		'where[status]': EInviteStatus.INVITED
+	};
+
+	// Only add role filter if role is specified
+	if (role) {
+		queryParams['where[role][name]'] = role;
+	}
+
+	const query = qs.stringify(queryParams);
 
 	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite?${query}`,
@@ -82,6 +89,63 @@ export function getTeamInvitationsRequest(
 		bearer_token,
 		tenantId: tenantId
 	});
+}
+
+/**
+ * WORKAROUND: Get all team invitations by combining EMPLOYEE and non-EMPLOYEE requests
+ *
+ * This is a temporary solution due to a bug in Gauzy API where:
+ * - No role filter = automatically applies `role: { name: Not(RolesEnum.EMPLOYEE) }`
+ * - This excludes EMPLOYEE invitations by default
+ *
+ * TODO: Remove this workaround once Gauzy API is fixed
+ */
+export async function getAllTeamInvitationsRequest(
+	{ teamId, tenantId, organizationId }: Omit<ITeamInvitationsRequest, 'role'>,
+	bearer_token: string
+): Promise<{ data: PaginationResponse<TInvite> }> {
+	try {
+		// Execute both requests in parallel for better performance
+		const [employeeInvitations, nonEmployeeInvitations] = await Promise.all([
+			// Request 1: Get EMPLOYEE invitations explicitly
+			getTeamInvitationsRequest({ teamId, tenantId, organizationId, role: ERoleName.EMPLOYEE }, bearer_token),
+			// Request 2: Get non-EMPLOYEE invitations (MANAGER, ADMIN, etc.)
+			getTeamInvitationsRequest(
+				{ teamId, tenantId, organizationId }, // No role = gets non-EMPLOYEE
+				bearer_token
+			)
+		]);
+
+		// Combine results and deduplicate by invitation ID
+		const allInvitations = [
+			...(employeeInvitations.data.items || []),
+			...(nonEmployeeInvitations.data.items || [])
+		];
+
+		// Remove duplicates based on invitation ID (safety measure)
+		const uniqueInvitations = allInvitations.filter(
+			(invitation, index, array) => array.findIndex((inv) => inv.id === invitation.id) === index
+		);
+
+		return {
+			data: {
+				// Preserve other pagination properties from first response
+				...employeeInvitations.data,
+				// Override with our combined results
+				items: uniqueInvitations,
+				total: uniqueInvitations.length
+			}
+		};
+	} catch (error) {
+		console.error('Error fetching all team invitations:', error);
+		// Fallback to empty result
+		return {
+			data: {
+				items: [],
+				total: 0
+			}
+		};
+	}
 }
 
 type ResetInviteParams = {

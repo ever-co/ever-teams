@@ -52,12 +52,23 @@ export const UserProfileTask = memo(
 					const isRunning = deferredProfile.member?.running === true;
 					const activeTaskId = deferredProfile.activeUserTeamTask?.id;
 
+					// Deduplicate tasks to prevent duplicate keys in React rendering
+					// This fixes the "Encountered two children with the same key" error
+					const seen = new Set();
+					const uniqueTasks = tasks.filter((task) => {
+						if (seen.has(task.id)) {
+							return false;
+						}
+						seen.add(task.id);
+						return true;
+					});
+
 					// Early return if no filtering needed
 					if (!isRunning || !activeTaskId) {
-						return tasks;
+						return uniqueTasks;
 					}
 
-					return tasks.filter((task) => task.id !== activeTaskId);
+					return uniqueTasks.filter((task) => task.id !== activeTaskId);
 				},
 				deferredTabFiltered.tasksFiltered,
 				{
@@ -74,12 +85,26 @@ export const UserProfileTask = memo(
 			deferredProfile.activeUserTeamTask?.id
 		]);
 
-		const { slicedItems } = useScrollPagination({
+		const { slicedItems: rawSlicedItems } = useScrollPagination({
 			enabled: !!paginateTasks && !useVirtualization,
 			items: otherTasks,
 			scrollableElement: scrollableContainer,
 			defaultItemsPerPage: 20
 		});
+
+		// FIXED Additional deduplication at slicedItems level to prevent duplicate keys
+		// This ensures no duplicate tasks reach the rendering phase
+		const slicedItems = useMemo(() => {
+			return rawSlicedItems.reduce(
+				(acc, task) => {
+					if (!acc.find((t) => t.id === task.id)) {
+						acc.push(task);
+					}
+					return acc;
+				},
+				[] as typeof rawSlicedItems
+			);
+		}, [rawSlicedItems]);
 
 		// Optimized scroll container setup with useCallback
 		const setupScrollContainer = useCallback(() => {
@@ -201,7 +226,7 @@ const TaskList = memo(
 			[]
 		);
 
-		// FIXED: Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
+		// Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
 		const hasActiveTask =
 			tabFiltered.tab === 'worked' &&
 			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
@@ -212,7 +237,7 @@ const TaskList = memo(
 				return null;
 			}
 
-			// FIXED: Don't show EmptyPlans if there's an active task displayed above
+			// Don't show EmptyPlans if there's an active task displayed above
 			if (hasActiveTask) {
 				return null; // Active task is already shown, no need for empty state
 			}
@@ -315,7 +340,7 @@ const TanStackVirtualizedTaskList = memo(
 				? virtualizationResult.innerStyle
 				: { height: virtualizationResult.totalSize };
 
-		// FIXED: Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
+		// Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
 		const hasActiveTask =
 			tabFiltered.tab === 'worked' &&
 			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
@@ -326,7 +351,7 @@ const TanStackVirtualizedTaskList = memo(
 				return null;
 			}
 
-			// FIXED: Don't show EmptyPlans if there's an active task displayed above
+			// Don't show EmptyPlans if there's an active task displayed above
 			if (hasActiveTask) {
 				return null; // Active task is already shown, no need for empty state
 			}

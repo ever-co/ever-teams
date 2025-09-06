@@ -34,13 +34,16 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
-	const profile = useUserProfilePage();
 	const { data: user } = useUserQuery();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
+	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 	const activeTeam = useAtomValue(activeTeamState);
+	const profileUser =
+		activeTeam?.members?.find((member) => member.employee?.userId === unwrappedParams.memberId) ?? null;
 
+	const profile = useUserProfilePage();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const members = activeTeam?.members;
 	const fullWidth = useAtomValue(fullWidthState);
@@ -49,11 +52,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = useMemo(
-		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		() => profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
 		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
 
@@ -112,7 +115,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					ref={profile.loadTaskStatsIObserverRef}
 					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
 				>
-					<div className="flex flex-col gap-5 justify-center items-center">
+					<div className="flex flex-col items-center justify-center gap-5">
 						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
 						</Text>
@@ -134,9 +137,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<MainLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
-					<div className="space-y-4 w-full">
+					<div className="w-full space-y-4">
 						{/* Breadcrumb */}
-						<div className="flex gap-8 items-center">
+						<div className="flex items-center gap-8">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>
@@ -145,7 +148,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</div>
 
 						{/* User Profile Detail */}
-						<div className="flex flex-col justify-between items-center md:flex-row">
+						<div className="flex flex-col items-center justify-between md:flex-row">
 							<LazyUserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
@@ -169,9 +172,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
-					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
+					<div className={cn('flex items-center justify-start gap-4 mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
-							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
+							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(
@@ -191,7 +194,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+					<LazyUserProfileTask
+						profile={profile}
+						tabFiltered={hook}
+						paginateTasks={true}
+						user={profileUser?.employee?.user}
+					/>
 				)}
 			</Container>
 		</MainLayout>

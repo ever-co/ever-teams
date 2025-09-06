@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
+import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import React, { memo, useCallback } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
@@ -163,7 +163,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 );
 
 function Invite() {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 
 	return (
