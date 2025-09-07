@@ -17,8 +17,8 @@ import {
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from './use-authenticate-user';
 import { useFirstLoad } from '../common/use-first-load';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * Hook for managing user workspaces
@@ -31,7 +31,7 @@ export function useWorkspaces() {
 	const [isInitialized, setIsInitialized] = useAtom(workspacesInitializedState);
 	const currentWorkspace = useAtomValue(currentWorkspaceState);
 	const [, syncActiveWorkspaceId] = useAtom(syncActiveWorkspaceIdState);
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const hasMultipleWorkspaces = useAtomValue(hasMultipleWorkspacesState);
 
 	const queryClient = useQueryClient();
@@ -49,7 +49,7 @@ export function useWorkspaces() {
 			setIsLoading(true);
 			setError(null);
 			try {
-				const result = await workspaceService.getUserWorkspaces(user);
+				const result = await workspaceService.getUserWorkspaces(user!);
 				return result;
 			} catch (err: any) {
 				setError(err.message || 'Error retrieving workspaces');

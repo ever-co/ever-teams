@@ -4,22 +4,22 @@ import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuthenticateUser } from './use-authenticate-user';
 import { useWorkspaces } from './use-workspaces';
 import { authService } from '@/core/services/client/api/auth';
 import { queryKeys } from '@/core/query/keys';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * Smart workspace switcher hook based on password/page-component.tsx logic
  * Reuses the existing authentication flow that works perfectly
  */
-export function useWorkspaceSwitcherSmart() {
+export function useWorkspaceSwitcher() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
 
 	/**

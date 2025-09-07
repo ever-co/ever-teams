@@ -13,7 +13,7 @@ class WorkspaceService extends APIService {
 	/**
 	 * Retrieves all available workspaces for the authenticated user
 	 */
-	getUserWorkspaces = async (user: Partial<TUser> | null): Promise<TWorkspace[]> => {
+	getUserWorkspaces = async (user: TUser | null): Promise<TWorkspace[]> => {
 		try {
 			const accessToken = getAccessTokenCookie();
 			const userId = user?.id;

@@ -11,8 +11,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
-import { useWorkspaces } from '@/core/hooks/auth';
-import { useWorkspaceSwitcherSmart } from '@/core/hooks/auth/use-workspace-switcher';
+import { useWorkspaces, useWorkspaceSwitcher } from '@/core/hooks/auth';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import {
 	Dialog,
@@ -177,7 +176,7 @@ export function WorkspacesSwitcher() {
 	} = useWorkspaces();
 
 	// Use the smart workspace switcher hook (based on password component logic)
-	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcherSmart();
+	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcher();
 
 	// Determine the actual current workspace with robust fallback logic
 	const actualCurrentWorkspace = React.useMemo(() => {
@@ -236,8 +235,6 @@ export function WorkspacesSwitcher() {
 		},
 		[isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
 	);
-
-	// Note: switchToWorkspace function is now provided by useWorkspaceSwitcherSmart hook
 
 	// Handle confirmed workspace switch
 	const handleConfirmWorkspaceSwitch = React.useCallback(async () => {
