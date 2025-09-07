@@ -255,12 +255,18 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 
 	const handleAssignMember = useCallback(
 		async (member: TOrganizationTeamEmployee) => {
-			if (!task || !member?.employeeId) return;
+			if (!task || !member?.employeeId || !member?.employee?.userId) return;
 
 			try {
 				await updateTask({
 					...task,
-					members: [...(task.members || []), { id: member.employeeId } as any]
+					members: [
+						...(task.members || []),
+						{
+							id: member.employeeId,
+							userId: member.employee.userId
+						} as any
+					]
 				});
 			} catch (error) {
 				console.error('Failed to assign member:', error);
