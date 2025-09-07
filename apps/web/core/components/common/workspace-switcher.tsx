@@ -80,13 +80,13 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
 						<div className="text-sm text-muted-foreground">
-							You are going to switch the workspace{' '}
+							You are about to switch workspaces from{' '}
 							<span className="font-medium text-foreground">
-								"{currentWorkspace?.user.tenant.name || 'Current workspace'}"
+								"{currentWorkspace?.user.tenant.name ?? 'current workspace'}"
 							</span>{' '}
 							to{' '}
 							<span className="font-medium text-foreground">
-								"{targetWorkspace?.user.tenant.name || 'New workspace'}"
+								"{targetWorkspace?.user.tenant.name ?? 'target workspace'}"
 							</span>
 							.
 						</div>

@@ -234,6 +234,7 @@ export const switchWorkspaceServerRequest = (data: { tenantId: string }, bearerT
 		method: 'POST',
 		path: `/auth/switch-workspace`,
 		body: data,
+		tenantId: data.tenantId,
 		bearer_token: bearerToken
 	});
 };

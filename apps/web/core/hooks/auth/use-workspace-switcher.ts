@@ -10,6 +10,7 @@ import { authService } from '@/core/services/client/api/auth';
 import { queryKeys } from '@/core/query/keys';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 
 /**
  * Smart workspace switcher hook based on password/page-component.tsx logic
@@ -24,18 +25,12 @@ export function useWorkspaceSwitcherSmart() {
 	/**
 	 * Get last team ID with recent logout logic (from password component)
 	 */
-	const getLastTeamIdWithRecentLogout = useCallback(() => {
+	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {
 			return null;
 		}
-
-		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
-			const prevDate = new Date(prev.user.lastLoginAt ?? '');
-			const currentDate = new Date(current.user.lastLoginAt ?? '');
-			return currentDate > prevDate ? current : prev;
-		});
-
-		return mostRecentWorkspace.user.lastTeamId;
+		const mostRecentWorkspace = findMostRecentWorkspace(workspaces);
+		return mostRecentWorkspace.user.lastTeamId ?? null;
 	}, [workspaces]);
 
 	/**
@@ -94,18 +89,10 @@ export function useWorkspaceSwitcherSmart() {
 			const params = {
 				email: user.email,
 				token: workspace.token, // THE WORKSPACE TOKEN (not tenantId!)
-				selectedTeam,
+				defaultTeamId: selectedTeam,
+				selectedTeam: selectedTeam,
 				lastTeamId: selectedTeam
 			};
-
-			console.log('🔍 Workspace switch params:', {
-				email: params.email,
-				hasToken: !!params.token,
-				tokenLength: params.token?.length,
-				selectedTeam: params.selectedTeam,
-				lastTeamId: params.lastTeamId,
-				workspaceName: workspace.user.tenant.name
-			});
 
 			// Use the EXACT same parameters as password component
 			return await authService.signInWorkspace(params);
