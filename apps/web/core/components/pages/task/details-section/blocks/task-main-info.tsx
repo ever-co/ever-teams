@@ -5,7 +5,7 @@ import { activeTeamState, detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
@@ -17,8 +17,9 @@ import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { toast } from 'sonner';
-import { SpinnerLoader } from '@/core/components/common/loader';
+
+import { useTaskMemberManagement } from '@/core/hooks/tasks/use-task-member-management';
+import { MemberSection } from './member-section';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -219,130 +220,17 @@ function DueDates() {
 	);
 }
 
+/**
+ * Modern ManageMembersPopover with optimistic updates and improved UX
+ * Uses custom hook for business logic and modular components for UI
+ */
 const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTask | null) => {
 	const t = useTranslations();
-	const { updateTask } = useTeamTasks();
-	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 
-	// Loading states per user (employeeId -> loading state)
-	const [assignLoadingStates, setAssignLoadingStates] = useState<Record<string, boolean>>({});
-	const [unassignLoadingStates, setUnassignLoadingStates] = useState<Record<string, boolean>>({});
-
-	const unassignedMembers = useMemo(() => {
-		if (!task?.members) return memberList.filter((member) => member.employee?.isActive); // Early return if no task members
-		const assignedIds = task.members.map((item) => item.userId);
-
-		return memberList.filter(
-			(member) => member.employee && !assignedIds.includes(member.employee.userId) && member.employee.isActive
-		);
-	}, [memberList, task?.members]);
-
-	const assignedTaskMembers = useMemo(() => {
-		if (!task?.members) return []; // Early return if no task members
-		const assignedIds = task.members.map((item) => item.userId);
-
-		return memberList.filter(
-			(member) => member.employee && assignedIds.includes(member.employee.userId) && member.employee.isActive
-		);
-	}, [memberList, task?.members]);
-
-	const handleUnassignMember = useCallback(
-		async (member: TOrganizationTeamEmployee) => {
-			if (!task || !member?.employeeId) return;
-
-			// Set loading for specific user
-			setUnassignLoadingStates((prev) => ({ ...prev, [member.employeeId!]: true }));
-
-			try {
-				const updatedMembers = task.members?.filter((m) => m.id !== member.employeeId);
-
-				await updateTask({
-					...task,
-					members: updatedMembers
-				});
-
-				// Update local detailed task state immediately for UI sync
-				if (detailedTask && detailedTask.id === task.id) {
-					setDetailedTask({
-						...detailedTask,
-						members: updatedMembers
-					});
-				}
-
-				// Success toast
-				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
-					description: `${member.employee?.fullName || 'Member'} has been unassigned from the task`
-				});
-			} catch (error) {
-				console.error('Failed to unassign member:', error);
-
-				// Error toast
-				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
-					description: `Failed to unassign ${member.employee?.fullName || 'member'} from the task`
-				});
-			} finally {
-				// Clear loading for specific user
-				setUnassignLoadingStates((prev) => {
-					const newState = { ...prev };
-					delete newState[member.employeeId!];
-					return newState;
-				});
-			}
-		},
-		[task, updateTask, t, detailedTask, setDetailedTask]
-	);
-
-	const handleAssignMember = useCallback(
-		async (member: TOrganizationTeamEmployee) => {
-			if (!task || !member?.employeeId || !member?.employee?.userId) return;
-
-			// Set loading for specific user
-			setAssignLoadingStates((prev) => ({ ...prev, [member.employeeId!]: true }));
-
-			try {
-				// Use the complete employee object to preserve all data (fullName, user.imageUrl, etc.)
-				const newMember = {
-					...member.employee,
-					id: member.employeeId, // Ensure the id matches the employeeId
-					userId: member.employee.userId
-				};
-
-				const updatedMembers = [...(task.members || []), newMember as any];
-
-				await updateTask({
-					...task,
-					members: updatedMembers
-				});
-
-				// Update local detailed task state immediately for UI sync
-				if (detailedTask && detailedTask.id === task.id) {
-					setDetailedTask({
-						...detailedTask,
-						members: updatedMembers
-					});
-				}
-
-				// Success toast
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-					description: `${member.employee?.fullName || 'Member'} has been assigned to the task`
-				});
-			} catch (error) {
-				console.error('Failed to assign member:', error);
-
-				// Error toast
-				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
-					description: `Failed to assign ${member.employee?.fullName || 'member'} to the task`
-				});
-			} finally {
-				// Clear loading for specific user
-				setAssignLoadingStates((prev) => {
-					const newState = { ...prev };
-					delete newState[member.employeeId!];
-					return newState;
-				});
-			}
-		},
-		[task, updateTask, t, detailedTask, setDetailedTask]
+	// Use the new custom hook for all member management logic
+	const { assignedMembers, unassignedMembers, loadingStates, assignMember, unassignMember } = useTaskMemberManagement(
+		task,
+		memberList
 	);
 
 	return (
@@ -359,71 +247,37 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<PopoverPanel
-							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[9.5rem] flex flex-col px-4 py-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
+							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[11.5rem] flex flex-col px-4 py-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
 								<div className="overflow-y-auto max-h-72 scrollbar-hide">
-									{assignedTaskMembers.map((member, index) => {
-										const isUnassignLoading = unassignLoadingStates[member.employeeId!] || false;
+									{/* Assigned Members Section */}
+									<MemberSection
+										title="Assigned Members"
+										members={assignedMembers}
+										loadingStates={loadingStates}
+										onAction={unassignMember}
+										actionType="unassign"
+										onClose={close}
+										emptyMessage="No members assigned to this task"
+									/>
 
-										return (
-											<div
-												className={clsxm(
-													'flex gap-1 justify-between items-center mt-1 w-auto h-8',
-													!isUnassignLoading &&
-														'hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105',
-													isUnassignLoading && 'opacity-50 cursor-not-allowed'
-												)}
-												onClick={() => {
-													if (!isUnassignLoading) {
-														handleUnassignMember(member);
-														close();
-													}
-												}}
-												key={index}
-											>
-												<ProfileInfo
-													profilePicSrc={member.employee?.user?.imageUrl}
-													names={member.employee?.fullName}
-												/>
+									{/* Divider if both sections have content */}
+									{assignedMembers.length > 0 && unassignedMembers.length > 0 && (
+										<div className="my-2 border-t border-gray-200 dark:border-gray-700" />
+									)}
 
-												{isUnassignLoading ? (
-													<SpinnerLoader size={16} />
-												) : (
-													<TrashIcon className="w-5" />
-												)}
-											</div>
-										);
-									})}
-									{unassignedMembers.map((member, index) => {
-										const isAssignLoading = assignLoadingStates[member.employeeId!] || false;
-
-										return (
-											<div
-												className={clsxm(
-													'flex justify-between items-center mt-1 w-auto h-8',
-													!isAssignLoading &&
-														'hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105',
-													isAssignLoading && 'opacity-50 cursor-not-allowed'
-												)}
-												onClick={() => {
-													if (!isAssignLoading) {
-														handleAssignMember(member);
-														close();
-													}
-												}}
-												key={index}
-											>
-												<ProfileInfo
-													profilePicSrc={member.employee?.user?.imageUrl}
-													names={member.employee?.fullName}
-												/>
-
-												{isAssignLoading && <SpinnerLoader size={16} />}
-											</div>
-										);
-									})}
+									{/* Available Members Section */}
+									<MemberSection
+										title="Available Members"
+										members={unassignedMembers}
+										loadingStates={loadingStates}
+										onAction={assignMember}
+										actionType="assign"
+										onClose={close}
+										emptyMessage="All team members are already assigned"
+									/>
 								</div>
 							)}
 						</PopoverPanel>
