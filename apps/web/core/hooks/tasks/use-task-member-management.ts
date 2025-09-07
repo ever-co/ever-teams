@@ -8,7 +8,11 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 // Types for optimistic actions
-type OptimisticAction = { type: 'assign'; member: any } | { type: 'unassign'; memberId: string };
+type TaskMember = NonNullable<TTask['members']>[number];
+type OptimisticAction =
+	| { type: 'assign'; member: TaskMember }
+	| { type: 'unassign'; memberId: string }
+	| { type: 'reset'; next: TaskMember[] };
 
 // Loading states type
 type LoadingStates = Record<string, 'assign' | 'unassign' | null>;
@@ -30,6 +34,8 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					return [...currentMembers, action.member];
 				case 'unassign':
 					return currentMembers.filter((m) => m.id !== action.memberId);
+				case 'reset':
+					return action.next;
 				default:
 					return currentMembers;
 			}
@@ -44,12 +50,17 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId || !member?.employee?.userId) return;
 
+			// Prevent duplicate assignment (optimistic or actual)
+			if (optimisticMembers.some((m) => m.userId === member.employee!.userId)) {
+				return;
+			}
+
 			// Create complete member object with all required fields
-			const newMember = {
+			const newMember: TaskMember = {
 				...member.employee,
 				id: member.employeeId,
 				userId: member.employee.userId
-			};
+			} as TaskMember;
 			// Immediate optimistic update wrapped in startTransition
 			startTransition(() => {
 				addOptimisticUpdate({ type: 'assign', member: newMember });
@@ -57,7 +68,11 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 			setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: 'assign' }));
 
 			try {
-				const updatedMembers = [...(task.members || []), newMember];
+				// Dedupe payload by userId to prevent server-side duplicates
+				const updatedMembers = Array.from(
+					new Map([...(task.members ?? []), newMember].map((m) => [m.userId, m])).values()
+				);
+
 				await updateTask({
 					...task,
 					members: updatedMembers
@@ -70,7 +85,12 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 			} catch (error) {
 				console.error('Failed to assign member:', error);
 
-				// Error toast (optimistic rollback happens automatically)
+				// Manual optimistic rollback to original state
+				startTransition(() => {
+					addOptimisticUpdate({ type: 'reset', next: task?.members || [] });
+				});
+
+				// Error toast
 				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
 					description: `Failed to assign ${member.employee?.fullName || 'member'} to the task`
 				});
@@ -79,13 +99,18 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));
 			}
 		},
-		[task, updateTask, t, addOptimisticUpdate]
+		[task, updateTask, t, addOptimisticUpdate, optimisticMembers]
 	);
 
 	// Optimistic unassign member function
 	const unassignMember = useCallback(
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId) return;
+
+			// Prevent unassigning member that's not actually assigned
+			if (!optimisticMembers.some((m) => m.id === member.employeeId)) {
+				return;
+			}
 
 			// Immediate optimistic update wrapped in startTransition
 			startTransition(() => {
@@ -94,7 +119,8 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 			setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: 'unassign' }));
 
 			try {
-				const updatedMembers = task.members?.filter((m) => m.id !== member.employeeId);
+				// Ensure updatedMembers is always an array, never undefined
+				const updatedMembers = (task.members ?? []).filter((m) => m.id !== member.employeeId);
 
 				await updateTask({
 					...task,
@@ -108,7 +134,12 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 			} catch (error) {
 				console.error('Failed to unassign member:', error);
 
-				// Error toast (optimistic rollback happens automatically)
+				// Manual optimistic rollback to original state
+				startTransition(() => {
+					addOptimisticUpdate({ type: 'reset', next: task?.members || [] });
+				});
+
+				// Error toast
 				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
 					description: `Failed to unassign ${member.employee?.fullName || 'member'} from the task`
 				});
@@ -117,7 +148,7 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));
 			}
 		},
-		[task, updateTask, t, addOptimisticUpdate]
+		[task, updateTask, t, addOptimisticUpdate, optimisticMembers]
 	);
 
 	// Computed member lists with performance optimization
@@ -144,11 +175,20 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		return { assignedMembers: assigned, unassignedMembers: unassigned };
 	}, [memberList, optimisticMembers]);
 
-	// Helper function to check loading state
+	// Helper function to check loading state with proper undefined handling
 	const isLoading = useCallback(
 		(employeeId: string, action?: 'assign' | 'unassign') => {
 			const currentState = loadingStates[employeeId];
-			return action ? currentState === action : currentState !== null;
+			// Use Boolean() to treat undefined/null as false (not loading)
+			return action ? currentState === action : Boolean(currentState);
+		},
+		[loadingStates]
+	);
+
+	// Helper function to get loading state safely
+	const getLoadingState = useCallback(
+		(employeeId: string): 'assign' | 'unassign' | null => {
+			return loadingStates[employeeId] ?? null;
 		},
 		[loadingStates]
 	);
@@ -160,6 +200,7 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		loadingStates,
 		assignMember,
 		unassignMember,
-		isLoading
+		isLoading,
+		getLoadingState
 	};
 }

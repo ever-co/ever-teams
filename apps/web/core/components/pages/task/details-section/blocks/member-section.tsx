@@ -7,11 +7,15 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 interface MemberSectionProps {
 	title: string;
 	members: TOrganizationTeamEmployee[];
-	loadingStates: Record<string, 'assign' | 'unassign' | null>;
 	onAction: (member: TOrganizationTeamEmployee) => void;
 	actionType: 'assign' | 'unassign';
 	onClose?: () => void;
 	emptyMessage?: string;
+	// Helper functions for safe loading state access (preferred over direct loadingStates)
+	isLoading?: (employeeId: string, action?: 'assign' | 'unassign') => boolean;
+	getLoadingState?: (employeeId: string) => 'assign' | 'unassign' | null;
+	// Deprecated: kept for backward compatibility, use helper functions instead
+	loadingStates?: Record<string, 'assign' | 'unassign' | null>;
 }
 
 /**
@@ -19,7 +23,7 @@ interface MemberSectionProps {
  * Handles empty states and loading management
  */
 export const MemberSection = memo<MemberSectionProps>(
-	({ title, members, loadingStates, onAction, actionType, onClose, emptyMessage }) => {
+	({ title, members, onAction, actionType, onClose, emptyMessage, isLoading, getLoadingState }) => {
 		if (members.length === 0) {
 			return emptyMessage ? (
 				<div className="py-2 text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</div>
@@ -32,17 +36,24 @@ export const MemberSection = memo<MemberSectionProps>(
 					{title} ({members.length})
 				</h4>
 				<div className="flex flex-col gap-y-1">
-					{members.map((member, index) => (
-						<MemberListItem
-							key={`${member.employeeId}-${actionType}`}
-							member={member}
-							isLoading={loadingStates[member.employeeId!] !== null}
-							loadingType={loadingStates[member.employeeId!]}
-							onAction={onAction}
-							actionType={actionType}
-							onClose={onClose}
-						/>
-					))}
+					{members.map((member) => {
+						// Use helper functions for safe loading state access
+						const employeeId = member.employeeId!;
+						const memberIsLoading = isLoading ? isLoading(employeeId) : false;
+						const memberLoadingType = getLoadingState ? getLoadingState(employeeId) : null;
+
+						return (
+							<MemberListItem
+								key={`${employeeId}-${actionType}`}
+								member={member}
+								isLoading={memberIsLoading}
+								loadingType={memberLoadingType}
+								onAction={onAction}
+								actionType={actionType}
+								onClose={onClose}
+							/>
+						);
+					})}
 				</div>
 			</div>
 		);

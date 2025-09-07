@@ -61,7 +61,7 @@ const TaskMainInfo = () => {
 							</Link>
 						))}
 
-					{ManageMembersPopover(activeTeam?.members || [], task)}
+					<ManageMembersPopover memberList={activeTeam?.members || []} task={task} />
 				</div>
 			</TaskRow>
 
@@ -221,17 +221,30 @@ function DueDates() {
 }
 
 /**
- * Modern ManageMembersPopover with optimistic updates and improved UX
+ * Props for ManageMembersPopover component
+ */
+interface ManageMembersPopoverProps {
+	memberList: TOrganizationTeamEmployee[];
+	task: TTask | null;
+}
+
+/**
+ * Modern ManageMembersPopover component with optimistic updates and improved UX
  * Uses custom hook for business logic and modular components for UI
  */
-const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTask | null) => {
+const ManageMembersPopover: React.FC<ManageMembersPopoverProps> = ({ memberList, task }) => {
 	const t = useTranslations();
 
 	// Use the new custom hook for all member management logic
-	const { assignedMembers, unassignedMembers, loadingStates, assignMember, unassignMember } = useTaskMemberManagement(
-		task,
-		memberList
-	);
+	const {
+		assignedMembers,
+		unassignedMembers,
+		loadingStates,
+		assignMember,
+		unassignMember,
+		isLoading,
+		getLoadingState
+	} = useTaskMemberManagement(task, memberList);
 
 	return (
 		<>
@@ -261,6 +274,8 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 										actionType="unassign"
 										onClose={close}
 										emptyMessage="No members assigned to this task"
+										isLoading={isLoading}
+										getLoadingState={getLoadingState}
 									/>
 
 									{/* Divider if both sections have content */}
@@ -277,6 +292,8 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 										actionType="assign"
 										onClose={close}
 										emptyMessage="All team members are already assigned"
+										isLoading={isLoading}
+										getLoadingState={getLoadingState}
 									/>
 								</div>
 							)}
