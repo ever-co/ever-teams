@@ -272,11 +272,18 @@ export function useOrganizationTeams() {
 		if (organizationTeamsQuery.data?.data?.items) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
-			// PERFORMANCE FIX: Use simple length check instead of expensive sorting + deep equality
+			// PERFORMANCE FIX: Use ref to avoid stale closures and infinite loops
 			const currentTeams = teamsRef.current;
-			const shouldUpdate =
-				currentTeams.length !== latestTeams.length ||
-				!latestTeams.every((team) => currentTeams.some((current) => current.id === team.id));
+			const latestTeamsIds = latestTeams
+				.map((t) => t.id)
+				.sort()
+				.join(',');
+			const currentTeamsIds = currentTeams
+				.map((t) => t.id)
+				.sort()
+				.join(',');
+
+			const shouldUpdate = latestTeamsIds !== currentTeamsIds;
 
 			if (shouldUpdate) {
 				setTeams(latestTeams);
@@ -288,7 +295,7 @@ export function useOrganizationTeams() {
 				setIsTeamMemberJustDeleted(true);
 			}
 		}
-	}, [organizationTeamsQuery.data, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]); // REMOVED teamsRef
+	}, [organizationTeamsQuery.data, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]); // Using ref to avoid teams dependency
 
 	// Sync specific team data with Jotai state
 	useEffect(() => {

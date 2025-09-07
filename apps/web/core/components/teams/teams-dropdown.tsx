@@ -73,7 +73,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, detailedTask] // Removed timerStatus and activeTeam to prevent constant recreation
+		[setActiveTeam, stopTimer, t, setDetailedTask, path, router] // Removed detailedTask, timerStatus and activeTeam to prevent constant recreation
 	);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
@@ -93,15 +93,25 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			prevActiveTeamRef.current = currentTeamKey;
 
 			if (activeTeam?.id) {
-				const foundItem = items.find((t) => t.key === activeTeam.id);
-				if (foundItem) {
+				// Find item directly from teams instead of items to avoid circular dependency
+				const foundTeam = teams.find((t) => t.id === activeTeam.id);
+				if (foundTeam) {
+					const foundItem = mapTeamItems([foundTeam], onChangeActiveTeam)[0];
 					setTeamItem(foundItem);
 				}
 			} else {
 				setTeamItem(null);
 			}
 		}
-	}, [activeTeam?.id, activeTeam?.name, activeTeam?.color, activeTeam?.emoji, activeTeam?.teamSize, items]);
+	}, [
+		activeTeam?.id,
+		activeTeam?.name,
+		activeTeam?.color,
+		activeTeam?.emoji,
+		activeTeam?.teamSize,
+		teams,
+		onChangeActiveTeam
+	]); // Removed items dependency
 
 	return (
 		<div>

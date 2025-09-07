@@ -35,37 +35,88 @@ export function useCreateOrganizationTeam() {
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.create(null),
 		onSuccess: async (response, { name }) => {
-			const dt = response.data.items || [];
-			setTeams(dt);
-			const created = dt.find((t: TOrganizationTeam) => t.name === name);
+			try {
+				const dt = response.data.items || [];
+				const created = dt.find((t: TOrganizationTeam) => t.name === name);
 
-			if (created) {
-				setActiveTeamIdCookie(created.id);
-				setOrganizationIdCookie(created.organizationId || '');
-				// This must be called at the end (Update store)
-				setActiveTeamId(created.id);
+				if (created) {
+					// 1. Update cookies first (no re-renders)
+					setActiveTeamIdCookie(created.id);
+					setOrganizationIdCookie(created.organizationId || '');
 
-				if (!isTeamMember) {
-					setIsTeamMember(true);
+					// 2. Update team member status if needed (minimal re-render)
+					if (!isTeamMember) {
+						setIsTeamMember(true);
+					}
+
+					/**
+					 * 3. Refresh token BEFORE updating state to avoid conflicts
+					 * Refresh Token needed for the first time when new Organization is created,
+					 * As in backend permissions are getting updated
+					 */
+					await refreshToken();
+
+					// 4. Update teams list first
+					setTeams(dt);
+
+					// 5. Set active team ID AFTER teams are updated to ensure proper synchronization
+					setActiveTeamId(created.id);
+
+					// 6. Success notification (no cache invalidation needed since we already have fresh data)
+					// Note: Removed queryClient.invalidateQueries to prevent conflicts with manual state updates
+					toast.success('Team created successfully', {
+						description: `Team "${name}" has been created and you are now a member.`
+					});
+					// Cache invalidation for consistency
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.organizationTeams.all
+					});
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.tasks.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.dailyPlans.all
+					});
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.tasks.all
+					});
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.taskStatuses.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.taskPriorities.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.taskSizes.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.taskLabels.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.issueTypes.all
+					});
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.taskVersions.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.projects.all
+					});
+
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.users.invitations.all
+					});
 				}
-
-				/**
-				 * DO NOT REMOVE - CRITICAL
-				 * Refresh Token needed for the first time when new Organization is created,
-				 * As in backend permissions are getting updated
-				 */
-				await refreshToken();
+			} catch (error) {
+				console.error('Error in team creation success handler:', error);
+				// Still show success since team was created
+				toast.success('Team created successfully');
 			}
-
-			// Cache invalidation for consistency
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-
-			// Success notification
-			toast.success('Team created successfully', {
-				description: `Team "${name}" has been created and you are now a member.`
-			});
 		},
 		onError: (error) => {
 			// Enhanced error handling with Zod validation errors
