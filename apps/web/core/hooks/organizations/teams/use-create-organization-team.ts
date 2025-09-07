@@ -11,6 +11,7 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
+import { useCacheInvalidation } from '../../common/use-cache-invalidation';
 
 /**
  *Creates a custom hook for creating an organization team.
@@ -21,12 +22,14 @@ import { toast } from 'sonner';
  */
 
 export function useCreateOrganizationTeam() {
-	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
 	const { refreshToken, $user } = useAuthenticateUser();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+
+	// Use cache invalidation hook - much cleaner than manual invalidations
+	const { smartInvalidate } = useCacheInvalidation();
 
 	// React Query mutation with full validation and critical side-effects preservation
 	const createOrganizationTeamMutation = useMutation({
@@ -67,50 +70,8 @@ export function useCreateOrganizationTeam() {
 					toast.success('Team created successfully', {
 						description: `Team "${name}" has been created and you are now a member.`
 					});
-					// Cache invalidation for consistency
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.organizationTeams.all
-					});
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.tasks.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.dailyPlans.all
-					});
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.tasks.all
-					});
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.taskStatuses.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.taskPriorities.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.taskSizes.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.taskLabels.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.issueTypes.all
-					});
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.taskVersions.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.projects.all
-					});
-
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.users.invitations.all
-					});
+					// Cache invalidation using semantic hook - much cleaner and more maintainable!
+					await smartInvalidate('team-creation');
 				}
 			} catch (error) {
 				console.error('Error in team creation success handler:', error);

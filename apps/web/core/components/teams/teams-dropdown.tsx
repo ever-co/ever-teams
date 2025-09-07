@@ -73,7 +73,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, stopTimer, t, setDetailedTask, path, router] // Removed detailedTask, timerStatus and activeTeam to prevent constant recreation
+		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
 	);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
