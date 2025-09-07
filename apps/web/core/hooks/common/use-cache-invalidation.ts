@@ -1,13 +1,13 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { queryKeys } from '@/core/query/keys';
 
 /**
  * Utility function to invalidate multiple queries elegantly
  */
-const invalidateMultipleQueries = async (queryClient: any, queryKeysList: any[]) => {
+const invalidateMultipleQueries = async (queryClient: QueryClient, queryKeysList: QueryKey[]) => {
 	await Promise.all(queryKeysList.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 };
 
@@ -76,7 +76,7 @@ export function useCacheInvalidation() {
 		await queryClient.invalidateQueries({
 			predicate: (query) => {
 				const key = query.queryKey[0] as string;
-				return ['users', 'organizationTeams'].includes(key);
+				return ['users', 'organization-teams'].includes(key);
 			}
 		});
 	}, [queryClient]);
@@ -101,7 +101,7 @@ export function useCacheInvalidation() {
 					await queryClient.invalidateQueries({
 						predicate: (query) => {
 							const key = query.queryKey[0] as string;
-							return ['users', 'organizationTeams'].includes(key);
+							return ['users', 'organization-teams'].includes(key);
 						}
 					});
 					break;

@@ -272,18 +272,19 @@ export function useOrganizationTeams() {
 		if (organizationTeamsQuery.data?.data?.items) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
-			// PERFORMANCE FIX: Use ref to avoid stale closures and infinite loops
+			// Use ref to avoid stale closures and infinite loops
+			// Compare by ID + updatedAt to catch property changes
 			const currentTeams = teamsRef.current;
-			const latestTeamsIds = latestTeams
-				.map((t) => t.id)
+			const latestSignature = latestTeams
+				.map((t) => `${t.id}:${t.updatedAt ?? ''}`)
 				.sort()
 				.join(',');
-			const currentTeamsIds = currentTeams
-				.map((t) => t.id)
+			const currentSignature = currentTeams
+				.map((t) => `${t.id}:${t.updatedAt ?? ''}`)
 				.sort()
 				.join(',');
 
-			const shouldUpdate = latestTeamsIds !== currentTeamsIds;
+			const shouldUpdate = latestSignature !== currentSignature;
 
 			if (shouldUpdate) {
 				setTeams(latestTeams);
