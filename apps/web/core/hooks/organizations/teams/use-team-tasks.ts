@@ -152,6 +152,9 @@ export function useTeamTasks() {
 
 				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.tasks.all
+			});
 		}
 	});
 

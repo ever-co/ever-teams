@@ -4,12 +4,7 @@ import {
 	GAUZY_API_BASE_SERVER_URL,
 	IS_DESKTOP_APP
 } from '@/core/constants/config/constants';
-import {
-	getAccessTokenCookie,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIService } from './api.service';
 import { buildAPIService, buildDirectAPIService } from './api-factory';
@@ -23,9 +18,13 @@ export const getAPI = async (): Promise<APIService> => {
 
 		api.axiosInstance.interceptors.request.use(
 			async (config: any) => {
-				const cookie = getActiveTeamIdCookie();
+				const cookie = getAccessTokenCookie();
+				const tenantId = getTenantIdCookie();
 				if (cookie) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
+				}
+				if (tenantId) {
+					config.headers['tenant-id'] = tenantId;
 				}
 				return config;
 			},

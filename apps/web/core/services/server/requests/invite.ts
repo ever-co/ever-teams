@@ -54,7 +54,7 @@ export function removeTeamInvitationsRequest({
 type ITeamInvitationsRequest = {
 	tenantId: string;
 	organizationId: string;
-	role?: ERoleName;
+	roles?: ERoleName[];
 	teamId: string;
 };
 
@@ -66,19 +66,27 @@ type ITeamInvitationsRequest = {
  * @returns
  */
 export function getTeamInvitationsRequest(
-	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
+	{ teamId, tenantId, organizationId, roles }: ITeamInvitationsRequest,
 	bearer_token: string
 ) {
-	const queryParams: Record<string, string> = {
+	const queryParams: Record<string, any> = {
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
 		'where[teams][id][0]': teamId,
 		'where[status]': EInviteStatus.INVITED
 	};
 
-	// Only add role filter if role is specified
-	if (role) {
-		queryParams['where[role][name]'] = role;
+	// Add role filter if roles are specified
+	if (roles && roles.length > 0) {
+		if (roles.length === 1) {
+			// Single role filter
+			queryParams['where[role][name]'] = roles[0];
+		} else {
+			// Multiple roles filter - use array format
+			roles.forEach((role, index) => {
+				queryParams[`where[role][name][${index}]`] = role;
+			});
+		}
 	}
 
 	const query = qs.stringify(queryParams);
@@ -92,50 +100,23 @@ export function getTeamInvitationsRequest(
 }
 
 /**
- * WORKAROUND: Get all team invitations by combining EMPLOYEE and non-EMPLOYEE requests
+ * Get all team invitations for all roles
  *
- * This is a temporary solution due to a bug in Gauzy API where:
- * - No role filter = automatically applies `role: { name: Not(RolesEnum.EMPLOYEE) }`
- * - This excludes EMPLOYEE invitations by default
- *
- * TODO: Remove this workaround once Gauzy API is fixed
+ * Now that the Gauzy API bug is fixed, we can get all invitations in a single request
+ * by not specifying any role filter, which returns all roles by default.
  */
 export async function getAllTeamInvitationsRequest(
-	{ teamId, tenantId, organizationId }: Omit<ITeamInvitationsRequest, 'role'>,
+	{ teamId, tenantId, organizationId }: Omit<ITeamInvitationsRequest, 'roles'>,
 	bearer_token: string
 ): Promise<{ data: PaginationResponse<TInvite> }> {
 	try {
-		// Execute both requests in parallel for better performance
-		const [employeeInvitations, nonEmployeeInvitations] = await Promise.all([
-			// Request 1: Get EMPLOYEE invitations explicitly
-			getTeamInvitationsRequest({ teamId, tenantId, organizationId, role: ERoleName.EMPLOYEE }, bearer_token),
-			// Request 2: Get non-EMPLOYEE invitations (MANAGER, ADMIN, etc.)
-			getTeamInvitationsRequest(
-				{ teamId, tenantId, organizationId }, // No role = gets non-EMPLOYEE
-				bearer_token
-			)
-		]);
-
-		// Combine results and deduplicate by invitation ID
-		const allInvitations = [
-			...(employeeInvitations.data.items || []),
-			...(nonEmployeeInvitations.data.items || [])
-		];
-
-		// Remove duplicates based on invitation ID (safety measure)
-		const uniqueInvitations = allInvitations.filter(
-			(invitation, index, array) => array.findIndex((inv) => inv.id === invitation.id) === index
+		// Single request to get all invitations (no role filter = all roles)
+		const response = await getTeamInvitationsRequest(
+			{ teamId, tenantId, organizationId }, // No roles specified = get all roles
+			bearer_token
 		);
 
-		return {
-			data: {
-				// Preserve other pagination properties from first response
-				...employeeInvitations.data,
-				// Override with our combined results
-				items: uniqueInvitations,
-				total: uniqueInvitations.length
-			}
-		};
+		return response;
 	} catch (error) {
 		console.error('Error fetching all team invitations:', error);
 		// Fallback to empty result
