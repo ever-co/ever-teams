@@ -246,7 +246,7 @@ export const workspaceUserSchema = z.object({
 	name: z.string(),
 	imageUrl: z.string().optional(),
 	lastTeamId: z.string().nullable(),
-	lastLoginAt: z.string(),
+	lastLoginAt: z.string().optional().nullable(),
 	tenant: workspaceTenantSchema
 });
 
