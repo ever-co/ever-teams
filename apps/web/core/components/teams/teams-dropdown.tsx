@@ -71,6 +71,33 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						router.push('/');
 					}
 				}
+
+				if (path.includes('/profile/')) {
+					/**
+					 * If user is on profile page and switches the team,
+					 *
+					 * If the profile user is not in the new team, redirect to home page to avoid infinite loading.
+					 */
+					const pathSegments = path.split('/');
+					const profileIndex = pathSegments.findIndex((segment) => segment === 'profile');
+					const memberId =
+						profileIndex !== -1 && profileIndex + 1 < pathSegments.length
+							? pathSegments[profileIndex + 1]
+							: null;
+
+					if (memberId && item.data.members && memberId !== 'undefined') {
+						const memberExistsInNewTeam = item.data.members.some(
+							(member) => member.employee?.userId === memberId
+						);
+
+						if (!memberExistsInNewTeam) {
+							toast.info(t('common.MEMBER') + ' ' + t('common.NOT_FOUND'), {
+								description: t('pages.profile.MEMBER_NOT_FOUND_MSG_2')
+							});
+							router.push('/');
+						}
+					}
+				}
 			}
 		},
 		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
