@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, useOptimistic } from 'react';
+import { useCallback, useMemo, useState, useOptimistic, startTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useTeamTasks } from '@/core/hooks/organizations/teams/use-team-tasks';
@@ -50,8 +50,10 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				id: member.employeeId,
 				userId: member.employee.userId
 			};
-			// Immediate optimistic update
-			addOptimisticUpdate({ type: 'assign', member: newMember });
+			// Immediate optimistic update wrapped in startTransition
+			startTransition(() => {
+				addOptimisticUpdate({ type: 'assign', member: newMember });
+			});
 			setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: 'assign' }));
 
 			try {
@@ -85,8 +87,10 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId) return;
 
-			// Immediate optimistic update
-			addOptimisticUpdate({ type: 'unassign', memberId: member.employeeId });
+			// Immediate optimistic update wrapped in startTransition
+			startTransition(() => {
+				addOptimisticUpdate({ type: 'unassign', memberId: member.employeeId! });
+			});
 			setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: 'unassign' }));
 
 			try {
