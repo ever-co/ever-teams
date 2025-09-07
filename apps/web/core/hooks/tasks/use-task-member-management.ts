@@ -50,8 +50,9 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId || !member?.employee?.userId) return;
 
-			// Prevent duplicate assignment (optimistic or actual)
-			if (optimisticMembers.some((m) => m.userId === member.employee!.userId)) {
+			// Prevent duplicate assignment using current task members (more reliable than optimistic state)
+			const currentMembers = task.members || [];
+			if (currentMembers.some((m) => m.userId === member.employee!.userId)) {
 				return;
 			}
 
@@ -99,7 +100,7 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));
 			}
 		},
-		[task, updateTask, t, addOptimisticUpdate, optimisticMembers]
+		[task, updateTask, t, addOptimisticUpdate]
 	);
 
 	// Optimistic unassign member function
@@ -107,8 +108,9 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId) return;
 
-			// Prevent unassigning member that's not actually assigned
-			if (!optimisticMembers.some((m) => m.id === member.employeeId)) {
+			// Prevent unassigning member that's not actually assigned (use current task members)
+			const currentMembers = task.members || [];
+			if (!currentMembers.some((m) => m.id === member.employeeId)) {
 				return;
 			}
 
@@ -148,7 +150,7 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));
 			}
 		},
-		[task, updateTask, t, addOptimisticUpdate, optimisticMembers]
+		[task, updateTask, t, addOptimisticUpdate]
 	);
 
 	// Computed member lists with performance optimization
