@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 		return NextResponse.json({ error: 'Unauthorized' });
 	}
 
-	// WORKAROUND: Use combined request to get all invitations (EMPLOYEE + non-EMPLOYEE)
+	// Get all team invitations (all roles)
 	const { data } = await getAllTeamInvitationsRequest(
 		{
 			tenantId,
