@@ -108,7 +108,7 @@ class InviteService extends APIService {
 				baseQuery['where[teams][id][0]'] = teamId;
 			}
 
-			// Add role filter if roles are specified˝˝
+			// Add role filter if roles are specified
 			if (roles && roles.length > 0) {
 				if (roles.length === 1) {
 					// Single role filter
