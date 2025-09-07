@@ -69,7 +69,7 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	// WORKAROUND: Use combined request to get all invitations (EMPLOYEE + non-EMPLOYEE)
+	// Get all team invitations (all roles)
 	const { data } = await getAllTeamInvitationsRequest(
 		{
 			tenantId,

@@ -5,7 +5,7 @@ import { activeTeamState, detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
@@ -17,6 +17,9 @@ import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+
+import { useTaskMemberManagement } from '@/core/hooks/tasks/use-task-member-management';
+import { MemberSection } from './member-section';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -50,13 +53,15 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow labelIconPath="/assets/svg/people.svg" labelTitle={t('pages.taskDetails.ASSIGNEES')}>
 				<div className="flex flex-col gap-3">
-					{task?.members?.map((member: any) => (
-						<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
-							<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
-						</Link>
-					))}
+					{task?.members
+						?.filter((m) => m?.userId !== task?.createdByUserId)
+						?.map((member: any) => (
+							<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
+								<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
+							</Link>
+						))}
 
-					{ManageMembersPopover(activeTeam?.members || [], task)}
+					<ManageMembersPopover memberList={activeTeam?.members || []} task={task} />
 				</div>
 			</TaskRow>
 
@@ -215,59 +220,31 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTask | null) => {
+/**
+ * Props for ManageMembersPopover component
+ */
+interface ManageMembersPopoverProps {
+	memberList: TOrganizationTeamEmployee[];
+	task: TTask | null;
+}
+
+/**
+ * Modern ManageMembersPopover component with optimistic updates and improved UX
+ * Uses custom hook for business logic and modular components for UI
+ */
+const ManageMembersPopover: React.FC<ManageMembersPopoverProps> = ({ memberList, task }) => {
 	const t = useTranslations();
-	const { updateTask } = useTeamTasks();
 
-	const unassignedMembers = useMemo(() => {
-		if (!task?.members) return memberList.filter((member) => member.employee?.isActive); // Early return if no task members
-		const assignedIds = task.members.map((item) => item.userId);
-
-		return memberList.filter(
-			(member) => member.employee && !assignedIds.includes(member.employee.userId) && member.employee.isActive
-		);
-	}, [memberList, task?.members]);
-
-	const assignedTaskMembers = useMemo(() => {
-		if (!task?.members) return []; // Early return if no task members
-		const assignedIds = task.members.map((item) => item.userId);
-
-		return memberList.filter(
-			(member) => member.employee && assignedIds.includes(member.employee.userId) && member.employee.isActive
-		);
-	}, [memberList, task?.members]);
-
-	const handleUnassignMember = useCallback(
-		async (member: TOrganizationTeamEmployee) => {
-			if (!task || !member?.employeeId) return;
-
-			try {
-				await updateTask({
-					...task,
-					members: task.members?.filter((m) => m.id !== member.employeeId)
-				});
-			} catch (error) {
-				console.error('Failed to unassign member:', error);
-			}
-		},
-		[task, updateTask]
-	);
-
-	const handleAssignMember = useCallback(
-		async (member: TOrganizationTeamEmployee) => {
-			if (!task || !member?.employeeId) return;
-
-			try {
-				await updateTask({
-					...task,
-					members: [...(task.members || []), { id: member.employeeId } as any]
-				});
-			} catch (error) {
-				console.error('Failed to assign member:', error);
-			}
-		},
-		[task, updateTask]
-	);
+	// Use the new custom hook for all member management logic
+	const {
+		assignedMembers,
+		unassignedMembers,
+		loadingStates,
+		assignMember,
+		unassignMember,
+		isLoading,
+		getLoadingState
+	} = useTaskMemberManagement(task, memberList);
 
 	return (
 		<>
@@ -283,43 +260,41 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<PopoverPanel
-							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[9.5rem] flex flex-col px-4 py-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
+							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[11.5rem] flex flex-col px-4 py-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
 								<div className="overflow-y-auto max-h-72 scrollbar-hide">
-									{assignedTaskMembers.map((member, index) => (
-										<div
-											className="flex gap-1 justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
-											onClick={() => {
-												handleUnassignMember(member);
-												close();
-											}}
-											key={index}
-										>
-											<ProfileInfo
-												profilePicSrc={member.employee?.user?.imageUrl}
-												names={member.employee?.fullName}
-											/>
+									{/* Assigned Members Section */}
+									<MemberSection
+										title="Assigned Members"
+										members={assignedMembers}
+										loadingStates={loadingStates}
+										onAction={unassignMember}
+										actionType="unassign"
+										onClose={close}
+										emptyMessage="No members assigned to this task"
+										isLoading={isLoading}
+										getLoadingState={getLoadingState}
+									/>
 
-											<TrashIcon className="w-5" />
-										</div>
-									))}
-									{unassignedMembers.map((member, index) => (
-										<div
-											className="flex justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
-											onClick={() => {
-												handleAssignMember(member);
-												close();
-											}}
-											key={index}
-										>
-											<ProfileInfo
-												profilePicSrc={member.employee?.user?.imageUrl}
-												names={member.employee?.fullName}
-											/>
-										</div>
-									))}
+									{/* Divider if both sections have content */}
+									{assignedMembers.length > 0 && unassignedMembers.length > 0 && (
+										<div className="my-2 border-t border-gray-200 dark:border-gray-700" />
+									)}
+
+									{/* Available Members Section */}
+									<MemberSection
+										title="Available Members"
+										members={unassignedMembers}
+										loadingStates={loadingStates}
+										onAction={assignMember}
+										actionType="assign"
+										onClose={close}
+										emptyMessage="All team members are already assigned"
+										isLoading={isLoading}
+										getLoadingState={getLoadingState}
+									/>
 								</div>
 							)}
 						</PopoverPanel>

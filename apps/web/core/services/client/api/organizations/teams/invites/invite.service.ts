@@ -88,19 +88,17 @@ class InviteService extends APIService {
 	};
 
 	/**
-	 * WORKAROUND: Get all team invitations by combining EMPLOYEE and non-EMPLOYEE requests
+	 * Get team invitations with optional role filtering
 	 *
-	 * This is needed due to a bug in Gauzy API where:
-	 * - No role filter = automatically applies `role: { name: Not(RolesEnum.EMPLOYEE) }`
-	 * - This excludes EMPLOYEE invitations by default
-	 *
-	 * TODO: Remove this workaround once Gauzy API is fixed
+	 * Now that the Gauzy API bug is fixed, we can:
+	 * - Get all invitations by not specifying roles (returns all roles by default)
+	 * - Filter by specific roles by passing a roles array
 	 */
 	getTeamInvitations = async (requestParams: IGetInvitationRequest): Promise<PaginationResponse<TInvite>> => {
 		try {
-			const { teamId, ...remainingParams } = requestParams;
+			const { teamId, roles, ...remainingParams } = requestParams;
 
-			const baseQuery: Record<string, string> = {
+			const baseQuery: Record<string, any> = {
 				'where[tenantId]': this.tenantId,
 				'where[organizationId]': this.organizationId,
 				'where[status]': EInviteStatus.INVITED
@@ -110,40 +108,33 @@ class InviteService extends APIService {
 				baseQuery['where[teams][id][0]'] = teamId;
 			}
 
-			// Add remaining params (excluding role as we handle it specially)
+			// Add role filter if roles are specified
+			if (roles && roles.length > 0) {
+				if (roles.length === 1) {
+					// Single role filter
+					baseQuery['where[role][name]'] = roles[0];
+				} else {
+					// Multiple roles filter - use array format
+					roles.forEach((role, index) => {
+						baseQuery[`where[role][name][${index}]`] = role;
+					});
+				}
+			}
+
+			// Add remaining params
 			(Object.keys(remainingParams) as (keyof typeof remainingParams)[]).forEach((key) => {
-				if (remainingParams[key] && key !== 'role') {
+				if (remainingParams[key]) {
 					baseQuery[`where[${key}]`] = remainingParams[key] as string;
 				}
 			});
 
-			// Execute both requests in parallel for better performance
-			const [employeeResponse, nonEmployeeResponse] = await Promise.all([
-				// Request 1: Get EMPLOYEE invitations explicitly
-				this.get<PaginationResponse<TInvite>>(
-					`/invite?${qs.stringify({ ...baseQuery, 'where[role][name]': 'EMPLOYEE' })}`,
-					{ tenantId: this.tenantId }
-				),
-				// Request 2: Get non-EMPLOYEE invitations (no role filter = gets MANAGER, ADMIN, etc.)
-				this.get<PaginationResponse<TInvite>>(`/invite?${qs.stringify(baseQuery)}`, { tenantId: this.tenantId })
-			]);
+			// Single request to get invitations
+			const response = await this.get<PaginationResponse<TInvite>>(`/invite?${qs.stringify(baseQuery)}`, {
+				tenantId: this.tenantId
+			});
 
-			// Combine results and deduplicate by invitation ID
-			const allInvitations = [...(employeeResponse.data.items || []), ...(nonEmployeeResponse.data.items || [])];
-
-			// Remove duplicates based on invitation ID (safety measure)
-			const uniqueInvitations = allInvitations.filter(
-				(invitation, index, array) => array.findIndex((inv) => inv.id === invitation.id) === index
-			);
-
-			const combinedResult = {
-				...employeeResponse.data,
-				items: uniqueInvitations,
-				total: uniqueInvitations.length
-			};
-
-			// Validate the combined response data using Zod schema
-			return validatePaginationResponse(inviteSchema, combinedResult, 'getTeamInvitations API response');
+			// Validate the response data using Zod schema
+			return validatePaginationResponse(inviteSchema, response.data, 'getTeamInvitations API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(

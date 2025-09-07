@@ -79,13 +79,13 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
 						<div className="text-sm text-muted-foreground">
-							You are going to switch the workspace{' '}
+							You are about to switch workspaces from{' '}
 							<span className="font-medium text-foreground">
-								"{currentWorkspace?.name || 'Current workspace'}"
+								"{currentWorkspace?.user.tenant.name ?? 'current workspace'}"
 							</span>{' '}
 							to{' '}
 							<span className="font-medium text-foreground">
-								"{targetWorkspace?.name || 'New workspace'}"
+								"{targetWorkspace?.user.tenant.name ?? 'target workspace'}"
 							</span>
 							.
 						</div>
@@ -114,7 +114,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
-						aria-label={`Confirm the change to ${targetWorkspace?.name}`}
+						aria-label={`Confirm the change to ${targetWorkspace?.user.tenant.name}`}
 					>
 						{isLoading ? (
 							<>
@@ -165,15 +165,18 @@ const WorkspaceSkeleton: React.FC = () => {
 
 export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
+
 	// Use the new hooks with comprehensive state management
 	const {
 		workspaces,
 		currentWorkspace,
-		error,
 		isLoading: workspacesLoading,
 		isInitialized: workspacesInitialized,
 		workspacesQuery
 	} = useWorkspaces();
+
+	// Use the smart workspace switcher hook (based on password component logic)
+	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcher();
 
 	// Determine the actual current workspace with robust fallback logic
 	const actualCurrentWorkspace = React.useMemo(() => {
@@ -182,19 +185,8 @@ export function WorkspacesSwitcher() {
 			return currentWorkspace;
 		}
 
-		// Priority 2: Find workspace marked as active
-		const activeWorkspace = workspaces.find((workspace) => workspace.isActive);
-		if (activeWorkspace) {
-			return activeWorkspace;
-		}
+		// (Active workspace is managed by activeWorkspaceId in the store)
 
-		// Priority 3: Find workspace marked as default (legacy)
-		const defaultWorkspace = workspaces.find((workspace) => workspace.isDefault);
-		if (defaultWorkspace) {
-			return defaultWorkspace;
-		}
-
-		// Priority 4: First workspace if any exist
 		if (workspaces.length > 0) {
 			return workspaces[0];
 		}
@@ -202,13 +194,27 @@ export function WorkspacesSwitcher() {
 		return null;
 	}, [currentWorkspace, workspaces]);
 	// Workspaces for dropdown - exclude only the actual current workspace
-	const availableWorkspaces = workspaces.filter((workspace) => workspace.id !== actualCurrentWorkspace?.id);
+	const availableWorkspaces = workspaces.filter(
+		(workspace) => workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
+	);
 
-	const { switchToWorkspace, isSwitching, canSwitchToWorkspace, clearError } = useWorkspaceSwitcher();
-
+	// Simple state management for modal
+	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
 	// Modal state for workspace switch confirmation
 	const { isOpen: isConfirmModalOpen, openModal: openConfirmModal, closeModal: closeConfirmModal } = useModal();
-	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
+
+	// Simple function to check if workspace switch is possible
+	const canSwitchToWorkspace = React.useCallback(
+		(workspaceId: string): boolean => {
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
+			return !!(
+				workspace &&
+				workspace.current_teams.length > 0 &&
+				workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
+			);
+		},
+		[workspaces, actualCurrentWorkspace]
+	);
 
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(
@@ -218,21 +224,16 @@ export function WorkspacesSwitcher() {
 			}
 
 			// Find the target workspace
-			const workspace = workspaces.find((w) => w.id === workspaceId);
+			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
 			if (!workspace) {
 				return;
-			}
-
-			// Clear previous errors
-			if (error) {
-				clearError();
 			}
 
 			// Set target workspace and open confirmation modal
 			setTargetWorkspace(workspace);
 			openConfirmModal();
 		},
-		[isSwitching, canSwitchToWorkspace, workspaces, error, clearError, setTargetWorkspace, openConfirmModal]
+		[isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
 	);
 
 	// Handle confirmed workspace switch
@@ -241,14 +242,13 @@ export function WorkspacesSwitcher() {
 			return;
 		}
 
-		try {
-			await switchToWorkspace(targetWorkspace.id);
-			// Modal will be closed automatically on success via the effect or component unmount
-		} catch (error) {
-			// Error handling is managed by the switchToWorkspace function
-			console.error('Error switching workspace:', error);
-		}
-	}, [targetWorkspace, switchToWorkspace]);
+		// Switch to workspace using the smart hook
+		switchToWorkspace(targetWorkspace);
+
+		// Close modal and reset state
+		closeConfirmModal();
+		setTargetWorkspace(null);
+	}, [targetWorkspace, switchToWorkspace, closeConfirmModal]);
 
 	// Handle modal close
 	const handleCloseModal = React.useCallback(() => {
@@ -282,27 +282,27 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
-						{actualCurrentWorkspace.logo || actualCurrentWorkspace.name ? (
-							<Avatar className="rounded !size-6">
+					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
+						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
+							<Avatar className="rounded !size-8">
 								<AvatarImage
 									width={24}
 									height={24}
-									src={actualCurrentWorkspace.logo}
-									alt={actualCurrentWorkspace.name}
+									src={actualCurrentWorkspace.user.tenant.logo}
+									alt={actualCurrentWorkspace.user.tenant.name}
 								/>
-								<AvatarFallback>{actualCurrentWorkspace.name.charAt(0)}</AvatarFallback>
+								<AvatarFallback>{actualCurrentWorkspace.user.tenant.name.charAt(0)}</AvatarFallback>
 							</Avatar>
 						) : (
 							<DefaultWorkspaceIcon className="size-4" />
 						)}
 					</div>
 					<div className="grid flex-1 text-sm leading-tight text-left">
-						<span className="font-semibold truncate">{actualCurrentWorkspace.name}</span>
-						{actualCurrentWorkspace.teams.length > 0 && (
+						<span className="font-semibold truncate">{actualCurrentWorkspace.user.tenant.name}</span>
+						{actualCurrentWorkspace.current_teams.length > 0 && (
 							<span className="text-xs text-muted-foreground">
-								{actualCurrentWorkspace.teams.length} team
-								{actualCurrentWorkspace.teams.length > 1 ? 's' : ''}
+								{actualCurrentWorkspace.current_teams.length} team
+								{actualCurrentWorkspace.current_teams.length > 1 ? 's' : ''}
 							</span>
 						)}
 					</div>
@@ -337,9 +337,8 @@ export function WorkspacesSwitcher() {
 								aria-label={
 									isWorkspaceLoading
 										? 'Loading workspace information...'
-										: `Current workspace: ${actualCurrentWorkspace?.name || 'No workspace'}. Click to change the workspace`
+										: `Current workspace: ${actualCurrentWorkspace?.user.tenant.name || 'No workspace'}. Click to change the workspace`
 								}
-								aria-expanded={false}
 								aria-haspopup="menu"
 								aria-busy={isWorkspaceLoading}
 							>
@@ -367,37 +366,36 @@ export function WorkspacesSwitcher() {
 									{
 										// Only show OTHER workspaces
 										availableWorkspaces.map((workspace) => {
-											const totalMembers = workspace.teams.reduce(
-												(total: number, team: any) => total + (team.members?.length || 0),
-												0
-											);
+											// Note: current_teams doesn't have members data, so we show team count only
+											const teamCount = workspace.current_teams.length;
 											return (
 												<DropdownMenuItem
-													key={workspace.id}
-													onClick={() => handleWorkspaceClick(workspace.id)}
+													key={workspace.user.tenant.id}
+													onClick={() => handleWorkspaceClick(workspace.user.tenant.id)}
 													className="gap-2 p-2"
 													disabled={isSwitching}
 													role="menuitem"
-													aria-label={`Change to the workspace ${workspace.name} with ${workspace.teams.length} team${workspace.teams.length > 1 ? 's' : ''}`}
+													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex justify-center items-center rounded-sm border size-6">
-														{workspace.logo ? (
-															<img
-																src={workspace.logo}
-																alt={workspace.name}
-																className="rounded size-4"
-															/>
+													<div className="flex justify-center items-center rounded-sm border size-8">
+														{workspace.user.tenant.logo ? (
+															<Avatar className="rounded !size-6">
+																<AvatarImage
+																	src={workspace.user.tenant.logo}
+																	alt={workspace.user.tenant.name}
+																/>
+																<AvatarFallback>
+																	{workspace.user.tenant.name.charAt(0)}
+																</AvatarFallback>
+															</Avatar>
 														) : (
 															<DefaultWorkspaceIcon className="size-4" />
 														)}
 													</div>
 													<div className="flex-1">
-														<div className="font-medium">{workspace.name}</div>
+														<div className="font-medium">{workspace.user.tenant.name}</div>
 														<div className="text-xs text-muted-foreground">
-															{workspace.teams.length} team
-															{workspace.teams.length > 1 ? 's' : ''} • {totalMembers}{' '}
-															member
-															{totalMembers > 1 ? 's' : ''}
+															{teamCount} team{teamCount > 1 ? 's' : ''}
 														</div>
 													</div>
 												</DropdownMenuItem>

@@ -81,7 +81,7 @@ export interface TeamInvitationsQueryParams {
 }
 
 export interface IGetInvitationRequest {
-	role?: string;
+	roles?: string[];
 	teamId?: string;
 	status?: EInviteStatus;
 }
