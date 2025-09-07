@@ -2,12 +2,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Button, Container, Text } from '@/core/components';
+import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
-import React, { Suspense, useCallback, useMemo, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
+import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -38,17 +40,16 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
-	// Timeout state to prevent infinite loading
-	const [loadingTimeout, setLoadingTimeout] = useState(false);
+	// Use our new validation hook
+	const profileValidation = useProfileValidation(unwrappedParams.memberId);
 
 	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 	const activeTeam = useAtomValue(activeTeamState);
-	const profileUser =
-		activeTeam?.members?.find((member) => member.employee?.userId === unwrappedParams.memberId) ?? null;
+	const profileUser = profileValidation.member?.employee?.user ?? null;
 
 	const profile = useUserProfilePage();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const members = activeTeam?.members;
+
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
@@ -104,82 +105,27 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	// Timeout effect to prevent infinite loading
-	useEffect(() => {
-		if (!profile.isAuthUser && !profile.member && unwrappedParams.memberId && user?.id) {
-			const timer = setTimeout(() => {
-				setLoadingTimeout(true);
-			}, 5000); // 5 second timeout
-
-			return () => clearTimeout(timer);
-		} else {
-			setLoadingTimeout(false);
+	// Handle error states with our new boundary component
+	if (!profileValidation.isValid) {
+		// Show loading skeleton for loading state
+		if (profileValidation.state === 'loading') {
+			return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
 		}
-	}, [profile.isAuthUser, profile.member, unwrappedParams.memberId, user?.id]);
 
-	// Check if member exists in current team (when team data is loaded) OR timeout reached
-	// This prevents infinite loading when accessing direct URLs of users not in current team
-	if (
-		unwrappedParams.memberId &&
-		!profile.isAuthUser &&
-		!profile.member &&
-		user?.id && // Ensure user is authenticated
-		(activeTeam?.members || loadingTimeout) // Either team is loaded OR timeout reached
-	) {
+		// Show error boundary for all other error states
 		return (
-			<MainLayout>
-				<div
-					ref={profile.loadTaskStatsIObserverRef}
-					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
-				>
-					<div className="flex flex-col gap-5 justify-center items-center">
-						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
-						</Text>
-
-						<Text className="font-light text-center text-gray-400">
-							{t('pages.profile.MEMBER_NOT_FOUND_MSG_2')}
-						</Text>
-
-						<Button className="m-auto font-normal rounded-lg">
-							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
-						</Button>
-					</div>
-				</div>
-			</MainLayout>
+			<ProfileErrorBoundary
+				validation={profileValidation}
+				loadTaskStatsIObserverRef={profile.loadTaskStatsIObserverRef}
+			>
+				<div>This will never render due to validation.isValid being false</div>
+			</ProfileErrorBoundary>
 		);
 	}
 
-	// Show unified skeleton while initial data is loading
-	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
-	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
+	// Additional check for userProfile (keep existing logic)
+	if (!profile.userProfile) {
 		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
-	}
-
-	// Check if team has members but no specific member found
-	if (Array.isArray(members) && members.length > 0 && !unwrappedParams.memberId) {
-		return (
-			<MainLayout>
-				<div
-					ref={profile.loadTaskStatsIObserverRef}
-					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
-				>
-					<div className="flex flex-col gap-5 justify-center items-center">
-						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
-						</Text>
-
-						<Text className="font-light text-center text-gray-400">
-							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
-						</Text>
-
-						<Button className="m-auto font-normal rounded-lg">
-							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
-						</Button>
-					</div>
-				</div>
-			</MainLayout>
-		);
 	}
 
 	return (
