@@ -10,6 +10,7 @@ import {
 	TaskActivitySkeleton,
 	IssueCardSkeleton
 } from '../common/skeleton/rich-text-editor-skeleton';
+import { TaskDetailsPageSkeleton } from '../common/skeleton/task-details-page-skeleton';
 // import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 
 // Task Card Components
@@ -103,11 +104,7 @@ export const LazyTaskDetailsComponent = dynamic(
 	() => import('@/core/components/pages/task/task-details').then((mod) => mod.TaskDetailsComponent),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-full h-96 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Task Details...</div>
-			</div>
-		)
+		loading: () => <TaskDetailsPageSkeleton />
 	}
 );
 
