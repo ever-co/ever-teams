@@ -9,6 +9,7 @@ import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -267,18 +268,12 @@ export function useAuthenticationPasscode() {
 		return promise;
 	}, [formValues, signInEmailQueryCall]);
 
-	const getLastTeamIdWithRecentLogout = useCallback(() => {
+	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {
 			throw new Error('No workspaces found');
 		}
-
-		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
-			const prevDate = new Date(prev.user.lastLoginAt ?? '');
-			const currentDate = new Date(current.user.lastLoginAt ?? '');
-			return currentDate > prevDate ? current : prev;
-		});
-
-		return mostRecentWorkspace.user.lastTeamId;
+		const mostRecentWorkspace = findMostRecentWorkspace(workspaces);
+		return mostRecentWorkspace.user.lastTeamId ?? null;
 	}, [workspaces]);
 
 	return {

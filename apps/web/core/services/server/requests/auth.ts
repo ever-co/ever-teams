@@ -224,3 +224,17 @@ export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
 		body: data
 	});
 };
+
+/**
+ * Switch workspace server request - calls Gauzy API directly
+ * Only needs tenantId, organizationId is retrieved from the response
+ */
+export const switchWorkspaceServerRequest = (data: { tenantId: string }, bearerToken?: string) => {
+	return serverFetch<IAuthResponse>({
+		method: 'POST',
+		path: `/auth/switch-workspace`,
+		body: data,
+		tenantId: data.tenantId,
+		bearer_token: bearerToken
+	});
+};
