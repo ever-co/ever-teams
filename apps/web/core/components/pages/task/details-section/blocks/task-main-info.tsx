@@ -17,6 +17,8 @@ import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { toast } from 'sonner';
+import { SpinnerLoader } from '@/core/components/common/loader';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -50,11 +52,13 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow labelIconPath="/assets/svg/people.svg" labelTitle={t('pages.taskDetails.ASSIGNEES')}>
 				<div className="flex flex-col gap-3">
-					{task?.members?.map((member: any) => (
-						<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
-							<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
-						</Link>
-					))}
+					{task?.members
+						?.filter((m) => m?.userId !== task?.createdByUserId)
+						?.map((member: any) => (
+							<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
+								<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
+							</Link>
+						))}
 
 					{ManageMembersPopover(activeTeam?.members || [], task)}
 				</div>
@@ -218,6 +222,11 @@ function DueDates() {
 const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTask | null) => {
 	const t = useTranslations();
 	const { updateTask } = useTeamTasks();
+	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+
+	// Loading states per user (employeeId -> loading state)
+	const [assignLoadingStates, setAssignLoadingStates] = useState<Record<string, boolean>>({});
+	const [unassignLoadingStates, setUnassignLoadingStates] = useState<Record<string, boolean>>({});
 
 	const unassignedMembers = useMemo(() => {
 		if (!task?.members) return memberList.filter((member) => member.employee?.isActive); // Early return if no task members
@@ -241,38 +250,99 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId) return;
 
+			// Set loading for specific user
+			setUnassignLoadingStates((prev) => ({ ...prev, [member.employeeId!]: true }));
+
 			try {
+				const updatedMembers = task.members?.filter((m) => m.id !== member.employeeId);
+
 				await updateTask({
 					...task,
-					members: task.members?.filter((m) => m.id !== member.employeeId)
+					members: updatedMembers
+				});
+
+				// Update local detailed task state immediately for UI sync
+				if (detailedTask && detailedTask.id === task.id) {
+					setDetailedTask({
+						...detailedTask,
+						members: updatedMembers
+					});
+				}
+
+				// Success toast
+				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
+					description: `${member.employee?.fullName || 'Member'} has been unassigned from the task`
 				});
 			} catch (error) {
 				console.error('Failed to unassign member:', error);
+
+				// Error toast
+				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
+					description: `Failed to unassign ${member.employee?.fullName || 'member'} from the task`
+				});
+			} finally {
+				// Clear loading for specific user
+				setUnassignLoadingStates((prev) => {
+					const newState = { ...prev };
+					delete newState[member.employeeId!];
+					return newState;
+				});
 			}
 		},
-		[task, updateTask]
+		[task, updateTask, t, detailedTask, setDetailedTask]
 	);
 
 	const handleAssignMember = useCallback(
 		async (member: TOrganizationTeamEmployee) => {
 			if (!task || !member?.employeeId || !member?.employee?.userId) return;
 
+			// Set loading for specific user
+			setAssignLoadingStates((prev) => ({ ...prev, [member.employeeId!]: true }));
+
 			try {
+				// Use the complete employee object to preserve all data (fullName, user.imageUrl, etc.)
+				const newMember = {
+					...member.employee,
+					id: member.employeeId, // Ensure the id matches the employeeId
+					userId: member.employee.userId
+				};
+
+				const updatedMembers = [...(task.members || []), newMember as any];
+
 				await updateTask({
 					...task,
-					members: [
-						...(task.members || []),
-						{
-							id: member.employeeId,
-							userId: member.employee.userId
-						} as any
-					]
+					members: updatedMembers
+				});
+
+				// Update local detailed task state immediately for UI sync
+				if (detailedTask && detailedTask.id === task.id) {
+					setDetailedTask({
+						...detailedTask,
+						members: updatedMembers
+					});
+				}
+
+				// Success toast
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					description: `${member.employee?.fullName || 'Member'} has been assigned to the task`
 				});
 			} catch (error) {
 				console.error('Failed to assign member:', error);
+
+				// Error toast
+				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
+					description: `Failed to assign ${member.employee?.fullName || 'member'} to the task`
+				});
+			} finally {
+				// Clear loading for specific user
+				setAssignLoadingStates((prev) => {
+					const newState = { ...prev };
+					delete newState[member.employeeId!];
+					return newState;
+				});
 			}
 		},
-		[task, updateTask]
+		[task, updateTask, t, detailedTask, setDetailedTask]
 	);
 
 	return (
@@ -294,38 +364,66 @@ const ManageMembersPopover = (memberList: TOrganizationTeamEmployee[], task: TTa
 						>
 							{({ close }) => (
 								<div className="overflow-y-auto max-h-72 scrollbar-hide">
-									{assignedTaskMembers.map((member, index) => (
-										<div
-											className="flex gap-1 justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
-											onClick={() => {
-												handleUnassignMember(member);
-												close();
-											}}
-											key={index}
-										>
-											<ProfileInfo
-												profilePicSrc={member.employee?.user?.imageUrl}
-												names={member.employee?.fullName}
-											/>
+									{assignedTaskMembers.map((member, index) => {
+										const isUnassignLoading = unassignLoadingStates[member.employeeId!] || false;
 
-											<TrashIcon className="w-5" />
-										</div>
-									))}
-									{unassignedMembers.map((member, index) => (
-										<div
-											className="flex justify-between items-center mt-1 w-auto h-8 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
-											onClick={() => {
-												handleAssignMember(member);
-												close();
-											}}
-											key={index}
-										>
-											<ProfileInfo
-												profilePicSrc={member.employee?.user?.imageUrl}
-												names={member.employee?.fullName}
-											/>
-										</div>
-									))}
+										return (
+											<div
+												className={clsxm(
+													'flex gap-1 justify-between items-center mt-1 w-auto h-8',
+													!isUnassignLoading &&
+														'hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105',
+													isUnassignLoading && 'opacity-50 cursor-not-allowed'
+												)}
+												onClick={() => {
+													if (!isUnassignLoading) {
+														handleUnassignMember(member);
+														close();
+													}
+												}}
+												key={index}
+											>
+												<ProfileInfo
+													profilePicSrc={member.employee?.user?.imageUrl}
+													names={member.employee?.fullName}
+												/>
+
+												{isUnassignLoading ? (
+													<SpinnerLoader size={16} />
+												) : (
+													<TrashIcon className="w-5" />
+												)}
+											</div>
+										);
+									})}
+									{unassignedMembers.map((member, index) => {
+										const isAssignLoading = assignLoadingStates[member.employeeId!] || false;
+
+										return (
+											<div
+												className={clsxm(
+													'flex justify-between items-center mt-1 w-auto h-8',
+													!isAssignLoading &&
+														'hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105',
+													isAssignLoading && 'opacity-50 cursor-not-allowed'
+												)}
+												onClick={() => {
+													if (!isAssignLoading) {
+														handleAssignMember(member);
+														close();
+													}
+												}}
+												key={index}
+											>
+												<ProfileInfo
+													profilePicSrc={member.employee?.user?.imageUrl}
+													names={member.employee?.fullName}
+												/>
+
+												{isAssignLoading && <SpinnerLoader size={16} />}
+											</div>
+										);
+									})}
 								</div>
 							)}
 						</PopoverPanel>
