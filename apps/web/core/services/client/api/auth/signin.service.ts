@@ -164,12 +164,6 @@ class SigninService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
-		console.log('🔍 signinService.signInWorkspaceGauzy called with:', {
-			email: params.email,
-			hasToken: !!params.token,
-			teamId: params.teamId,
-			hasCode: !!params.code
-		});
 		if (params.code) {
 			let loginResponse;
 			try {
@@ -183,13 +177,6 @@ class SigninService extends APIService {
 				return loginResponse;
 			}
 		}
-
-		console.log('📡 Calling this.signInWorkspace with:', {
-			email: params.email,
-			hasToken: !!params.token,
-			defaultTeamId: params.defaultTeamId,
-			lastTeamId: params.lastTeamId
-		});
 
 		const data = await this.signInWorkspace({
 			email: params.email,

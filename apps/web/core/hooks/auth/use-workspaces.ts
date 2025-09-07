@@ -117,7 +117,6 @@ export function useWorkspaces() {
 			const workspace = workspaces.find((w) => w.user.tenant.id === workspaceId);
 			if (workspace) {
 				setActiveWorkspaceId(workspaceId);
-				// Note: No need to update isActive state since API doesn't provide it
 				// The active state is managed by activeWorkspaceId only
 			}
 		},

@@ -170,7 +170,6 @@ class AuthService extends APIService {
 
 			return signinService.signInWorkspaceGauzy(workspaceParams);
 		}
-		console.log('📡 Using Fallback API endpoint: /auth/signin-workspace');
 		const api = await getFallbackAPI();
 		// Non-Gauzy workspace signin - also no code
 		return api.post<IAuthResponse>(`/auth/signin-workspace`, {

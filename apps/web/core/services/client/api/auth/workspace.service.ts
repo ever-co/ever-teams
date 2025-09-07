@@ -22,8 +22,6 @@ class WorkspaceService extends APIService {
 			if (!accessToken || !userId) {
 				throw new Error('User not authenticated');
 			}
-
-			// Call /auth/workspaces endpoint (same format as workspace-data.json)
 			const query = QueryString.stringify({
 				includeTeams: true
 			});
