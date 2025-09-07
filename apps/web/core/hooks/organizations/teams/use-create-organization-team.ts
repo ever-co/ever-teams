@@ -3,7 +3,7 @@ import { setActiveTeamIdCookie, setOrganizationIdCookie } from '@/core/lib/helpe
 import { activeTeamIdState, isTeamMemberState, organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
