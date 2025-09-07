@@ -342,7 +342,6 @@ export function WorkspacesSwitcher() {
 										? 'Loading workspace information...'
 										: `Current workspace: ${actualCurrentWorkspace?.user.tenant.name || 'No workspace'}. Click to change the workspace`
 								}
-								aria-expanded={false}
 								aria-haspopup="menu"
 								aria-busy={isWorkspaceLoading}
 							>
