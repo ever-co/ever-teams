@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '../queries/user-user.query';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
 export type ProfileValidationState = 'loading' | 'valid' | 'not-found' | 'timeout' | 'unauthorized';
 
@@ -134,12 +135,12 @@ export function useProfileValidation(memberId: string | null) {
 
 	// Handle team switching validation
 	const validateTeamSwitch = useCallback(
-		(newTeam: any) => {
+		(newTeam: TOrganizationTeam) => {
 			if (!pathname.includes('/profile/') || !memberId || isAuthUser) {
 				return true; // No validation needed
 			}
 
-			const memberExistsInNewTeam = newTeam.members?.some((member: any) => member.employee?.userId === memberId);
+			const memberExistsInNewTeam = newTeam.members?.some((member) => member.employee?.userId === memberId);
 
 			if (!memberExistsInNewTeam && !hasRedirected) {
 				setHasRedirected(true);

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Button, Text } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { ProfileValidationResult } from '@/core/hooks/users/use-profile-validation';
-
+import { useRouter } from 'next/navigation';
 interface ProfileErrorBoundaryProps {
 	validation: ProfileValidationResult;
 	children: React.ReactNode;
@@ -23,6 +23,7 @@ export const ProfileErrorBoundary: React.FC<ProfileErrorBoundaryProps> = ({
 	loadTaskStatsIObserverRef
 }) => {
 	const t = useTranslations();
+	const router = useRouter();
 
 	// Show children if validation is successful
 	if (validation.isValid) {
@@ -55,7 +56,7 @@ export const ProfileErrorBoundary: React.FC<ProfileErrorBoundaryProps> = ({
 						</Button>
 
 						{validation.state === 'timeout' && (
-							<Button className="font-normal rounded-lg" onClick={() => window.location.reload()}>
+							<Button className="font-normal rounded-lg" onClick={() => router.refresh()}>
 								Refresh
 							</Button>
 						)}
