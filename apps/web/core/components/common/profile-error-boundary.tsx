@@ -51,7 +51,7 @@ export const ProfileErrorBoundary: React.FC<ProfileErrorBoundaryProps> = ({
 					</Text>
 
 					<div className="flex gap-3">
-						<Button className="font-normal rounded-lg" variant="outline">
+						<Button className="font-normal rounded-lg" variant="outline" asChild>
 							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
 						</Button>
 
