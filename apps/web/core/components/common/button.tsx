@@ -77,6 +77,8 @@ export function Button({ children, className, variant = 'primary', loading, asCh
 		const childProps = children.props as any;
 		const newProps = {
 			...rest,
+			// Announce loading state for non-button children (e.g., <a/>, <Link/>)
+			'aria-busy': loading || undefined,
 			className: clsxm(buttonClasses, childProps.className)
 		};
 
@@ -93,7 +95,13 @@ export function Button({ children, className, variant = 'primary', loading, asCh
 	}
 
 	return (
-		<button className={buttonClasses} {...rest}>
+		<button
+			{...rest}
+			type={rest?.type ?? 'button'}
+			disabled={rest?.disabled ?? !!loading}
+			aria-busy={loading || undefined}
+			className={buttonClasses}
+		>
 			{content}
 		</button>
 	);
