@@ -142,7 +142,7 @@ export const queryKeys = {
 		}
 	},
 	workspaces: {
-		all: ['workspaces'],
+		all: ['workspaces'] as const,
 		byUser: (userId: string | undefined | null) => ['workspaces', ...(userId ? [userId] : [])] as const,
 		currentWorkspace: (userId: string | undefined | null) =>
 			['workspaces', 'current-workspace', ...(userId ? [userId] : [])] as const,
