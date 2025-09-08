@@ -12,6 +12,7 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
+import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 
 class StatisticsService extends APIService {
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
@@ -52,7 +53,7 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
+	getStatisticsForTasks = async (queries: Record<string, any | string[] | number>) => {
 		try {
 			const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
@@ -86,8 +87,8 @@ class StatisticsService extends APIService {
 					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 				const globalParams = {
-					...commonParams,
-					defaultRange: 'false'
+					...commonParams
+					// defaultRange: 'false'
 				};
 
 				const globalData = await this.getStatisticsForTasks(globalParams);
@@ -115,13 +116,8 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	activeTaskTimesheetStatistics = async ({
-		activeTaskId,
-		employeeId
-	}: {
-		activeTaskId: string;
-		employeeId?: string;
-	}) => {
+	activeTaskTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
+		const activeTaskId = getActiveTaskIdCookie();
 		try {
 			if (!this.tenantId || !this.organizationId || !activeTaskId) {
 				throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');

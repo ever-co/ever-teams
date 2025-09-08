@@ -108,7 +108,6 @@ export function useTaskStatistics(addSeconds = 0) {
 		setTasksFetching(true);
 
 		const promise = statisticsService.activeTaskTimesheetStatistics({
-			activeTaskId: activeTeamTask?.id || '',
 			employeeId: user?.employee?.id
 		});
 		promise.then(({ data }) => {
