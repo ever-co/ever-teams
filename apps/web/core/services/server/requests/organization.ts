@@ -28,7 +28,7 @@ export function getUserOrganizationsRequest(
 	}: {
 		tenantId: string;
 		userId: string;
-		userPermissions: string[];
+		userPermissions?: string[];
 	},
 	bearerToken: string
 ) {
@@ -38,8 +38,6 @@ export function getUserOrganizationsRequest(
 	// Create a new instance of URLSearchParams for query string construction
 	const query = new URLSearchParams();
 
-	console.log(userPermissions);
-
 	// Add user and tenant IDs to the query
 	query.append('where[userId]', userId);
 	query.append('where[tenantId]', tenantId);
@@ -48,7 +46,7 @@ export function getUserOrganizationsRequest(
 	const relations: string[] = [
 		'organization',
 		'organization.contact',
-		...(userPermissions.includes('ALL_ORG_VIEW')
+		...(userPermissions?.includes('ALL_ORG_VIEW')
 			? ['organization.featureOrganizations', 'organization.featureOrganizations.feature']
 			: [])
 	];

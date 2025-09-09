@@ -61,7 +61,7 @@ class UserService extends APIService {
 	getAuthenticatedUserData = async (): Promise<TUser> => {
 		try {
 			// Define the relations to be included in the request
-			const relations = ['role', 'tenant', 'role'];
+			const relations = ['role', 'tenant'];
 
 			// Construct the query string with 'qs', including the includeEmployee parameter
 			const query = qs.stringify({
