@@ -2,12 +2,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Button, Container, Text } from '@/core/components';
+import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
+import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -38,14 +40,16 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
+	// Use our new validation hook
+	const profileValidation = useProfileValidation(unwrappedParams.memberId);
+
 	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 	const activeTeam = useAtomValue(activeTeamState);
-	const profileUser =
-		activeTeam?.members?.find((member) => member.employee?.userId === unwrappedParams.memberId) ?? null;
+	const profileUser = profileValidation.member?.employee?.user ?? null;
 
 	const profile = useUserProfilePage();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const members = activeTeam?.members;
+
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
@@ -101,45 +105,36 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	// Show unified skeleton while initial data is loading
-	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
-	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
-		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+	// Handle error states with our new boundary component
+	if (!profileValidation.isValid) {
+		// Show loading skeleton for loading state
+		if (profileValidation.state === 'loading') {
+			return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+		}
+
+		// Show error boundary for all other error states
+		return (
+			<ProfileErrorBoundary
+				validation={profileValidation}
+				loadTaskStatsIObserverRef={profile.loadTaskStatsIObserverRef}
+			>
+				<div>This will never render due to validation.isValid being false</div>
+			</ProfileErrorBoundary>
+		);
 	}
 
-	// Check if team has members but no specific member found
-	if (Array.isArray(members) && members.length > 0 && !unwrappedParams.memberId) {
-		return (
-			<MainLayout>
-				<div
-					ref={profile.loadTaskStatsIObserverRef}
-					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
-				>
-					<div className="flex flex-col items-center justify-center gap-5">
-						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
-						</Text>
-
-						<Text className="font-light text-center text-gray-400">
-							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
-						</Text>
-
-						<Button className="m-auto font-normal rounded-lg">
-							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
-						</Button>
-					</div>
-				</div>
-			</MainLayout>
-		);
+	// Additional check for userProfile (keep existing logic)
+	if (!profile.userProfile) {
+		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
 	}
 
 	return (
 		<MainLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
-					<div className="w-full space-y-4">
+					<div className="space-y-4 w-full">
 						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
+						<div className="flex gap-8 items-center">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>
@@ -148,7 +143,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</div>
 
 						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between md:flex-row">
+						<div className="flex flex-col justify-between items-center md:flex-row">
 							<LazyUserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
@@ -172,9 +167,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
 				<Container fullWidth={fullWidth} className="py-8">
-					<div className={cn('flex items-center justify-start gap-4 mt-3')}>
+					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
-							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(

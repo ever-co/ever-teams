@@ -22,6 +22,13 @@ const QUERY_GROUPS = {
 		queryKeys.dailyPlans.all,
 		queryKeys.users.invitations.all
 	],
+
+	WORKSPACE_RELATED: [
+		queryKeys.organizationProjects.all,
+		queryKeys.timer.timer,
+		queryKeys.integrations.all,
+		queryKeys.workspaces.all
+	],
 	TASK_METADATA: [
 		queryKeys.taskStatuses.all,
 		queryKeys.taskPriorities.all,
@@ -59,7 +66,11 @@ export function useCacheInvalidation() {
 	 * Complete invalidation for team creation - ultra elegant one-liner
 	 */
 	const invalidateAfterTeamCreation = useCallback(async (): Promise<void> => {
-		await invalidateMultipleQueries(queryClient, [...QUERY_GROUPS.TEAM_RELATED, ...QUERY_GROUPS.TASK_METADATA]);
+		await invalidateMultipleQueries(queryClient, [
+			...QUERY_GROUPS.TEAM_RELATED,
+			...QUERY_GROUPS.WORKSPACE_RELATED,
+			...QUERY_GROUPS.TASK_METADATA
+		]);
 	}, [queryClient]);
 
 	/**
@@ -91,6 +102,7 @@ export function useCacheInvalidation() {
 				case 'team-creation':
 					await invalidateMultipleQueries(queryClient, [
 						...QUERY_GROUPS.TEAM_RELATED,
+						...QUERY_GROUPS.WORKSPACE_RELATED,
 						...QUERY_GROUPS.TASK_METADATA
 					]);
 					break;
