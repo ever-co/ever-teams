@@ -10,5 +10,6 @@ export const rolePermissionsFormatedState = atom<{
 
 export const myPermissionsState = atom<string[]>((get) => {
 	const myRolePermissions = get(myRolePermissionsState);
-	return myRolePermissions.map((item) => item.permission);
+	const enabled = myRolePermissions.filter((p) => p.enabled && p.permission);
+	return Array.from(new Set(enabled.map((p) => p.permission)));
 });
