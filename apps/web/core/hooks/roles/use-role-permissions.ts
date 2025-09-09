@@ -75,8 +75,8 @@ export const useRolePermissions = (roleId?: string) => {
 
 	useConditionalUpdateEffect(
 		() => {
-			if (myRolePermissionsQuery.data?.items?.length) {
-				setMyRolePermissions(myRolePermissionsQuery.data.items);
+			if (myRolePermissionsQuery.data?.length) {
+				setMyRolePermissions(myRolePermissionsQuery.data);
 			}
 		},
 		[myRolePermissionsQuery.data],

@@ -31,7 +31,9 @@ import {
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
 		const query = qs.stringify({
-			...params
+			...params,
+			tenantId: this.tenantId,
+			organizationId: this.organizationId
 		});
 
 		try {

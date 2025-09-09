@@ -1,6 +1,7 @@
 'use client';
 
 import { useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
@@ -34,6 +35,17 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const path = usePathname();
 	const router = useRouter();
+
+	// Extract memberId from current path for profile validation
+	const currentMemberId = React.useMemo(() => {
+		if (!path.includes('/profile/')) return null;
+		const pathSegments = path.split('/');
+		const profileIndex = pathSegments.findIndex((segment) => segment === 'profile');
+		return profileIndex !== -1 && profileIndex + 1 < pathSegments.length ? pathSegments[profileIndex + 1] : null;
+	}, [path]);
+
+	// Use our validation hook for profile pages
+	const profileValidation = useProfileValidation(currentMemberId);
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
@@ -69,6 +81,14 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					if (!taskBelongsToNewTeam) {
 						setDetailedTask(null);
 						router.push('/');
+					}
+				}
+
+				// Handle profile page validation using our centralized hook
+				if (path.includes('/profile/')) {
+					const isValidSwitch = profileValidation.validateTeamSwitch(item.data);
+					if (!isValidSwitch) {
+						return; // Hook handles toast and redirect
 					}
 				}
 			}

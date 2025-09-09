@@ -2,11 +2,11 @@
 
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useCacheInvalidation } from '@/core/hooks/common/use-cache-invalidation';
 import { toast } from 'sonner';
 import { useWorkspaces } from './use-workspaces';
 import { authService } from '@/core/services/client/api/auth';
-import { queryKeys } from '@/core/query/keys';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
@@ -18,10 +18,11 @@ import { useUserQuery } from '../queries/user-user.query';
  */
 export function useWorkspaceSwitcher() {
 	const router = useRouter();
-	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
 
+	// Use cache invalidation hook - much cleaner than manual invalidations
+	const { smartInvalidate } = useCacheInvalidation();
 	/**
 	 * Get last team ID with recent logout logic (from password component)
 	 */
@@ -97,16 +98,13 @@ export function useWorkspaceSwitcher() {
 			// Use the EXACT same parameters as password component
 			return await authService.signInWorkspace(params);
 		},
-		onSuccess: () => {
-			// Invalidate all workspace-related queries
-			queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
-			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
-			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
-			queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-
+		onSuccess: async () => {
 			// Show success message
 			toast.success('Workspace changed successfully');
 
+			// Invalidate all workspace-related queries
+			// Cache invalidation using semantic hook - much cleaner and more maintainable!
+			await smartInvalidate('team-creation');
 			// Navigate to home (EXACT same as password component)
 			router.push('/');
 		},
