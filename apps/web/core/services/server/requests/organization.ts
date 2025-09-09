@@ -23,10 +23,12 @@ export function createOrganizationRequest(datas: IOrganizationCreate, bearerToke
 export function getUserOrganizationsRequest(
 	{
 		tenantId,
-		userId
+		userId,
+		userPermissions
 	}: {
 		tenantId: string;
 		userId: string;
+		userPermissions: string[];
 	},
 	bearerToken: string
 ) {
@@ -36,6 +38,8 @@ export function getUserOrganizationsRequest(
 	// Create a new instance of URLSearchParams for query string construction
 	const query = new URLSearchParams();
 
+	console.log(userPermissions);
+
 	// Add user and tenant IDs to the query
 	query.append('where[userId]', userId);
 	query.append('where[tenantId]', tenantId);
@@ -44,8 +48,9 @@ export function getUserOrganizationsRequest(
 	const relations: string[] = [
 		'organization',
 		'organization.contact',
-		'organization.featureOrganizations',
-		'organization.featureOrganizations.feature'
+		...(userPermissions.includes('ALL_ORG_VIEW')
+			? ['organization.featureOrganizations', 'organization.featureOrganizations.feature']
+			: [])
 	];
 	// Append each relation to the query string
 	relations.forEach((relation, index) => {

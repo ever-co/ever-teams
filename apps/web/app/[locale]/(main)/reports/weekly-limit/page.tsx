@@ -28,7 +28,7 @@ import {
 	LazyTimeReportTableByMember,
 	LazyPaginate
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, isTrackingEnabledState, myPermissionsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
@@ -41,6 +41,7 @@ function WeeklyLimitReport() {
 	const tenantId = getTenantIdCookie();
 	const [groupBy, setGroupBy] = useState<TGroupByOption[]>(['date']);
 	const t = useTranslations();
+	const myPermissions = useAtomValue(myPermissionsState);
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: t('common.REPORTS'), href: '/' },
@@ -81,7 +82,10 @@ function WeeklyLimitReport() {
 	// Get the organization
 	useEffect(() => {
 		if (organizationId && tenantId) {
-			getUserOrganizationsRequest({ tenantId, userId: user?.id ?? '' }, accessToken ?? '').then((org) => {
+			getUserOrganizationsRequest(
+				{ tenantId, userId: user?.id ?? '', userPermissions: myPermissions },
+				accessToken ?? ''
+			).then((org) => {
 				setOrganization(org.data.items[0].organization);
 			});
 		}
