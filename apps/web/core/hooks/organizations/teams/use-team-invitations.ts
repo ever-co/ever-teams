@@ -21,9 +21,11 @@ import { useQueryCall } from '../../common';
 import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
 import { useIsMemberManager } from './use-team-member';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useRouter } from 'next/navigation';
 
 export function useTeamInvitations() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
 	const [myInvitationsList, setMyInvitationsList] = useAtom(myInvitationsState);
@@ -190,7 +192,7 @@ export function useTeamInvitations() {
 
 			if (action === EInviteAction.ACCEPTED) {
 				await refreshToken();
-				window.location.reload();
+				router.refresh();
 				return res;
 			}
 

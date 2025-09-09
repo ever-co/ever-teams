@@ -11,6 +11,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import { AuthCodeInputField } from '../auth/auth-code-input';
 import { EverCard } from '../common/ever-card';
+import { useRouter } from 'next/navigation';
 
 interface UnverifiedEmailProps {
 	user?: TUser | null; // Accept user as prop for conditional rendering optimization
@@ -56,7 +57,7 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22] my-3'
 				)}
 			>
-				<Text className="flex items-center gap-1">
+				<Text className="flex gap-1 items-center">
 					{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}
 					<span className="cursor-pointer text-primary dark:text-primary-light" onClick={openModal}>
 						{t('common.VERIFY')}
@@ -104,6 +105,7 @@ export function ConfirmUserModal({
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();
+	const router = useRouter();
 
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
@@ -111,7 +113,7 @@ export function ConfirmUserModal({
 			if (code.length < 6 || !user) return;
 
 			queryCall({ code, email: user.email || '' }).finally(() => {
-				window.location.reload();
+				router.refresh();
 			});
 		},
 		[code, queryCall, user]
@@ -121,12 +123,12 @@ export function ConfirmUserModal({
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form onSubmit={handleVerifyEmail} className="w-[98%] md:w-[530px]" autoComplete="off">
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.SECURITY_CODE')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
 								length={6}
@@ -138,7 +140,7 @@ export function ConfirmUserModal({
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-6">
+						<div className="flex justify-between items-center mt-6 w-full">
 							<div className="flex flex-col items-start">
 								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{"Didn't recieve code ?"}

@@ -6,11 +6,11 @@ import { roleSchema } from '@/core/types/schemas/role/role.schema';
 
 export const rolePermissionSchema = z
 	.object({
-		role: roleSchema,
+		role: roleSchema.optional(),
 		roleId: uuIdSchema,
 		permission: z.string(),
 		enabled: z.boolean(),
-		description: z.string()
+		description: z.string().nullable().optional()
 	})
 	.merge(basePerTenantEntityModelSchema)
 	.strict();

@@ -44,7 +44,7 @@ export function useWorkspaces() {
 
 	// Query to retrieve workspaces
 	const workspacesQuery = useQuery({
-		queryKey: queryKeys.auth.workspaces(user?.id),
+		queryKey: queryKeys.workspaces.byUser(user?.id),
 		queryFn: async () => {
 			setIsLoading(true);
 			setError(null);
@@ -154,7 +154,7 @@ export function useWorkspaces() {
 	 * Invalidate the cache of workspaces
 	 */
 	const invalidateWorkspaces = useCallback(() => {
-		queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
+		queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.byUser(user?.id) });
 	}, [queryClient, user?.id]);
 
 	return {
