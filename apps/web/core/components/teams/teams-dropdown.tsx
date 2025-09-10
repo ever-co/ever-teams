@@ -5,7 +5,7 @@ import { useProfileValidation } from '@/core/hooks/users/use-profile-validation'
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
@@ -91,10 +91,28 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						return; // Hook handles toast and redirect
 					}
 				}
+
+				// From all teams page
+				if (path.includes('/all-teams')) {
+					router.push('/');
+				}
 			}
 		},
 		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
 	);
+
+	useEffect(() => {
+		if (path.includes('/all-teams')) {
+			setTeamItem({
+				key: 'all-teams',
+				Label: () => (
+					<div className="h-[42px] flex items-center">
+						<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+					</div>
+				)
+			});
+		}
+	}, [path, userManagedTeams.length, t]);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
@@ -144,14 +162,22 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				)}
 				value={teamItem}
 				onChange={onChangeActiveTeam}
-				items={items}
+				items={[
+					...items,
+					...(userManagedTeams.length > 1 || path.includes('/all-teams')
+						? [
+								{
+									key: 'all-teams',
+									Label: () => (
+										<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+									)
+								}
+							]
+						: [])
+				]}
 				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
 			>
-				{userManagedTeams.length > 1 && (
-					<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
-				)}
-
 				{!publicTeam && (
 					<Tooltip
 						enabled={!user?.isEmailVerified}

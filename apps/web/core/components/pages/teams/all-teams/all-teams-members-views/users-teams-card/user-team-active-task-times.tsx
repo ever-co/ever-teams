@@ -19,7 +19,10 @@ export default function UserTeamActiveTaskTimes({
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 
 	useEffect(() => {
-		getTaskById(member.activeTaskId || '')
+		if (!member.activeTaskId) {
+			return;
+		}
+		getTaskById(member.activeTaskId)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
