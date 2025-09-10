@@ -91,6 +91,11 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						return; // Hook handles toast and redirect
 					}
 				}
+
+				// From all teams page
+				if (path.includes('/all-teams')) {
+					router.push('/');
+				}
 			}
 		},
 		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
@@ -98,8 +103,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
-
-	console.log(items);
 
 	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
