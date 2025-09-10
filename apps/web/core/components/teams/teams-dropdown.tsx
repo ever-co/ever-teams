@@ -112,7 +112,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				)
 			});
 		}
-	}, [path]);
+	}, [path, userManagedTeams.length, t]);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
@@ -164,7 +164,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				onChange={onChangeActiveTeam}
 				items={[
 					...items,
-					...(userManagedTeams.length > 1
+					...(userManagedTeams.length > 1 || path.includes('/all-teams')
 						? [
 								{
 									key: 'all-teams',
