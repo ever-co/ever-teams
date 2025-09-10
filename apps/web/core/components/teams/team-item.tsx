@@ -161,10 +161,8 @@ export function TeamItem({
 
 export function AllTeamItem({ title, count }: { title: string; count: number }) {
 	return (
-		<Link href="/all-teams">
-			<div
-				className={clsxm('flex justify-start items-center space-x-2 text-sm', 'mb-4 max-w-full cursor-pointer')}
-			>
+		<Link className="h-full flex items-center " href="/all-teams">
+			<div className={clsxm('flex justify-start items-center space-x-2 text-sm', ' max-w-full cursor-pointer')}>
 				<div>
 					<div
 						className={clsxm(
