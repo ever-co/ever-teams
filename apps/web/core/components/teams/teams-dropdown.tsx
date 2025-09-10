@@ -99,6 +99,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
 
+	console.log(items);
+
 	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
 	const { isOpen, closeModal, openModal } = useModal();

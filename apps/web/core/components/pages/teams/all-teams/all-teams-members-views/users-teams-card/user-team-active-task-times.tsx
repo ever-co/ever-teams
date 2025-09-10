@@ -22,7 +22,7 @@ export default function UserTeamActiveTaskTimes({
 		if (!member.activeTaskId) {
 			return;
 		}
-		getTaskById(member.activeTaskId || '')
+		getTaskById(member.activeTaskId)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 

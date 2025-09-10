@@ -18,7 +18,10 @@ export default function UserTeamActiveTaskEstimateBlock({
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(activeTaskId || '')
+		if (!activeTaskId) {
+			return;
+		}
+		getTaskById(activeTaskId)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
