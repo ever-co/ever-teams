@@ -69,8 +69,20 @@ export const taskStatusOrderSchema = z.object({
 	)
 });
 
+// Task status order API response:
+export const taskStatusOrderAPIResponseSchema = z.object({
+	success: z.boolean(),
+	list: z.array(
+		z.object({
+			id: z.string(),
+			order: z.number()
+		})
+	)
+});
+
 // Export TypeScript types
 export type TTaskStatus = z.infer<typeof taskStatusSchema>;
 export type TTaskStatusCreate = z.infer<typeof taskStatusCreateSchema>;
 export type TTaskStatusOrder = z.infer<typeof taskStatusOrderSchema>;
 export type TTaskStatusWorkFlow = z.infer<typeof taskStatusWorkFlowSchema>;
+export type TTaskStatusOrderAPIResponse = z.infer<typeof taskStatusOrderAPIResponseSchema>;

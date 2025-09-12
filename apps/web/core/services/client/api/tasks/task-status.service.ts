@@ -12,7 +12,8 @@ import {
 	taskStatusOrderSchema,
 	ZodValidationError,
 	TTaskStatus,
-	TTaskStatusOrder
+	TTaskStatusOrderAPIResponse,
+	taskStatusOrderAPIResponseSchema
 } from '@/core/types/schemas';
 
 /**
@@ -101,23 +102,26 @@ class TaskStatusService extends APIService {
 	 * Edit task status order with validation
 	 *
 	 * @param data - Task status order data
-	 * @returns Promise<TTaskStatusOrder['reorder']> - Validated reorder response
+	 * @returns Promise<TTaskStatusOrderAPIResponse> - Validated reorder response
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskStatusOrder = async (data: ITaskStatusOrder): Promise<TTaskStatusOrder['reorder']> => {
+	editTaskStatusOrder = async (data: ITaskStatusOrder): Promise<TTaskStatusOrderAPIResponse> => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(taskStatusOrderSchema, data, 'editTaskStatusOrder input data');
 
-			const response = await this.patch<TTaskStatusOrder['reorder']>(`/task-statuses/reorder`, validatedInput, {
+			const response = await this.patch<TTaskStatusOrderAPIResponse>(`/task-statuses/reorder`, validatedInput, {
 				tenantId: this.tenantId,
 				method: 'PATCH'
 			});
 
-			// Note: The response is just the reorder array, not the full order object
-			// So we validate against the reorder schema specifically
-			const reorderSchema = taskStatusOrderSchema.pick({ reorder: true }).shape.reorder;
-			return validateApiResponse(reorderSchema, response.data, 'editTaskStatusOrder API response');
+			// Note: The response is validated against the full API response schema
+			// which includes the complete task status order response structure
+			return validateApiResponse(
+				taskStatusOrderAPIResponseSchema,
+				response.data,
+				'editTaskStatusOrder API response'
+			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
