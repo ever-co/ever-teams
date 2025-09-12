@@ -12,12 +12,11 @@ import { TTaskStatus } from '@/core/types/schemas';
 
 const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);
-	const [saveLoader, setSaveLoader] = useState(false);
 	const [saveCheck, setSaveCheck] = useState(false);
 	const organizationId = getOrganizationIdCookie();
 
 	const t = useTranslations();
-	const { reOrderTaskStatus, setTaskStatuses } = useTaskStatus();
+	const { reOrderTaskStatus, setTaskStatuses, reOrderTaskStatusLoading } = useTaskStatus();
 	const onDragEnd = (result: DropResult) => {
 		if (!result.destination) return; // dropped outside the list
 		const newItems = Array.from(items);
@@ -37,9 +36,7 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 					};
 				})
 			};
-			setSaveLoader(true);
 			const reOrderedStatuses = await reOrderTaskStatus(data);
-			setSaveLoader(false);
 
 			if (reOrderedStatuses?.list.length) {
 				// Update task statuses state
@@ -56,7 +53,6 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 				});
 			}
 
-			// setState(data.reorder);
 			onClose();
 			setSaveCheck(false);
 		} else {
@@ -105,11 +101,20 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 			</div>
 
 			<div className=" shrink-0 w-full p-2 flex justify-end gap-2">
-				<Button onClick={onClose} variant={'outline'} className="p-4 w-28 !h-14 border-none">
+				<Button
+					onClick={onClose}
+					disabled={reOrderTaskStatusLoading}
+					variant={'outline'}
+					className="p-4 w-28 !h-14 border-none"
+				>
 					{t('common.CANCEL')}
 				</Button>
-				<Button onClick={saveOrder} className="dark:text-white w-28 !h-14 space-x-2">
-					{t('common.SAVE')} {saveLoader && <Spinner dark={false} />}
+				<Button
+					onClick={saveOrder}
+					disabled={reOrderTaskStatusLoading}
+					className="dark:text-white flex items-center justify-center w-28 !h-14 gap-2"
+				>
+					{t('common.SAVE')} {reOrderTaskStatusLoading && <Spinner />}
 				</Button>
 			</div>
 		</div>
