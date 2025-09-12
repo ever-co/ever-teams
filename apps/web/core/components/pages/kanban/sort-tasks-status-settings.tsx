@@ -41,11 +41,11 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 			const reOrderedStatuses = await reOrderTaskStatus(data);
 			setSaveLoader(false);
 
-			if (reOrderedStatuses?.length) {
+			if (reOrderedStatuses?.list.length) {
 				// Update task statuses state
 				setTaskStatuses((prev) => {
 					const statusesOrder = Object.fromEntries(
-						reOrderedStatuses.map((el: any) => {
+						reOrderedStatuses?.list.map((el: any) => {
 							return [el.id, el.order];
 						})
 					);
