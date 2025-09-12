@@ -44,7 +44,7 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 					const statusesOrder = Object.fromEntries(
 						reOrderedStatuses?.list.map((el: any) => {
 							return [el.id, el.order];
-						})
+						}) ?? []
 					);
 
 					return prev.map((status) => {
