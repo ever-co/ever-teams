@@ -115,8 +115,8 @@ class TaskStatusService extends APIService {
 				method: 'PATCH'
 			});
 
-			// Note: The response is just the reorder array, not the full order object
-			// So we validate against the reorder schema specifically
+			// Note: The response is validated against the full API response schema
+			// which includes the complete task status order response structure
 			return validateApiResponse(
 				taskStatusOrderAPIResponseSchema,
 				response.data,

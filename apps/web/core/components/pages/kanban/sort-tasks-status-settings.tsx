@@ -61,7 +61,7 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 	};
 	return (
 		<div className="w-[500px] h-[700px] bg-[#f2f2f2] dark:bg-[#191a20] rounded-lg flex flex-col justify-between items-center">
-			<div className="w-full grow flex flex-col item-center justify-center">
+			<div className="w-full grow flex flex-col items-center justify-center">
 				<h2 className="text-2xl font-bold text-center mb-4">{t('pages.settingsTeam.SORT_TASK_STATUSES')}</h2>
 				<div className="h-[450px] w-full flex items-center justify-center">
 					<ScrollArea className="h-full">
