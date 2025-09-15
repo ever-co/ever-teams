@@ -60,7 +60,7 @@ import { useFirstLoad } from './use-first-load';
  */
 export const useCurrencies = (): UseCurrenciesReturn => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);
-	const { firstLoadData: firstLoadCurrenciesData } = useFirstLoad();
+	const { firstLoadData } = useFirstLoad();
 
 	/**
 	 * React Query for currencies data with optimized caching strategy
@@ -100,9 +100,12 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 	}, [currenciesQuery]);
 
 	const handleFirstLoad = useCallback(async () => {
-		await getCurrencies();
-		firstLoadCurrenciesData();
-	}, [firstLoadCurrenciesData, getCurrencies]);
+		// Only fetch if we don't have data and not currently fetching
+		if (!currenciesQuery.data && currenciesQuery.fetchStatus !== 'fetching') {
+			await currenciesQuery.refetch();
+		}
+		firstLoadData();
+	}, [firstLoadData, currenciesQuery]);
 
 	return {
 		currencies,

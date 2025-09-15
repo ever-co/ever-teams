@@ -20,7 +20,7 @@ export interface UseCurrenciesReturn {
 	/** Function to manually fetch currencies data */
 	getCurrencies: () => Promise<void>;
 	/** First load data function for backward compatibility */
-	firstLoadCurrenciesData: () => void;
+	firstLoadCurrenciesData: () => Promise<void>;
 	/** Error object from React Query if the request failed */
 	error: Error | null;
 	/** Boolean indicating if there's an error */
