@@ -341,7 +341,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={managerOptions}
 							placeholder="Select a manager..."
 						/>
-						<div className="flex gap-1 w-full">
+						<div className="flex gap-1 flex-wrap w-full">
 							{selectedManagers.map((managerId) => {
 								const manager = managers.find((manager) => manager.id === managerId);
 
