@@ -299,7 +299,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={statusOptions}
 							placeholder="Select a status..."
 						/>
-						<div className="flex gap-1 w-full">
+						<div className="flex flex-wrap gap-1 bg-green-400 w-full">
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
