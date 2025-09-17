@@ -331,6 +331,14 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	const [selected, setSelected] = useState<TOrganizationProject | null>(null);
 
+	// Additional sync for controlled mode
+	useEffect(() => {
+		if (controlled && task) {
+			const projectMatch = validProjects.find((project) => project.id === task.projectId);
+			setSelected(projectMatch || null);
+		}
+	}, [controlled, validProjects, task, task?.projectId]);
+
 	// Initialize and keep selected in sync with task project
 	useEffect(() => {
 		if (task && task.projectId) {
@@ -340,14 +348,6 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			setSelected(null);
 		}
 	}, [task, task?.projectId, validProjects]);
-
-	// Additional sync for controlled mode
-	useEffect(() => {
-		if (controlled && task) {
-			const projectMatch = validProjects.find((project) => project.id === task.projectId);
-			setSelected(projectMatch || null);
-		}
-	}, [controlled, validProjects, task, task?.projectId]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
@@ -373,7 +373,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const handleRemoveProject = useCallback(async () => {
 		try {
 			if (task) {
-				await updateTask({ ...task, projectId: undefined });
+				await updateTask({ ...task, projectId: null });
 				setSelected(null);
 			}
 		} catch (error) {
