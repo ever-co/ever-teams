@@ -331,29 +331,21 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	const [selected, setSelected] = useState<TOrganizationProject | null>(null);
 
+	const projectMatch = useMemo(() => {
+		return validProjects.find((project) => project.id === task?.projectId);
+	}, [validProjects, task?.projectId]);
+
 	// Additional sync for controlled mode
 	useEffect(() => {
-		if (controlled && task) {
-			const projectMatch = validProjects.find((project) => project.id === task.projectId);
-			setSelected(projectMatch || null);
-		}
+		setSelected(projectMatch || null);
 	}, [controlled, validProjects, task, task?.projectId]);
-
-	// Initialize and keep selected in sync with task project
-	useEffect(() => {
-		if (task && task.projectId) {
-			const projectMatch = validProjects.find((project) => project.id === task.projectId);
-			setSelected(projectMatch || null);
-		} else if (!task?.projectId) {
-			setSelected(null);
-		}
-	}, [task, task?.projectId, validProjects]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
 		async (project: TOrganizationProject) => {
 			try {
 				if (task) {
+					if (task?.projectId === project.id) return;
 					await updateTask({ ...task, projectId: project.id });
 					toast.success('Task project updated successfully', {
 						description: `Project changed to "${project.name}"`
@@ -373,6 +365,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const handleRemoveProject = useCallback(async () => {
 		try {
 			if (task) {
+				if (!task?.projectId) return;
 				await updateTask({ ...task, projectId: null });
 				setSelected(null);
 			}
