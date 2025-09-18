@@ -22,8 +22,6 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 	const [hidden, setHidden] = useState(false);
 
-	// const { actionType, actionTypeItems, onChange } = useActionType();
-
 	const linkedTasks = useMemo(() => {
 		return (
 			task.linkedIssues
@@ -31,7 +29,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 					issue: t,
 					task: t.taskFrom
 				}))
-				.sort((a, b) => a.task.createdAt - b.task.createdAt) ?? []
+				?.sort((a, b) => String(a.task?.id).localeCompare(String(b.task?.id))) ?? []
 		);
 	}, [task]);
 
