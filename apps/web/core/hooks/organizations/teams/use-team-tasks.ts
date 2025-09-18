@@ -460,8 +460,8 @@ export function useTeamTasks() {
 				if (isDetailedTask) {
 					setDetailedTask({
 						...detailedTask,
-						...res
-					});
+						public: res.public
+					} as TTask);
 				}
 				return res;
 			}
