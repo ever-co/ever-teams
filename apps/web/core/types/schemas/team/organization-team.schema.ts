@@ -6,7 +6,6 @@ import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
-import { teamSchema } from './team.schema';
 
 export const baseProjectSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
@@ -229,18 +228,64 @@ export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchem
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;
 
-export type TWorkspace = {
-	id: string;
-	name: string;
-	logo: string;
-	plan: string;
-	token: string;
-	isActive: boolean;
-	isDefault: boolean;
-	teams: Partial<z.infer<typeof teamSchema>>[];
-	organization: Partial<z.infer<typeof organizationSchema>> & {
-		organizationId: string;
-		organizationName: string;
-	};
-	organizationTeams: Partial<z.infer<typeof organizationTeamSchema>>[];
-};
+/**
+ * Schema for workspace tenant information
+ */
+export const workspaceTenantSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	logo: z.string().optional()
+});
+
+/**
+ * Schema for workspace user information
+ */
+export const workspaceUserSchema = z.object({
+	id: z.string(),
+	email: z.string().email(),
+	name: z.string(),
+	imageUrl: z.string().optional(),
+	lastTeamId: z.string().nullable(),
+	lastLoginAt: z.string().optional().nullable(),
+	tenant: workspaceTenantSchema
+});
+
+/**
+ * Schema for current teams in workspace
+ */
+export const workspaceTeamSchema = z.object({
+	team_id: z.string(),
+	team_name: z.string(),
+	team_logo: z.string().optional(),
+	team_member_count: z.string(),
+	profile_link: z.string(),
+	prefix: z.string().nullable()
+});
+
+/**
+ * Schema for individual workspace data (from API response)
+ */
+export const workspaceDataSchema = z.object({
+	user: workspaceUserSchema,
+	token: z.string(),
+	current_teams: z.array(workspaceTeamSchema)
+});
+
+/**
+ * Schema for complete workspace response from /auth/workspaces endpoint
+ */
+export const workspaceResponseSchema = z.object({
+	workspaces: z.array(workspaceDataSchema),
+	confirmed_email: z.string().email(),
+	show_popup: z.boolean(),
+	total_workspaces: z.number()
+});
+
+// Export types for the new schemas
+export type TWorkspaceTenant = z.infer<typeof workspaceTenantSchema>;
+export type TWorkspaceUser = z.infer<typeof workspaceUserSchema>;
+export type TWorkspaceTeam = z.infer<typeof workspaceTeamSchema>;
+export type TWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;
+
+// TWorkspace type based on real data structure (workspace-data.json)
+export type TWorkspace = z.infer<typeof workspaceDataSchema>;

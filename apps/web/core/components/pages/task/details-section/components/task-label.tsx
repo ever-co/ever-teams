@@ -12,9 +12,9 @@ const TaskLabel: React.FC<TaskLabelProps> = ({ labelIconPath, afterIconPath, lab
 	return (
 		<div
 			className={clsxm(
-				'flex items-center',
+				'flex items-start',
 				(labelTitle === 'Assignees' || labelTitle === 'Estimations' || labelTitle === 'Total Group Time') &&
-					'h6'
+					'h-6'
 			)}
 		>
 			{labelIconPath ? (

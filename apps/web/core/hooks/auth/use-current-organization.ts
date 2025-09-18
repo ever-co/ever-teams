@@ -12,7 +12,7 @@ export const useGetCurrentOrganization = () => {
 	const organizationId = getOrganizationIdCookie();
 
 	const currentOrganizationQuery = useQuery({
-		queryKey: queryKeys.auth.currentOrganization(organizationId),
+		queryKey: queryKeys.workspaces.currentOrganization(organizationId),
 		queryFn: async () => {
 			return await organizationService.getOrganizationById(organizationId);
 		},

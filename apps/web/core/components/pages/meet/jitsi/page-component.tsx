@@ -109,7 +109,7 @@ function MeetPage() {
 				<h2 className="mb-2 text-xl font-semibold text-red-600">Failed to initialize meeting</h2>
 				<p className="mb-4 text-gray-600">{error.message}</p>
 				<button
-					onClick={() => window.location.reload()}
+					onClick={() => router.refresh()}
 					className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
 				>
 					Try Again

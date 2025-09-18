@@ -150,7 +150,15 @@ class AuthService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
+		console.log('🔍 authService.signInWorkspace called with:', {
+			email: params.email,
+			hasToken: !!params.token,
+			selectedTeam: params.selectedTeam,
+			gauzyApiUrl: GAUZY_API_BASE_SERVER_URL.value
+		});
+
 		if (GAUZY_API_BASE_SERVER_URL.value) {
+			console.log('📡 Using Gauzy API endpoint: /auth/signin.workspace');
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,

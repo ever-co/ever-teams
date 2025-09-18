@@ -3,7 +3,6 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-// import { cn } from '@ever-teams/ui';
 import { BackdropLoader, Button, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
@@ -16,6 +15,7 @@ import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/co
 import { cn } from '@/core/lib/helpers';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -39,6 +39,11 @@ export default function AuthPassword() {
 
 function LoginForm({ form }: { form: TAuthenticationPassword }) {
 	const t = useTranslations();
+	const [showPassword, setShowPassword] = useState(false);
+
+	const togglePasswordVisibility = useCallback(() => {
+		setShowPassword(!showPassword);
+	}, [showPassword]);
 
 	return (
 		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-transparent rounded-2xl">
@@ -61,7 +66,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 						/>
 
 						<InputField
-							type="password"
+							type={showPassword ? 'text' : 'password'}
 							name="password"
 							placeholder={t('form.PASSWORD_PLACEHOLDER')}
 							className="dark:bg-[#25272D]"
@@ -70,6 +75,19 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 							errors={form.errors}
 							onChange={form.handleChange}
 							autoComplete="off"
+							trailingNode={
+								<button
+									type="button"
+									className="text-xs   px-4 font-normal text-gray-500 dark:text-gray-400"
+									onClick={togglePasswordVisibility}
+								>
+									{showPassword ? (
+										<Eye size={15} className=" font-light" />
+									) : (
+										<EyeOff size={15} className=" font-light" />
+									)}
+								</button>
+							}
 						/>
 
 						<Text.Error className="justify-self-start self-start">{form.errors.loginFailed}</Text.Error>

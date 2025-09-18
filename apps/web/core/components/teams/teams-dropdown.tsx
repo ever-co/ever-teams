@@ -1,10 +1,11 @@
 'use client';
 
 import { useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
@@ -34,6 +35,17 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const path = usePathname();
 	const router = useRouter();
+
+	// Extract memberId from current path for profile validation
+	const currentMemberId = React.useMemo(() => {
+		if (!path.includes('/profile/')) return null;
+		const pathSegments = path.split('/');
+		const profileIndex = pathSegments.findIndex((segment) => segment === 'profile');
+		return profileIndex !== -1 && profileIndex + 1 < pathSegments.length ? pathSegments[profileIndex + 1] : null;
+	}, [path]);
+
+	// Use our validation hook for profile pages
+	const profileValidation = useProfileValidation(currentMemberId);
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
@@ -71,10 +83,36 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						router.push('/');
 					}
 				}
+
+				// Handle profile page validation using our centralized hook
+				if (path.includes('/profile/')) {
+					const isValidSwitch = profileValidation.validateTeamSwitch(item.data);
+					if (!isValidSwitch) {
+						return; // Hook handles toast and redirect
+					}
+				}
+
+				// From all teams page
+				if (path.includes('/all-teams')) {
+					router.push('/');
+				}
 			}
 		},
-		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, detailedTask] // Removed timerStatus and activeTeam to prevent constant recreation
+		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
 	);
+
+	useEffect(() => {
+		if (path.includes('/all-teams')) {
+			setTeamItem({
+				key: 'all-teams',
+				Label: () => (
+					<div className="h-[42px] flex items-center">
+						<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+					</div>
+				)
+			});
+		}
+	}, [path, userManagedTeams.length, t]);
 
 	// Create items from teams - keep it simple to avoid circular dependencies
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
@@ -93,15 +131,25 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			prevActiveTeamRef.current = currentTeamKey;
 
 			if (activeTeam?.id) {
-				const foundItem = items.find((t) => t.key === activeTeam.id);
-				if (foundItem) {
+				// Find item directly from teams instead of items to avoid circular dependency
+				const foundTeam = teams.find((t) => t.id === activeTeam.id);
+				if (foundTeam) {
+					const foundItem = mapTeamItems([foundTeam], onChangeActiveTeam)[0];
 					setTeamItem(foundItem);
 				}
 			} else {
 				setTeamItem(null);
 			}
 		}
-	}, [activeTeam?.id, activeTeam?.name, activeTeam?.color, activeTeam?.emoji, activeTeam?.teamSize, items]);
+	}, [
+		activeTeam?.id,
+		activeTeam?.name,
+		activeTeam?.color,
+		activeTeam?.emoji,
+		activeTeam?.teamSize,
+		teams,
+		onChangeActiveTeam
+	]); // Removed items dependency
 
 	return (
 		<div>
@@ -114,14 +162,22 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				)}
 				value={teamItem}
 				onChange={onChangeActiveTeam}
-				items={items}
+				items={[
+					...items,
+					...(userManagedTeams.length > 1 || path.includes('/all-teams')
+						? [
+								{
+									key: 'all-teams',
+									Label: () => (
+										<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+									)
+								}
+							]
+						: [])
+				]}
 				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
 			>
-				{userManagedTeams.length > 1 && (
-					<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
-				)}
-
 				{!publicTeam && (
 					<Tooltip
 						enabled={!user?.isEmailVerified}

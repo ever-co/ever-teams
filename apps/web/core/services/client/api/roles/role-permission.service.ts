@@ -4,6 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import { rolePermissionSchema, TRolePermission } from '@/core/types/schemas/role/role-permission-schema';
+import { z } from 'zod';
 
 /**
  * Enhanced Role Permission Service with Zod validation
@@ -70,6 +71,38 @@ class RolePermissionService extends APIService {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
 					'Role permission update validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'RolePermissionService'
+				);
+			}
+			throw error;
+		}
+	};
+
+	/**
+	 * Get my role permissions
+	 *
+	 * @returns Promise<PaginationResponse<TRolePermission>> - Validated role permissions for current user
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+
+	getMyRolePermissions = async () => {
+		try {
+			const response = await this.get<PaginationResponse<TRolePermission>>('/role-permissions/me');
+
+			// Validate the response data using Zod schema
+			return validateApiResponse(
+				z.array(rolePermissionSchema),
+				response.data,
+				'getMyRolePermissions API response'
+			);
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Get my role permissions validation failed:',
 					{
 						message: error.message,
 						issues: error.issues

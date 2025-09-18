@@ -1,364 +1,153 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAtom } from 'jotai';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { workspaceService } from '@/core/services/client/api/auth';
-import { workspaceSwitchingState, workspacesErrorState, activeWorkspaceIdState } from '@/core/stores/auth';
-import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { useWorkspaces } from './use-workspaces';
-import { useAuthenticateUser } from './use-authenticate-user';
+import { useMutation } from '@tanstack/react-query';
+import { useCacheInvalidation } from '@/core/hooks/common/use-cache-invalidation';
 import { toast } from 'sonner';
-import { queryKeys } from '@/core/query/keys';
+import { useWorkspaces } from './use-workspaces';
+import { authService } from '@/core/services/client/api/auth';
+import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
- * Hook for managing workspace switching
+ * Smart workspace switcher hook based on password/page-component.tsx logic
+ * Reuses the existing authentication flow that works perfectly
  */
 export function useWorkspaceSwitcher() {
 	const router = useRouter();
-	const queryClient = useQueryClient();
-	const { user } = useAuthenticateUser();
-	const { workspaces, setActiveWorkspace } = useWorkspaces();
+	const { data: user } = useUserQuery();
+	const { workspaces } = useWorkspaces();
+
+	// Use cache invalidation hook - much cleaner than manual invalidations
+	const { smartInvalidate } = useCacheInvalidation();
+	/**
+	 * Get last team ID with recent logout logic (from password component)
+	 */
+	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
+		if (workspaces.length === 0) {
+			return null;
+		}
+		const mostRecentWorkspace = findMostRecentWorkspace(workspaces);
+		return mostRecentWorkspace.user.lastTeamId ?? null;
+	}, [workspaces]);
 
 	/**
-	 * Intelligent cache management utility
+	 * Check if workspaces have multiple teams (from password component)
 	 */
-	const manageCacheIntelligently = useCallback(
-		async (teamId: string) => {
-			// Prefetch related data that will likely be needed
-			const prefetchPromises = [
-				// Prefetch team data for the new workspace
-				queryClient.prefetchQuery({
-					queryKey: queryKeys.organizationTeams.detail(teamId),
-					staleTime: 1000 * 60 * 10 // 10 minutes
-				}),
-				// Prefetch tasks for the new team
-				queryClient.prefetchQuery({
-					queryKey: queryKeys.tasks.byTeam(teamId),
-					staleTime: 1000 * 60 * 5 // 5 minutes
-				})
-			];
-
-			// Execute prefetches in background (don't wait for them)
-			Promise.allSettled(prefetchPromises).catch((error) => {
-				console.warn('Prefetch error (non-critical):', error);
-			});
-		},
-		[queryClient]
+	const hasMultipleTeams = useMemo(
+		() => workspaces.some((workspace) => workspace.current_teams.length > 1),
+		[workspaces]
 	);
 
-	const [isSwitching, setIsSwitching] = useAtom(workspaceSwitchingState);
-	const [error, setError] = useAtom(workspacesErrorState);
-	const [activeWorkspaceId, setActiveWorkspaceId] = useAtom(activeWorkspaceIdState);
-
 	/**
-	 * Retrieves the last used team from localStorage
+	 * Smart team selection logic (adapted from password component)
 	 */
-	const getLastUsedTeamId = useCallback((): string | null => {
-		if (typeof window === 'undefined') return null;
-		return window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
-	}, []);
-
-	/**
-	 * Retrieves the last used team for a specific workspace
-	 */
-	const getLastUsedTeamForWorkspace = useCallback((workspaceId: string): string | null => {
-		if (typeof window === 'undefined') return null;
-		const key = `${LAST_WORKSPACE_AND_TEAM}_${workspaceId}`;
-		return window.localStorage.getItem(key);
-	}, []);
-
-	/**
-	 * Saves the last used team to localStorage (global)
-	 */
-	const saveLastUsedTeamId = useCallback((teamId: string) => {
-		if (typeof window === 'undefined') return;
-		window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, teamId);
-	}, []);
-
-	/**
-	 * Saves the last used team for a specific workspace
-	 */
-	const saveLastUsedTeamForWorkspace = useCallback((workspaceId: string, teamId: string): void => {
-		if (typeof window === 'undefined') return;
-		const key = `${LAST_WORKSPACE_AND_TEAM}_${workspaceId}`;
-		window.localStorage.setItem(key, teamId);
-	}, []);
-
-	/**
-	 * Intelligently selects the appropriate team for a given workspace
-	 * Priority order:
-	 * 1. Last used team in this workspace (from localStorage)
-	 * 2. Default team (if marked as default)
-	 * 3. User's primary team (if user is member)
-	 * 4. First available team (fallback)
-	 */
-	const selectTargetTeam = useCallback(
+	const getSmartTeamSelection = useCallback(
 		(workspace: TWorkspace): string => {
-			if (!workspace.teams || workspace.teams.length === 0) {
-				console.warn(`No teams available in workspace ${workspace.name}`);
-				return '';
+			const currentTeams = workspace.current_teams;
+
+			if (!currentTeams || currentTeams.length === 0) {
+				throw new Error('No teams available in this workspace');
 			}
 
-			// 1. Try to get last used team for this specific workspace
-			const lastUsedTeamForWorkspace = getLastUsedTeamForWorkspace(workspace.id);
-			if (lastUsedTeamForWorkspace) {
-				const lastUsedTeam = workspace.teams.find((team) => team.id === lastUsedTeamForWorkspace);
-				if (lastUsedTeam) {
-					console.log(`Team selected for workspace ${workspace.name}:`, {
-						teamId: lastUsedTeam.id,
-						teamName: lastUsedTeam.name,
-						reason: 'Last used team for this workspace'
-					});
-					return lastUsedTeam.id || '';
-				}
+			// Priority 1: Last selected team from localStorage
+			const lastSelectedTeamFromStorage =
+				typeof window !== 'undefined' ? window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) : null;
+
+			// Priority 2: Last team from API
+			const lastSelectedTeamFromAPI = getLastTeamIdWithRecentLogout();
+
+			// Check if last selected team exists in current workspace
+			if (
+				lastSelectedTeamFromStorage &&
+				currentTeams.find((team) => team.team_id === lastSelectedTeamFromStorage)
+			) {
+				return lastSelectedTeamFromStorage;
 			}
 
-			// 1.5. Fallback to global last used team
-			const globalLastUsedTeamId = getLastUsedTeamId();
-			if (globalLastUsedTeamId) {
-				const globalLastUsedTeam = workspace.teams.find((team) => team.id === globalLastUsedTeamId);
-				if (globalLastUsedTeam) {
-					console.log(`Team selected for workspace ${workspace.name}:`, {
-						teamId: globalLastUsedTeam.id,
-						teamName: globalLastUsedTeam.name,
-						reason: 'Global last used team'
-					});
-					return globalLastUsedTeam.id || '';
-				}
+			if (lastSelectedTeamFromAPI && currentTeams.find((team) => team.team_id === lastSelectedTeamFromAPI)) {
+				return lastSelectedTeamFromAPI;
 			}
 
-			// 2. Try to find default team
-			const defaultTeam = workspace.teams.find((team) => team.isDefault);
-			if (defaultTeam) {
-				console.log(`Team selected for workspace ${workspace.name}:`, {
-					teamId: defaultTeam.id,
-					teamName: defaultTeam.name,
-					reason: 'Default team'
-				});
-				return defaultTeam.id || '';
-			}
-
-			// 3. Try to find user's primary team (where user is active member)
-			if (user?.id) {
-				const userPrimaryTeam = workspace.teams.find((team) =>
-					team.members?.some((member) => member.employee?.userId === user.id && member.isActive)
-				);
-				if (userPrimaryTeam) {
-					console.log(`Team selected for workspace ${workspace.name}:`, {
-						teamId: userPrimaryTeam.id,
-						teamName: userPrimaryTeam.name,
-						reason: 'User primary team'
-					});
-					return userPrimaryTeam.id || '';
-				}
-			}
-
-			// 4. Fallback to first available team
-			const fallbackTeam = workspace.teams[0];
-			console.log(`Team selected for workspace ${workspace.name}:`, {
-				teamId: fallbackTeam.id,
-				teamName: fallbackTeam.name,
-				reason: 'First available team (fallback)'
-			});
-
-			return fallbackTeam.id || '';
+			// Priority 3: First team in workspace
+			return currentTeams[0].team_id;
 		},
-		[getLastUsedTeamId, getLastUsedTeamForWorkspace, user?.id]
+		[getLastTeamIdWithRecentLogout]
 	);
 
 	/**
-	 * Mutation to switch workspace
+	 * Workspace switch mutation using the EXACT same flow as password authentication
 	 */
 	const switchWorkspaceMutation = useMutation({
-		mutationKey: queryKeys.auth.switchWorkspace(undefined, user?.id),
-
-		mutationFn: async (request: { teamId: string; email: string }) => {
-			return await workspaceService.switchWorkspace(request.teamId, request.email);
-		},
-		onSuccess: async (response, variables) => {
-			if (response) {
-				// Update local state
-				setActiveWorkspace(variables.teamId);
-				setActiveWorkspaceId(variables.teamId);
-
-				// Save the last used team (global and per workspace)
-				saveLastUsedTeamId(variables.teamId);
-
-				// Find the workspace to save team preference per workspace
-				const currentWorkspace = workspaces.find((w) => w.teams.some((team) => team.id === variables.teamId));
-				if (currentWorkspace) {
-					saveLastUsedTeamForWorkspace(currentWorkspace.id, variables.teamId);
-				}
-
-				// Intelligent cache management and prefetching
-				manageCacheIntelligently(variables.teamId);
-
-				// Optimistic cache updates for better performance
-				try {
-					// Update workspaces cache optimistically
-					queryClient.setQueryData(
-						queryKeys.auth.workspaces(user?.id),
-						(oldData: TWorkspace[] | undefined) => {
-							if (!oldData) return oldData;
-							return oldData.map((workspace) => ({
-								...workspace,
-								isActive: workspace.teams.some((team) => team.id === variables.teamId)
-							}));
-						}
-					);
-
-					// Invalidate only critical queries that need fresh data
-					await Promise.all([
-						queryClient.invalidateQueries({ queryKey: queryKeys.users.me }),
-						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }),
-						// Selectively invalidate team-related queries
-						queryClient.invalidateQueries({
-							queryKey: ['organization-teams'],
-							exact: false,
-							refetchType: 'active' // Only refetch active queries
-						})
-					]);
-
-					// Background refresh of workspaces to ensure consistency
-					queryClient.refetchQueries({
-						queryKey: queryKeys.auth.workspaces(user?.id),
-						type: 'active'
-					});
-				} catch (cacheError) {
-					console.warn('Cache update error:', cacheError);
-					// Fallback to full invalidation if optimistic update fails
-					await queryClient.invalidateQueries({ queryKey: queryKeys.auth.workspaces(user?.id) });
-				}
-
-				// Show success message
-				toast.success('Workspace changed successfully');
-
-				// Use optimized navigation instead of brutal reload
-				try {
-					if (response.data.loginResponse) {
-						// New login response - redirect to home
-						router.push('/');
-					} else {
-						// Existing session - use router refresh for smooth transition
-						router.refresh();
-
-						// Navigate to home to ensure clean state
-						setTimeout(() => {
-							router.push('/');
-						}, 100);
-					}
-				} catch (navigationError) {
-					console.error('Navigation error after workspace switch:', navigationError);
-					// Fallback to reload only if navigation fails
-					window.location.href = '/';
-				}
-			} else {
-				throw new Error('Error switching workspace');
+		mutationFn: async ({ workspace, selectedTeam }: { workspace: TWorkspace; selectedTeam: string }) => {
+			if (!user?.email) {
+				throw new Error('User email not found');
 			}
+
+			const params = {
+				email: user.email,
+				token: workspace.token, // THE WORKSPACE TOKEN (not tenantId!)
+				defaultTeamId: selectedTeam,
+				selectedTeam: selectedTeam,
+				lastTeamId: selectedTeam
+			};
+
+			// Use the EXACT same parameters as password component
+			return await authService.signInWorkspace(params);
+		},
+		onSuccess: async () => {
+			// Show success message
+			toast.success('Workspace changed successfully');
+
+			// Invalidate all workspace-related queries
+			// Cache invalidation using semantic hook - much cleaner and more maintainable!
+			await smartInvalidate('team-creation');
+			// Navigate to home (EXACT same as password component)
+			router.push('/');
 		},
 		onError: (error: any) => {
-			const errorMessage = error.message || 'Error switching workspace';
-			setError(errorMessage);
-			toast.error(errorMessage);
-		},
-		onSettled: () => {
-			setIsSwitching(false);
+			console.error('Error switching workspace:', error);
+			toast.error(error.message || 'Error switching workspace');
 		}
 	});
 
 	/**
-	 * Main function to switch workspace
+	 * Main switch function (adapted from password component logic)
 	 */
 	const switchToWorkspace = useCallback(
-		async (targetWorkspaceId: string) => {
+		(workspace: TWorkspace) => {
+			if (!user?.email) {
+				toast.error('User not authenticated');
+				return;
+			}
+
 			try {
-				setIsSwitching(true);
-				setError(null);
+				// Smart team selection
+				const selectedTeam = getSmartTeamSelection(workspace);
 
-				// Verify user is authenticated
-				if (!user?.email) {
-					throw new Error('User not authenticated');
+				// Update localStorage (EXACT same as password component)
+				if (typeof window !== 'undefined') {
+					window.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
+					window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 				}
 
-				// Find target workspace
-				const targetWorkspace = workspaces.find((w) => w.id === targetWorkspaceId);
-				if (!targetWorkspace) {
-					throw new Error('Workspace not found');
-				}
-
-				// Check if workspace has teams
-				if (targetWorkspace.teams.length === 0) {
-					throw new Error('No teams available in this workspace');
-				}
-
-				// Select target team according to defined logic
-				const targetTeamId = selectTargetTeam(targetWorkspace);
-
-				// Prepare switch request
-				const switchRequest: { teamId: string; email: string } = {
-					teamId: targetTeamId,
-					email: user.email
-				};
-
-				// Execute the switch
-				await switchWorkspaceMutation.mutateAsync(switchRequest);
+				// Execute the switch using the proven flow
+				switchWorkspaceMutation.mutate({ workspace, selectedTeam });
 			} catch (error: any) {
-				const errorMessage = error.message || 'Error switching workspace';
-				setError(errorMessage);
-				setIsSwitching(false);
-				toast.error(errorMessage);
+				toast.error(error.message || 'Error preparing workspace switch');
 			}
 		},
-		[user?.email, workspaces, selectTargetTeam, switchWorkspaceMutation, setIsSwitching, setError]
+		[user, getSmartTeamSelection, switchWorkspaceMutation]
 	);
-
-	/**
-	 * Check if a workspace switch is possible
-	 */
-	const canSwitchToWorkspace = useCallback(
-		(workspaceId: string): boolean => {
-			const workspace = workspaces.find((w) => w.id === workspaceId);
-			return !!(workspace && workspace.teams.length > 0 && workspace.id !== activeWorkspaceId);
-		},
-		[workspaces, activeWorkspaceId]
-	);
-
-	/**
-	 * Get available workspaces for switching
-	 */
-	const getAvailableWorkspaces = useCallback(() => {
-		return workspaces.filter((w) => w.id !== activeWorkspaceId && w.teams.length > 0);
-	}, [workspaces, activeWorkspaceId]);
-
-	/**
-	 * Reset error state
-	 */
-	const clearError = useCallback(() => {
-		setError(null);
-	}, [setError]);
 
 	return {
-		// Actions
 		switchToWorkspace,
-		canSwitchToWorkspace,
-		getAvailableWorkspaces,
-		clearError,
-
-		// States
-		isSwitching,
-		error,
-
-		// Utilities
-		getLastUsedTeamId,
-		getLastUsedTeamForWorkspace,
-		saveLastUsedTeamId,
-		saveLastUsedTeamForWorkspace,
-		selectTargetTeam,
-
-		// Mutation for advanced control
-		switchWorkspaceMutation
+		isLoading: switchWorkspaceMutation.isPending,
+		error: switchWorkspaceMutation.error,
+		hasMultipleTeams,
+		getSmartTeamSelection
 	};
 }
