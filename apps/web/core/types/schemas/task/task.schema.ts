@@ -216,9 +216,9 @@ export const updateActiveTaskSchema = z.object({
 
 export const taskEstimationsSchema = z
 	.object({
-		estimate: z.number(),
-		employeeId: z.string(),
-		taskId: z.string()
+		estimate: z.number().min(0),
+		employeeId: uuIdSchema,
+		taskId: uuIdSchema
 	})
 	.merge(basePerTenantAndOrganizationEntitySchema);
 
