@@ -214,11 +214,13 @@ export const updateActiveTaskSchema = z.object({
 
 // Task Estimations
 
-export const taskEstimationsSchema = z.object({
-	estimate: z.number(),
-	employeeId: z.string(),
-	taskId: z.string()
-});
+export const taskEstimationsSchema = z
+	.object({
+		estimate: z.number(),
+		employeeId: z.string(),
+		taskId: z.string()
+	})
+	.merge(basePerTenantAndOrganizationEntitySchema);
 
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
