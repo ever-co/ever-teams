@@ -212,6 +212,14 @@ export const updateActiveTaskSchema = z.object({
 	raw: z.array(z.any())
 });
 
+// Task Estimations
+
+export const taskEstimationsSchema = z.object({
+	estimate: z.number(),
+	employeeId: z.string(),
+	taskId: z.string()
+});
+
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
 export type TTask = z.infer<typeof taskSchema>;
@@ -224,6 +232,7 @@ export type TTaskSize = z.infer<typeof taskSizeEntitySchema>;
 export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
 export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
 export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
+export type TTaskEstimations = z.infer<typeof taskEstimationsSchema>;
 
 // Types for enums
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;
