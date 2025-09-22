@@ -20,5 +20,6 @@ function IgniteApp() {
 	return <App hideSplashScreen={SplashScreen.hideAsync} />;
 }
 
-registerRootComponent(IgniteApp);
-export default Sentry.wrap(IgniteApp);
+const WrappedApp = Sentry.wrap(IgniteApp);
+registerRootComponent(WrappedApp);
+export default WrappedApp;

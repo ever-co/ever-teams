@@ -26,27 +26,36 @@ import * as Updates from 'expo-updates';
 /**
  *  This is where you put your crash reporting service initialization code to call in `./app/app.tsx`
  */
+let isInitialized = false;
+
 export const initCrashReporting = () => {
+	// Guard against multiple initializations
+	if (isInitialized) {
+		return;
+	}
+
 	if (process.env.EXPO_PUBLIC_SENTRY_DSN) {
+		isInitialized = true;
 		Sentry.init({
 			dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-			// Replace enableInExpoDevelopment with enabled check
 			debug: __DEV__, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
 
-			// Adds more context data to events (IP address, cookies, user, etc.)
-			// For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-			sendDefaultPii: true,
+			// Gate PII by env var; DSN is public but PII is not.
+			sendDefaultPii: process.env.EXPO_PUBLIC_SENTRY_SEND_PII === 'true',
 
-			// Enable Logs
-			enableLogs: true,
+			// Avoid noisy logs in production
+			enableLogs: __DEV__,
 
-			// Configure Session Replay
-			replaysSessionSampleRate: 0.1,
-			replaysOnErrorSampleRate: 1,
+			// Be explicit; default off in prod unless enabled via env
+			replaysSessionSampleRate: __DEV__ ? 1.0 : Number(process.env.EXPO_PUBLIC_SENTRY_REPLAY_SAMPLE_RATE ?? 0),
+			replaysOnErrorSampleRate: __DEV__
+				? 1.0
+				: Number(process.env.EXPO_PUBLIC_SENTRY_REPLAY_ON_ERROR_SAMPLE_RATE ?? 0),
+
 			integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
 
-			// Environment
-			environment: __DEV__ ? 'development' : 'production'
+			// Environment from Updates.channel when available, fallback to dev/prod
+			environment: Updates.channel || (__DEV__ ? 'development' : 'production')
 
 			// uncomment the line below to enable Spotlight (https://spotlightjs.com)
 			// spotlight: __DEV__,
@@ -97,7 +106,10 @@ export const reportCrash = (error: any, type: ErrorType = ErrorType.FATAL) => {
 		// In production, utilize crash reporting service of choice below:
 		if (process.env.EXPO_PUBLIC_SENTRY_DSN) {
 			// Set error type as tag for better categorization
-			Sentry.setTag('errorType', type);
+			Sentry.withScope((scope) => {
+				scope.setTag('errorType', type);
+				Sentry.captureException(error);
+			});
 			// Use direct captureException (no more .Native needed)
 			Sentry.captureException(error);
 		}
