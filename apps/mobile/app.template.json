@@ -21,7 +21,13 @@
 		"jsEngine": "hermes",
 		"assetBundlePatterns": ["**/*"],
 		"plugins": [
-			"sentry-expo",
+			[
+				"@sentry/react-native/expo",
+				{
+					"organization": "ever-co",
+					"project": "ever-teams-mobile"
+				}
+			],
 			[
 				"expo-media-library",
 				{

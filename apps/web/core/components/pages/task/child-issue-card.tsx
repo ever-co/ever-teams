@@ -1,6 +1,6 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { AddIcon } from 'assets/svg';
@@ -18,20 +18,7 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const tasks = useAtomValue(tasksByTeamState);
 	const [hidden, setHidden] = useState(false);
-
-	const childTasks = useMemo(() => {
-		const children = task?.children?.reduce((acc, item) => {
-			const $item = tasks.find((ts) => ts.id === item.id) || item;
-			if ($item) {
-				acc.push($item);
-			}
-			return acc;
-		}, [] as TTask[]);
-
-		return children || [];
-	}, [task, tasks]);
 
 	return (
 		<EverCard
@@ -57,13 +44,13 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 				</div>
 			</div>
 
-			{childTasks.length > 0 && (
+			{task.children?.length ? (
 				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
-					{childTasks?.map((task) => {
+					{task.children?.map((task) => {
 						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
 					})}
 				</div>
-			)}
+			) : null}
 
 			{task && <CreateChildTask task={task} modal={modal} />}
 		</EverCard>

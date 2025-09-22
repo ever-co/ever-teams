@@ -10,7 +10,6 @@ import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-li
 import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
@@ -21,30 +20,18 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const tasks = useAtomValue(tasksByTeamState);
 	const [hidden, setHidden] = useState(false);
 
-	// const { actionType, actionTypeItems, onChange } = useActionType();
-
 	const linkedTasks = useMemo(() => {
-		const issues = task?.linkedIssues?.reduce(
-			(acc, item) => {
-				const $item = tasks.find((ts) => ts.id === item.taskFrom?.id) || item.taskFrom;
-
-				if ($item /*&& item.action === actionType?.data?.value*/) {
-					acc.push({
-						issue: item,
-						task: $item
-					});
-				}
-
-				return acc;
-			},
-			[] as { issue: ITaskLinkedIssue; task: TTask }[]
+		return (
+			task.linkedIssues
+				?.map((t) => ({
+					issue: t,
+					task: t.taskFrom
+				}))
+				?.sort((a, b) => String(a.task?.id).localeCompare(String(b.task?.id))) ?? []
 		);
-
-		return issues || [];
-	}, [task, tasks]);
+	}, [task]);
 
 	return (
 		<EverCard
@@ -86,7 +73,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 			{/* {linkedTasks.length > 0 && <hr className="dark:border-[#7B8089]" />} */}
 
-			{linkedTasks.length > 0 && (
+			{linkedTasks.length > 0 ? (
 				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{linkedTasks?.map(({ task, issue }) => {
 						return (
@@ -100,7 +87,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 						);
 					})}
 				</div>
-			)}
+			) : null}
 
 			{task && <CreateLinkedTask task={task} modal={modal} />}
 		</EverCard>

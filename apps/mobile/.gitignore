@@ -136,3 +136,4 @@ yarn-error.log
 .expo/
 web-build/
 dist/
+.env.local
