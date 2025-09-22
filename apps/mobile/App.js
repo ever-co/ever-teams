@@ -5,6 +5,9 @@ import React from 'react';
 import { registerRootComponent } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import * as Sentry from '@sentry/react-native';
+
+// Sentry initialization moved to app/utils/crash-reporting.ts
 
 EStyleSheet.build({
 	// always call EStyleSheet.build() even if you don't use global variables!
@@ -17,5 +20,6 @@ function IgniteApp() {
 	return <App hideSplashScreen={SplashScreen.hideAsync} />;
 }
 
-registerRootComponent(IgniteApp);
-export default IgniteApp;
+const WrappedApp = Sentry.wrap(IgniteApp);
+registerRootComponent(WrappedApp);
+export default WrappedApp;
