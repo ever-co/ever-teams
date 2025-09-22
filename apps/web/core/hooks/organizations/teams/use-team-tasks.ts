@@ -458,7 +458,10 @@ export function useTeamTasks() {
 					public: publicity
 				});
 				if (isDetailedTask) {
-					setDetailedTask(res);
+					setDetailedTask({
+						...detailedTask,
+						public: res.public
+					} as TTask);
 				}
 				return res;
 			}
