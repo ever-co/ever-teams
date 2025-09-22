@@ -1,3 +1,5 @@
+import { ta } from 'date-fns/locale';
+
 /**
  * Centralize all query keys used by Tanstack Query.
  * Each key is defined once for better consistency.
