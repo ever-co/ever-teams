@@ -16,7 +16,20 @@ export function useTaskEstimations() {
 		}
 	});
 
+	const editTaskEstimationMutation = useMutation({
+		mutationFn: (data: TTaskEstimations) => {
+			return taskEstimationsService.editEstimation(data);
+		},
+		onSuccess: () => {
+			toast.success('Task estimation updated successfully');
+		},
+		onError: (error) => {
+			console.error('Error editing task estimation:', error);
+		}
+	});
+
 	return {
-		addEstimationMutation
+		addEstimationMutation,
+		editTaskEstimationMutation
 	};
 }
