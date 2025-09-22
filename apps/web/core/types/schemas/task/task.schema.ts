@@ -90,6 +90,17 @@ export const taskAssociationsSchema = z.object({
 	members: z.array(employeeSchema).optional(),
 	teams: z.array(organizationTeamSchema).optional()
 });
+
+// Task Estimations
+
+export const taskEstimationsSchema = z
+	.object({
+		estimate: z.number().min(0),
+		employeeId: uuIdSchema,
+		taskId: uuIdSchema
+	})
+	.merge(basePerTenantAndOrganizationEntitySchema);
+
 const baseTaskSchema = z.object({
 	title: z.string(),
 	number: z.number().optional().nullable(),
@@ -173,7 +184,8 @@ export const taskSchema = baseTaskPropertiesSchema
 		linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 		label: z.string().optional(),
 		estimateHours: z.number().optional(),
-		estimateMinutes: z.number().optional()
+		estimateMinutes: z.number().optional(),
+		estimations: z.array(taskEstimationsSchema).optional()
 	});
 
 // schema for ICreateTask
@@ -211,16 +223,6 @@ export const updateActiveTaskSchema = z.object({
 	generatedMaps: z.array(z.any()),
 	raw: z.array(z.any())
 });
-
-// Task Estimations
-
-export const taskEstimationsSchema = z
-	.object({
-		estimate: z.number().min(0),
-		employeeId: uuIdSchema,
-		taskId: uuIdSchema
-	})
-	.merge(basePerTenantAndOrganizationEntitySchema);
 
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
