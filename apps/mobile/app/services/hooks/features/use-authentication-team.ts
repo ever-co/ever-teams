@@ -24,7 +24,7 @@ export function useAuthenticationTeam() {
 		screen: 1,
 		animation: false
 	});
-	const [withteam, setWithTeam] = useState<boolean>(false);
+	const [withteam, setWithTeam] = useState<boolean>(true);
 	const [attemptsCount, setAttemptsCount] = useState(0);
 
 	const {
