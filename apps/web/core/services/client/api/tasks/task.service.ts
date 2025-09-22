@@ -34,9 +34,7 @@ class TaskService extends APIService {
 		'join[leftJoinAndSelect][members]': 'task.members',
 		'join[leftJoinAndSelect][user]': 'members.user',
 		'join[leftJoinAndSelect][estimations]': 'task.estimations',
-		...this.baseRelations.map((relation, index) => ({
-			[`relations[${index}]`]: relation
-		}))
+		...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
 	};
 
 	/**
