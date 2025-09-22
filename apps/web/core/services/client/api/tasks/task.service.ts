@@ -35,7 +35,8 @@ class TaskService extends APIService {
 				'linkedIssues.taskTo',
 				'linkedIssues.taskFrom',
 				'parent',
-				'children'
+				'children',
+				'estimations'
 			];
 
 			const obj = {
@@ -44,6 +45,7 @@ class TaskService extends APIService {
 				'join[alias]': 'task',
 				'join[leftJoinAndSelect][members]': 'task.members',
 				'join[leftJoinAndSelect][user]': 'members.user',
+				'join[leftJoinAndSelect][estimations]': 'task.estimations',
 				includeRootEpic: 'true'
 			} as Record<string, string>;
 
