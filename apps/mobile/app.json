@@ -19,9 +19,7 @@
 		},
 		"newArchEnabled": false,
 		"jsEngine": "hermes",
-		"assetBundlePatterns": [
-			"**/*"
-		],
+		"assetBundlePatterns": ["**/*"],
 		"plugins": [
 			[
 				"@sentry/react-native/expo",

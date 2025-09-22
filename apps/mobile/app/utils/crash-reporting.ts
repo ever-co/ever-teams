@@ -32,7 +32,25 @@ export const initCrashReporting = () => {
 			dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 			// Replace enableInExpoDevelopment with enabled check
 			enabled: !__DEV__, // Disabled in development, enabled in production
-			debug: __DEV__ // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+			debug: __DEV__, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+
+			// Adds more context data to events (IP address, cookies, user, etc.)
+			// For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+			sendDefaultPii: true,
+
+			// Enable Logs
+			enableLogs: true,
+
+			// Configure Session Replay
+			replaysSessionSampleRate: 0.1,
+			replaysOnErrorSampleRate: 1,
+			integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+
+			// Environment
+			environment: __DEV__ ? 'development' : 'production'
+
+			// uncomment the line below to enable Spotlight (https://spotlightjs.com)
+			// spotlight: __DEV__,
 		});
 
 		// Add Expo-specific tags and extras (previously handled by sentry-expo)
