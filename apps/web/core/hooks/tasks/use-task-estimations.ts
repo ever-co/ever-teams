@@ -24,7 +24,7 @@ export function useTaskEstimations() {
 			toast.success('Task estimation updated successfully');
 		},
 		onError: (error) => {
-			console.error('Error editing task estimation:', error);
+			toast.error('Error editing task estimation');
 		}
 	});
 
