@@ -5,6 +5,8 @@ import React from 'react';
 import { registerRootComponent } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import * as Sentry from '@sentry/react-native';
+
 // Sentry initialization moved to app/utils/crash-reporting.ts
 
 EStyleSheet.build({
@@ -19,4 +21,4 @@ function IgniteApp() {
 }
 
 registerRootComponent(IgniteApp);
-export default IgniteApp;
+export default Sentry.wrap(IgniteApp);
