@@ -19,7 +19,7 @@ class TaskEstimationsService extends APIService {
 		try {
 			validateApiResponse(createTaskEstimationSchema, data, 'addEstimation input data');
 
-			const response = await this.post<TTaskEstimations>('/task-estimations', data, {
+			const response = await this.post<TTaskEstimations>('/task-estimation', data, {
 				tenantId: this.tenantId
 			});
 
@@ -44,7 +44,7 @@ class TaskEstimationsService extends APIService {
 		try {
 			validateApiResponse(taskEstimationsSchema, data, 'editEstimation input data');
 
-			const response = await this.put<TTaskEstimations>(`/task-estimations/${data.id}`, data, {
+			const response = await this.put<TTaskEstimations>(`/task-estimation/${data.id}`, data, {
 				tenantId: this.tenantId
 			});
 
