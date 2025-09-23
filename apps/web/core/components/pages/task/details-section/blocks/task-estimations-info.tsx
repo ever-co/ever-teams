@@ -1,19 +1,28 @@
-import { detailedTaskState } from '@/core/stores';
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { activeTeamState, detailedTaskState } from '@/core/stores';
+import {
+	Disclosure,
+	DisclosureButton,
+	DisclosurePanel,
+	Popover,
+	PopoverButton,
+	PopoverPanel,
+	Transition
+} from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-// import { useAuthenticateUser } from '@app/hooks';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
+import { Plus } from 'lucide-react';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
 	const t = useTranslations();
-	// const { user } = useAuthenticateUser();
+	const activeTeam = useAtomValue(activeTeamState);
 
+	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			<TaskRow
@@ -40,16 +49,26 @@ const TaskEstimationsInfo = () => {
 							</DisclosureButton>
 							<DisclosurePanel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
-									{task?.members?.map((member) => {
-										// TODO
-										// Enable other users estimations in v2
+									{task?.estimations?.map((estimation) => {
 										return (
-											<React.Fragment key={member.id}>
+											<React.Fragment key={estimation.id}>
 												<ProfileInfoWithTime
-													key={member.id}
-													profilePicSrc={member.user?.imageUrl}
-													names={member.fullName ?? ''}
-													userId={member.userId}
+													key={estimation.id}
+													profilePicSrc={
+														teamMembers.find(
+															(member) => member.id === estimation.employeeId
+														)?.employee?.user?.imageUrl
+													}
+													names={
+														teamMembers.find(
+															(member) => member.id === estimation.employeeId
+														)?.employee?.fullName ?? ''
+													}
+													userId={
+														teamMembers.find(
+															(member) => member.id === estimation.employeeId
+														)?.employee?.userId
+													}
 													//@ts-ignore
 													time={
 														<TaskEstimate
@@ -63,14 +82,25 @@ const TaskEstimationsInfo = () => {
 										);
 									})}
 								</div>
-								{/*
-								TODO
-								Enable it in v2
-								*/}
-								{/* <button className="flex items-center text-[0.5rem] leading-[140%] border px-2.5 py-1 rounded-xl text-[#292D32] font-semibold dark:text-white gap-1 mt-2">
-									<AddIcon className="dark:stroke-white" />
-									Add new member
-								</button> */}
+								<Popover>
+									<PopoverButton className="flex items-center border text-xs rounded gap-x-2 p-2">
+										<Plus className="w-3 h-3" />
+										<p>Add new member</p>
+									</PopoverButton>
+									<Transition
+										as="div"
+										enter="transition ease-out duration-200"
+										enterFrom="opacity-0 translate-y-1"
+										enterTo="opacity-100 translate-y-0"
+										leave="transition ease-in duration-150"
+										leaveFrom="opacity-100 translate-y-0"
+										leaveTo="opacity-0 translate-y-1"
+									>
+										<PopoverPanel anchor="bottom" className="z-20 h-60 w-60 p-3 bg-red-600">
+											<div className=""></div>
+										</PopoverPanel>
+									</Transition>
+								</Popover>
 							</DisclosurePanel>
 						</div>
 					)}
