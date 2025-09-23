@@ -204,7 +204,7 @@ export function useTaskLabels() {
 				return result;
 			} catch (error) {
 				// Revert optimistic update on error only if it was updated
-				if (optimisticUpdated && existingLabel) {
+				if (optimisticUpdated) {
 					startTransition(() => {
 						addOptimisticLabel({ type: 'update', label: existingLabel });
 					});
@@ -236,7 +236,7 @@ export function useTaskLabels() {
 				return result;
 			} catch (error) {
 				// Revert optimistic update on error only if it was deleted
-				if (optimisticDeleted && existingLabel) {
+				if (optimisticDeleted) {
 					startTransition(() => {
 						addOptimisticLabel({ type: 'add', label: existingLabel });
 					});
