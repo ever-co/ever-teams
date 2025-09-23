@@ -7,13 +7,19 @@ import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/tas
 import { useTaskEstimations } from './use-task-estimations';
 
 export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreateTaskEstimation) {
-	const { editTaskEstimationLoading, editTaskEstimationMutation, addEstimationMutation } = useTaskEstimations();
+	const {
+		editTaskEstimationLoading,
+		editTaskEstimationMutation,
+		addEstimationMutation,
+		deleteEstimationMutation,
+		deleteEstimationLoading
+	} = useTaskEstimations();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
 
 	useEffect(() => {
-		const { hours: h, minutes: m } = secondsToTime(taskEstimation?.estimate || 0);
+		const { hours: h, minutes: m } = secondsToTime(taskEstimation.estimate || 0);
 		setValue({
 			hours: h ? h.toString() : '',
 			minutes: m ? pad(m).toString() : ''
@@ -145,6 +151,8 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		handleSubmit,
 		taskEstimation,
 		setEditableMode,
-		editTaskEstimationLoading
+		editTaskEstimationLoading,
+		deleteEstimationLoading,
+		deleteEstimationMutation
 	};
 }

@@ -23,8 +23,6 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { Card } from '@/core/components/duplicated-components/card';
-import { Button } from '@/core/components/common/button';
-import { useTaskEstimations } from '@/core/hooks/tasks/use-task-estimations';
 import { TCreateTaskEstimation, TTask } from '@/core/types/schemas/task/task.schema';
 import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
@@ -33,7 +31,6 @@ const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
-	const { deleteEstimationMutation } = useTaskEstimations();
 
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 
@@ -83,14 +80,6 @@ const TaskEstimationsInfo = () => {
 														/>
 													}
 												/>
-												<Button
-													onClick={async () => {
-														await deleteEstimationMutation.mutateAsync(estimation.id);
-													}}
-													className="text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white"
-												>
-													Delete
-												</Button>
 											</React.Fragment>
 										);
 									})}

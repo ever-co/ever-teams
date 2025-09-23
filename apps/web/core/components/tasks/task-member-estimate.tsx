@@ -7,6 +7,7 @@ import { RefObject, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
 import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
+import { TrashIcon } from 'lucide-react';
 
 type Props = {
 	taskEstimation: TTaskEstimation | TCreateTaskEstimation;
@@ -41,13 +42,16 @@ export function TaskMemberEstimate({
 		handleBlurMinutes,
 		editTaskEstimationLoading,
 		editableMode,
-		setEditableMode
+		setEditableMode,
+		deleteEstimationLoading,
+		deleteEstimationMutation
 	} = useTaskMemberEstimation(taskEstimation);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const onOpenEditionRef = useCallbackRef(onOpenEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 	const hourRef = useRef<HTMLInputElement | null>(null);
 	const minRef = useRef<HTMLInputElement | null>(null);
+	const existingEstimation = 'id' in taskEstimation;
 
 	useEffect(() => {
 		!editableMode && onCloseEditionRef.current && onCloseEditionRef.current();
@@ -158,6 +162,22 @@ export function TaskMemberEstimate({
 					)}
 				</div>
 			)}
+			{existingEstimation ? (
+				<div className="h-full flex items-center justify-center">
+					{!deleteEstimationLoading ? (
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								deleteEstimationMutation.mutate(taskEstimation.id);
+							}}
+						>
+							<TrashIcon className="w-4 h-4 text-red-600" />
+						</button>
+					) : (
+						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+					)}
+				</div>
+			) : null}
 		</div>
 	);
 }
