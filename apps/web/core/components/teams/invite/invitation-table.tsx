@@ -11,6 +11,7 @@ import { Paginate } from '../../duplicated-components/_pagination';
 import { IJoinTeamResponse } from '@/core/types/interfaces/team/request-to-join';
 import { ERequestStatus } from '@/core/types/generics/enums';
 import { TInvite } from '@/core/types/schemas';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
 export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
@@ -22,45 +23,60 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 	return (
 		<div>
 			<div className="sm:rounded-lg">
-				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-					<thead className="text-xs text-gray-700 uppercase border-b">
-						<tr>
-							<th
+				<Table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
+					<TableHeader className="text-xs text-gray-700 uppercase border-b">
+						<TableRow>
+							<TableHead
 								scope="col"
-								className="pl-5 w-[18%]  py-3 text-sm font-normal capitalize text-[#B1AEBC]"
+								className="pl-5 w-fit  py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white h-auto px-0"
 							>
 								{t('pages.invite.invitationTable.NAME_AND_EMAIL')}
-							</th>
-							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
+							</TableHead>
+							<TableHead
+								scope="col"
+								className="text-sm w-fit font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
+							>
 								{t('pages.invite.invitationTable.POSITION')}
-							</th>
-							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
+							</TableHead>
+							<TableHead
+								scope="col"
+								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
+							>
 								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
-							</th>
-							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
+							</TableHead>
+							<TableHead
+								scope="col"
+								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
+							>
 								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
-							</th>
-							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
+							</TableHead>
+							<TableHead
+								scope="col"
+								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
+							>
 								{t('common.LINK')}
-							</th>
-							<th scope="col" className="text-sm w-[13%]  font-normal capitalize py-3 text-[#B1AEBC]">
+							</TableHead>
+							<TableHead
+								scope="col"
+								className="text-sm w-[13%]  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
+							>
 								{t('common.STATUS')}
-							</th>
-						</tr>
-					</thead>
-					<tbody className="dark:bg-dark--theme-light">
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody className="dark:bg-dark--theme-light">
 						{currentItems.map((invitation, index) => (
-							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700 max-w-" key={index}>
-								<th
+							<TableRow
+								className="bg-white dark:bg-dark--theme-light dark:border-gray-700 w-fit"
+								key={index}
+							>
+								<TableCell
 									scope="row"
-									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center p-0 py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white w-fit"
 								>
 									<div
 										className={clsxm(
-											'w-[20px] h-[20px]',
-											'flex justify-center items-center',
-											'text-xs rounded-full text-default dark:text-white',
-											'font-normal shadow-md'
+											'flex justify-center items-center text-xs font-normal rounded-full shadow-md size-9 text-default dark:text-white'
 										)}
 										style={{
 											backgroundColor: `${stc(invitation.fullName || '')}80`
@@ -72,25 +88,25 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{invitation.fullName}
 										</div>
-										<Text className="text-xs w-60 truncate dark:text-white text-[#B1AEBC] font-normal">
+										<Text className="text-xs w-fit truncate dark:text-white text-[#B1AEBC] font-normal">
 											{invitation.email || ''}
 										</Text>
 									</div>
-								</th>
-								<td className="text-sm font-semibold pl-2 py-4 text-[#282048] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
 									{/* TODO: Position is not implemented yet */}-
-								</td>
-								<td className="text-sm font-semibold pl-2 py-4 text-[#282048] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(invitation.createdAt).format('DD MMM YYYY hh:mm a')}
-								</td>
-								<td className="text-xs font-semibold pl-2 py-4 text-[#282048] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
 									{/* curriculum vitae.pdf */}-
-								</td>
-								<td className="text-xs font-semibold pl-2 py-4 text-[#1A79D0] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#1A79D0] dark:text-white p-0 px-0 w-fit">
 									{/* http:// www.borde.. */}-
-								</td>
-								<td className="py-4 pl-2 text-xs font-semibold">
+								</TableCell>
+								<TableCell className="p-0 px-0 py-4 text-xs font-semibold w-fit">
 									<InvitationTableStatus
 										status={invitation.status || undefined} // Handle null status
 										acceptJoinRequest={() => {
@@ -100,11 +116,11 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 											acceptRejectRequestToJoin(invitation.id || '', ERequestStatus.REJECTED);
 										}}
 									/>
-								</td>
-							</tr>
+								</TableCell>
+							</TableRow>
 						))}
-					</tbody>
-				</table>
+					</TableBody>
+				</Table>
 			</div>
 
 			<Paginate

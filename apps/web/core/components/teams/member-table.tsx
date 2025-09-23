@@ -21,6 +21,7 @@ import { Paginate } from '../duplicated-components/_pagination';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
 export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
@@ -158,51 +159,54 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 					itemsPerPage > 20 ? 'h-[55rem]' : ''
 				)}
 			>
-				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
-					<thead className="text-xs text-gray-700 uppercase border-b">
-						<tr>
-							<th
+				<Table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
+					<TableHeader className="text-xs text-gray-700 uppercase border-b">
+						<TableRow>
+							<TableHead
 								scope="col"
-								className="pl-0 py-3 text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-56"
+								className="pl-0 py-3 text-sm font-normal capitalize min-w-32 w-fit text-[#B1AEBC] dark:text-white h-auto px-0"
 							>
 								{t('common.NAME')}
-							</th>
-							<th
+							</TableHead>
+							<TableHead
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-40"
+								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
 							>
 								{t('common.POSITION')}
-							</th>
-							<th
+							</TableHead>
+							<TableHead
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-44"
+								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
 							>
 								{t('common.ROLES')}
-							</th>
-							<th
+							</TableHead>
+							<TableHead
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-48"
+								className="text-sm font-normal capitalize min-w-36 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
 							>
 								{t('common.JOIN_OR_LEFT')}
-							</th>
-							<th
+							</TableHead>
+							<TableHead
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-32"
+								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
 							>
 								{t('common.STATUS')}
-							</th>
-							<th
+							</TableHead>
+							<TableHead
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
-							></th>
-						</tr>
-					</thead>
-					<tbody className="dark:bg-dark--theme-light">
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
+							></TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody className="dark:bg-dark--theme-light">
 						{currentItems.map((member, index) => (
-							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
-								<th
+							<TableRow
+								className="bg-white dark:bg-dark--theme-light dark:border-gray-700 w-fit"
+								key={index}
+							>
+								<TableCell
 									scope="row"
-									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center p-0 py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white w-fit"
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
@@ -220,8 +224,8 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 											className={clsxm(
 												'w-[35px] h-[35px]',
 												'flex justify-center items-center',
-												'rounded-full text-xs text-default dark:text-white',
-												'shadow-md font-normal'
+												'text-xs rounded-full text-default dark:text-white',
+												'font-normal shadow-md'
 											)}
 											style={{
 												backgroundColor: `${stc(member.employee.user?.name || '')}80`
@@ -232,7 +236,7 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 									) : (
 										''
 									)}
-									<div className="flex flex-col gap-1 pl-3 ">
+									<div className="flex flex-col gap-1 pl-3">
 										{editMemberRef.current && editMemberRef.current.id === member.id ? (
 											<InputField
 												type="text"
@@ -277,12 +281,12 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 											</Text>
 										</Tooltip>
 									</div>
-								</th>
-								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
 									{/* TODO Position */}-
-								</td>
-								<td
-									className="text-sm font-semibold py-4 text-[#282048] dark:text-white"
+								</TableCell>
+								<TableCell
+									className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit"
 									onDoubleClick={() => handleEdit(member)}
 								>
 									{editMemberRef.current && editMemberRef.current.id === member.id ? (
@@ -290,22 +294,22 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 									) : (
 										<span className="capitalize">{getRoleString(member.role)}</span>
 									)}
-								</td>
-								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								</TableCell>
+								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(member.employee.createdAt).format('DD MMM YYYY hh:mm a')}
-								</td>
-								<td className="py-4 text-sm font-semibold">
+								</TableCell>
+								<TableCell className="p-0 px-0 py-4 text-sm font-semibold w-fit">
 									{/* TODO dynamic */}
 									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
-								</td>
-								<td className="flex items-center justify-center py-4">
+								</TableCell>
+								<TableCell className="flex justify-center items-center p-0 px-0 py-4 w-fit">
 									<TableActionPopover member={member} handleEdit={handleEdit} status="settings" />
-								</td>
-							</tr>
+								</TableCell>
+							</TableRow>
 						))}
-					</tbody>
-				</table>
+					</TableBody>
+				</Table>
 			</div>
 
 			<Paginate
