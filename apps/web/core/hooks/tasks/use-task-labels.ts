@@ -4,93 +4,18 @@ import { useCallback, useMemo, useOptimistic, startTransition } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import {
+	generateDefaultColor,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@/core/lib/helpers/index';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 import { ITagCreate, ITag } from '@/core/types/interfaces/tag/tag';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
-
-/**
- * Default colors for task labels when no color is provided
- */
-const DEFAULT_LABEL_COLORS = [
-	'#3B82F6', // Blue
-	'#10B981', // Green
-	'#F59E0B', // Yellow
-	'#EF4444', // Red
-	'#8B5CF6', // Purple
-	'#06B6D4', // Cyan
-	'#F97316', // Orange
-	'#84CC16', // Lime
-	'#EC4899', // Pink
-	'#6B7280' // Gray (fallback)
-];
-
-/**
- * Generates a consistent color based on label name
- */
-function generateDefaultColor(name: string): string {
-	if (!name) return DEFAULT_LABEL_COLORS[DEFAULT_LABEL_COLORS.length - 1];
-
-	// Simple hash function to get consistent color for same name
-	let hash = 0;
-	for (let i = 0; i < name.length; i++) {
-		hash = ((hash << 5) - hash + name.charCodeAt(i)) & 0xffffffff;
-	}
-	const index = Math.abs(hash) % (DEFAULT_LABEL_COLORS.length - 1);
-	return DEFAULT_LABEL_COLORS[index];
-}
-
-/**
- * Intelligently merges label data with defaults and existing values
- */
-function mergeTaskLabelData(
-	inputData: Partial<ITagCreate>,
-	existingLabel?: any,
-	organizationId?: string | null,
-	tenantId?: string | null,
-	teamId?: string | null
-): ITagCreate {
-	// Helper to clean string values (null, undefined, empty -> undefined)
-	const cleanString = (value: string | null | undefined): string | undefined => {
-		if (!value || typeof value !== 'string') return undefined;
-		const trimmed = value.trim();
-		return trimmed.length > 0 ? trimmed : undefined;
-	};
-
-	// Clean and prepare the data
-	const cleanData: ITagCreate = {
-		// Required fields
-		name: cleanString(inputData.name) || cleanString(existingLabel?.name) || '',
-
-		// Smart color handling - always provide a color
-		color:
-			cleanString(inputData.color) ||
-			cleanString(existingLabel?.color) ||
-			generateDefaultColor(cleanString(inputData.name) || cleanString(existingLabel?.name) || ''),
-
-		// Smart icon handling
-		icon: cleanString(inputData.icon) || cleanString(existingLabel?.icon),
-
-		// Optional fields with fallbacks
-		description: cleanString(inputData.description) || cleanString(existingLabel?.description),
-
-		// System fields
-		organizationId: inputData.organizationId || organizationId || undefined,
-		tenantId: inputData.tenantId || tenantId || undefined,
-		organizationTeamId: inputData.organizationTeamId || teamId || undefined
-	};
-
-	// Remove undefined values to avoid backend issues
-	Object.keys(cleanData).forEach((key) => {
-		if (cleanData[key as keyof ITagCreate] === undefined) {
-			delete cleanData[key as keyof ITagCreate];
-		}
-	});
-
-	return cleanData;
-}
+import { mergeTaskLabelData } from '@/core/lib/helpers/task';
 
 export function useTaskLabels() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
