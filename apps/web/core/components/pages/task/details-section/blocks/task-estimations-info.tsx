@@ -27,13 +27,18 @@ import { Card } from '@/core/components/duplicated-components/card';
 import { Button } from '@/core/components/common/button';
 import { useTaskEstimations } from '@/core/hooks/tasks/use-task-estimations';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
+	const { deleteEstimationMutation } = useTaskEstimations();
 
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+
+	console.log('task', task?.estimations, teamMembers);
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			<TaskRow
@@ -61,34 +66,63 @@ const TaskEstimationsInfo = () => {
 							<DisclosurePanel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
 									{task?.estimations?.map((estimation) => {
+										const member = teamMembers.find(
+											(member) => member.employee.id === estimation.employeeId
+										);
+
+										console.log('member', member);
+
+										const { hours, minutes } = secondsToTime(estimation.estimate || 0);
+
 										return (
 											<React.Fragment key={estimation.id}>
 												<ProfileInfoWithTime
 													key={estimation.id}
-													profilePicSrc={
-														teamMembers.find(
-															(member) => member.id === estimation.employeeId
-														)?.employee?.user?.imageUrl
-													}
-													names={
-														teamMembers.find(
-															(member) => member.id === estimation.employeeId
-														)?.employee?.fullName ?? ''
-													}
-													userId={
-														teamMembers.find(
-															(member) => member.id === estimation.employeeId
-														)?.employee?.userId
-													}
+													profilePicSrc={member?.employee?.user?.imageUrl}
+													names={member?.employee?.fullName ?? ''}
+													userId={member?.employee?.userId}
 													//@ts-ignore
+													// time={
+													// 	<div className="flex gap-2 rounded px-2 ">
+													// 		<TimeInputField
+													// 			label="Hours"
+													// 			value={hours}
+													// 			// onChange={(e) => {
+													// 			// 	setEstimate((old) => ({
+													// 			// 		...old,
+													// 			// 		hours: +e.target.value
+													// 			// 	}));
+													// 			// }}
+													// 		/>
+													// 		<TimeInputField
+													// 			label="Minutes"
+													// 			max={59}
+													// 			value={minutes}
+													// 			// onChange={(e) => {
+													// 			// 	setEstimate((old) => ({
+													// 			// 		...old,
+													// 			// 		minutes: +e.target.value
+													// 			// 	}));
+													// 			// }}
+													// 		/>
+													// 	</div>
+													// }
 													time={
-														<TaskEstimate
-															_task={task}
+														<TaskMemberEstimate
+															taskEstimation={estimation}
 															className="not-italic font-medium text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white"
 															wrapperClassName="w-4"
 														/>
 													}
 												/>
+												<Button
+													onClick={async () => {
+														await deleteEstimationMutation.mutateAsync(estimation.id);
+													}}
+													className="text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white"
+												>
+													Delete
+												</Button>
 											</React.Fragment>
 										);
 									})}
@@ -129,6 +163,7 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+	const [estimate, setEstimate] = useState({ hours: 0, minutes: 0 });
 
 	const { addEstimationMutation, addEstimationLoading } = useTaskEstimations();
 
@@ -136,14 +171,14 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 		try {
 			if (!selectedMember) return;
 			await addEstimationMutation.mutateAsync({
-				employeeId: selectedMember.id,
-				estimate: 0,
+				employeeId: selectedMember.employee.id,
+				estimate: estimate.hours * 60 * 60 + estimate.minutes * 60, // time seconds,
 				taskId: task.id
 			});
 		} catch (error) {
 			console.error(error);
 		}
-	}, [addEstimationMutation, selectedMember, task.id]);
+	}, [addEstimationMutation, selectedMember, task.id, estimate]);
 
 	return (
 		<Card shadow="custom" className="!p-1">
@@ -153,15 +188,16 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 						placeholder={'Select member'}
 						selectTriggerClassName="w-full"
 						options={teamMembers.map((member) => ({
-							id: member.id,
+							id: member.employee.id,
 							value: member.employee?.fullName || '',
 							imgUrl: member.employee?.user?.imageUrl || ''
 						}))}
 						onChange={(memberId) => {
-							const member = teamMembers.find((member) => member.id === memberId);
+							const member = teamMembers.find((member) => member.employee.id === memberId);
+							console.log(memberId);
 							setSelectedMember(member || null);
 						}}
-						selected={selectedMember?.id ?? null}
+						selected={selectedMember?.employee?.id ?? null}
 						renderItem={(item, isSelected) => {
 							return (
 								<div
@@ -174,7 +210,7 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 									<span
 										className={cn(
 											'  flex items-center gap-2',
-											selectedMember?.id && !isSelected && 'pl-[18px]'
+											selectedMember?.employee?.id && !isSelected && 'pl-[18px]'
 										)}
 									>
 										<Thumbnail
@@ -192,8 +228,27 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 				</div>
 
 				<div className="flex gap-2 rounded px-2 ">
-					<TimeInputField label="Hours" />
-					<TimeInputField label="Minutes" />
+					<TimeInputField
+						label="Hours"
+						value={estimate.hours}
+						onChange={(e) => {
+							setEstimate((old) => ({
+								...old,
+								hours: +e.target.value
+							}));
+						}}
+					/>
+					<TimeInputField
+						label="Minutes"
+						max={59}
+						value={estimate.minutes}
+						onChange={(e) => {
+							setEstimate((old) => ({
+								...old,
+								minutes: +e.target.value
+							}));
+						}}
+					/>
 				</div>
 
 				<Button className="px-8 h-10" onClick={handleAddEstimation} disabled={addEstimationLoading}>

@@ -5,7 +5,7 @@ type Props = {
 	profilePicSrc?: string | null;
 	names?: string;
 	profileInfoWrapperClassName?: string;
-	time: string;
+	time: React.ReactNode;
 	userId: string;
 };
 
