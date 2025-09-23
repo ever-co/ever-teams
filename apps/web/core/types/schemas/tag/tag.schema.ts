@@ -23,7 +23,7 @@ export const tagTypeSchema = z
 export const tagSchema = z
 	.object({
 		name: z.string(),
-		color: z.string(),
+		color: z.string().optional().nullable(),
 		textColor: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),

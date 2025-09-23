@@ -50,13 +50,13 @@ export function setCommentIconColor(commentType: 'tagged' | 'untagged') {
 	return style;
 }
 
-function TagCard({ title, backgroundColor, color }: { title: string; backgroundColor: string; color: string }) {
+function TagCard({ title, backgroundColor, color }: { title: string; backgroundColor?: string | null; color: string }) {
 	return (
 		<>
 			<div
 				className="flex flex-row gap-2 items-center py-1 px-2.5 rounded-[10px]"
 				style={{
-					backgroundColor: `${backgroundColor}`
+					backgroundColor: backgroundColor || '#6B7280'
 				}}
 			>
 				<p

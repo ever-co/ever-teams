@@ -349,9 +349,9 @@ function Categorization(props: ICategorizationProps) {
 	const { tags, colorCode } = props;
 	const t = useTranslations();
 
-	const ItemWithColor = ({ label, color }: { label: string; color: string }) => (
+	const ItemWithColor = ({ label, color }: { label: string; color?: string | null }) => (
 		<div key={label} className="px-1 shrink-0  text-[.7rem] border flex items-center gap-2 rounded">
-			<span style={{ backgroundColor: color ?? 'black' }} className="h-[10px] w-[10px] rounded-full" />
+			<span style={{ backgroundColor: color ?? '#6B7280' }} className="h-[10px] w-[10px] rounded-full" />
 			<span>{label}</span>
 		</div>
 	);
