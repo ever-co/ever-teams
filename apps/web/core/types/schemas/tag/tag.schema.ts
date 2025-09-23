@@ -23,7 +23,7 @@ export const tagTypeSchema = z
 export const tagSchema = z
 	.object({
 		name: z.string(),
-		color: z.string(),
+		color: z.string().optional().nullable(),
 		textColor: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
@@ -82,3 +82,9 @@ export const tagCreateSchema = z.object({
 export type TTag = z.infer<typeof tagSchema>;
 export type TTagType = z.infer<typeof tagTypeSchema>;
 export type TTagCreate = z.infer<typeof tagCreateSchema>;
+
+// Define strongly-typed action for optimistic updates
+export type OptimisticAction =
+	| { type: 'add'; label: TTag }
+	| { type: 'update'; label: TTag }
+	| { type: 'delete'; id: string };

@@ -27,22 +27,38 @@ export const ColorPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
+	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
 	}, [disabled]);
 
+	// Handle external defaultColor changes (avoid infinite loop)
 	useEffect(() => {
-		if (defaultColor) {
+		// Only sync when defaultColor is actually provided and different
+		if (defaultColor && defaultColor !== color && !isInternalUpdate) {
 			setColor(defaultColor);
 		}
-	}, [defaultColor]);
+	}, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
 
-	useEffect(() => {
-		if (color && onChangeRef.current) {
-			onChangeRef.current(color);
-		}
-	}, [color, onChangeRef]);
+	// Handle internal color changes and notify parent
+	const handleColorChange = useCallback(
+		(newColor: string) => {
+			setIsInternalUpdate(true);
+			setColor(newColor);
+
+			// Notify parent of change
+			if (onChangeRef.current) {
+				onChangeRef.current(newColor);
+			}
+
+			// Reset flag after a brief delay to allow parent updates
+			setTimeout(() => {
+				setIsInternalUpdate(false);
+			}, 0);
+		},
+		[onChangeRef]
+	);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -74,7 +90,7 @@ export const ColorPicker = ({
 			{() => (
 				<>
 					<PopoverButton
-						className={'outline-none mb-[15px] w-full'}
+						className={'w-full outline-none mb-[15px]'}
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
@@ -85,7 +101,7 @@ export const ColorPicker = ({
 								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
 							}  dark:bg-dark--theme-light`}
 						>
-							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
+							<div className={`flex items-center gap-[8px] h-[40px] pl-[15px]`}>
 								<div
 									className={`w-5 h-5 rounded-xl`}
 									style={{
@@ -98,7 +114,7 @@ export const ColorPicker = ({
 								<div className="flex mr-[0.5rem] gap-3">
 									<button
 										disabled={!isTeamManager}
-										className={`outline-none z-50`}
+										className={`z-50 outline-none`}
 										onClick={() => {
 											setDisabled(!disabled);
 										}}
@@ -108,8 +124,14 @@ export const ColorPicker = ({
 
 									<span
 										onClick={() => {
+											setIsInternalUpdate(true);
 											setColor(null);
-											onChange && onChange(null);
+											if (onChange) {
+												onChange(null);
+											}
+											setTimeout(() => {
+												setIsInternalUpdate(false);
+											}, 0);
 										}}
 										className={`outline-none ${'cursor-pointer'}`}
 									>
@@ -135,7 +157,7 @@ export const ColorPicker = ({
 									{/* @ts-ignore */}
 									<HexColorPicker
 										color={color || undefined}
-										onChange={setColor}
+										onChange={handleColorChange}
 										key={color ? `color-picker-${color}` : 'color-picker-default'}
 									/>{' '}
 									as unknown as JSX.Element
@@ -149,14 +171,14 @@ export const ColorPicker = ({
 	) : (
 		<PopoverDropdown>
 			<PopoverTrigger asChild>
-				<div className="flex items-center px-2 space-x-2 cursor-pointer dark:bg-dark--theme-light input-border rounded-xl h-14">
+				<div className="flex items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
 					<span className="block w-5 h-5 rounded-full" style={{ backgroundColor: color || '#000' }} />
 					<span className="font-normal">{color || 'Color'}</span>
 				</div>
 			</PopoverTrigger>
 			<PopoverContent align="end" side="bottom" className="w-fit dark:bg-dark--theme-light input-border">
 				{/* @ts-ignore */}
-				<HexColorPicker className="relative h-10" color={color || undefined} onChange={setColor} />
+				<HexColorPicker className="relative h-10" color={color || undefined} onChange={handleColorChange} />
 			</PopoverContent>
 		</PopoverDropdown>
 	);
