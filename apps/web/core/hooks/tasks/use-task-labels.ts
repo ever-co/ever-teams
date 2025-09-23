@@ -11,7 +11,7 @@ import {
 	getTenantIdCookie
 } from '@/core/lib/helpers/index';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
-import { ITagCreate, ITag } from '@/core/types/interfaces/tag/tag';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
@@ -84,7 +84,7 @@ export function useTaskLabels() {
 	});
 
 	const updateTaskLabelMutation = useMutation({
-		mutationFn: ({ id, data, existingLabel }: { id: string; data: Partial<ITagCreate>; existingLabel?: ITag }) => {
+		mutationFn: ({ id, data, existingLabel }: { id: string; data: Partial<ITagCreate>; existingLabel?: TTag }) => {
 			const isEnabled = !!tenantId && !!teamId;
 			if (!isEnabled) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
@@ -273,7 +273,7 @@ export function useTaskLabels() {
 
 		// Utility functions
 		generateDefaultColor,
-		mergeTaskLabelData: (data: Partial<ITagCreate>, existing?: ITag) =>
+		mergeTaskLabelData: (data: Partial<ITagCreate>, existing?: TTag) =>
 			mergeTaskLabelData(data, existing, organizationId, tenantId, teamId)
 	};
 }
