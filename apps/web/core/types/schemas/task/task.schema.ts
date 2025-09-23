@@ -238,7 +238,7 @@ export type TTaskSize = z.infer<typeof taskSizeEntitySchema>;
 export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
 export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
 export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
-export type TTaskEstimations = z.infer<typeof taskEstimationsSchema>;
+export type TTaskEstimation = z.infer<typeof taskEstimationsSchema>;
 export type TCreateTaskEstimation = z.infer<typeof createTaskEstimationSchema>;
 
 // Types for enums

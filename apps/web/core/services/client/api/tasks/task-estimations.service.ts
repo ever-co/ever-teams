@@ -4,7 +4,7 @@ import {
 	createTaskEstimationSchema,
 	taskEstimationsSchema,
 	TCreateTaskEstimation,
-	TTaskEstimations
+	TTaskEstimation
 } from '@/core/types/schemas/task/task.schema';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 
@@ -19,7 +19,7 @@ class TaskEstimationsService extends APIService {
 		try {
 			validateApiResponse(createTaskEstimationSchema, data, 'addEstimation input data');
 
-			const response = await this.post<TTaskEstimations>('/task-estimation', data, {
+			const response = await this.post<TTaskEstimation>('/task-estimation', data, {
 				tenantId: this.tenantId
 			});
 
@@ -40,11 +40,11 @@ class TaskEstimationsService extends APIService {
 		}
 	};
 
-	editEstimation = async (data: TTaskEstimations) => {
+	editEstimation = async (data: TTaskEstimation) => {
 		try {
 			validateApiResponse(taskEstimationsSchema, data, 'editEstimation input data');
 
-			const response = await this.put<TTaskEstimations>(`/task-estimation/${data.id}`, data, {
+			const response = await this.put<TTaskEstimation>(`/task-estimation/${data.id}`, data, {
 				tenantId: this.tenantId
 			});
 

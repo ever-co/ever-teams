@@ -3,11 +3,11 @@
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../common';
-import { TTaskEstimation } from '@/core/types/schemas/task/task.schema';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskEstimations } from './use-task-estimations';
 
-export function useTaskMemberEstimation(taskEstimation: TTaskEstimation) {
-	const { editTaskEstimationLoading, editTaskEstimationMutation } = useTaskEstimations();
+export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreateTaskEstimation) {
+	const { editTaskEstimationLoading, editTaskEstimationMutation, addEstimationMutation } = useTaskEstimations();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -108,13 +108,22 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation) {
 			return;
 		}
 
-		editTaskEstimationMutation.mutate({
-			...taskEstimation,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
-		});
+		if ('id' in taskEstimation) {
+			// existing estimation
+			editTaskEstimationMutation.mutate({
+				...taskEstimation,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			});
+		} else {
+			// new estimation
+			addEstimationMutation.mutate({
+				...taskEstimation,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			});
+		}
 
 		setEditableMode(false);
-	}, [taskEstimation, editTaskEstimationMutation, value]);
+	}, [taskEstimation, editTaskEstimationMutation, addEstimationMutation, value]);
 
 	const handleOutsideClick = useCallback(() => {
 		if (editTaskEstimationLoading || !editableMode) return;
@@ -134,7 +143,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation) {
 		handleBlurMinutes,
 		value,
 		handleSubmit,
-		task: taskEstimation,
+		taskEstimation,
 		setEditableMode,
 		editTaskEstimationLoading
 	};

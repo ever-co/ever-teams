@@ -1,6 +1,6 @@
 import { queryKeys } from '@/core/query/keys';
 import { taskEstimationsService } from '@/core/services/client/api/tasks/task-estimations.service';
-import { TCreateTaskEstimation, TTaskEstimations } from '@/core/types/schemas/task/task.schema';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -23,7 +23,7 @@ export function useTaskEstimations() {
 	});
 
 	const editTaskEstimationMutation = useMutation({
-		mutationFn: (data: TTaskEstimations) => {
+		mutationFn: (data: TTaskEstimation) => {
 			return taskEstimationsService.editEstimation(data);
 		},
 		onSuccess: (data) => {

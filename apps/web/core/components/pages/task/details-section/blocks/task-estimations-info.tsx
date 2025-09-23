@@ -12,23 +12,22 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
-import { CheckIcon, LoaderIcon, Plus } from 'lucide-react';
+import { CheckIcon, Plus } from 'lucide-react';
 import {
 	Select,
 	Thumbnail
 } from '@/core/components/features/projects/add-or-edit-project/steps/basic-information-form';
 import { cn } from '@/core/lib/helpers';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TimeInputField } from '@/core/components/duplicated-components/_input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { Button } from '@/core/components/common/button';
 import { useTaskEstimations } from '@/core/hooks/tasks/use-task-estimations';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { TCreateTaskEstimation, TTask } from '@/core/types/schemas/task/task.schema';
 import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
+import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -38,7 +37,6 @@ const TaskEstimationsInfo = () => {
 
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 
-	console.log('task', task?.estimations, teamMembers);
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			<TaskRow
@@ -70,10 +68,6 @@ const TaskEstimationsInfo = () => {
 											(member) => member.employee.id === estimation.employeeId
 										);
 
-										console.log('member', member);
-
-										const { hours, minutes } = secondsToTime(estimation.estimate || 0);
-
 										return (
 											<React.Fragment key={estimation.id}>
 												<ProfileInfoWithTime
@@ -81,32 +75,6 @@ const TaskEstimationsInfo = () => {
 													profilePicSrc={member?.employee?.user?.imageUrl}
 													names={member?.employee?.fullName ?? ''}
 													userId={member?.employee?.userId}
-													//@ts-ignore
-													// time={
-													// 	<div className="flex gap-2 rounded px-2 ">
-													// 		<TimeInputField
-													// 			label="Hours"
-													// 			value={hours}
-													// 			// onChange={(e) => {
-													// 			// 	setEstimate((old) => ({
-													// 			// 		...old,
-													// 			// 		hours: +e.target.value
-													// 			// 	}));
-													// 			// }}
-													// 		/>
-													// 		<TimeInputField
-													// 			label="Minutes"
-													// 			max={59}
-													// 			value={minutes}
-													// 			// onChange={(e) => {
-													// 			// 	setEstimate((old) => ({
-													// 			// 		...old,
-													// 			// 		minutes: +e.target.value
-													// 			// 	}));
-													// 			// }}
-													// 		/>
-													// 	</div>
-													// }
 													time={
 														<TaskMemberEstimate
 															taskEstimation={estimation}
@@ -163,22 +131,15 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
-	const [estimate, setEstimate] = useState({ hours: 0, minutes: 0 });
-
-	const { addEstimationMutation, addEstimationLoading } = useTaskEstimations();
-
-	const handleAddEstimation = useCallback(async () => {
-		try {
-			if (!selectedMember) return;
-			await addEstimationMutation.mutateAsync({
-				employeeId: selectedMember.employee.id,
-				estimate: estimate.hours * 60 * 60 + estimate.minutes * 60, // time seconds,
-				taskId: task.id
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	}, [addEstimationMutation, selectedMember, task.id, estimate]);
+	const taskEstimation = useMemo<TCreateTaskEstimation>(
+		() => ({
+			employeeId: selectedMember?.employee.id || '',
+			estimate: 0,
+			taskId: task.id
+		}),
+		[selectedMember]
+	);
+	useTaskMemberEstimation(taskEstimation);
 
 	return (
 		<Card shadow="custom" className="!p-1">
@@ -194,7 +155,6 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 						}))}
 						onChange={(memberId) => {
 							const member = teamMembers.find((member) => member.employee.id === memberId);
-							console.log(memberId);
 							setSelectedMember(member || null);
 						}}
 						selected={selectedMember?.employee?.id ?? null}
@@ -228,32 +188,8 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 				</div>
 
 				<div className="flex gap-2 rounded px-2 ">
-					<TimeInputField
-						label="Hours"
-						value={estimate.hours}
-						onChange={(e) => {
-							setEstimate((old) => ({
-								...old,
-								hours: +e.target.value
-							}));
-						}}
-					/>
-					<TimeInputField
-						label="Minutes"
-						max={59}
-						value={estimate.minutes}
-						onChange={(e) => {
-							setEstimate((old) => ({
-								...old,
-								minutes: +e.target.value
-							}));
-						}}
-					/>
+					<TaskMemberEstimate taskEstimation={taskEstimation} />
 				</div>
-
-				<Button className="px-8 h-10" onClick={handleAddEstimation} disabled={addEstimationLoading}>
-					Add {addEstimationLoading && <LoaderIcon className="w-4 h-4 animate-spin" />}
-				</Button>
 			</div>
 		</Card>
 	);

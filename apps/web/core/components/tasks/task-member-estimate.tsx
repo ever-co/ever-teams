@@ -5,11 +5,11 @@ import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { RefObject, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
-import { TTaskEstimation } from '@/core/types/schemas/task/task.schema';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
 
 type Props = {
-	taskEstimation: TTaskEstimation;
+	taskEstimation: TTaskEstimation | TCreateTaskEstimation;
 	onCloseEdition?: () => void;
 	onOpenEdition?: () => void;
 	className?: string;
@@ -35,7 +35,7 @@ export function TaskMemberEstimate({
 		onChange,
 		handleSubmit,
 		handleFocus,
-		task,
+		taskEstimation: estimation,
 		handleBlur,
 		handleFocusMinutes,
 		handleBlurMinutes,
@@ -84,7 +84,7 @@ export function TaskMemberEstimate({
 				onKeyUp={(e) => {
 					e.key === 'Enter' && handleSubmit();
 				}}
-				disabled={task ? false : true}
+				disabled={estimation ? false : true}
 				onFocus={handleFocus}
 				onBlur={handleBlur}
 				label={
@@ -116,7 +116,7 @@ export function TaskMemberEstimate({
 				onKeyUp={(e) => {
 					e.key === 'Enter' && handleSubmit();
 				}}
-				disabled={task ? false : true}
+				disabled={estimation ? false : true}
 				onFocus={handleFocusMinutes}
 				onBlur={handleBlurMinutes}
 				label={
