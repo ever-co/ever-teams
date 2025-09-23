@@ -1,6 +1,11 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import { taskEstimationsSchema, TTaskEstimations } from '@/core/types/schemas/task/task.schema';
+import {
+	createTaskEstimationSchema,
+	taskEstimationsSchema,
+	TCreateTaskEstimation,
+	TTaskEstimations
+} from '@/core/types/schemas/task/task.schema';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 
 /**
@@ -10,9 +15,9 @@ import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskEstimationsService extends APIService {
-	addEstimation = async (data: TTaskEstimations) => {
+	addEstimation = async (data: TCreateTaskEstimation) => {
 		try {
-			validateApiResponse(taskEstimationsSchema.omit({ id: true }), data, 'addEstimation input data');
+			validateApiResponse(createTaskEstimationSchema, data, 'addEstimation input data');
 
 			const response = await this.post<TTaskEstimations>('/task-estimations', data, {
 				tenantId: this.tenantId
