@@ -12,10 +12,19 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
-import { Plus } from 'lucide-react';
+import { CheckIcon, Plus } from 'lucide-react';
+import {
+	Select,
+	Thumbnail
+} from '@/core/components/features/projects/add-or-edit-project/steps/basic-information-form';
+import { cn } from '@/core/lib/helpers';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TimeInputField } from '@/core/components/duplicated-components/_input';
+import { Card } from '@/core/components/duplicated-components/card';
+import { Button } from '@/core/components/common/button';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -96,8 +105,8 @@ const TaskEstimationsInfo = () => {
 										leaveFrom="opacity-100 translate-y-0"
 										leaveTo="opacity-0 translate-y-1"
 									>
-										<PopoverPanel anchor="bottom" className="z-20 h-60 w-60 p-3 bg-red-600">
-											<div className=""></div>
+										<PopoverPanel anchor="bottom" className="z-20">
+											<AddNewMemberEstimation />
 										</PopoverPanel>
 									</Transition>
 								</Popover>
@@ -111,3 +120,65 @@ const TaskEstimationsInfo = () => {
 };
 
 export default TaskEstimationsInfo;
+
+function AddNewMemberEstimation() {
+	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
+	const activeTeam = useAtomValue(activeTeamState);
+	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+
+	return (
+		<Card shadow="custom" className="!p-1">
+			<div className="flex gap-4 shadow-md border p-4 items-center rounded-lg">
+				<div className="w-60">
+					<Select
+						placeholder={'Select member'}
+						selectTriggerClassName="w-full"
+						options={teamMembers.map((member) => ({
+							id: member.id,
+							value: member.employee?.fullName || '',
+							imgUrl: member.employee?.user?.imageUrl || ''
+						}))}
+						onChange={(memberId) => {
+							const member = teamMembers.find((member) => member.id === memberId);
+							setSelectedMember(member || null);
+						}}
+						selected={selectedMember?.id ?? null}
+						renderItem={(item, isSelected) => {
+							return (
+								<div
+									className={cn(
+										'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
+										isSelected && 'bg-primary text-primary-foreground dark:text-white'
+									)}
+								>
+									{isSelected && <CheckIcon size={10} />}
+									<span
+										className={cn(
+											'  flex items-center gap-2',
+											selectedMember?.id && !isSelected && 'pl-[18px]'
+										)}
+									>
+										<Thumbnail
+											className="z-20 text-gray-700 bg-white rounded-full"
+											imgUrl={item?.imgUrl}
+											size={'20px'}
+											identifier={String(item?.value)}
+										/>
+										<span className="capitalize">{item?.value ?? '-'}</span>
+									</span>
+								</div>
+							);
+						}}
+					/>
+				</div>
+
+				<div className="flex gap-2 rounded px-2 ">
+					<TimeInputField label="Hours" />
+					<TimeInputField label="Minutes" />
+				</div>
+
+				<Button className="px-8 h-10">Add</Button>
+			</div>
+		</Card>
+	);
+}
