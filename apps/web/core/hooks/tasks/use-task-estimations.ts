@@ -37,10 +37,27 @@ export function useTaskEstimations() {
 		}
 	});
 
+	const deleteEstimationMutation = useMutation({
+		mutationFn: (estimationId: string) => {
+			return taskEstimationsService.deleteEstimation(estimationId);
+		},
+		onSuccess: (data) => {
+			toast.success('Task estimation deleted successfully');
+			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(data.taskId) });
+		},
+		onError: (error) => {
+			const errorMessage = error instanceof Error ? error.message : null;
+
+			toast.error('Error deleting task estimation :', { description: errorMessage });
+		}
+	});
+
 	return {
 		addEstimationMutation,
 		addEstimationLoading: addEstimationMutation.isPending,
 		editTaskEstimationMutation,
-		editTaskEstimationLoading: editTaskEstimationMutation.isPending
+		editTaskEstimationLoading: editTaskEstimationMutation.isPending,
+		deleteEstimationMutation,
+		deleteEstimationLoading: deleteEstimationMutation.isPending
 	};
 }
