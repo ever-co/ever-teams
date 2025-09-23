@@ -32,7 +32,10 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 	}, [task]);
 
 	const handleChange = useCallback(
-		(status: ETaskStatusName) => {
+		(status: ETaskStatusName | null) => {
+			// Guard against null values - preserve existing behavior
+			if (!status) return;
+
 			setSelected(status);
 
 			if (task && status !== task.status) {
