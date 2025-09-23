@@ -64,6 +64,16 @@ class TaskEstimationsService extends APIService {
 			throw error;
 		}
 	};
+
+	deleteEstimation = async (estimationId: string) => {
+		try {
+			const response = await this.delete(`/task-estimation/${estimationId}`, { tenantId: this.tenantId });
+
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	};
 }
 
 export const taskEstimationsService = new TaskEstimationsService(GAUZY_API_BASE_SERVER_URL.value);
