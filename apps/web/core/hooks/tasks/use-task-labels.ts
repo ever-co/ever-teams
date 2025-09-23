@@ -16,6 +16,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
+import { OptimisticAction, TTag } from '@/core/types/schemas';
 
 export function useTaskLabels() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -34,19 +35,17 @@ export function useTaskLabels() {
 	// Stable base data for optimistic UI (avoid circular dependencies)
 	const baseLabels = useMemo(() => taskLabels || [], [taskLabels]);
 
-	// Optimistic UI state for task labels
-	const [optimisticLabels, addOptimisticLabel] = useOptimistic(
-		baseLabels,
-		(state: any[], action: { type: 'add' | 'update' | 'delete'; label?: any; id?: string }) => {
+	// Optimistic UI state for task labels with proper typing
+	const [optimisticLabels, addOptimisticLabel] = useOptimistic<TTag[], OptimisticAction>(
+		baseLabels as TTag[],
+		(state, action) => {
 			switch (action.type) {
 				case 'add':
-					return action.label ? [action.label, ...state] : state;
+					return [action.label, ...state];
 				case 'update':
-					return action.label
-						? state.map((label) => (label.id === action.label!.id ? action.label! : label))
-						: state;
+					return state.map((label) => (label.id === action.label.id ? action.label : label));
 				case 'delete':
-					return action.id ? state.filter((label) => label.id !== action.id) : state;
+					return state.filter((label) => label.id !== action.id);
 				default:
 					return state;
 			}
@@ -129,14 +128,14 @@ export function useTaskLabels() {
 				throw new Error('Label name is required');
 			}
 
-			// Generate optimistic label
-			const optimisticLabel = {
+			// Generate optimistic label with proper typing
+			const optimisticLabel: TTag = {
 				id: `temp-${Date.now()}`,
 				...mergeTaskLabelData(inputData, undefined, organizationId, tenantId, teamId),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 				isSystem: false
-			} as any;
+			} as TTag;
 
 			// Add optimistic update with guard
 			let optimisticAdded = false;
@@ -151,9 +150,14 @@ export function useTaskLabels() {
 			} catch (error) {
 				// Revert optimistic update on error only if it was added
 				if (optimisticAdded) {
-					startTransition(() => {
-						addOptimisticLabel({ type: 'delete', id: optimisticLabel.id });
-					});
+					try {
+						startTransition(() => {
+							addOptimisticLabel({ type: 'delete', id: optimisticLabel.id });
+						});
+					} catch (revertError) {
+						// Log revert failure but don't block the original error
+						console.warn('Failed to revert optimistic update:', revertError);
+					}
 				}
 				throw error;
 			}
