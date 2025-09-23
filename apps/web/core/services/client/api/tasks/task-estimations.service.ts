@@ -12,7 +12,7 @@ import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 class TaskEstimationsService extends APIService {
 	addEstimation = async (data: TTaskEstimations) => {
 		try {
-			validateApiResponse(taskEstimationsSchema, data, 'addEstimation input data');
+			validateApiResponse(taskEstimationsSchema.omit({ id: true }), data, 'addEstimation input data');
 
 			const response = await this.post<TTaskEstimations>('/task-estimations', data, {
 				tenantId: this.tenantId

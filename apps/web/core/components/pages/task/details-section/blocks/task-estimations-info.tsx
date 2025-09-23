@@ -12,10 +12,10 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
-import { CheckIcon, Plus } from 'lucide-react';
+import { CheckIcon, LoaderIcon, Plus } from 'lucide-react';
 import {
 	Select,
 	Thumbnail
@@ -25,6 +25,8 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TimeInputField } from '@/core/components/duplicated-components/_input';
 import { Card } from '@/core/components/duplicated-components/card';
 import { Button } from '@/core/components/common/button';
+import { useTaskEstimations } from '@/core/hooks/tasks/use-task-estimations';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -91,25 +93,27 @@ const TaskEstimationsInfo = () => {
 										);
 									})}
 								</div>
-								<Popover>
-									<PopoverButton className="flex items-center border text-xs rounded gap-x-2 p-2">
-										<Plus className="w-3 h-3" />
-										<p>Add new member</p>
-									</PopoverButton>
-									<Transition
-										as="div"
-										enter="transition ease-out duration-200"
-										enterFrom="opacity-0 translate-y-1"
-										enterTo="opacity-100 translate-y-0"
-										leave="transition ease-in duration-150"
-										leaveFrom="opacity-100 translate-y-0"
-										leaveTo="opacity-0 translate-y-1"
-									>
-										<PopoverPanel anchor="bottom" className="z-20">
-											<AddNewMemberEstimation />
-										</PopoverPanel>
-									</Transition>
-								</Popover>
+								{task ? (
+									<Popover>
+										<PopoverButton className="flex items-center border text-xs rounded gap-x-2 p-2">
+											<Plus className="w-3 h-3" />
+											<p>Add new member</p>
+										</PopoverButton>
+										<Transition
+											as="div"
+											enter="transition ease-out duration-200"
+											enterFrom="opacity-0 translate-y-1"
+											enterTo="opacity-100 translate-y-0"
+											leave="transition ease-in duration-150"
+											leaveFrom="opacity-100 translate-y-0"
+											leaveTo="opacity-0 translate-y-1"
+										>
+											<PopoverPanel anchor="bottom" className="z-20">
+												<AddNewMemberEstimation task={task} />
+											</PopoverPanel>
+										</Transition>
+									</Popover>
+								) : null}
 							</DisclosurePanel>
 						</div>
 					)}
@@ -121,10 +125,25 @@ const TaskEstimationsInfo = () => {
 
 export default TaskEstimationsInfo;
 
-function AddNewMemberEstimation() {
+function AddNewMemberEstimation({ task }: { task: TTask }) {
 	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+
+	const { addEstimationMutation, addEstimationLoading } = useTaskEstimations();
+
+	const handleAddEstimation = useCallback(async () => {
+		try {
+			if (!selectedMember) return;
+			await addEstimationMutation.mutateAsync({
+				employeeId: selectedMember.id,
+				estimate: 0,
+				taskId: task.id
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	}, [addEstimationMutation, selectedMember, task.id]);
 
 	return (
 		<Card shadow="custom" className="!p-1">
@@ -177,7 +196,9 @@ function AddNewMemberEstimation() {
 					<TimeInputField label="Minutes" />
 				</div>
 
-				<Button className="px-8 h-10">Add</Button>
+				<Button className="px-8 h-10" onClick={handleAddEstimation} disabled={addEstimationLoading}>
+					Add {addEstimationLoading && <LoaderIcon className="w-4 h-4 animate-spin" />}
+				</Button>
 			</div>
 		</Card>
 	);

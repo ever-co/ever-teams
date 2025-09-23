@@ -101,6 +101,8 @@ export const taskEstimationsSchema = z
 	})
 	.merge(basePerTenantAndOrganizationEntitySchema);
 
+export const createTaskEstimationSchema = taskEstimationsSchema.omit({ id: true });
+
 const baseTaskSchema = z.object({
 	title: z.string(),
 	number: z.number().optional().nullable(),
@@ -237,6 +239,7 @@ export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
 export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
 export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
 export type TTaskEstimations = z.infer<typeof taskEstimationsSchema>;
+export type TCreateTaskEstimation = z.infer<typeof createTaskEstimationSchema>;
 
 // Types for enums
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;
