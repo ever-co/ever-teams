@@ -37,7 +37,7 @@ export function useTaskEstimations() {
 		}
 	});
 
-	const deleteEstimationMutation = useMutation({
+	const deleteTaskEstimationMutation = useMutation({
 		mutationFn: (estimationId: string) => {
 			return taskEstimationsService.deleteTaskEstimation(estimationId);
 		},
@@ -57,7 +57,7 @@ export function useTaskEstimations() {
 		addTaskEstimationLoading: addTaskEstimationMutation.isPending,
 		editTaskEstimationMutation,
 		editTaskEstimationLoading: editTaskEstimationMutation.isPending,
-		deleteEstimationMutation,
-		deleteEstimationLoading: deleteEstimationMutation.isPending
+		deleteTaskEstimationMutation,
+		deleteTaskEstimationLoading: deleteTaskEstimationMutation.isPending
 	};
 }

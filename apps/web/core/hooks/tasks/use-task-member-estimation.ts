@@ -12,8 +12,8 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		addTaskEstimationLoading,
 		editTaskEstimationMutation,
 		addTaskEstimationMutation,
-		deleteEstimationMutation,
-		deleteEstimationLoading
+		deleteTaskEstimationMutation,
+		deleteTaskEstimationLoading
 	} = useTaskEstimations();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
@@ -154,7 +154,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		setEditableMode,
 		editTaskEstimationLoading,
 		addTaskEstimationLoading,
-		deleteEstimationLoading,
-		deleteEstimationMutation
+		deleteTaskEstimationLoading,
+		deleteTaskEstimationMutation
 	};
 }

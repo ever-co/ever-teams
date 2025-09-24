@@ -46,8 +46,8 @@ export function TaskMemberEstimate({
 		addTaskEstimationLoading,
 		editableMode,
 		setEditableMode,
-		deleteEstimationLoading,
-		deleteEstimationMutation
+		deleteTaskEstimationLoading,
+		deleteTaskEstimationMutation
 	} = useTaskMemberEstimation(taskEstimation);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const onOpenEditionRef = useCallbackRef(onOpenEdition);
@@ -170,11 +170,11 @@ export function TaskMemberEstimate({
 			)}
 			{existingEstimation ? (
 				<div className="h-full flex items-center justify-center">
-					{!deleteEstimationLoading ? (
+					{!deleteTaskEstimationLoading ? (
 						<button
 							onClick={async (e) => {
 								e.stopPropagation();
-								await deleteEstimationMutation.mutateAsync(taskEstimation.id);
+								await deleteTaskEstimationMutation.mutateAsync(taskEstimation.id);
 							}}
 						>
 							<TrashIcon className="w-4 h-4 text-red-600" />
