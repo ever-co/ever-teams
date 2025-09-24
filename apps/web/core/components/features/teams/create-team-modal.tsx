@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
-import { organizationTeamsState } from '@/core/stores';
+import { organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 
 /**
@@ -23,6 +23,10 @@ export function CreateTeamModal({
 }) {
 	const t = useTranslations();
 
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 	const teams = useAtomValue(organizationTeamsState);
 	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
@@ -87,7 +91,11 @@ export function CreateTeamModal({
 								</button>
 							)}
 
-							<Button type="submit" disabled={disabled} loading={createOTeamLoading}>
+							<Button
+								type="submit"
+								disabled={disabled || timerRunningStatus}
+								loading={createOTeamLoading}
+							>
 								{t('common.CREATE')}
 							</Button>
 						</div>

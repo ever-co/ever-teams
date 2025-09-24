@@ -236,6 +236,8 @@
 		"NO_TASKS": "אין משימות",
 		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני החלפת הצוות",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני יצירת פריטים חדשים",
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
 		"COLLABORATE_DIALOG_SUB_TITLE": "הזמן חבר/ים והתחל לשתף פעולה",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "התחל פגישה או שיתוף פעולה בלוח",
