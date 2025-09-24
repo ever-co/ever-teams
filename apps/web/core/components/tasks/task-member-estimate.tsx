@@ -3,7 +3,7 @@
 import { useCallbackRef } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
-import { RefObject, useEffect, useRef } from 'react';
+import { MouseEvent, RefObject, useCallback, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
 import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
@@ -18,6 +18,7 @@ type Props = {
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
 	showEditAndSaveButton?: boolean;
+	onSuccess?: () => void;
 };
 
 export function TaskMemberEstimate({
@@ -28,7 +29,8 @@ export function TaskMemberEstimate({
 	loadingRef,
 	closeable_fc,
 	wrapperClassName,
-	showEditAndSaveButton = true
+	showEditAndSaveButton = true,
+	onSuccess
 }: Props) {
 	const {
 		targetEl,
@@ -41,6 +43,7 @@ export function TaskMemberEstimate({
 		handleFocusMinutes,
 		handleBlurMinutes,
 		editTaskEstimationLoading,
+		addEstimationLoading,
 		editableMode,
 		setEditableMode,
 		deleteEstimationLoading,
@@ -70,15 +73,29 @@ export function TaskMemberEstimate({
 	}, [editableMode, onCloseEditionRef]);
 
 	useEffect(() => {
-		if (loadingRef?.current && !editTaskEstimationLoading) {
+		if (loadingRef?.current && !editTaskEstimationLoading && !addEstimationLoading) {
 			closeable_fcRef.current && closeable_fcRef.current();
 		}
 
 		if (loadingRef) {
-			loadingRef.current = editTaskEstimationLoading;
+			loadingRef.current = editTaskEstimationLoading || addEstimationLoading;
 		}
-	}, [editTaskEstimationLoading, loadingRef, closeable_fcRef]);
+	}, [editTaskEstimationLoading, addEstimationLoading, loadingRef, closeable_fcRef]);
 
+	const handleSave = useCallback(
+		async (e: MouseEvent<HTMLButtonElement>) => {
+			e.stopPropagation();
+			await handleSubmit();
+			setEditableMode(false);
+			onSuccess && onSuccess();
+		},
+		[handleSubmit, onSuccess]
+	);
+
+	const handleEditMode = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+		e.stopPropagation();
+		setEditableMode(true);
+	}, []);
 	return (
 		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
 			<TimeInputField
@@ -136,24 +153,13 @@ export function TaskMemberEstimate({
 			/>
 			{showEditAndSaveButton && (
 				<div className="h-full flex items-center justify-center">
-					{!editTaskEstimationLoading ? (
+					{!editTaskEstimationLoading && !addEstimationLoading ? (
 						editableMode ? (
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									handleSubmit();
-									setEditableMode(false);
-								}}
-							>
+							<button onClick={handleSave}>
 								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
 							</button>
 						) : (
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									setEditableMode(true);
-								}}
-							>
+							<button onClick={handleEditMode}>
 								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
 							</button>
 						)
@@ -166,9 +172,9 @@ export function TaskMemberEstimate({
 				<div className="h-full flex items-center justify-center">
 					{!deleteEstimationLoading ? (
 						<button
-							onClick={(e) => {
+							onClick={async (e) => {
 								e.stopPropagation();
-								deleteEstimationMutation.mutate(taskEstimation.id);
+								await deleteEstimationMutation.mutateAsync(taskEstimation.id);
 							}}
 						>
 							<TrashIcon className="w-4 h-4 text-red-600" />

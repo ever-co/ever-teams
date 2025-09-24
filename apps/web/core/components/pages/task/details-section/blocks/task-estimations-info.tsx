@@ -25,7 +25,6 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { Card } from '@/core/components/duplicated-components/card';
 import { TCreateTaskEstimation, TTask } from '@/core/types/schemas/task/task.schema';
 import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
-import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);
@@ -58,7 +57,7 @@ const TaskEstimationsInfo = () => {
 									<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								)}
 							</DisclosureButton>
-							<DisclosurePanel>
+							<DisclosurePanel className="space-y-2">
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
 									{task?.estimations?.map((estimation) => {
 										const member = teamMembers.find(
@@ -86,23 +85,29 @@ const TaskEstimationsInfo = () => {
 								</div>
 								{task ? (
 									<Popover>
-										<PopoverButton className="flex items-center border text-xs rounded gap-x-2 p-2">
-											<Plus className="w-3 h-3" />
-											<p>Add new member</p>
-										</PopoverButton>
-										<Transition
-											as="div"
-											enter="transition ease-out duration-200"
-											enterFrom="opacity-0 translate-y-1"
-											enterTo="opacity-100 translate-y-0"
-											leave="transition ease-in duration-150"
-											leaveFrom="opacity-100 translate-y-0"
-											leaveTo="opacity-0 translate-y-1"
-										>
-											<PopoverPanel anchor="bottom" className="z-20">
-												<AddNewMemberEstimation task={task} />
-											</PopoverPanel>
-										</Transition>
+										{({ close }) => (
+											<>
+												<PopoverButton className="flex justify-center items-center px-2 py-1 text-black rounded-full border border-gray-200 cursor-pointer dark:text-white">
+													<Plus className="w-3 h-3" />
+													<p className="font-semibold text-[0.625rem] leading-none">
+														Add new member
+													</p>
+												</PopoverButton>
+												<Transition
+													as="div"
+													enter="transition ease-out duration-200"
+													enterFrom="opacity-0 translate-y-1"
+													enterTo="opacity-100 translate-y-0"
+													leave="transition ease-in duration-150"
+													leaveFrom="opacity-100 translate-y-0"
+													leaveTo="opacity-0 translate-y-1"
+												>
+													<PopoverPanel anchor="bottom" className="z-20">
+														<AddNewMemberEstimation onSuccess={close} task={task} />
+													</PopoverPanel>
+												</Transition>
+											</>
+										)}
 									</Popover>
 								) : null}
 							</DisclosurePanel>
@@ -116,7 +121,7 @@ const TaskEstimationsInfo = () => {
 
 export default TaskEstimationsInfo;
 
-function AddNewMemberEstimation({ task }: { task: TTask }) {
+function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: () => void }) {
 	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
@@ -128,7 +133,6 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 		}),
 		[selectedMember]
 	);
-	useTaskMemberEstimation(taskEstimation);
 
 	return (
 		<Card shadow="custom" className="!p-1">
@@ -177,7 +181,7 @@ function AddNewMemberEstimation({ task }: { task: TTask }) {
 				</div>
 
 				<div className="flex gap-2 rounded px-2 ">
-					<TaskMemberEstimate taskEstimation={taskEstimation} />
+					<TaskMemberEstimate onSuccess={onSuccess} taskEstimation={taskEstimation} />
 				</div>
 			</div>
 		</Card>

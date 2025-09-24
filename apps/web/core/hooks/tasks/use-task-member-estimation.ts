@@ -9,6 +9,7 @@ import { useTaskEstimations } from './use-task-estimations';
 export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreateTaskEstimation) {
 	const {
 		editTaskEstimationLoading,
+		addEstimationLoading,
 		editTaskEstimationMutation,
 		addEstimationMutation,
 		deleteEstimationMutation,
@@ -99,7 +100,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		editMode.current = false;
 	}, [taskEstimation]);
 
-	const handleSubmit = useCallback(() => {
+	const handleSubmit = useCallback(async () => {
 		if (!taskEstimation) return;
 
 		const hours = +value['hours'];
@@ -116,13 +117,13 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 
 		if ('id' in taskEstimation) {
 			// existing estimation
-			editTaskEstimationMutation.mutate({
+			await editTaskEstimationMutation.mutateAsync({
 				...taskEstimation,
 				estimate: hours * 60 * 60 + minutes * 60 // time seconds
 			});
 		} else {
 			// new estimation
-			addEstimationMutation.mutate({
+			await addEstimationMutation.mutateAsync({
 				...taskEstimation,
 				estimate: hours * 60 * 60 + minutes * 60 // time seconds
 			});
@@ -131,10 +132,10 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		setEditableMode(false);
 	}, [taskEstimation, editTaskEstimationMutation, addEstimationMutation, value]);
 
-	const handleOutsideClick = useCallback(() => {
-		if (editTaskEstimationLoading || !editableMode) return;
-		handleSubmit();
-	}, [editTaskEstimationLoading, editableMode, handleSubmit]);
+	const handleOutsideClick = useCallback(async () => {
+		if (editTaskEstimationLoading || addEstimationLoading || !editableMode) return;
+		await handleSubmit();
+	}, [editTaskEstimationLoading, addEstimationLoading, editableMode, handleSubmit]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 
@@ -152,6 +153,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		taskEstimation,
 		setEditableMode,
 		editTaskEstimationLoading,
+		addEstimationLoading,
 		deleteEstimationLoading,
 		deleteEstimationMutation
 	};
