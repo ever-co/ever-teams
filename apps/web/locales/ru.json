@@ -236,6 +236,7 @@
 		"NO_TASKS": "Нет задач",
 		"FULL_WIDTH": "Полная ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед изменением задачи",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед сменой команды",
 		"COLLABORATE_DIALOG_TITLE": "Начать сотрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Пригласите участников и начните сотрудничество",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Начать совещание или совместную работу на доске",

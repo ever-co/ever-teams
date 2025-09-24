@@ -236,6 +236,7 @@
 		"NO_TASKS": "Няма задачи",
 		"FULL_WIDTH": "Пълна ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да промените задачата",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да смените екипа",
 		"COLLABORATE_DIALOG_TITLE": "Стартиране на сътрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Поканете член(ове) и започнете да си сътрудничите",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Стартиране на среща или сътрудничество с дъска",

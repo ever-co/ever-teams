@@ -236,6 +236,7 @@
 		"NO_TASKS": "Aucune tâche",
 		"FULL_WIDTH": "Pleine largeur",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de changer d'équipe",
 		"REGISTER": "S'inscrire",
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Inviter des membres et commencer la collaboration",

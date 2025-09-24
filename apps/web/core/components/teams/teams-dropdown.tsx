@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useOrganizationTeams, useTimer } from '@/core/hooks';
+import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -30,8 +30,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { setActiveTeam } = useOrganizationTeams();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
-	const { stopTimer } = useTimer();
 	const t = useTranslations();
+
+	// Timer running status check - similar to task-input.tsx
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const path = usePathname();
 	const router = useRouter();
@@ -49,26 +53,13 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
-			if (item.data) {
-				/**
-				 * If timer started in Teams and user switches the Team, stop the timer
-				 */
-				if (
-					timerStatus &&
-					timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.organizationTeamId &&
-					timerStatus?.lastLog?.source === 'TEAMS' &&
-					activeTeam &&
-					activeTeam?.id &&
-					timerStatus?.lastLog?.organizationTeamId === activeTeam?.id
-				) {
-					toast.success(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
-						description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
-					});
-					stopTimer();
-				}
+			// Prevent team switching when timer is running
+			if (timerRunningStatus) {
+				toast.error(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+				return;
+			}
 
+			if (item.data) {
 				setActiveTeam(item.data);
 
 				if (path.split('/')[1] === 'task') {
@@ -98,7 +89,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, stopTimer, t, setDetailedTask, path, router, timerStatus] // Removed detailedTask and activeTeam to prevent constant recreation
+		[setActiveTeam, t, setDetailedTask, path, router, timerRunningStatus] // Updated dependencies for timer protection
 	);
 
 	useEffect(() => {
@@ -153,51 +144,61 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	return (
 		<div>
-			<Dropdown
-				className="min-w-fit md:max-w-[223px] outline-none"
-				optionsClassName="min-w-fit md:max-w-[223px] outline-none"
-				buttonClassName={clsxm(
-					'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
-					items.length === 0 && ['py-2']
-				)}
-				value={teamItem}
-				onChange={onChangeActiveTeam}
-				items={[
-					...items,
-					...(userManagedTeams.length > 1 || path.includes('/all-teams')
-						? [
-								{
-									key: 'all-teams',
-									Label: () => (
-										<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
-									)
-								}
-							]
-						: [])
-				]}
-				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
-				publicTeam={publicTeam}
+			<Tooltip
+				label={t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+				placement="top"
+				enabled={timerRunningStatus}
 			>
-				{!publicTeam && (
-					<Tooltip
-						enabled={!user?.isEmailVerified}
-						label={t('common.VERIFY_ACCOUNT_MSG')}
-						placement="top-start"
-					>
-						<Button
-							className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
-							variant="outline"
-							onClick={openModal}
-							disabled={!user?.isEmailVerified}
+				<Dropdown
+					className="min-w-fit md:max-w-[223px] outline-none"
+					optionsClassName="min-w-fit md:max-w-[223px] outline-none"
+					buttonClassName={clsxm(
+						'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+						items.length === 0 && ['py-2'],
+						timerRunningStatus ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+					)}
+					value={teamItem}
+					onChange={onChangeActiveTeam}
+					items={[
+						...items,
+						...(userManagedTeams.length > 1 || path.includes('/all-teams')
+							? [
+									{
+										key: 'all-teams',
+										Label: () => (
+											<AllTeamItem
+												title={t('common.ALL_TEAMS')}
+												count={userManagedTeams.length}
+											/>
+										)
+									}
+								]
+							: [])
+					]}
+					// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
+					publicTeam={publicTeam}
+				>
+					{!publicTeam && (
+						<Tooltip
+							enabled={!user?.isEmailVerified}
+							label={t('common.VERIFY_ACCOUNT_MSG')}
+							placement="top-start"
 						>
-							<PlusIcon className="w-4 h-4" />
-							<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
-						</Button>
-					</Tooltip>
-				)}
-			</Dropdown>
+							<Button
+								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
+								variant="outline"
+								onClick={openModal}
+								disabled={!user?.isEmailVerified}
+							>
+								<PlusIcon className="w-4 h-4" />
+								<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
+							</Button>
+						</Tooltip>
+					)}
+				</Dropdown>
+			</Tooltip>
 
-			{!publicTeam && isOpen && !!user?.isEmailVerified && (
+			{!publicTeam && isOpen && !!user?.isEmailVerified && !timerRunningStatus && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>

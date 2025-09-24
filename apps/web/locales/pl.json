@@ -236,6 +236,7 @@
 		"NO_TASKS": "Brak Zadań",
 		"FULL_WIDTH": "Pełna szerokość",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Zadania",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Zespołu",
 		"COLLABORATE_DIALOG_TITLE": "Rozpocznij Współpracę",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Zaproś członka(-ów) i rozpocznij współpracę",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Rozpocznij Spotkanie lub Współpracę na Tablicy",

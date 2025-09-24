@@ -236,6 +236,7 @@
 		"NO_TASKS": "Keine Aufgaben",
 		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie das Team wechseln",
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Mitglied(er) einladen und zusammenarbeiten",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Meeting oder Board Zusammenarbeit starten",
