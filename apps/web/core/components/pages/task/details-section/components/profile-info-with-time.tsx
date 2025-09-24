@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import ProfileInfo from './profile-info';
+import { ReactNode } from 'react';
 
 type Props = {
 	profilePicSrc?: string | null;
 	names?: string;
 	profileInfoWrapperClassName?: string;
-	time: string;
+	time: ReactNode;
 	userId: string;
 };
 

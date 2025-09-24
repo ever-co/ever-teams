@@ -1,6 +1,11 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import { taskEstimationsSchema, TTaskEstimations } from '@/core/types/schemas/task/task.schema';
+import {
+	createTaskEstimationSchema,
+	taskEstimationsSchema,
+	TCreateTaskEstimation,
+	TTaskEstimation
+} from '@/core/types/schemas/task/task.schema';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 
 /**
@@ -10,16 +15,16 @@ import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskEstimationsService extends APIService {
-	addEstimation = async (data: TTaskEstimations) => {
+	addTaskEstimation = async (data: TCreateTaskEstimation) => {
 		try {
-			validateApiResponse(taskEstimationsSchema, data, 'addEstimation input data');
+			validateApiResponse(createTaskEstimationSchema, data, 'addTaskEstimation input data');
 
-			const response = await this.post<TTaskEstimations>('/task-estimations', data, {
+			const response = await this.post<TTaskEstimation>('/task-estimation', data, {
 				tenantId: this.tenantId
 			});
 
 			// Validate the response data
-			return validateApiResponse(taskEstimationsSchema, response.data, 'addEstimation API response');
+			return validateApiResponse(taskEstimationsSchema, response.data, 'addTaskEstimation API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -35,16 +40,16 @@ class TaskEstimationsService extends APIService {
 		}
 	};
 
-	editEstimation = async (data: TTaskEstimations) => {
+	editTaskEstimation = async (data: TTaskEstimation) => {
 		try {
-			validateApiResponse(taskEstimationsSchema, data, 'editEstimation input data');
+			validateApiResponse(taskEstimationsSchema, data, 'editTaskEstimation input data');
 
-			const response = await this.put<TTaskEstimations>(`/task-estimations/${data.id}`, data, {
+			const response = await this.put<TTaskEstimation>(`/task-estimation/${data.id}`, data, {
 				tenantId: this.tenantId
 			});
 
 			// Validate the response data
-			return validateApiResponse(taskEstimationsSchema, response.data, 'editEstimation API response');
+			return validateApiResponse(taskEstimationsSchema, response.data, 'editTaskEstimation API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -58,6 +63,12 @@ class TaskEstimationsService extends APIService {
 			}
 			throw error;
 		}
+	};
+
+	deleteTaskEstimation = async (estimationId: string) => {
+		const response = await this.delete(`/task-estimation/${estimationId}`, { tenantId: this.tenantId });
+
+		return response.data;
 	};
 }
 

@@ -13,6 +13,33 @@ import { validateApiResponse, validatePaginationResponse, ZodValidationError } f
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskService extends APIService {
+	get baseRelations() {
+		return [
+			'tags',
+			'teams',
+			'members',
+			'members.user',
+			'createdByUser',
+			'linkedIssues',
+			'linkedIssues.taskTo',
+			'linkedIssues.taskFrom',
+			'parent',
+			'children',
+			'estimations'
+		];
+	}
+
+	get baseQueries() {
+		return {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'join[alias]': 'task',
+			'join[leftJoinAndSelect][members]': 'task.members',
+			'join[leftJoinAndSelect][user]': 'members.user',
+			'join[leftJoinAndSelect][estimations]': 'task.estimations',
+			...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
+		};
+	}
 	/**
 	 * Fetches a single task by its ID with validation
 	 *
@@ -22,36 +49,7 @@ class TaskService extends APIService {
 	 */
 	getTaskById = async (taskId: string): Promise<TTask> => {
 		try {
-			const organizationId = this.organizationId;
-			const tenantId = this.tenantId;
-
-			const relations = [
-				'tags',
-				'teams',
-				'members',
-				'members.user',
-				'createdByUser',
-				'linkedIssues',
-				'linkedIssues.taskTo',
-				'linkedIssues.taskFrom',
-				'parent',
-				'children'
-			];
-
-			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'join[alias]': 'task',
-				'join[leftJoinAndSelect][members]': 'task.members',
-				'join[leftJoinAndSelect][user]': 'members.user',
-				includeRootEpic: 'true'
-			} as Record<string, string>;
-
-			relations.forEach((rl, i) => {
-				obj[`relations[${i}]`] = rl;
-			});
-
-			const query = qs.stringify(obj);
+			const query = qs.stringify({ ...this.baseQueries, includeRootEpic: 'true' });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
@@ -84,34 +82,11 @@ class TaskService extends APIService {
 	 */
 	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
 		try {
-			const relations = [
-				'tags',
-				'teams',
-				'members',
-				'members.user',
-				'createdByUser',
-				'linkedIssues',
-				'linkedIssues.taskTo',
-				'linkedIssues.taskFrom',
-				'parent',
-				'children'
-			];
-
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
+			const query = qs.stringify({
+				...this.baseQueries,
 				'where[projectId]': projectId,
-				'join[alias]': 'task',
-				'join[leftJoinAndSelect][members]': 'task.members',
-				'join[leftJoinAndSelect][user]': 'members.user',
 				'where[teams][0]': this.activeTeamId
-			} as Record<string, string>;
-
-			relations.forEach((rl, i) => {
-				obj[`relations[${i}]`] = rl;
 			});
-
-			const query = qs.stringify(obj);
 			const endpoint = `/tasks/team?${query}`;
 
 			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });

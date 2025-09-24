@@ -1,19 +1,30 @@
 import { queryKeys } from '@/core/query/keys';
 import { taskEstimationsService } from '@/core/services/client/api/tasks/task-estimations.service';
-import { TTaskEstimations } from '@/core/types/schemas/task/task.schema';
+import { TCreateTaskEstimation, TTask, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
+import { useConditionalUpdateEffect } from '../common';
+import { detailedTaskState } from '@/core/stores';
+import { useAtom } from 'jotai';
 export function useTaskEstimations() {
 	const queryClient = useQueryClient();
+	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 
-	const addEstimationMutation = useMutation({
-		mutationFn: (data: TTaskEstimations) => {
-			return taskEstimationsService.addEstimation(data);
+	const detailedTaskQueryData = queryClient.getQueryData(queryKeys.tasks.detail(detailedTask?.id)) as TTask;
+
+	const addTaskEstimationMutation = useMutation({
+		mutationFn: (data: TCreateTaskEstimation) => {
+			return taskEstimationsService.addTaskEstimation(data);
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation added successfully');
-			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(data.taskId) });
+			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					estimations: [...(oldData.estimations || []), data]
+				};
+			});
 		},
 		onError: (error) => {
 			const errorMessage = error instanceof Error ? error.message : null;
@@ -23,12 +34,20 @@ export function useTaskEstimations() {
 	});
 
 	const editTaskEstimationMutation = useMutation({
-		mutationFn: (data: TTaskEstimations) => {
-			return taskEstimationsService.editEstimation(data);
+		mutationFn: (data: TTaskEstimation) => {
+			return taskEstimationsService.editTaskEstimation(data);
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation updated successfully');
-			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(data.taskId) });
+			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					estimations: oldData.estimations?.map((estimation) =>
+						estimation.id === data.id ? data : estimation
+					)
+				};
+			});
 		},
 		onError: (error) => {
 			const errorMessage = error instanceof Error ? error.message : null;
@@ -37,8 +56,43 @@ export function useTaskEstimations() {
 		}
 	});
 
+	const deleteTaskEstimationMutation = useMutation({
+		mutationFn: ({ estimationId }: { estimationId: string; taskId: string }) => {
+			return taskEstimationsService.deleteTaskEstimation(estimationId);
+		},
+		onSuccess: (data, { estimationId, taskId }) => {
+			toast.success('Task estimation deleted successfully');
+			queryClient.setQueryData(queryKeys.tasks.detail(taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					estimations: oldData.estimations?.filter((estimation) => estimation.id !== estimationId)
+				};
+			});
+		},
+		onError: (error) => {
+			const errorMessage = error instanceof Error ? error.message : null;
+
+			toast.error('Error deleting task estimation :', { description: errorMessage });
+		}
+	});
+
+	useConditionalUpdateEffect(
+		() => {
+			if (detailedTaskQueryData) {
+				setDetailedTask(detailedTaskQueryData);
+			}
+		},
+		[detailedTaskQueryData],
+		Boolean(detailedTaskQueryData)
+	);
+
 	return {
-		addEstimationMutation,
-		editTaskEstimationMutation
+		addTaskEstimationMutation,
+		addTaskEstimationLoading: addTaskEstimationMutation.isPending,
+		editTaskEstimationMutation,
+		editTaskEstimationLoading: editTaskEstimationMutation.isPending,
+		deleteTaskEstimationMutation,
+		deleteTaskEstimationLoading: deleteTaskEstimationMutation.isPending
 	};
 }

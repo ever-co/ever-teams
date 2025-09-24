@@ -90,6 +90,19 @@ export const taskAssociationsSchema = z.object({
 	members: z.array(employeeSchema).optional(),
 	teams: z.array(organizationTeamSchema).optional()
 });
+
+// Task Estimations
+
+export const taskEstimationsSchema = z
+	.object({
+		estimate: z.number().min(0),
+		employeeId: uuIdSchema,
+		taskId: uuIdSchema
+	})
+	.merge(basePerTenantAndOrganizationEntitySchema);
+
+export const createTaskEstimationSchema = taskEstimationsSchema.omit({ id: true });
+
 const baseTaskSchema = z.object({
 	title: z.string(),
 	number: z.number().optional().nullable(),
@@ -173,7 +186,8 @@ export const taskSchema = baseTaskPropertiesSchema
 		linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 		label: z.string().optional(),
 		estimateHours: z.number().optional(),
-		estimateMinutes: z.number().optional()
+		estimateMinutes: z.number().optional(),
+		estimations: z.array(taskEstimationsSchema).optional()
 	});
 
 // schema for ICreateTask
@@ -212,16 +226,6 @@ export const updateActiveTaskSchema = z.object({
 	raw: z.array(z.any())
 });
 
-// Task Estimations
-
-export const taskEstimationsSchema = z
-	.object({
-		estimate: z.number().min(0),
-		employeeId: uuIdSchema,
-		taskId: uuIdSchema
-	})
-	.merge(basePerTenantAndOrganizationEntitySchema);
-
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
 export type TTask = z.infer<typeof taskSchema>;
@@ -234,7 +238,8 @@ export type TTaskSize = z.infer<typeof taskSizeEntitySchema>;
 export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
 export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
 export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
-export type TTaskEstimations = z.infer<typeof taskEstimationsSchema>;
+export type TTaskEstimation = z.infer<typeof taskEstimationsSchema>;
+export type TCreateTaskEstimation = z.infer<typeof createTaskEstimationSchema>;
 
 // Types for enums
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;
