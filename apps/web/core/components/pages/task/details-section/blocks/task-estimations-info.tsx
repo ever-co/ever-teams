@@ -171,10 +171,13 @@ function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: 
 		[]
 	);
 
-	const handleSelectChange = (memberId: string) => {
-		const member = teamMembers.find((member) => member.employee.id === memberId);
-		setSelectedMember(member || null);
-	};
+	const handleSelectChange = useCallback(
+		(memberId: string) => {
+			const member = teamMembers.find((member) => member.employee.id === memberId);
+			setSelectedMember(member || null);
+		},
+		[teamMembers]
+	);
 
 	return (
 		<Card shadow="custom" className="!p-1">
