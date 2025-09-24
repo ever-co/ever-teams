@@ -57,7 +57,7 @@ const TaskEstimationsInfo = () => {
 									<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								)}
 							</DisclosureButton>
-							<DisclosurePanel className="space-y-2">
+							<DisclosurePanel className="space-y-3 py-1">
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
 									{task?.estimations?.map((estimation) => {
 										const member = teamMembers.find(
