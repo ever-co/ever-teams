@@ -2,7 +2,6 @@
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useOutsideClick } from '../common';
 import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskEstimations } from './use-task-estimations';
 
@@ -132,16 +131,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		setEditableMode(false);
 	}, [taskEstimation, editTaskEstimationMutation, addTaskEstimationMutation, value]);
 
-	const handleOutsideClick = useCallback(async () => {
-		if (editTaskEstimationLoading || addTaskEstimationLoading || !editableMode) return;
-		await handleSubmit();
-	}, [editTaskEstimationLoading, addTaskEstimationLoading, editableMode, handleSubmit]);
-
-	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
-
 	return {
-		targetEl,
-		ignoreElementRef,
 		handleFocusMinutes,
 		editableMode,
 		onChange,

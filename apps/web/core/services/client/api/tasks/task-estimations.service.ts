@@ -66,13 +66,9 @@ class TaskEstimationsService extends APIService {
 	};
 
 	deleteTaskEstimation = async (estimationId: string) => {
-		try {
-			const response = await this.delete(`/task-estimation/${estimationId}`, { tenantId: this.tenantId });
+		const response = await this.delete(`/task-estimation/${estimationId}`, { tenantId: this.tenantId });
 
-			return response.data;
-		} catch (error) {
-			throw error;
-		}
+		return response.data;
 	};
 }
 

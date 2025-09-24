@@ -12,7 +12,7 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useAtom, useAtomValue } from 'jotai';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
 import { CheckIcon, Plus } from 'lucide-react';
@@ -134,6 +134,48 @@ function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: 
 		[selectedMember]
 	);
 
+	const renderItem = useCallback(
+		(
+			item: {
+				id: string;
+				value: string;
+				imgUrl: string;
+			},
+			isSelected: boolean
+		) => {
+			return (
+				<div
+					className={cn(
+						'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
+						isSelected && 'bg-primary text-primary-foreground dark:text-white'
+					)}
+				>
+					{isSelected && <CheckIcon size={10} />}
+					<span
+						className={cn(
+							'  flex items-center gap-2',
+							selectedMember?.employee?.id && !isSelected && 'pl-[18px]'
+						)}
+					>
+						<Thumbnail
+							className="z-20 text-gray-700 bg-white rounded-full"
+							imgUrl={item?.imgUrl}
+							size={'20px'}
+							identifier={String(item?.value)}
+						/>
+						<span className="capitalize">{item?.value ?? '-'}</span>
+					</span>
+				</div>
+			);
+		},
+		[]
+	);
+
+	const handleSelectChange = (memberId: string) => {
+		const member = teamMembers.find((member) => member.employee.id === memberId);
+		setSelectedMember(member || null);
+	};
+
 	return (
 		<Card shadow="custom" className="!p-1">
 			<div className="flex gap-4 shadow-md border p-4 items-center rounded-lg">
@@ -143,40 +185,12 @@ function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: 
 						selectTriggerClassName="w-full"
 						options={teamMembers.map((member) => ({
 							id: member.employee.id,
-							value: member.employee?.fullName || '',
-							imgUrl: member.employee?.user?.imageUrl || ''
+							value: member.employee.fullName || '',
+							imgUrl: member.employee.user?.imageUrl || ''
 						}))}
-						onChange={(memberId) => {
-							const member = teamMembers.find((member) => member.employee.id === memberId);
-							setSelectedMember(member || null);
-						}}
+						onChange={handleSelectChange}
 						selected={selectedMember?.employee?.id ?? null}
-						renderItem={(item, isSelected) => {
-							return (
-								<div
-									className={cn(
-										'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-										isSelected && 'bg-primary text-primary-foreground dark:text-white'
-									)}
-								>
-									{isSelected && <CheckIcon size={10} />}
-									<span
-										className={cn(
-											'  flex items-center gap-2',
-											selectedMember?.employee?.id && !isSelected && 'pl-[18px]'
-										)}
-									>
-										<Thumbnail
-											className="z-20 text-gray-700 bg-white rounded-full"
-											imgUrl={item?.imgUrl}
-											size={'20px'}
-											identifier={String(item?.value)}
-										/>
-										<span className="capitalize">{item?.value ?? '-'}</span>
-									</span>
-								</div>
-							);
-						}}
+						renderItem={renderItem}
 					/>
 				</div>
 

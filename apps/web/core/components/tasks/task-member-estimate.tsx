@@ -33,7 +33,6 @@ export function TaskMemberEstimate({
 	onSuccess
 }: Props) {
 	const {
-		targetEl,
 		value,
 		onChange,
 		handleSubmit,
@@ -97,7 +96,7 @@ export function TaskMemberEstimate({
 		setEditableMode(true);
 	}, []);
 	return (
-		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
+		<div className={clsxm('flex items-center space-x-1', className)}>
 			<TimeInputField
 				ref={hourRef}
 				value={value['hours']}
