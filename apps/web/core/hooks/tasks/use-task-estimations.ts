@@ -11,7 +11,6 @@ export function useTaskEstimations() {
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 
 	const detailedTaskQueryData = queryClient.getQueryData(queryKeys.tasks.detail(detailedTask?.id)) as TTask;
-	const isDetailedTaskQueryDataUpdated = JSON.stringify(detailedTask) !== JSON.stringify(detailedTaskQueryData);
 
 	const addTaskEstimationMutation = useMutation({
 		mutationFn: (data: TCreateTaskEstimation) => {
@@ -20,6 +19,7 @@ export function useTaskEstimations() {
 		onSuccess: (data) => {
 			toast.success('Task estimation added successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
 				return {
 					...oldData,
 					estimations: [...(oldData.estimations || []), data]
@@ -40,6 +40,7 @@ export function useTaskEstimations() {
 		onSuccess: (data) => {
 			toast.success('Task estimation updated successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
 				return {
 					...oldData,
 					estimations: oldData.estimations?.map((estimation) =>
@@ -62,6 +63,7 @@ export function useTaskEstimations() {
 		onSuccess: (data, { estimationId, taskId }) => {
 			toast.success('Task estimation deleted successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(taskId), (oldData: TTask) => {
+				if (!oldData) return oldData;
 				return {
 					...oldData,
 					estimations: oldData.estimations?.filter((estimation) => estimation.id !== estimationId)
@@ -82,7 +84,7 @@ export function useTaskEstimations() {
 			}
 		},
 		[detailedTaskQueryData],
-		isDetailedTaskQueryDataUpdated
+		Boolean(detailedTaskQueryData)
 	);
 
 	return {

@@ -13,30 +13,33 @@ import { validateApiResponse, validatePaginationResponse, ZodValidationError } f
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskService extends APIService {
-	baseRelations = [
-		'tags',
-		'teams',
-		'members',
-		'members.user',
-		'createdByUser',
-		'linkedIssues',
-		'linkedIssues.taskTo',
-		'linkedIssues.taskFrom',
-		'parent',
-		'children',
-		'estimations'
-	];
+	get baseRelations() {
+		return [
+			'tags',
+			'teams',
+			'members',
+			'members.user',
+			'createdByUser',
+			'linkedIssues',
+			'linkedIssues.taskTo',
+			'linkedIssues.taskFrom',
+			'parent',
+			'children',
+			'estimations'
+		];
+	}
 
-	baseQueries = {
-		'where[organizationId]': this.organizationId,
-		'where[tenantId]': this.tenantId,
-		'join[alias]': 'task',
-		'join[leftJoinAndSelect][members]': 'task.members',
-		'join[leftJoinAndSelect][user]': 'members.user',
-		'join[leftJoinAndSelect][estimations]': 'task.estimations',
-		...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
-	};
-
+	get baseQueries() {
+		return {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'join[alias]': 'task',
+			'join[leftJoinAndSelect][members]': 'task.members',
+			'join[leftJoinAndSelect][user]': 'members.user',
+			'join[leftJoinAndSelect][estimations]': 'task.estimations',
+			...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
+		};
+	}
 	/**
 	 * Fetches a single task by its ID with validation
 	 *
