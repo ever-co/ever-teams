@@ -174,7 +174,10 @@ export function TaskMemberEstimate({
 						<button
 							onClick={async (e) => {
 								e.stopPropagation();
-								await deleteTaskEstimationMutation.mutateAsync(taskEstimation.id);
+								await deleteTaskEstimationMutation.mutateAsync({
+									estimationId: taskEstimation.id,
+									taskId: taskEstimation.taskId
+								});
 							}}
 						>
 							<TrashIcon className="w-4 h-4 text-red-600" />

@@ -39,7 +39,14 @@ export function useTaskEstimations() {
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation updated successfully');
-			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(data.taskId) });
+			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
+				return {
+					...oldData,
+					estimations: oldData.estimations?.map((estimation) =>
+						estimation.id === data.id ? data : estimation
+					)
+				};
+			});
 		},
 		onError: (error) => {
 			const errorMessage = error instanceof Error ? error.message : null;
@@ -49,12 +56,17 @@ export function useTaskEstimations() {
 	});
 
 	const deleteTaskEstimationMutation = useMutation({
-		mutationFn: (estimationId: string) => {
+		mutationFn: ({ estimationId }: { estimationId: string; taskId: string }) => {
 			return taskEstimationsService.deleteTaskEstimation(estimationId);
 		},
-		onSuccess: (data) => {
+		onSuccess: (data, { estimationId, taskId }) => {
 			toast.success('Task estimation deleted successfully');
-			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(data.taskId) });
+			queryClient.setQueryData(queryKeys.tasks.detail(taskId), (oldData: TTask) => {
+				return {
+					...oldData,
+					estimations: oldData.estimations?.filter((estimation) => estimation.id !== estimationId)
+				};
+			});
 		},
 		onError: (error) => {
 			const errorMessage = error instanceof Error ? error.message : null;
