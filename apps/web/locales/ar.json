@@ -216,6 +216,7 @@
 		"FULL_WIDTH": "العرض الكاملh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير الفريق",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل إنشاء عناصر جديدة",
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
 		"COLLABORATE_DIALOG_SUB_TITLE": "ادعُ عضوًا (أعضاء) وابدأ التعاون",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "بدء اجتماع أو تعاون لوحة",

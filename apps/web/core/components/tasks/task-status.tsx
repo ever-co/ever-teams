@@ -514,7 +514,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={cn(
-				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded-[8px]`,
+				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
@@ -742,7 +742,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="w-full outline-none cursor-pointer">
+							<div className="w-full cursor-pointer outline-none">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}

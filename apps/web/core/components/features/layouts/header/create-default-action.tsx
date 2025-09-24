@@ -10,10 +10,14 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
+import { toast } from 'sonner';
+import { Tooltip } from '../../../duplicated-components/tooltip';
 import { Modal } from '../../../common/modal';
 import CreateTaskModal from '../../tasks/create-task-modal';
 import { InviteFormModal } from '../../teams/invite-form-modal';
@@ -27,7 +31,30 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 	const { isOpen: inviteIsOpen, closeModal: inviteCloseModal, openModal: inviteOpenModal } = useModal();
 	const { isOpen: createTaskIsOpen, closeModal: createTaskCloseModal, openModal: createTaskOpenModal } = useModal();
 
-	const createProjectModal = useModal();
+	const { isOpen: projectIsOpen, closeModal: projectCloseModal, openModal: projectOpenModal } = useModal();
+
+	// Timer protection logic - similar to teams-dropdown.tsx
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
+
+	// Protected action handlers
+	const handleCreateTaskClick = () => {
+		if (timerRunningStatus) {
+			toast.error(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+			return;
+		}
+		createTaskOpenModal();
+	};
+
+	const handleCreateTeamClick = () => {
+		if (timerRunningStatus) {
+			toast.error(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+			return;
+		}
+		openModal();
+	};
 	return (
 		<div>
 			<DropdownMenu>
@@ -61,17 +88,60 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 					side="right"
 					align="start"
 				>
+					{timerRunningStatus && (
+						<div className="px-3 py-2 mb-1 text-xs text-amber-600 bg-amber-50 border-b border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800">
+							⏱️ {t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+						</div>
+					)}
 					<DropdownMenuGroup>
-						<DropdownMenuItem onClick={createTaskOpenModal}>
-							<TaskIcon />
-							Task
-							<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={openModal} disabled={!user?.isEmailVerified}>
-							<TeamIcon /> Team
-							<DropdownMenuShortcut>⌘CM</DropdownMenuShortcut>
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={createProjectModal.openModal}>
+						<Tooltip
+							enabled={timerRunningStatus}
+							label={t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+							placement="bottom"
+							labelContainerClassName="z-[1100] w-fit max-w-xs"
+						>
+							<DropdownMenuItem
+								onClick={handleCreateTaskClick}
+								disabled={timerRunningStatus}
+								className={timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}
+								title={
+									timerRunningStatus
+										? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
+										: undefined
+								}
+							>
+								<TaskIcon />
+								Task
+								<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+							</DropdownMenuItem>
+						</Tooltip>
+						<Tooltip
+							enabled={!user?.isEmailVerified || timerRunningStatus}
+							label={
+								timerRunningStatus
+									? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
+									: t('common.VERIFY_ACCOUNT_MSG')
+							}
+							placement="bottom"
+							labelContainerClassName="z-[1100] w-fit max-w-xs"
+						>
+							<DropdownMenuItem
+								onClick={handleCreateTeamClick}
+								disabled={!user?.isEmailVerified || timerRunningStatus}
+								className={timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}
+								title={
+									timerRunningStatus
+										? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
+										: !user?.isEmailVerified
+											? t('common.VERIFY_ACCOUNT_MSG')
+											: undefined
+								}
+							>
+								<TeamIcon /> Team
+								<DropdownMenuShortcut>⌘CM</DropdownMenuShortcut>
+							</DropdownMenuItem>
+						</Tooltip>
+						<DropdownMenuItem onClick={projectOpenModal}>
 							<ProjectIcon /> Project
 							<DropdownMenuShortcut>⌘CT</DropdownMenuShortcut>
 						</DropdownMenuItem>
@@ -85,7 +155,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<Modal isOpen={createTaskIsOpen} closeModal={createTaskCloseModal}>
+			<Modal isOpen={createTaskIsOpen && !timerRunningStatus} closeModal={createTaskCloseModal}>
 				<CreateTaskModal
 					onClose={createTaskCloseModal}
 					title={t('common.CREATE_TASK')}
@@ -94,13 +164,15 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 					tasks={[]}
 				/>
 			</Modal>
-			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
+			{!publicTeam && (
+				<CreateTeamModal
+					open={isOpen && !!user?.isEmailVerified && !timerRunningStatus}
+					closeModal={closeModal}
+				/>
+			)}
 
 			<InviteFormModal open={inviteIsOpen && !!user?.isEmailVerified} closeModal={inviteCloseModal} />
-			<CreateProjectModal
-				open={createProjectModal.isOpen && !!user?.isEmailVerified}
-				closeModal={createProjectModal.closeModal}
-			/>
+			<CreateProjectModal open={projectIsOpen && !!user?.isEmailVerified} closeModal={projectCloseModal} />
 		</div>
 	);
 };

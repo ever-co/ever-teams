@@ -237,6 +237,7 @@
 		"FULL_WIDTH": "A tutta larghezza",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Si prega di fermare il Timer prima di cambiare il Compito",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Si prega di fermare il Timer prima di cambiare il Team",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Si prega di fermare il Timer prima di creare nuovi elementi",
 		"COLLABORATE_DIALOG_TITLE": "Inizia Collaborazione",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invita membro(i) e inizia a collaborare",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Inizia la Riunione o la Collaborazione sulla Bacheca",

@@ -180,15 +180,27 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				>
 					{!publicTeam && (
 						<Tooltip
-							enabled={!user?.isEmailVerified}
-							label={t('common.VERIFY_ACCOUNT_MSG')}
+							enabled={!user?.isEmailVerified || timerRunningStatus}
+							label={
+								timerRunningStatus
+									? t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
+									: t('common.VERIFY_ACCOUNT_MSG')
+							}
 							placement="top-start"
 						>
 							<Button
-								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
+								className={`w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] ${
+									timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''
+								}`}
 								variant="outline"
-								onClick={openModal}
-								disabled={!user?.isEmailVerified}
+								onClick={() => {
+									if (timerRunningStatus) {
+										toast.error(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+										return;
+									}
+									openModal();
+								}}
+								disabled={!user?.isEmailVerified || timerRunningStatus}
 							>
 								<PlusIcon className="w-4 h-4" />
 								<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
