@@ -9,9 +9,9 @@ import { useTaskEstimations } from './use-task-estimations';
 export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreateTaskEstimation) {
 	const {
 		editTaskEstimationLoading,
-		addEstimationLoading,
+		addTaskEstimationLoading,
 		editTaskEstimationMutation,
-		addEstimationMutation,
+		addTaskEstimationMutation,
 		deleteEstimationMutation,
 		deleteEstimationLoading
 	} = useTaskEstimations();
@@ -123,19 +123,19 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 			});
 		} else {
 			// new estimation
-			await addEstimationMutation.mutateAsync({
+			await addTaskEstimationMutation.mutateAsync({
 				...taskEstimation,
 				estimate: hours * 60 * 60 + minutes * 60 // time seconds
 			});
 		}
 
 		setEditableMode(false);
-	}, [taskEstimation, editTaskEstimationMutation, addEstimationMutation, value]);
+	}, [taskEstimation, editTaskEstimationMutation, addTaskEstimationMutation, value]);
 
 	const handleOutsideClick = useCallback(async () => {
-		if (editTaskEstimationLoading || addEstimationLoading || !editableMode) return;
+		if (editTaskEstimationLoading || addTaskEstimationLoading || !editableMode) return;
 		await handleSubmit();
-	}, [editTaskEstimationLoading, addEstimationLoading, editableMode, handleSubmit]);
+	}, [editTaskEstimationLoading, addTaskEstimationLoading, editableMode, handleSubmit]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 
@@ -153,7 +153,7 @@ export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreat
 		taskEstimation,
 		setEditableMode,
 		editTaskEstimationLoading,
-		addEstimationLoading,
+		addTaskEstimationLoading,
 		deleteEstimationLoading,
 		deleteEstimationMutation
 	};

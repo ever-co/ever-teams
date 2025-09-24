@@ -7,9 +7,9 @@ import { toast } from 'sonner';
 export function useTaskEstimations() {
 	const queryClient = useQueryClient();
 
-	const addEstimationMutation = useMutation({
+	const addTaskEstimationMutation = useMutation({
 		mutationFn: (data: TCreateTaskEstimation) => {
-			return taskEstimationsService.addEstimation(data);
+			return taskEstimationsService.addTaskEstimation(data);
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation added successfully');
@@ -24,7 +24,7 @@ export function useTaskEstimations() {
 
 	const editTaskEstimationMutation = useMutation({
 		mutationFn: (data: TTaskEstimation) => {
-			return taskEstimationsService.editEstimation(data);
+			return taskEstimationsService.editTaskEstimation(data);
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation updated successfully');
@@ -39,7 +39,7 @@ export function useTaskEstimations() {
 
 	const deleteEstimationMutation = useMutation({
 		mutationFn: (estimationId: string) => {
-			return taskEstimationsService.deleteEstimation(estimationId);
+			return taskEstimationsService.deleteTaskEstimation(estimationId);
 		},
 		onSuccess: (data) => {
 			toast.success('Task estimation deleted successfully');
@@ -53,8 +53,8 @@ export function useTaskEstimations() {
 	});
 
 	return {
-		addEstimationMutation,
-		addEstimationLoading: addEstimationMutation.isPending,
+		addTaskEstimationMutation,
+		addTaskEstimationLoading: addTaskEstimationMutation.isPending,
 		editTaskEstimationMutation,
 		editTaskEstimationLoading: editTaskEstimationMutation.isPending,
 		deleteEstimationMutation,

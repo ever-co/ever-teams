@@ -43,7 +43,7 @@ export function TaskMemberEstimate({
 		handleFocusMinutes,
 		handleBlurMinutes,
 		editTaskEstimationLoading,
-		addEstimationLoading,
+		addTaskEstimationLoading,
 		editableMode,
 		setEditableMode,
 		deleteEstimationLoading,
@@ -73,14 +73,14 @@ export function TaskMemberEstimate({
 	}, [editableMode, onCloseEditionRef]);
 
 	useEffect(() => {
-		if (loadingRef?.current && !editTaskEstimationLoading && !addEstimationLoading) {
+		if (loadingRef?.current && !editTaskEstimationLoading && !addTaskEstimationLoading) {
 			closeable_fcRef.current && closeable_fcRef.current();
 		}
 
 		if (loadingRef) {
-			loadingRef.current = editTaskEstimationLoading || addEstimationLoading;
+			loadingRef.current = editTaskEstimationLoading || addTaskEstimationLoading;
 		}
-	}, [editTaskEstimationLoading, addEstimationLoading, loadingRef, closeable_fcRef]);
+	}, [editTaskEstimationLoading, addTaskEstimationLoading, loadingRef, closeable_fcRef]);
 
 	const handleSave = useCallback(
 		async (e: MouseEvent<HTMLButtonElement>) => {
@@ -153,7 +153,7 @@ export function TaskMemberEstimate({
 			/>
 			{showEditAndSaveButton && (
 				<div className="h-full flex items-center justify-center">
-					{!editTaskEstimationLoading && !addEstimationLoading ? (
+					{!editTaskEstimationLoading && !addTaskEstimationLoading ? (
 						editableMode ? (
 							<button onClick={handleSave}>
 								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
