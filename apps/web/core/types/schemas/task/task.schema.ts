@@ -86,13 +86,27 @@ export const baseTaskPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 // schema for ITaskAssociations
 export const taskAssociationsSchema = z.object({
 	tags: z.array(tagSchema).optional(),
-	projectId: z.string().optional().nullable(),
 	members: z.array(employeeSchema).optional(),
-	teams: z.array(organizationTeamSchema).optional()
+	teams: z.array(organizationTeamSchema).optional(),
+	taskStatus: taskStatusSchema.optional(),
+	taskSize: taskSizeEntitySchema.optional(),
+	taskPriority: taskPriorityEntitySchema.optional(),
+	taskType: issueTypeEntitySchema.optional()
+});
+
+export const taskSelfReferencesSchema = z.object({
+	parent: z
+		.lazy(() => taskZodSchemaType)
+		.optional()
+		.nullable(),
+	rootEpic: z
+		.lazy(() => taskZodSchemaType)
+		.optional()
+		.nullable(),
+	children: z.array(z.lazy(() => taskZodSchemaType)).optional()
 });
 
 // Task Estimations
-
 export const taskEstimationsSchema = z
 	.object({
 		estimate: z.number().min(0),
@@ -103,92 +117,58 @@ export const taskEstimationsSchema = z
 
 export const createTaskEstimationSchema = taskEstimationsSchema.omit({ id: true });
 
-const baseTaskSchema = z.object({
-	title: z.string(),
-	number: z.number().optional().nullable(),
-	public: z.boolean().nullable(),
-	prefix: z.string().optional().nullable(),
-	description: z.string().optional(),
-	status: z.any().optional(),
-	priority: z.any().optional().nullable(),
-	size: z.any().optional().nullable(),
-	issueType: z.nativeEnum(EIssueType).optional().nullable(),
-	startDate: z.any().optional().nullable(),
-	resolvedAt: z.any().optional().nullable(),
-	dueDate: z.any().optional().nullable(),
-	estimate: z.number().optional(),
-	isDraft: z.boolean().optional(),
-	isScreeningTask: z.boolean().optional(),
-	version: z.string().optional().nullable(),
-	tags: z.array(tagSchema).optional().nullable(),
-	projectId: z.string().optional().nullable(),
-	members: z.array(employeeSchema).optional().nullable(),
-	teams: z.array(organizationTeamSchema).optional(),
-
-	parentId: z.string().optional().nullable(),
-	children: z.array(z.any()).optional().nullable(),
-	rootEpic: z.any().optional().nullable(),
-	// Relations with the entities of status, size, priority and type
-	taskStatus: taskStatusSchema.optional(),
-	taskStatusId: z.string().optional().nullable(),
-	taskSize: taskSizeEntitySchema.optional(),
-	taskSizeId: z.string().optional().nullable(),
-	taskPriority: taskPriorityEntitySchema.optional(),
-	taskPriorityId: z.string().optional().nullable(),
-	taskType: issueTypeEntitySchema.optional(),
-	taskTypeId: z.string().optional().nullable(),
-
-	// Additional properties specific to tasks
-	taskNumber: z.string().optional(),
-	totalWorkedTime: z.number().optional(),
-	selectedTeam: organizationTeamSchema.optional(),
-	linkedIssues: z.array(taskLinkedIssueSchema).optional(),
-	label: z.string().optional(),
-	estimateHours: z.number().optional(),
-	estimateMinutes: z.number().optional()
-});
-// schema for TTask
-export const taskSchema = baseTaskPropertiesSchema
-	.merge(baseTaskSchema)
-	// .merge(taskAssociationsSchema)
-	.extend({
-		// Relations with other tasks
-		parent: baseTaskSchema
-			.extend({
-				id: z.string()
-			})
-			.optional()
-			.nullable(),
+const baseTaskSchema = z
+	.object({
+		id: uuIdSchema,
+		title: z.string(),
+		number: z.number().optional().nullable(),
+		public: z.boolean().nullable(),
+		prefix: z.string().optional().nullable(),
+		description: z.string().optional(),
+		status: z.any().optional(),
+		priority: z.any().optional().nullable(),
+		size: z.any().optional().nullable(),
+		issueType: z.nativeEnum(EIssueType).optional().nullable(),
+		startDate: z.any().optional().nullable(),
+		resolvedAt: z.any().optional().nullable(),
+		dueDate: z.any().optional().nullable(),
+		estimate: z.number().optional(),
+		isDraft: z.boolean().optional(),
+		isScreeningTask: z.boolean().optional(),
+		version: z.string().optional().nullable(),
+		projectId: z.string().optional().nullable(),
 		parentId: z.string().optional().nullable(),
-		children: z
-			.array(baseTaskSchema.merge(z.object({ id: z.string() })))
-			.optional()
-			.nullable(),
-		rootEpic: baseTaskSchema
-			.merge(z.object({ id: z.string() }))
-			.optional()
-			.nullable(),
-
-		// Relations with the entities of status, size, priority and type
-		taskStatus: taskStatusSchema.optional(),
 		taskStatusId: z.string().optional().nullable(),
-		taskSize: taskSizeEntitySchema.optional(),
 		taskSizeId: z.string().optional().nullable(),
-		taskPriority: taskPriorityEntitySchema.optional(),
 		taskPriorityId: z.string().optional().nullable(),
-		taskType: issueTypeEntitySchema.optional(),
 		taskTypeId: z.string().optional().nullable(),
-
-		// Additional properties specific to tasks
 		taskNumber: z.string().optional(),
 		totalWorkedTime: z.number().optional(),
-		// selectedTeam: organizationTeamSchema.optional(),
+		selectedTeam: organizationTeamSchema.optional(),
 		linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 		label: z.string().optional(),
 		estimateHours: z.number().optional(),
 		estimateMinutes: z.number().optional(),
 		estimations: z.array(taskEstimationsSchema).optional()
-	});
+	})
+	.merge(basePerTenantAndOrganizationEntitySchema);
+/**
+ * TaskZodSchemaType
+ *
+ * Help to keep type safety while solve the problem of recursive (self-references , references from associations).
+ *
+ * Recursive fields parent/rootEpic/children point back to taskZodSchemaType via z.lazy
+ */
+const taskZodSchemaType: z.ZodType<TTask> = baseTaskSchema
+	.merge(taskSelfReferencesSchema)
+	.merge(taskAssociationsSchema);
+
+/**
+ * Concrete task schema
+ *
+ * For validation / etc
+ */
+export const taskSchema = baseTaskSchema.merge(taskSelfReferencesSchema).merge(taskAssociationsSchema);
 
 // schema for ICreateTask
 export const createTaskSchema = z.object({
@@ -228,7 +208,11 @@ export const updateActiveTaskSchema = z.object({
 
 // ===== TYPES TYPESCRIPT EXPORTED =====
 
-export type TTask = z.infer<typeof taskSchema>;
+export type TTask = z.infer<typeof baseTaskSchema> & {
+	parent?: TTask | null;
+	rootEpic?: TTask | null;
+	children?: TTask[];
+} & z.infer<typeof taskAssociationsSchema>;
 export type TCreateTask = z.infer<typeof createTaskSchema>;
 export type TEmployee = z.infer<typeof employeeSchema>;
 export type TTag = z.infer<typeof tagSchema>;
@@ -238,8 +222,6 @@ export type TTaskSize = z.infer<typeof taskSizeEntitySchema>;
 export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
 export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
 export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
-export type TTaskEstimation = z.infer<typeof taskEstimationsSchema>;
-export type TCreateTaskEstimation = z.infer<typeof createTaskEstimationSchema>;
 
 // Types for enums
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;

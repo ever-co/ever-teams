@@ -11,27 +11,27 @@ import { ITaskStatus } from './task-status/task-status';
 
 export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntityModel {
 	title: string;
-	number?: number;
-	public?: boolean;
-	prefix?: string;
-	description?: string;
-	status?: ETaskStatusName;
-	priority?: ETaskPriority;
-	size?: ETaskSize;
-	issueType?: EIssueType;
-	startDate?: Date;
-	resolvedAt?: Date;
-	dueDate?: Date;
-	estimate?: number;
-	isDraft?: boolean; // Define if task is still draft (E.g : Task description not completed yet)
-	isScreeningTask?: boolean; // Defines if the task still in discussion before to be accepted
-	version?: string;
+	number?: number | null;
+	public?: boolean | null;
+	prefix?: string | null;
+	description?: string | null;
+	status?: ETaskStatusName | null;
+	priority?: ETaskPriority | null;
+	size?: ETaskSize | null;
+	issueType?: EIssueType | null;
+	startDate?: Date | null;
+	resolvedAt?: Date | null;
+	dueDate?: Date | null;
+	estimate?: number | null;
+	isDraft?: boolean | null; // Define if task is still draft (E.g : Task description not completed yet)
+	isScreeningTask?: boolean | null; // Defines if the task still in discussion before to be accepted
+	version?: string | null;
 }
 
 // Interface for task associations (related entities)
 export interface ITaskAssociations extends ITaggable, IRelationalOrganizationProject {
-	children?: ITask[];
-	members?: IEmployee[];
+	children?: ITask[] | null;
+	members?: IEmployee[] | null;
 	// invoiceItems?: IInvoiceItem[];
 	teams?: IOrganizationTeam[];
 	// modules?: IOrganizationProjectModule[];
@@ -41,15 +41,15 @@ export interface ITaskAssociations extends ITaggable, IRelationalOrganizationPro
 
 export interface ITask extends IBaseTaskProperties, ITaskAssociations {
 	parent?: ITask;
-	parentId?: ID; // Optional field for specifying the parent task ID
+	parentId?: ID | null;
 	taskStatus?: ITaskStatus;
-	taskStatusId?: ID;
+	taskStatusId?: ID | null;
 	taskSize?: ITaskSize;
-	taskSizeId?: ID;
+	taskSizeId?: ID | null;
 	taskPriority?: ITaskPriority;
-	taskPriorityId?: ID;
+	taskPriorityId?: ID | null;
 	taskType?: IIssueType;
-	taskTypeId?: ID;
+	taskTypeId?: ID | null;
 	rootEpic?: ITask;
 	taskNumber?: string;
 	totalWorkedTime?: number;
