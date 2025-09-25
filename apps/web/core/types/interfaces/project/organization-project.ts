@@ -61,8 +61,8 @@ export interface IProjectRelation {
 }
 
 export interface IRelationalOrganizationProject {
-	project?: IOrganizationProject;
-	projectId?: ID;
+	project?: IOrganizationProject | null;
+	projectId?: ID | null;
 }
 
 // Base interface with optional properties of organization project setting

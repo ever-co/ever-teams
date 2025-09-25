@@ -11,14 +11,14 @@ export interface ITaskStatus
 		TaskStatusWorkFlow {
 	name: string;
 	value: string;
-	description?: string;
-	icon?: string;
-	color?: string;
-	order?: number;
-	isSystem?: boolean;
-	isCollapsed?: boolean;
-	isDefault?: boolean;
-	fullIconUrl?: string;
-	template?: ETaskStatusName;
+	description?: string | null;
+	icon?: string | null;
+	color?: string | null;
+	order?: number | null;
+	isSystem?: boolean | null;
+	isCollapsed?: boolean | null;
+	isDefault?: boolean | null;
+	fullIconUrl?: string | null;
+	template?: ETaskStatusName | null;
 }
 export interface ITaskStatusCreate extends Partial<Omit<ITaskStatus, 'is_system'>> {}
