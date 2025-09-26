@@ -47,51 +47,53 @@ export const organizationProjectRepositorySchema = z
 	})
 	.passthrough();
 
-export const organizationProjectBaseSchema = z.object({
-	id: z.string(),
-	createdAt: z.coerce.date().optional(),
-	updatedAt: z.coerce.date().optional(),
-	archivedAt: z.coerce.string().nullable().optional(),
-	tenantId: z.string().optional(),
-	organizationId: z.string().optional(),
-	name: z.string(),
-	startDate: z.coerce.date().optional(),
-	endDate: z.coerce.date().optional(),
-	billing: z.nativeEnum(EProjectBilling).optional().nullable(),
-	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
-	public: z.boolean().nullable(),
-	owner: z.nativeEnum(EProjectOwner).nullable().nullable(),
-	taskListType: z.nativeEnum(ETaskListType).optional().nullable(),
-	code: z.string().nullable(),
-	description: z.string().optional().nullable(),
-	color: z.string().optional().nullable(),
-	billable: z.boolean().optional().nullable(),
-	billingFlat: z.boolean().optional().nullable(),
-	openSource: z.boolean().optional().nullable(),
-	projectUrl: z.string().optional().nullable(),
-	openSourceProjectUrl: z.string().optional().nullable(),
-	budget: z.coerce.number().optional(),
-	budgetType: z.nativeEnum(EProjectBudgetType).optional(),
-	membersCount: z.coerce.number().optional(),
-	imageUrl: z.string().optional().nullable(),
-	status: z.nativeEnum(ETaskStatusName).optional().nullable(),
-	icon: z.string().optional().nullable(),
-	archiveTasksIn: z.coerce.number().optional(),
-	closeTasksIn: z.coerce.number().optional(),
-	defaultAssigneeId: z.string().optional().nullable(),
-	// Relations (will be populated by API)
-	members: z.array(z.any()).optional(),
-	teams: z.array(z.any()).optional(),
-	tasks: z.array(z.any()).optional(),
-	timeLogs: z.array(z.any()).optional(),
-	tags: z.array(z.any()).optional(),
-	defaultAssignee: z.any().optional(),
-	relations: z.array(projectRelationSchema).optional(),
-	repository: organizationProjectRepositorySchema.optional(),
-	// Image asset fields
-	imageId: z.string().optional().nullable(),
-	image: z.any().optional()
-});
+export const organizationProjectBaseSchema = z
+	.object({
+		id: z.string(),
+		createdAt: z.coerce.date().optional(),
+		updatedAt: z.coerce.date().optional(),
+		archivedAt: z.coerce.string().nullable().optional(),
+		tenantId: z.string().optional(),
+		organizationId: z.string().optional(),
+		name: z.string(),
+		startDate: z.coerce.date().optional(),
+		endDate: z.coerce.date().optional(),
+		billing: z.nativeEnum(EProjectBilling).optional().nullable(),
+		currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
+		public: z.boolean().nullable(),
+		owner: z.nativeEnum(EProjectOwner).nullable().nullable(),
+		taskListType: z.nativeEnum(ETaskListType).optional().nullable(),
+		code: z.string().nullable(),
+		description: z.string().optional().nullable(),
+		color: z.string().optional().nullable(),
+		billable: z.boolean().optional().nullable(),
+		billingFlat: z.boolean().optional().nullable(),
+		openSource: z.boolean().optional().nullable(),
+		projectUrl: z.string().optional().nullable(),
+		openSourceProjectUrl: z.string().optional().nullable(),
+		budget: z.coerce.number().optional(),
+		budgetType: z.nativeEnum(EProjectBudgetType).optional(),
+		membersCount: z.coerce.number().optional(),
+		imageUrl: z.string().optional().nullable(),
+		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
+		icon: z.string().optional().nullable(),
+		archiveTasksIn: z.coerce.number().optional(),
+		closeTasksIn: z.coerce.number().optional(),
+		defaultAssigneeId: z.string().optional().nullable(),
+		// Relations (will be populated by API)
+		members: z.array(z.any()).optional(),
+		teams: z.array(z.any()).optional(),
+		tasks: z.array(z.any()).optional(),
+		timeLogs: z.array(z.any()).optional(),
+		tags: z.array(z.any()).optional(),
+		defaultAssignee: z.any().optional(),
+		relations: z.array(projectRelationSchema).optional(),
+		repository: organizationProjectRepositorySchema.optional(),
+		// Image asset fields
+		imageId: z.string().optional().nullable(),
+		image: z.any().optional()
+	})
+	.passthrough();
 
 export const organizationProjectSchema = organizationProjectBaseSchema.extend({
 	name: z.string().min(1, 'Project name is required')

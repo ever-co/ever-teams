@@ -7,19 +7,19 @@ import { EBaseEntityEnum } from '../../generics/enums/entity';
 export type ID = string;
 
 export interface IBaseEntityActionByUserModel {
-	createdByUser?: TUser | null;
-	createdByUserId?: ID | null;
+	createdByUser?: TUser;
+	createdByUserId?: ID;
 
-	updatedByUser?: TUser | null;
-	updatedByUserId?: ID | null;
+	updatedByUser?: TUser;
+	updatedByUserId?: ID;
 
-	deletedByUser?: TUser | null;
-	deletedByUserId?: ID | null;
+	deletedByUser?: TUser;
+	deletedByUserId?: ID;
 }
 
 // Common properties for soft delete entities
 export interface IBaseSoftDeleteEntityModel {
-	deletedAt?: Date | null; // Indicates if the record is soft deleted
+	deletedAt?: Date; // Indicates if the record is soft deleted
 }
 
 // Common properties for entities
@@ -29,9 +29,9 @@ export interface IBaseEntity extends IBaseEntityActionByUserModel, IBaseSoftDele
 	readonly createdAt?: Date;
 	readonly updatedAt?: Date;
 
-	isActive?: boolean | null;
-	isArchived?: boolean | null;
-	archivedAt?: Date | string | null;
+	isActive?: boolean;
+	isArchived?: boolean;
+	archivedAt?: Date;
 }
 
 // Common properties for entities associated with a tenant
@@ -60,7 +60,7 @@ export interface IBasePerTenantEntityMutationInput extends Pick<IBasePerTenantEn
 
 export interface IBasePerTenantAndOrganizationEntityModel extends IBasePerTenantEntityModel {
 	organizationId?: IOrganization['id'];
-	organization?: IOrganization | null;
+	organization?: IOrganization;
 }
 
 export interface IBasePerTenantAndOrganizationEntityMutationInput

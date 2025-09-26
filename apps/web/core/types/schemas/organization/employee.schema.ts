@@ -18,7 +18,7 @@ export const employeeSchema = z
 		user: z
 			.lazy(() => userSchema)
 			.nullable()
-			.optional(),
+			.optional(), // Will be properly typed when user schema is created
 		userId: uuIdSchema,
 		valueDate: z.coerce.date().optional(),
 		short_description: z.string().optional().nullable(),
