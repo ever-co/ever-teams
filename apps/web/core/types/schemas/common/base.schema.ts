@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { organizationProjectSchema } from '../organization/organization-project.schema';
 
 /**
  * Base Zod schemas for common interfaces used across the application
@@ -64,10 +63,7 @@ export const relationalImageAssetSchema = z.object({
 
 // Relational organization project schema
 export const relationalOrganizationProjectSchema = z.object({
-	project: z
-		.lazy(() => organizationProjectSchema)
-		.optional()
-		.nullable(),
+	project: z.any().optional().nullable(), // Will be properly typed when organization project schema is created
 	projectId: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 

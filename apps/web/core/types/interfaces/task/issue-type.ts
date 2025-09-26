@@ -1,12 +1,14 @@
 import { EIssueType } from '../../generics/enums/task';
 import { IBasePerTenantAndOrganizationEntityModel } from '../common/base-interfaces';
+import { IRelationalImageAsset } from '../common/image-asset';
 import { IRelationalOrganizationProject } from '../project/organization-project';
 import { IRelationalOrganizationTeam } from '../team/organization-team';
 
 export interface IIssueType
 	extends IBasePerTenantAndOrganizationEntityModel,
 		IRelationalOrganizationTeam,
-		IRelationalOrganizationProject {
+		IRelationalOrganizationProject,
+		IRelationalImageAsset {
 	name: EIssueType;
 	value: string;
 	description?: string;
@@ -15,7 +17,6 @@ export interface IIssueType
 	isDefault?: boolean;
 	isSystem?: boolean;
 	fullIconUrl?: string;
-	image?: string | null;
 }
 export interface IIssueTypesCreate {
 	name: EIssueType;

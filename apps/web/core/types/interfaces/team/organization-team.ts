@@ -7,15 +7,15 @@ import { IOrganizationProject } from '../project/organization-project';
 // Base interface for common properties
 interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, IRelationalImageAsset, ITaggable {
 	name: string;
-	color?: string | null;
-	emoji?: string | null;
-	teamSize?: string | null;
-	logo?: string | null;
-	prefix?: string | null;
-	shareProfileView?: boolean | null; // Default is true
-	requirePlanToTrack?: boolean | null; // Default is false
-	public?: boolean | null;
-	profile_link?: string | null;
+	color?: string;
+	emoji?: string;
+	teamSize?: string;
+	logo?: string;
+	prefix?: string;
+	shareProfileView?: boolean; // Default is true
+	requirePlanToTrack?: boolean; // Default is false
+	public?: boolean;
+	profile_link?: string;
 }
 
 // Interface for team members and related entities
@@ -32,8 +32,8 @@ interface ITeamAssociations {
 export interface IOrganizationTeam extends IBaseTeamProperties, ITeamAssociations {}
 
 export interface IRelationalOrganizationTeam {
-	organizationTeam?: IOrganizationTeam | null;
-	organizationTeamId?: ID | null;
+	organizationTeam?: IOrganizationTeam;
+	organizationTeamId?: ID;
 }
 export interface IOrganizationTeamCreate {
 	name: string;
