@@ -23,8 +23,9 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { Card } from '@/core/components/duplicated-components/card';
-import { TCreateTaskEstimation, TTask } from '@/core/types/schemas/task/task.schema';
 import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
+import { TCreateTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useAtom(detailedTaskState);

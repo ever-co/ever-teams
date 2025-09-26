@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { inviteStatusSchema } from '../common/enums.schema';
 import { uuIdSchema } from '../common/base.schema';
 import { userSchema } from './user.schema';
@@ -10,7 +10,7 @@ import { organizationTeamSchema } from '../team/organization-team.schema';
  */
 
 // Base invite schema (IInviteBase interface) - Made more flexible for API inconsistencies
-export const baseInviteSchema = basePerTenantAndOrganizationEntityModelSchema
+export const baseInviteSchema = basePerTenantAndOrganizationEntitySchema
 	.extend({
 		email: z.string().email('Valid email is required').optional().nullable(),
 		token: z.string().optional().nullable(),

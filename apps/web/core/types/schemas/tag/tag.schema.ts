@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { relationalOrganizationTeamSchema, uuIdSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 
 /**
  * Zod schemas for Tag-related interfaces
@@ -11,7 +11,7 @@ export const tagTypeSchema = z
 	.object({
 		type: z.string()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(
 		z.object({
 			tags: z.array(z.lazy(() => tagSchema)).optional() // Taggable interface
@@ -61,7 +61,7 @@ export const tagSchema = z
 		warehouse_counter: z.number().optional(),
 		proposals_counter: z.number().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationTeamSchema)
 	.strict();
 

@@ -1,11 +1,12 @@
 import { queryKeys } from '@/core/query/keys';
 import { taskEstimationsService } from '@/core/services/client/api/tasks/task-estimations.service';
-import { TCreateTaskEstimation, TTask, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useConditionalUpdateEffect } from '../common';
 import { detailedTaskState } from '@/core/stores';
 import { useAtom } from 'jotai';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 export function useTaskEstimations() {
 	const queryClient = useQueryClient();
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);

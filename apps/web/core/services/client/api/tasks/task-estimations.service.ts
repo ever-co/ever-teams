@@ -1,12 +1,12 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
+import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 import {
 	createTaskEstimationSchema,
 	taskEstimationsSchema,
 	TCreateTaskEstimation,
 	TTaskEstimation
-} from '@/core/types/schemas/task/task.schema';
-import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+} from '@/core/types/schemas/task/task-estimation.schema';
 
 /**
  * Task Estimations Service with Zod validation

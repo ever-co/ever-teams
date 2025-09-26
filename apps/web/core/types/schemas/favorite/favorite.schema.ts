@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { uuIdSchema } from '../common/base.schema';
 import { baseEntityEnumSchema } from '../common/enums.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 
 /**
  * Zod schemas for Favorite-related interfaces
@@ -19,7 +19,7 @@ export const basePerEntityTypeSchema = z
 		entityId: uuIdSchema, // Unique ID of the entity
 		entity: baseEntityEnumSchema // The type of the entity, defined in BaseEntityEnum enumeration
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema);
+	.merge(basePerTenantAndOrganizationEntitySchema);
 
 // Main favorite schema
 export const favoriteSchema = z

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { uuIdSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
 import { employeeBaseSchema } from '../common/employee.schema';
@@ -49,7 +49,7 @@ export const timeSlotSchema = z
 		tags: z.array(z.any()).optional(),
 		isAllowDelete: z.boolean().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.passthrough(); // [x: string]: any;
 
 // Task schema (simplified for ITask interface)
@@ -97,11 +97,11 @@ export const taskSchema = z
 		estimateHours: z.number().optional(),
 		estimateMinutes: z.number().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationProjectSchema);
 
 // Main activity schema (IActivity interface) - pixel-perfect match
-export const activitySchema = basePerTenantAndOrganizationEntityModelSchema
+export const activitySchema = basePerTenantAndOrganizationEntitySchema
 	.merge(relationalOrganizationProjectSchema)
 	.merge(relationalEmployeeSchema)
 	.extend({

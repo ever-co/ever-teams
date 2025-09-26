@@ -1,87 +1,16 @@
 import { z } from 'zod';
-import { baseEntitySchema, uuIdSchema } from '../common/base.schema';
+import { uuIdSchema } from '../common/base.schema';
 import { tagSchema } from '../tag/tag.schema';
 import { employeeSchema } from '../organization/employee.schema';
-import { taskStatusNameSchema } from '../common/enums.schema';
 import { taskPrioritySchema } from './task-priority.schema';
 import { taskSizeSchema } from './task-size.schema';
 import { taskStatusSchema } from './task-status.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
 import { EIssueType } from '../../generics/enums/task';
-
-export const basePerTenantAndOrganizationEntitySchema = baseEntitySchema.extend({
-	tenantId: uuIdSchema.optional(),
-	organizationId: uuIdSchema.optional()
-});
-
-// schema for ITaskSize
-export const taskSizeEntitySchema = basePerTenantAndOrganizationEntitySchema.extend({
-	name: z.string(),
-	value: z.string(),
-	description: z.string().optional(),
-	icon: z.string().optional(),
-	color: z.string().optional(),
-	isSystem: z.boolean().optional(),
-	template: z.string().optional()
-});
-
-// schema for ITaskPriority
-export const taskPriorityEntitySchema = basePerTenantAndOrganizationEntitySchema.extend({
-	name: z.string(),
-	value: z.string(),
-	description: z.string().optional(),
-	icon: z.string().optional(),
-	color: z.string().optional(),
-	isSystem: z.boolean().optional(),
-	template: z.string().optional()
-});
-
-// schema for IIssueType
-export const issueTypeEntitySchema = basePerTenantAndOrganizationEntitySchema.extend({
-	name: z.string(),
-	value: z.string(),
-	description: z.string().optional(),
-	icon: z.string().optional(),
-	color: z.string().optional(),
-	isSystem: z.boolean().optional(),
-	imageId: z.string().nullable().optional(),
-	projectId: z.string().nullable().optional(),
-	organizationTeamId: uuIdSchema.optional(),
-	image: z.string().nullable().optional(),
-	fullIconUrl: z.string().optional(),
-	template: z.string().optional()
-});
-
-// schema for ITaskLinkedIssue
-export const taskLinkedIssueSchema = z.object({
-	organizationId: z.string(),
-	taskToId: z.string(),
-	taskFromId: z.string(),
-	action: z.number(),
-	taskFrom: z.any().optional(),
-	taskTo: z.any().optional(),
-	id: z.string()
-});
-
-// schema for IBaseTaskProperties
-export const baseTaskPropertiesSchema = basePerTenantAndOrganizationEntitySchema.extend({
-	title: z.string(),
-	number: z.number().optional(),
-	public: z.boolean().nullable(),
-	prefix: z.string().optional().nullable(),
-	description: z.string().optional(),
-	status: z.any().optional(),
-	priority: z.any().optional().nullable(),
-	size: z.any().optional().nullable(),
-	issueType: z.any().optional(),
-	startDate: z.any().optional(),
-	resolvedAt: z.any().optional(),
-	dueDate: z.any().optional(),
-	estimate: z.number().optional(),
-	isDraft: z.boolean().optional(),
-	isScreeningTask: z.boolean().optional(),
-	version: z.string().optional().nullable()
-});
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
+import { taskIssueType } from './task-issue-type.schema';
+import { taskLinkedIssueSchema } from './task-linked-issue.schema';
+import { taskEstimationsSchema } from './task-estimation.schema';
 
 // schema for ITaskAssociations
 export const taskAssociationsSchema = z.object({
@@ -89,9 +18,12 @@ export const taskAssociationsSchema = z.object({
 	members: z.array(employeeSchema).optional(),
 	teams: z.array(organizationTeamSchema).optional(),
 	taskStatus: taskStatusSchema.optional(),
-	taskSize: taskSizeEntitySchema.optional(),
-	taskPriority: taskPriorityEntitySchema.optional(),
-	taskType: issueTypeEntitySchema.optional()
+	taskSize: taskSizeSchema.optional(),
+	taskPriority: taskPrioritySchema.optional(),
+	taskType: taskIssueType.optional(),
+	linkedIssues: z.array(taskLinkedIssueSchema).optional(),
+	estimations: z.array(taskEstimationsSchema).optional(),
+	selectedTeam: organizationTeamSchema.optional()
 });
 
 export const taskSelfReferencesSchema = z.object({
@@ -107,15 +39,6 @@ export const taskSelfReferencesSchema = z.object({
 });
 
 // Task Estimations
-export const taskEstimationsSchema = z
-	.object({
-		estimate: z.number().min(0),
-		employeeId: uuIdSchema,
-		taskId: uuIdSchema
-	})
-	.merge(basePerTenantAndOrganizationEntitySchema);
-
-export const createTaskEstimationSchema = taskEstimationsSchema.omit({ id: true });
 
 const baseTaskSchema = z
 	.object({
@@ -144,12 +67,9 @@ const baseTaskSchema = z
 		taskTypeId: z.string().optional().nullable(),
 		taskNumber: z.string().optional(),
 		totalWorkedTime: z.number().optional(),
-		selectedTeam: organizationTeamSchema.optional(),
-		linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 		label: z.string().optional(),
 		estimateHours: z.number().optional(),
-		estimateMinutes: z.number().optional(),
-		estimations: z.array(taskEstimationsSchema).optional()
+		estimateMinutes: z.number().optional()
 	})
 	.merge(basePerTenantAndOrganizationEntitySchema);
 /**
@@ -214,24 +134,6 @@ export type TTask = z.infer<typeof baseTaskSchema> & {
 	children?: TTask[];
 } & z.infer<typeof taskAssociationsSchema>;
 export type TCreateTask = z.infer<typeof createTaskSchema>;
-export type TEmployee = z.infer<typeof employeeSchema>;
-export type TTag = z.infer<typeof tagSchema>;
-export type TOrganizationTeam = z.infer<typeof organizationTeamSchema>;
-export type TTaskStatus = z.infer<typeof taskStatusSchema>;
-export type TTaskSize = z.infer<typeof taskSizeEntitySchema>;
-export type TTaskPriority = z.infer<typeof taskPriorityEntitySchema>;
-export type TIssueType = z.infer<typeof issueTypeEntitySchema>;
-export type TTaskLinkedIssue = z.infer<typeof taskLinkedIssueSchema>;
-export type TTaskEstimation = z.infer<typeof taskEstimationsSchema>;
-export type TCreateTaskEstimation = z.infer<typeof createTaskEstimationSchema>;
-
-// Types for enums
-export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;
-export type ETaskPriority = z.infer<typeof taskPrioritySchema>;
-export type ETaskSize = z.infer<typeof taskSizeSchema>;
-// export type EIssueType = z.infer<typeof taskTypeSchema>;
-
-// ===== UTILITIES FOR VALIDATION =====
 
 /**
  * Validate a complete task
