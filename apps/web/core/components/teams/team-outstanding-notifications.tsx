@@ -135,7 +135,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	useEffect(() => {
 		const show = shouldShowNotification(
 			uniqueEmployees.length,
-			uniqueEmployees.map((e) => ({ id: e.employeeId, status: 'outstanding' })),
+			uniqueEmployees.map((e) => ({ id: e.employeeId, status: 'outstanding' as ETaskStatusName })),
 			NOTIFICATION_KEYS.MANAGER_OUTSTANDING
 		);
 		setVisible(show);

@@ -128,7 +128,7 @@ export const columns: ColumnDef<TTask>[] = [
 		cell: ({ row }) => (
 			<ActiveTaskStatusDropdown
 				task={row.original}
-				defaultValue={row.original.status}
+				defaultValue={row.original.status ?? undefined}
 				className="lg:max-w-[190px] w-full"
 				taskStatusClassName="text-xs py-1.5 w-full"
 			/>

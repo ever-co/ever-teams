@@ -6,7 +6,7 @@ import { taskPrioritySchema } from './task-priority.schema';
 import { taskSizeSchema } from './task-size.schema';
 import { taskStatusSchema } from './task-status.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
-import { EIssueType } from '../../generics/enums/task';
+import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '../../generics/enums/task';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { taskIssueType } from './task-issue-type.schema';
 import { taskLinkedIssueSchema } from './task-linked-issue.schema';
@@ -48,13 +48,13 @@ const baseTaskSchema = z
 		public: z.boolean().nullable(),
 		prefix: z.string().optional().nullable(),
 		description: z.string().optional(),
-		status: z.any().optional(),
-		priority: z.any().optional().nullable(),
-		size: z.any().optional().nullable(),
+		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
+		priority: z.nativeEnum(ETaskPriority).optional().nullable(),
+		size: z.nativeEnum(ETaskSize).optional().nullable(),
 		issueType: z.nativeEnum(EIssueType).optional().nullable(),
-		startDate: z.any().optional().nullable(),
-		resolvedAt: z.any().optional().nullable(),
-		dueDate: z.any().optional().nullable(),
+		startDate: z.coerce.date().optional().nullable(),
+		resolvedAt: z.coerce.date().optional().nullable(),
+		dueDate: z.coerce.date().optional().nullable(),
 		estimate: z.number().optional(),
 		isDraft: z.boolean().optional(),
 		isScreeningTask: z.boolean().optional(),
@@ -91,34 +91,41 @@ const taskZodSchemaType: z.ZodType<TTask> = baseTaskSchema
 export const taskSchema = baseTaskSchema.merge(taskSelfReferencesSchema).merge(taskAssociationsSchema);
 
 // schema for ICreateTask
-export const createTaskSchema = z.object({
-	title: z.string().min(1, 'Title is required'),
-	status: z.string().optional(),
-	size: z.string().optional(),
-	priority: z.string().optional(),
-	taskStatusId: z.string().optional(),
-	issueType: z.string().optional(),
-	members: z
-		.array(
-			z
-				.object({
-					id: z.string()
-				})
-				.passthrough()
-		)
-		.optional(),
-	estimateDays: z.number().optional(),
-	estimateHours: z.string().optional(),
-	estimateMinutes: z.string().optional(),
-	dueDate: z.string().optional(),
-	description: z.string(),
-	tags: z.array(z.object({ id: z.string() })).nullable(),
-	teams: z.array(z.object({ id: z.string() })),
-	estimate: z.number(),
-	organizationId: z.string(),
-	tenantId: z.string(),
-	projectId: z.string().nullable().optional()
-});
+export const createTaskSchema = taskSchema
+	.pick({
+		title: true,
+		status: true,
+		size: true,
+		priority: true,
+		issueType: true,
+		taskType: true,
+		taskSizeId: true,
+		taskPriorityId: true,
+		taskTypeId: true,
+		taskStatusId: true,
+		estimateHours: true,
+		estimateMinutes: true,
+		dueDate: true,
+		description: true,
+		estimate: true,
+		organizationId: true,
+		tenantId: true,
+		projectId: true
+	})
+	.extend({
+		members: z
+			.array(
+				z
+					.object({
+						id: z.string()
+					})
+					.passthrough()
+			)
+			.optional(),
+		estimateDays: z.number().optional(),
+		tags: z.array(z.object({ id: z.string() })).nullable(),
+		teams: z.array(z.object({ id: z.string() }))
+	});
 
 export const updateActiveTaskSchema = z.object({
 	affected: z.number(),

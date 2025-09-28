@@ -13,6 +13,7 @@ import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
@@ -87,7 +88,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 						...task,
 						taskStatusId: task.taskStatusId ?? taskStatuses[0].id,
 						title: `Copy ${task.title}`,
-						issueType: task.issueType ?? 'Bug'
+						issueType: task.issueType ?? EIssueType.BUG
 					});
 				} catch (error) {
 					console.log(error);

@@ -38,6 +38,7 @@ import {
 	myDailyPlanListState
 } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { EIssueType } from '@/core/types/generics/enums/task';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -689,7 +690,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				title: taskName.trim(),
 				status: taskStatuses[0].name,
 				taskStatusId: taskStatuses[0].id,
-				issueType: 'Bug' // TODO: Let the user choose the issue type
+				issueType: EIssueType.BUG // TODO: Let the user choose the issue type
 			});
 			toast.success('Task created successfully', {
 				description: `Task "${taskName.trim()}" has been created`,

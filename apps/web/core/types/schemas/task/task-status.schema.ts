@@ -18,7 +18,7 @@ export const taskStatusWorkFlowSchema = z.object({
 // Main task status schema
 export const taskStatusSchema = z
 	.object({
-		name: z.string(),
+		name: taskStatusNameSchema,
 		value: z.string(),
 		description: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),

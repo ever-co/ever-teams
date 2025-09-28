@@ -63,7 +63,7 @@ export function TaskLinkedIssue({
 					<div className="inline-block">
 						<ActiveTaskStatusDropdown
 							task={task}
-							defaultValue={task.status}
+							defaultValue={task.status ?? undefined}
 							taskStatusClassName="min-w-[6rem] 3xl:min-w-[7rem] h-5 3xl:h-6 text-[10px] 3xl:text-xs font-semibold rounded-[0.1875rem]"
 							showIcon={false}
 						/>
