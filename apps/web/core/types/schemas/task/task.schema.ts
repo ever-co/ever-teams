@@ -8,7 +8,7 @@ import { taskStatusSchema } from './task-status.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '../../generics/enums/task';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
-import { taskIssueType } from './task-issue-type.schema';
+import { taskIssueTypeSchema } from './task-issue-type.schema';
 import { taskLinkedIssueSchema, TTaskLinkedIssue } from './task-linked-issue.schema';
 import { taskEstimationsSchema } from './task-estimation.schema';
 
@@ -20,7 +20,7 @@ export const taskAssociationsSchema = z.object({
 	taskStatus: taskStatusSchema.optional(),
 	taskSize: taskSizeSchema.optional(),
 	taskPriority: taskPrioritySchema.optional(),
-	taskType: taskIssueType.optional(),
+	taskType: taskIssueTypeSchema.optional(),
 	estimations: z.array(taskEstimationsSchema).optional(),
 	selectedTeam: organizationTeamSchema.optional()
 });

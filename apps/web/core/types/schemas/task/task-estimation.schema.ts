@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 import { uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 

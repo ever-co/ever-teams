@@ -1,9 +1,10 @@
-import z from 'zod';
+import { z } from 'zod';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { uuIdSchema } from '../common/base.schema';
+import { EIssueType } from '../../generics/enums/task';
 
-export const taskIssueType = basePerTenantAndOrganizationEntitySchema.extend({
-	name: z.string(),
+export const taskIssueTypeSchema = basePerTenantAndOrganizationEntitySchema.extend({
+	name: z.nativeEnum(EIssueType),
 	value: z.string(),
 	description: z.string().optional(),
 	icon: z.string().optional(),
@@ -17,4 +18,4 @@ export const taskIssueType = basePerTenantAndOrganizationEntitySchema.extend({
 	template: z.string().optional()
 });
 
-export type TTaskIssueType = z.infer<typeof taskIssueType>;
+export type TTaskIssueType = z.infer<typeof taskIssueTypeSchema>;

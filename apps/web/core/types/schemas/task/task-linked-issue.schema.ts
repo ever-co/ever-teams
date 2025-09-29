@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 import { taskZodSchemaType } from './task.schema';
 
 export const taskLinkedIssueSchema = z.object({
