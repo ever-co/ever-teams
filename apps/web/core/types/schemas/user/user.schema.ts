@@ -1,12 +1,15 @@
 import { z } from 'zod';
-import { basePerTenantEntityModelSchema, relationalImageAssetSchema } from '../common/base.schema';
+import {
+	basePerTenantEntityModelSchema,
+	relationalEmployeeSchema,
+	relationalImageAssetSchema
+} from '../common/base.schema';
 import { tagSchema } from '../tag/tag.schema';
 import { roleSchema } from '../role/role.schema';
 import { userOrganizationSchema } from '../organization/user-organization.schema';
 import { organizationSchema } from '../organization/organization.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
-import { inviteTypeSchema } from '../common/enums.schema';
-import { employeeSchema } from '../organization/employee.schema';
+import { employeeZodSchemaType } from '../organization/employee.schema';
 
 /**
  * Zod schemas for User entity and operations (consolidated)
@@ -67,10 +70,13 @@ export const socialAccountSchema = z.object({
 	updatedAt: z.coerce.date().optional()
 });
 
-// Main User schema
-export const userSchema = basePerTenantEntityModelSchema
-	.merge(relationalImageAssetSchema)
-	.extend({
+export const userAssociationsSchema = z.object({
+	employee: z.lazy(() => employeeZodSchemaType).optional(),
+	employeeId: z.string().optional().nullable()
+});
+
+const baseUserSchema = z
+	.object({
 		thirdPartyId: z.string().nullable().optional(),
 		name: z.string().nullable().optional(),
 		firstName: z.string().nullable().optional(),
@@ -86,8 +92,6 @@ export const userSchema = basePerTenantEntityModelSchema
 		role: roleSchema.optional().nullable(),
 		roleId: z.string().nullable().optional(),
 		hash: z.string().nullable().optional(),
-		employee: z.lazy(() => employeeSchema),
-		employeeId: z.string().nullable().optional(),
 		candidateId: z.string().nullable().optional(),
 		defaultTeam: organizationTeamSchema.optional(),
 		defaultTeamId: z.string().nullable().optional(),
@@ -112,14 +116,23 @@ export const userSchema = basePerTenantEntityModelSchema
 		invites: z.array(inviteSchema).optional(),
 		socialAccounts: z.array(socialAccountSchema).optional()
 	})
-	.passthrough(); // Allow additional fields from API
+	.merge(basePerTenantEntityModelSchema)
+	.merge(relationalImageAssetSchema);
+
+export const userZodSchemaType: z.ZodType<TUser> = baseUserSchema.merge(relationalEmployeeSchema);
+
+// User schema
+export const userSchema = basePerTenantEntityModelSchema
+	.merge(relationalImageAssetSchema)
+	.merge(baseUserSchema)
+	.merge(relationalEmployeeSchema);
 
 // =============================================================================
 // EXPORTED TYPES
 // =============================================================================
 
 // User entity type
-export type TUser = z.infer<typeof userSchema>;
+export type TUser = z.infer<typeof userSchema> & z.infer<typeof relationalEmployeeSchema>;
 
 // Types inferred from schemas
 export type TDeleteResponse = z.infer<typeof deleteResponseSchema>;

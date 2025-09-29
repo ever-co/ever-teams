@@ -1,42 +1,37 @@
 import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
-import { taggableSchema, uuIdSchema } from '../common/base.schema';
+import { relationalUserSchema, taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
-import { userSchema } from '../user/user.schema';
 import { teamSchema } from '../team/team.schema';
 
 /**
  * Zod schemas for Employee-related interfaces
  */
 
-// Employee schema
-export const employeeSchema = z
+const employeeAssocitionsSchema = z.object({
+	teams: z.array(teamSchema).optional().nullable(),
+	projects: z.array(z.any()).optional().nullable(),
+	timesheets: z.array(z.any()).optional().nullable(),
+	tasks: z.array(z.any()).optional().nullable(),
+	timeSlots: z.array(z.any()).optional().nullable()
+});
+
+const baseEmployeeSchema = z
 	.object({
-		id: uuIdSchema,
 		endWork: z.coerce.date().optional(),
 		startedWorkOn: z.coerce.date().optional(),
-		user: z
-			.lazy(() => userSchema)
-			.nullable()
-			.optional(), // Will be properly typed when user schema is created
-		userId: uuIdSchema,
 		valueDate: z.coerce.date().optional(),
 		short_description: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
-		teams: z.array(teamSchema).optional(), // Will be properly typed when organization team schema is created
 		billRateValue: z.number().optional(),
 		billRateCurrency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 		minimumBillingRate: z.number().optional(),
 		reWeeklyLimit: z.number().optional(),
-		projects: z.array(z.any()).optional(), // Will be properly typed when organization project schema is created
 		offerDate: z.coerce.date().optional(),
 		acceptDate: z.coerce.date().optional(),
 		rejectDate: z.coerce.date().optional(),
 		employeeLevel: z.string().optional().nullable(),
 		anonymousBonus: z.boolean().optional().nullable(),
-		timesheets: z.array(z.any()).optional(), // Will be properly typed when timesheet schema is created
-		tasks: z.array(z.any()).optional(), // Will be properly typed when task schema is created
-		timeSlots: z.array(z.any()).optional(), // Will be properly typed when time slot schema is created
 		averageIncome: z.number().optional().nullable(),
 		totalWorkHours: z.number().optional().nullable(),
 		averageExpenses: z.number().optional().nullable(),
@@ -92,6 +87,11 @@ export const employeeSchema = z
 	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(taggableSchema);
 
+export const employeeZodSchemaType: z.ZodType<TEmployee> = baseEmployeeSchema.merge(employeeAssocitionsSchema);
+
+// Employee schema
+export const employeeSchema = baseEmployeeSchema.merge(employeeAssocitionsSchema).merge(relationalUserSchema);
+
 // Create employee schema
 export const createEmployeeSchema = z.object({
 	tenantId: z.string(),
@@ -116,5 +116,5 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateHours: z.number(),
 	estimateMinutes: z.number()
 });
-export type TEmployee = z.infer<typeof employeeSchema>;
+export type TEmployee = z.infer<typeof baseEmployeeSchema> & z.infer<typeof employeeAssocitionsSchema>;
 export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;

@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { uuIdSchema, relationalEmployeeSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
-import { employeeBaseSchema } from '../common/employee.schema';
 import { taskSchema } from '../task/task.schema';
+import { employeeSchema } from '../organization/employee.schema';
 
 /**
  * Zod schemas for Activity-related interfaces
@@ -31,7 +31,7 @@ export const timeSlotSchema = z
 	.object({
 		id: uuIdSchema,
 		employeeId: uuIdSchema,
-		employee: z.lazy(() => employeeBaseSchema).optional(),
+		employee: z.lazy(() => employeeSchema).optional(),
 		activities: z.array(z.any()).optional(), // IActivity[] - circular reference
 		screenshots: z.array(z.any()).optional(),
 		timeLogs: z.array(z.any()).optional(),
