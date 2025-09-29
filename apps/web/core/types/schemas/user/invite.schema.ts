@@ -10,27 +10,21 @@ import { organizationTeamSchema } from '../team/organization-team.schema';
  */
 
 // Base invite schema (IInviteBase interface) - Made more flexible for API inconsistencies
-export const baseInviteSchema = basePerTenantAndOrganizationEntitySchema
-	.extend({
-		email: z.string().email('Valid email is required').optional().nullable(),
-		token: z.string().optional().nullable(),
-		code: z.string().optional(),
-		status: inviteStatusSchema.optional().nullable(),
-		expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
-		actionDate: z.string().optional(), // API returns string, keep as string for consistency
-		fullName: z.string().optional().nullable(),
-		isExpired: z.boolean().optional()
-	})
-	.passthrough(); // - Allow additional fields from API
+export const baseInviteSchema = basePerTenantAndOrganizationEntitySchema.extend({
+	email: z.string().email('Valid email is required').optional().nullable(),
+	token: z.string().optional().nullable(),
+	code: z.string().optional(),
+	status: inviteStatusSchema.optional().nullable(),
+	expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
+	actionDate: z.string().optional(), // API returns string, keep as string for consistency
+	fullName: z.string().optional().nullable(),
+	isExpired: z.boolean().optional(),
+	roleId: uuIdSchema.optional()
+});
 
 // Invite associations schema (IInviteAssociations interface)
-// Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
-	id: z.string().optional().nullable(),
-	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
-	userId: uuIdSchema.optional().nullable(),
 	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available
-	roleId: uuIdSchema.optional(),
 	projects: z.array(z.any()).optional(), // IOrganizationProject[] - schema not created yet
 	teams: z.array(z.any()).optional() // IOrganizationTeam[] - schema not created yet
 });
