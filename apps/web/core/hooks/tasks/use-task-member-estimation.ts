@@ -2,8 +2,8 @@
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskEstimations } from './use-task-estimations';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 
 export function useTaskMemberEstimation(taskEstimation: TTaskEstimation | TCreateTaskEstimation) {
 	const {

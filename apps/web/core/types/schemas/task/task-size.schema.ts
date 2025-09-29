@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { relationalOrganizationTeamSchema, relationalOrganizationProjectSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 
 /**
  * Zod schemas for Task Size-related interfaces
@@ -17,7 +17,7 @@ export const taskSizeSchema = z
 		isSystem: z.boolean().optional(),
 		fullIconUrl: z.string().optional().nullable()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationTeamSchema)
 	.merge(relationalOrganizationProjectSchema)
 	.strict();

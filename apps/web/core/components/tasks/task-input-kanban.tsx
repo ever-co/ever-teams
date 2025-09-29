@@ -22,12 +22,13 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
 import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTag, TTask } from '@/core/types/schemas/task/task.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { X } from 'lucide-react';
 import { getTextColor } from '@/core/lib/helpers/colors';
+import { TTag } from '@/core/types/schemas/tag/tag.schema';
 
 type Props = {
 	task?: Nullable<TTask>;

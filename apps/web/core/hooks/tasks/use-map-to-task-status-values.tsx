@@ -5,7 +5,10 @@ import Image from 'next/legacy/image';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TStatus } from '@/core/types/interfaces/task/task-card';
 
-export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], bordered = false): TStatus<any> {
+export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & { name: string }>(
+	data: T[],
+	bordered = false
+): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {

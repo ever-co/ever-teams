@@ -7,7 +7,7 @@ import {
 } from '../common/base.schema';
 import { relationalRoleSchema } from '../role/role.schema';
 import { timerStatusSchema } from '../timer/timer-status.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { imageAssetSchema } from '../common/image-asset.schema';
 
 /**
@@ -20,7 +20,7 @@ export const baseOrganizationTeamEmployeeSchema = z
 		order: z.number().optional().nullable(),
 		isTrackingEnabled: z.boolean().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationTeamSchema)
 	.merge(managerAssignableSchema)
 	.passthrough();

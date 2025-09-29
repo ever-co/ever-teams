@@ -5,9 +5,9 @@ import { clsxm } from '@/core/lib/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { MouseEvent, RefObject, useCallback, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
-import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task.schema';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
 import { TrashIcon } from 'lucide-react';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 
 type Props = {
 	taskEstimation: TTaskEstimation | TCreateTaskEstimation;

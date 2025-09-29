@@ -1,5 +1,5 @@
 'use client';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
 import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -156,11 +156,11 @@ export function useTaskInput({
 
 		return createTask({
 			title: query.trim(),
-			issueType: taskIssue || 'Bug',
+			issueType: (taskIssue as EIssueType) || EIssueType.BUG,
 			taskStatusId: statusId || (openId as string),
-			status: taskStatus.current || undefined,
-			priority: taskPriority.current || undefined,
-			size: taskSize.current || undefined,
+			status: (taskStatus.current as ETaskStatusName) || undefined,
+			priority: (taskPriority.current as ETaskPriority) || undefined,
+			size: (taskSize.current as ETaskSize) || undefined,
 			tags: taskLabels.current || [],
 			description: taskDescription.current ?? '',
 			projectId: taskProject.current,
