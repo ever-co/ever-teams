@@ -67,48 +67,6 @@ export const socialAccountSchema = z.object({
 	updatedAt: z.coerce.date().optional()
 });
 
-export const extendableUserSchema = basePerTenantEntityModelSchema
-	.merge(relationalImageAssetSchema)
-	.extend({
-		thirdPartyId: z.string().nullable().optional(),
-		name: z.string().nullable().optional(),
-		firstName: z.string().nullable().optional(),
-		lastName: z.string().nullable().optional(),
-		email: z.string().nullable().optional(),
-		phoneNumber: z.string().nullable().optional(),
-		username: z.string().nullable().optional(),
-		timeZone: z.string().nullable().optional(),
-		timeFormat: z
-			.union([z.literal(12), z.literal(24)])
-			.nullable()
-			.optional(),
-		role: roleSchema.optional().nullable(),
-		roleId: z.string().nullable().optional(),
-		defaultTeam: organizationTeamSchema.optional(),
-		defaultTeamId: z.string().nullable().optional(),
-		lastTeam: organizationTeamSchema.optional(),
-		lastTeamId: z.string().nullable().optional(),
-		defaultOrganization: organizationSchema.optional(),
-		defaultOrganizationId: z.string().nullable().optional(),
-		lastOrganization: organizationSchema.optional(),
-		lastOrganizationId: z.string().nullable().optional(),
-		tags: z.array(tagSchema).optional(),
-		preferredLanguage: z.string().nullable().optional(),
-		fullName: z.string().nullable().optional(),
-		organizations: z.array(userOrganizationSchema).optional(),
-		sourceId: z.string().nullable().optional(),
-		code: z.string().nullable().optional(),
-		codeExpireAt: z.string().optional(),
-		emailVerifiedAt: z.string().optional(),
-		lastLoginAt: z.string().optional(),
-		isEmailVerified: z.boolean().optional(),
-		emailToken: z.string().nullable().optional(),
-		invites: z.array(inviteTypeSchema).optional(),
-		socialAccounts: z.array(socialAccountSchema).optional(),
-		imageUrl: z.string().optional().nullable(),
-		hash: z.string().nullable().optional()
-	})
-	.passthrough();
 // Main User schema
 export const userSchema = basePerTenantEntityModelSchema
 	.merge(relationalImageAssetSchema)
