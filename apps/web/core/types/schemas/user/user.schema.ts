@@ -9,7 +9,6 @@ import { roleSchema } from '../role/role.schema';
 import { userOrganizationSchema } from '../organization/user-organization.schema';
 import { organizationSchema } from '../organization/organization.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
-import { employeeZodSchemaType } from '../organization/employee.schema';
 
 /**
  * Zod schemas for User entity and operations (consolidated)
@@ -68,11 +67,6 @@ export const socialAccountSchema = z.object({
 	userId: z.string(),
 	createdAt: z.coerce.date().optional(),
 	updatedAt: z.coerce.date().optional()
-});
-
-export const userAssociationsSchema = z.object({
-	employee: z.lazy(() => employeeZodSchemaType).optional(),
-	employeeId: z.string().optional().nullable()
 });
 
 const baseUserSchema = z

@@ -116,5 +116,7 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateHours: z.number(),
 	estimateMinutes: z.number()
 });
-export type TEmployee = z.infer<typeof baseEmployeeSchema> & z.infer<typeof employeeAssocitionsSchema>;
+export type TEmployee = z.infer<typeof baseEmployeeSchema> &
+	z.infer<typeof employeeAssocitionsSchema> &
+	z.infer<typeof relationalUserSchema>;
 export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
