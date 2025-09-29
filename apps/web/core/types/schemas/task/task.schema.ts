@@ -9,7 +9,7 @@ import { organizationTeamSchema } from '../team/organization-team.schema';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '../../generics/enums/task';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { taskIssueType } from './task-issue-type.schema';
-import { taskLinkedIssueSchema } from './task-linked-issue.schema';
+import { taskLinkedIssueSchema, TTaskLinkedIssue } from './task-linked-issue.schema';
 import { taskEstimationsSchema } from './task-estimation.schema';
 
 // schema for ITaskAssociations
@@ -21,7 +21,6 @@ export const taskAssociationsSchema = z.object({
 	taskSize: taskSizeSchema.optional(),
 	taskPriority: taskPrioritySchema.optional(),
 	taskType: taskIssueType.optional(),
-	linkedIssues: z.array(taskLinkedIssueSchema).optional(),
 	estimations: z.array(taskEstimationsSchema).optional(),
 	selectedTeam: organizationTeamSchema.optional()
 });
@@ -35,7 +34,8 @@ export const taskSelfReferencesSchema = z.object({
 		.lazy(() => taskZodSchemaType)
 		.optional()
 		.nullable(),
-	children: z.array(z.lazy(() => taskZodSchemaType)).optional()
+	children: z.array(z.lazy(() => taskZodSchemaType)).optional(),
+	linkedIssues: z.array(taskLinkedIssueSchema).optional()
 });
 
 // Task Estimations
@@ -79,7 +79,7 @@ const baseTaskSchema = z
  *
  * Recursive fields parent/rootEpic/children point back to taskZodSchemaType via z.lazy
  */
-const taskZodSchemaType: z.ZodType<TTask> = baseTaskSchema
+export const taskZodSchemaType: z.ZodType<TTask> = baseTaskSchema
 	.merge(taskSelfReferencesSchema)
 	.merge(taskAssociationsSchema);
 
@@ -139,6 +139,7 @@ export type TTask = z.infer<typeof baseTaskSchema> & {
 	parent?: TTask | null;
 	rootEpic?: TTask | null;
 	children?: TTask[];
+	linkedIssues?: TTaskLinkedIssue[];
 } & z.infer<typeof taskAssociationsSchema>;
 export type TCreateTask = z.infer<typeof createTaskSchema>;
 
