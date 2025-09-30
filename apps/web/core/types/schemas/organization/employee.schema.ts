@@ -88,10 +88,6 @@ const baseEmployeeSchema = z
 	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(taggableSchema);
 
-export const employeeZodSchemaType: z.ZodType<TEmployee> = baseEmployeeSchema
-	.merge(employeeAssociationsSchema)
-	.merge(relationalUserSchema);
-
 // Employee schema
 export const employeeSchema = baseEmployeeSchema.merge(employeeAssociationsSchema).merge(relationalUserSchema);
 
