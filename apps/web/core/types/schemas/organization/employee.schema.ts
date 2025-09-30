@@ -9,7 +9,7 @@ import { relationalUserSchema } from '../user/user.schema';
  * Zod schemas for Employee-related interfaces
  */
 
-const employeeAssocitionsSchema = z.object({
+const employeeAssociationsSchema = z.object({
 	teams: z.array(teamSchema).optional().nullable(),
 	projects: z.array(z.any()).optional().nullable(),
 	timesheets: z.array(z.any()).optional().nullable(),
@@ -88,10 +88,10 @@ const baseEmployeeSchema = z
 	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(taggableSchema);
 
-export const employeeZodSchemaType: z.ZodType<TEmployee> = baseEmployeeSchema.merge(employeeAssocitionsSchema);
+export const employeeZodSchemaType: z.ZodType<TEmployee> = baseEmployeeSchema.merge(employeeAssociationsSchema);
 
 // Employee schema
-export const employeeSchema = baseEmployeeSchema.merge(employeeAssocitionsSchema).merge(relationalUserSchema);
+export const employeeSchema = baseEmployeeSchema.merge(employeeAssociationsSchema).merge(relationalUserSchema);
 
 // Create employee schema
 export const createEmployeeSchema = z.object({
@@ -118,6 +118,6 @@ export const memberCardEditableValuesSchema = z.object({
 	estimateMinutes: z.number()
 });
 export type TEmployee = z.infer<typeof baseEmployeeSchema> &
-	z.infer<typeof employeeAssocitionsSchema> &
+	z.infer<typeof employeeAssociationsSchema> &
 	z.infer<typeof relationalUserSchema>;
 export type TUpdateEmployee = Pick<TEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>;
