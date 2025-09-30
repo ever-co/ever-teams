@@ -6,6 +6,9 @@ import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
+import { tagZodSchemaType } from '../tag/tag.schema';
+import { taskSchema, TTask } from '../task/task.schema';
+import { TEmployee } from '../organization/employee.schema';
 
 export const baseProjectSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
@@ -76,7 +79,7 @@ export const organizationTeamUpdateSchema = z.object({
 		.nullable(),
 	organizationId: z.string().optional(),
 	sentTo: z.string().optional(),
-	tags: z.array(z.any()).optional(), // Allow flexible tags array
+	tags: z.array(z.lazy(() => tagZodSchemaType)).optional(), // Allow flexible tags array
 	memberIds: z.array(z.string()).optional(),
 	managerIds: z.array(z.string()).optional(),
 	logo: z.string().optional().nullable(),
@@ -129,15 +132,12 @@ export const teamAssociationsSchema = z.object({
 		.optional()
 		.nullable(),
 	projects: z.array(baseProjectSchema).optional(),
-	tasks: z.array(z.any()).optional()
+	tasks: z.array(z.lazy(() => taskSchema)).optional()
 });
 
 // Main organization team schema
-export const organizationTeamSchema = z
-	.object({})
-	.merge(baseTeamPropertiesSchema)
-	.merge(teamAssociationsSchema)
-	.passthrough();
+export const organizationTeamSchema: z.ZodType<TOrganizationTeam> =
+	baseTeamPropertiesSchema.merge(teamAssociationsSchema);
 
 // Organization team create schema
 
@@ -223,7 +223,12 @@ export const teamRequestParamsSchema = z.object({
 	tenantId: z.string(),
 	relations: z.array(z.string()).optional()
 });
-export type TOrganizationTeam = z.infer<typeof organizationTeamSchema>;
+export type TOrganizationTeam = z.infer<typeof baseTeamPropertiesSchema> & {
+	members?: TEmployee[] | null;
+	managers?: TEmployee[] | null;
+	projects?: z.infer<typeof baseProjectSchema>[] | null;
+	tasks?: TTask[] | null;
+};
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;
