@@ -116,17 +116,14 @@ const baseUserSchema = z
 export const userZodSchemaType: z.ZodType<TUser> = baseUserSchema.merge(relationalEmployeeSchema);
 
 // User schema
-export const userSchema = basePerTenantEntityModelSchema
-	.merge(relationalImageAssetSchema)
-	.merge(baseUserSchema)
-	.merge(relationalEmployeeSchema);
+export const userSchema = baseUserSchema.merge(relationalEmployeeSchema);
 
 // Relational user schema
 export const relationalUserSchema = z.object({
 	user: z
 		.lazy(() => userZodSchemaType)
 		.optional()
-		.nullable(), // Will be properly typed when user schema is created
+		.nullable(),
 	userId: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 
@@ -135,7 +132,7 @@ export const relationalUserSchema = z.object({
 // =============================================================================
 
 // User entity type
-export type TUser = z.infer<typeof userSchema> & z.infer<typeof relationalEmployeeSchema>;
+export type TUser = z.infer<typeof userSchema>;
 
 // Types inferred from schemas
 export type TDeleteResponse = z.infer<typeof deleteResponseSchema>;

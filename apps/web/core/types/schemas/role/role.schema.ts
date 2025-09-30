@@ -21,7 +21,7 @@ export const roleZodSchemaType: z.ZodType<{
 	name: string;
 	isSystem?: boolean;
 	rolePermissions?: TRolePermission[];
-}> = roleBaseSchema.merge(basePerTenantEntityModelSchema);
+}> = roleBaseSchema;
 
 // Relational role schema
 export const relationalRoleSchema = z.object({
