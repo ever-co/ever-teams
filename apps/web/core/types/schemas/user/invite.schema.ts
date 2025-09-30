@@ -4,42 +4,40 @@ import { inviteStatusSchema } from '../common/enums.schema';
 import { uuIdSchema } from '../common/base.schema';
 import { userSchema } from './user.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
+import { roleZodSchemaType } from '../role/role.schema';
+import { organizationProjectSchema } from '../organization/organization-project.schema';
 
 /**
  * Zod schemas for Invitation-related interfaces
  */
 
-// Base invite schema (IInviteBase interface) - Made more flexible for API inconsistencies
-export const baseInviteSchema = basePerTenantAndOrganizationEntitySchema
-	.extend({
-		email: z.string().email('Valid email is required').optional().nullable(),
-		token: z.string().optional().nullable(),
-		code: z.string().optional(),
-		status: inviteStatusSchema.optional().nullable(),
-		expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
-		actionDate: z.string().optional(), // API returns string, keep as string for consistency
-		fullName: z.string().optional().nullable(),
-		isExpired: z.boolean().optional()
-	})
-	.passthrough(); // - Allow additional fields from API
+// Base invite schema (IInviteBase interface)
+export const baseInviteSchema = basePerTenantAndOrganizationEntitySchema.extend({
+	email: z.string().email('Valid email is required').optional().nullable(),
+	token: z.string().optional().nullable(),
+	code: z.string().optional(),
+	status: inviteStatusSchema.optional().nullable(),
+	expireDate: z.coerce.date().optional().nullable(), // API returns string, keep as string for consistency
+	actionDate: z.string().optional(), // API returns string, keep as string for consistency
+	fullName: z.string().optional().nullable(),
+	isExpired: z.boolean().optional()
+});
 
 // Invite associations schema (IInviteAssociations interface)
-// Using z.any() for complex schemas not yet imported to avoid circular dependencies
 export const inviteAssociationsSchema = z.object({
 	id: z.string().optional().nullable(),
-	user: z.any().optional(), // TUser - will be properly typed when userSchema is available
+	user: z.lazy(() => userSchema).optional(),
 	userId: uuIdSchema.optional().nullable(),
-	role: z.any().optional(), // IRole - will be properly typed when roleSchema is available
+	role: z.lazy(() => roleZodSchemaType).optional(),
 	roleId: uuIdSchema.optional(),
-	projects: z.array(z.any()).optional(), // IOrganizationProject[] - schema not created yet
-	teams: z.array(z.any()).optional() // IOrganizationTeam[] - schema not created yet
+	projects: z.array(z.lazy(() => organizationProjectSchema)).optional(),
+	teams: z.array(z.lazy(() => organizationTeamSchema)).optional(),
+	invitedByUser: z.lazy(() => userSchema).optional(),
+	invitedByUserId: uuIdSchema.optional()
 });
 
 // Main invite schema (IInvite interface)
-export const inviteSchema = baseInviteSchema.merge(inviteAssociationsSchema).extend({
-	invitedByUser: z.any().optional(), // TUser - will be properly typed when userSchema is available
-	invitedByUserId: uuIdSchema.optional()
-});
+export const inviteSchema = baseInviteSchema.merge(inviteAssociationsSchema);
 
 // Invite create schema (IInviteCreate interface)
 export const inviteCreateSchema = z.object({
