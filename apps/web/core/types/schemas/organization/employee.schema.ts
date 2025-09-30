@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
-import { relationalUserSchema, taggableSchema, uuIdSchema } from '../common/base.schema';
+import { taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { teamSchema } from '../team/team.schema';
+import { relationalUserSchema } from '../user/user.schema';
 
 /**
  * Zod schemas for Employee-related interfaces

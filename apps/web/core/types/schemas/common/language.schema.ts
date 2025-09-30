@@ -17,6 +17,15 @@ export const languageSchema = z
 	.merge(basePerTenantEntityModelSchema)
 	.strict();
 
+export const languageZodSchemaType: z.ZodType<{
+	name?: string;
+	code?: string;
+	is_system?: boolean;
+	description?: string;
+	color?: string;
+	isSelected?: boolean;
+}> = languageSchema.merge(basePerTenantEntityModelSchema);
+
 // Language item list schema (for API responses)
 // This schema matches the actual API response structure with string dates
 export const languageItemListSchema = z

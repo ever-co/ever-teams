@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { userSchema } from '../user/user.schema';
 
 /**
  * Base Zod schemas for common interfaces used across the application
@@ -47,12 +46,6 @@ export const basePerTenantEntityModelSchema = z
 // Taggable interface schema
 export const taggableSchema = z.object({
 	tags: z.array(z.any()).optional() // Will be properly typed when tag schema is created
-});
-
-// Relational user schema
-export const relationalUserSchema = z.object({
-	user: userSchema.optional().nullable(), // Will be properly typed when user schema is created
-	userId: z.string().optional().nullable() // Restored .nullable() - API can return null
 });
 
 // Relational organization team schema

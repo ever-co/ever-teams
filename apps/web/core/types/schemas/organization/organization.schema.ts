@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { basePerTenantEntityModelSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
 import { defaultValueDateTypeSchema, timeFormatSchema, weekDaysSchema } from '../common/enums.schema';
-import { languageSchema } from '../common/language.schema';
+import { languageZodSchemaType } from '../common/language.schema';
 
 /**
  * Zod schemas for Organization-related interfaces
@@ -24,7 +24,7 @@ export const organizationTimerSettingSchema = z.object({
 // Organization language schema
 export const organizationLanguageSchema = z
 	.object({
-		language: z.lazy(() => languageSchema),
+		language: z.lazy(() => languageZodSchemaType),
 		languageCode: z.string(),
 		level: z.string(),
 		name: z.string()

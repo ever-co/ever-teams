@@ -121,6 +121,15 @@ export const userSchema = basePerTenantEntityModelSchema
 	.merge(baseUserSchema)
 	.merge(relationalEmployeeSchema);
 
+// Relational user schema
+export const relationalUserSchema = z.object({
+	user: z
+		.lazy(() => userZodSchemaType)
+		.optional()
+		.nullable(), // Will be properly typed when user schema is created
+	userId: z.string().optional().nullable() // Restored .nullable() - API can return null
+});
+
 // =============================================================================
 // EXPORTED TYPES
 // =============================================================================
