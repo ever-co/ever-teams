@@ -48,7 +48,10 @@ export const organizationTeamEmployeeSchema = z
 		phoneNumber: z.string().nullable().optional(),
 		username: z.string().nullable().optional(),
 		timeZone: z.string().nullable().optional(),
-		user: z.lazy(() => userSchema).optional(),
+		user: z
+			.lazy(() => userSchema)
+			.optional()
+			.nullable(),
 		totalWorkedTasks: z.array(z.any()).optional(), // Will be properly typed when task statistics schema is created
 		totalTodayTasks: z.array(z.any()).optional() // Will be properly typed when task statistics schema is created
 	})

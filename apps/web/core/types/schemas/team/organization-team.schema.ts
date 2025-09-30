@@ -1,14 +1,13 @@
 import { z } from 'zod';
-import { uuIdSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
+import { relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
-import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
+import { organizationTeamEmployeeSchema, TOrganizationTeamEmployee } from './organization-team-employee.schema';
 import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
 import { tagZodSchemaType } from '../tag/tag.schema';
 import { taskSchema, TTask } from '../task/task.schema';
-import { TEmployee } from '../organization/employee.schema';
 
 export const baseProjectSchema = z.object({
 	deletedAt: z.coerce.date().optional().nullable(),
@@ -92,7 +91,7 @@ export const organizationTeamUpdateSchema = z.object({
 	color: z.string().nullable().optional(),
 	emoji: z.string().nullable().optional(),
 	teamSize: z.string().nullable().optional(),
-	projects: z.array(baseProjectSchema).optional(),
+	projects: z.array(baseProjectSchema).optional().nullable(),
 	id: z.string().optional(),
 	name: z.string().optional()
 });
@@ -104,7 +103,6 @@ export const organizationTeamUpdateSchema = z.object({
 // Base team properties schema
 export const baseTeamPropertiesSchema = z
 	.object({
-		id: z.lazy(() => uuIdSchema),
 		name: z.string(),
 		color: z.string().optional().nullable(),
 		emoji: z.string().optional().nullable(),
@@ -140,8 +138,7 @@ export const organizationTeamSchema: z.ZodType<TOrganizationTeam> =
 	baseTeamPropertiesSchema.merge(teamAssociationsSchema);
 
 // Organization team create schema
-
-export const organizationTeamCreateResponseSchema = z.object({
+export const organizationTeamCreateResponseSchema = baseTeamPropertiesSchema.extend({
 	name: z.string(),
 	tenantId: z.string().uuid(),
 	organizationId: z.string().uuid(),
@@ -154,12 +151,6 @@ export const organizationTeamCreateResponseSchema = z.object({
 	members: z.array(z.any()).optional().nullable(),
 	tags: z.array(z.any()).optional(),
 	imageUrl: z.string().url().optional().nullable(),
-	createdByUserId: z.string().uuid(),
-	updatedByUserId: z.string().uuid().nullable(),
-	deletedByUserId: z.string().uuid().nullable(),
-	isActive: z.boolean(),
-	isArchived: z.boolean(),
-	archivedAt: z.coerce.date().optional().nullable(),
 	startDate: z.coerce.date().optional().nullable(),
 	endDate: z.coerce.date().optional().nullable(),
 	billing: z.any().nullable(),
@@ -193,10 +184,6 @@ export const organizationTeamCreateResponseSchema = z.object({
 			fix_relational_custom_fields: z.any().nullable()
 		})
 		.optional(),
-	deletedAt: z.coerce.date().optional().nullable(),
-	createdAt: z.coerce.date().optional(),
-	updatedAt: z.coerce.date().optional(),
-	id: uuIdSchema,
 	taskListType: z.enum(['GRID', 'KANBAN', 'LIST']).optional().nullable(),
 
 	emoji: z.string().optional().nullable(),
@@ -224,14 +211,15 @@ export const teamRequestParamsSchema = z.object({
 	relations: z.array(z.string()).optional()
 });
 export type TOrganizationTeam = z.infer<typeof baseTeamPropertiesSchema> & {
-	members?: TEmployee[] | null;
-	managers?: TEmployee[] | null;
+	members?: TOrganizationTeamEmployee[] | null;
+	managers?: TOrganizationTeamEmployee[] | null;
 	projects?: z.infer<typeof baseProjectSchema>[] | null;
 	tasks?: TTask[] | null;
 };
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;
 export type TTeamRequestParams = z.infer<typeof teamRequestParamsSchema>;
+export type TOrganizationTeamUpdate = z.infer<typeof organizationTeamUpdateSchema>;
 
 /**
  * Schema for workspace tenant information
