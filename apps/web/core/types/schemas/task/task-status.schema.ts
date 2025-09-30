@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { relationalOrganizationTeamSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { relationalOrganizationProjectSchema } from '../common/base.schema';
 import { taskStatusNameSchema } from '../common/enums.schema';
 
@@ -18,7 +18,7 @@ export const taskStatusWorkFlowSchema = z.object({
 // Main task status schema
 export const taskStatusSchema = z
 	.object({
-		name: z.string(),
+		name: taskStatusNameSchema,
 		value: z.string(),
 		description: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),
@@ -30,7 +30,7 @@ export const taskStatusSchema = z
 		fullIconUrl: z.string().optional().nullable(),
 		template: taskStatusNameSchema.optional().nullable()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationTeamSchema)
 	.merge(relationalOrganizationProjectSchema)
 	.merge(taskStatusWorkFlowSchema)
@@ -86,3 +86,4 @@ export type TTaskStatusCreate = z.infer<typeof taskStatusCreateSchema>;
 export type TTaskStatusOrder = z.infer<typeof taskStatusOrderSchema>;
 export type TTaskStatusWorkFlow = z.infer<typeof taskStatusWorkFlowSchema>;
 export type TTaskStatusOrderAPIResponse = z.infer<typeof taskStatusOrderAPIResponseSchema>;
+export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;

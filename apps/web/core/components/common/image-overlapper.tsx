@@ -16,10 +16,10 @@ import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { TEmployee, TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TEmployee, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface ImageOverlapperProps {
 	id: string;

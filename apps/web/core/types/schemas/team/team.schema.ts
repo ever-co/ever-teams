@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { relationalOrganizationProjectSchema } from '../common/base.schema';
 // import { taskSchema } from '../task/task.schema';
@@ -30,7 +30,7 @@ export const teamSchema = z
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(teamAssociationsSchema)
 	.passthrough();
 

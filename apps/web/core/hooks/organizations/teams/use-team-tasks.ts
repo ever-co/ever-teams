@@ -25,12 +25,13 @@ import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useUserQuery } from '../../queries/user-user.query';
+import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -328,11 +329,11 @@ export function useTeamTasks() {
 			members
 		}: {
 			title: string;
-			issueType?: string;
-			status?: string;
+			issueType?: EIssueType | null;
+			status?: ETaskStatusName | null;
 			taskStatusId: string;
-			priority?: string;
-			size?: string;
+			priority?: ETaskPriority | null;
+			size?: ETaskSize | null;
 			tags?: TTag[] | null;
 			description?: string | null;
 			projectId?: string | null;

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { uuIdSchema, relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema } from './organization-team-employee.schema';
 import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
@@ -113,7 +113,7 @@ export const baseTeamPropertiesSchema = z
 		public: z.boolean().nullable(),
 		profile_link: z.string().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalImageAssetSchema)
 	.merge(taggableSchema);
 

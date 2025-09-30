@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, uuIdSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { userSchema } from '../user/user.schema';
 import { teamSchema } from '../team/team.schema';
 
@@ -89,7 +89,7 @@ export const employeeSchema = z
 			.passthrough()
 			.optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(taggableSchema);
 
 // Create employee schema

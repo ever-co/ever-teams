@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { uuIdSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 
 /**
  * Zod schemas for User Organization-related interfaces
@@ -12,7 +12,7 @@ export const baseUserOrganizationSchema = z
 		userId: uuIdSchema.optional(),
 		isDefault: z.boolean()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.strict();
 
 // User organization schema

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { relationalOrganizationProjectSchema, relationalOrganizationTeamSchema } from '../common/base.schema';
 
 /**
@@ -17,7 +17,7 @@ export const taskVersionSchema = z
 		isSystem: z.boolean().optional(),
 		fullIconUrl: z.string().optional().nullable()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationProjectSchema)
 	.merge(relationalOrganizationTeamSchema)
 	.strict();
@@ -46,7 +46,7 @@ export const getTaskVersionsRequestSchema = z
 		projectId: z.string().optional().nullable(),
 		organizationTeamId: z.string().optional().nullable()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema);
+	.merge(basePerTenantAndOrganizationEntitySchema);
 
 export const updateTaskVersionResultSchema = z.object({
 	generatedMaps: z.array(z.any()),
