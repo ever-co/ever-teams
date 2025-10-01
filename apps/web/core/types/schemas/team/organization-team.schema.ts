@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { taggableSchema, uuIdSchema } from '../common/base.schema';
+import { taggableSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema, TOrganizationTeamEmployee } from './organization-team-employee.schema';
 import { ECurrencies } from '../../generics/enums/currency';
@@ -7,11 +7,12 @@ import { organizationSchema } from '../organization/organization.schema';
 import { tagSchema, tagZodSchemaType } from '../tag/tag.schema';
 import { taskSchema, TTask } from '../task/task.schema';
 import { taskStatusSchema } from '../task/task-status.schema';
-import { fileStorageProviderSchema, taskPrioritySchema, taskSizeSchema } from '../common/enums.schema';
+import { taskPrioritySchema, taskSizeSchema } from '../common/enums.schema';
 import { taskIssueTypeSchema } from '../task/task-issue-type.schema';
 import { taskVersionSchema } from '../task/task-version.schema';
 import { dailyPlanSchema } from '../task/daily-plan.schema';
 import { organizationProjectSchema } from '../organization/organization-project.schema';
+import { imageAssetSchema } from '../common/image-asset.schema';
 
 /**
  * Zod schemas for Organization Team-related interfaces
@@ -30,23 +31,7 @@ export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 		requirePlanToTrack: z.boolean().optional(),
 		public: z.boolean().nullable().optional(),
 		profile_link: z.string().optional(),
-		image: z
-			.object({
-				id: uuIdSchema,
-				name: z.string(),
-				url: z.string(),
-				thumb: z.string().optional(),
-				width: z.number().optional(),
-				height: z.number().optional(),
-				size: z.number().optional(),
-				isFeatured: z.boolean().optional(),
-				externalProviderId: uuIdSchema.optional(),
-				storageProvider: fileStorageProviderSchema.optional(),
-				fullUrl: z.string().optional(),
-				thumbUrl: z.string().optional()
-			})
-			.optional()
-			.nullable(),
+		image: imageAssetSchema.optional().nullable(),
 		imageId: z.string().optional().nullable()
 	})
 	.merge(taggableSchema);
