@@ -1,7 +1,7 @@
 import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatus } from '../tasks/use-task-status';
 import { useAtom } from 'jotai';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useOptimistic, startTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
@@ -29,6 +29,34 @@ export function useKanban() {
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
 	const employee = useSearchParams().get('employee');
+
+	// Optimistic state for column collapse/expand operations only
+	const [optimisticColumnStates, setOptimisticColumnStates] = useOptimistic(
+		{} as Record<string, { isCollapsed?: boolean; order?: number }>,
+		(
+			currentStates: Record<string, { isCollapsed?: boolean; order?: number }>,
+			update: { id: string; updates: { isCollapsed?: boolean; order?: number } }
+		) => {
+			return {
+				...currentStates,
+				[update.id]: {
+					...currentStates[update.id],
+					...update.updates
+				}
+			};
+		}
+	);
+
+	// Helper function to get task statuses with optimistic updates applied
+	const getOptimisticTaskStatuses = useCallback(() => {
+		return taskStatusHook.taskStatuses.map((status) => {
+			const optimisticState = optimisticColumnStates[status.id];
+			if (optimisticState) {
+				return { ...status, ...optimisticState };
+			}
+			return status;
+		});
+	}, [taskStatusHook.taskStatuses, optimisticColumnStates]);
 
 	// Memoized filter functions for better performance
 	const filterBySearch = useCallback(
@@ -120,6 +148,7 @@ export function useKanban() {
 				});
 			};
 
+			// Use the base taskStatuses for kanban board construction to avoid infinite loops
 			taskStatusHook.taskStatuses.map((taskStatus: TTaskStatus) => {
 				kanban = {
 					...kanban,
@@ -133,68 +162,118 @@ export function useKanban() {
 	}, [taskStatusHook.getTaskStatusesLoading, tasksFetching, filteredTasks, taskStatusHook.taskStatuses]);
 
 	/**
-	 * collapse or show kanban column
+	 * collapse or show kanban column with optimistic updates
 	 */
-	const toggleColumn = async (column: string, status: boolean) => {
-		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: TTaskStatus) => {
-			return taskStatus.name === column;
-		});
-
-		const columnId = columnData[0].id;
-
-		const updateResult = await taskStatusHook.editTaskStatus(columnId, {
-			isCollapsed: status
-		});
-
-		if (updateResult && updateResult.affected > 0) {
-			// Update task statuses state - only update the isCollapsed property
-			taskStatusHook.setTaskStatuses((prev) => {
-				return prev.map((taskStatus) => {
-					if (taskStatus.id === columnId) {
-						return { ...taskStatus, isCollapsed: status };
-					}
-					return taskStatus;
-				});
+	const toggleColumn = useCallback(
+		async (column: string, status: boolean) => {
+			const columnData = taskStatusHook.taskStatuses.filter((taskStatus: TTaskStatus) => {
+				return taskStatus.name === column;
 			});
-		}
-	};
 
-	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatuses.find((taskStatus: TTaskStatus) => {
-			return taskStatus.name === column;
-		});
+			if (!columnData.length) {
+				console.warn(`Column "${column}" not found in task statuses`);
+				return;
+			}
 
-		return columnData?.isCollapsed;
-	};
-	const isAllColumnCollapse = () => {
-		return taskStatusHook.taskStatuses.every((taskStatus: TTaskStatus) => {
+			const columnId = columnData[0].id;
+
+			// Apply optimistic update immediately for instant UI feedback
+			setOptimisticColumnStates({
+				id: columnId,
+				updates: { isCollapsed: status }
+			});
+
+			// Perform the actual API call in a transition to avoid blocking UI
+			startTransition(async () => {
+				try {
+					const updateResult = await taskStatusHook.editTaskStatus(columnId, {
+						isCollapsed: status
+					});
+
+					if (updateResult && updateResult.affected > 0) {
+						// Update the actual state - the optimistic state will automatically sync
+						taskStatusHook.setTaskStatuses((prev) => {
+							return prev.map((taskStatus) => {
+								if (taskStatus.id === columnId) {
+									return { ...taskStatus, isCollapsed: status };
+								}
+								return taskStatus;
+							});
+						});
+					} else {
+						// If the API call failed, the optimistic state will revert automatically
+						console.warn('Failed to update column collapse state');
+					}
+				} catch (error) {
+					console.error('Error updating column collapse state:', error);
+					// The optimistic state will automatically revert since the base state didn't change
+				}
+			});
+		},
+		[setOptimisticColumnStates, taskStatusHook]
+	);
+
+	const isColumnCollapse = useCallback(
+		(column: string) => {
+			const optimisticStatuses = getOptimisticTaskStatuses();
+			const columnData = optimisticStatuses.find((taskStatus: TTaskStatus) => {
+				return taskStatus.name === column;
+			});
+
+			return columnData?.isCollapsed;
+		},
+		[getOptimisticTaskStatuses]
+	);
+
+	const isAllColumnCollapse = useCallback(() => {
+		const optimisticStatuses = getOptimisticTaskStatuses();
+		return optimisticStatuses.every((taskStatus: TTaskStatus) => {
 			return taskStatus.isCollapsed;
 		});
-	};
+	}, [getOptimisticTaskStatuses]);
 
-	const reorderStatus = async (itemStatus: string, index: number) => {
-		const status = taskStatusHook.taskStatuses?.find((status) => {
-			return status.id === itemStatus;
-		});
-
-		if (status) {
-			const updateResult = await taskStatusHook.editTaskStatus(status.id, {
-				order: index
+	const reorderStatus = useCallback(
+		async (itemStatus: string, index: number) => {
+			const status = taskStatusHook.taskStatuses?.find((status: TTaskStatus) => {
+				return status.id === itemStatus;
 			});
 
-			if (updateResult && updateResult.affected > 0) {
-				// Update task statuses state - only update the order property
-				taskStatusHook.setTaskStatuses((prev) => {
-					return prev.map((el) => {
-						if (el.id === status.id) {
-							return { ...el, order: index };
+			if (status) {
+				// Apply optimistic update immediately
+				setOptimisticColumnStates({
+					id: status.id,
+					updates: { order: index }
+				});
+
+				// Perform the actual API call in a transition
+				startTransition(async () => {
+					try {
+						const updateResult = await taskStatusHook.editTaskStatus(status.id, {
+							order: index
+						});
+
+						if (updateResult && updateResult.affected > 0) {
+							// Update the actual state - the optimistic state will automatically sync
+							taskStatusHook.setTaskStatuses((prev) => {
+								return prev.map((el) => {
+									if (el.id === status.id) {
+										return { ...el, order: index };
+									}
+									return el;
+								});
+							});
+						} else {
+							console.warn('Failed to update status order');
 						}
-						return el;
-					});
+					} catch (error) {
+						console.error('Error updating status order:', error);
+						// The optimistic state will automatically revert
+					}
 				});
 			}
-		}
-	};
+		},
+		[setOptimisticColumnStates, taskStatusHook]
+	);
 	const addNewTask = (task: TTask, status: string) => {
 		const updatedBoard = {
 			...kanbanBoard,
@@ -205,7 +284,7 @@ export function useKanban() {
 	return {
 		data: kanbanBoard as IKanban,
 		isLoading: loading,
-		columns: taskStatusHook.taskStatuses,
+		columns: getOptimisticTaskStatuses(), // Use optimistic state for instant UI updates
 		searchTasks,
 		issues,
 		setPriority,
