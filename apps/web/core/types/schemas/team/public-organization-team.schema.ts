@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { organizationTeamSchema } from './organization-team.schema';
+import { baseTeamPropertiesSchema, teamAssociationsSchema } from './organization-team.schema';
 import { taskSizeSchema } from '../task/task-size.schema';
 import { taskPrioritySchema } from '../task/task-priority.schema';
 import { taskStatusSchema } from '../task/task-status.schema';
@@ -15,7 +15,7 @@ import { tagSchema } from '../tag/tag.schema';
 // Note: Using existing schemas from organization-team.schema.ts to avoid conflicts
 
 // Public team data response schema - for the specific API response structure
-export const publicTeamDataResponseSchema = organizationTeamSchema.extend({
+export const publicTeamDataResponseSchema = baseTeamPropertiesSchema.merge(teamAssociationsSchema).extend({
 	// Additional fields that might be returned by the public API
 	status: z.number().optional(), // For 404 status handling
 	// Misc data fields

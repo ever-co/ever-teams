@@ -74,6 +74,11 @@ const baseEmployeeSchema = z
 		show_start_work_on: z.boolean().nullable().optional(),
 		contactId: z.string().nullable().optional(),
 		organizationPositionId: z.string().nullable().optional(),
+		isTasksAutoSync: z.boolean().nullable().optional(),
+		isTasksAutoSyncOnLabel: z.boolean().nullable().optional(),
+		syncTag: z.string().nullable().optional(),
+		archiveTasksIn: z.number().nullable().optional(),
+		closeTasksIn: z.number().nullable().optional(),
 		employee: z
 			.object({
 				id: uuIdSchema,

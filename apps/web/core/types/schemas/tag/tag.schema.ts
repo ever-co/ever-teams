@@ -65,6 +65,8 @@ export const tagSchema = z
 	.merge(relationalOrganizationTeamSchema)
 	.strict();
 
+export const tagZodSchemaType: z.ZodType<TTag> = z.lazy(() => tagSchema);
+
 // Tag create schema
 export const tagCreateSchema = z.object({
 	name: z.string(),
