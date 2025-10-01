@@ -178,9 +178,11 @@ export function useKanban() {
 			const columnId = columnData[0].id;
 
 			// Apply optimistic update immediately for instant UI feedback
-			setOptimisticColumnStates({
-				id: columnId,
-				updates: { isCollapsed: status }
+			startTransition(() => {
+				setOptimisticColumnStates({
+					id: columnId,
+					updates: { isCollapsed: status }
+				});
 			});
 
 			// Perform the actual API call in a transition to avoid blocking UI
@@ -238,9 +240,11 @@ export function useKanban() {
 
 			if (status) {
 				// Apply optimistic update immediately
-				setOptimisticColumnStates({
-					id: status.id,
-					updates: { order: index }
+				startTransition(() => {
+					setOptimisticColumnStates({
+						id: status.id,
+						updates: { order: index }
+					});
 				});
 
 				// Perform the actual API call in a transition

@@ -196,40 +196,6 @@ function InnerList(props: {
 	);
 }
 /**
- * Calculates the dynamic height of a Kanban column based on the number of items
- *
- * @param {number} itemsLength - The number of items in the column
- * @param {RefObject<HTMLDivElement> | undefined} containerRef - Reference to the container element
- * @returns {string} The calculated height with 'px' unit
- *
- * Rules:
- * - 2 items or less: fixed height of 320px
- * - 3 items: fixed height of 520px
- * - More than 3 items: uses container height or fallback to 720px
- *
- * @example
- * // For 1 items or less
- * getKanbanColumnHeight(1, containerRef) // returns '320px'
- *
- * // For 3 items
- * getColumnHeight(3, containerRef) // returns '520px'
- *
- * // For more than 3 items
- * getColumnHeight(4, containerRef) // returns container height or '720px'
- */
-const getKanbanColumnHeight = (itemsLength: number, containerRef: RefObject<HTMLDivElement> | undefined): string => {
-	switch (true) {
-		case itemsLength <= 1:
-			return '320px';
-		case itemsLength <= 3:
-			return '520px';
-		case itemsLength > 3:
-			return `${containerRef?.current?.offsetHeight || 720}px`;
-		default:
-			return '320px';
-	}
-};
-/**
  * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
@@ -465,7 +431,9 @@ const KanbanDraggableHeader = ({
 		<>
 			{title && (
 				<header
-					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-[500]'}
+					className={
+						'flex sticky inset-x-0 top-0 z-10 flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'
+					}
 					style={headerStyleChanger(snapshot, backgroundColor)}
 				>
 					<div className="flex flex-row gap-2.5 items-center">
@@ -580,34 +548,26 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className={cn(
-								'relative flex flex-col w-[355px] h-fit',
-								items.length > 4 ? 'min-h-svh' : 'min-h-fit'
-							)}
+							className={cn('flex relative flex-col w-[355px] h-fit min-h-[840px]')}
 							style={{
-								height:
-									containerRef && items && items.length > 1
-										? getKanbanColumnHeight(items.length, containerRef)
-										: '320px',
+								height: `840px`,
 								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
 							}}
 						>
 							{title ? (
 								<>
-									<div>
-										<KanbanDraggableHeader
-											title={title}
-											icon={icon}
-											setColumn={setColumn}
-											status={status}
-											items={items}
-											snapshot={snapshot}
-											provided={provided}
-											createTask={openModal}
-											backgroundColor={backgroundColor}
-											toggleColumn={toggleColumn}
-										/>
-									</div>
+									<KanbanDraggableHeader
+										title={title}
+										icon={icon}
+										setColumn={setColumn}
+										status={status}
+										items={items}
+										snapshot={snapshot}
+										provided={provided}
+										createTask={openModal}
+										backgroundColor={backgroundColor}
+										toggleColumn={toggleColumn}
+									/>
 									<div className="flex flex-col">
 										<KanbanDroppable
 											isLoading={isLoading}
