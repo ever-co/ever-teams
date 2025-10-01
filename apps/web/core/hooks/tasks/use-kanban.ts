@@ -176,6 +176,8 @@ export function useKanban() {
 			}
 
 			const columnId = columnData[0].id;
+			// Save the original state before optimistic update for potential reversion
+			const originalState = columnData[0].isCollapsed;
 
 			// Apply optimistic update immediately for instant UI feedback
 			startTransition(() => {
@@ -203,12 +205,24 @@ export function useKanban() {
 							});
 						});
 					} else {
-						// If the API call failed, the optimistic state will revert automatically
+						// API call failed - revert to original state
 						console.warn('Failed to update column collapse state');
+						startTransition(() => {
+							setOptimisticColumnStates({
+								id: columnId,
+								updates: { isCollapsed: originalState }
+							});
+						});
 					}
 				} catch (error) {
 					console.error('Error updating column collapse state:', error);
-					// The optimistic state will automatically revert since the base state didn't change
+					// Revert to original state on error
+					startTransition(() => {
+						setOptimisticColumnStates({
+							id: columnId,
+							updates: { isCollapsed: originalState }
+						});
+					});
 				}
 			});
 		},
@@ -239,6 +253,9 @@ export function useKanban() {
 			});
 
 			if (status) {
+				// Save the original order before optimistic update for potential reversion
+				const originalOrder = status.order ?? 0;
+
 				// Apply optimistic update immediately
 				startTransition(() => {
 					setOptimisticColumnStates({
@@ -265,11 +282,24 @@ export function useKanban() {
 								});
 							});
 						} else {
+							// API call failed - revert to original order
 							console.warn('Failed to update status order');
+							startTransition(() => {
+								setOptimisticColumnStates({
+									id: status.id,
+									updates: { order: originalOrder }
+								});
+							});
 						}
 					} catch (error) {
 						console.error('Error updating status order:', error);
-						// The optimistic state will automatically revert
+						// Revert to original order on error
+						startTransition(() => {
+							setOptimisticColumnStates({
+								id: status.id,
+								updates: { order: originalOrder }
+							});
+						});
 					}
 				});
 			}

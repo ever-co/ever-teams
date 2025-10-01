@@ -245,10 +245,9 @@ export default function ImageOverlapper({
 							className={cn(
 								'w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
 							)}
-							style={{ left: index * 30 }}
 						>
 							<Tooltip
-								label={image.alt ?? 'untitled'}
+								label={image.alt ?? 'avatar'}
 								labelClassName={image.alt ? '' : 'text-gray-500'}
 								className="absolute hover:!z-[1]"
 								placement="top"
