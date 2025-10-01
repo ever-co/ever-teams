@@ -142,18 +142,18 @@ export function useKanban() {
 
 		const columnId = columnData[0].id;
 
-		const updatedStatus = await taskStatusHook.editTaskStatus(columnId, {
+		const updateResult = await taskStatusHook.editTaskStatus(columnId, {
 			isCollapsed: status
 		});
 
-		if (updatedStatus) {
-			// Update task statuses state
+		if (updateResult && updateResult.affected > 0) {
+			// Update task statuses state - only update the isCollapsed property
 			taskStatusHook.setTaskStatuses((prev) => {
-				return prev.map((status) => {
-					if (status.id === columnId) {
-						return { ...status, ...updatedStatus };
+				return prev.map((taskStatus) => {
+					if (taskStatus.id === columnId) {
+						return { ...taskStatus, isCollapsed: status };
 					}
-					return status;
+					return taskStatus;
 				});
 			});
 		}
@@ -178,16 +178,16 @@ export function useKanban() {
 		});
 
 		if (status) {
-			const reOrderedStatus = await taskStatusHook.editTaskStatus(status.id, {
+			const updateResult = await taskStatusHook.editTaskStatus(status.id, {
 				order: index
 			});
 
-			if (reOrderedStatus) {
-				// Update task statuses state
+			if (updateResult && updateResult.affected > 0) {
+				// Update task statuses state - only update the order property
 				taskStatusHook.setTaskStatuses((prev) => {
 					return prev.map((el) => {
 						if (el.id === status.id) {
-							return { ...status, ...reOrderedStatus };
+							return { ...el, order: index };
 						}
 						return el;
 					});
