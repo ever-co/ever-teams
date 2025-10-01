@@ -8,9 +8,10 @@ import IconPopover from '@/core/components/settings/icon-popover';
 import { Loader } from 'lucide-react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
+import { ETaskStatusName } from '@/core/types/schemas';
 
 type EditSet = {
-	name: string;
+	name: ETaskStatusName;
 	color: string;
 	icon: string;
 };
@@ -46,13 +47,18 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 			await editTaskStatus(status.id, {
 				...values,
 				color: !values.color ? status.color : values.color
-			}).then((taskStatus) => {
-				if (taskStatus) {
-					// Update task statuses state
+			}).then((updateResult) => {
+				if (updateResult && updateResult.affected > 0) {
+					// Update task statuses state - only update the changed properties
 					setTaskStatuses((prev) => {
 						return prev.map((el) => {
 							if (el.id === status.id) {
-								return { ...status, ...taskStatus };
+								return {
+									...el,
+									name: values.name,
+									icon: values.icon,
+									color: !values.color ? status.color : values.color
+								};
 							}
 							return el;
 						});
@@ -85,7 +91,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					<Text className="flex-none flex-grow-0 mb-2 font-normal text-gray-400 text-md">
 						{createNew ? t('common.NEW') : t('common.EDIT')} {t('common.ISSUE_TYPE')}
 					</Text>
-					<div className="flex items-center w-full mt-3 gap-x-5">
+					<div className="flex gap-x-5 items-center mt-3 w-full">
 						<InputField
 							type="text"
 							placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
@@ -101,7 +107,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 						/>
 						<ColorPicker defaultColor={status.color} onChange={(e) => setValue('color', e)} />
 					</div>
-					<div className="flex mt-5 gap-x-4">
+					<div className="flex gap-x-4 mt-5">
 						<Button
 							variant="primary"
 							className="px-4 py-4 font-normal rounded-xl text-md"
@@ -109,7 +115,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 							disabled={editTaskStatusLoading}
 							loading={editTaskStatusLoading}
 						>
-							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="w-4 h-4 animate-spin " />}
+							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="w-4 h-4 animate-spin" />}
 						</Button>
 						<Button
 							variant="grey"

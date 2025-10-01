@@ -80,10 +80,18 @@ export const taskStatusOrderAPIResponseSchema = z.object({
 	)
 });
 
+// Task status update response schema (TypeORM UpdateResult)
+export const taskStatusUpdateResponseSchema = z.object({
+	generatedMaps: z.array(z.any()),
+	raw: z.array(z.any()),
+	affected: z.number()
+});
+
 // Export TypeScript types
 export type TTaskStatus = z.infer<typeof taskStatusSchema>;
 export type TTaskStatusCreate = z.infer<typeof taskStatusCreateSchema>;
 export type TTaskStatusOrder = z.infer<typeof taskStatusOrderSchema>;
 export type TTaskStatusWorkFlow = z.infer<typeof taskStatusWorkFlowSchema>;
 export type TTaskStatusOrderAPIResponse = z.infer<typeof taskStatusOrderAPIResponseSchema>;
+export type TTaskStatusUpdateResponse = z.infer<typeof taskStatusUpdateResponseSchema>;
 export type ETaskStatusName = z.infer<typeof taskStatusNameSchema>;

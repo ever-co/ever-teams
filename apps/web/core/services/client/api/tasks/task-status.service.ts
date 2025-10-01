@@ -13,7 +13,9 @@ import {
 	ZodValidationError,
 	TTaskStatus,
 	TTaskStatusOrderAPIResponse,
-	taskStatusOrderAPIResponseSchema
+	taskStatusOrderAPIResponseSchema,
+	taskStatusUpdateResponseSchema,
+	TTaskStatusUpdateResponse
 } from '@/core/types/schemas';
 
 /**
@@ -65,10 +67,16 @@ class TaskStatusService extends APIService {
 	 *
 	 * @param taskStatusId - Task status ID to edit
 	 * @param data - Task status data
-	 * @returns Promise<TTaskStatus> - Validated updated task status
+	 * @returns Promise<TTaskStatusUpdateResponse> - Validated update response
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskStatus = async ({ taskStatusId, data }: { taskStatusId: string; data: ITaskStatusCreate }) => {
+	editTaskStatus = async ({
+		taskStatusId,
+		data
+	}: {
+		taskStatusId: string;
+		data: ITaskStatusCreate;
+	}): Promise<TTaskStatusUpdateResponse> => {
 		try {
 			// Validate input data before sending
 			const validatedInput = validateApiResponse(
@@ -77,12 +85,16 @@ class TaskStatusService extends APIService {
 				'editTaskStatus input data'
 			);
 
-			const response = await this.put<TTaskStatus>(`/task-statuses/${taskStatusId}`, validatedInput, {
-				tenantId: this.tenantId
-			});
+			const response = await this.put<TTaskStatusUpdateResponse>(
+				`/task-statuses/${taskStatusId}`,
+				validatedInput,
+				{
+					tenantId: this.tenantId
+				}
+			);
 
-			// Validate the response data
-			return validateApiResponse(taskStatusSchema, response.data, 'editTaskStatus API response');
+			// Validate the response data using the update response schema
+			return validateApiResponse(taskStatusUpdateResponseSchema, response.data, 'editTaskStatus API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
