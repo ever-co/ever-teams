@@ -1,61 +1,17 @@
 import { z } from 'zod';
-import { relationalImageAssetSchema, taggableSchema } from '../common/base.schema';
+import { taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { organizationTeamEmployeeSchema, TOrganizationTeamEmployee } from './organization-team-employee.schema';
-import { EProjectBilling, EProjectOwner } from '../../generics/enums/project';
-import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { ECurrencies } from '../../generics/enums/currency';
 import { organizationSchema } from '../organization/organization.schema';
-import { tagZodSchemaType } from '../tag/tag.schema';
+import { tagSchema, tagZodSchemaType } from '../tag/tag.schema';
 import { taskSchema, TTask } from '../task/task.schema';
-
-export const baseProjectSchema = z.object({
-	deletedAt: z.coerce.date().optional().nullable(),
-	createdAt: z.coerce.date().optional().nullable(),
-	updatedAt: z.coerce.date().optional().nullable(),
-	id: z.string(),
-	isActive: z.boolean(),
-	isArchived: z.boolean(),
-	archivedAt: z.coerce.date().optional().nullable(),
-	tenantId: z.string(),
-	organizationId: z.string(),
-	name: z.string(),
-	startDate: z.string().or(z.coerce.date()).optional().nullable(),
-	endDate: z.string().or(z.coerce.date()).optional().nullable(),
-	billing: z.nativeEnum(EProjectBilling).optional().nullable(),
-	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(), // idem
-	public: z.boolean().nullable(),
-	owner: z.nativeEnum(EProjectOwner).optional().nullable(),
-	taskListType: z.nativeEnum(ETaskListType).optional().nullable(),
-	code: z.string().nullable(),
-	description: z.string().nullable(),
-	color: z.string().nullable(),
-	billable: z.boolean().nullable(),
-	billingFlat: z.boolean().nullable(),
-	openSource: z.boolean().nullable(),
-	projectUrl: z.string().nullable(),
-	openSourceProjectUrl: z.string().nullable(),
-	budget: z.number().nullable(),
-	budgetType: z.enum(['cost', 'hours']).optional(),
-	imageUrl: z.string().nullable(),
-	icon: z.string().nullable(),
-	status: z.nativeEnum(ETaskStatusName).nullable(),
-	isTasksAutoSync: z.boolean().nullable(),
-	isTasksAutoSyncOnLabel: z.boolean().nullable(),
-	syncTag: z.string().nullable(),
-	archiveTasksIn: z.number().nullable(),
-	closeTasksIn: z.number().nullable(),
-	organizationContactId: z.string().nullable(),
-	imageId: z.string().nullable(),
-	defaultAssigneeId: z.string().nullable(),
-	repository: z
-		.object({
-			repositoryId: z.string().optional().nullable(),
-			repositoryName: z.string().optional().nullable()
-		})
-		.optional()
-		.nullable()
-});
+import { taskStatusSchema } from '../task/task-status.schema';
+import { fileStorageProviderSchema, taskPrioritySchema, taskSizeSchema } from '../common/enums.schema';
+import { taskIssueTypeSchema } from '../task/task-issue-type.schema';
+import { taskVersionSchema } from '../task/task-version.schema';
+import { dailyPlanSchema } from '../task/daily-plan.schema';
+import { organizationProjectSchema } from '../organization/organization-project.schema';
 
 // Organization team update schema
 export const organizationTeamUpdateSchema = z.object({
@@ -91,7 +47,7 @@ export const organizationTeamUpdateSchema = z.object({
 	color: z.string().nullable().optional(),
 	emoji: z.string().nullable().optional(),
 	teamSize: z.string().nullable().optional(),
-	projects: z.array(baseProjectSchema).optional().nullable(),
+	projects: z.array(organizationProjectSchema).optional().nullable(),
 	id: z.string().optional(),
 	name: z.string().optional()
 });
@@ -101,8 +57,8 @@ export const organizationTeamUpdateSchema = z.object({
  */
 
 // Base team properties schema
-export const baseTeamPropertiesSchema = z
-	.object({
+export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
+	.extend({
 		name: z.string(),
 		color: z.string().optional().nullable(),
 		emoji: z.string().optional().nullable(),
@@ -112,44 +68,65 @@ export const baseTeamPropertiesSchema = z
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
 		public: z.boolean().nullable(),
-		profile_link: z.string().optional()
+		profile_link: z.string().optional(),
+		image: z
+			.object({
+				id: uuIdSchema,
+				name: z.string(),
+				url: z.string(),
+				thumb: z.string().optional(),
+				width: z.number().optional(),
+				height: z.number().optional(),
+				size: z.number().optional(),
+				isFeatured: z.boolean().optional(),
+				externalProviderId: uuIdSchema.optional(),
+				storageProvider: fileStorageProviderSchema.optional(),
+				fullUrl: z.string().optional(),
+				thumbUrl: z.string().optional()
+			})
+			.optional()
+			.nullable(),
+		imageId: z.string().optional().nullable()
 	})
-	.merge(basePerTenantAndOrganizationEntitySchema)
-	.merge(relationalImageAssetSchema)
 	.merge(taggableSchema);
 
 // Team associations schema
 
-export const teamAssociationsSchema = z.object({
-	members: z
-		.array(z.lazy(() => organizationTeamEmployeeSchema))
-		.optional()
-		.nullable(),
-	managers: z
-		.array(z.lazy(() => organizationTeamEmployeeSchema))
-		.optional()
-		.nullable(),
-	projects: z.array(baseProjectSchema).optional(),
-	tasks: z.array(z.lazy(() => taskSchema)).optional()
-});
+export const teamAssociationsSchema = z
+	.object({
+		members: z
+			.array(z.lazy(() => organizationTeamEmployeeSchema))
+			.optional()
+			.nullable(),
+		managers: z
+			.array(z.lazy(() => organizationTeamEmployeeSchema))
+			.optional()
+			.nullable(),
+		projects: z.array(organizationProjectSchema).optional(),
+		tasks: z.array(z.lazy(() => taskSchema)).optional(),
+		tags: z.array(z.lazy(() => tagZodSchemaType)).optional(),
+		requestApprovals: z.array(z.any()).optional().nullable(),
+		goals: z.array(z.any()).optional().nullable(),
+		statuses: z.array(taskStatusSchema).optional().nullable(),
+		priorities: z.array(taskPrioritySchema).optional().nullable(),
+		sizes: z.array(taskSizeSchema).optional().nullable(),
+		labels: z.array(tagSchema).optional().nullable(),
+		issueTypes: z.array(taskIssueTypeSchema).optional().nullable(),
+		versions: z.array(taskVersionSchema).optional().nullable(),
+		dailyPlans: z
+			.array(z.lazy(() => dailyPlanSchema))
+			.optional()
+			.nullable()
+	})
+	.passthrough();
 
-// Main organization team schema
+// Organization team schema
 export const organizationTeamSchema: z.ZodType<TOrganizationTeam> =
 	baseTeamPropertiesSchema.merge(teamAssociationsSchema);
 
 // Organization team create schema
 export const organizationTeamCreateResponseSchema = baseTeamPropertiesSchema.extend({
 	name: z.string(),
-	tenantId: z.string().uuid(),
-	organizationId: z.string().uuid(),
-	tenant: z
-		.object({
-			id: z.string().uuid()
-		})
-		.optional()
-		.nullable(),
-	members: z.array(z.any()).optional().nullable(),
-	tags: z.array(z.any()).optional(),
 	imageUrl: z.string().url().optional().nullable(),
 	startDate: z.coerce.date().optional().nullable(),
 	endDate: z.coerce.date().optional().nullable(),
@@ -185,15 +162,10 @@ export const organizationTeamCreateResponseSchema = baseTeamPropertiesSchema.ext
 		})
 		.optional(),
 	taskListType: z.enum(['GRID', 'KANBAN', 'LIST']).optional().nullable(),
-
-	emoji: z.string().optional().nullable(),
-	teamSize: z.string().optional().nullable(),
 	memberIds: z.array(z.string()).optional(),
 	managerIds: z.array(z.string()).optional(),
 	shareProfileView: z.boolean().optional(),
-	requirePlanToTrack: z.boolean().optional(),
-	image: z.any().optional().nullable(), // Will be properly typed when image asset schema is created
-	projects: z.array(z.any()).optional() // Will be properly typed when organization project schema is created
+	requirePlanToTrack: z.boolean().optional()
 });
 
 export const organizationTeamCreateSchema = z.object({
@@ -213,7 +185,7 @@ export const teamRequestParamsSchema = z.object({
 export type TOrganizationTeam = z.infer<typeof baseTeamPropertiesSchema> & {
 	members?: TOrganizationTeamEmployee[] | null;
 	managers?: TOrganizationTeamEmployee[] | null;
-	projects?: z.infer<typeof baseProjectSchema>[] | null;
+	projects?: z.infer<typeof organizationProjectSchema>[] | null;
 	tasks?: TTask[] | null;
 };
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;

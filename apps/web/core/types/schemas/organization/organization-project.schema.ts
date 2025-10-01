@@ -9,7 +9,6 @@ import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 
 export const organizationProjectSettingSchema = z
 	.object({
-		id: z.string().optional(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
@@ -95,9 +94,11 @@ export const organizationProjectBaseSchema = z
 	})
 	.passthrough();
 
-export const organizationProjectSchema = organizationProjectBaseSchema.extend({
-	name: z.string().min(1, 'Project name is required')
-});
+export const organizationProjectSchema = organizationProjectBaseSchema
+	.extend({
+		name: z.string().min(1, 'Project name is required')
+	})
+	.merge(organizationProjectSettingSchema);
 
 export const createProjectRequestSchema = z
 	.object({
