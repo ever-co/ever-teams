@@ -24,7 +24,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		updateTaskStatus,
 		isColumnCollapse,
 		reorderStatus,
-		addNewTask
+		addNewTask,
+		toggleColumn // Extract toggleColumn to pass to child components
 	} = useKanban();
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
@@ -231,6 +232,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																kanbanColumns,
 																column.name
 															)}
+															toggleColumn={toggleColumn}
 														/>
 													) : (
 														<KanbanDraggable
@@ -251,6 +253,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																containerRef as React.RefObject<HTMLDivElement>
 															}
 															allColumnsData={items}
+															toggleColumn={toggleColumn}
 														/>
 													)}
 												</Fragment>

@@ -47,8 +47,8 @@ export function useKanban() {
 		}
 	);
 
-	// Helper function to get task statuses with optimistic updates applied
-	const getOptimisticTaskStatuses = useCallback(() => {
+	// Memoized task statuses with optimistic updates applied for performance
+	const optimisticTaskStatuses = useMemo(() => {
 		return taskStatusHook.taskStatuses.map((status) => {
 			const optimisticState = optimisticColumnStates[status.id];
 			if (optimisticState) {
@@ -215,22 +215,20 @@ export function useKanban() {
 
 	const isColumnCollapse = useCallback(
 		(column: string) => {
-			const optimisticStatuses = getOptimisticTaskStatuses();
-			const columnData = optimisticStatuses.find((taskStatus: TTaskStatus) => {
+			const columnData = optimisticTaskStatuses.find((taskStatus: TTaskStatus) => {
 				return taskStatus.name === column;
 			});
 
 			return columnData?.isCollapsed;
 		},
-		[getOptimisticTaskStatuses]
+		[optimisticTaskStatuses]
 	);
 
 	const isAllColumnCollapse = useCallback(() => {
-		const optimisticStatuses = getOptimisticTaskStatuses();
-		return optimisticStatuses.every((taskStatus: TTaskStatus) => {
+		return optimisticTaskStatuses.every((taskStatus: TTaskStatus) => {
 			return taskStatus.isCollapsed;
 		});
-	}, [getOptimisticTaskStatuses]);
+	}, [optimisticTaskStatuses]);
 
 	const reorderStatus = useCallback(
 		async (itemStatus: string, index: number) => {
@@ -284,7 +282,7 @@ export function useKanban() {
 	return {
 		data: kanbanBoard as IKanban,
 		isLoading: loading,
-		columns: getOptimisticTaskStatuses(), // Use optimistic state for instant UI updates
+		columns: optimisticTaskStatuses, // Use memoized optimistic state for instant UI updates
 		searchTasks,
 		issues,
 		setPriority,

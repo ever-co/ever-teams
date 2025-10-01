@@ -23,7 +23,6 @@ import { Modal } from '../common/modal';
 import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
-import { useKanban } from '../../hooks/tasks/use-kanban';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
@@ -283,7 +282,8 @@ export const EmptyKanbanDroppable = ({
 	status,
 	setColumn,
 	items,
-	backgroundColor
+	backgroundColor,
+	toggleColumn
 }: {
 	index: number;
 	title: string;
@@ -291,10 +291,11 @@ export const EmptyKanbanDroppable = ({
 	setColumn: any;
 	backgroundColor: any;
 	items: TTask[];
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
 	const [enabled, setEnabled] = useState(false);
 	const t = useTranslations();
-	const { toggleColumn } = useKanban();
+	// toggleColumn is now passed as prop instead of using useKanban hook
 
 	useEffect(() => {
 		const animation = requestAnimationFrame(() => setEnabled(true));
@@ -443,7 +444,8 @@ const KanbanDraggableHeader = ({
 	snapshot,
 	createTask,
 	provided,
-	backgroundColor
+	backgroundColor,
+	toggleColumn
 }: {
 	title: string;
 	items: any;
@@ -454,8 +456,9 @@ const KanbanDraggableHeader = ({
 	snapshot: DraggableStateSnapshot;
 	backgroundColor: string;
 	provided: DraggableProvided;
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
-	const { toggleColumn } = useKanban();
+	// toggleColumn is now passed as prop instead of using useKanban hook
 	const { isOpen, closeModal, openModal } = useModal();
 	const t = useTranslations();
 	return (
@@ -545,7 +548,9 @@ const KanbanDraggable = ({
 	items,
 	backgroundColor,
 	containerRef,
-	allColumnsData
+	allColumnsData,
+	addNewTask,
+	toggleColumn
 }: {
 	index: number;
 	setColumn: any;
@@ -558,6 +563,7 @@ const KanbanDraggable = ({
 	containerRef?: RefObject<HTMLDivElement>;
 	addNewTask: (value: TTask, status: string) => void;
 	allColumnsData?: { [key: string]: TTask[] };
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -599,6 +605,7 @@ const KanbanDraggable = ({
 											provided={provided}
 											createTask={openModal}
 											backgroundColor={backgroundColor}
+											toggleColumn={toggleColumn}
 										/>
 									</div>
 									<div className="flex flex-col">
