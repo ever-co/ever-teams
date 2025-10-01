@@ -16,7 +16,7 @@ export const organizationProjectSettingSchema = z
 		customFields: z.record(z.any()).optional(),
 		isTasksAutoSync: z.boolean().optional(),
 		isTasksAutoSyncOnLabel: z.boolean().optional(),
-		syncTag: z.string().optional()
+		syncTag: z.string().optional().nullable()
 	})
 	.passthrough();
 

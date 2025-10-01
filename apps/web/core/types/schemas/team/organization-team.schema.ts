@@ -13,45 +13,6 @@ import { taskVersionSchema } from '../task/task-version.schema';
 import { dailyPlanSchema } from '../task/daily-plan.schema';
 import { organizationProjectSchema } from '../organization/organization-project.schema';
 
-// Organization team update schema
-export const organizationTeamUpdateSchema = z.object({
-	tenant: z
-		.object({
-			id: z.string().uuid().optional().nullable()
-		})
-		.optional()
-		.nullable(),
-	tenantId: z.string().optional(),
-	organization: organizationSchema
-		.merge(
-			z.object({
-				name: z.string(),
-				currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
-				isDefault: z.boolean().optional().nullable()
-			})
-		)
-		.optional()
-		.nullable(),
-	organizationId: z.string().optional(),
-	sentTo: z.string().optional(),
-	tags: z.array(z.lazy(() => tagZodSchemaType)).optional(), // Allow flexible tags array
-	memberIds: z.array(z.string()).optional(),
-	managerIds: z.array(z.string()).optional(),
-	logo: z.string().optional().nullable(),
-	prefix: z.string().optional().nullable(),
-	shareProfileView: z.boolean().optional(),
-	requirePlanToTrack: z.boolean().optional(),
-	imageId: z.string().optional().nullable(),
-	image: z.any().optional().nullable(),
-	public: z.boolean().nullable().optional(),
-	color: z.string().nullable().optional(),
-	emoji: z.string().nullable().optional(),
-	teamSize: z.string().nullable().optional(),
-	projects: z.array(organizationProjectSchema).optional().nullable(),
-	id: z.string().optional(),
-	name: z.string().optional()
-});
-
 /**
  * Zod schemas for Organization Team-related interfaces
  */
@@ -67,7 +28,7 @@ export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 		prefix: z.string().optional().nullable(),
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
-		public: z.boolean().nullable(),
+		public: z.boolean().nullable().optional(),
 		profile_link: z.string().optional(),
 		image: z
 			.object({
@@ -125,47 +86,58 @@ export const organizationTeamSchema: z.ZodType<TOrganizationTeam> =
 	baseTeamPropertiesSchema.merge(teamAssociationsSchema);
 
 // Organization team create schema
-export const organizationTeamCreateResponseSchema = baseTeamPropertiesSchema.extend({
-	name: z.string(),
-	imageUrl: z.string().url().optional().nullable(),
-	startDate: z.coerce.date().optional().nullable(),
-	endDate: z.coerce.date().optional().nullable(),
-	billing: z.any().nullable(),
-	currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
-	public: z.boolean().nullable(),
-	owner: z.any().optional().nullable(),
-	code: z.string().nullable().optional(),
-	description: z.string().optional().nullable(),
-	color: z.string().optional().nullable(),
-	billable: z.boolean().optional().nullable(),
-	billingFlat: z.boolean().optional().nullable(),
-	openSource: z.boolean().optional().nullable(),
-	projectUrl: z.string().url().optional().nullable(),
-	openSourceProjectUrl: z.string().url().optional().nullable(),
-	budget: z.number().optional().nullable(),
-	budgetType: z.enum(['cost', 'time']).optional().nullable(),
-	icon: z.string().optional().nullable(),
-	status: z.string().optional().nullable(),
-	isTasksAutoSync: z.boolean().optional().nullable(),
-	isTasksAutoSyncOnLabel: z.boolean().optional().nullable(),
-	syncTag: z.any().optional().nullable(),
-	archiveTasksIn: z.any().optional().nullable(),
-	closeTasksIn: z.any().nullable().optional(),
-	membersCount: z.number().optional().nullable(),
-	organizationContactId: z.string().uuid().optional().nullable(),
-	imageId: z.string().uuid().optional().nullable(),
-	defaultAssigneeId: z.string().uuid().optional().nullable(),
-	customFields: z
-		.object({
-			repositoryId: z.string().nullable(),
-			fix_relational_custom_fields: z.any().nullable()
+export const organizationTeamCreateResponseSchema = baseTeamPropertiesSchema
+	.merge(teamAssociationsSchema)
+	.omit({
+		organization: true,
+		members: true,
+		projects: true
+	})
+	.merge(
+		z.object({
+			organization: z.object({
+				id: z.string().uuid()
+			})
 		})
-		.optional(),
-	taskListType: z.enum(['GRID', 'KANBAN', 'LIST']).optional().nullable(),
+	);
+
+// Organization team update schema
+export const organizationTeamUpdateSchema = z.object({
+	tenant: z
+		.object({
+			id: z.string().uuid().optional().nullable()
+		})
+		.optional()
+		.nullable(),
+	tenantId: z.string().optional(),
+	organization: organizationSchema
+		.merge(
+			z.object({
+				name: z.string(),
+				currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
+				isDefault: z.boolean().optional().nullable()
+			})
+		)
+		.optional()
+		.nullable(),
+	organizationId: z.string().optional(),
+	sentTo: z.string().optional(),
+	tags: z.array(z.lazy(() => tagZodSchemaType)).optional(), // Allow flexible tags array
 	memberIds: z.array(z.string()).optional(),
 	managerIds: z.array(z.string()).optional(),
+	logo: z.string().optional().nullable(),
+	prefix: z.string().optional().nullable(),
 	shareProfileView: z.boolean().optional(),
-	requirePlanToTrack: z.boolean().optional()
+	requirePlanToTrack: z.boolean().optional(),
+	imageId: z.string().optional().nullable(),
+	image: z.any().optional().nullable(),
+	public: z.boolean().nullable().optional(),
+	color: z.string().nullable().optional(),
+	emoji: z.string().nullable().optional(),
+	teamSize: z.string().nullable().optional(),
+	projects: z.array(organizationProjectSchema).optional().nullable(),
+	id: z.string().optional(),
+	name: z.string().optional()
 });
 
 export const organizationTeamCreateSchema = z.object({
