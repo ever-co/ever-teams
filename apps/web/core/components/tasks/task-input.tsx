@@ -621,7 +621,7 @@ function TaskCard({
 					fullHeight && 'h-full'
 				)}
 			>
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-3">
 					<>
 						{inputField}
 						{datas.hasCreateForm && (
@@ -718,7 +718,7 @@ function TaskCard({
 						</Tooltip>
 					</>
 					{/* Task filter buttons  */}
-					<div className="flex mt-4 space-x-3">
+					<div className="flex space-x-3">
 						<OutlineBadge
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('open')}

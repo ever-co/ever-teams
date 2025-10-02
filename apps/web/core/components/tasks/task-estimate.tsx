@@ -131,7 +131,7 @@ export function TaskEstimate({
 				)}
 			/>
 			{showEditAndSaveButton && (
-				<div className="h-full flex items-center justify-center">
+				<div className="flex gap-1 justify-center items-center h-full">
 					{!updateLoading ? (
 						editableMode ? (
 							<button
@@ -141,7 +141,7 @@ export function TaskEstimate({
 									setEditableMode(false);
 								}}
 							>
-								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<TickSaveIcon className={clsxm('w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						) : (
 							<button
@@ -150,11 +150,11 @@ export function TaskEstimate({
 									setEditableMode(true);
 								}}
 							>
-								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<EditPenBoxIcon className={clsxm('mx-2 w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						)
 					) : (
-						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+						<LoadingIcon className={clsxm('mx-2 w-2 h-2 animate-spin lg:h-4 lg:w-4')} />
 					)}
 				</div>
 			)}
