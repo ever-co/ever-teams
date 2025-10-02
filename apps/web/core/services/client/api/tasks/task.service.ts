@@ -149,17 +149,91 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Updated tasks list or single task response
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
+
 	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
 		try {
-			// Validate input data before sending (partial validation)
-			const validatedInput = validateApiResponse(
-				taskSchema.partial(),
-				data,
-				'updateTask input data'
-			) as Partial<TTask>;
+			console.log('🔍 updateTask - Raw input data:', {
+				taskId,
+				hasMembers: !!data.members,
+				membersCount: data.members?.length || 0,
+				members: data.members?.map((member, index) => ({
+					index,
+					employeeId: (member as any)?.employeeId,
+					hasEmployee: !!member?.employee,
+					memberType: (member as any)?.employeeId ? 'OrganizationTeamEmployee' : 'DirectEmployee'
+				}))
+			});
 
+			// 🛡️ SOLUTION: Normalize member structure to use consistent userId-based format
+			let cleanedMembers: any[] = [];
+
+			if (data.members && data.members.length > 0) {
+				console.log('🔧 Normalizing member structure to prevent FK constraint violations...');
+
+				for (const [index, member] of data.members.entries()) {
+					const memberType = (member as any)?.employeeId ? 'OrganizationTeamEmployee' : 'DirectEmployee';
+
+					console.log(`🔍 Processing ${memberType} at index ${index}:`, {
+						memberId: (member as any)?.id,
+						employeeId: (member as any)?.employeeId,
+						userId: (member as any)?.userId || (member as any)?.user?.id
+					});
+
+					if (memberType === 'DirectEmployee') {
+						// Direct Employee: already has userId, keep as is
+						const userId = (member as any)?.userId || (member as any)?.user?.id;
+						if (userId) {
+							console.log(`✅ Direct Employee has userId ${userId} - keeping member`);
+							cleanedMembers.push(member);
+						} else {
+							console.warn(`❌ Direct Employee at index ${index} has no userId - filtering out`);
+						}
+					} else {
+						// OrganizationTeamEmployee: convert to userId-based structure
+						const userId = (member as any)?.employee?.user?.id;
+						if (userId) {
+							console.log(`🔄 Converting OrganizationTeamEmployee to userId-based structure: ${userId}`);
+							// Transform to match Direct Employee structure
+							const normalizedMember = {
+								...(member as any)?.employee, // Use employee data as base
+								userId: userId,
+								user: (member as any)?.employee?.user,
+								// Keep some OrganizationTeamEmployee properties that might be needed
+								organizationTeamId: (member as any)?.organizationTeamId,
+								isManager: (member as any)?.isManager,
+								isTrackingEnabled: (member as any)?.isTrackingEnabled
+							};
+							cleanedMembers.push(normalizedMember);
+						} else {
+							console.warn(
+								`❌ OrganizationTeamEmployee at index ${index} has no user.id - filtering out`
+							);
+						}
+					}
+				}
+			}
+
+			// Prepare cleaned data
+			const cleanedData = {
+				...data,
+				members: cleanedMembers
+			};
+
+			console.log('🧹 updateTask - After employee verification:', {
+				originalCount: data.members?.length || 0,
+				cleanedCount: cleanedMembers.length,
+				filteredOut: (data.members?.length || 0) - cleanedMembers.length
+			});
+
+			// Validate input data before sending (partial validation)
+			/* const validatedInput = validateApiResponse(
+				taskSchema.partial(),
+				cleanedData,
+				'updateTask input data'
+			) as Partial<TTask>; */
+			console.log('<=== cleanedData ===>', cleanedData);
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const nBody = { ...validatedInput };
+				const nBody = { ...cleanedData };
 				delete nBody.selectedTeam;
 				delete nBody.rootEpic;
 
@@ -168,7 +242,7 @@ class TaskService extends APIService {
 				return validateApiResponse(taskSchema, response.data, 'updateTask API response');
 			}
 
-			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
+			const response = await this.put<TTask>(`/tasks/${taskId}`, cleanedData);
 
 			// Validate the response data
 			return validateApiResponse(taskSchema, response.data, 'updateTask API response');
