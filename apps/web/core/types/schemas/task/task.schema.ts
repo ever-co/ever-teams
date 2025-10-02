@@ -14,14 +14,14 @@ import { taskEstimationsSchema } from './task-estimation.schema';
 
 // schema for ITaskAssociations
 export const taskAssociationsSchema = z.object({
-	tags: z.array(tagSchema).optional(),
-	members: z.array(employeeSchema).optional(),
+	tags: z.array(z.lazy(() => tagSchema)).optional(),
+	members: z.array(z.lazy(() => employeeSchema)).optional(),
 	teams: z.array(z.lazy(() => organizationTeamSchema)).optional(),
 	taskStatus: taskStatusSchema.optional(),
 	taskSize: taskSizeSchema.optional(),
 	taskPriority: taskPrioritySchema.optional(),
 	taskType: taskIssueTypeSchema.optional(),
-	estimations: z.array(taskEstimationsSchema).optional(),
+	estimations: z.array(z.lazy(() => taskEstimationsSchema)).optional(),
 	selectedTeam: z.lazy(() => organizationTeamSchema).optional()
 });
 

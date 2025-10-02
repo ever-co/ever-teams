@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { TOrganizationTeam, TOrganizationTeamEmployeeUpdate } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { useTeamsState } from './use-teams-state';
@@ -22,7 +22,7 @@ export function useUpdateOrganizationTeam() {
 
 	// React Query mutation with full validation and cache management
 	const updateOrganizationTeamMutation = useMutation({
-		mutationFn: ({ teamId, data }: { teamId: string; data: Partial<TOrganizationTeamEmployeeUpdate> }) => {
+		mutationFn: ({ teamId, data }: { teamId: string; data: Partial<TOrganizationTeamUpdate> }) => {
 			return organizationTeamService.updateOrganizationTeam(teamId, data);
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.update(null),
@@ -58,7 +58,7 @@ export function useUpdateOrganizationTeam() {
 
 	// Preserve exact same interface and logic as original
 	const updateOrganizationTeam = useCallback(
-		(team: TOrganizationTeam, data: Partial<TOrganizationTeamEmployeeUpdate> = {}) => {
+		(team: TOrganizationTeam, data: Partial<TOrganizationTeamUpdate> = {}) => {
 			// Use React Query mutation instead of legacy queryCall
 			updateOrganizationTeamMutation.mutate({
 				teamId: team.id,

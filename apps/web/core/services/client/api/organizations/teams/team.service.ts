@@ -289,7 +289,7 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeam>) => {
+	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeamUpdate>) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),

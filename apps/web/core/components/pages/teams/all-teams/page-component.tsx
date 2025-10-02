@@ -16,9 +16,9 @@ import { allTeamsHeaderTabs } from '@/core/stores/common/header-tabs';
 import { MemberFilter } from './all-teams-members-views/all-team-members-filter';
 import AllTeamsMembers from './all-teams-members-views/all-teams-members';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
 import { AllTeamsPageSkeleton } from '@/core/components/layouts/skeletons/all-teams-page-skeleton';
 import { isTrackingEnabledState } from '@/core/stores';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
 function AllTeamsPage() {
 	const t = useTranslations();
