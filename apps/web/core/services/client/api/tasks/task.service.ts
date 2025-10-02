@@ -209,10 +209,11 @@ class TaskService extends APIService {
 	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
 		try {
 			// Normalize member structures to prevent FK constraint violations
-			const cleanedData = {
-				...data,
-				members: this.normalizeTaskMembers(data.members || [])
-			};
+			const cleanedData: Partial<TTask> = { ...data };
+
+			if ('members' in data) {
+				cleanedData.members = this.normalizeTaskMembers(data.members ?? []);
+			}
 
 			// Validate input data before sending (partial validation) Now safe to validate since we normalized the member structures
 			const validatedInput = validateApiResponse(
