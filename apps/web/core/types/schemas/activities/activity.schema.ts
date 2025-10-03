@@ -4,6 +4,7 @@ import { uuIdSchema, relationalEmployeeSchema, relationalOrganizationProjectSche
 import { organizationTeamEmployeeSchema } from '../team/organization-team-employee.schema';
 import { taskSchema } from '../task/task.schema';
 import { employeeSchema } from '../organization/employee.schema';
+import { tagSchema } from '../tag/tag.schema';
 
 /**
  * Zod schemas for Activity-related interfaces
@@ -47,7 +48,7 @@ export const timeSlotSchema = z
 		percentage: z.number().optional(),
 		keyboardPercentage: z.number().optional(),
 		mousePercentage: z.number().optional(),
-		tags: z.array(z.any()).optional(),
+		tags: z.array(z.lazy(() => tagSchema)).optional(),
 		isAllowDelete: z.boolean().optional()
 	})
 	.merge(basePerTenantAndOrganizationEntitySchema)
@@ -74,8 +75,6 @@ export const activitySchema = basePerTenantAndOrganizationEntitySchema
 		activityTimestamp: z.string().optional(),
 		recordedAt: z.coerce.date().optional()
 	});
-
-// Note: Using existing organizationTeamEmployeeSchema from team/organization-team-employee.schema.ts
 
 // Activity filter schema (IActivityFilter interface) - pixel-perfect match
 export const activityFilterSchema = z.object({

@@ -117,7 +117,7 @@ const employeeLogSchema = z.object({
 });
 
 export const logSchema = z.object({
-	employeeLogs: z.array(employeeLogSchema),
+	employeeLogs: z.array(z.lazy(() => employeeLogSchema)),
 	project: z.any().nullable()
 	// Add other fields as needed
 });
