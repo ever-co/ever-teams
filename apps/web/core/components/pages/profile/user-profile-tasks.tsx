@@ -2,7 +2,7 @@ import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
@@ -38,9 +38,10 @@ export const UserProfileTask = memo(
 		// Initialize cache for expensive operations
 		const { memoizeTaskFilter } = useTaskFilterCache();
 
-		// Defer non-critical updates to improve responsiveness (OPTIMISATION CONSERVATIVE)
-		const deferredTabFiltered = useDeferredValue(tabFiltered);
-		const deferredProfile = useDeferredValue(profile);
+		// Use direct values for critical updates (task assignments) to ensure immediate sync
+		// Only defer for non-critical rendering optimizations
+		const deferredTabFiltered = tabFiltered; // Direct value for immediate task updates
+		const deferredProfile = profile; // Direct value for immediate task updates
 
 		/**
 		 * Optimized task filtering with intelligent caching (PRESERVE EXISTING LOGIC)

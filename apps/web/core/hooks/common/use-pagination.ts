@@ -69,9 +69,23 @@ export function useScrollPagination<T>({
 	// Initialize or reset when items change significantly
 	useEffect(() => {
 		if (enabled) {
-			// Only reset if items array reference changed or length changed significantly
-			const shouldReset =
-				!isInitialized || itemsRef.current !== items || Math.abs(itemsRef.current.length - items.length) > 0;
+			// Enhanced change detection for better synchronization
+			const hasLengthChanged = itemsRef.current.length !== items.length;
+			const hasReferenceChanged = itemsRef.current !== items;
+
+			// Deep check for content changes when length is the same but items might have changed
+			// Only check first few items for performance (most changes happen at the beginning)
+			const hasContentChanged =
+				!hasLengthChanged &&
+				hasReferenceChanged &&
+				itemsRef.current.length > 0 &&
+				items.length > 0 &&
+				itemsRef.current.slice(0, Math.min(5, itemsRef.current.length)).some((oldItem: any, index) => {
+					const newItem = items[index];
+					return !newItem || (oldItem as any)?.id !== (newItem as any)?.id;
+				});
+
+			const shouldReset = !isInitialized || hasLengthChanged || hasReferenceChanged || hasContentChanged;
 
 			if (shouldReset) {
 				setPage(1);
