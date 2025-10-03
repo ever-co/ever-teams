@@ -144,6 +144,14 @@ export type TOrganizationTeam = z.infer<typeof baseTeamPropertiesSchema> & {
 	managers?: TOrganizationTeamEmployee[] | null;
 	projects?: z.infer<typeof organizationProjectSchema>[] | null;
 	tasks?: TTask[] | null;
+	tags?: z.infer<typeof tagZodSchemaType>[] | null;
+	statuses?: z.infer<typeof taskStatusSchema>[] | null;
+	priorities?: z.infer<typeof taskPrioritySchema>[] | null;
+	sizes?: z.infer<typeof taskSizeSchema>[] | null;
+	labels?: z.infer<typeof tagSchema>[] | null;
+	issueTypes?: z.infer<typeof taskIssueTypeSchema>[] | null;
+	versions?: z.infer<typeof taskVersionSchema>[] | null;
+	dailyPlans?: z.infer<typeof dailyPlanSchema>[] | null;
 };
 export type TOrganizationTeamCreate = z.infer<typeof organizationTeamCreateSchema>;
 export type TOrganizationTeamCreateResponse = z.infer<typeof organizationTeamCreateResponseSchema>;

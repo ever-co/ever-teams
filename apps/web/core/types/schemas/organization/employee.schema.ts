@@ -2,15 +2,18 @@ import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
-import { teamSchema } from '../team/team.schema';
 import { relationalUserSchema } from '../user/user.schema';
+import { organizationTeamSchema } from '../team/organization-team.schema';
 
 /**
  * Zod schemas for Employee-related interfaces
  */
 
 const employeeAssociationsSchema = z.object({
-	teams: z.array(teamSchema).optional().nullable(),
+	teams: z
+		.array(z.lazy(() => organizationTeamSchema))
+		.optional()
+		.nullable(),
 	projects: z.array(z.any()).optional().nullable(),
 	timesheets: z.array(z.any()).optional().nullable(),
 	tasks: z.array(z.any()).optional().nullable(),
