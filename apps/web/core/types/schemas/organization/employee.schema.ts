@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ECurrencies } from '../../generics/enums/currency';
 import { taggableSchema, uuIdSchema } from '../common/base.schema';
 import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
-import { relationalUserSchema } from '../user/user.schema';
+import { relationalUserSchema, userSchema } from '../user/user.schema';
 import { organizationTeamSchema } from '../team/organization-team.schema';
 
 /**
@@ -22,6 +22,7 @@ const employeeAssociationsSchema = z.object({
 
 const baseEmployeeSchema = z
 	.object({
+		employeeId: z.string().optional().nullable(),
 		endWork: z.coerce.date().optional(),
 		startedWorkOn: z.coerce.date().optional(),
 		valueDate: z.coerce.date().optional(),
@@ -72,6 +73,8 @@ const baseEmployeeSchema = z
 		isOnline: z.boolean().optional(),
 		isTrackingTime: z.boolean().optional(),
 		isAway: z.boolean().optional(),
+		isManager: z.boolean().optional(),
+		organizationTeamId: z.string().optional().nullable(),
 		// Additional fields from API responses
 		payPeriod: z.any().optional(), // Will be properly typed when pay period schema is created
 		show_start_work_on: z.boolean().nullable().optional(),
@@ -88,7 +91,11 @@ const baseEmployeeSchema = z
 				fullName: z.string(),
 				email: z.string(),
 				phone: z.string().nullable().optional(),
-				avatar: z.string().nullable().optional()
+				avatar: z.string().nullable().optional(),
+				user: z
+					.lazy(() => userSchema)
+					.optional()
+					.nullable()
 			})
 			.passthrough()
 			.optional()

@@ -45,7 +45,7 @@ const TaskEstimationsInfo = () => {
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.125rem]">
-							<DisclosureButton className="flex items-center justify-between w-full">
+							<DisclosureButton className="flex justify-between items-center w-full">
 								<TaskEstimate
 									_task={task}
 									className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white"
@@ -58,7 +58,7 @@ const TaskEstimationsInfo = () => {
 									<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								)}
 							</DisclosureButton>
-							<DisclosurePanel className="space-y-3 py-1">
+							<DisclosurePanel className="py-1 space-y-3">
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
 									{task?.estimations?.map((estimation) => {
 										const member = teamMembers.find(
@@ -75,7 +75,7 @@ const TaskEstimationsInfo = () => {
 													time={
 														<TaskMemberEstimate
 															taskEstimation={estimation}
-															className="not-italic font-medium text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white"
+															className="not-italic font-medium text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white gap-1"
 															wrapperClassName="w-4"
 														/>
 													}
@@ -182,7 +182,7 @@ function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: 
 
 	return (
 		<Card shadow="custom" className="!p-1">
-			<div className="flex gap-4 shadow-md border p-4 items-center rounded-lg">
+			<div className="flex gap-4 items-center p-4 rounded-lg border shadow-md">
 				<div className="w-60">
 					<Select
 						placeholder={'Select member'}
@@ -198,7 +198,7 @@ function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: 
 					/>
 				</div>
 
-				<div className="flex gap-2 rounded px-2 ">
+				<div className="flex gap-2 px-2 rounded">
 					<TaskMemberEstimate onSuccess={onSuccess} taskEstimation={taskEstimation} />
 				</div>
 			</div>

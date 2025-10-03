@@ -151,24 +151,24 @@ export function TaskMemberEstimate({
 				)}
 			/>
 			{showEditAndSaveButton && (
-				<div className="h-full flex items-center justify-center">
+				<div className="flex gap-1 justify-center items-center h-full">
 					{!editTaskEstimationLoading && !addTaskEstimationLoading ? (
 						editableMode ? (
 							<button onClick={handleSave}>
-								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<TickSaveIcon className={clsxm('w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						) : (
 							<button onClick={handleEditMode}>
-								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<EditPenBoxIcon className={clsxm('w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						)
 					) : (
-						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+						<LoadingIcon className={clsxm('w-2 h-2 animate-spin lg:h-4 lg:w-4')} />
 					)}
 				</div>
 			)}
 			{existingEstimation ? (
-				<div className="h-full flex items-center justify-center">
+				<div className="flex justify-center items-center h-full">
 					{!deleteTaskEstimationLoading ? (
 						<button
 							onClick={async (e) => {
@@ -182,7 +182,7 @@ export function TaskMemberEstimate({
 							<TrashIcon className="w-4 h-4 text-red-600" />
 						</button>
 					) : (
-						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+						<LoadingIcon className={clsxm('mx-2 w-2 h-2 animate-spin lg:h-4 lg:w-4')} />
 					)}
 				</div>
 			) : null}
