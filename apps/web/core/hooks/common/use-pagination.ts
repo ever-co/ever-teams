@@ -44,7 +44,7 @@ export function usePagination<T>({ items, defaultItemsPerPage = 5 }: UsePaginati
 		pageCount
 	};
 }
-export function useScrollPagination<T>({
+export function useScrollPagination<T extends { id: string }>({
 	enabled,
 	defaultItemsPerPage = 10,
 	items,
@@ -80,9 +80,9 @@ export function useScrollPagination<T>({
 				hasReferenceChanged &&
 				itemsRef.current.length > 0 &&
 				items.length > 0 &&
-				itemsRef.current.slice(0, Math.min(5, itemsRef.current.length)).some((oldItem: any, index) => {
+				itemsRef.current.slice(0, Math.min(5, itemsRef.current.length)).some((oldItem, index) => {
 					const newItem = items[index];
-					return !newItem || (oldItem as any)?.id !== (newItem as any)?.id;
+					return !newItem || oldItem.id !== newItem.id;
 				});
 
 			const shouldReset = !isInitialized || hasLengthChanged || hasReferenceChanged || hasContentChanged;
