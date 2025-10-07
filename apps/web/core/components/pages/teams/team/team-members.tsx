@@ -60,7 +60,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
 
 	// Simple calculation without useless memoization
-	const isTeamsFetching = teamsFetchin && processedMembers.members.length === 0;
+	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
 
 	return (
 		<TeamMembersView
