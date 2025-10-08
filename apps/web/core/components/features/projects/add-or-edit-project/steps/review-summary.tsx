@@ -120,16 +120,18 @@ export default function FinalReview(props: IStepElementProps) {
 				...newProject
 			});
 
+			console.log(project, finalData.id);
+
 			if (project) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return project.data as TOrganizationProject;
+							return project as TOrganizationProject;
 						}
 						return el;
 					})
 				);
-				finish?.(project.data as TOrganizationProject);
+				finish?.(project as TOrganizationProject);
 			}
 		}
 	};

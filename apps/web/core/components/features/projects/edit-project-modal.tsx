@@ -28,6 +28,8 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
 
+	console.log(organizationProjects, projectId);
+
 	const data = useMemo(() => {
 		const project = organizationProjects.find((project) => project.id === projectId);
 
