@@ -13,7 +13,7 @@ import { IProjectRelation } from '@/core/types/interfaces/project/organization-p
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
-import { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
+import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
 import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
@@ -124,12 +124,12 @@ export default function FinalReview(props: IStepElementProps) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return project as TOrganizationProject;
+							return project;
 						}
 						return el;
 					})
 				);
-				finish?.(project as TOrganizationProject);
+				finish?.(project);
 			}
 		}
 	};
