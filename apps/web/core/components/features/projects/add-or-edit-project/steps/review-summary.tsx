@@ -120,8 +120,6 @@ export default function FinalReview(props: IStepElementProps) {
 				...newProject
 			});
 
-			console.log(project, finalData.id);
-
 			if (project) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
