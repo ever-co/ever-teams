@@ -40,6 +40,8 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 			}
 			const data = await createOrganizationProject({ name });
 
+			console.log(data);
+
 			if (data) {
 				onSuccess?.(data);
 			}
