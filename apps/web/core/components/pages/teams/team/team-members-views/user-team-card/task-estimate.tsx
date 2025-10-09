@@ -48,7 +48,9 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 							closeable_fc={closeFn}
 							onOpenEdition={() => edition.setEstimateEditMode(true)}
 							onCloseEdition={() => edition.setEstimateEditMode(false)}
-							showEditAndSaveButton={memberInfo.isAuthUser || memberInfo.isAuthTeamManager}
+							showEditAndSaveButton={
+								(memberInfo.isAuthUser || memberInfo.isAuthTeamManager) && Boolean(task)
+							}
 						/>
 					</div>
 				)}
