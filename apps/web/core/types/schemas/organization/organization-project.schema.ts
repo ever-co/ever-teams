@@ -90,7 +90,9 @@ export const organizationProjectBaseSchema = z
 		repository: organizationProjectRepositorySchema.optional(),
 		// Image asset fields
 		imageId: z.string().optional().nullable(),
-		image: z.any().optional()
+		image: z.any().optional(),
+		isActive: z.boolean().optional(),
+		isArchived: z.boolean().optional()
 	})
 	.passthrough();
 
