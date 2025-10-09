@@ -323,8 +323,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				project?.name &&
 				project?.name?.trim().length > 0 &&
 				project?.isArchived !== true &&
-				project?.status?.length &&
-				project?.status?.length > 0
+				project?.isActive === true
 			);
 		});
 	}, [organizationProjects]);
