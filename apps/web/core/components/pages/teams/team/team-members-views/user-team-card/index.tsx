@@ -303,6 +303,8 @@ export function UserTeamCard({
 						edition={taskEdition}
 						activeAuthTask={true}
 						className="min-w-52 2xl:w-52 3xl:w-64 max-w-64"
+						useActiveTeamTaskByDefault={false}
+						allowEmptyTask={false}
 					/>
 
 					<VerticalSeparator />
@@ -394,7 +396,13 @@ export function UserTeamCard({
 						/>
 					</div>
 
-					<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						useActiveTeamTaskByDefault={false}
+						allowEmptyTask={false}
+					/>
 				</div>
 
 				{/* EverCard menu */}

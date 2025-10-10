@@ -36,6 +36,8 @@ export default function UserTeamActiveTaskEstimateBlock({
 			showTime={false}
 			className="w-1/5"
 			radial={true}
+			useActiveTeamTaskByDefault={false}
+			allowEmptyTask={false}
 		/>
 	);
 }

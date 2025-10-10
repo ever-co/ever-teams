@@ -143,6 +143,8 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 						showTime={false}
 						className="w-1/5"
 						radial={true}
+						useActiveTeamTaskByDefault={false}
+						allowEmptyTask={false}
 					/>
 				</div>
 			</EverCard>
