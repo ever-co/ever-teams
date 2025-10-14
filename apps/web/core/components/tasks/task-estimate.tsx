@@ -17,6 +17,7 @@ type Props = {
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
 	showEditAndSaveButton?: boolean;
+	useActiveTeamTaskByDefault?: boolean;
 };
 
 export function TaskEstimate({
@@ -27,7 +28,8 @@ export function TaskEstimate({
 	loadingRef,
 	closeable_fc,
 	wrapperClassName,
-	showEditAndSaveButton = true
+	showEditAndSaveButton = true,
+	useActiveTeamTaskByDefault = true
 }: Props) {
 	const {
 		targetEl,
@@ -42,7 +44,7 @@ export function TaskEstimate({
 		updateLoading,
 		editableMode,
 		setEditableMode
-	} = useTaskEstimation(_task);
+	} = useTaskEstimation(_task, useActiveTeamTaskByDefault);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const onOpenEditionRef = useCallbackRef(onOpenEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
