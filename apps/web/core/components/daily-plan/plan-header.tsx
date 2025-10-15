@@ -97,7 +97,9 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 								<TickSaveIcon
 									className="w-5 cursor-pointer"
 									onClick={() => {
-										updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
+										if (plan.workTimePlanned !== time) {
+											updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
+										}
 										setEditTime(false);
 									}}
 								/>
