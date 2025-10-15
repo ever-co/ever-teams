@@ -18,7 +18,7 @@ import { AlertPopup } from '../common/alert-popup';
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
-	const [time, setTime] = useState<number>(0);
+	const [time, setTime] = useState<number>(parseFloat(formatIntegerToHour(plan.workTimePlanned || 0)));
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { updateDailyPlan, updateDailyPlanLoading, deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
@@ -79,9 +79,11 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 						)}
 					</>
 				) : (
-					<div className="flex">
+					<div className="flex !bg-red-600">
 						<input
 							min={0}
+							value={time}
+							defaultValue={parseFloat(formatIntegerToHour(plan.workTimePlanned || 0))}
 							type="number"
 							className={clsxm(
 								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
