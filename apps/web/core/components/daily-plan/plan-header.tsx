@@ -79,7 +79,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 						)}
 					</>
 				) : (
-					<div className="flex !bg-red-600">
+					<div className="flex">
 						<input
 							min={0}
 							value={time}
