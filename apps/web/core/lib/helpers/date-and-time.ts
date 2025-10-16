@@ -326,7 +326,7 @@ export function parseStringInputToHours(input: string): { hours?: number; error?
 
 	// Support decimal format (4.5, 3.25, etc.)
 	const decimal = Number(raw.replace(',', '.'));
-	if (!isNaN(decimal)) {
+	if (!isNaN(decimal) && decimal >= 0) {
 		return { hours: decimal };
 	}
 

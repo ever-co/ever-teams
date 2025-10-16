@@ -126,7 +126,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 					<div className="flex">
 						<input
 							value={inputValue}
-							type="string"
+							type="text"
 							className={clsxm(
 								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
 							)}
