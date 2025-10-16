@@ -41,9 +41,6 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	// Get all tasks's estimations time
 	const estimatedTime = useMemo(() => sumTimes(plan.tasks || [], 'estimate'), [plan.tasks, sumTimes]);
 
-	// Get all tasks's worked time
-	const totalWorkTime = useMemo(() => sumTimes(plan.tasks || [], 'totalWorkedTime'), [plan.tasks, sumTimes]);
-
 	// Get completed tasks
 	const completedTasks = useMemo(
 		() => plan.tasks?.filter((task) => task.status === 'completed')?.length || 0,
@@ -112,7 +109,6 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	const totalWorkedTime = useMemo(() => {
 		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
 	}, []);
-
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
 		<>
