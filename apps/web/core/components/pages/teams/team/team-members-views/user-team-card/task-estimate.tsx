@@ -20,9 +20,19 @@ type Props = IClassName & {
 	showTime?: boolean;
 	radial?: boolean;
 	plan?: TDailyPlan;
+	allowEmptyTask?: boolean;
+	useActiveTeamTaskByDefault?: boolean;
 };
 
-export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, radial = false, ...rest }: Props) {
+export function TaskEstimateInfo({
+	className,
+	activeAuthTask,
+	showTime = true,
+	radial = false,
+	useActiveTeamTaskByDefault = true,
+	allowEmptyTask = true,
+	...rest
+}: Props) {
 	const { memberInfo, edition } = rest;
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
@@ -48,7 +58,10 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 							closeable_fc={closeFn}
 							onOpenEdition={() => edition.setEstimateEditMode(true)}
 							onCloseEdition={() => edition.setEstimateEditMode(false)}
-							showEditAndSaveButton={memberInfo.isAuthUser || memberInfo.isAuthTeamManager}
+							showEditAndSaveButton={
+								allowEmptyTask ? memberInfo.isAuthUser || memberInfo.isAuthTeamManager : Boolean(task)
+							}
+							useActiveTeamTaskByDefault={useActiveTeamTaskByDefault}
 						/>
 					</div>
 				)}

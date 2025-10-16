@@ -1,3 +1,5 @@
+import { DEFAULT_LABEL_COLORS } from '@/core/constants/data/mock-data';
+
 export function getTextColor(bgColor: string) {
 	if (!bgColor) return '#000';
 
@@ -14,4 +16,19 @@ export function getTextColor(bgColor: string) {
 	});
 	const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 	return L > 0.179 ? '#000' : '#cdd1d8';
+}
+
+/**
+ * Generates a consistent color based on label name
+ */
+export function generateDefaultColor(name: string): string {
+	if (!name) return DEFAULT_LABEL_COLORS[DEFAULT_LABEL_COLORS.length - 1];
+
+	// Simple hash function to get consistent color for same name
+	let hash = 0;
+	for (let i = 0; i < name.length; i++) {
+		hash = ((hash << 5) - hash + name.charCodeAt(i)) & 0xffffffff;
+	}
+	const index = Math.abs(hash) % (DEFAULT_LABEL_COLORS.length - 1);
+	return DEFAULT_LABEL_COLORS[index];
 }

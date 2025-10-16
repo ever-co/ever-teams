@@ -65,6 +65,8 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			edition={taskEdition}
 			activeAuthTask={true}
 			className={clsxm('flex flex-col justify-center items-center')}
+			useActiveTeamTaskByDefault={false}
+			allowEmptyTask={false}
 		/>
 	);
 }

@@ -4,7 +4,7 @@ import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
-import { formatIntegerToHour } from '@/core/lib/helpers/index';
+import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
 import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
@@ -15,10 +15,12 @@ import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Button } from '../duplicated-components/_button';
 import { AlertPopup } from '../common/alert-popup';
+import { toast } from 'sonner';
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
-	const [time, setTime] = useState<number>(0);
+	const [time, setTime] = useState<number>(plan.workTimePlanned || 0);
+	const [inputValue, setInputValue] = useState<string>(hoursToHMM(plan.workTimePlanned || 0));
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { updateDailyPlan, updateDailyPlanLoading, deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
@@ -60,6 +62,45 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	const shouldShowDeleteButton = planMode === 'Future Tasks' && canSeeActivity;
 	const layoutClass = shouldShowDeleteButton ? 'justify-between' : 'justify-start';
 
+	const handleSave = useCallback(async () => {
+		if (updateDailyPlanLoading) return;
+
+		try {
+			const { hours, error: parseError } = parseStringInputToHours(inputValue);
+			if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
+				throw new Error(parseError ?? 'Invalid time format, use H:MM or decimal (e.g. 4.5).');
+			}
+
+			if (plan.workTimePlanned === hours) {
+				setInputValue(String(hours));
+				setTime(hours);
+				setEditTime(false);
+				return;
+			}
+			setTime(hours);
+
+			await updateDailyPlan({ workTimePlanned: hours }, plan.id ?? '');
+
+			setEditTime(false);
+			toast.success('Plan updated successfully');
+		} catch (err) {
+			setTime(plan.workTimePlanned ?? 0);
+			setInputValue(hoursToHMM(plan.workTimePlanned ?? 0));
+			setEditTime(false);
+			toast.error(`Failed to update plan. Error: ${err}`);
+		}
+	}, [
+		inputValue,
+		parseStringInputToHours,
+		plan.workTimePlanned,
+		plan.id,
+		updateDailyPlan,
+		updateDailyPlanLoading,
+		setTime,
+		setInputValue,
+		setEditTime
+	]);
+
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
 		<>
@@ -69,36 +110,33 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 					<>
 						<div>
 							<span className="font-medium">{t('dailyPlan.PLANNED_TIME')} : </span>
-							<span className="font-semibold">{formatIntegerToHour(plan.workTimePlanned)}</span>
+							<span className="font-semibold">{formatIntegerToHour(time)}</span>
 						</div>
 						{(!checkPastDate(plan.date) || isTeamManager) && (
 							<EditPenBoxIcon
 								className={clsxm('cursor-pointer lg:h-4 lg:w-4 w-2 h-2', 'dark:stroke-[#B1AEBC]')}
-								onClick={() => setEditTime(true)}
+								onClick={() => {
+									setInputValue(hoursToHMM(time));
+									setEditTime(true);
+								}}
 							/>
 						)}
 					</>
 				) : (
 					<div className="flex">
 						<input
-							min={0}
-							type="number"
+							value={inputValue}
+							type="text"
 							className={clsxm(
 								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
 							)}
-							onChange={(e) => setTime(parseFloat(e.target.value))}
+							onChange={(e) => setInputValue(e.target.value)}
 						/>
 						<span>
 							{updateDailyPlanLoading ? (
 								<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 							) : (
-								<TickSaveIcon
-									className="w-5 cursor-pointer"
-									onClick={() => {
-										updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
-										setEditTime(false);
-									}}
-								/>
+								<TickSaveIcon className="w-5 cursor-pointer" onClick={handleSave} />
 							)}
 						</span>
 					</div>
@@ -167,13 +205,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	return (
 		<div className={`flex gap-5 items-center mb-5 ${layoutClass}`}>
 			{/* Main content - conditionally wrapped for Future Tasks */}
-			{shouldShowDeleteButton ? (
-				<div className="flex gap-5 items-center">
-					<MainContent />
-				</div>
-			) : (
-				<MainContent />
-			)}
+			{shouldShowDeleteButton ? <div className="flex gap-5 items-center">{MainContent()}</div> : MainContent()}
 
 			{/* Delete Plan Button - Only for Future Tasks */}
 			{shouldShowDeleteButton && (

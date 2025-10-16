@@ -16,7 +16,10 @@ export default function UserTeamActiveTaskEstimate({
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(member.activeTaskId || '')
+		if (!member.activeTaskId) {
+			return;
+		}
+		getTaskById(member.activeTaskId)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 
@@ -29,6 +32,8 @@ export default function UserTeamActiveTaskEstimate({
 			edition={taskEdition}
 			activeAuthTask={true}
 			className={cn('w-1/5 lg:px-3 2xl:w-52 3xl:w-64', className)}
+			useActiveTeamTaskByDefault={false}
+			allowEmptyTask={false}
 		/>
 	);
 }

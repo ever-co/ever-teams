@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { basePerTenantEntityModelSchema } from './base.schema';
 import { organizationSchema } from '../organization/organization.schema';
 
-export const basePerTenantAndOrganizationEntityModelSchema = z
+export const basePerTenantAndOrganizationEntitySchema = z
 	.object({
 		organizationId: z.string().optional(),
 		organization: organizationSchema.optional().nullable()

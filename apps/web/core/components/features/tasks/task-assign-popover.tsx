@@ -58,7 +58,7 @@ export function TaskUnOrAssignPopover({
 						? `${t('common.ASSIGN_TASK_TO')} ${userProfile?.employee.user?.name}`
 						: ''
 				}
-				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[70vw] h-[70vh] justify-start"
+				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[70vw] h-[70vh] min-h-[640px] justify-start overflow-y-hidden"
 				titleClass="font-normal"
 			>
 				<TaskInput

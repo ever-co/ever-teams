@@ -21,7 +21,13 @@
 		"jsEngine": "hermes",
 		"assetBundlePatterns": ["**/*"],
 		"plugins": [
-			"sentry-expo",
+			[
+				"@sentry/react-native/expo",
+				{
+					"organization": "ever-co",
+					"project": "ever-teams-mobile"
+				}
+			],
 			[
 				"expo-media-library",
 				{
@@ -87,7 +93,7 @@
 				"backgroundColor": "#ffffff"
 			},
 			"infoPlist": {
-				"NSCameraUsageDescription": "This app uses the camera to take photos to share with your team.",
+				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
 				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
 				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
 			},
@@ -108,6 +114,6 @@
 				"projectId": "2ff924e4-7a91-4b23-9db9-7453a8063bb0"
 			}
 		},
-		"runtimeVersion": "exposdk:52.0.0"
+		"runtimeVersion": "exposdk:53.0.0"
 	}
 }

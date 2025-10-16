@@ -17,6 +17,7 @@ type Props = {
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
 	showEditAndSaveButton?: boolean;
+	useActiveTeamTaskByDefault?: boolean;
 };
 
 export function TaskEstimate({
@@ -27,7 +28,8 @@ export function TaskEstimate({
 	loadingRef,
 	closeable_fc,
 	wrapperClassName,
-	showEditAndSaveButton = true
+	showEditAndSaveButton = true,
+	useActiveTeamTaskByDefault = true
 }: Props) {
 	const {
 		targetEl,
@@ -42,7 +44,7 @@ export function TaskEstimate({
 		updateLoading,
 		editableMode,
 		setEditableMode
-	} = useTaskEstimation(_task);
+	} = useTaskEstimation(_task, useActiveTeamTaskByDefault);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const onOpenEditionRef = useCallbackRef(onOpenEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
@@ -131,7 +133,7 @@ export function TaskEstimate({
 				)}
 			/>
 			{showEditAndSaveButton && (
-				<div className="h-full flex items-center justify-center">
+				<div className="flex gap-1 justify-center items-center h-full">
 					{!updateLoading ? (
 						editableMode ? (
 							<button
@@ -141,7 +143,7 @@ export function TaskEstimate({
 									setEditableMode(false);
 								}}
 							>
-								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<TickSaveIcon className={clsxm('w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						) : (
 							<button
@@ -150,11 +152,11 @@ export function TaskEstimate({
 									setEditableMode(true);
 								}}
 							>
-								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+								<EditPenBoxIcon className={clsxm('mx-2 w-2 h-2 lg:h-4 lg:w-4')} />
 							</button>
 						)
 					) : (
-						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+						<LoadingIcon className={clsxm('mx-2 w-2 h-2 animate-spin lg:h-4 lg:w-4')} />
 					)}
 				</div>
 			)}

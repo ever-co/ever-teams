@@ -12,7 +12,7 @@
 import './i18n';
 import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -27,6 +27,9 @@ import { observer } from 'mobx-react-lite';
 import { initCrashReporting } from './utils/crash-reporting';
 import FlashMessage from 'react-native-flash-message';
 import { ClickOutsideProvider } from 'react-native-click-outside';
+
+// Initialize Sentry before any component renders
+initCrashReporting();
 
 // Set up Reactotron, which is a free desktop app for inspecting and debugging
 // React Native apps. Learn more here: https://github.com/infinitered/reactotron
@@ -63,9 +66,7 @@ const App = observer((props: AppProps) => {
 		authenticationStore: { isDarkMode }
 	} = useStores();
 
-	useEffect(() => {
-		initCrashReporting(); // To initialize Sentry.io
-	}, []);
+	// Sentry initialization moved to module level (top of file)
 
 	const [areFontsLoaded] = useFonts(customFontsToLoad);
 

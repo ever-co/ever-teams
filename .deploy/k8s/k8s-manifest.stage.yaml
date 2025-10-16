@@ -3,23 +3,40 @@ kind: Service
 apiVersion: v1
 metadata:
     name: ever-teams-state-lb
-    annotations:
-        service.beta.kubernetes.io/do-loadbalancer-name: 'stage.ever.team'
-        service.beta.kubernetes.io/do-loadbalancer-protocol: 'http2'
-        service.beta.kubernetes.io/do-loadbalancer-http2-ports: '443'
-        # Replace with your Certificate Id. You can get a list of Ids with 'doctl compute certificate list'
-        service.beta.kubernetes.io/do-loadbalancer-certificate-id: '0c4085c5-9692-4320-86f3-34f52b775a88'
-        service.beta.kubernetes.io/do-loadbalancer-size-slug: 'lb-small'
-        service.beta.kubernetes.io/do-loadbalancer-hostname: 'stage.ever.team'
 spec:
-    type: LoadBalancer
+    type: ClusterIP
     selector:
         app: ever-teams-stage-webapp
     ports:
         - name: http
           protocol: TCP
-          port: 443
+          port: 80
           targetPort: 3030
+
+---
+kind: Ingress
+metadata:
+    name: ever-teams-state-lb-ingress
+    namespace: default
+    annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+spec:
+    ingressClassName: nginx
+    rules:
+        - host: stage.ever.team
+          http:
+              paths:
+                  - backend:
+                        service:
+                            name: ever-teams-state-lb
+                            port:
+                                number: 80
+                    path: /
+                    pathType: Prefix
+    tls:
+        - hosts:
+              - stage.ever.team
+          secretName: stage.ever.team-tls
 
 ---
 kind: Deployment

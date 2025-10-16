@@ -22,12 +22,13 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
 import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTag, TTask } from '@/core/types/schemas/task/task.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { X } from 'lucide-react';
 import { getTextColor } from '@/core/lib/helpers/colors';
+import { TTag } from '@/core/types/schemas/tag/tag.schema';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -361,6 +362,11 @@ function TaskCard({
 			}, 10);
 		}
 	}, [datas.editMode]);
+
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 	const { loadTaskStatuses } = useTaskStatus();
 	const taskPriorities = useAtomValue(taskPrioritiesListState);
 	const taskSizes = useAtomValue(taskSizesListState);
@@ -479,7 +485,7 @@ function TaskCard({
 				) : (
 					<div className="flex gap-1 items-center">
 						<div className="w-4 h-4 rounded-full border"></div>
-						<p className="text-xs font-light  text-slate-500">{t('pages.taskDetails.LABELS')}</p>
+						<p className="text-xs font-light text-slate-500">{t('pages.taskDetails.LABELS')}</p>
 					</div>
 				)}
 			</div>
@@ -554,7 +560,12 @@ function TaskCard({
 						>
 							<Button
 								variant="outline"
-								disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
+								disabled={
+									!datas.hasCreateForm ||
+									datas.createLoading ||
+									!datas.user?.isEmailVerified ||
+									timerRunningStatus
+								}
 								loading={datas.createLoading}
 								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[230px] inline-flex"
 								onClick={() => {

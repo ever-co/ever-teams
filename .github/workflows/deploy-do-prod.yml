@@ -2,7 +2,7 @@ name: Deploy to DigitalOcean Prod
 
 on:
   workflow_run:
-    workflows: ['Build and Publish Docker Images Prod']
+    workflows: ["Build and Publish Docker Images Prod"]
     branches: [main]
     types:
       - completed
@@ -28,44 +28,51 @@ jobs:
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 k8s-gauzy
 
+      - name: Generate TLS Secrets
+        run: |
+          rm -f ${HOME}/ingress.webapp.crt ${HOME}/ingress.webapp.key
+          echo "${{ secrets.INGRESS_CERT }}" | base64 --decode > ${HOME}/ingress.webapp.crt
+          echo "${{ secrets.INGRESS_CERT_KEY }}" | base64 --decode > ${HOME}/ingress.webapp.key
+          kubectl create secret tls app.ever.team-tls --save-config --dry-run=client --cert=${HOME}/ingress.webapp.crt --key=${HOME}/ingress.webapp.key -o yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
+
       - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
         run: |
           envsubst < $GITHUB_WORKSPACE/.deploy/k8s/k8s-manifest.prod.yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
         env:
           # below we are using GitHub secrets for both frontend and backend
-          CLOUD_PROVIDER: 'DO'
-          NEXT_PUBLIC_SENTRY_DNS: '${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}'
-          SENTRY_DSN: '${{ secrets.SENTRY_DSN }}'
-          NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: '${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}'
-          NEXT_PUBLIC_JITSU_BROWSER_URL: '${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}'
-          SENTRY_AUTH_TOKEN: '${{ secrets.SENTRY_AUTH_TOKEN }}'
-          NEXT_PUBLIC_CHATWOOT_API_KEY: '${{ secrets.NEXT_PUBLIC_CHATWOOT_API_KEY }}'
-          NEXT_PUBLIC_SENTRY_DEBUG: '${{ secrets.NEXT_PUBLIC_SENTRY_DEBUG }}'
-          SENTRY_PROJECT: '${{ secrets.SENTRY_PROJECT }}'
-          SENTRY_ORG: '${{ secrets.SENTRY_ORG }}'
-          SMTP_FROM_ADDRESS: '${{ secrets.SMTP_FROM_ADDRESS }}'
-          JITSU_SERVER_WRITE_KEY: '${{ secrets.JITSU_SERVER_WRITE_KEY }}'
-          JITSU_SERVER_URL: '${{ secrets.JITSU_SERVER_URL }}'
-          NEXT_PUBLIC_COOKIE_DOMAINS: '${{ secrets.NEXT_PUBLIC_COOKIE_DOMAINS }}'
-          NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: '${{ secrets.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG }}'
-          NEXT_PUBLIC_BOARD_BACKEND_POST_URL: '${{ secrets.NEXT_PUBLIC_BOARD_BACKEND_POST_URL }}'
-          NEXT_PUBLIC_BOARD_APP_DOMAIN: '${{ secrets.NEXT_PUBLIC_BOARD_APP_DOMAIN }}'
-          MEET_JWT_APP_SECRET: '${{ secrets.MEET_JWT_APP_SECRET }}'
-          MEET_JWT_APP_ID: '${{ secrets.MEET_JWT_APP_ID }}'
-          NEXT_PUBLIC_MEET_DOMAIN: '${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}'
-          GAUZY_API_SERVER_URL: '${{ secrets.GAUZY_API_SERVER_URL }}'
-          NEXT_PUBLIC_GAUZY_API_SERVER_URL: '${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}'
-          MAILCHIMP_LIST_ID: '${{ secrets.MAILCHIMP_LIST_ID }}'
-          MAILCHIMP_API_KEY: '${{ secrets.MAILCHIMP_API_KEY }}'
-          POSTMARK_SERVER_API_TOKEN: '${{ secrets.POSTMARK_SERVER_API_TOKEN }}'
-          NEXT_PUBLIC_GA_MEASUREMENT_ID: '${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}'
-          SMTP_HOST: '${{ secrets.SMTP_HOST }}'
-          SMTP_SECURE: '${{ secrets.SMTP_SECURE }}'
-          SMTP_USERNAME: '${{ secrets.SMTP_USERNAME }}'
-          SMTP_PASSWORD: '${{ secrets.SMTP_PASSWORD }}'
-          CAPTCHA_SECRET_KEY: '${{ secrets.CAPTCHA_SECRET_KEY }}'
-          NEXT_PUBLIC_CAPTCHA_SITE_KEY: '${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}'
-          AUTH_SECRET: '${{ secrets.AUTH_SECRET }}'
+          CLOUD_PROVIDER: "DO"
+          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+          SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
+          NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}"
+          NEXT_PUBLIC_JITSU_BROWSER_URL: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}"
+          SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
+          NEXT_PUBLIC_CHATWOOT_API_KEY: "${{ secrets.NEXT_PUBLIC_CHATWOOT_API_KEY }}"
+          NEXT_PUBLIC_SENTRY_DEBUG: "${{ secrets.NEXT_PUBLIC_SENTRY_DEBUG }}"
+          SENTRY_PROJECT: "${{ secrets.SENTRY_PROJECT }}"
+          SENTRY_ORG: "${{ secrets.SENTRY_ORG }}"
+          SMTP_FROM_ADDRESS: "${{ secrets.SMTP_FROM_ADDRESS }}"
+          JITSU_SERVER_WRITE_KEY: "${{ secrets.JITSU_SERVER_WRITE_KEY }}"
+          JITSU_SERVER_URL: "${{ secrets.JITSU_SERVER_URL }}"
+          NEXT_PUBLIC_COOKIE_DOMAINS: "${{ secrets.NEXT_PUBLIC_COOKIE_DOMAINS }}"
+          NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: "${{ secrets.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG }}"
+          NEXT_PUBLIC_BOARD_BACKEND_POST_URL: "${{ secrets.NEXT_PUBLIC_BOARD_BACKEND_POST_URL }}"
+          NEXT_PUBLIC_BOARD_APP_DOMAIN: "${{ secrets.NEXT_PUBLIC_BOARD_APP_DOMAIN }}"
+          MEET_JWT_APP_SECRET: "${{ secrets.MEET_JWT_APP_SECRET }}"
+          MEET_JWT_APP_ID: "${{ secrets.MEET_JWT_APP_ID }}"
+          NEXT_PUBLIC_MEET_DOMAIN: "${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}"
+          GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
+          MAILCHIMP_LIST_ID: "${{ secrets.MAILCHIMP_LIST_ID }}"
+          MAILCHIMP_API_KEY: "${{ secrets.MAILCHIMP_API_KEY }}"
+          POSTMARK_SERVER_API_TOKEN: "${{ secrets.POSTMARK_SERVER_API_TOKEN }}"
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: "${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}"
+          SMTP_HOST: "${{ secrets.SMTP_HOST }}"
+          SMTP_SECURE: "${{ secrets.SMTP_SECURE }}"
+          SMTP_USERNAME: "${{ secrets.SMTP_USERNAME }}"
+          SMTP_PASSWORD: "${{ secrets.SMTP_PASSWORD }}"
+          CAPTCHA_SECRET_KEY: "${{ secrets.CAPTCHA_SECRET_KEY }}"
+          NEXT_PUBLIC_CAPTCHA_SITE_KEY: "${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}"
+          AUTH_SECRET: "${{ secrets.AUTH_SECRET }}"
 
       # we need this step because for now we just use :latest tag
       # note: for production we will use different strategy later
