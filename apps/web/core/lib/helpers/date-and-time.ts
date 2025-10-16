@@ -332,3 +332,15 @@ export function parseStringInputToHours(input: string): { hours?: number; error?
 
 	return { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).' };
 }
+
+export function hoursToHMM(hours: number): string {
+	if (!Number.isFinite(hours) || hours <= 0) return '0:00';
+	const h = Math.floor(hours);
+	// round minutes to nearest integer to avoid repeating decimals
+	let m = Math.round((hours - h) * 60);
+	// handle roll-over where rounding produces 60 minutes
+	if (m === 60) {
+		return `${h + 1}:00`;
+	}
+	return `${h}:${m.toString().padStart(2, '0')}`;
+}

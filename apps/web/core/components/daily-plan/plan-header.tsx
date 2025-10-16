@@ -4,7 +4,7 @@ import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { formatIntegerToHour, parseStringInputToHours } from '@/core/lib/helpers/index';
+import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
 import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
@@ -119,7 +119,10 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 						{(!checkPastDate(plan.date) || isTeamManager) && (
 							<EditPenBoxIcon
 								className={clsxm('cursor-pointer lg:h-4 lg:w-4 w-2 h-2', 'dark:stroke-[#B1AEBC]')}
-								onClick={() => setEditTime(true)}
+								onClick={() => {
+									setInputValue(hoursToHMM(time));
+									setEditTime(true);
+								}}
 							/>
 						)}
 					</>
