@@ -2,7 +2,7 @@
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { formatIntegerToHour } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
@@ -19,6 +19,7 @@ import { AlertPopup } from '../common/alert-popup';
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(plan.workTimePlanned || 0);
+	const [inputValue, setInputValue] = useState<string>(String(plan.workTimePlanned || ''));
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { updateDailyPlan, updateDailyPlanLoading, deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
@@ -59,6 +60,11 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	// Smart layout: use justify-between only when delete button is present
 	const shouldShowDeleteButton = planMode === 'Future Tasks' && canSeeActivity;
 	const layoutClass = shouldShowDeleteButton ? 'justify-between' : 'justify-start';
+
+	useEffect(() => {
+		setTime(plan.workTimePlanned || 0);
+		setInputValue(String(plan.workTimePlanned || ''));
+	}, [plan.workTimePlanned]);
 
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
