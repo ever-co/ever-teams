@@ -4,7 +4,7 @@ import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { formatIntegerToHour } from '@/core/lib/helpers/index';
+import { formatIntegerToHour, parseStringInputToHours } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
 import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
@@ -66,6 +66,45 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		setInputValue(String(plan.workTimePlanned || ''));
 	}, [plan.workTimePlanned]);
 
+	const handleSave = useCallback(async () => {
+		if (updateDailyPlanLoading) return;
+
+		const { hours, error: parseError } = parseStringInputToHours(inputValue);
+		if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
+			return console.error('Invalid input');
+		}
+
+		if (plan.workTimePlanned === hours) {
+			setInputValue(String(hours));
+			setTime(hours);
+			setEditTime(false);
+			return;
+		}
+
+		try {
+			setTime(hours);
+
+			await updateDailyPlan({ workTimePlanned: hours }, plan.id ?? '');
+
+			setEditTime(false);
+		} catch (err) {
+			setTime(plan.workTimePlanned ?? 0);
+			setInputValue(String(plan.workTimePlanned ?? ''));
+
+			console.error('updateDailyPlan error', err);
+		}
+	}, [
+		inputValue,
+		parseStringInputToHours,
+		plan.workTimePlanned,
+		plan.id,
+		updateDailyPlan,
+		updateDailyPlanLoading,
+		setTime,
+		setInputValue,
+		setEditTime
+	]);
+
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
 		<>
@@ -75,7 +114,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 					<>
 						<div>
 							<span className="font-medium">{t('dailyPlan.PLANNED_TIME')} : </span>
-							<span className="font-semibold">{formatIntegerToHour(plan.workTimePlanned)}</span>
+							<span className="font-semibold">{formatIntegerToHour(time)}</span>
 						</div>
 						{(!checkPastDate(plan.date) || isTeamManager) && (
 							<EditPenBoxIcon
@@ -87,27 +126,18 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 				) : (
 					<div className="flex">
 						<input
-							min={0}
-							value={time}
-							type="number"
+							value={inputValue}
+							type="string"
 							className={clsxm(
 								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
 							)}
-							onChange={(e) => setTime(Number(e.target.value))}
+							onChange={(e) => setInputValue(e.target.value)}
 						/>
 						<span>
 							{updateDailyPlanLoading ? (
 								<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 							) : (
-								<TickSaveIcon
-									className="w-5 cursor-pointer"
-									onClick={() => {
-										if (plan.workTimePlanned !== time) {
-											updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
-										}
-										setEditTime(false);
-									}}
-								/>
+								<TickSaveIcon className="w-5 cursor-pointer" onClick={handleSave} />
 							)}
 						</span>
 					</div>

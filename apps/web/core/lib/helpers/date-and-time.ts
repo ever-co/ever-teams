@@ -310,3 +310,25 @@ export const formatDuration = (seconds: number): string => {
  * @returns the default time zone
  */
 export const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function parseStringInputToHours(input: string): { hours?: number; error?: string } {
+	const raw = input.trim();
+	if (!raw) return { hours: 0 };
+
+	// Support H:MM format
+	const colonMatch = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+	if (colonMatch) {
+		const h = Number(colonMatch[1]);
+		const m = Number(colonMatch[2]);
+		if (m >= 60) return { error: 'Minutes must be < 60' };
+		return { hours: h + m / 60 };
+	}
+
+	// Support decimal format (4.5, 3.25, etc.)
+	const decimal = Number(raw.replace(',', '.'));
+	if (!isNaN(decimal)) {
+		return { hours: decimal };
+	}
+
+	return { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).' };
+}
