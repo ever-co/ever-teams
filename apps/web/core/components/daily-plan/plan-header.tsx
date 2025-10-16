@@ -2,7 +2,7 @@
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
 import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
@@ -15,11 +15,12 @@ import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Button } from '../duplicated-components/_button';
 import { AlertPopup } from '../common/alert-popup';
+import { toast } from 'sonner';
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(plan.workTimePlanned || 0);
-	const [inputValue, setInputValue] = useState<string>(String(plan.workTimePlanned || ''));
+	const [inputValue, setInputValue] = useState<string>(hoursToHMM(plan.workTimePlanned || 0));
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { updateDailyPlan, updateDailyPlanLoading, deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
@@ -61,37 +62,32 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	const shouldShowDeleteButton = planMode === 'Future Tasks' && canSeeActivity;
 	const layoutClass = shouldShowDeleteButton ? 'justify-between' : 'justify-start';
 
-	useEffect(() => {
-		setTime(plan.workTimePlanned || 0);
-		setInputValue(String(plan.workTimePlanned || ''));
-	}, [plan.workTimePlanned]);
-
 	const handleSave = useCallback(async () => {
 		if (updateDailyPlanLoading) return;
 
-		const { hours, error: parseError } = parseStringInputToHours(inputValue);
-		if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
-			return console.error('Invalid input');
-		}
-
-		if (plan.workTimePlanned === hours) {
-			setInputValue(String(hours));
-			setTime(hours);
-			setEditTime(false);
-			return;
-		}
-
 		try {
+			const { hours, error: parseError } = parseStringInputToHours(inputValue);
+			if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
+				throw new Error(parseError ?? 'Invalid time format, use H:MM or decimal (e.g. 4.5).');
+			}
+
+			if (plan.workTimePlanned === hours) {
+				setInputValue(String(hours));
+				setTime(hours);
+				setEditTime(false);
+				return;
+			}
 			setTime(hours);
 
 			await updateDailyPlan({ workTimePlanned: hours }, plan.id ?? '');
 
 			setEditTime(false);
+			toast.success('Plan updated successfully');
 		} catch (err) {
 			setTime(plan.workTimePlanned ?? 0);
-			setInputValue(String(plan.workTimePlanned ?? ''));
-
-			console.error('updateDailyPlan error', err);
+			setInputValue(hoursToHMM(plan.workTimePlanned ?? 0));
+			setEditTime(false);
+			toast.error(`Failed to update plan. Error: ${err}`);
 		}
 	}, [
 		inputValue,
