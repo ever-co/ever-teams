@@ -1,7 +1,7 @@
 import UserTeamCard from './users-teams-card/user-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
 export default function TeamsMembersCardView({ teams }: { teams: TOrganizationTeam[] }) {
 	return (

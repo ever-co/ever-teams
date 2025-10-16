@@ -310,3 +310,37 @@ export const formatDuration = (seconds: number): string => {
  * @returns the default time zone
  */
 export const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function parseStringInputToHours(input: string): { hours?: number; error?: string } {
+	const raw = input.trim();
+	if (!raw) return { hours: 0 };
+
+	// Support H:MM format
+	const colonMatch = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+	if (colonMatch) {
+		const h = Number(colonMatch[1]);
+		const m = Number(colonMatch[2]);
+		if (m >= 60) return { error: 'Minutes must be < 60' };
+		return { hours: h + m / 60 };
+	}
+
+	// Support decimal format (4.5, 3.25, etc.)
+	const decimal = Number(raw.replace(',', '.'));
+	if (!isNaN(decimal) && decimal >= 0) {
+		return { hours: decimal };
+	}
+
+	return { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).' };
+}
+
+export function hoursToHMM(hours: number): string {
+	if (!Number.isFinite(hours) || hours <= 0) return '0:00';
+	const h = Math.floor(hours);
+	// round minutes to nearest integer to avoid repeating decimals
+	let m = Math.round((hours - h) * 60);
+	// handle roll-over where rounding produces 60 minutes
+	if (m === 60) {
+		return `${h + 1}:00`;
+	}
+	return `${h}:${m.toString().padStart(2, '0')}`;
+}

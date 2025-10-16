@@ -27,7 +27,7 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
-import { TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { useTeamsState } from './use-teams-state';
 import { useCreateOrganizationTeam } from './use-create-organization-team';
@@ -177,7 +177,7 @@ export function useOrganizationTeams() {
 	// ===== React Query mutations for complex operations =====
 	// editOrganizationTeam - React Query implementation
 	const editOrganizationTeamMutation = useMutation({
-		mutationFn: (data: Partial<TOrganizationTeam>) => {
+		mutationFn: (data: Partial<TOrganizationTeamUpdate>) => {
 			return organizationTeamService.editOrganizationTeam(data);
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.edit(null),
@@ -536,7 +536,7 @@ export function useOrganizationTeams() {
 
 	// editOrganizationTeam - React Query implementation
 	const editOrganizationTeam = useCallback(
-		(data: Partial<TOrganizationTeam>) => {
+		(data: Partial<TOrganizationTeamUpdate>) => {
 			// Use React Query mutation with Promise interface preserved
 			return editOrganizationTeamMutation.mutateAsync(data);
 		},

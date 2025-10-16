@@ -7,7 +7,7 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import TeamsMembersCardView from './all-teams-members-card-view';
 import AllTeamsMembersBlockView from './all-teams-members-block-view';
-import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
 export default function AllTeamsMembers({
 	teams,

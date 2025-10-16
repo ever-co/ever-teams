@@ -18,7 +18,7 @@ import { IAuthResponse, IRegisterDataRequest } from '@/core/types/interfaces/aut
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 
-import { TOrganizationTeam, TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
+import { TOrganizationTeamCreateResponse, TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
 
 class RegisterService extends APIService {
@@ -155,7 +155,7 @@ class RegisterService extends APIService {
 
 		const response: AxiosResponse<{
 			loginRes: IAuthResponse;
-			team: TOrganizationTeam;
+			team: TOrganizationTeamCreateResponse;
 			employee: TOrganizationTeamEmployee;
 		}> = {
 			data: { loginRes, team, employee },

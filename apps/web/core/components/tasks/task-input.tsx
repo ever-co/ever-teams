@@ -615,13 +615,13 @@ function TaskCard({
 			<EverCard
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4 overflow-hidden',
+					'rounded-xl md:px-4 md:py-4',
 					!cardWithoutShadow && ['shadow-xl card'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
-					fullHeight ? 'h-full' : 'max-h-96'
+					fullHeight && 'h-full'
 				)}
 			>
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-3">
 					<>
 						{inputField}
 						{datas.hasCreateForm && (
@@ -718,7 +718,7 @@ function TaskCard({
 						</Tooltip>
 					</>
 					{/* Task filter buttons  */}
-					<div className="flex mt-4 space-x-3">
+					<div className="flex space-x-3">
 						<OutlineBadge
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('open')}
@@ -749,9 +749,9 @@ function TaskCard({
 					</div>
 				</div>
 
-				<Divider className="mt-4" />
+				<Divider className="my-4" />
 				{/* Task list */}
-				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-56'}>
+				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-60'}>
 					{forParentChildRelationship && (
 						<LazyRender items={data || []}>
 							{(task, i) => {

@@ -4,7 +4,7 @@ import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
-import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
+import { TEmployee, validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 
 /**
  * Enhanced Task Service with Zod validation
@@ -13,6 +13,33 @@ import { validateApiResponse, validatePaginationResponse, ZodValidationError } f
  * for all API responses, ensuring data integrity and type safety.
  */
 class TaskService extends APIService {
+	get baseRelations() {
+		return [
+			'tags',
+			'teams',
+			'members',
+			'members.user',
+			'createdByUser',
+			'linkedIssues',
+			'linkedIssues.taskTo',
+			'linkedIssues.taskFrom',
+			'parent',
+			'children',
+			'estimations'
+		];
+	}
+
+	get baseQueries() {
+		return {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'join[alias]': 'task',
+			'join[leftJoinAndSelect][members]': 'task.members',
+			'join[leftJoinAndSelect][user]': 'members.user',
+			'join[leftJoinAndSelect][estimations]': 'task.estimations',
+			...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
+		};
+	}
 	/**
 	 * Fetches a single task by its ID with validation
 	 *
@@ -22,36 +49,7 @@ class TaskService extends APIService {
 	 */
 	getTaskById = async (taskId: string): Promise<TTask> => {
 		try {
-			const organizationId = this.organizationId;
-			const tenantId = this.tenantId;
-
-			const relations = [
-				'tags',
-				'teams',
-				'members',
-				'members.user',
-				'createdByUser',
-				'linkedIssues',
-				'linkedIssues.taskTo',
-				'linkedIssues.taskFrom',
-				'parent',
-				'children'
-			];
-
-			const obj = {
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId,
-				'join[alias]': 'task',
-				'join[leftJoinAndSelect][members]': 'task.members',
-				'join[leftJoinAndSelect][user]': 'members.user',
-				includeRootEpic: 'true'
-			} as Record<string, string>;
-
-			relations.forEach((rl, i) => {
-				obj[`relations[${i}]`] = rl;
-			});
-
-			const query = qs.stringify(obj);
+			const query = qs.stringify({ ...this.baseQueries, includeRootEpic: 'true' });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
@@ -84,34 +82,11 @@ class TaskService extends APIService {
 	 */
 	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
 		try {
-			const relations = [
-				'tags',
-				'teams',
-				'members',
-				'members.user',
-				'createdByUser',
-				'linkedIssues',
-				'linkedIssues.taskTo',
-				'linkedIssues.taskFrom',
-				'parent',
-				'children'
-			];
-
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
+			const query = qs.stringify({
+				...this.baseQueries,
 				'where[projectId]': projectId,
-				'join[alias]': 'task',
-				'join[leftJoinAndSelect][members]': 'task.members',
-				'join[leftJoinAndSelect][user]': 'members.user',
 				'where[teams][0]': this.activeTeamId
-			} as Record<string, string>;
-
-			relations.forEach((rl, i) => {
-				obj[`relations[${i}]`] = rl;
 			});
-
-			const query = qs.stringify(obj);
 			const endpoint = `/tasks/team?${query}`;
 
 			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
@@ -167,6 +142,62 @@ class TaskService extends APIService {
 	};
 
 	/**
+	 * Determines the type of member based on its structure
+	 */
+	private getMemberType(member: TEmployee): 'DirectEmployee' | 'OrganizationTeamEmployee' {
+		return member?.employeeId ? 'OrganizationTeamEmployee' : 'DirectEmployee';
+	}
+
+	/**
+	 * Normalizes a DirectEmployee member structure
+	 */
+	private normalizeDirectEmployee(member: TEmployee, index: number): TEmployee | null {
+		const userId = member?.userId || member?.user?.id;
+		if (!userId) {
+			console.warn(`❌ Direct Employee at index ${index} has no userId - filtering out`);
+			return null;
+		}
+		return member;
+	}
+
+	/**
+	 * Normalizes an OrganizationTeamEmployee member to userId-based structure
+	 */
+	private normalizeOrganizationTeamEmployee(member: TEmployee, index: number): TEmployee | null {
+		const userId = member?.employee?.user?.id;
+		if (!userId) {
+			console.warn(`❌ OrganizationTeamEmployee at index ${index} has no user.id - filtering out`);
+			return null;
+		}
+
+		return {
+			...member?.employee,
+			userId,
+			user: member?.employee?.user,
+			// Preserve OrganizationTeamEmployee properties
+			organizationTeamId: member?.organizationTeamId,
+			isManager: member?.isManager,
+			isTrackingEnabled: member?.isTrackingEnabled
+		} as TEmployee;
+	}
+
+	/**
+	 * Normalizes task members to ensure consistent userId-based structure
+	 */
+	private normalizeTaskMembers(members: TEmployee[]): TEmployee[] {
+		if (!members?.length) return [];
+
+		return members
+			.map((member, index) => {
+				const memberType = this.getMemberType(member);
+
+				return memberType === 'DirectEmployee'
+					? this.normalizeDirectEmployee(member, index)
+					: this.normalizeOrganizationTeamEmployee(member, index);
+			})
+			.filter(Boolean) as TEmployee[];
+	}
+	/**
 	 * Updates an existing task with validation
 	 *
 	 * @param {string} taskId - Task identifier
@@ -174,15 +205,22 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Updated tasks list or single task response
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
+
 	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
 		try {
-			// Validate input data before sending (partial validation)
+			// Normalize member structures to prevent FK constraint violations
+			const cleanedData: Partial<TTask> = { ...data };
+
+			if ('members' in data) {
+				cleanedData.members = this.normalizeTaskMembers(data.members ?? []);
+			}
+
+			// Validate input data before sending (partial validation) Now safe to validate since we normalized the member structures
 			const validatedInput = validateApiResponse(
 				taskSchema.partial(),
-				data,
+				cleanedData,
 				'updateTask input data'
 			) as Partial<TTask>;
-
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				const nBody = { ...validatedInput };
 				delete nBody.selectedTeam;
@@ -327,7 +365,7 @@ class TaskService extends APIService {
 			const response = await this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`);
 
 			// Validate the response data using Zod schema
-			return response.data.map((task: any) =>
+			return response.data.map((task) =>
 				validateApiResponse(taskSchema, task, 'getTasksByEmployeeId API response')
 			);
 		} catch (error) {

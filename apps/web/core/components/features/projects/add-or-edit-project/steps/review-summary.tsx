@@ -13,7 +13,7 @@ import { IProjectRelation } from '@/core/types/interfaces/project/organization-p
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { EProjectBilling } from '@/core/types/generics/enums/project';
-import { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
+import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
 import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
@@ -124,12 +124,12 @@ export default function FinalReview(props: IStepElementProps) {
 				setOrganizationProjects((prev) =>
 					prev.map((el) => {
 						if (el.id === finalData.id) {
-							return project.data as TOrganizationProject;
+							return project;
 						}
 						return el;
 					})
 				);
-				finish?.(project.data as TOrganizationProject);
+				finish?.(project);
 			}
 		}
 	};
@@ -349,9 +349,9 @@ function Categorization(props: ICategorizationProps) {
 	const { tags, colorCode } = props;
 	const t = useTranslations();
 
-	const ItemWithColor = ({ label, color }: { label: string; color: string }) => (
+	const ItemWithColor = ({ label, color }: { label: string; color?: string | null }) => (
 		<div key={label} className="px-1 shrink-0  text-[.7rem] border flex items-center gap-2 rounded">
-			<span style={{ backgroundColor: color ?? 'black' }} className="h-[10px] w-[10px] rounded-full" />
+			<span style={{ backgroundColor: color ?? '#6B7280' }} className="h-[10px] w-[10px] rounded-full" />
 			<span>{label}</span>
 		</div>
 	);

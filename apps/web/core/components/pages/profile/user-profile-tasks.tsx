@@ -2,7 +2,7 @@ import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useScrollPagination } from '@/core/hooks/common/use-pagination';
@@ -38,9 +38,10 @@ export const UserProfileTask = memo(
 		// Initialize cache for expensive operations
 		const { memoizeTaskFilter } = useTaskFilterCache();
 
-		// Defer non-critical updates to improve responsiveness (OPTIMISATION CONSERVATIVE)
-		const deferredTabFiltered = useDeferredValue(tabFiltered);
-		const deferredProfile = useDeferredValue(profile);
+		// Use direct values for critical updates (task assignments) to ensure immediate sync
+		// Only defer for non-critical rendering optimizations
+		const deferredTabFiltered = tabFiltered; // Direct value for immediate task updates
+		const deferredProfile = profile; // Direct value for immediate task updates
 
 		/**
 		 * Optimized task filtering with intelligent caching (PRESERVE EXISTING LOGIC)
@@ -279,7 +280,7 @@ const TanStackVirtualizedTaskList = memo(
 			containerHeight,
 			itemHeight,
 			enabled: true,
-			useWindow: tasks.length > 100, // Use window virtualization for very large lists
+			useWindow: false, // Simplified: always use container virtualization for consistency
 			cacheSize: 50,
 			overscanMultiplier: 2
 		});
@@ -326,25 +327,21 @@ const TanStackVirtualizedTaskList = memo(
 			),
 			[isAuthUser, viewType, profile, getTaskBadgeClassName]
 		);
+
 		const { virtualItems, isScrolling } = virtualizationResult;
 
-		// Handle both container and window virtualization
-		const isWindowVirtualization = tasks.length > 100;
+		// Simplified: always use container virtualization since useWindow is false
 		const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
 		const containerStyle =
 			'containerStyle' in virtualizationResult
 				? virtualizationResult.containerStyle
-				: { height: containerHeight };
+				: { height: containerHeight, overflow: 'auto' as const };
 		const innerStyle =
 			'innerStyle' in virtualizationResult
 				? virtualizationResult.innerStyle
-				: { height: virtualizationResult.totalSize };
+				: { height: virtualizationResult.totalSize, width: '100%', position: 'relative' as const };
 
-		// Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
-		const hasActiveTask =
-			tabFiltered.tab === 'worked' &&
-			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
-
+		// Handle empty state
 		if (tasks.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
@@ -352,6 +349,10 @@ const TanStackVirtualizedTaskList = memo(
 			}
 
 			// Don't show EmptyPlans if there's an active task displayed above
+			const hasActiveTask =
+				tabFiltered.tab === 'worked' &&
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
+
 			if (hasActiveTask) {
 				return null; // Active task is already shown, no need for empty state
 			}
@@ -361,22 +362,7 @@ const TanStackVirtualizedTaskList = memo(
 			return <EmptyPlans planMode={planMode} />;
 		}
 
-		// Render based on virtualization type
-		if (isWindowVirtualization) {
-			// Window virtualization - no container needed
-			return (
-				<div style={{ height: virtualizationResult.totalSize || 0, position: 'relative' }}>
-					{virtualItems.map(renderVirtualItem)}
-					{isScrolling && (
-						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs rounded h-50 dark:text-white bg-black/50">
-							Scrolling...
-						</div>
-					)}
-				</div>
-			);
-		}
-
-		// Container virtualization
+		// Simplified container virtualization rendering
 		return (
 			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
 				<div style={innerStyle}>{virtualItems.map(renderVirtualItem)}</div>

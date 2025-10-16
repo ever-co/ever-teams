@@ -1,18 +1,19 @@
 import { Button } from '@/core/components';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { EProjectBudgetType, EProjectBilling } from '@/core/types/generics/enums/project';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { useCurrencies } from '@/core/hooks/common/use-currencies';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
+import { useAtomValue } from 'jotai';
+import { currenciesState } from '@/core/stores';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
-	const { currencies, getCurrencies } = useCurrencies();
+	const currencies = useAtomValue(currenciesState);
 	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, 'currency', undefined));
 	const [billingType, setBillingType] = useState<EProjectBilling>(() =>
 		getInitialValue(currentData, 'billing', EProjectBilling.FLAT_FEE)
@@ -40,10 +41,6 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 			billing: billingType
 		});
 	};
-
-	useEffect(() => {
-		getCurrencies();
-	}, [getCurrencies]);
 
 	const handlePrevious = useCallback(() => {
 		goToPrevious?.({

@@ -194,8 +194,8 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		return scrollDirection !== 'idle' ? baseOverscan * overscanMultiplier : baseOverscan;
 	}, [scrollDirection, containerHeight, itemHeight, overscanMultiplier]);
 
-	// Choose virtualization strategy
-	const shouldUseWindow = useWindow || items.length > 100;
+	// Respect caller's virtualization preference: only use window mode if explicitly requested AND list is large
+	const shouldUseWindow = useWindow && items.length > 100;
 
 	// Enhanced scroll tracking
 	const trackScrollDirection = useCallback(
@@ -266,13 +266,12 @@ export function useEnhancedVirtualization<T extends { id: string }>(
 		enabled: enabled && items.length > 0 // Always call the hook, let internal logic handle conditions
 	});
 
-	// Select which result to use based on shouldUseWindow with stable logic
-	// Use useMemo to prevent unnecessary recalculations and ensure stable selection
+	// Select virtualization result based on strategy decision
 	const selectedResult = useMemo(() => {
-		// Only use window virtualization for very large lists and when explicitly enabled
-		const useWindowVirtualization = shouldUseWindow && items.length > 20 && enabled;
+		// Apply the shouldUseWindow decision without redundant length checks
+		const useWindowVirtualization = shouldUseWindow && enabled;
 		return useWindowVirtualization ? windowResult : containerResult;
-	}, [shouldUseWindow, items.length, enabled]);
+	}, [shouldUseWindow, enabled, windowResult, containerResult]);
 
 	// Create getVisibleRange function based on selected result - simple fix
 	const getVisibleRange = useCallback(() => {

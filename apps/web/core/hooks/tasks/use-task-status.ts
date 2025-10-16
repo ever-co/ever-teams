@@ -15,6 +15,7 @@ import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
 import { useUserQuery } from '../queries/user-user.query';
+import { toast } from 'sonner';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -95,6 +96,13 @@ export function useTaskStatus() {
 				queryClient.invalidateQueries({
 					queryKey: queryKeys.taskStatuses.byTeam(teamId)
 				});
+
+			toast.success('Task statuses reordered successfully');
+		},
+		onError: (error) => {
+			toast.error('Failed to reorder task statuses', {
+				description: error.message
+			});
 		}
 	});
 

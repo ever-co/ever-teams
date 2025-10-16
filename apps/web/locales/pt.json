@@ -237,6 +237,8 @@
 		"NO_TASKS": "Sem Tarefas",
 		"FULL_WIDTH": "Largura total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar a Tarefa",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar de Equipe",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de criar novos itens",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar Colaboração",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Convide membro(s) e comece a colaborar",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Iniciar Reunião ou Colaboração de Quadro",

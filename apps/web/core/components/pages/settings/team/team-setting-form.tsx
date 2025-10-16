@@ -16,7 +16,7 @@ import TeamSize from '@/core/components/teams/team-size-popover';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { toast } from 'sonner';
-import { TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const TeamSettingForm = () => {
@@ -101,7 +101,7 @@ export const TeamSettingForm = () => {
 			}
 
 			try {
-				const inputData: Partial<TOrganizationTeam> = {
+				const inputData: Partial<TOrganizationTeamUpdate> = {
 					...activeTeam,
 					id: activeTeam?.id,
 					name: values.teamName,

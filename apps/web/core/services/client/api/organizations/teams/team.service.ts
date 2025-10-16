@@ -18,7 +18,8 @@ import {
 	TUser,
 	TOrganizationProject,
 	organizationTeamCreateResponseSchema,
-	organizationTeamUpdateSchema
+	organizationTeamUpdateSchema,
+	TOrganizationTeamUpdate
 } from '@/core/types/schemas';
 
 class OrganizationTeamService extends APIService {
@@ -246,13 +247,13 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	editOrganizationTeam = async (data: Partial<TOrganizationTeam>) => {
+	editOrganizationTeam = async (data: Partial<TOrganizationTeamUpdate>) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
 			data,
 			'editOrganizationTeam input data'
-		) as Partial<TOrganizationTeam>;
+		) as Partial<TOrganizationTeamUpdate>;
 
 		try {
 			let response = await this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput);
@@ -288,7 +289,7 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeam>) => {
+	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeamUpdate>) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
