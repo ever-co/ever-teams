@@ -206,13 +206,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	return (
 		<div className={`flex gap-5 items-center mb-5 ${layoutClass}`}>
 			{/* Main content - conditionally wrapped for Future Tasks */}
-			{shouldShowDeleteButton ? (
-				<div className="flex gap-5 items-center">
-					<MainContent />
-				</div>
-			) : (
-				<MainContent />
-			)}
+			{shouldShowDeleteButton ? <div className="flex gap-5 items-center">{MainContent()}</div> : MainContent()}
 
 			{/* Delete Plan Button - Only for Future Tasks */}
 			{shouldShowDeleteButton && (
