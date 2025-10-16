@@ -15,6 +15,7 @@ spec:
 
 ---
 kind: Ingress
+apiVersion: networking.k8s.io/v1
 metadata:
     name: ever-teams-prod-api-lb-ingress
     namespace: default
