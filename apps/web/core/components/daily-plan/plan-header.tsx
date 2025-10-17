@@ -108,7 +108,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 
 	const totalWorkedTime = useMemo(() => {
 		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
-	}, []);
+	}, [timeLogs]);
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
 		<>
