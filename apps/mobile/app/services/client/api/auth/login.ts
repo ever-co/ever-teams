@@ -119,7 +119,7 @@ export async function login(params: ILoginDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: 'Your account isn’t fully set up yet'
 				}
 			}
 		};
