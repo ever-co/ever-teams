@@ -164,6 +164,75 @@ spec:
               value: "$NEXT_PUBLIC_TWITTER_USERNAME"
             - name: NEXT_PUBLIC_IMAGES_HOSTS
               value: "$NEXT_PUBLIC_IMAGES_HOSTS"
+            # Additional Environment Variables
+            - name: RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED
+              value: "$RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED"
+            - name: LOG_FOLDER_MAX_SIZE
+              value: "$LOG_FOLDER_MAX_SIZE"
+            - name: NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE
+              value: "$NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE"
+            - name: ACTIVE_LOCAL_LOG_SYSTEM
+              value: "$ACTIVE_LOCAL_LOG_SYSTEM"
+            - name: NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM
+              value: "$NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM"
+            - name: IS_DESKTOP_APP
+              value: "$IS_DESKTOP_APP"
+            # OAuth Configuration
+            - name: NEXT_PUBLIC_GOOGLE_APP_NAME
+              value: "$NEXT_PUBLIC_GOOGLE_APP_NAME"
+            - name: GOOGLE_CLIENT_ID
+              value: "$GOOGLE_CLIENT_ID"
+            - name: GOOGLE_CLIENT_SECRET
+              value: "$GOOGLE_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_GITHUB_APP_NAME
+              value: "$NEXT_PUBLIC_GITHUB_APP_NAME"
+            - name: GITHUB_CLIENT_ID
+              value: "$GITHUB_CLIENT_ID"
+            - name: GITHUB_CLIENT_SECRET
+              value: "$GITHUB_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_FACEBOOK_APP_NAME
+              value: "$NEXT_PUBLIC_FACEBOOK_APP_NAME"
+            - name: FACEBOOK_CLIENT_ID
+              value: "$FACEBOOK_CLIENT_ID"
+            - name: FACEBOOK_CLIENT_SECRET
+              value: "$FACEBOOK_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_TWITTER_APP_NAME
+              value: "$NEXT_PUBLIC_TWITTER_APP_NAME"
+            - name: TWITTER_CLIENT_ID
+              value: "$TWITTER_CLIENT_ID"
+            - name: TWITTER_CLIENT_SECRET
+              value: "$TWITTER_CLIENT_SECRET"
+            # Additional Configuration
+            - name: NEXT_PUBLIC_CAPTCHA_TYPE
+              value: "$NEXT_PUBLIC_CAPTCHA_TYPE"
+            - name: NEXT_PUBLIC_MEET_TYPE
+              value: "$NEXT_PUBLIC_MEET_TYPE"
+            - name: LIVEKIT_API_SECRET
+              value: "$LIVEKIT_API_SECRET"
+            - name: LIVEKIT_API_KEY
+              value: "$LIVEKIT_API_KEY"
+            - name: NEXT_PUBLIC_LIVEKIT_URL
+              value: "$NEXT_PUBLIC_LIVEKIT_URL"
+            - name: INVITE_CALLBACK_URL
+              value: "$INVITE_CALLBACK_URL"
+            - name: VERIFY_EMAIL_CALLBACK_URL
+              value: "$VERIFY_EMAIL_CALLBACK_URL"
+            - name: SMTP_PORT
+              value: "$SMTP_PORT"
+            - name: NEXT_PUBLIC_DISABLE_AUTO_REFRESH
+              value: "$NEXT_PUBLIC_DISABLE_AUTO_REFRESH"
+            - name: SENTRY_LOG_LEVEL
+              value: "$SENTRY_LOG_LEVEL"
+            - name: NEXT_PUBLIC_SENTRY_DSN
+              value: "$NEXT_PUBLIC_SENTRY_DSN"
+            - name: NEXT_PUBLIC_POSTHOG_KEY
+              value: "$NEXT_PUBLIC_POSTHOG_KEY"
+            - name: NEXT_PUBLIC_POSTHOG_HOST
+              value: "$NEXT_PUBLIC_POSTHOG_HOST"
+            - name: NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
+              value: "$NEXT_IGNORE_ESLINT_ERROR_ON_BUILD"
+            - name: ANALYZE
+              value: "$ANALYZE"
 
           ports:
             - containerPort: 3030
