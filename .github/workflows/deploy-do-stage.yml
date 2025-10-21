@@ -60,8 +60,8 @@ jobs:
           MEET_JWT_APP_SECRET: "${{ secrets.MEET_JWT_APP_SECRET }}"
           MEET_JWT_APP_ID: "${{ secrets.MEET_JWT_APP_ID }}"
           NEXT_PUBLIC_MEET_DOMAIN: "${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}"
-          GAUZY_API_SERVER_URL: "https://apistage.ever.team"
-          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://apistage.ever.team"
+          GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
           MAILCHIMP_LIST_ID: "${{ secrets.MAILCHIMP_LIST_ID }}"
           MAILCHIMP_API_KEY: "${{ secrets.MAILCHIMP_API_KEY }}"
           POSTMARK_SERVER_API_TOKEN: "${{ secrets.POSTMARK_SERVER_API_TOKEN }}"
@@ -75,7 +75,7 @@ jobs:
           AUTH_SECRET: "${{ secrets.AUTH_SECRET }}"
 
       # we need this step because for now we just use :latest tag
-      # note: for production we will use different strategy later
+      # note: for production, we will use a different strategy later
       - name: Restart Pods to pick up :latest tag version
         run: |
           kubectl --context do-sfo2-k8s-gauzy rollout restart deployment/ever-teams-stage-webapp
