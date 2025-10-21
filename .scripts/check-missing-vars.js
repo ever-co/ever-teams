@@ -5,6 +5,7 @@
  */
 
 const path = require('node:path');
+const YAML = require('yaml');
 const { detectEnvironment, checkFileExists, safeReadFile, getEnvVars } = require('./env-utils.js');
 
 console.log('ANALYSIS OF MISSING VARIABLES IN DEPLOYMENTS\n');
@@ -34,7 +35,32 @@ k8sFiles.forEach((filePath) => {
 		const content = safeReadFile(fullPath);
 
 		if (content !== null) {
-			const missing = envVars.filter((varName) => !content.includes(`- name: ${varName}`));
+			let missing = [];
+			try {
+				const envNames = new Set();
+				const docs = YAML.parseAllDocuments(content).map((d) => d.toJSON());
+
+				for (const doc of docs) {
+					// Navigate to containers in K8s manifests
+					const containers = doc?.spec?.template?.spec?.containers || [];
+					for (const container of containers) {
+						// Extract env variables
+						const envVars = container?.env || [];
+						for (const envVar of envVars) {
+							if (envVar?.name) {
+								envNames.add(envVar.name);
+							}
+						}
+						// Note: envFrom is not expanded here; if you rely on envFrom,
+						// you may need additional logic to resolve ConfigMap/Secret references
+					}
+				}
+
+				missing = envVars.filter((v) => !envNames.has(v));
+			} catch (error) {
+				console.log('      ⚠️  Could not parse YAML; falling back to naive search');
+				missing = envVars.filter((varName) => !content.includes(`- name: ${varName}`));
+			}
 
 			if (missing.length === 0) {
 				console.log(`      ✅ All variables present`);
@@ -70,7 +96,16 @@ workflowFiles.forEach((filePath) => {
 		const content = safeReadFile(fullPath);
 
 		if (content !== null) {
-			const missing = envVars.filter((varName) => !content.includes(`${varName}: "\${{ secrets.${varName} }}"`));
+			const missing = envVars.filter((varName) => {
+				// Check for key-value pattern with optional quotes and spacing
+				const kvPattern = new RegExp(
+					`${varName}\\s*:\\s*["']?\\$\\{\\{\\s*secrets\\.${varName}\\s*\\}\\}["']?`,
+					'i'
+				);
+				// Check for any occurrence of secrets.VAR
+				const anywherePattern = new RegExp(`secrets\\.${varName}\\b`, 'i');
+				return !(kvPattern.test(content) || anywherePattern.test(content));
+			});
 
 			if (missing.length === 0) {
 				console.log(`      ✅ All variables present`);

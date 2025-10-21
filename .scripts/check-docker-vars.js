@@ -5,6 +5,7 @@
  */
 
 const path = require('node:path');
+const YAML = require('yaml');
 const { detectEnvironment, checkFileExists, safeReadFile, getEnvVars } = require('./env-utils.js');
 
 console.log('DOCKER VARIABLES VERIFICATION\n');
@@ -26,13 +27,41 @@ if (checkFileExists(dockerfilePath)) {
 	const content = safeReadFile(dockerfilePath);
 
 	if (content !== null) {
-		const missingInDockerfile = envVars.filter((varName) => !content.includes(`ARG ${varName}`));
+		// Only check build-time variables (NEXT_PUBLIC_ and specific build vars)
+		const buildTimeVars = envVars.filter(
+			(varName) =>
+				varName.startsWith('NEXT_PUBLIC_') ||
+				varName.startsWith('NEXT_') ||
+				[
+					'APP_NAME',
+					'APP_SIGNATURE',
+					'APP_LOGO_URL',
+					'APP_LINK',
+					'APP_SLOGAN_TEXT',
+					'COMPANY_NAME',
+					'COMPANY_LINK',
+					'TERMS_LINK',
+					'PRIVACY_POLICY_LINK',
+					'MAIN_PICTURE',
+					'MAIN_PICTURE_DARK',
+					'NODE_ENV',
+					'DEMO'
+				].includes(varName)
+		);
+
+		const missingInDockerfile = buildTimeVars.filter((varName) => {
+			const argPattern = new RegExp(`^\\s*ARG\\s+${varName}\\b`, 'm');
+			const envPattern = new RegExp(`^\\s*ENV\\s+${varName}\\b`, 'm');
+			return !(argPattern.test(content) || envPattern.test(content));
+		});
 
 		if (missingInDockerfile.length === 0) {
-			console.log('   ✅ All variables present in Dockerfile');
+			console.log(
+				`   ✅ All build-time variables present in Dockerfile (${buildTimeVars.length}/${envVars.length} checked)`
+			);
 			fileResults.push({ file: 'Dockerfile', missing: 0, status: 'ok' });
 		} else {
-			console.log(`   ❌ Missing variables in Dockerfile (${missingInDockerfile.length}):`);
+			console.log(`   ❌ Missing build-time variables in Dockerfile (${missingInDockerfile.length}):`);
 			missingInDockerfile.forEach((varName) => {
 				console.log(`      - ${varName}`);
 			});
@@ -65,9 +94,44 @@ dockerComposeFiles.forEach((fileName) => {
 		const content = safeReadFile(filePath);
 
 		if (content !== null) {
-			const missing = envVars.filter(
-				(varName) => !content.includes(`${varName}:`) && !content.includes(`${varName} `)
-			);
+			let missing = [];
+			try {
+				const doc = YAML.parse(content);
+				const envNames = new Set();
+				const services = doc?.services || {};
+
+				// Extract environment variables from all services
+				for (const service of Object.values(services)) {
+					// Check environment section
+					const env = service?.environment;
+					if (Array.isArray(env)) {
+						env.forEach((e) => {
+							const varName = String(e).split('=')[0].trim();
+							if (varName) envNames.add(varName);
+						});
+					} else if (env && typeof env === 'object') {
+						Object.keys(env).forEach((k) => envNames.add(k));
+					}
+
+					// Check build.args section
+					const args = service?.build?.args;
+					if (Array.isArray(args)) {
+						args.forEach((a) => {
+							const varName = String(a).split('=')[0].trim();
+							if (varName) envNames.add(varName);
+						});
+					} else if (args && typeof args === 'object') {
+						Object.keys(args).forEach((k) => envNames.add(k));
+					}
+				}
+
+				missing = envVars.filter((v) => !envNames.has(v));
+			} catch (error) {
+				console.log('      ⚠️  Could not parse YAML; falling back to naive search');
+				missing = envVars.filter(
+					(varName) => !content.includes(`${varName}:`) && !content.includes(`${varName} `)
+				);
+			}
 
 			if (missing.length === 0) {
 				console.log(`      ✅ All variables present`);

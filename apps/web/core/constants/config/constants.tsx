@@ -172,6 +172,7 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 	}
 });
 
+// Branding constants - no fallbacks to detect missing values
 export const APP_NAME = process.env.APP_NAME || '';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || '';
 export const APP_LOGO_URL = process.env.APP_LOGO_URL || '';
@@ -181,7 +182,37 @@ export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || '';
 export const COMPANY_NAME = process.env.COMPANY_NAME || '';
 export const COMPANY_LINK = process.env.COMPANY_LINK || '';
 
-export const TERMS_LINK = process.env.TERMS_LINK || '	https://ever.team/tos';
+// Utility to detect missing branding variables
+export const getMissingBrandingVars = () => {
+	const missing: string[] = [];
+
+	if (!APP_NAME) missing.push('APP_NAME');
+	if (!APP_SIGNATURE) missing.push('APP_SIGNATURE');
+	if (!APP_LOGO_URL) missing.push('APP_LOGO_URL');
+	if (!APP_LINK) missing.push('APP_LINK');
+	if (!APP_SLOGAN_TEXT) missing.push('APP_SLOGAN_TEXT');
+	if (!COMPANY_NAME) missing.push('COMPANY_NAME');
+	if (!COMPANY_LINK) missing.push('COMPANY_LINK');
+
+	return missing;
+};
+
+// Check if branding is properly configured
+export const isBrandingConfigured = () => getMissingBrandingVars().length === 0;
+
+// Development warning for missing branding variables
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+	const missing = getMissingBrandingVars();
+	if (missing.length > 0) {
+		console.warn(
+			'🎨 Missing branding environment variables:',
+			missing.join(', '),
+			'\nUsing default values. Set these in your .env.local file for custom branding.'
+		);
+	}
+}
+
+export const TERMS_LINK = process.env.TERMS_LINK || 'https://ever.team/tos';
 export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
 
 export const MAIN_PICTURE = process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';

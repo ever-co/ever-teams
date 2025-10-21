@@ -5,8 +5,8 @@
  * Verifies that all environment variables are properly configured
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { detectEnvFile, safeReadFile } = require('./env-utils.js');
 
 // List of required branding environment variables
