@@ -15,7 +15,6 @@ These secrets **MUST** be configured for successful deployment:
 ### **Branding Configuration**
 
 - `APP_NAME` - Application name (e.g., `"Ever Cloc"` for cloc.ai)
-- `NEXT_PUBLIC_APP_NAME` - Public app name (same as above)
 - `COMPANY_NAME` - Company name (e.g., `"Ever Co. LTD"`)
 
 ### **Monitoring & Error Tracking**

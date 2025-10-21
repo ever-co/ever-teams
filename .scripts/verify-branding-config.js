@@ -12,7 +12,6 @@ const { detectEnvFile, safeReadFile } = require('./env-utils.js');
 // List of required branding environment variables
 const REQUIRED_BRANDING_VARS = [
 	'APP_NAME',
-	'NEXT_PUBLIC_APP_NAME',
 	'APP_SIGNATURE',
 	'APP_LOGO_URL',
 	'APP_LINK',

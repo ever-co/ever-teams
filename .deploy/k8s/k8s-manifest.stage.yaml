@@ -127,8 +127,6 @@ spec:
             # App Branding Variables
             - name: APP_NAME
               value: "$APP_NAME"
-            - name: NEXT_PUBLIC_APP_NAME
-              value: "$NEXT_PUBLIC_APP_NAME"
             - name: APP_SIGNATURE
               value: "$APP_SIGNATURE"
             - name: APP_LOGO_URL
