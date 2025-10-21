@@ -147,7 +147,7 @@ async function signIn(provider: EProvider, access_token: string) {
 		if (!gauzyUser) {
 			return Promise.reject({
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: 'Your account isn’t fully set up yet'
 				}
 			});
 		}

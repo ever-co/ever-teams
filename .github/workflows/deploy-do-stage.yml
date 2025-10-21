@@ -35,13 +35,74 @@ jobs:
           echo "${{ secrets.INGRESS_CERT_KEY }}" | base64 --decode > ${HOME}/ingress.webapp.key
           kubectl create secret tls stage.ever.team-tls --save-config --dry-run=client --cert=${HOME}/ingress.webapp.crt --key=${HOME}/ingress.webapp.key -o yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
 
+      - name: Validate required secrets
+        run: |
+          echo "==> Validating secrets for STAGE environment..."
+          missing_critical=()
+          missing_optional=()
+
+          # Critical secrets (deployment will fail without these)
+          critical_secrets=(
+            "GAUZY_API_SERVER_URL"
+            "NEXT_PUBLIC_GAUZY_API_SERVER_URL"
+          )
+
+          # Optional secrets (deployment will work with defaults/disabled features)
+          optional_secrets=(
+            "APP_NAME"
+            "COMPANY_NAME"
+            "SENTRY_DSN"
+            "NEXT_PUBLIC_SENTRY_DSN"
+          )
+
+          # Check critical secrets
+          for secret in "${critical_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_critical+=("$secret")
+            fi
+          done
+
+          # Check optional secrets
+          for secret in "${optional_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_optional+=("$secret")
+            fi
+          done
+
+          # Show warnings for missing optional secrets
+          if [ ${#missing_optional[@]} -gt 0 ]; then
+            echo "⚠️  Missing optional secrets (using defaults):"
+            printf '   - %s\n' "${missing_optional[@]}"
+            echo ""
+          fi
+
+          # Fail only if critical secrets are missing
+          if [ ${#missing_critical[@]} -gt 0 ]; then
+            echo "❌ Missing critical secrets for STAGE deployment:"
+            printf '   - %s\n' "${missing_critical[@]}"
+            echo ""
+            echo "Please configure these critical secrets in GitHub repository settings."
+            echo "See DEPLOYMENT_SECRETS.md for details."
+            exit 1
+          fi
+
+          echo "✅ All critical secrets validated successfully for STAGE"
+        env:
+          # Pass secrets for validation
+          GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
+          APP_NAME: "${{ secrets.APP_NAME }}"
+          COMPANY_NAME: "${{ secrets.COMPANY_NAME }}"
+          SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
+          NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
+
       - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
         run: |
           envsubst < $GITHUB_WORKSPACE/.deploy/k8s/k8s-manifest.stage.yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
         env:
           # below we are using GitHub secrets for both frontend and backend
           CLOUD_PROVIDER: "DO"
-          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+          NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
           SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
           NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}"
           NEXT_PUBLIC_JITSU_BROWSER_URL: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}"
@@ -60,8 +121,8 @@ jobs:
           MEET_JWT_APP_SECRET: "${{ secrets.MEET_JWT_APP_SECRET }}"
           MEET_JWT_APP_ID: "${{ secrets.MEET_JWT_APP_ID }}"
           NEXT_PUBLIC_MEET_DOMAIN: "${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}"
-          GAUZY_API_SERVER_URL: "https://apistage.ever.team"
-          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://apistage.ever.team"
+          GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
           MAILCHIMP_LIST_ID: "${{ secrets.MAILCHIMP_LIST_ID }}"
           MAILCHIMP_API_KEY: "${{ secrets.MAILCHIMP_API_KEY }}"
           POSTMARK_SERVER_API_TOKEN: "${{ secrets.POSTMARK_SERVER_API_TOKEN }}"
@@ -73,9 +134,65 @@ jobs:
           CAPTCHA_SECRET_KEY: "${{ secrets.CAPTCHA_SECRET_KEY }}"
           NEXT_PUBLIC_CAPTCHA_SITE_KEY: "${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}"
           AUTH_SECRET: "${{ secrets.AUTH_SECRET }}"
+          # App Branding Variables
+          APP_NAME: "${{ secrets.APP_NAME }}"
+          APP_SIGNATURE: "${{ secrets.APP_SIGNATURE }}"
+          APP_LOGO_URL: "${{ secrets.APP_LOGO_URL }}"
+          APP_LINK: "${{ secrets.APP_LINK }}"
+          APP_SLOGAN_TEXT: "${{ secrets.APP_SLOGAN_TEXT }}"
+          COMPANY_NAME: "${{ secrets.COMPANY_NAME }}"
+          COMPANY_LINK: "${{ secrets.COMPANY_LINK }}"
+          TERMS_LINK: "${{ secrets.TERMS_LINK }}"
+          PRIVACY_POLICY_LINK: "${{ secrets.PRIVACY_POLICY_LINK }}"
+          MAIN_PICTURE: "${{ secrets.MAIN_PICTURE }}"
+          MAIN_PICTURE_DARK: "${{ secrets.MAIN_PICTURE_DARK }}"
+          # Site Metadata Variables
+          NEXT_PUBLIC_SITE_NAME: "${{ secrets.NEXT_PUBLIC_SITE_NAME }}"
+          NEXT_PUBLIC_SITE_TITLE: "${{ secrets.NEXT_PUBLIC_SITE_TITLE }}"
+          NEXT_PUBLIC_SITE_DESCRIPTION: "${{ secrets.NEXT_PUBLIC_SITE_DESCRIPTION }}"
+          NEXT_PUBLIC_SITE_KEYWORDS: "${{ secrets.NEXT_PUBLIC_SITE_KEYWORDS }}"
+          NEXT_PUBLIC_WEB_APP_URL: "${{ secrets.NEXT_PUBLIC_WEB_APP_URL }}"
+          NEXT_PUBLIC_TWITTER_USERNAME: "${{ secrets.NEXT_PUBLIC_TWITTER_USERNAME }}"
+          NEXT_PUBLIC_IMAGES_HOSTS: "${{ secrets.NEXT_PUBLIC_IMAGES_HOSTS }}"
+          # Additional Environment Variables
+          RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED: "${{ secrets.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED }}"
+          LOG_FOLDER_MAX_SIZE: "${{ secrets.LOG_FOLDER_MAX_SIZE }}"
+          NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE: "${{ secrets.NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE }}"
+          ACTIVE_LOCAL_LOG_SYSTEM: "${{ secrets.ACTIVE_LOCAL_LOG_SYSTEM }}"
+          NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: "${{ secrets.NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM }}"
+          IS_DESKTOP_APP: "${{ secrets.IS_DESKTOP_APP }}"
+          # OAuth Configuration
+          NEXT_PUBLIC_GOOGLE_APP_NAME: "${{ secrets.NEXT_PUBLIC_GOOGLE_APP_NAME }}"
+          GOOGLE_CLIENT_ID: "${{ secrets.GOOGLE_CLIENT_ID }}"
+          GOOGLE_CLIENT_SECRET: "${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          NEXT_PUBLIC_GITHUB_APP_NAME: "${{ secrets.NEXT_PUBLIC_GITHUB_APP_NAME }}"
+          GITHUB_CLIENT_ID: "${{ secrets.GITHUB_CLIENT_ID }}"
+          GITHUB_CLIENT_SECRET: "${{ secrets.GITHUB_CLIENT_SECRET }}"
+          NEXT_PUBLIC_FACEBOOK_APP_NAME: "${{ secrets.NEXT_PUBLIC_FACEBOOK_APP_NAME }}"
+          FACEBOOK_CLIENT_ID: "${{ secrets.FACEBOOK_CLIENT_ID }}"
+          FACEBOOK_CLIENT_SECRET: "${{ secrets.FACEBOOK_CLIENT_SECRET }}"
+          NEXT_PUBLIC_TWITTER_APP_NAME: "${{ secrets.NEXT_PUBLIC_TWITTER_APP_NAME }}"
+          TWITTER_CLIENT_ID: "${{ secrets.TWITTER_CLIENT_ID }}"
+          TWITTER_CLIENT_SECRET: "${{ secrets.TWITTER_CLIENT_SECRET }}"
+          # Additional Configuration
+          DEMO: "${{ secrets.DEMO }}"
+          NEXT_PUBLIC_CAPTCHA_TYPE: "${{ secrets.NEXT_PUBLIC_CAPTCHA_TYPE }}"
+          NEXT_PUBLIC_MEET_TYPE: "${{ secrets.NEXT_PUBLIC_MEET_TYPE }}"
+          LIVEKIT_API_SECRET: "${{ secrets.LIVEKIT_API_SECRET }}"
+          LIVEKIT_API_KEY: "${{ secrets.LIVEKIT_API_KEY }}"
+          NEXT_PUBLIC_LIVEKIT_URL: "${{ secrets.NEXT_PUBLIC_LIVEKIT_URL }}"
+          INVITE_CALLBACK_URL: "${{ secrets.INVITE_CALLBACK_URL }}"
+          VERIFY_EMAIL_CALLBACK_URL: "${{ secrets.VERIFY_EMAIL_CALLBACK_URL }}"
+          SMTP_PORT: "${{ secrets.SMTP_PORT }}"
+          NEXT_PUBLIC_DISABLE_AUTO_REFRESH: "${{ secrets.NEXT_PUBLIC_DISABLE_AUTO_REFRESH }}"
+          SENTRY_LOG_LEVEL: "${{ secrets.SENTRY_LOG_LEVEL }}"
+          NEXT_PUBLIC_POSTHOG_KEY: "${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}"
+          NEXT_PUBLIC_POSTHOG_HOST: "${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}"
+          NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: "${{ secrets.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD }}"
+          ANALYZE: "${{ secrets.ANALYZE }}"
 
       # we need this step because for now we just use :latest tag
-      # note: for production we will use different strategy later
+      # note: for production, we will use a different strategy later
       - name: Restart Pods to pick up :latest tag version
         run: |
           kubectl --context do-sfo2-k8s-gauzy rollout restart deployment/ever-teams-stage-webapp
