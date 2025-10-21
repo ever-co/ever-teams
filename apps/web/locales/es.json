@@ -38,7 +38,7 @@
 		"EXPAND_COLUMN": "Expandir columna",
 		"EDIT_STATUS": "Editar estado",
 		"ADD_TIME_ENTRY": "Agregar entrada de tiempo",
-		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre Ever Teams.",
+		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Suscríbete a nuestro boletín",
 		"VIEW_PROJECT": "Ver proyecto",
 		"SHARE_PROJECT": "Compartir proyecto",
@@ -1091,7 +1091,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "Todos los derechos reservados.",
 			"COPY_RIGHT1": "© {date}-Presente,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Términos del servicio",

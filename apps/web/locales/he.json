@@ -42,7 +42,7 @@
 		"MANAGERS": "מנהלים",
 		"EDIT_STATUS": "ערוך סטטוס",
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
-		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על Ever Teams.",
+		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "הירשם לניוזלטר שלנו",
 		"VIEW_PROJECT": "צפה בפרויקט",
 		"SHARE_PROJECT": "שתף פרויקט",
@@ -1091,7 +1091,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "כל הזכויות שמורות.",
 			"COPY_RIGHT1": "© {date}-היום,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "תנאי שימוש",

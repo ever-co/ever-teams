@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Teams",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "General",
@@ -63,7 +63,7 @@
 		"EXPAND_COLUMN": "Expand Column",
 		"EDIT_STATUS": "Edit Status",
 		"ADD_TIME_ENTRY": "Add Time Entry",
-		"OPT_IN_UPDATES": "Opt-in to receive updates and news about Ever Teams.",
+		"OPT_IN_UPDATES": "Opt-in to receive updates and news about {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Subscribe to our newsletter",
 		"VIEW_PROJECT": "View Project",
 		"SHARE_PROJECT": "Share Project",
@@ -666,7 +666,7 @@
 			"HEADING_DESCRIPTION": "Please enter your email and invitation code to join an existing team."
 		},
 		"authLogin": {
-			"HEADING_TITLE": "Log In to Ever Teams",
+			"HEADING_TITLE": "Log In to {appName}",
 			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
@@ -1095,7 +1095,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "All rights reserved.",
 			"COPY_RIGHT1": "© {date}-Present,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Terms of Service",

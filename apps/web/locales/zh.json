@@ -38,7 +38,7 @@
 		"EXPAND_COLUMN": "展开列",
 		"EDIT_STATUS": "编辑状态",
 		"ADD_TIME_ENTRY": "添加时间条目",
-		"OPT_IN_UPDATES": "选择接收关于 Ever Teams 的更新和新闻。",
+		"OPT_IN_UPDATES": "选择接收关于 {appName} 的更新和新闻。",
 		"SUBSCRIBE_NEWSLETTER": "订阅我们的新闻通讯",
 		"VIEW_PROJECT": "查看项目",
 		"SHARE_PROJECT": "分享项目",
@@ -1091,7 +1091,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "版权所有。",
 			"COPY_RIGHT1": "© {date}-至今,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
 			"TERMS": "服务条款",
