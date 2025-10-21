@@ -221,8 +221,6 @@ spec:
               value: "$NEXT_PUBLIC_DISABLE_AUTO_REFRESH"
             - name: SENTRY_LOG_LEVEL
               value: "$SENTRY_LOG_LEVEL"
-            - name: NEXT_PUBLIC_SENTRY_DSN
-              value: "$NEXT_PUBLIC_SENTRY_DSN"
             - name: NEXT_PUBLIC_POSTHOG_KEY
               value: "$NEXT_PUBLIC_POSTHOG_KEY"
             - name: NEXT_PUBLIC_POSTHOG_HOST
