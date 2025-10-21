@@ -7,6 +7,7 @@ import { typography, useAppTheme } from '../../../theme';
 import { SvgXml } from 'react-native-svg';
 import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from '../../../components/svgs/icons';
 import { useStores } from '../../../models';
+import Config from '../../../config';
 
 const LoginBottom = () => {
 	const {
@@ -16,9 +17,7 @@ const LoginBottom = () => {
 	const { dark, colors } = useAppTheme();
 	return (
 		<View style={{ ...styles.bottomSection, borderTopColor: dark ? colors.divider : 'rgba(0, 0, 0, 0.16)' }}>
-			<Text style={styles.bottomSectionTxt}>
-				© 2022-Present, Ever Teams by Ever Co. LTD. All rights reserved.
-			</Text>
+			<Text style={styles.bottomSectionTxt}>{Config.branding.copyrightText}</Text>
 			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
 				<TouchableOpacity
 					style={[

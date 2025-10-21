@@ -1,5 +1,7 @@
+import { APP_NAME } from '@/core/constants/config/constants';
+
 export const en = {
-	TITLE: 'Ever Teams',
+	TITLE: APP_NAME,
 	common: {
 		COPY_NUMBER: 'Copy Number',
 		VERIFY: 'verify',

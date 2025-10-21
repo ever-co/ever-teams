@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Teams",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Algemeen",
@@ -42,7 +42,7 @@
 		"EXPAND_COLUMN": "Kolom uitvouwen",
 		"EDIT_STATUS": "Status bewerken",
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
-		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over Ever Teams te ontvangen.",
+		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over {appName} te ontvangen.",
 		"SUBSCRIBE_NEWSLETTER": "Abonneer je op onze nieuwsbrief",
 		"VIEW_PROJECT": "Project bekijken",
 		"SHARE_PROJECT": "Project delen",
@@ -648,7 +648,7 @@
 			"INPUT_INVITE_CODE": "Uitnodigingscode invoeren.",
 			"INPUT_INVITE_CODE_DESC": "Voer de uitnodigingscode in die we naar uw e-mail hebben gestuurd.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ongeldige code",
-			"WELCOME_TEAMS": "Welkom bij Ever Teams",
+			"WELCOME_TEAMS": "Welkom bij {appName}",
 			"COVER_TITLE": "Volg de werkvoortgang van uw teams in realtime!",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Inloggen",
@@ -1091,7 +1091,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "Alle rechten voorbehouden.",
 			"COPY_RIGHT1": "© {date}-Heden,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 // Use default fonts to avoid loading issues
 
@@ -229,7 +230,7 @@ export function TimeActivityPDF({ data, title, startDate, endDate, appliedFilter
 				</View>
 
 				{/* Footer */}
-				<Text style={styles.footer}>Ever Teams - Time & Activity Report</Text>
+				<Text style={styles.footer}>{APP_NAME} - Time & Activity Report</Text>
 			</Page>
 		</Document>
 	);
