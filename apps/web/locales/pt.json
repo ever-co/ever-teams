@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Teams",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Painel",
 		"FORYOU": "Geral",
@@ -42,7 +42,7 @@
 		"MANAGERS": "Gerentes",
 		"EDIT_STATUS": "Editar Status",
 		"ADD_TIME_ENTRY": "Adicionar Entrada de Tempo",
-		"OPT_IN_UPDATES": "Concorde em receber atualizações e notícias sobre Ever Teams.",
+		"OPT_IN_UPDATES": "Concorde em receber atualizações e notícias sobre {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Inscreva-se na nossa newsletter",
 		"VIEW_PROJECT": "Ver Projeto",
 		"SHARE_PROJECT": "Compartilhar Projeto",
@@ -1092,7 +1092,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "Todos os direitos reservados.",
 			"COPY_RIGHT1": "© {date}-Present,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Termos de Serviço",

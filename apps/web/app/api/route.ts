@@ -1,3 +1,4 @@
+import { APP_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 
 /**
@@ -10,7 +11,7 @@ export async function GET() {
 		{
 			data: {
 				status: 200,
-				message: 'Ever Teams API'
+				message: `${APP_NAME} API`
 			},
 			response: {}
 		},
