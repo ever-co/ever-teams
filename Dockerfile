@@ -22,7 +22,6 @@ ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
 # App Branding Variables
 ARG APP_NAME=Ever Teams
-ARG NEXT_PUBLIC_APP_NAME=Ever Teams
 ARG APP_SIGNATURE=Ever Teams
 ARG APP_LOGO_URL=https://app.ever.team/assets/ever-teams.png
 ARG APP_LINK=https://ever.team
@@ -143,7 +142,6 @@ ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
 # App Branding Variables
 ARG APP_NAME
-ARG NEXT_PUBLIC_APP_NAME
 ARG APP_SIGNATURE
 ARG APP_LOGO_URL
 ARG APP_LINK

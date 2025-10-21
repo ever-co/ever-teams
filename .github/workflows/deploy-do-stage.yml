@@ -37,15 +37,19 @@ jobs:
 
       - name: Validate required secrets
         run: |
-          echo "==> Validating required secrets..."
-          missing_secrets=()
+          echo "==> Validating secrets for STAGE environment..."
+          missing_critical=()
+          missing_optional=()
 
-          # Critical secrets for deployment
+          # Critical secrets (deployment will fail without these)
           critical_secrets=(
             "GAUZY_API_SERVER_URL"
             "NEXT_PUBLIC_GAUZY_API_SERVER_URL"
+          )
+
+          # Optional secrets (deployment will work with defaults/disabled features)
+          optional_secrets=(
             "APP_NAME"
-            "NEXT_PUBLIC_APP_NAME"
             "COMPANY_NAME"
             "SENTRY_DSN"
             "NEXT_PUBLIC_SENTRY_DSN"
@@ -54,27 +58,40 @@ jobs:
           # Check critical secrets
           for secret in "${critical_secrets[@]}"; do
             if [ -z "${!secret}" ]; then
-              missing_secrets+=("$secret")
+              missing_critical+=("$secret")
             fi
           done
 
-          # Fail if critical secrets are missing
-          if [ ${#missing_secrets[@]} -gt 0 ]; then
-            echo "❌ Missing required secrets for deployment:"
-            printf '   - %s\n' "${missing_secrets[@]}"
+          # Check optional secrets
+          for secret in "${optional_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_optional+=("$secret")
+            fi
+          done
+
+          # Show warnings for missing optional secrets
+          if [ ${#missing_optional[@]} -gt 0 ]; then
+            echo "⚠️  Missing optional secrets (using defaults):"
+            printf '   - %s\n' "${missing_optional[@]}"
             echo ""
-            echo "Please configure these secrets in GitHub repository settings."
+          fi
+
+          # Fail only if critical secrets are missing
+          if [ ${#missing_critical[@]} -gt 0 ]; then
+            echo "❌ Missing critical secrets for STAGE deployment:"
+            printf '   - %s\n' "${missing_critical[@]}"
+            echo ""
+            echo "Please configure these critical secrets in GitHub repository settings."
             echo "See DEPLOYMENT_SECRETS.md for details."
             exit 1
           fi
 
-          echo "✅ All critical secrets validated successfully"
+          echo "✅ All critical secrets validated successfully for STAGE"
         env:
           # Pass secrets for validation
           GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
           APP_NAME: "${{ secrets.APP_NAME }}"
-          NEXT_PUBLIC_APP_NAME: "${{ secrets.NEXT_PUBLIC_APP_NAME }}"
           COMPANY_NAME: "${{ secrets.COMPANY_NAME }}"
           SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
           NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
@@ -119,7 +136,6 @@ jobs:
           AUTH_SECRET: "${{ secrets.AUTH_SECRET }}"
           # App Branding Variables
           APP_NAME: "${{ secrets.APP_NAME }}"
-          NEXT_PUBLIC_APP_NAME: "${{ secrets.NEXT_PUBLIC_APP_NAME }}"
           APP_SIGNATURE: "${{ secrets.APP_SIGNATURE }}"
           APP_LOGO_URL: "${{ secrets.APP_LOGO_URL }}"
           APP_LINK: "${{ secrets.APP_LINK }}"

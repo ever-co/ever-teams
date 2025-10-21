@@ -9,7 +9,6 @@ services:
       DEMO: "true"
       # App Branding Variables
       APP_NAME: ${APP_NAME:-Ever Teams}
-      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Ever Teams}
       APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}
       APP_LOGO_URL: ${APP_LOGO_URL:-https://app.ever.team/assets/ever-teams.png}
       APP_LINK: ${APP_LINK:-https://ever.team}
@@ -92,7 +91,6 @@ services:
       SENTRY_PROJECT: ${SENTRY_PROJECT:-}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
       NEXT_PUBLIC_SENTRY_DEBUG: ${NEXT_PUBLIC_SENTRY_DEBUG:-false}
-      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       POSTMARK_SERVER_API_TOKEN: ${POSTMARK_SERVER_API_TOKEN:-}
       MAILCHIMP_API_KEY: ${MAILCHIMP_API_KEY:-}
       MAILCHIMP_LIST_ID: ${MAILCHIMP_LIST_ID:-}
