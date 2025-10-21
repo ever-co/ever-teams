@@ -5,6 +5,10 @@
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
 		"Aaiun",
+		"doctl",
+		"kubeconfig",
+		"envsubst",
+		"envsubst",
 		"Ababa",
 		"accepte",
 		"Accordian",
