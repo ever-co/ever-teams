@@ -16,6 +16,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Button } from '../duplicated-components/_button';
 import { AlertPopup } from '../common/alert-popup';
 import { toast } from 'sonner';
+import { useGetTimeLogs } from '@/core/hooks/activities/time-logs/use-get-time-logs';
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
@@ -39,9 +40,6 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 
 	// Get all tasks's estimations time
 	const estimatedTime = useMemo(() => sumTimes(plan.tasks || [], 'estimate'), [plan.tasks, sumTimes]);
-
-	// Get all tasks's worked time
-	const totalWorkTime = useMemo(() => sumTimes(plan.tasks || [], 'totalWorkedTime'), [plan.tasks, sumTimes]);
 
 	// Get completed tasks
 	const completedTasks = useMemo(
@@ -101,6 +99,16 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		setEditTime
 	]);
 
+	// Get time logs for the plan
+	const timeLogs = useGetTimeLogs({
+		startDate: plan.date,
+		endDate: plan.date,
+		taskIds: plan.tasks?.map((task) => task.id) || []
+	}).data;
+
+	const totalWorkedTime = useMemo(() => {
+		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
+	}, [timeLogs]);
 	// Main content component - reusable for both layouts
 	const MainContent = () => (
 		<>
@@ -158,7 +166,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 					{/* Total worked time for the plan */}
 					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
-						<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
+						<span className="font-semibold">{formatIntegerToHour(totalWorkedTime / 3600)}</span>
 					</div>
 
 					<VerticalSeparator />

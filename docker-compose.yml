@@ -46,8 +46,8 @@ services:
 
     env_file:
       - .env.compose
-    entrypoint: './entrypoint.compose.sh'
-    command: ['node', 'main.js']
+    entrypoint: "./entrypoint.compose.sh"
+    command: ["node", "main.js"]
     restart: on-failure
     depends_on:
       db:
@@ -74,7 +74,7 @@ services:
     # - webapp_node_modules:/srv/gauzy/node_modules
     # - api_node_modules:/srv/gauzy/apps/api/node_modules
     ports:
-      - '3000:${API_PORT:-3000}'
+      - "3000:${API_PORT:-3000}"
     networks:
       - overlay
 
@@ -85,7 +85,94 @@ services:
       GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
       NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
       NODE_ENV: ${NODE_ENV:-development}
-      DEMO: 'true'
+      DEMO: "true"
+      # App Branding Variables
+      APP_NAME: ${APP_NAME:-Ever Teams}
+      APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}
+      APP_LOGO_URL: ${APP_LOGO_URL:-https://app.ever.team/assets/ever-teams.png}
+      APP_LINK: ${APP_LINK:-https://ever.team}
+      APP_SLOGAN_TEXT: ${APP_SLOGAN_TEXT:-Real-Time Clarity, Real-Time Reality™.}
+      COMPANY_NAME: ${COMPANY_NAME:-Ever Co. LTD}
+      COMPANY_LINK: ${COMPANY_LINK:-https://ever.team}
+      TERMS_LINK: ${TERMS_LINK:-https://ever.team/terms}
+      PRIVACY_POLICY_LINK: ${PRIVACY_POLICY_LINK:-https://ever.team/privacy}
+      MAIN_PICTURE: ${MAIN_PICTURE:-https://app.ever.team/assets/ever-teams.png}
+      MAIN_PICTURE_DARK: ${MAIN_PICTURE_DARK:-https://app.ever.team/assets/ever-teams.png}
+      # Site Metadata Variables
+      NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-Ever Teams}
+      NEXT_PUBLIC_SITE_TITLE: ${NEXT_PUBLIC_SITE_TITLE:-Open Work and Project Management Platform}
+      NEXT_PUBLIC_SITE_DESCRIPTION: ${NEXT_PUBLIC_SITE_DESCRIPTION:-All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!}
+      NEXT_PUBLIC_SITE_KEYWORDS: ${NEXT_PUBLIC_SITE_KEYWORDS:-time tracking, open-work, project management, software development, task management, team collaboration, agile, kanban, scrum, gantt chart, resource management, project management, work items tracking, agile, scrum, collaboration}
+      NEXT_PUBLIC_WEB_APP_URL: ${NEXT_PUBLIC_WEB_APP_URL:-https://app.ever.team/}
+      NEXT_PUBLIC_TWITTER_USERNAME: ${NEXT_PUBLIC_TWITTER_USERNAME:-ever-teams}
+      NEXT_PUBLIC_IMAGES_HOSTS: ${NEXT_PUBLIC_IMAGES_HOSTS:-dummyimage.com,res.cloudinary.com,gauzy.sfo2.digitaloceanspaces.com,cdn-icons-png.flaticon.com,api.gauzy.co,apida.gauzy.co,apicw.gauzy.co,apicivo.gauzy.co,apidev.gauzy.co,apidemo.gauzy.co,apidemocw.gauzy.co,apidemodt.gauzy.co,apidemodts.gauzy.co,apidemocivo.gauzy.co,apidemoda.gauzy.co,apistage.gauzy.co,apistagecivo.gauzy.co,apistagecw.gauzy.co,apistageda.gauzy.co,apistagedt.gauzy.co,apistagedts.gauzy.co,api.ever.team,app.ever.team,apidev.ever.team,gauzy.s3.wasabisys.com,gauzystage.s3.wasabisys.com}
+      # OAuth Configuration
+      NEXT_PUBLIC_GOOGLE_APP_NAME: ${NEXT_PUBLIC_GOOGLE_APP_NAME:-Ever Teams}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      NEXT_PUBLIC_GITHUB_APP_NAME: ${NEXT_PUBLIC_GITHUB_APP_NAME:-ever-github}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      NEXT_PUBLIC_FACEBOOK_APP_NAME: ${NEXT_PUBLIC_FACEBOOK_APP_NAME:-Ever Teams}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:-}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-}
+      NEXT_PUBLIC_TWITTER_APP_NAME: ${NEXT_PUBLIC_TWITTER_APP_NAME:-Ever Teams}
+      TWITTER_CLIENT_ID: ${TWITTER_CLIENT_ID:-}
+      TWITTER_CLIENT_SECRET: ${TWITTER_CLIENT_SECRET:-}
+      # Additional Configuration
+      NEXT_PUBLIC_CAPTCHA_TYPE: ${NEXT_PUBLIC_CAPTCHA_TYPE:-recaptcha}
+      NEXT_PUBLIC_CAPTCHA_SITE_KEY: ${NEXT_PUBLIC_CAPTCHA_SITE_KEY:-}
+      NEXT_PUBLIC_MEET_TYPE: ${NEXT_PUBLIC_MEET_TYPE:-jitsi}
+      NEXT_PUBLIC_MEET_DOMAIN: ${NEXT_PUBLIC_MEET_DOMAIN:-meet.ever.team}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-}
+      INVITE_CALLBACK_URL: ${INVITE_CALLBACK_URL:-https://app.ever.team/auth/accept-invite}
+      VERIFY_EMAIL_CALLBACK_URL: ${VERIFY_EMAIL_CALLBACK_URL:-https://app.ever.team/verify-email}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      NEXT_PUBLIC_DISABLE_AUTO_REFRESH: ${NEXT_PUBLIC_DISABLE_AUTO_REFRESH:-false}
+      SENTRY_LOG_LEVEL: ${SENTRY_LOG_LEVEL:-error}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
+      NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-}
+      NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: ${NEXT_IGNORE_ESLINT_ERROR_ON_BUILD:-true}
+      ANALYZE: ${ANALYZE:-false}
+      RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED: ${RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED:-false}
+      LOG_FOLDER_MAX_SIZE: ${LOG_FOLDER_MAX_SIZE:-10}
+      NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE: ${NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE:-10}
+      ACTIVE_LOCAL_LOG_SYSTEM: ${ACTIVE_LOCAL_LOG_SYSTEM:-false}
+      NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: ${NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM:-false}
+      IS_DESKTOP_APP: ${IS_DESKTOP_APP:-false}
+      # Board and Firebase
+      NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-https://board.ever.team}
+      NEXT_PUBLIC_BOARD_BACKEND_POST_URL: ${NEXT_PUBLIC_BOARD_BACKEND_POST_URL:-https://jsonboard.ever.team/api/v2/post/}
+      NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: ${NEXT_PUBLIC_BOARD_FIREBASE_CONFIG:-}
+      # Analytics and Tracking
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
+      NEXT_PUBLIC_JITSU_BROWSER_URL: ${NEXT_PUBLIC_JITSU_BROWSER_URL:-}
+      NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: ${NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY:-}
+      NEXT_PUBLIC_CHATWOOT_API_KEY: ${NEXT_PUBLIC_CHATWOOT_API_KEY:-}
+      # Cookie Configuration
+      NEXT_PUBLIC_COOKIE_DOMAINS: ${NEXT_PUBLIC_COOKIE_DOMAINS:-ever.team}
+      # Server Configuration
+      JITSU_SERVER_URL: ${JITSU_SERVER_URL:-}
+      JITSU_SERVER_WRITE_KEY: ${JITSU_SERVER_WRITE_KEY:-}
+      AUTH_SECRET: ${AUTH_SECRET:-}
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MEET_JWT_APP_ID: ${MEET_JWT_APP_ID:-}
+      MEET_JWT_APP_SECRET: ${MEET_JWT_APP_SECRET:-}
+      SENTRY_ORG: ${SENTRY_ORG:-}
+      SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+      NEXT_PUBLIC_SENTRY_DEBUG: ${NEXT_PUBLIC_SENTRY_DEBUG:-false}
+      POSTMARK_SERVER_API_TOKEN: ${POSTMARK_SERVER_API_TOKEN:-}
+      MAILCHIMP_API_KEY: ${MAILCHIMP_API_KEY:-}
+      MAILCHIMP_LIST_ID: ${MAILCHIMP_LIST_ID:-}
     env_file:
       - .env.compose
     restart: on-failure
@@ -112,6 +199,6 @@ services:
     # volumes:
     # - webapp_node_modules:/srv/gauzy/node_modules
     ports:
-      - '3030:${UI_PORT:-3030}'
+      - "3030:${UI_PORT:-3030}"
     networks:
       - overlay
