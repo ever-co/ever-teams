@@ -1,10 +1,12 @@
 # Mobile App Branding Configuration
 
-This document explains how to configure branding for the Ever Teams mobile application.
+This document explains how to configure branding for the Ever Teams mobile
+application.
 
 ## Environment Variables
 
-The mobile app supports the following environment variables for branding customization:
+The mobile app supports the following environment variables for branding
+customization:
 
 ### Required Variables
 
@@ -13,9 +15,11 @@ The mobile app supports the following environment variables for branding customi
 
 ### Optional Variables
 
-- `APP_LOGO_URL` - URL to your app logo (default: "<https://app.ever.team/assets/ever-teams.png>")
+- `APP_LOGO_URL` - URL to your app logo
+  (default: "<https://app.ever.team/assets/ever-teams.png>")
 - `APP_WEBSITE_URL` - Your app's website URL (default: "<https://ever.team/>")
-- `APP_EMAIL_CONFIRMATION_URL` - Email confirmation URL (default: "<https://app.gauzy.co/#/auth/confirm-email>")
+- `APP_EMAIL_CONFIRMATION_URL` - Email confirmation URL
+  (default: "<https://app.gauzy.co/#/auth/confirm-email>")
 
 ### Expo Configuration Variables
 
@@ -25,8 +29,10 @@ For Expo builds, you also need to set these variables:
 - `EXPO_PROJECT_SLUG` - URL-friendly project identifier
 - `EXPO_PROJECT_OWNER` - Expo account owner
 - `EXPO_PROJECT_ID` - Expo project ID
-- `EXPO_PROJECT_PACKAGE_NAME` - Android package name (e.g., "com.yourcompany.yourapp")
-- `EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER` - iOS bundle identifier (e.g., "com.yourcompany.yourapp")
+- `EXPO_PROJECT_PACKAGE_NAME` - Android package name
+  (e.g., "com.yourcompany.yourapp")
+- `EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER` - iOS bundle identifier
+  (e.g., "com.yourcompany.yourapp")
 
 ## Configuration Files
 
@@ -38,16 +44,21 @@ The branding configuration is centralized in the config system:
 branding: {
   appName: process.env.APP_NAME || 'Ever Teams',
   companyName: process.env.COMPANY_NAME || 'Ever Co. LTD',
-  copyrightText: `© 2022-Present, ${process.env.APP_NAME || 'Ever Teams'} by ${process.env.COMPANY_NAME || 'Ever Co. LTD'}. All rights reserved.`,
-  appLogo: process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png',
+  copyrightText: `© 2022-Present, ${process.env.APP_NAME || 'Ever Teams'} by ${
+    process.env.COMPANY_NAME || 'Ever Co. LTD'
+  }. All rights reserved.`,
+  appLogo: process.env.APP_LOGO_URL ||
+    'https://app.ever.team/assets/ever-teams.png',
   appLink: process.env.APP_WEBSITE_URL || 'https://ever.team/',
-  appEmailConfirmationUrl: process.env.APP_EMAIL_CONFIRMATION_URL || 'https://app.gauzy.co/#/auth/confirm-email'
+  appEmailConfirmationUrl: process.env.APP_EMAIL_CONFIRMATION_URL ||
+    'https://app.gauzy.co/#/auth/confirm-email'
 }
 ```
 
 ### 2. Expo Configuration (`app.template.json`)
 
-The `app.template.json` file uses environment variables that get replaced during build:
+The `app.template.json` file uses environment variables that get replaced
+during build:
 
 - `$EXPO_PROJECT_NAME` - App display name
 - `$EXPO_PROJECT_SLUG` - Project slug
@@ -103,4 +114,5 @@ Remember to also update the following assets for complete branding:
 2. Generate `app.json` from `app.template.json` with your variables
 3. Build the app with Expo or React Native CLI
 
-The build process will automatically use your branding configuration throughout the app.
+The build process will automatically use your branding configuration
+throughout the app.
