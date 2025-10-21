@@ -151,7 +151,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.AUTO_STATUS')}
 				</Text>
@@ -164,9 +164,6 @@ export const IssuesSettings = () => {
 				<TaskVersionForm />
 			</div>
 			{/* TODO */}
-			{/* <div className="hidden _flex w-full items-center justify-between gap-[2rem]">
-				<IssueTypeForm />
-			</div> */}
 			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<DefaultIssueTypeForm />
 			</div>
