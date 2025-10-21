@@ -48,7 +48,7 @@ jobs:
             "NEXT_PUBLIC_APP_NAME"
             "COMPANY_NAME"
             "SENTRY_DSN"
-            "NEXT_PUBLIC_SENTRY_DNS"
+            "NEXT_PUBLIC_SENTRY_DSN"
           )
 
           # Check critical secrets
@@ -77,7 +77,7 @@ jobs:
           NEXT_PUBLIC_APP_NAME: "${{ secrets.NEXT_PUBLIC_APP_NAME }}"
           COMPANY_NAME: "${{ secrets.COMPANY_NAME }}"
           SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
-          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+          NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
 
       - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
         run: |
@@ -85,7 +85,7 @@ jobs:
         env:
           # below we are using GitHub secrets for both frontend and backend
           CLOUD_PROVIDER: "DO"
-          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+          NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
           SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
           NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}"
           NEXT_PUBLIC_JITSU_BROWSER_URL: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}"

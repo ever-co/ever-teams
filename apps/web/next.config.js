@@ -46,6 +46,20 @@ const parseImagesHosts = () => {
 };
 
 const allowedImageHosts = parseImagesHosts();
+const localImageHosts = [
+	{
+		hostname: '127.0.0.1',
+		port: '3000'
+	},
+	{
+		hostname: 'localhost',
+		port: '3030'
+	},
+	{
+		hostname: '127.0.0.1',
+		port: '3030'
+	}
+];
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
@@ -141,21 +155,11 @@ const nextConfig = {
 	images: {
 		remotePatterns: [
 			// Static localhost patterns
-			{
+			...localImageHosts.map((host) => ({
 				protocol: 'http',
-				hostname: 'localhost',
-				port: '3000'
-			},
-			{
-				protocol: 'http',
-				hostname: 'localhost',
-				port: '3030'
-			},
-			{
-				protocol: 'http',
-				hostname: '127.0.0.1',
-				port: '3030'
-			},
+				hostname: host.hostname,
+				port: host.port
+			})),
 			// Dynamic hosts from environment variable
 			...allowedImageHosts.map((hostname) => ({
 				protocol: 'https',

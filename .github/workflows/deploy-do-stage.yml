@@ -85,7 +85,7 @@ jobs:
         env:
           # below we are using GitHub secrets for both frontend and backend
           CLOUD_PROVIDER: "DO"
-          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+          NEXT_PUBLIC_SENTRY_DSN: "${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}"
           SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
           NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}"
           NEXT_PUBLIC_JITSU_BROWSER_URL: "${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}"
