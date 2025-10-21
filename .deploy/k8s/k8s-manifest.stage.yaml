@@ -2,129 +2,236 @@
 kind: Service
 apiVersion: v1
 metadata:
-    name: ever-teams-state-lb
+  name: ever-teams-stage-lb
 spec:
-    type: ClusterIP
-    selector:
-        app: ever-teams-stage-webapp
-    ports:
-        - name: http
-          protocol: TCP
-          port: 80
-          targetPort: 3030
+  type: ClusterIP
+  selector:
+    app: ever-teams-stage-webapp
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3030
 
 ---
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
-    name: ever-teams-state-lb-ingress
-    namespace: default
-    annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+  name: ever-teams-stage-lb-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-    ingressClassName: nginx
-    rules:
-        - host: stage.ever.team
-          http:
-              paths:
-                  - backend:
-                        service:
-                            name: ever-teams-state-lb
-                            port:
-                                number: 80
-                    path: /
-                    pathType: Prefix
-    tls:
-        - hosts:
-              - stage.ever.team
-          secretName: stage.ever.team-tls
+  ingressClassName: nginx
+  rules:
+    - host: stage.ever.team
+      http:
+        paths:
+          - backend:
+              service:
+                name: ever-teams-stage-lb
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - stage.ever.team
+      secretName: stage.ever.team-tls
 
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-    name: ever-teams-stage-webapp
+  name: ever-teams-stage-webapp
 spec:
-    replicas: 2
-    selector:
-        matchLabels:
-            app: ever-teams-stage-webapp
-    template:
-        metadata:
-            labels:
-                app: ever-teams-stage-webapp
-        spec:
-            containers:
-                - name: ever-teams-stage-webapp
-                  image: registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
-                  env:
-                      - name: DEMO
-                        value: 'false'
-                      - name: NEXT_PUBLIC_SENTRY_DNS
-                        value: '$NEXT_PUBLIC_SENTRY_DNS'
-                      - name: SENTRY_DSN
-                        value: '$SENTRY_DSN'
-                      - name: NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
-                        value: '$NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY'
-                      - name: NEXT_PUBLIC_JITSU_BROWSER_URL
-                        value: '$NEXT_PUBLIC_JITSU_BROWSER_URL'
-                      - name: SENTRY_AUTH_TOKEN
-                        value: '$SENTRY_AUTH_TOKEN'
-                      - name: NEXT_PUBLIC_CHATWOOT_API_KEY
-                        value: '$NEXT_PUBLIC_CHATWOOT_API_KEY'
-                      - name: NEXT_PUBLIC_SENTRY_DEBUG
-                        value: '$NEXT_PUBLIC_SENTRY_DEBUG'
-                      - name: SENTRY_PROJECT
-                        value: '$SENTRY_PROJECT'
-                      - name: SENTRY_ORG
-                        value: '$SENTRY_ORG'
-                      - name: SMTP_FROM_ADDRESS
-                        value: '$SMTP_FROM_ADDRESS'
-                      - name: JITSU_SERVER_WRITE_KEY
-                        value: '$JITSU_SERVER_WRITE_KEY'
-                      - name: JITSU_SERVER_URL
-                        value: '$JITSU_SERVER_URL'
-                      - name: NEXT_PUBLIC_COOKIE_DOMAINS
-                        value: '$NEXT_PUBLIC_COOKIE_DOMAINS'
-                      - name: NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
-                        value: '$NEXT_PUBLIC_BOARD_FIREBASE_CONFIG'
-                      - name: NEXT_PUBLIC_BOARD_BACKEND_POST_URL
-                        value: '$NEXT_PUBLIC_BOARD_BACKEND_POST_URL'
-                      - name: NEXT_PUBLIC_BOARD_APP_DOMAIN
-                        value: '$NEXT_PUBLIC_BOARD_APP_DOMAIN'
-                      - name: MEET_JWT_APP_SECRET
-                        value: '$MEET_JWT_APP_SECRET'
-                      - name: MEET_JWT_APP_ID
-                        value: '$MEET_JWT_APP_ID'
-                      - name: NEXT_PUBLIC_MEET_DOMAIN
-                        value: '$NEXT_PUBLIC_MEET_DOMAIN'
-                      - name: GAUZY_API_SERVER_URL
-                        value: '$GAUZY_API_SERVER_URL'
-                      - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
-                        value: '$NEXT_PUBLIC_GAUZY_API_SERVER_URL'
-                      - name: MAILCHIMP_LIST_ID
-                        value: '$MAILCHIMP_LIST_ID'
-                      - name: MAILCHIMP_API_KEY
-                        value: '$MAILCHIMP_API_KEY'
-                      - name: POSTMARK_SERVER_API_TOKEN
-                        value: '$POSTMARK_SERVER_API_TOKEN'
-                      - name: NEXT_PUBLIC_GA_MEASUREMENT_ID
-                        value: '$NEXT_PUBLIC_GA_MEASUREMENT_ID'
-                      - name: SMTP_HOST
-                        value: '$SMTP_HOST'
-                      - name: SMTP_SECURE
-                        value: '$SMTP_SECURE'
-                      - name: SMTP_USERNAME
-                        value: '$SMTP_USERNAME'
-                      - name: SMTP_PASSWORD
-                        value: '$SMTP_PASSWORD'
-                      - name: CAPTCHA_SECRET_KEY
-                        value: '$CAPTCHA_SECRET_KEY'
-                      - name: NEXT_PUBLIC_CAPTCHA_SITE_KEY
-                        value: '$NEXT_PUBLIC_CAPTCHA_SITE_KEY'
-                      - name: AUTH_SECRET
-                        value: '$AUTH_SECRET'
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ever-teams-stage-webapp
+  template:
+    metadata:
+      labels:
+        app: ever-teams-stage-webapp
+    spec:
+      containers:
+        - name: ever-teams-stage-webapp
+          image: registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
+          env:
+            - name: DEMO
+              value: "false"
+            - name: NEXT_PUBLIC_SENTRY_DSN
+              value: "$NEXT_PUBLIC_SENTRY_DSN"
+            - name: SENTRY_DSN
+              value: "$SENTRY_DSN"
+            - name: NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
+              value: "$NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY"
+            - name: NEXT_PUBLIC_JITSU_BROWSER_URL
+              value: "$NEXT_PUBLIC_JITSU_BROWSER_URL"
+            - name: SENTRY_AUTH_TOKEN
+              value: "$SENTRY_AUTH_TOKEN"
+            - name: NEXT_PUBLIC_CHATWOOT_API_KEY
+              value: "$NEXT_PUBLIC_CHATWOOT_API_KEY"
+            - name: NEXT_PUBLIC_SENTRY_DEBUG
+              value: "$NEXT_PUBLIC_SENTRY_DEBUG"
+            - name: SENTRY_PROJECT
+              value: "$SENTRY_PROJECT"
+            - name: SENTRY_ORG
+              value: "$SENTRY_ORG"
+            - name: SMTP_FROM_ADDRESS
+              value: "$SMTP_FROM_ADDRESS"
+            - name: JITSU_SERVER_WRITE_KEY
+              value: "$JITSU_SERVER_WRITE_KEY"
+            - name: JITSU_SERVER_URL
+              value: "$JITSU_SERVER_URL"
+            - name: NEXT_PUBLIC_COOKIE_DOMAINS
+              value: "$NEXT_PUBLIC_COOKIE_DOMAINS"
+            - name: NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
+              value: "$NEXT_PUBLIC_BOARD_FIREBASE_CONFIG"
+            - name: NEXT_PUBLIC_BOARD_BACKEND_POST_URL
+              value: "$NEXT_PUBLIC_BOARD_BACKEND_POST_URL"
+            - name: NEXT_PUBLIC_BOARD_APP_DOMAIN
+              value: "$NEXT_PUBLIC_BOARD_APP_DOMAIN"
+            - name: MEET_JWT_APP_SECRET
+              value: "$MEET_JWT_APP_SECRET"
+            - name: MEET_JWT_APP_ID
+              value: "$MEET_JWT_APP_ID"
+            - name: NEXT_PUBLIC_MEET_DOMAIN
+              value: "$NEXT_PUBLIC_MEET_DOMAIN"
+            - name: GAUZY_API_SERVER_URL
+              value: "$GAUZY_API_SERVER_URL"
+            - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
+              value: "$NEXT_PUBLIC_GAUZY_API_SERVER_URL"
+            - name: MAILCHIMP_LIST_ID
+              value: "$MAILCHIMP_LIST_ID"
+            - name: MAILCHIMP_API_KEY
+              value: "$MAILCHIMP_API_KEY"
+            - name: POSTMARK_SERVER_API_TOKEN
+              value: "$POSTMARK_SERVER_API_TOKEN"
+            - name: NEXT_PUBLIC_GA_MEASUREMENT_ID
+              value: "$NEXT_PUBLIC_GA_MEASUREMENT_ID"
+            - name: SMTP_HOST
+              value: "$SMTP_HOST"
+            - name: SMTP_SECURE
+              value: "$SMTP_SECURE"
+            - name: SMTP_USERNAME
+              value: "$SMTP_USERNAME"
+            - name: SMTP_PASSWORD
+              value: "$SMTP_PASSWORD"
+            - name: CAPTCHA_SECRET_KEY
+              value: "$CAPTCHA_SECRET_KEY"
+            - name: NEXT_PUBLIC_CAPTCHA_SITE_KEY
+              value: "$NEXT_PUBLIC_CAPTCHA_SITE_KEY"
+            - name: AUTH_SECRET
+              value: "$AUTH_SECRET"
+            # App Branding Variables
+            - name: APP_NAME
+              value: "$APP_NAME"
+            - name: NEXT_PUBLIC_APP_NAME
+              value: "$NEXT_PUBLIC_APP_NAME"
+            - name: APP_SIGNATURE
+              value: "$APP_SIGNATURE"
+            - name: APP_LOGO_URL
+              value: "$APP_LOGO_URL"
+            - name: APP_LINK
+              value: "$APP_LINK"
+            - name: APP_SLOGAN_TEXT
+              value: "$APP_SLOGAN_TEXT"
+            - name: COMPANY_NAME
+              value: "$COMPANY_NAME"
+            - name: COMPANY_LINK
+              value: "$COMPANY_LINK"
+            - name: TERMS_LINK
+              value: "$TERMS_LINK"
+            - name: PRIVACY_POLICY_LINK
+              value: "$PRIVACY_POLICY_LINK"
+            - name: MAIN_PICTURE
+              value: "$MAIN_PICTURE"
+            - name: MAIN_PICTURE_DARK
+              value: "$MAIN_PICTURE_DARK"
+            # Site Metadata Variables
+            - name: NEXT_PUBLIC_SITE_NAME
+              value: "$NEXT_PUBLIC_SITE_NAME"
+            - name: NEXT_PUBLIC_SITE_TITLE
+              value: "$NEXT_PUBLIC_SITE_TITLE"
+            - name: NEXT_PUBLIC_SITE_DESCRIPTION
+              value: "$NEXT_PUBLIC_SITE_DESCRIPTION"
+            - name: NEXT_PUBLIC_SITE_KEYWORDS
+              value: "$NEXT_PUBLIC_SITE_KEYWORDS"
+            - name: NEXT_PUBLIC_WEB_APP_URL
+              value: "$NEXT_PUBLIC_WEB_APP_URL"
+            - name: NEXT_PUBLIC_TWITTER_USERNAME
+              value: "$NEXT_PUBLIC_TWITTER_USERNAME"
+            - name: NEXT_PUBLIC_IMAGES_HOSTS
+              value: "$NEXT_PUBLIC_IMAGES_HOSTS"
+            # Additional Environment Variables
+            - name: RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED
+              value: "$RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED"
+            - name: LOG_FOLDER_MAX_SIZE
+              value: "$LOG_FOLDER_MAX_SIZE"
+            - name: NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE
+              value: "$NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE"
+            - name: ACTIVE_LOCAL_LOG_SYSTEM
+              value: "$ACTIVE_LOCAL_LOG_SYSTEM"
+            - name: NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM
+              value: "$NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM"
+            - name: IS_DESKTOP_APP
+              value: "$IS_DESKTOP_APP"
+            # OAuth Configuration
+            - name: NEXT_PUBLIC_GOOGLE_APP_NAME
+              value: "$NEXT_PUBLIC_GOOGLE_APP_NAME"
+            - name: GOOGLE_CLIENT_ID
+              value: "$GOOGLE_CLIENT_ID"
+            - name: GOOGLE_CLIENT_SECRET
+              value: "$GOOGLE_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_GITHUB_APP_NAME
+              value: "$NEXT_PUBLIC_GITHUB_APP_NAME"
+            - name: GITHUB_CLIENT_ID
+              value: "$GITHUB_CLIENT_ID"
+            - name: GITHUB_CLIENT_SECRET
+              value: "$GITHUB_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_FACEBOOK_APP_NAME
+              value: "$NEXT_PUBLIC_FACEBOOK_APP_NAME"
+            - name: FACEBOOK_CLIENT_ID
+              value: "$FACEBOOK_CLIENT_ID"
+            - name: FACEBOOK_CLIENT_SECRET
+              value: "$FACEBOOK_CLIENT_SECRET"
+            - name: NEXT_PUBLIC_TWITTER_APP_NAME
+              value: "$NEXT_PUBLIC_TWITTER_APP_NAME"
+            - name: TWITTER_CLIENT_ID
+              value: "$TWITTER_CLIENT_ID"
+            - name: TWITTER_CLIENT_SECRET
+              value: "$TWITTER_CLIENT_SECRET"
+            # Additional Configuration
+            - name: NEXT_PUBLIC_CAPTCHA_TYPE
+              value: "$NEXT_PUBLIC_CAPTCHA_TYPE"
+            - name: NEXT_PUBLIC_MEET_TYPE
+              value: "$NEXT_PUBLIC_MEET_TYPE"
+            - name: LIVEKIT_API_SECRET
+              value: "$LIVEKIT_API_SECRET"
+            - name: LIVEKIT_API_KEY
+              value: "$LIVEKIT_API_KEY"
+            - name: NEXT_PUBLIC_LIVEKIT_URL
+              value: "$NEXT_PUBLIC_LIVEKIT_URL"
+            - name: INVITE_CALLBACK_URL
+              value: "$INVITE_CALLBACK_URL"
+            - name: VERIFY_EMAIL_CALLBACK_URL
+              value: "$VERIFY_EMAIL_CALLBACK_URL"
+            - name: SMTP_PORT
+              value: "$SMTP_PORT"
+            - name: NEXT_PUBLIC_DISABLE_AUTO_REFRESH
+              value: "$NEXT_PUBLIC_DISABLE_AUTO_REFRESH"
+            - name: SENTRY_LOG_LEVEL
+              value: "$SENTRY_LOG_LEVEL"
+            - name: NEXT_PUBLIC_POSTHOG_KEY
+              value: "$NEXT_PUBLIC_POSTHOG_KEY"
+            - name: NEXT_PUBLIC_POSTHOG_HOST
+              value: "$NEXT_PUBLIC_POSTHOG_HOST"
+            - name: NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
+              value: "$NEXT_IGNORE_ESLINT_ERROR_ON_BUILD"
+            - name: ANALYZE
+              value: "$ANALYZE"
 
-                  ports:
-                      - containerPort: 3030
-                        protocol: TCP
+          ports:
+            - containerPort: 3030
+              protocol: TCP

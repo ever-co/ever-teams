@@ -2,7 +2,7 @@
  * Central export file for all Zod schemas
  *
  * This file provides a single import point for all schema validation
- * functionality in the Ever Teams application.
+ * functionality in the application.
  */
 
 // Base schemas - Common interfaces used across entities

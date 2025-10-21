@@ -144,9 +144,9 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 ) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
 
 // Invite
-export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/accept-invite';
+export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
-export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
+export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 export const GA_MEASUREMENT_ID = getNextPublicEnv(
 	'NEXT_PUBLIC_GA_MEASUREMENT_ID',
@@ -159,7 +159,7 @@ export const CHATWOOT_API_KEY = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_CHATWOOT_API_KEY
 );
 
-export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
+export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
 export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
@@ -172,14 +172,45 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 	}
 });
 
-export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
-export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
-export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
-export const APP_LINK = process.env.APP_LINK || 'https://ever.team/';
-export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
+// Branding constants - no fallbacks to detect missing values
+export const APP_NAME = process.env.APP_NAME || '';
+export const APP_SIGNATURE = process.env.APP_SIGNATURE || '';
+export const APP_LOGO_URL = process.env.APP_LOGO_URL || '';
+export const APP_LINK = process.env.APP_LINK || '';
+export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || '';
 
-export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
-export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
+export const COMPANY_NAME = process.env.COMPANY_NAME || '';
+export const COMPANY_LINK = process.env.COMPANY_LINK || '';
+
+// Utility to detect missing branding variables
+export const getMissingBrandingVars = () => {
+	const missing: string[] = [];
+
+	if (!APP_NAME) missing.push('APP_NAME');
+	if (!APP_SIGNATURE) missing.push('APP_SIGNATURE');
+	if (!APP_LOGO_URL) missing.push('APP_LOGO_URL');
+	if (!APP_LINK) missing.push('APP_LINK');
+	if (!APP_SLOGAN_TEXT) missing.push('APP_SLOGAN_TEXT');
+	if (!COMPANY_NAME) missing.push('COMPANY_NAME');
+	if (!COMPANY_LINK) missing.push('COMPANY_LINK');
+
+	return missing;
+};
+
+// Check if branding is properly configured
+export const isBrandingConfigured = () => getMissingBrandingVars().length === 0;
+
+// Development warning for missing branding variables
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+	const missing = getMissingBrandingVars();
+	if (missing.length > 0) {
+		console.warn(
+			'🎨 Missing branding environment variables:',
+			missing.join(', '),
+			'\nUsing default values. Set these in your .env.local file for custom branding.'
+		);
+	}
+}
 
 export const TERMS_LINK = process.env.TERMS_LINK || 'https://ever.team/tos';
 export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
@@ -207,23 +238,20 @@ export const COOKIE_DOMAINS = getNextPublicEnv('NEXT_PUBLIC_COOKIE_DOMAINS', {
 });
 
 // MEET Constants
-export const MEET_DOMAIN = getNextPublicEnv(
-	'NEXT_PUBLIC_MEET_DOMAIN',
-	process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team'
-);
-export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID || 'ever_teams';
+export const MEET_DOMAIN = getNextPublicEnv('NEXT_PUBLIC_MEET_DOMAIN', process.env.NEXT_PUBLIC_MEET_DOMAIN || '');
+export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID;
 export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
 export const BOARD_APP_DOMAIN = getNextPublicEnv(
 	'NEXT_PUBLIC_BOARD_APP_DOMAIN',
-	process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team'
+	process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || ''
 );
 
 export const BOARD_BACKEND_POST_URL = getNextPublicEnv(
 	'NEXT_PUBLIC_BOARD_BACKEND_POST_URL',
-	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/'
+	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || ''
 );
 export const BOARD_FIREBASE_CONFIG = getNextPublicEnv(
 	'NEXT_PUBLIC_BOARD_FIREBASE_CONFIG',
@@ -248,7 +276,7 @@ export const jitsuConfiguration: () => JitsuOptions = () => ({
 // Github Integration
 export const GITHUB_APP_NAME = getNextPublicEnv(
 	'NEXT_PUBLIC_GITHUB_APP_NAME',
-	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github'
+	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || ''
 );
 
 // Application Languages

@@ -40,7 +40,7 @@ interface HttpClientConfig {
 /**
  * Abstract base class for making typed HTTP requests using Axios.
  *
- * Used internally to create feature-specific services (Tasks, Projects, Teams, etc.) in Ever Teams.
+ * Used internally to create feature-specific services (Tasks, Projects, Teams, etc.) in our App.
  *
  * @abstract
  */
@@ -223,7 +223,7 @@ export class APIService {
 
 	/**
 	 * Handles 401 Unauthorized errors by redirecting users appropriately.
-	 * This logic adapts to special path prefixes used in Ever Teams (e.g., /god-mode, /spaces).
+	 * This logic adapts to special path prefixes used in Our App (e.g., /god-mode, /spaces).
 	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @private
