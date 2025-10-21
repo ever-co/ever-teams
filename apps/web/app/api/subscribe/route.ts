@@ -1,3 +1,4 @@
+import { APP_NAME } from '@/core/constants/config/constants';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
@@ -30,7 +31,7 @@ export const POST = async (req: NextRequest) => {
 		const mailchimpData = {
 			email_address: reqData.email_address,
 			status: 'subscribed',
-			tags: reqData.tags ? [...reqData.tags] : ['Ever Teams']
+			tags: reqData.tags ? [...reqData.tags] : [APP_NAME]
 		};
 		// 5. Send a POST request to Mailchimp.
 		const response = await fetch(`https://${DATACENTER}.api.mailchimp.com/3.0/lists/${LIST_ID}/members`, {

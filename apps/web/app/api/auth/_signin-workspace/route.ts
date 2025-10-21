@@ -10,6 +10,7 @@ import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/
 import { NextResponse } from 'next/server';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export async function POST(req: Request) {
 	try {
@@ -104,7 +105,7 @@ export async function POST(req: Request) {
 				return NextResponse.json(
 					{
 						errors: {
-							email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+							email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 						}
 					},
 					{ status: 401 }
@@ -155,7 +156,7 @@ export async function POST(req: Request) {
 			return NextResponse.json(
 				{
 					errors: {
-						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+						email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 					}
 				},
 				{ status: 400 }

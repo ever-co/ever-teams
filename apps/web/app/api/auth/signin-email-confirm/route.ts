@@ -9,6 +9,7 @@ import {
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
 			return NextResponse.json(
 				{
 					errors: {
-						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+						email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 					}
 				},
 				{ status: 400 }
