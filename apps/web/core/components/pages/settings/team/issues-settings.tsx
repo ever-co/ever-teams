@@ -187,13 +187,6 @@ export const IssuesSettings = () => {
 					<TaskLabelForm />
 				</div>
 			</InteractionObserverVisible>
-
-			{/* <div
-				id="related-issue-types"
-				className="flex w-full items-center justify-between gap-[2rem]"
-			>
-				<RelatedIssueTypeForm />
-			</div> */}
 		</div>
 	);
 };
