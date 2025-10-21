@@ -1,6 +1,7 @@
 # Deployment Secrets Configuration
 
-This document lists all required GitHub secrets for deploying Ever Teams to different environments.
+This document lists all required GitHub secrets for deploying Ever Teams to
+different environments.
 
 ## Critical Secrets (Required for Deployment)
 
@@ -65,7 +66,7 @@ These secrets **MUST** be configured for successful deployment:
 
 ### **Ever Teams (Production)**
 
-```
+```bash
 APP_NAME="Ever Teams"
 COMPANY_NAME="Ever Co. LTD"
 GAUZY_API_SERVER_URL="https://api.ever.team"
@@ -73,7 +74,7 @@ GAUZY_API_SERVER_URL="https://api.ever.team"
 
 ### **Ever Cloc (app.cloc.ai)**
 
-```
+```bash
 APP_NAME="Ever Cloc"
 COMPANY_NAME="Ever Co. LTD"
 GAUZY_API_SERVER_URL="https://api.cloc.ai"
@@ -88,8 +89,11 @@ GAUZY_API_SERVER_URL="https://api.cloc.ai"
 
 ## Validation
 
-The deployment workflow includes automatic validation of critical secrets. If any critical secret is missing, the deployment will fail with a clear error message.
+The deployment workflow includes automatic validation of critical secrets.
+If any critical secret is missing, the deployment will fail with a clear
+error message.
 
 ## Support
 
-If you need help configuring secrets for a new deployment, contact the development team.
+If you need help configuring secrets for a new deployment, contact the
+development team.
