@@ -4,72 +4,16 @@
  * Script to verify that all variables from .env.local are in Docker files
  */
 
-const fs = require('node:fs');
 const path = require('node:path');
+const { detectEnvironment, checkFileExists, safeReadFile, getEnvVars } = require('./env-utils.js');
 
 console.log('DOCKER VARIABLES VERIFICATION\n');
-
-// Detect environment mode
-const detectEnvironment = () => {
-	const nodeEnv = process.env.NODE_ENV;
-	if (nodeEnv === 'production') return 'prod';
-	if (nodeEnv === 'development') return 'dev';
-	if (process.env.CI === 'true') return 'ci';
-	return 'dev';
-};
 
 const ENV_MODE = detectEnvironment();
 console.log(`Environment Mode: ${ENV_MODE.toUpperCase()}\n`);
 
-// Helper function to check file existence
-const checkFileExists = (filePath) => {
-	try {
-		return fs.existsSync(filePath);
-	} catch (error) {
-		console.error(`Error checking file: ${error.message}`);
-		return false;
-	}
-};
-
-// Helper function to safely read file
-const safeReadFile = (filePath) => {
-	try {
-		return fs.readFileSync(filePath, 'utf8');
-	} catch (error) {
-		console.error(`Error reading file: ${error.message}`);
-		return null;
-	}
-};
-
-// 1. Read all variables from .env.local
-const envLocalPath = path.join(process.cwd(), 'apps/web/.env.local');
-
-if (!checkFileExists(envLocalPath)) {
-	console.log('❌ File .env.local not found');
-	console.log('This file is required to compare with Docker configurations\n');
-	process.exit(1);
-}
-
-const envLocalContent = safeReadFile(envLocalPath);
-if (!envLocalContent) {
-	console.log('❌ Unable to read .env.local file\n');
-	process.exit(1);
-}
-
-const envLocalVars = [];
-
-// Parse variables (ignore comments and empty lines)
-envLocalContent.split('\n').forEach((line) => {
-	line = line.trim();
-	if (line && !line.startsWith('#') && line.includes('=')) {
-		const varName = line.split('=')[0].trim();
-		if (varName) {
-			envLocalVars.push(varName);
-		}
-	}
-});
-
-console.log(`Variables found in .env.local: ${envLocalVars.length}\n`);
+// Get environment variables using shared utility
+const { envVars, envFile } = getEnvVars();
 
 let hasErrors = false;
 const fileResults = [];
@@ -82,7 +26,7 @@ if (checkFileExists(dockerfilePath)) {
 	const content = safeReadFile(dockerfilePath);
 
 	if (content !== null) {
-		const missingInDockerfile = envLocalVars.filter((varName) => !content.includes(`ARG ${varName}`));
+		const missingInDockerfile = envVars.filter((varName) => !content.includes(`ARG ${varName}`));
 
 		if (missingInDockerfile.length === 0) {
 			console.log('   ✅ All variables present in Dockerfile');
@@ -121,7 +65,7 @@ dockerComposeFiles.forEach((fileName) => {
 		const content = safeReadFile(filePath);
 
 		if (content !== null) {
-			const missing = envLocalVars.filter(
+			const missing = envVars.filter(
 				(varName) => !content.includes(`${varName}:`) && !content.includes(`${varName} `)
 			);
 
@@ -148,7 +92,7 @@ dockerComposeFiles.forEach((fileName) => {
 // 4. Global summary
 console.log('\n' + '='.repeat(60));
 console.log('DOCKER SUMMARY:');
-console.log(`Total variables in .env.local: ${envLocalVars.length}`);
+console.log(`Total variables in ${envFile.name}: ${envVars.length}`);
 
 const totalMissing = fileResults.reduce((sum, result) => sum + (result.missing || 0), 0);
 

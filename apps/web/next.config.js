@@ -173,7 +173,7 @@ const nextConfig = {
 		];
 	},
 	env: {
-		APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+		APP_NAME: process.env.APP_NAME,
 		APP_SIGNATURE: process.env.APP_SIGNATURE,
 		APP_LOGO_URL: process.env.APP_LOGO_URL,
 		APP_LINK: process.env.APP_LINK,

@@ -7,6 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { detectEnvFile, safeReadFile } = require('./env-utils.js');
 
 // List of required branding environment variables
 const REQUIRED_BRANDING_VARS = [
@@ -63,65 +64,30 @@ const checkFileExists = (filePath) => {
 };
 
 // Helper function to safely read file
-const safeReadFile = (filePath) => {
-	try {
-		return fs.readFileSync(filePath, 'utf8');
-	} catch (error) {
-		console.error(`   Error reading file: ${error.message}`);
-		return null;
-	}
-};
+// Use safeReadFile from env-utils.js
 
-// 1. Check .env.sample
-console.log('1. Checking apps/web/.env.sample...');
-const envSamplePath = path.join(process.cwd(), 'apps/web/.env.sample');
+// 1. Check environment files using auto-detection
+console.log('1. Checking environment files...');
+const envFile = detectEnvFile();
+const envContent = safeReadFile(envFile.path);
 
-if (checkFileExists(envSamplePath)) {
-	const envSampleContent = safeReadFile(envSamplePath);
+if (envContent !== null) {
+	const missingVars = REQUIRED_BRANDING_VARS.filter((varName) => !envContent.includes(`${varName}=`));
 
-	if (envSampleContent !== null) {
-		const missingInSample = REQUIRED_BRANDING_VARS.filter((varName) => !envSampleContent.includes(`${varName}=`));
-
-		if (missingInSample.length === 0) {
-			console.log('   ✅ All variables are present');
-		} else {
-			console.log('   ❌ Missing variables:');
-			missingInSample.forEach((varName) => console.log(`      - ${varName}`));
-			hasErrors = true;
-		}
+	if (missingVars.length === 0) {
+		console.log(`   ✅ All branding variables are present in ${envFile.name}`);
 	} else {
-		hasErrors = true;
-	}
-} else {
-	console.log('   ❌ File not found');
-	console.log('   This file is required as a template for environment variables');
-	hasErrors = true;
-}
-
-// 2. Check .env.local
-console.log('\n2. Checking apps/web/.env.local...');
-const envLocalPath = path.join(process.cwd(), 'apps/web/.env.local');
-
-if (checkFileExists(envLocalPath)) {
-	const envLocalContent = safeReadFile(envLocalPath);
-
-	if (envLocalContent !== null) {
-		const missingInLocal = REQUIRED_BRANDING_VARS.filter((varName) => !envLocalContent.includes(`${varName}=`));
-
-		if (missingInLocal.length === 0) {
-			console.log('   ✅ All variables are present');
+		console.log(`   ❌ Missing branding variables in ${envFile.name}:`);
+		missingVars.forEach((varName) => console.log(`      - ${varName}`));
+		if (envFile.name.includes('.env.sample')) {
+			hasErrors = true;
 		} else {
-			console.log('   ❌ Missing variables:');
-			missingInLocal.forEach((varName) => console.log(`      - ${varName}`));
 			hasWarnings = true;
 		}
-	} else {
-		hasWarnings = true;
 	}
 } else {
-	console.log('   File not found (optional for local development)');
-	console.log('   You may need to create this file from .env.sample');
-	hasWarnings = true;
+	console.log(`   ❌ Unable to read ${envFile.name}`);
+	hasErrors = true;
 }
 
 // 3. Check K8s manifests
