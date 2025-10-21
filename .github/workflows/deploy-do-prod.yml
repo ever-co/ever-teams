@@ -35,6 +35,50 @@ jobs:
           echo "${{ secrets.INGRESS_CERT_KEY }}" | base64 --decode > ${HOME}/ingress.webapp.key
           kubectl create secret tls app.ever.team-tls --save-config --dry-run=client --cert=${HOME}/ingress.webapp.crt --key=${HOME}/ingress.webapp.key -o yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
 
+      - name: Validate required secrets
+        run: |
+          echo "==> Validating required secrets for PROD environment..."
+          missing_secrets=()
+
+          # Critical secrets for deployment
+          critical_secrets=(
+            "GAUZY_API_SERVER_URL"
+            "NEXT_PUBLIC_GAUZY_API_SERVER_URL"
+            "APP_NAME"
+            "NEXT_PUBLIC_APP_NAME"
+            "COMPANY_NAME"
+            "SENTRY_DSN"
+            "NEXT_PUBLIC_SENTRY_DNS"
+          )
+
+          # Check critical secrets
+          for secret in "${critical_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_secrets+=("$secret")
+            fi
+          done
+
+          # Fail if critical secrets are missing
+          if [ ${#missing_secrets[@]} -gt 0 ]; then
+            echo "❌ Missing required secrets for PROD deployment:"
+            printf '   - %s\n' "${missing_secrets[@]}"
+            echo ""
+            echo "Please configure these secrets in GitHub repository settings."
+            echo "See DEPLOYMENT_SECRETS.md for details."
+            exit 1
+          fi
+
+          echo "✅ All critical secrets validated successfully for PROD"
+        env:
+          # Pass secrets for validation
+          GAUZY_API_SERVER_URL: "${{ secrets.GAUZY_API_SERVER_URL }}"
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: "${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
+          APP_NAME: "${{ secrets.APP_NAME }}"
+          NEXT_PUBLIC_APP_NAME: "${{ secrets.NEXT_PUBLIC_APP_NAME }}"
+          COMPANY_NAME: "${{ secrets.COMPANY_NAME }}"
+          SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
+          NEXT_PUBLIC_SENTRY_DNS: "${{ secrets.NEXT_PUBLIC_SENTRY_DNS }}"
+
       - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
         run: |
           envsubst < $GITHUB_WORKSPACE/.deploy/k8s/k8s-manifest.prod.yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
