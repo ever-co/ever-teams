@@ -44,6 +44,7 @@ import { useAtomValue } from 'jotai';
 import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
 import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { APP_NAME } from '@/core/constants/config/constants';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -80,7 +81,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const data = {
 		workspaces: [
 			{
-				name: 'Ever Teams',
+				name: APP_NAME,
 				logo: ({ className }: { className?: string }) => (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

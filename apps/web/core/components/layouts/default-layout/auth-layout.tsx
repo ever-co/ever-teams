@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constants';
+import { APP_NAME, MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 
 import { Footer } from './footer';
@@ -25,16 +25,16 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 				{/* Bg Cover side */}
 				<div
 					className={clsxm(
-						'fixed h-full min-h-screen w-1/2 hidden lg:flex lg:flex-col lg:justify-between bg-primary dark:bg-primary-xlight overflow-hidden'
+						'hidden overflow-hidden fixed w-1/2 h-full min-h-screen lg:flex lg:flex-col lg:justify-between bg-primary dark:bg-primary-xlight'
 					)}
 				>
-					<div className="absolute top-0 z-10 w-10 h-full shadow-2xl -right-10 shadow-black" />
+					<div className="absolute top-0 -right-10 z-10 w-10 h-full shadow-2xl shadow-black" />
 
 					<div className="overflow-hidden h-[100vh]">
-						<div className="pt-4 p-9">
+						<div className="p-9 pt-4">
 							<EverTeamsLogo color="white-black" className="mt-3 mb-1 ml-7" />
-							<Text className="text-xs text-gray-300 ml-7 dark:text-default">
-								{t('pages.auth.WELCOME_TEAMS')}
+							<Text className="ml-7 text-xs text-gray-300 dark:text-default">
+								{t('pages.auth.WELCOME_TEAMS', { appName: APP_NAME })}
 							</Text>
 						</div>
 
@@ -61,7 +61,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 											priority
 											width={2880}
 											height={2840}
-											alt={t('TITLE')}
+											alt={t('TITLE', { appName: APP_NAME })}
 											className={
 												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
 											}
@@ -72,7 +72,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 					</div>
 
-					<div className="self-end w-full h-fit bg-primary-mid p-9">
+					<div className="self-end p-9 w-full h-fit bg-primary-mid">
 						<Text.Heading
 							as="h3"
 							className="text-white lg:text-lg xl:text-xl 2xl:text-3xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
@@ -80,7 +80,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
 
-						<Text.Label className="text-sm text-gray-400 px-9 text-ellipsis">
+						<Text.Label className="px-9 text-sm text-gray-400 text-ellipsis">
 							{t('pages.auth.COVER_DESCRIPTION')}
 						</Text.Label>
 					</div>
@@ -88,8 +88,8 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 
 				<div
 					className={clsxm(
-						'w-full lg:w-1/2 h-screen min-h-[500px]',
-						'flex flex-col items-center justify-between ml-auto'
+						'w-full h-screen lg:w-1/2 min-h-[500px]',
+						'flex flex-col justify-between items-center ml-auto'
 					)}
 				>
 					<div
@@ -99,7 +99,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						)}
 					>
 						{isAuthPage && (
-							<div className="w-11/12 flex-col gap-1 flex justify-center items-center ">
+							<div className="flex flex-col gap-1 justify-center items-center w-11/12">
 								{title && (
 									<Text.Heading as="h1" className="text-center">
 										{title}
@@ -107,7 +107,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 								)}
 								{description &&
 									(typeof description === 'string' ? (
-										<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
+										<p className="text-sm text-center text-gray-400 md:text-lg">{description}</p>
 									) : (
 										description
 									))}

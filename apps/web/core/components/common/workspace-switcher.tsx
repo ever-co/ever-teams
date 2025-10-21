@@ -26,6 +26,7 @@ import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { useModal } from '@/core/hooks/common/use-modal';
 import { ModalSkeleton } from './skeleton/modal-skeleton';
 import { Suspense } from 'react';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 // Fallback for workspace icon
 const DefaultWorkspaceIcon = ({ className }: { className?: string }) => (
@@ -317,7 +318,7 @@ export function WorkspacesSwitcher() {
 					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
 				<div className="grid flex-1 text-sm leading-tight text-left">
-					<span className="font-semibold truncate">Ever Teams</span>
+					<span className="font-semibold truncate">{APP_NAME}</span>
 					<span className="text-xs truncate">Free</span>
 				</div>
 			</>

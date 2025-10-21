@@ -13,6 +13,7 @@ import { PiTimerBold } from 'react-icons/pi';
 import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
 import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/core/components/icons';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 // import { IOrganizationTeamList } from '@app/interfaces';
 
@@ -133,7 +134,7 @@ export function SetupFullCalendar() {
 					</div>
 					<div>
 						<Button
-							className="flex items-center justify-center h-10 rounded-lg dark:bg-primary-light"
+							className="flex justify-center items-center h-10 rounded-lg dark:bg-primary-light"
 							variant="primary"
 						>
 							<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
@@ -141,7 +142,7 @@ export function SetupFullCalendar() {
 						</Button>
 					</div>
 				</div>
-				<div className="flex h-full border border-gray-200 dark:border-gray-700 rounded-lg">
+				<div className="flex h-full rounded-lg border border-gray-200 dark:border-gray-700">
 					<CalendarComponent
 						calendarRef={calendarRef}
 						dayCellClassNames={dayCellClassNames}
@@ -151,7 +152,7 @@ export function SetupFullCalendar() {
 						renderEventContent={renderEventContent}
 					/>
 					{isDialogOpen === 'open' && (
-						<div className={`py-10 w-1/5 m-5 h-full`}>
+						<div className={`py-10 m-5 w-1/5 h-full`}>
 							<CardItems selectedDate={selectedDate as any} />
 						</div>
 					)}
@@ -168,10 +169,10 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 				<span className="p-2 text-[16px] text-gray-500 font-bold">
 					{formatWithSuffix(new Date(selectedDate))}
 				</span>
-				<div className="px-2 w-full h-full flex flex-col">
+				<div className="flex flex-col px-2 w-full h-full">
 					<CardItemsProjects
 						logo="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=N"
-						title="Ever teams projects"
+						title={`${APP_NAME} projects`}
 						totalHours="Total hours 52h"
 					/>
 					<CardItemsMember
@@ -202,10 +203,10 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 
 export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; name?: string; time?: string }) => {
 	return (
-		<div className="w-full flex items-center">
-			<div className="w-full flex items-center space-x-2 p-1 cursor-pointer hover:bg-gray-100 rounded dark:hover:bg-gray-700">
+		<div className="flex items-center w-full">
+			<div className="flex items-center p-1 space-x-2 w-full rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
 				<Image
-					className="text-white p-1 rounded-full flex items-center justify-center h-8 w-8"
+					className="flex justify-center items-center p-1 w-8 h-8 text-white rounded-full"
 					src={imageUrl ? imageUrl : ''}
 					alt=""
 					width={90}
@@ -234,16 +235,16 @@ export const CardItemsProjects = ({
 	totalHours?: string;
 }) => {
 	return (
-		<div className="flex items-center justify-start space-x-2 w-full pb-2">
+		<div className="flex justify-start items-center pb-2 space-x-2 w-full">
 			<div className="flex items-center w-full">
 				<Image
 					src={logo ? logo : ''}
 					alt="logos"
 					width={100}
 					height={100}
-					className="h-8 w-8 bg-cover rounded-lg flex items-center justify-center"
+					className="flex justify-center items-center w-8 h-8 bg-cover rounded-lg"
 				/>
-				<div className="flex items-start flex-col justify-center p-1">
+				<div className="flex flex-col justify-center items-start p-1">
 					<span className="font-bold text-[14px] sm:text-[16px] overflow-hidden leading-4">{title}</span>
 					<span className="text-gray-400 text-[12px] leading-4">{totalHours}</span>
 				</div>
@@ -259,7 +260,7 @@ export function TotalHours() {
 		<div className="w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2">
 			<div className="flex items-center">
 				{/* @ts-ignore */}
-				<IoTimeSharp className="mr-2 h-5 w-5" />
+				<IoTimeSharp className="mr-2 w-5 h-5" />
 				<span>Total Hours 240</span>
 			</div>
 		</div>
