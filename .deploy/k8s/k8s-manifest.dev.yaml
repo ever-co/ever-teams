@@ -27,13 +27,13 @@ spec:
     - host: demo.ever.team
       http:
         paths:
-          - backend:
+          - path: /
+            pathType: Prefix
+            backend:
               service:
                 name: ever-teams-dev-lb
                 port:
                   number: 80
-            path: /
-            pathType: Prefix
   tls:
     - hosts:
         - demo.ever.team
