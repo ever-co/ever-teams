@@ -29,7 +29,7 @@ export const moonDarkMedium = `<svg width="25" height="24" viewBox="0 0 25 24" f
 </svg>
 `;
 
-// Ever Teams Logo
+// App Logo
 
 export const everTeamsLogoLightTheme = `<svg
 				xmlns="http://www.w3.org/2000/svg"

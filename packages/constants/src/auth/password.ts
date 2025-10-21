@@ -5,11 +5,11 @@ import { AuthErrorCode, AuthErrorMessageMap, PasswordValidationCriterion } from 
 /* -------------------------------------------------------------------------- */
 
 /**
- * Minimum password length required across Ever Teams.
+ * Minimum password length required across the application.
  */
 export const PASSWORD_MINIMUM_LENGTH = 8;
 /**
- * Core password criteria for Ever Teams user authentication.
+ * Core password criteria for user authentication.
  */
 export const PASSWORD_CRITERIA: PasswordValidationCriterion[] = [
 	{ regex: /[a-z]/, description: 'At least one lowercase letter' },

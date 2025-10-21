@@ -17,7 +17,7 @@
 		"EXPAND_COLUMN": "توسيع العمود",
 		"EDIT_STATUS": "تعديل الحالة",
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
-		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول Ever Teams.",
+		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "اشترك في النشرة الإخبارية",
 		"VIEW_PROJECT": "عرض المشروع",
 		"SHARE_PROJECT": "مشاركة المشروع",
@@ -1099,7 +1099,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
 			"COPY_RIGHT1": "© {date}-حاضر،",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",
 			"TERMS": "شروط الخدمة",

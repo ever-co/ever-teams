@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Teams",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Allgemein",
@@ -42,7 +42,7 @@
 		"MANAGERS": "Manager",
 		"EDIT_STATUS": "Status bearbeiten",
 		"ADD_TIME_ENTRY": "Zeiteintrag hinzufügen",
-		"OPT_IN_UPDATES": "Abonnieren Sie Updates und Nachrichten zu Ever Teams.",
+		"OPT_IN_UPDATES": "Abonnieren Sie Updates und Nachrichten zu {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Abonnieren Sie unseren Newsletter",
 		"VIEW_PROJECT": "Projekt anzeigen",
 		"SHARE_PROJECT": "Projekt teilen",
@@ -648,7 +648,7 @@
 			"INPUT_INVITE_CODE": "Einladungscode eingeben.",
 			"INPUT_INVITE_CODE_DESC": "Geben Sie den Einladungscode ein, den wir Ihnen per E-Mail geschickt haben.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ungültiger Code",
-			"WELCOME_TEAMS": "Willkommen bei Ever Teams",
+			"WELCOME_TEAMS": "Willkommen bei {appName}",
 			"COVER_TITLE": "Verfolgen Sie den Arbeitsfortschritt Ihrer Teams in Echtzeit!",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Anmelden",
@@ -1091,7 +1091,7 @@
 		"footer": {
 			"RIGHTS_RESERVED": "Alle Rechte vorbehalten.",
 			"COPY_RIGHT1": "© {date}-Gegenwart,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Nutzungsbedingungen",

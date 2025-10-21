@@ -10,6 +10,7 @@ import { ToastAction } from '../common/toast';
 import { toast } from '../../hooks/common/use-toast';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export function SidebarOptInForm() {
 	const t = useTranslations();
@@ -25,7 +26,8 @@ export function SidebarOptInForm() {
 	});
 
 	const subscribe = async () => {
-		const tags = ['Ever Teams, Ever Teams App', 'Open', 'Cloud'];
+		const appName = APP_NAME;
+		const tags = [`${appName}, ${appName} App`, 'Open', 'Cloud'];
 		setLoading((prev) => true);
 		const res = await fetch('/api/subscribe', {
 			body: JSON.stringify({
@@ -49,7 +51,7 @@ export function SidebarOptInForm() {
 			setLoading((prev) => false);
 			toast({
 				title: 'Waiting list registration error',
-				description: `We have encountered a problem ${error} with your registration to our waiting list for Ever Teams`,
+				description: `We have encountered a problem ${error} with your registration to our waiting list for ${APP_NAME}`,
 				variant: 'destructive'
 			});
 			return;
@@ -58,7 +60,7 @@ export function SidebarOptInForm() {
 		setLoading(() => false);
 		toast({
 			title: 'Confirmation of registration on waiting list',
-			description: "Thank you for joining our waiting list! We're delighted you're interested in Ever Teams",
+			description: `Thank you for joining our waiting list! We're delighted you're interested in ${APP_NAME}`,
 			variant: 'default',
 			className: 'bg-green-50 text-green-600 border-green-500',
 			action: <ToastAction altText="Goto Waitlist to undo">Undo</ToastAction>
@@ -72,11 +74,13 @@ export function SidebarOptInForm() {
 
 	return state == 'expanded' ? (
 		<Form {...form}>
-			<Card className="p-1 mt-auto shadow-none bg-light--theme-light dark:bg-dark--theme-light ">
+			<Card className="p-1 mt-auto shadow-none bg-light--theme-light dark:bg-dark--theme-light">
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<CardHeader className="flex flex-col gap-1 p-4 pb-0">
 						<CardTitle className="text-sm font-medium">{t('common.SUBSCRIBE_NEWSLETTER')}</CardTitle>
-						<CardDescription className="text-xs">{t('common.OPT_IN_UPDATES')}</CardDescription>
+						<CardDescription className="text-xs">
+							{t('common.OPT_IN_UPDATES', { appName: APP_NAME })}
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="grid gap-2.5 p-4">
 						<FormField

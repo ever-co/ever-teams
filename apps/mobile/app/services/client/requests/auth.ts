@@ -8,13 +8,14 @@ import {
 } from '../../interfaces/IAuthentication';
 import { IUser } from '../../interfaces/IUserData';
 import { serverFetch } from '../fetch';
+import Config from '../../../config';
 
 const registerDefaultValue = {
-	appName: 'Ever Teams',
-	appSignature: 'Ever Team',
-	appLogo: 'https://app.ever.team/assets/ever-teams.png',
-	appLink: 'https://ever.team/',
-	appEmailConfirmationUrl: 'https://app.gauzy.co/#/auth/confirm-email'
+	appName: Config.branding.appName,
+	appSignature: Config.branding.appName,
+	appLogo: Config.branding.appLogo,
+	appLink: Config.branding.appLink,
+	appEmailConfirmationUrl: Config.branding.appEmailConfirmationUrl
 };
 
 export const registerUserRequest = (data: IRegisterDataRequest) => {

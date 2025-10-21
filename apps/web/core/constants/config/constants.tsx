@@ -173,14 +173,15 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 });
 
 // Branding constants - no fallbacks to detect missing values
-export const APP_NAME = process.env.APP_NAME || '';
-export const APP_SIGNATURE = process.env.APP_SIGNATURE || '';
-export const APP_LOGO_URL = process.env.APP_LOGO_URL || '';
-export const APP_LINK = process.env.APP_LINK || '';
-export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || '';
+export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
+export const SITE_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE || 'Open Work and Project Management Platform';
+export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
+export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
+export const APP_LINK = process.env.APP_LINK || 'https://app.ever.team';
+export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
 
-export const COMPANY_NAME = process.env.COMPANY_NAME || '';
-export const COMPANY_LINK = process.env.COMPANY_LINK || '';
+export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
+export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
 
 // Utility to detect missing branding variables
 export const getMissingBrandingVars = () => {
